@@ -1,0 +1,94 @@
+%% Image width
+\newlength{\imagewidth}
+\newlength{\imagescale}
+
+%% Line numbers
+\linespread{1.2}
+\linenumbers
+
+% Define colors with transparency (opacity value)
+\definecolor{GreenBG}{rgb}{0,1,0}
+\definecolor{RedBG}{rgb}{1,0,0}
+% Define tcolorbox environments for highlighting
+\newtcbox{\greenhighlight}[1][]{%
+  on line,
+  colframe=GreenBG,
+  colback=GreenBG!50!white, % 50% transparent green
+  boxrule=0pt,
+  arc=0pt,
+  boxsep=0pt,
+  left=1pt,
+  right=1pt,
+  top=2pt,
+  bottom=2pt,
+  tcbox raise base
+}
+\newtcbox{\redhighlight}[1][]{%
+  on line,
+  colframe=RedBG,
+  colback=RedBG!50!white, % 50% transparent red
+  boxrule=0pt,
+  arc=0pt,
+  boxsep=0pt,
+  left=1pt,
+  right=1pt,
+  top=2pt,
+  bottom=2pt,
+  tcbox raise base
+}
+\newcommand{\REDSTARTS}{\color{red}}
+\newcommand{\REDENDS}{\color{black}}
+\newcommand{\GREENSTARTS}{\color{green}}
+\newcommand{\GREENENDS}{\color{black}}
+
+% New command to read word counts
+\newread\wordcount
+\newcommand\readwordcount[1]{%
+  \openin\wordcount=#1
+  \read\wordcount to \thewordcount
+  \closein\wordcount
+  \thewordcount
+}
+
+\newcommand{\hl}[1]{\colorbox{yellow}{#1}}
+
+%% Reference
+\usepackage{refcount}
+
+
+%% \let\oldref\ref
+%% \renewcommand{\ref}[1]{%
+%%   \ifnum\getrefnumber{#1}=0
+%%     \sethlcolor{yellow}\hl{??}%
+%%   \else
+%%     \oldref{#1}%
+%%   \fi
+%% }
+
+\let\oldref\ref
+\newcommand{\hlref}[1]{%
+  \ifnum\getrefnumber{#1}=0
+    \hl{\ref*{#1}}%
+    %% \sethlcolor{yellow}\hl{\ref*{#1}}%    
+  \else
+    \ref{#1}%
+  \fi
+}
+
+% To add an 'S' prefix to a reference
+\newcommand*\sref[1]{%
+    S\hlref{#1}}
+ 
+% For 'Supplementary Figure S1'
+\newcommand*\sfref[1]{%
+    Supplementary Figure S\hlref{#1}}
+ 
+% For 'Supplementary Table S1'
+\newcommand*\stref[1]{%
+    Supplementary Table S\hlref{#1}}
+ 
+% For 'Supplementary Materials S1'
+\newcommand*\smref[1]{%
+    Supplementary Materials S\hlref{#1}}
+
+
