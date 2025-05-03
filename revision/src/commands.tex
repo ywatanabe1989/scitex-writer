@@ -1,0 +1,106 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Custom
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Colors
+\definecolor{editor_color}{rgb}{0.35, 0.35, 0.35}
+\definecolor{reviewer1_color}{rgb}{0.35, 0.35, 0.35}
+\definecolor{reviewer2_color}{rgb}{0.35, 0.35, 0.35}
+\definecolor{author_color}{rgb}{0., 0., 1.}
+% \definecolor{author_color}{rgb}{0., 0.5, 0.75} % 8939 blue
+% \definecolor{revision_color}{rgb}{0.5, 0.0, 0.5} % purple
+\definecolor{revision_color}{rgb}{0., 0., 1.}
+% \definecolor{added_color}{rgb}{0., 0.5, .75} % 8939 blue
+% \definecolor{added_color}{rgb}{0.078, 0.703, 0.078} % 8939 green
+\definecolor{added_color}{rgb}{0., 0.5, 0.} % 8939 green
+% \definecolor{added_color}{rgb}{0., 1., 0.} % green
+% \definecolor{deleted_color}{rgb}{255/256, 70/256, 50/256}
+\definecolor{deleted_color}{rgb}{1., .273, .195}
+
+
+% \definecolor{revision_color}{rgb}{0., 0., 1.}
+\definecolor{highlighter_color}{rgb}{0.9, 0.63, 0.08}
+
+
+% Section headings
+\titleformat{\section}
+{\normalfont\normalsize\bfseries}
+{\thesection}{1em}{}
+
+% Define comment counters
+\newcounter{EditorCounter}
+\newcounter{RevOneCounter}
+\newcounter{RevTwoCounter}
+
+% Color commands
+\newcommand{\editorText}[1]{
+  \textit{\textcolor{editor_color}{#1}}
+}
+
+\newcommand{\authorText}[1]{
+  \textcolor{author_color}{#1}
+}
+
+\newcommand{\revisionText}[1]{
+  \textcolor{revision_color}{#1}
+}
+
+% Editor's and Reviewers' comments
+\newcommand{\editorComment}[1]{
+  \stepcounter{EditorCounter}
+  \pdfbookmark[2]{Comments \#\theEditorCounter}{editor-comment-\theEditorCounter}
+  \subsection*{Dr. Rivolta's Comments \#\theEditorCounter}
+  \textit{\textcolor{editor_color}{#1}}
+}
+
+\newcommand{\revOneComment}[1]{
+  \stepcounter{RevOneCounter}
+  \pdfbookmark[2]{Comments \#\theRevOneCounter}{reviewer-1-comment-\theRevOneCounter}
+  \subsection*{Reviewer \#1's Comments \#\theRevOneCounter}
+  \textit{\textcolor{reviewer1_color}{#1}}
+}
+
+\newcommand{\revTwoComment}[1]{
+  \stepcounter{RevTwoCounter}
+  \pdfbookmark[2]{Comments \#\theRevTwoCounter}{reviewer-2-comment-\theRevTwoCounter}
+  \subsection*{Reviewer \#2's Comments \#\theRevTwoCounter}
+  \textit{\textcolor{reviewer1_color}{#1}}
+}
+
+% Our comments
+\newcommand{\resEditor}[1]{
+  \subsection*{\textcolor{author_color}{Response}}
+}
+
+
+\newcommand{\resRevOne}[1]{
+  \subsection*{\textcolor{author_color}{Response}}
+  % \textcolor{author_color}{#1}
+}
+
+\newcommand{\resRevTwo}[1]{
+  \subsection*{\textcolor{author_color}{Response}}
+  % \textcolor{author_color}{#1}
+}
+
+% Our comments
+\newcommand{\revEditor}[1]{
+  \subsection*{\textcolor{revision_color}{Revision}}
+}
+
+
+\newcommand{\revRevOne}[1]{
+  \subsection*{\textcolor{revision_color}{Revision}}
+}
+
+\newcommand{\revRevTwo}[1]{
+  \subsection*{\textcolor{revision_color}{Revision}}
+}
+
+
+\newcommand{\revise}[1]{
+  \colorbox{yellow}{\parbox{\linewidth}{#1}}
+}
+
+\newcommand{\hlurl}[1]{%
+  \colorbox{yellow}{\href{#1}{\nolinkurl{#1}}}%
+}
