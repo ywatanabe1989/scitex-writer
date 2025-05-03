@@ -1,0 +1,56 @@
+% ./revision.pdf
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% SETTINGS
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\input{./src/styles/columns}
+\input{./src/styles/packages}
+\input{./src/styles/formatting}
+
+\input{./src/packages}
+\input{./src/commands}
+\input{./src/commands_diff}
+
+\begin{document}
+
+% Title
+\input{./src/title}
+
+% Introduction
+\input{./src/introduction}
+
+
+% Editor
+\pdfbookmark[1]{Editor}{editor}
+
+\input{./src/editor/01/comments}
+\input{./src/editor/01/response}
+
+
+
+% Reviwer #1
+\pdfbookmark[1]{Reviewer \#1}{reviewer1}
+
+\input{./src/reviewer1/01/comments}
+\input{./src/reviewer1/01/response}
+% \input{./src/reviewer1/01/revision}
+
+\input{./src/reviewer1/02/comments}
+\input{./src/reviewer1/02/response}
+\input{./src/reviewer1/02/revision}
+
+% Reviwer #2
+\pdfbookmark[1]{Reviewer \#2}{reviewer2}
+\input{./src/reviewer2/01/comments}
+\input{./src/reviewer2/01/response}
+
+\input{./src/reviewer2/02/comments}
+
+% Conclusion
+\input{./src/conclusion}
+
+\newpage
+\input{./src/references}
+
+
+
+\end{document}
