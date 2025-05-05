@@ -1,8 +1,8 @@
 # SciTex Project Progress
 
-## Overall Progress: 95%
+## Overall Progress: 97%
 
-This document tracks the progress of the SciTex project's development.
+This document tracks the progress of the SciTex project's development, last updated on 2025-05-05.
 
 ## Repository Structure and Analysis: 100%
 
@@ -69,10 +69,23 @@ This document tracks the progress of the SciTex project's development.
 
 ## Documentation: 100%
 
-- [x] Created LLM usage guide (LLM_USAGE.md)
+- [x] Created comprehensive LLM usage guide (USAGE_FOR_LLM.md)
+- [x] Created project plan document (PLAN.md)
+- [x] Updated progress tracking documentation
 - [x] Documented module APIs
 - [x] Added comprehensive docstrings
 - [x] Created examples
+- [x] Improved figure/table handling documentation
+
+## Figure/Table Handling: 85%
+
+- [x] Implemented figure conversion pipeline (PowerPoint to TIF)
+- [x] Created figure cropping functionality
+- [x] Implemented figure compilation process
+- [x] Established naming conventions for figures and tables
+- [x] Created comprehensive documentation for figure/table usage
+- [ ] Enhance table formatting options for specialized tables
+- [ ] Add support for more figure formats beyond PowerPoint and TIF
 
 ## CI/CD Setup: 100%
 
@@ -82,9 +95,9 @@ This document tracks the progress of the SciTex project's development.
   - [x] Linting workflow
 - [x] Added badges to README.md
 
-## Pending Items: Figure/Table Handling Improvements
+## Pending Items: Future Enhancements
 
-- [ ] Improve figure cropping functionality
-- [ ] Enhance table formatting options
-- [ ] Optimize figure conversion process
-- [ ] Add support for more figure formats
+- [ ] Implement literature review functionality
+- [ ] Create self-descriptive example manuscript
+- [ ] Prepare requirements.txt file based on the Python environment
+- [ ] Expand documentation in README.md files in other directories

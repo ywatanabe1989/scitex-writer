@@ -7,6 +7,8 @@ graph TD
     A --> G[Code Refactoring]
     A --> H[Testing]
     A --> I[Documentation]
+    A --> J[Figure & Table Handling]
+    A --> K[Future Enhancements]
     
     %% Repository Structure
     B --> B1[Manuscript]
@@ -56,7 +58,23 @@ graph TD
     %% Documentation
     I --> I1[LLM Usage Guide]
     I --> I2[API Documentation]
-    I --> I3[Examples]
+    I --> I3[Project Plan]
+    I --> I4[Progress Tracking]
+    I --> I5[Figure/Table Documentation]
+    
+    %% Figure & Table Handling
+    J --> J1[Figure Conversion Pipeline]
+    J --> J2[Figure Cropping]
+    J --> J3[Figure Compilation]
+    J --> J4[Naming Conventions]
+    J --> J5[Enhanced Table Options]
+    J --> J6[Additional Format Support]
+    
+    %% Future Enhancements
+    K --> K1[Literature Review]
+    K --> K2[Example Manuscript]
+    K --> K3[Requirements File]
+    K --> K4[Directory READMEs]
     
     %% Styling
     classDef complete fill:#9f9,stroke:#484,stroke-width:2px;
@@ -64,4 +82,8 @@ graph TD
     classDef pending fill:#f99,stroke:#844,stroke-width:2px;
     
     %% Mark nodes as complete
-    class B,B1,B2,B3,C,C1,C2,C3,C4,C5,C6,D,D1,D2,D3,E,E1,E2,E3,F,F1,F2,F3,F4,F5,G,G1,G2,G3,G4,G5,G6,G7,H,H1,H2,H3,H4,I,I1,I2,I3 complete;
+    class B,B1,B2,B3,C,C1,C2,C3,C4,C5,C6,D,D1,D2,D3,E,E1,E2,E3,F,F1,F2,F3,F4,F5,G,G1,G2,G3,G4,G5,G6,G7,H,H1,H2,H3,H4,I,I1,I2,I3,I4,I5,J1,J2,J3,J4 complete;
+    %% Mark nodes as in progress
+    
+    %% Mark nodes as pending
+    class J5,J6,K1,K2,K3,K4 pending;
