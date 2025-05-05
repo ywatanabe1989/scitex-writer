@@ -1,113 +1,14 @@
 <!-- ---
-!-- Timestamp: 2025-05-05 13:00:27
+!-- Timestamp: 2025-05-06 08:43:32
 !-- Author: ywatanabe
-!-- File: /home/ywatanabe/proj/SciTex/docs/TO_CLAUDE.md
+!-- File: /home/ywatanabe/proj/prompt_factory/CUSTOM_PYTHON_MNGS.md
 !-- --- -->
 
-# Requests to Claude Code Agent
 
-#### General Requests
+# MNGS-based Python Rule
+#### `./.env`
+- Python env can be created by `$HOME/.bin/python/python_init_with_local_mngs.sh`
 
-- [ ] DO NEVER CHANGE THIS FILE ITSELF
-- [ ] Understand the repository
-- [ ] Periodically check this file and review the project to find room for improvement
-
-#### Package Manager
-- [ ] Use `apt` to install/uninstall packages without sudo privilege
-
-#### Documentation Rule
-- [ ] Implement usage of the repository itself especially for other users and LLM agents
-  - [ ] `./docs/USAGE_FOR_LLM.md.md`
-  - [ ] Update README.md files in important directories
-
-#### Plan Rule
-- [ ] Create and update `./docs/PLAN.md` as the project advances
-  - [ ] Include `## Goals` and `## Milestones` sections
-  - [ ] If we need to change original plan, revise the contents
-
-#### Progress Rule
-- [ ] Regularly update progress
-  - [ ] Implement mermaid file: `./docs/progress/progress.mmd` in the `TD` Format
-    - [ ] Use `mermaid-cli` and render as `./docs/progress/progress.png`
-  - [ ] `./docs/progress/progress.md`
-
-#### Structure Rule
-- [ ] Update Structure
-  - [ ] `./docs/structure/structure.mmd` -> `./docs/structure/structure.png`
-    - [ ] Use `mermaid-cli` and render as `./docs/structure/structure.png`
-  - [ ] `./docs/structure/structure.md`
-
-#### Test Rule
-- [ ] Implement test code, revising these files to follow the nature of the project
-  - [ ] `./run_tests.sh`
-  - [ ] `./tests/sync_tests_with_source.sh`
-  - [ ] `./tests`
-  - [ ] `./.github/workflows/xxx.yml`
-
-#### Example Rule
-- [ ] Implement `./examples`
-
-#### Escalation Rule
-- [ ] Create `./docs/TROUBLE_REPORTS.md` and append encounters problems for future refinement
-
-#### Keep Clean and Tidy Project
-- [ ] Project structure, file/variable names, and code must be clean as you are professional
-- [ ] Keep repository clean
-  - [ ] Move unnecessary files like this:
-      - [ ] `/path/to/unnecessary/file.ext`
-      - [ ] `/path/to/unnecessary/.old/file-TIMESTAMP.ext`
-- [ ] Refactor the codebase all the time
-  - [ ] Functional code must be beautiful
-  - [ ] Keep it simple, stupid
-  - [ ] Do not repeat yourself
-
-#### Python Rule
-- [ ] Python env can be created by `$ python_init_with_local_mngs.sh` as `./.env`
-- [ ] Do not forget `$ source ./.env/bin/activate`
-
-#### Git Rule
-- [ ] Use git/gh commands
-  - [ ] `$ git_init` inializes local and remote repositories using the name of the directory
-    - [ ] Also, it automatically switches to develop, which you are expected to work on
-    - [ ] For feature addition, create branch `feature/xxx` and merge into `develop` after completion
-    - [ ] 
-- [ ] `git_add_gitignore_template` automatically add my custom `.gitignore` in the current repository
-
-#### Path Rule
-- [ ] Always use relative path, starting with dots, like "./relative/example.py" or "../relative/example.txt"
-  - [ ] This is important to make the repository portable
-  - [ ] Scripts are assumed to be executed from the project root (e.g., ./scripts/example.sh)
-
-#### Reuse Rule
-- Do Not Repeat Yourself
-  - Use symbolic links wisely
-  - Especially large data must be clearly organized and reused
-  - Independent modules, such as functions and classes, should be saved in a reusable manner
-    - You might want to create utils directory under scripts: `./scripts/utils/awesome_func.py`
-    - Then, for example, `from scripts.utils.awesome_func import awesome_func` from multiple files
-
-#### Configuration Rule
-- Configuration files should be stored under `./config` in YAML format (e.g., `./config/PATH.yaml`)
-- In Python scripts, the `CONFIG` variable stores all YAML files contents as a dot-accessible dictionary
-  - `import mngs; CONFIG = mngs.io.load_configs()`
-- f-string are acceptable in config YAML files
-  - In Python, `eval(CONFIG.VARIABLE.WITH.F.EXPRESSION)` works to fill variables
-  - Also, f-string are utilized in a custom manner
-    - For example, the following line will be used to search and glob data for patient at specific datetime:
-      f"./data/mat/Patient_{patient_id}/Data_{year}_{month}_{day}/Hour_{hour}/UTC_{hour}_{minute}_00.mat"
-
-#### Data Rule
-- Centralize data files or symbolic links under `./data`
-  - This is the place to locate large files (.npy, .csv, .jpg, and .pth data)
-    - However, the outputs of a script should be located close to the script
-      - e.g., `./scripts/example.py_out/output.jpg`
-    - Then, symlinked to `./data` directory
-      - e.g., `./scripts/example.py_out/data/output.jpg` -> `./data/output.jpg`
-  - This is useful to link scripts and outputs, while keeping centralized data directory structure
-  - Large files under `./scripts` and `./data` are git-ignored
-    - Symbolic links are tracked by git to show structure
-
-#### MNGS-based Python scripting Rule
 - For python scripts, ensure to follow this MNGS FORMAT:
   ``` python
   #!/usr/bin/env python3
@@ -297,21 +198,5 @@
 - Use `tqdm` for iteractions to show progress
 
 - If errors or issues found in previous rounds, fix them
-
-
-## Project-specific Requests
-- [ ] Improve figure/table handling
-  - [ ] Improve documentation for how to link figures and tables when compilation
-  - [ ] Where to place
-  - [ ] How file names allocated
-  - [ ] How to reference in manuscript files:
-    - [ ]  `./manuscript/src/{introduction.tex,methods.tex,results.tex,discussion.tex}`
-- [ ] Prepare `./requirements.txt` if necessary upon the `./.env`
-- [ ] Imprement an example manuscript as a self-descriptive template
-- [ ] Imprement an functionality "literature review"
-  - [ ] Add pdf files under `./docs/literature`
-  - [ ] Update `./manuscript/src/bibliography.bib`
-  - [ ] Find the gap to fill
-- [ ] Understand the LaTeX compilation scripts under `./scripts/`
 
 <!-- EOF -->
