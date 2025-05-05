@@ -1,0 +1,53 @@
+%% -*- coding: utf-8 -*-
+%% Timestamp: "2025-05-05 12:55:00 (ywatanabe)"
+%% File: "/home/ywatanabe/proj/SciTex/manuscript/src/figures/src/Figure_ID_03_figure_pipeline.tex"
+
+% This is an example figure showing the figure processing pipeline.
+% It demonstrates how to create a sequential flow diagram.
+
+\begin{figure}[ht!]
+    \centering
+    
+    % Create a pipeline diagram using TikZ
+    \begin{tikzpicture}[
+        process/.style={rectangle, draw, fill=yellow!20, 
+                     text width=2.5cm, text centered, rounded corners, minimum height=1cm},
+        io/.style={trapezium, trapezium left angle=70, trapezium right angle=110, 
+                  draw, fill=blue!20, text width=2.5cm, text centered, minimum height=1cm},
+        arrow/.style={draw, -latex, thick},
+        node distance=2cm
+    ]
+    
+    % Define the nodes/steps in the pipeline
+    \node[io] (powerpoint) {PowerPoint Slides};
+    \node[process, right=of powerpoint] (convert) {Convert to TIF};
+    \node[process, right=of convert] (crop) {Auto-crop Whitespace};
+    \node[process, right=of crop] (wrap) {Generate LaTeX Wrapper};
+    \node[io, right=of wrap] (output) {Final Figure};
+    
+    % Optional processes below main flow
+    \node[process, below=1cm of convert] (resolution) {Adjust Resolution};
+    \node[process, below=1cm of crop] (manual) {Manual Adjustments};
+    \node[process, below=1cm of wrap] (metadata) {Add Metadata};
+    
+    % Connect the nodes with arrows
+    \draw[arrow] (powerpoint) -- (convert);
+    \draw[arrow] (convert) -- (crop);
+    \draw[arrow] (crop) -- (wrap);
+    \draw[arrow] (wrap) -- (output);
+    
+    % Optional paths
+    \draw[arrow, dashed] (convert) -- (resolution);
+    \draw[arrow, dashed] (resolution) -| (crop);
+    \draw[arrow, dashed] (crop) -- (manual);
+    \draw[arrow, dashed] (manual) -| (wrap);
+    \draw[arrow, dashed] (wrap) -- (metadata);
+    \draw[arrow, dashed] (metadata) -| (output);
+    
+    \end{tikzpicture}
+    
+    \caption{\textbf{SciTex figure processing pipeline.} The diagram illustrates the automated workflow for processing figures in SciTex, from PowerPoint slides to final LaTeX-ready images. Solid lines indicate the standard pipeline, while dashed lines show optional processing steps. This pipeline ensures consistent figure quality and formatting throughout the manuscript.}
+    \label{fig:figure-pipeline}
+\end{figure}
+
+%%%% EOF

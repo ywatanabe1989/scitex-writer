@@ -1,18 +1,24 @@
 %% -*- coding: utf-8 -*-
-%% Timestamp: "2025-05-04 08:33:31 (ywatanabe)"
+%% Timestamp: "2025-05-05 12:40:00 (ywatanabe)"
 %% File: "/home/ywatanabe/proj/SciTex/manuscript/src/authors.tex"
-%% -*- mode: latex -*-
-%% Time-stamp: "2024-11-06 09:12:17 (ywatanabe)"
-%% File: ./torchPAC/paper/manuscript/src/authors.tex
 
-\author[1,2]{Yusuke Watanabe}
-\author[1,3]{Takufumi Yanagisawa}
+% This demonstrates how to format author information in a scientific paper
+% using the Elsevier template style
 
-%% \corref{cor1}
-\address[1]{Institute for Advanced Cocreation studies, Osaka University, 2-2 Yamadaoka, Suita, 565-0871, Osaka, Japan}
+\author[1,2]{Yusuke Watanabe\corref{cor1}}
+\author[3]{Jane Smith}
+\author[4]{John Doe}
+\author[1,5]{Alex Johnson}
+
+% The \corref command marks an author as corresponding author
+\corref{cor1}
+\address[1]{Institute for Advanced Cocreation Studies, Osaka University, 2-2 Yamadaoka, Suita, 565-0871, Osaka, Japan}
 \address[2]{NeuroEngineering Research Laboratory, Department of Biomedical Engineering, The University of Melbourne, Parkville VIC 3010, Australia}
-\address[3]{Department of Neurosurgery, Osaka University Graduate School of Medicine, 2-2 Yamadaoka, Osaka, 565-0871, Japan}
+\address[3]{Department of Computer Science, Stanford University, Stanford, CA 94305, USA}
+\address[4]{Digital Humanities Center, University of Oxford, Oxford OX1 2JD, UK}
+\address[5]{Center for Scientific Document Analysis, National Institute of Informatics, Tokyo 101-8430, Japan}
 
-%% \cortext[cor1]{Corresponding author. Tel: +XX-X-XXXX-XXXX Email: ywatanabe@alumni.u-tokyo.ac.jp}
+% The \cortext command adds the corresponding author information
+\cortext[cor1]{Corresponding author. Tel: +81-6-6879-7675, Email: ywatanabe@alumni.u-tokyo.ac.jp}
 
 %%%% EOF
