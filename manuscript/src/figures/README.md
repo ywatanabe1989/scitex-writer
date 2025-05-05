@@ -1,140 +1,100 @@
-# Figure Management
+# Figure Management in SciTex
 
-This directory contains all figure-related files for the manuscript.
+This directory contains all figure-related files for the manuscript. SciTex uses a structured approach to manage figures efficiently.
 
 ## Directory Structure
 
-- `compiled/`: Contains compiled .tex files for each figure.
+- `compiled/`: Contains compiled LaTeX files for each figure, automatically generated during compilation.
 - `src/`: Source directory for figure files.
-  - Place .tex (legend-dedicated files) and .tif files here.
-  - `jpg/`: Contains JPEG versions of figures.
+  - Place your `.tif` image files here.
+  - For each image, create a matching `.tex` caption file with the same name.
+  - `jpg/`: Contains JPEG versions of figures (auto-generated).
 - `templates/`: Templates for figure creation.
-- `workspace/`: Working directory for figure development.
+- `workspace/`: Working directory for figure development (optional).
 
-## Usage
+## Naming Conventions
 
-1. Prepare .tex (legend-dedicated files) and .tif files in the `src` directory.
-2. The compilation process will generate necessary files in the `compiled` directory.
-3. JPEG versions of figures will be automatically created in `src/jpg/`.
+All figures must follow this naming pattern:
 
-## Note
+```
+Figure_ID_XX_descriptive_name.[tif|tex]
+```
 
-Symlinks in the `src` directory point to files in the `workspace` subdirectories.
+Where:
+- `Figure_ID` is the fixed prefix
+- `XX` is a two-digit figure number (e.g., 01, 02)
+- `descriptive_name` is an optional descriptive name (e.g., workflow, architecture)
+- The extension is either `.tif` (for image files) or `.tex` (for caption files)
 
-For any changes or additions to figures, work in the appropriate `workspace` subdirectory and update the files in `src` accordingly.
+**Important**: The figure number (`XX`) is used to generate LaTeX reference labels in the format `\label{fig:XX}`.
+
+## Quick Start Guide
+
+### Creating a Figure
+
+1. **Prepare your figure**:
+   - Create your figure in PowerPoint or your preferred graphics software
+   - Save as TIF file with 300 DPI resolution
+
+2. **Add to SciTex**:
+   - Place the TIF file in the `src/` directory
+   - Create a caption file with the same name but `.tex` extension
+   - Use the template from `templates/` directory
+
+3. **Caption Template**:
+   ```latex
+   \caption{\textbf{
+   FIGURE TITLE HERE
+   }
+   \smallskip
+   \\
+   FIGURE LEGEND HERE.
+   }
+   % width=1\textwidth
+   ```
+
+### PowerPoint to TIF Conversion
+
+You can convert PowerPoint slides to TIF format using:
+
+```bash
+# From the manuscript directory
+./compile -p2t
+```
+
+### Referencing Figures
+
+To reference figures in your manuscript text, use:
+
+```latex
+Figure~\ref{fig:XX}
+```
+
+Where `XX` is the ID number from the figure filename (e.g., `Figure~\ref{fig:01}` for `Figure_ID_01_workflow.tif`).
 
 ## Example Structure
 
 ```
-.
-├── compiled
-│   ├── Figure_ID_01.tex
-│   ├── Figure_ID_02.tex
-│   ├── Figure_ID_03.tex
-│   ├── Figure_ID_04.tex
-│   ├── Figure_ID_05.tex
-│   ├── Figure_ID_rank_dist.tex
-│   └── Figure_ID_svc.tex
-├── README.md
-├── src
-│   ├── Figure_ID_01.tex
-│   ├── Figure_ID_01.tif
-│   ├── Figure_ID_02.tex
-│   ├── Figure_ID_02.tif
-│   ├── Figure_ID_03.tex
-│   ├── Figure_ID_03.tif
-│   ├── Figure_ID_04.tex
-│   ├── Figure_ID_04.tif
-│   ├── Figure_ID_05.tex
-│   ├── Figure_ID_05.tif
-│   ├── Figure_ID_rank_dist.pptx -> ../workspace/08_rank_dist_KDE/Figure_08.pptx
-│   ├── Figure_ID_rank_dist.tex
-│   ├── Figure_ID_rank_dist.tif -> ../workspace/08_rank_dist_KDE/Figure_08.tif
-│   ├── Figure_ID_svc.tex
-│   ├── Figure_ID_svc.tif -> ../workspace/09_SVC/Figure_ID_svc.tif
-│   └── jpg
-│       ├── Figure_ID_01.jpg
-│       ├── Figure_ID_02.jpg
-│       ├── Figure_ID_03.jpg
-│       ├── Figure_ID_04.jpg
-│       ├── Figure_ID_05.jpg
-│       ├── _Figure_ID_07.jpg
-│       ├── Figure_ID_07.jpg
-│       ├── Figure_ID_rank_dist.jpg
-│       └── Figure_ID_svc.jpg
-├── templates
-│   ├── z_Figure_XX.jnt
-│   └── z_Figure_XX.pptx
-└── workspace
-    ├── 01
-    │   ├── ABC
-    │   ├── DEF
-    │   ├── Figure_01.pptx
-    │   ├── Figure_01.tif
-    │   ├── Figure_ID_01.pptx
-    │   └── old
-    ├── 02
-    │   ├── A
-    │   ├── _B
-    │   ├── B
-    │   ├── C
-    │   ├── DE
-    │   ├── Figure_02.pptx
-    │   ├── Figure_02.tif
-    │   ├── Figure_ID_02.pptx
-    │   └── old
-    ├── 03
-    │   ├── AB
-    │   ├── C
-    │   ├── D
-    │   ├── Figure_03.pptx
-    │   ├── Figure_03.tif
-    │   ├── Figure_ID_03.pptx
-    │   ├── linear_regression_corr_100.tif
-    │   ├── medians.xlsx
-    │   └── old
-    ├── 04
-    │   ├── ACE
-    │   ├── D
-    │   ├── Figure_04.pptx
-    │   ├── Figure_04.tif
-    │   ├── Figure_ID_04.pptx
-    │   └── old
-    ├── 05
-    │   ├── box
-    │   ├── Figure_05A.JNB
-    │   ├── Figure_05.pptx
-    │   ├── Figure_05.tif
-    │   ├── Figure_ID_05.pptx
-    │   ├── line
-    │   ├── old
-    │   ├── _peri_SWR_dist_from_P_old_range_of_pre, mid, and post SWR.csv
-    │   ├── _peri_SWR_dist_from_P_old_range_of_pre, mid, and post SWR.csv:com.dropbox.attrs
-    │   └── _peri_SWR_dist_from_P_old_range_of_pre, mid, and post SWR.csv:Zone.Identifier
-    ├── 06
-    │   ├── Figure_06.JNB
-    │   ├── Figure_06.pptx
-    │   ├── Figure_06.tif
-    │   ├── Figure_ID_06.pptx
-    │   ├── old
-    │   ├── _peri_SWR_pos_around_gE_and_gR
-    │   ├── __peri_SWR_pos_around_gE_and_gR_new
-    │   ├── _peri_SWR_pos_around_gE_and_gR_new
-    │   ├── peri_SWR_pos_around_gE_and_gR_new
-    │   └── peri_SWR_pos_around_gE_and_gR_old_range_of_pre, mid, post difinitions
-    ├── 07
-    │   ├── box
-    │   ├── Figure_07.pptx
-    │   ├── Figure_07.tif
-    │   ├── Figure_08.pptx
-    │   ├── Figure_ID_07.pptx
-    │   ├── old
-    │   ├── polar
-    │   ├── scatter
-    │   ├── SWR_direction_in_the_eSWR_direction
-    │   └── SWR_directions_based_on_gE_and_gR
-    ├── 08_rank_dist_KDE
-    │   ├── ~$Figure_08.pptx
-    │   ├── Figure_08.jnb
-    │   ├── Figure_08_KDE_2024-09-29_17-23-39.jnb
+figures/
+├── compiled/
+│   └── Figure_ID_01_workflow.tex    # Auto-generated during compilation
+├── src/
+│   ├── Figure_ID_01_workflow.tex    # Caption file
+│   ├── Figure_ID_01_workflow.tif    # Image file
+│   ├── jpg/
+│       └── Figure_ID_01_workflow.jpg # Auto-generated preview
+├── templates/
+│   └── z_Figure_XX.jnt
+└── workspace/                      # Optional working directory
+    └── 01_workflow/
+        ├── Figure_01.pptx
+        └── source_files/
+```
+
+## For More Information
+
+See the comprehensive figure and table management guide in the documentation:
+
+```
+/docs/FIGURE_TABLE_GUIDE.md
 ```

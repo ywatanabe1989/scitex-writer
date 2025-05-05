@@ -1,0 +1,152 @@
+graph TD
+    A[SciTex Project] --> B[manuscript]
+    A --> C[revision]
+    A --> D[supplementary]
+    A --> E[scripts]
+    A --> F[docs]
+    A --> G[examples]
+    A --> H[tests]
+
+    %% Manuscript section
+    B --> B1[main.tex]
+    B --> B2[src]
+    B --> B3[scripts]
+    
+    %% Manuscript src subsection
+    B2 --> B2_1[LaTeX files]
+    B2_1 --> B2_1_1[introduction.tex]
+    B2_1 --> B2_1_2[methods.tex]
+    B2_1 --> B2_1_3[results.tex]
+    B2_1 --> B2_1_4[discussion.tex]
+    B2_1 --> B2_1_5[abstract.tex]
+    B2 --> B2_2[figures]
+    B2_2 --> B2_2_1[src]
+    B2_2 --> B2_2_2[compiled]
+    B2_2 --> B2_2_3[templates]
+    B2 --> B2_3[tables]
+    B2_3 --> B2_3_1[src]
+    B2_3 --> B2_3_2[compiled]
+    B2 --> B2_4[styles]
+    B2 --> B2_5[bibliography.bib]
+    
+    %% Manuscript scripts subsection
+    B3 --> B3_1[Python scripts]
+    B3 --> B3_2[Shell scripts]
+    
+    %% Python scripts detail
+    B3_1 --> B3_1_1[scitex.py]
+    B3_1 --> B3_1_2[revise.py]
+    B3_1 --> B3_1_3[insert_citations.py]
+    B3_1 --> B3_1_4[check_terms.py]
+    B3_1 --> B3_1_5[gpt_client.py]
+    B3_1 --> B3_1_6[file_utils.py]
+    B3_1 --> B3_1_7[config.py]
+    B3_1 --> B3_1_8[prompt_loader.py]
+    B3_1 --> B3_1_9[crop_tif.py]
+    B3_1 --> B3_1_10[templates]
+    B3_1 --> B3_1_11[tests]
+    
+    %% Tests detail
+    B3_1_11 --> B3_1_11_1[unit]
+    B3_1_11 --> B3_1_11_2[integration]
+    B3_1_11 --> B3_1_11_3[fixtures]
+    
+    %% Shell scripts detail
+    B3_2 --> B3_2_1[compile.sh]
+    B3_2 --> B3_2_2[revise.sh]
+    B3_2 --> B3_2_3[insert_citations.sh]
+    B3_2 --> B3_2_4[run_tests.sh]
+    B3_2 --> B3_2_5[modules]
+    
+    %% Shell modules detail
+    B3_2_5 --> B3_2_5_1[config.sh]
+    B3_2_5 --> B3_2_5_2[compile_main_tex.sh]
+    B3_2_5 --> B3_2_5_3[check_terms.sh]
+    B3_2_5 --> B3_2_5_4[process_figures.sh]
+    B3_2_5 --> B3_2_5_5[process_tables.sh]
+    B3_2_5 --> B3_2_5_6[pptx2tif.sh]
+    B3_2_5 --> B3_2_5_7[custom_tree.sh]
+    B3_2_5 --> B3_2_5_8[versioning.sh]
+    
+    %% Revision section
+    C --> C1[main.tex]
+    C --> C2[src]
+    C --> C3[scripts]
+    
+    %% Revision src subsection
+    C2 --> C2_1[reviewer1]
+    C2 --> C2_2[reviewer2]
+    C2 --> C2_3[editor]
+    C2 --> C2_4[commands.tex]
+    
+    %% Reviewer subsection
+    C2_1 --> C2_1_1[comments.tex]
+    C2_1 --> C2_1_2[response.tex]
+    C2_1 --> C2_1_3[revision.tex]
+    
+    %% Supplementary section
+    D --> D1[main.tex]
+    D --> D2[src]
+    D --> D3[scripts]
+    
+    %% Supplementary src subsection
+    D2 --> D2_1[LaTeX source files]
+    D2 --> D2_2[figures]
+    D2 --> D2_3[tables]
+    
+    %% Root scripts section
+    E --> E1[compile-all.sh]
+    E --> E2[compile-manuscript.sh]
+    E --> E3[compile-revision.sh]
+    E --> E4[compile-supplementary.sh]
+    E --> E5[run_tests.sh]
+    
+    %% Docs section
+    F --> F1[progress]
+    F --> F2[structure]
+    F --> F3[USAGE_FOR_LLM.md]
+    F --> F4[PLAN.md]
+    F --> F5[TO_CLAUDE.md]
+    
+    %% Progress docs
+    F1 --> F1_1[progress.md]
+    F1 --> F1_2[progress.mmd]
+    F1 --> F1_3[progress.png]
+    
+    %% Structure docs
+    F2 --> F2_1[structure.md]
+    F2 --> F2_2[structure.mmd]
+    F2 --> F2_3[structure.png]
+    
+    %% Examples section
+    G --> G1[README.md]
+    G --> G2[basic_revision.py]
+    G --> G3[check_terms.py]
+    G --> G4[insert_citations.py]
+    G --> G5[complete_workflow.sh]
+    G --> G6[using_python_api.py]
+    
+    %% Tests section
+    H --> H1[README.md]
+    H --> H2[conftest.py]
+    H --> H3[pytest.ini]
+    H --> H4[sync_tests_with_source.sh]
+    
+    %% Styling classes
+    classDef main fill:#f9f,stroke:#333,stroke-width:2px;
+    classDef python fill:#bbf,stroke:#33f,stroke-width:1px;
+    classDef shell fill:#bfb,stroke:#3f3,stroke-width:1px;
+    classDef latex fill:#fbb,stroke:#f33,stroke-width:1px;
+    classDef docs fill:#ff9,stroke:#993,stroke-width:1px;
+    classDef examples fill:#bff,stroke:#3ff,stroke-width:1px;
+    classDef tests fill:#fbf,stroke:#f3f,stroke-width:1px;
+    
+    %% Apply styling
+    class A main;
+    class B,C,D main;
+    class B1,C1,D1,B2_1,B2_1_1,B2_1_2,B2_1_3,B2_1_4,B2_1_5,B2_5 latex;
+    class B3_1,B3_1_1,B3_1_2,B3_1_3,B3_1_4,B3_1_5,B3_1_6,B3_1_7,B3_1_8,B3_1_9,B3_1_10,B3_1_11 python;
+    class B3_2,B3_2_1,B3_2_2,B3_2_3,B3_2_4,B3_2_5,B3_2_5_1,B3_2_5_2,B3_2_5_3,B3_2_5_4,B3_2_5_5,B3_2_5_6,B3_2_5_7,B3_2_5_8,E1,E2,E3,E4,E5 shell;
+    class F,F1,F2,F3,F4,F5,F1_1,F1_2,F1_3,F2_1,F2_2,F2_3 docs;
+    class G,G1,G2,G3,G4,G5,G6 examples;
+    class H,H1,H2,H3,H4 tests;
