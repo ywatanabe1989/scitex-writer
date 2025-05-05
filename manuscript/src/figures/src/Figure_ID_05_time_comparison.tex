@@ -1,0 +1,56 @@
+%% -*- coding: utf-8 -*-
+%% Timestamp: "2025-05-05 13:05:00 (ywatanabe)"
+%% File: "/home/ywatanabe/proj/SciTex/manuscript/src/figures/src/Figure_ID_05_time_comparison.tex"
+
+% This is an example figure showing time comparison results.
+% It demonstrates how to create a more complex chart in LaTeX.
+
+\begin{figure}[ht!]
+    \centering
+    
+    % Create a horizontal bar chart using pgfplots
+    \begin{tikzpicture}
+    \begin{axis}[
+        width=12cm,
+        height=8cm,
+        xbar,
+        enlargelimits=0.15,
+        xlabel={Average Time (hours)},
+        ylabel={Task},
+        symbolic y coords={Content Writing, Formatting, Figure Preparation, Table Creation, Citation Management, Revision, Total},
+        ytick=data,
+        y dir=reverse,
+        nodes near coords,
+        nodes near coords align={horizontal},
+        xmin=0, xmax=35,
+        legend style={at={(0.5,-0.15)}, anchor=north, legend columns=-1},
+        xlabel near ticks,
+        grid=major
+    ]
+    \addplot[fill=blue!50] coordinates {
+        (15.2, Content Writing)
+        (3.8, Formatting)
+        (4.1, Figure Preparation)
+        (2.9, Table Creation)
+        (3.2, Citation Management)
+        (4.6, Revision)
+        (33.8, Total)
+    };
+    \addplot[fill=green!50] coordinates {
+        (14.7, Content Writing)
+        (1.5, Formatting)
+        (1.1, Figure Preparation)
+        (0.9, Table Creation)
+        (1.0, Citation Management)
+        (1.8, Revision)
+        (21.0, Total)
+    };
+    \legend{Traditional Methods, SciTex}
+    \end{axis}
+    \end{tikzpicture}
+    
+    \caption{\textbf{Time comparison for document preparation tasks.} The chart compares the average time spent (in hours) on various document preparation tasks using traditional LaTeX methods versus SciTex. Data collected from 50 researchers across multiple disciplines. The most significant time savings were observed in figure preparation (72\% reduction), citation management (68\% reduction), and formatting (61\% reduction). Content writing time remained similar between the two approaches, as expected.}
+    \label{fig:time-comparison}
+\end{figure}
+
+%%%% EOF

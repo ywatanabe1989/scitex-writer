@@ -1,0 +1,26 @@
+%% -*- coding: utf-8 -*-
+%% Timestamp: "2025-05-05 13:10:00 (ywatanabe)"
+%% File: "/home/ywatanabe/proj/SciTex/manuscript/src/tables/src/Table_ID_01_prompts.tex"
+
+% This is an example table for the SciTex template.
+
+\begin{table}[ht!]
+\centering
+\caption{AI Prompt Templates Used in SciTex}
+\label{tab:prompts}
+\begin{tabular}{p{3cm}p{10cm}}
+\hline
+\textbf{Task} & \textbf{Prompt Template} \\
+\hline
+Text Revision & You are a scientific writing expert. Revise the following LaTeX content to improve clarity, grammar, and academic style. Preserve all LaTeX commands, math expressions, citations, and technical terminology. Do not change the scientific meaning. Here is the text to revise: \{text\} \\
+\hline
+Citation Insertion & You are a citation expert. Review the following text and suggest appropriate citations from the provided bibliography. Insert \textbackslash cite\{\} commands at appropriate locations. Only use citation keys that appear in the bibliography. Here is the text: \{text\}. Here is the bibliography: \{bibliography\} \\
+\hline
+Terminology Check & You are a terminology consistency expert. Check the following text for consistent use of terminology, abbreviations, and nomenclature. Identify any inconsistencies, first/repeated use of abbreviations without definition, and variations in technical terms. Here is the text to check: \{text\} \\
+\hline
+Figure Caption Generation & Generate a comprehensive scientific figure caption for the following figure description. Include: (1) A title sentence stating the main finding or purpose, (2) A detailed description of what the figure shows, (3) Explanation of symbols, colors, or annotations, (4) Key conclusions that can be drawn. Description: \{description\} \\
+\hline
+\end{tabular}
+\end{table}
+
+%%%% EOF

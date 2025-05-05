@@ -1,0 +1,44 @@
+%% -*- coding: utf-8 -*-
+%% Timestamp: "2025-05-05 12:45:00 (ywatanabe)"
+%% File: "/home/ywatanabe/proj/SciTex/manuscript/src/figures/src/Figure_ID_01_workflow.tex"
+
+% This is an example figure file for the SciTex template.
+% It demonstrates how to structure a figure in LaTeX.
+
+\begin{figure}[ht!]
+    \centering
+    % In a real document, you would include a real image here:
+    % \includegraphics[width=0.8\textwidth]{./path/to/figure.pdf}
+    
+    % For this example, we'll create a simple diagram using TikZ
+    \begin{tikzpicture}[
+        block/.style={rectangle, draw, fill=blue!20, 
+                     text width=2.5cm, text centered, rounded corners, minimum height=1.5cm},
+        line/.style={draw, -latex'},
+        cloud/.style={draw, ellipse, fill=red!20, minimum height=1cm}
+    ]
+    
+    % Place blocks
+    \node [block] (manuscript) {Manuscript Preparation};
+    \node [block, right=of manuscript] (AI) {AI-Assisted Revision};
+    \node [block, right=of AI] (compile) {LaTeX Compilation};
+    \node [block, below=of AI] (figures) {Figure Processing};
+    \node [block, below=of manuscript] (citations) {Citation Management};
+    \node [cloud, below=of compile] (output) {Final Document};
+    
+    % Connect blocks with arrows
+    \path [line] (manuscript) -- (AI);
+    \path [line] (AI) -- (compile);
+    \path [line] (figures) -- (compile);
+    \path [line] (citations) -- (manuscript);
+    \path [line] (compile) -- (output);
+    \path [line] (manuscript) to[out=250,in=110] (citations);
+    \path [line] (manuscript) to[out=290,in=90] (figures);
+    
+    \end{tikzpicture}
+    
+    \caption{\textbf{SciTex workflow diagram.} The figure illustrates the key components and workflow of the SciTex system, including manuscript preparation, AI-assisted revision, figure processing, citation management, and LaTeX compilation to generate the final document. The modular design allows for customization at each stage of the process.}
+    \label{fig:workflow}
+\end{figure}
+
+%%%% EOF

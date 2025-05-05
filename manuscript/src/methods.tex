@@ -1,15 +1,88 @@
 %% -*- coding: utf-8 -*-
-%% Timestamp: "2025-05-04 08:38:45 (ywatanabe)"
+%% Timestamp: "2025-05-05 12:15:00 (ywatanabe)"
 %% File: "/home/ywatanabe/proj/SciTex/manuscript/src/methods.tex"
 
 \section{Methods}
-
-\subsection{TITLE 1 HERE}
-METHODS CONTENTS 1 HERE
-
-\subsection{TITLE 2 TITLE HERE}
-METHODS CONTENTS 2 HERE
-
 \label{sec:methods}
+
+% This demonstrates how to create subsections and use LaTeX formatting features
+
+\subsection{Template Architecture}
+\label{subsec:architecture}
+
+The SciTex template is organized into a hierarchical structure to facilitate modularity and reuse. As shown in Figure~\ref{fig:architecture}, the template consists of three main components:
+
+\begin{enumerate}
+    \item \textbf{Main document entry point} - \verb|main.tex| controls the overall document structure
+    \item \textbf{Content sections} - Individual .tex files in the \verb|src/| directory contain the actual content
+    \item \textbf{Style definitions} - Files in \verb|src/styles/| control formatting and appearance
+\end{enumerate}
+
+This architecture allows authors to focus on content without worrying about formatting details. The separation of content and formatting makes it easier to adapt the template to different journal requirements by modifying only the style files.
+
+% This demonstrates the use of equations in LaTeX
+
+\subsection{AI-Assisted Revision Process}
+\label{subsec:ai-revision}
+
+The revision process employs a specialized prompt formulation technique that preserves LaTeX commands while improving the surrounding text. Let $T$ represent the original text, $P$ the prompt template, and $R$ the revised text. The revision process can be formalized as:
+
+\begin{equation}
+R = f_{\text{GPT}}(P \oplus T)
+\end{equation}
+
+where $f_{\text{GPT}}$ is the GPT model function and $\oplus$ represents concatenation. The prompt $P$ includes specific instructions to maintain LaTeX syntax and scientific terminology, as shown in Table~\ref{tab:prompts}.
+
+% This demonstrates how to reference tables
+
+\subsection{Figure and Table Management}
+\label{subsec:figure-management}
+
+Figures and tables are managed through a standardized pipeline that includes:
+
+\begin{itemize}
+    \item Automatic conversion of PowerPoint slides to TIF format
+    \item Automated cropping to remove excess whitespace
+    \item LaTeX wrapper generation for consistent formatting
+    \item Directory structure for organizing source and compiled files
+\end{itemize}
+
+Figure~\ref{fig:figure-pipeline} illustrates this process in detail.
+
+% This demonstrates how to create a simple table in LaTeX
+
+\begin{table}[h!]
+\centering
+\caption{Components of the SciTex System}
+\label{tab:components}
+\begin{tabular}{lp{8cm}}
+\hline
+\textbf{Component} & \textbf{Description} \\
+\hline
+LaTeX Template & Modular document structure with sections for introduction, methods, results, etc. \\
+Python Scripts & Tools for text revision, citation insertion, and terminology checking \\
+Shell Scripts & Automation for compilation, figure processing, and version management \\
+Documentation & Comprehensive guides and examples for users \\
+\hline
+\end{tabular}
+\end{table}
+
+\subsection{Version Control Integration}
+\label{subsec:version-control}
+
+SciTex integrates with Git for version control, providing benefits such as:
+
+\begin{itemize}
+    \item Tracking changes to all document components
+    \item Facilitating collaboration between multiple authors
+    \item Maintaining a history of document revisions
+    \item Enabling branching for experimental content
+\end{itemize}
+
+This integration is managed through shell scripts that handle common Git operations and maintain a clean version history.
+
+% This demonstrates LaTeX cross-referencing capabilities
+
+For implementation details of these methods, please refer to the code repository and documentation. The results of applying these methods are presented in Section~\ref{sec:results}.
 
 %%%% EOF

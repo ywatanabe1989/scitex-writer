@@ -1,0 +1,55 @@
+%% -*- coding: utf-8 -*-
+%% Timestamp: "$(date +"%Y-%m-%d %H:%M:%S") (ywatanabe)"
+%% File: _Figure_ID_XX_tikz.tex
+%%
+%% TIKZ FIGURE TEMPLATE
+%% ====================
+%% Instructions: 
+%% 1. Copy this template to the src/figures/src/ directory
+%% 2. Rename to match your convention: Figure_ID_NN_description.tex
+%%    - NN should be a two-digit number (01, 02, etc.)
+%%    - description should be a short, descriptive name
+%% 3. Edit the TikZ code between \begin{tikzpicture} and \end{tikzpicture}
+%% 4. Complete the figure title and legend below
+%% 5. Adjust figure width as needed (default is 0.8\textwidth)
+%%
+%% Reference in text with: Figure~\ref{fig:NN}
+%% See FIGURE_TABLE_GUIDE.md for more details on TikZ figures
+
+% TikZ diagram code goes here - will be automatically included in the figure
+\begin{tikzpicture}[
+    % Define styles for your diagram
+    block/.style={rectangle, draw, fill=blue!20, 
+                 text width=2.5cm, text centered, rounded corners, minimum height=1.5cm},
+    line/.style={draw, -latex'},
+    cloud/.style={draw, ellipse, fill=red!20, minimum height=1cm}
+]
+
+% Place your TikZ diagram components here
+\node [block] (manuscript) {Manuscript Preparation};
+\node [block, right=of manuscript] (AI) {AI-Assisted Revision};
+\node [block, right=of AI] (compile) {LaTeX Compilation};
+
+% Connect components with arrows
+\path [line] (manuscript) -- (AI);
+\path [line] (AI) -- (compile);
+
+\end{tikzpicture}
+
+\caption{\textbf{
+TIKZ FIGURE TITLE HERE
+}
+\smallskip
+\\
+FIGURE LEGEND HERE. Provide a detailed description of this diagram and its significance to your manuscript. Explain what each component represents and how they relate to each other. For diagrams with multiple sections or components, consider describing each major element separately.
+
+For diagrams with labeled sections, you can reference them specifically:
+The manuscript preparation stage (left) feeds into the AI-assisted revision process (middle), which produces inputs for the final LaTeX compilation (right).
+}
+% FIGURE WIDTH CONTROL (uncomment/modify one of the following)
+% width=0.8\textwidth  % 80% of page width (good default for diagrams)
+% width=0.9\textwidth  % 90% of page width
+% width=1\textwidth    % Full page width (for complex diagrams)
+% width=0.6\textwidth  % 60% of page width (for simple diagrams)
+
+%%%% EOF
