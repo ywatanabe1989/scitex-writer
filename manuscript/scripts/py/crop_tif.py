@@ -57,20 +57,71 @@ def find_content_area(image_path: str) -> Tuple[int, int, int, int]:
         return 0, 0, w, h
 
 
+def resize_image(
+    img: np.ndarray, 
+    target_dpi: int = 300, 
+    max_width: int = 2000, 
+    max_height: int = 2000, 
+    verbose: bool = False
+) -> np.ndarray:
+    """
+    Resize an image to meet target DPI and maximum dimensions constraints.
+    
+    Args:
+        img: Input image as numpy array
+        target_dpi: Target DPI (dots per inch) for the image
+        max_width: Maximum width in pixels
+        max_height: Maximum height in pixels
+        verbose: Whether to print detailed information
+        
+    Returns:
+        Resized image as numpy array
+    """
+    height, width = img.shape[:2]
+    
+    # Calculate if resizing is needed
+    if width > max_width or height > max_height:
+        # Determine the scaling factor to fit within max dimensions
+        scale_factor = min(max_width / width, max_height / height)
+        
+        # Calculate new dimensions
+        new_width = int(width * scale_factor)
+        new_height = int(height * scale_factor)
+        
+        if verbose:
+            print(f"Resizing image from {width}x{height} to {new_width}x{new_height}")
+            print(f"Scale factor: {scale_factor:.2f}")
+        
+        # Resize the image
+        resized_img = cv2.resize(img, (new_width, new_height), interpolation=cv2.INTER_AREA)
+        return resized_img
+    else:
+        if verbose:
+            print(f"No resizing needed, image dimensions {width}x{height} are within limits")
+        return img
+
 def crop_tif(
     input_path: str, 
     output_path: Optional[str] = None, 
     margin: int = 30,
+    resize: bool = True,
+    target_dpi: int = 300, 
+    max_width: int = 2000, 
+    max_height: int = 2000,
     overwrite: bool = False,
     verbose: bool = False
 ) -> None:
     """
-    Crop a TIF image to its content area with a specified margin.
+    Crop a TIF image to its content area with a specified margin and optionally resize it.
     
     Args:
         input_path: Path to the input TIF image
         output_path: Path to save the cropped image (defaults to input_path if overwrite=True)
         margin: Margin in pixels to add around the content area
+        resize: Whether to resize the image to meet target constraints
+        target_dpi: Target DPI for the resized image
+        max_width: Maximum width in pixels for the resized image
+        max_height: Maximum height in pixels for the resized image
         overwrite: Whether to overwrite the input file
         verbose: Whether to print detailed information
         
@@ -113,17 +164,21 @@ def crop_tif(
 
     # Crop the image using the bounding rectangle with margin
     cropped_img = img[y_start:y_end, x_start:x_end]
+    
+    # Resize the image if requested
+    if resize:
+        cropped_img = resize_image(cropped_img, target_dpi, max_width, max_height, verbose)
 
-    # Save the cropped image
+    # Save the processed image
     cv2.imwrite(output_path, cropped_img)
     
     # Calculate space saved
-    new_height, new_width = cropped_img.shape[:2]
-    area_reduction = 1 - ((new_width * new_height) / (original_width * original_height))
+    final_height, final_width = cropped_img.shape[:2]
+    area_reduction = 1 - ((final_width * final_height) / (original_width * original_height))
     area_reduction_pct = area_reduction * 100
     
-    print(f"Image cropped: {input_path}")
-    print(f"Size reduced from {original_width}x{original_height} to {new_width}x{new_height}")
+    print(f"Image processed: {input_path}")
+    print(f"Size changed from {original_width}x{original_height} to {final_width}x{final_height}")
     print(f"Saved {area_reduction_pct:.1f}% of the original area")
     
     if output_path != input_path:
@@ -133,7 +188,11 @@ def crop_tif(
 def batch_crop_tifs(
     directory: str, 
     output_directory: Optional[str] = None,
-    margin: int = 30, 
+    margin: int = 30,
+    resize: bool = True,
+    target_dpi: int = 300,
+    max_width: int = 2000,
+    max_height: int = 2000,
     recursive: bool = False,
     verbose: bool = False
 ) -> None:
@@ -144,6 +203,10 @@ def batch_crop_tifs(
         directory: Directory containing TIF files to process
         output_directory: Directory to save processed files (defaults to same as input)
         margin: Margin to add around the content area
+        resize: Whether to resize images to meet target constraints
+        target_dpi: Target DPI for resized images
+        max_width: Maximum width in pixels for resized images
+        max_height: Maximum height in pixels for resized images
         recursive: Whether to process subdirectories
         verbose: Whether to print detailed information
     """
@@ -165,10 +228,14 @@ def batch_crop_tifs(
         files = [os.path.join(directory, f) for f in os.listdir(directory) 
                 if f.lower().endswith(('.tif', '.tiff'))]
     
+    print(f"Found {len(files)} TIF files to process")
+    
     # Process each file
-    for file_path in files:
+    for index, file_path in enumerate(files):
         if verbose:
-            print(f"\nProcessing: {file_path}")
+            print(f"\nProcessing [{index+1}/{len(files)}]: {file_path}")
+        else:
+            print(f"Processing [{index+1}/{len(files)}]: {os.path.basename(file_path)}")
         
         # Determine output path
         if output_directory:
@@ -182,9 +249,19 @@ def batch_crop_tifs(
         else:
             output_path = file_path
         
-        # Crop the image
+        # Process the image
         try:
-            crop_tif(file_path, output_path, margin, output_path == file_path, verbose)
+            crop_tif(
+                file_path, 
+                output_path, 
+                margin, 
+                resize, 
+                target_dpi, 
+                max_width, 
+                max_height,
+                output_path == file_path, 
+                verbose
+            )
         except Exception as e:
             print(f"Error processing {file_path}: {e}")
 
@@ -193,7 +270,7 @@ def main():
     """Main function to parse arguments and execute the appropriate action."""
     # Set up argument parser
     parser = argparse.ArgumentParser(
-        description="Crop TIF images to content area with margin.",
+        description="Process TIF images: crop to content area, resize, and optimize for publications.",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter
     )
     
@@ -215,6 +292,10 @@ def main():
     # Common arguments
     for subparser in [file_parser, batch_parser]:
         subparser.add_argument("--margin", type=int, default=30, help="Margin size around the content area")
+        subparser.add_argument("--no-resize", action="store_true", help="Disable automatic resizing")
+        subparser.add_argument("--dpi", type=int, default=300, help="Target DPI for resized images")
+        subparser.add_argument("--max-width", type=int, default=2000, help="Maximum width in pixels")
+        subparser.add_argument("--max-height", type=int, default=2000, help="Maximum height in pixels")
         subparser.add_argument("-v", "--verbose", action="store_true", help="Enable verbose output")
     
     # Parse arguments
@@ -225,7 +306,11 @@ def main():
         crop_tif(
             args.input, 
             args.output, 
-            args.margin, 
+            args.margin,
+            not args.no_resize,  # Invert --no-resize flag to get resize boolean
+            args.dpi,
+            args.max_width,
+            args.max_height,
             args.overwrite,
             args.verbose
         )
@@ -233,7 +318,11 @@ def main():
         batch_crop_tifs(
             args.directory, 
             args.output_directory,
-            args.margin, 
+            args.margin,
+            not args.no_resize,  # Invert --no-resize flag to get resize boolean
+            args.dpi,
+            args.max_width,
+            args.max_height, 
             args.recursive,
             args.verbose
         )
