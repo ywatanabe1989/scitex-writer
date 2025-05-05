@@ -1,0 +1,38 @@
+% This file contains custom commands for the document
+% It is separated from the main file for easier maintenance
+
+% Math shortcuts
+\newcommand{\vect}[1]{\boldsymbol{#1}}  % Vector notation
+\newcommand{\mat}[1]{\mathbf{#1}}       % Matrix notation
+\newcommand{\diff}{\mathrm{d}}          % Differential operator
+\newcommand{\pdiff}[2]{\frac{\partial #1}{\partial #2}}  % Partial derivative
+
+% Figure-related commands
+\newcommand{\figref}[1]{Figure~\ref{fig:#1}}  % Figure reference
+\newcommand{\tabref}[1]{Table~\ref{tab:#1}}   % Table reference
+\newcommand{\eqref}[1]{Equation~\ref{eq:#1}}  % Equation reference
+\newcommand{\secref}[1]{Section~\ref{sec:#1}} % Section reference
+
+% Revision tracking commands (uncomment to use)
+% \newcommand{\add}[2][]{\added[id=#1]{#2}}     % Added content
+% \newcommand{\remove}[2][]{\deleted[id=#1]{#2}} % Removed content
+% \newcommand{\change}[3][]{\replaced[id=#1]{#2}{#3}} % Changed content
+
+% Special symbols
+\newcommand{\degree}{^{\circ}}  % Degree symbol
+\newcommand{\celsius}{\ensuremath{^{\circ}\text{C}}} % Celsius symbol
+\newcommand{\micro}{\ensuremath{\mu}} % Micro symbol
+\newcommand{\ohm}{\ensuremath{\Omega}} % Ohm symbol
+
+% Algorithm-related commands
+\newcommand{\algorithm}[1]{\textsc{#1}} % Algorithm name
+\newcommand{\code}[1]{\texttt{#1}}     % Code
+
+% Citation shortcuts
+\newcommand{\citep}[1]{(\cite{#1})}    % Parenthetical citation
+\newcommand{\citet}[1]{\cite{#1}}      % Textual citation
+
+% Sections in supplementary material (uncomment if needed)
+% \newcommand{\supplementary}[1]{Supplementary Material~\ref{supp:#1}}
+% \newcommand{\suppfig}[1]{Supplementary Figure~\ref{suppfig:#1}}
+% \newcommand{\supptab}[1]{Supplementary Table~\ref{supptab:#1}}

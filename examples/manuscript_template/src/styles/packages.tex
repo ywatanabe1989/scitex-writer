@@ -1,0 +1,40 @@
+% This file contains all the packages required for the document
+% It is separated from the main file for easier maintenance
+
+% Basic packages
+\usepackage{graphicx}   % For including figures
+\usepackage{booktabs}   % For professional tables
+\usepackage{array}      % For advanced table features
+\usepackage{multirow}   % For table cells spanning multiple rows
+\usepackage{amsmath}    % For mathematical formulas
+\usepackage{amssymb}    % For mathematical symbols
+\usepackage{bm}         % For bold math symbols
+\usepackage{siunitx}    % For SI units
+\usepackage{xcolor}     % For colored text
+\usepackage{hyperref}   % For hyperlinks
+\usepackage{cleveref}   % For intelligent cross-referencing
+\usepackage{lipsum}     % For generating placeholder text
+
+% Configure hyperref
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,
+    urlcolor=cyan,
+    pdftitle={Example Manuscript: Demonstrating the SciTex System},
+    pdfauthor={First Author, Second Author, Third Author},
+    pdfsubject={Scientific Manuscript},
+    pdfkeywords={LaTeX, Scientific manuscript, Example template},
+}
+
+% Configure cleveref
+\crefname{figure}{Figure}{Figures}
+\crefname{table}{Table}{Tables}
+\crefname{equation}{Equation}{Equations}
+\crefname{section}{Section}{Sections}
+
+% Package for making changes visible (uncomment to use)
+% \usepackage{changes}
+% \definechangesauthor[name={First Author}, color=blue]{FA}
+% \definechangesauthor[name={Second Author}, color=red]{SA}
+% \definechangesauthor[name={Third Author}, color=green]{TA}

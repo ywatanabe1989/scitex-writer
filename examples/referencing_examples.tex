@@ -1,0 +1,87 @@
+%% -*- coding: utf-8 -*-
+%% Timestamp: "2025-05-05 21:00:00 (ywatanabe)"
+%% File: "referencing_examples.tex"
+
+% This file demonstrates how to reference figures and tables in your LaTeX documents
+% It is meant for educational purposes and is not meant to be compiled directly
+
+\section{Examples of Referencing Figures and Tables}
+
+\subsection{Basic Figure References}
+
+% Basic figure reference
+As shown in Figure~\ref{fig:01}, the SciTex system follows a structured workflow for manuscript preparation and compilation.
+
+% Reference to a specific panel in a figure
+Figure~\ref{fig:06}A illustrates the workflow diagram of the figure processing system.
+
+% Reference to multiple panels
+As demonstrated in Figure~\ref{fig:06}B-D, the system provides several features to enhance user productivity.
+
+% Reference with parenthetical panels
+The architecture diagram (Figure~\ref{fig:02}) shows the hierarchical organization of components, while the detailed pipeline (Figure~\ref{fig:03}) explains each processing step.
+
+% Reference at the beginning of a sentence
+Figure~\ref{fig:04} presents user satisfaction data collected from a survey of 50 researchers.
+
+\subsection{Basic Table References}
+
+% Basic table reference
+Table~\ref{tab:01} summarizes the different prompt types used in the SciTex system along with their success rates.
+
+% Reference with additional context
+As shown in Table~\ref{tab:02}, the performance metrics indicate a significant improvement over traditional methods (p < 0.01).
+
+% Reference to specific cells
+The highest satisfaction rating (92.5\%) was reported for the term checking functionality (Table~\ref{tab:01}, row 1).
+
+% Reference at the beginning of a sentence
+Table~\ref{tab:02} illustrates the performance comparison across different workloads.
+
+\subsection{Advanced Referencing Techniques}
+
+% Referencing multiple figures together
+Figures~\ref{fig:01} and \ref{fig:02} together demonstrate the complete system architecture and workflow.
+
+% Referencing a figure and table together
+As shown in Figure~\ref{fig:05} and Table~\ref{tab:02}, there is a strong correlation between the processing time and user satisfaction.
+
+% Creating a range of figures
+The complete SciTex pipeline is illustrated across Figures~\ref{fig:01}--\ref{fig:05}.
+
+% Referring to a figure in a different section
+As we discussed earlier (see Figure~\ref{fig:01} in Section~\ref{sec:introduction}), the overall workflow significantly improves productivity.
+
+\subsection{Reference Formatting in Different Contexts}
+
+% In-text references
+The workflow diagram (Fig.~\ref{fig:01}) and performance metrics (Tab.~\ref{tab:01}) demonstrate the effectiveness of the approach.
+
+% Reference with descriptive text
+The user satisfaction data, as presented in Figure~\ref{fig:04}, shows that 87\% of users reported improved productivity.
+
+% Parenthetical reference
+The architecture follows a modular design pattern (Fig.~\ref{fig:02}) that facilitates maintenance and extension.
+
+% Reference with page number
+For the detailed performance data, please refer to Table~\ref{tab:02} on page~\pageref{tab:02}.
+
+\subsection{Common Pitfalls to Avoid}
+
+% AVOID: Missing the ~ (non-breaking space)
+% INCORRECT: Figure\ref{fig:01} 
+% CORRECT: Figure~\ref{fig:01}
+
+% AVOID: Inconsistent capitalization
+% INCORRECT: figure~\ref{fig:01} 
+% CORRECT: Figure~\ref{fig:01}
+
+% AVOID: Incorrect reference type
+% INCORRECT: Figure~\ref{tab:01} (referencing a table with fig:) 
+% CORRECT: Table~\ref{tab:01}
+
+% AVOID: Missing leading zeros
+% INCORRECT: Figure~\ref{fig:1} 
+% CORRECT: Figure~\ref{fig:01}
+
+%%%% EOF
