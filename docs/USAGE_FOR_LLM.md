@@ -138,42 +138,106 @@ This will:
 
 ## Figure and Table Handling
 
-### Converting PowerPoint to TIF
+SciTex provides a comprehensive system for managing figures and tables in scientific manuscripts, handling conversion, compilation, and reference management automatically.
 
-```bash
-./compile -p2t
-```
+### Figure Organization
 
-This will convert PowerPoint slides to TIF format for inclusion in the manuscript.
+Figures follow a specific organizational structure:
+- `manuscript/src/figures/src/`: Place source files here with naming format `Figure_ID_XX.tif`
+- `manuscript/src/figures/src/Figure_ID_XX.tex`: Caption files with matching names
+- `manuscript/src/figures/compiled/`: Auto-generated compilation files
+- `manuscript/src/figures/templates/`: Templates for creating new figures
 
-### Figure Processing
+### Table Organization
 
-Figures should be placed in:
-- `manuscript/src/figures/src/`
+Tables follow a similar structure:
+- `manuscript/src/tables/src/`: Place source files here with naming format `Table_ID_XX.csv`
+- `manuscript/src/tables/src/Table_ID_XX.tex`: Caption files with matching names
+- `manuscript/src/tables/compiled/`: Auto-generated compilation files
 
-Table source files should be in:
-- `manuscript/src/tables/src/`
+### Naming Conventions
 
-### Improved Figure Handling
+All figures and tables must follow these naming conventions:
+- Figures: `Figure_ID_XX.tif/tex` (e.g., `Figure_ID_01_workflow.tif`)
+- Tables: `Table_ID_XX.csv/tex` (e.g., `Table_ID_01_results.csv`)
 
-SciTex provides enhanced tools for figure management:
+The ID number in the filename is used for LaTeX reference labels, automatically generating `\label{fig:XX}` or `\label{tab:XX}`.
 
-1. **Figure Cropping**: Automatically crop TIF images to remove whitespace
+### Creating Figures
+
+1. **From PowerPoint**:
    ```bash
-   python manuscript/scripts/py/crop_tif.py -i /path/to/figure.tif -o /path/to/output.tif
+   ./compile -p2t
+   ```
+   This converts PowerPoint slides to TIF format for inclusion in the manuscript.
+
+2. **Figure Caption Template**:
+   ```latex
+   \caption{\textbf{
+   FIGURE TITLE HERE
+   }
+   \smallskip
+   \\
+   FIGURE LEGEND HERE.
+   }
+   % width=1\textwidth
    ```
 
-2. **Figure Conversion Pipeline**: Convert from various formats to publication-ready TIF
+3. **Manual Figure Processing**:
    ```bash
-   # Convert all PowerPoint slides in a directory
+   # Crop TIF images
+   python manuscript/scripts/py/crop_tif.py -i /path/to/figure.tif -o /path/to/output.tif
+   
+   # Convert PowerPoint slides in a directory
    ./manuscript/scripts/sh/modules/pptx2tif_all.sh /path/to/pptx/directory
    ```
 
-3. **Figure Templates**: Use standardized templates from `manuscript/src/figures/templates/`
+### Creating Tables
 
-4. **Table Formatting**: Enhance tables with consistent styling
+1. **Create CSV File**:
+   Place a CSV file in `manuscript/src/tables/src/` with the naming format `Table_ID_XX.csv`
+
+2. **Create Caption File**:
+   Create a corresponding `.tex` file with the same name containing:
+   ```latex
+   \caption{\textbf{
+   TABLE TITLE HERE
+   }
+   \smallskip
+   \\
+   TABLE LEGEND HERE.
+   }
+   % width=1\textwidth
+   ```
+
+### Referencing in Text
+
+Reference figures and tables in your text using:
+- Figures: `Figure~\ref{fig:XX}` (e.g., `Figure~\ref{fig:01}`)
+- Tables: `Table~\ref{tab:XX}` (e.g., `Table~\ref{tab:01}`)
+
+For specific parts of multi-panel figures, use:
+- `Figure~\ref{fig:XX}A` or `Figure~\ref{fig:XX}(i)`
+
+### Compilation Process
+
+During manuscript compilation:
+
+1. The system automatically:
+   - Converts figures to appropriate formats
+   - Generates JPEG versions for preview
+   - Compiles figure and table captions
+   - Creates LaTeX inclusion code
+   - Adds proper references and labels
+
+2. The compiled manuscript includes:
+   - All properly formatted figures with captions
+   - All tables with proper styling and captions
+   - Cross-references resolved correctly
+
+3. Disable figures during development:
    ```bash
-   # Examples available in manuscript/src/tables/src/
+   ./compile -nf  # Compile without including figures
    ```
 
 ## Version Management
