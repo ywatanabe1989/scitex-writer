@@ -10,7 +10,7 @@
 \subsection{Template Architecture}
 \label{subsec:architecture}
 
-The SciTex template is organized into a hierarchical structure to facilitate modularity and reuse. As shown in Figure~\ref{fig:architecture}, the template consists of three main components:
+The SciTex template is organized into a hierarchical structure to facilitate modularity and reuse. As shown in Figure~\ref{fig:architecture} and further detailed in Figure~\ref{fig:07_demo_architecture}, the template consists of three main components:
 
 \begin{enumerate}
     \item \textbf{Main document entry point} - \verb|main.tex| controls the overall document structure
@@ -25,13 +25,13 @@ This architecture allows authors to focus on content without worrying about form
 \subsection{AI-Assisted Revision Process}
 \label{subsec:ai-revision}
 
-The revision process employs a specialized prompt formulation technique that preserves LaTeX commands while improving the surrounding text. Let $T$ represent the original text, $P$ the prompt template, and $R$ the revised text. The revision process can be formalized as:
+The revision process employs a specialized prompt formulation technique that preserves LaTeX commands while improving the surrounding text, as visualized in Figure~\ref{fig:06_demo_workflow}. Let $T$ represent the original text, $P$ the prompt template, and $R$ the revised text. The revision process can be formalized as:
 
 \begin{equation}
 R = f_{\text{GPT}}(P \oplus T)
 \end{equation}
 
-where $f_{\text{GPT}}$ is the GPT model function and $\oplus$ represents concatenation. The prompt $P$ includes specific instructions to maintain LaTeX syntax and scientific terminology, as shown in Table~\ref{tab:prompts}.
+where $f_{\text{GPT}}$ is the GPT model function and $\oplus$ represents concatenation. The prompt $P$ includes specific instructions to maintain LaTeX syntax and scientific terminology, as shown in Table~\ref{tab:prompts}. Figure~\ref{fig:10_citations} illustrates how this AI-assisted approach extends to citation management.
 
 % This demonstrates how to reference tables
 
