@@ -1,6 +1,6 @@
 #!/bin/bash
 # -*- coding: utf-8 -*-
-# Timestamp: "2025-05-06 21:35:00 (ywatanabe)"
+# Timestamp: "2025-05-07 01:11:28 (ywatanabe)"
 # File: ./manuscript/scripts/shell/modules/process_tables.sh
 
 THIS_DIR="$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)"
@@ -8,147 +8,169 @@ LOG_PATH="$THIS_DIR/.$(basename $0).log"
 touch "$LOG_PATH" >/dev/null 2>&1
 
 
-source ./scripts/shell/modules/config.src
+source ./config.src
 echo_info "$0 ..."
 
-init() {
+function init_tables() {
     # Cleanup and prepare directories
-    rm -f "$TABLE_COMPILED_DIR"/*.tex "$TABLE_HIDDEN_DIR"/*.tex
-    mkdir -p "$TABLE_SRC_DIR" "$TABLE_COMPILED_DIR" "$TABLE_HIDDEN_DIR"
-    rm -f "$TABLE_HIDDEN_DIR/.All_Tables.tex"
-    touch "$TABLE_HIDDEN_DIR/.All_Tables.tex"
+    rm -f "$TABLE_COMPILED_DIR"/*.tex
+    mkdir -p "$TABLE_DIR" "$TABLE_CAPTION_MEDIA_DIR" "$TABLE_COMPILED_DIR" > /dev/null
+    echo > "$TABLE_COMPILED_FILE"
 }
 
-ensure_caption() {
-    # Usage: ensure_caption
-    for csv_file in "$TABLE_SRC_DIR"/Table_ID_*.csv; do
+function ensure_caption() {
+    # Create default captions for any table without one
+    for csv_file in "$TABLE_CAPTION_MEDIA_DIR"/Table_ID_*.csv; do
         [ -e "$csv_file" ] || continue
-        local filename=$(basename "$csv_file")
-        local caption_tex_file="$TABLE_SRC_DIR/${filename%.csv}.tex"
-        if [ ! -f "$caption_tex_file" ] && [ ! -L "$caption_tex_file" ]; then
-            cp "$TABLE_SRC_DIR/_Table_ID_XX.tex" "$caption_tex_file"
+        local base_name=$(basename "$csv_file" .csv)
+        local table_id=$(echo "$base_name" | grep -oP '(?<=Table_ID_)[^\.]+' | tr '[:upper:]' '[:lower:]')
+        local caption_file="${TABLE_CAPTION_MEDIA_DIR}/${base_name}.tex"
+
+        if [ ! -f "$caption_file" ] && [ ! -L "$caption_file" ]; then
+            echo_warn "Caption file $caption_file not found. Creating a default one."
+            mkdir -p $(dirname "$caption_file")
+            cat > "$caption_file" << EOF
+\\caption{Table $table_id: Default caption. Please edit $caption_file to customize.}
+EOF
         fi
     done
 }
 
-ensure_lower_letters() {
+function ensure_lower_letter_id() {
+    # Ensure all table IDs use lowercase
     local ORIG_DIR="$(pwd)"
-    cd "$TABLE_SRC_DIR"
-
+    cd "$TABLE_CAPTION_MEDIA_DIR"
     for file in Table_ID_*; do
-        if [[ -f "$file" || -L "$file" ]]; then
-            new_name=$(echo "$file" | sed -E 's/(Table_ID_)(.*)/\1\L\2/')
-            if [[ "$file" != "$new_name" ]]; then
-                mv "$file" "$new_name"
-            fi
+        [ -e "$file" ] || continue
+        new_name=$(echo "$file" | sed -E 's/(Table_ID_)(.*)/\1\L\2/')
+        if [[ "$file" != "$new_name" ]]; then
+            mv "$file" "$new_name"
         fi
     done
+    cd "$ORIG_DIR"
+}
 
-    cd $ORIG_DIR
-    }
+function check_csv_for_special_chars() {
+    # Check CSV file for potential problematic characters
+    local csv_file="$1"
+    local problem_chars="[&%$#_{}^~\\|<>]"
+    local problems=$(grep -n "$problem_chars" "$csv_file" 2>/dev/null || echo "")
+    if [ -n "$problems" ]; then
+        echo_warn "Potential LaTeX special characters found in $csv_file:"
+        echo "$problems" | head -5
+        echo "These may need proper LaTeX escaping."
+    fi
+}
 
-csv2tex() {
-    # Compile "$csv_dir"Table*.csv, with combining their corresponding caption tex files, as complete tex files.
-
-    ii=0
-    for csv_file in "$TABLE_SRC_DIR"/Table_ID_*.csv; do
+function csv2tex() {
+    # Compile CSV tables into LaTeX files
+    for csv_file in "$TABLE_CAPTION_MEDIA_DIR"/Table_*.csv; do
         [ -e "$csv_file" ] || continue
+
         base_name=$(basename "$csv_file" .csv)
         table_id=$(basename "$csv_file" .csv | grep -oP '(?<=Table_ID_)[^\.]+' | tr '[:upper:]' '[:lower:]')
-        caption_file=${TABLE_SRC_DIR}/${base_name}.tex
-        width=$(grep -oP '(?<=width=)[0-9.]+\\textwidth' "$caption_file")
-
+        caption_file="${TABLE_CAPTION_MEDIA_DIR}/${base_name}.tex"
         compiled_file="$TABLE_COMPILED_DIR/${base_name}.tex"
-        echo "" > "$compiled_file"
+
+        # Pre-check CSV for problematic characters
+        check_csv_for_special_chars "$csv_file"
 
         # Determine the number of columns in the CSV file
         num_columns=$(head -n 1 "$csv_file" | awk -F, '{print NF}')
-        # num_columns=$(head -n 1 "$csv_file" | awk -F, '{print NF-1}')
-
-        # fontsize="\\small"
         fontsize="\\tiny"
+
         # Create the LaTeX document
         {
             echo "\\pdfbookmark[2]{ID ${table_id}}{id_${table_id}}"
             echo "\\begin{table}[htbp]"
             echo "\\centering"
             echo "$fontsize"
-            echo "\setlength{\tabcolsep}{4pt}"
+            echo "\\setlength{\\tabcolsep}{4pt}"
             echo "\\begin{tabular}{*{$num_columns}{r}}"
             echo "\\toprule"
-            # Header
-            head -n 1 "$csv_file" | {
-                IFS=',' read -ra headers
-                for header in "${headers[@]}"; do
-                    header=$(echo "$header" | sed -e 's/±/\\pm/g' -e 's/%/\\%/g' -e 's/ /\\ /g' -e 's/#/\\#/g')
-                    echo -n "\\textbf{\\thead{\$\mathrm{$header}\$}} & "
-                done
-                echo "\\\\"
-            }
+
+            # Process header row with proper escaping
+            head -n 1 "$csv_file" | awk -F, '{
+                for (ii=1; ii<=NF; ii++) {
+                    val = $ii
+                    gsub(/%/, "\\\\%", val)
+                    gsub(/&/, "\\\\&", val)
+                    gsub(/_/, "\\\\_", val)
+                    gsub(/\$/, "\\\\$", val)
+                    gsub(/\{/, "\\\\{", val)
+                    gsub(/\}/, "\\\\}", val)
+                    gsub(/#/, "\\\\#", val)
+                    printf("\\textbf{\\thead{$\\mathrm{%s}$}}", val)
+                    if (ii < NF) printf(" & ")
+                }
+                print "\\\\"
+            }'
+
             echo "\\midrule"
 
-            # Replace Windows-style newlines first
-            tr -d '\r' < "$csv_file" > "${csv_file}.unix"
-
-            awk 'BEGIN {FPAT = "([^,]*)|(\"[^\"]+\")"; OFS=" & "; row_count=0}
+            awk 'BEGIN {FPAT = "([^,]+)|(\"[^\"]+\")"; OFS=" & "; row_count=0}
             NR>1 {
                 if (row_count % 2 == 1) {print "\\rowcolor{lightgray}"}
                 for (i=1; i<=NF; i++) {
-                    if ($i != "") {
-                        gsub(/^"|"$/, "", $i)  # Remove surrounding quotes for non-empty cells
-                        gsub(/±/, "\\pm", $i)
-                        # gsub(/%/, "\\%", $i)
-                        gsub(/%/, "\\\\%", $i)
-                        gsub(/ /, "\\ ", $i)
-                        gsub(/#/, "\\#", $i)
-                        gsub(/\r/, "", $i)  # Remove carriage return
-                        $i = "$\\mathrm{" $i "}$"
-                    } else {
-                        $i = ""  # Output empty cells as {}
-                    }
+                    gsub(/\-/, "$-$", $i)
+                    gsub(/\*+/, "$&$", $i)
+                    gsub(/\+/, "$+$", $i)
+                    gsub(/_/, "\\_", $i)
+                    gsub(/%/, "\\%", $i)
                 }
                 $1=$1
                 print $0"\\\\"
                 row_count++
-            }' "${csv_file}.unix"
-
-            # Optional: Remove the temporary file
-            rm "${csv_file}.unix"
+            }' "$csv_file"
 
             echo "\\bottomrule"
             echo "\\end{tabular}"
-            echo "\\captionsetup{width=\textwidth}"
-            echo "\\input{${TABLE_SRC_DIR}/Table_ID_${table_id}}"
+            echo "\\captionsetup{width=\\textwidth}"
+
+            # Use the caption file if it exists, otherwise create a default caption
+            if [ -f "$caption_file" ] || [ -L "$caption_file" ]; then
+                echo "\\input{$caption_file}"
+            else
+                echo "\\caption{Table $table_id}"
+            fi
+
             echo "\\label{tab:${table_id}}"
             echo "\\end{table}"
             echo ""
             echo "\\restoregeometry"
+        } > "$compiled_file"
 
-        } >> $compiled_file
-
+        echo_info "Successfully compiled $compiled_file"
     done
 }
 
-gather_tex_files() {
-    # Gather ./src/tables/.tex/Table_*.tex files into ./src/tables/.tex/.All_Tables.tex
-    echo "" > "$TABLE_HIDDEN_DIR"/.All_Tables.tex
-    for table_tex in "$TABLE_COMPILED_DIR"/Table_ID_*.tex; do
+function gather_table_tex_files() {
+    # Gather all table tex files into the final compiled file
+    output_file="${TABLE_COMPILED_FILE}"
+    rm -f "$output_file" > /dev/null 2>&1
+    echo "% Auto-generated file containing all table inputs" > "$output_file"
+
+    # Count available tables
+    table_count=0
+    for table_tex in "$TABLE_COMPILED_DIR"/Table_*.tex; do
         if [ -f "$table_tex" ] || [ -L "$table_tex" ]; then
-            fname="${table_tex%.tex}"
-            echo "\input{${fname}}" >> "$TABLE_HIDDEN_DIR"/.All_Tables.tex
+            echo "\\input{$table_tex}" >> "$output_file"
+            table_count=$((table_count + 1))
         fi
     done
+
+    if [ $table_count -eq 0 ]; then
+        echo_warn "No tables were found to compile."
+    else
+        echo_success "$table_count tables compiled into $output_file"
+    fi
 }
 
-
-main() {
-    init
-    ensure_lower_letters
-    ensure_caption
-    csv2tex
-    gather_tex_files
-    }
-
-main
+# Main execution
+init_tables
+ensure_lower_letter_id
+ensure_caption
+csv2tex
+gather_table_tex_files
 
 # EOF
