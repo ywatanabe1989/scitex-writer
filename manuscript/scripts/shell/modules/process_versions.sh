@@ -1,6 +1,6 @@
 #!/bin/bash
 # -*- coding: utf-8 -*-
-# Timestamp: "2025-05-06 23:09:30 (ywatanabe)"
+# Timestamp: "2025-05-07 01:29:17 (ywatanabe)"
 # File: ./manuscript/scripts/shell/modules/process_versions.sh
 
 THIS_DIR="$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)"
@@ -29,9 +29,9 @@ function process_versions() {
 function count_version() {
     echo_info "Updating version counter..."
     if [ ! -f $VERSION_COUNTER_TXT ]; then
-        echo "001" > $VERSION_COUNTER_TXT
+        echo "000" > $VERSION_COUNTER_TXT
         echo_info "$VERSION_COUNTER_TXT Not Found"
-        echo_info "Initialized version counter: 001"
+        echo_success "Initialized version counter: 000"
     fi
 
     if [ -f $VERSION_COUNTER_TXT ]; then
