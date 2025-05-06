@@ -1,0 +1,1366 @@
+%DIF 1a1-3
+%DIF LATEXDIFF DIFFERENCE FILE
+%DIF DEL ./old/compiled_v1.tex   Mon May  5 14:02:09 2025
+%DIF ADD ./compiled.tex          Tue May  6 12:34:18 2025
+%% -*- coding: utf-8 -*- %DIF > 
+%% Timestamp: "2025-05-06 11:54:25 (ywatanabe)" %DIF > 
+%% File: "/home/ywatanabe/proj/SciTex/manuscript/structure.tex" %DIF > 
+%DIF -------
+%% -*- mode: latex -*-
+%% Time-stamp: "2024-11-06 08:36:15 (ywatanabe)"
+%DIF 3c6
+%DIF < %% File: ./torchPAC/paper/manuscript/main.tex
+%DIF -------
+%% File: ./torchPAC/paper/manuscript/structure.tex %DIF > 
+%DIF -------
+
+\UseRawInputEncoding
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% SETTINGS
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Columns
+%% \documentclass[final,3p,times,twocolumn]{elsarticle} %% Use it for submission
+%% Use the options 1p,twocolumn; 3p; 3p,twocolumn; 5p; or 5p,twocolumn
+%% for a journal layout:
+%% \documentclass[final,1p,times]{elsarticle}
+%% \documentclass[final,1p,times,twocolumn]{elsarticle}
+%% \documentclass[final,3p,times]{elsarticle}
+%% \documentclass[final,3p,times,twocolumn]{elsarticle}
+%% \documentclass[final,5p,times]{elsarticle}
+%% \documentclass[final,5p,times,twocolumn]{elsarticle}
+%DIF 20c23-26
+%DIF < \documentclass[preprint,review,12pt]{elsarticle}%% preamble
+%DIF -------
+\documentclass[preprint,review,12pt]{elsarticle}%% -*- coding: utf-8 -*- %DIF > 
+%% Timestamp: "2025-05-06 11:52:14 (ywatanabe)" %DIF > 
+%% File: "/home/ywatanabe/proj/SciTex/manuscript/src/styles/packages.tex" %DIF > 
+%% preamble %DIF > 
+%DIF -------
+\usepackage[english]{babel}
+\usepackage[table]{xcolor} % For coloring tables
+\usepackage{booktabs} % For professional quality tables
+\usepackage{colortbl} % For coloring cells in tables
+\usepackage{amsmath, amssymb} % For mathematical symbols and environments
+\usepackage{amsthm} % For theorem-like environments
+\usepackage{lipsum} % just for sample text
+\usepackage{natbib}
+\usepackage{graphicx}
+\usepackage{indentfirst}
+\usepackage{bashful}
+\usepackage[margin=10pt,font=small,labelfont=bf,labelsep=endash]{caption}
+\usepackage{calc}
+\usepackage[T1]{fontenc} % [REVISED]
+\usepackage[utf8]{inputenc} % [REVISED]
+\usepackage{hyperref}
+\usepackage{accsupp}
+\usepackage{lineno}
+% Tables
+\usepackage{longtable}
+\usepackage{supertabular}
+\usepackage{tabularx}
+\usepackage[pass]{geometry}
+\usepackage{pdflscape}
+\usepackage{csvsimple}
+\usepackage{xltabular}
+\usepackage{booktabs}
+\usepackage{siunitx}
+\usepackage{makecell}
+\sisetup{round-mode=figures,round-precision=3}
+\renewcommand\theadfont{\bfseries}
+\renewcommand\theadalign{c}
+\newcolumntype{C}[1]{>{\centering\arraybackslash}m{#1}}
+\renewcommand{\arraystretch}{1.5}
+\definecolor{lightgray}{gray}{0.95}
+
+%DIF 57a63-68
+% TikZ packages for figures %DIF > 
+\usepackage{tikz} %DIF > 
+\usepackage{pgfplots} %DIF > 
+\usepackage{pgfplotstable} %DIF > 
+\usetikzlibrary{positioning,shapes,arrows,fit,calc,graphs,graphs.standard} %DIF > 
+ %DIF > 
+%DIF -------
+%% Diff
+\usepackage{xcolor}
+\usepackage[most]{tcolorbox} % for boxes with transparency
+
+%% Referencing to external files
+%% \usepackage{xr}
+\usepackage{xr-hyper}
+%DIF 64c76-77
+%DIF < % Edit to ref between main text & supplemental material
+%DIF -------
+ %DIF > 
+%%%% EOF% Edit to ref between main text & supplemental material %DIF > 
+%DIF -------
+\usepackage{xr}
+\makeatletter
+\newcommand*{\addFileDependency}[1]{% argument=file name and extension
+  \typeout{(#1)}
+  \@addtofilelist{#1}
+  \IfFileExists{#1}{}{\typeout{No file #1.}}
+}
+\makeatother
+
+\newcommand*{\link}[2][]{%
+    \externaldocument[#1]{#2}%
+    \addFileDependency{#2.tex}%
+    \addFileDependency{#2.aux}%
+}
+%% Image width
+\newlength{\imagewidth}
+\newlength{\imagescale}
+
+%% Line numbers
+\linespread{1.2}
+\linenumbers
+
+% Define colors with transparency (opacity value)
+\definecolor{GreenBG}{rgb}{0,1,0}
+\definecolor{RedBG}{rgb}{1,0,0}
+% Define tcolorbox environments for highlighting
+\newtcbox{\greenhighlight}[1][]{%
+  on line,
+  colframe=GreenBG,
+  colback=GreenBG!50!white, % 50% transparent green
+  boxrule=0pt,
+  arc=0pt,
+  boxsep=0pt,
+  left=1pt,
+  right=1pt,
+  top=2pt,
+  bottom=2pt,
+  tcbox raise base
+}
+\newtcbox{\redhighlight}[1][]{%
+  on line,
+  colframe=RedBG,
+  colback=RedBG!50!white, % 50% transparent red
+  boxrule=0pt,
+  arc=0pt,
+  boxsep=0pt,
+  left=1pt,
+  right=1pt,
+  top=2pt,
+  bottom=2pt,
+  tcbox raise base
+}
+\newcommand{\REDSTARTS}{\color{red}}
+\newcommand{\REDENDS}{\color{black}}
+\newcommand{\GREENSTARTS}{\color{green}}
+\newcommand{\GREENENDS}{\color{black}}
+
+% New command to read word counts
+\newread\wordcount
+\newcommand\readwordcount[1]{%
+  \openin\wordcount=#1
+  \read\wordcount to \thewordcount
+  \closein\wordcount
+  \thewordcount
+}
+
+\newcommand{\hl}[1]{\colorbox{yellow}{#1}}
+
+%% Reference
+\usepackage{refcount}
+
+
+%% \let\oldref\ref
+%% \renewcommand{\ref}[1]{%
+%%   \ifnum\getrefnumber{#1}=0
+%%     \sethlcolor{yellow}\hl{??}%
+%%   \else
+%%     \oldref{#1}%
+%%   \fi
+%% }
+
+\let\oldref\ref
+\newcommand{\hlref}[1]{%
+  \ifnum\getrefnumber{#1}=0
+    \hl{\ref*{#1}}%
+    %% \sethlcolor{yellow}\hl{\ref*{#1}}%    
+  \else
+    \ref{#1}%
+  \fi
+}
+
+% To add an 'S' prefix to a reference
+\newcommand*\sref[1]{%
+    S\hlref{#1}}
+ 
+% For 'Supplementary Figure S1'
+\newcommand*\sfref[1]{%
+    Supplementary Figure S\hlref{#1}}
+ 
+% For 'Supplementary Table S1'
+\newcommand*\stref[1]{%
+    Supplementary Table S\hlref{#1}}
+ 
+% For 'Supplementary Materials S1'
+\newcommand*\smref[1]{%
+    Supplementary Materials S\hlref{#1}}
+
+
+\link[supple-]{../supplementary/main} % Works
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% JOURNAL NAME
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% -*- coding: utf-8 -*-
+%% Timestamp: "2025-05-04 08:36:10 (ywatanabe)"
+%% File: "/home/ywatanabe/proj/SciTex/manuscript/src/journal_name.tex"
+
+\journal{JOURNAL NAME HERE}
+
+%%%% EOF
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% DOCUMENT STARTS
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%DIF PREAMBLE EXTENSION ADDED BY LATEXDIFF
+%DIF UNDERLINE PREAMBLE %DIF PREAMBLE
+\RequirePackage[normalem]{ulem} %DIF PREAMBLE
+\RequirePackage{color}\definecolor{RED}{rgb}{1,0,0}\definecolor{BLUE}{rgb}{0,0,1} %DIF PREAMBLE
+\providecommand{\DIFaddtex}[1]{{\protect\color{blue}\uwave{#1}}} %DIF PREAMBLE
+\providecommand{\DIFdeltex}[1]{{\protect\color{red}\sout{#1}}}                      %DIF PREAMBLE
+%DIF SAFE PREAMBLE %DIF PREAMBLE
+\providecommand{\DIFaddbegin}{} %DIF PREAMBLE
+\providecommand{\DIFaddend}{} %DIF PREAMBLE
+\providecommand{\DIFdelbegin}{} %DIF PREAMBLE
+\providecommand{\DIFdelend}{} %DIF PREAMBLE
+\providecommand{\DIFmodbegin}{} %DIF PREAMBLE
+\providecommand{\DIFmodend}{} %DIF PREAMBLE
+%DIF FLOATSAFE PREAMBLE %DIF PREAMBLE
+\providecommand{\DIFaddFL}[1]{\DIFadd{#1}} %DIF PREAMBLE
+\providecommand{\DIFdelFL}[1]{\DIFdel{#1}} %DIF PREAMBLE
+\providecommand{\DIFaddbeginFL}{} %DIF PREAMBLE
+\providecommand{\DIFaddendFL}{} %DIF PREAMBLE
+\providecommand{\DIFdelbeginFL}{} %DIF PREAMBLE
+\providecommand{\DIFdelendFL}{} %DIF PREAMBLE
+%DIF HYPERREF PREAMBLE %DIF PREAMBLE
+\providecommand{\DIFadd}[1]{\texorpdfstring{\DIFaddtex{#1}}{#1}} %DIF PREAMBLE
+\providecommand{\DIFdel}[1]{\texorpdfstring{\DIFdeltex{#1}}{}} %DIF PREAMBLE
+\newcommand{\DIFscaledelfig}{0.5}
+%DIF HIGHLIGHTGRAPHICS PREAMBLE %DIF PREAMBLE
+\RequirePackage{settobox} %DIF PREAMBLE
+\RequirePackage{letltxmacro} %DIF PREAMBLE
+\newsavebox{\DIFdelgraphicsbox} %DIF PREAMBLE
+\newlength{\DIFdelgraphicswidth} %DIF PREAMBLE
+\newlength{\DIFdelgraphicsheight} %DIF PREAMBLE
+% store original definition of \includegraphics %DIF PREAMBLE
+\LetLtxMacro{\DIFOincludegraphics}{\includegraphics} %DIF PREAMBLE
+\newcommand{\DIFaddincludegraphics}[2][]{{\color{blue}\fbox{\DIFOincludegraphics[#1]{#2}}}} %DIF PREAMBLE
+\newcommand{\DIFdelincludegraphics}[2][]{% %DIF PREAMBLE
+\sbox{\DIFdelgraphicsbox}{\DIFOincludegraphics[#1]{#2}}% %DIF PREAMBLE
+\settoboxwidth{\DIFdelgraphicswidth}{\DIFdelgraphicsbox} %DIF PREAMBLE
+\settoboxtotalheight{\DIFdelgraphicsheight}{\DIFdelgraphicsbox} %DIF PREAMBLE
+\scalebox{\DIFscaledelfig}{% %DIF PREAMBLE
+\parbox[b]{\DIFdelgraphicswidth}{\usebox{\DIFdelgraphicsbox}\\[-\baselineskip] \rule{\DIFdelgraphicswidth}{0em}}\llap{\resizebox{\DIFdelgraphicswidth}{\DIFdelgraphicsheight}{% %DIF PREAMBLE
+\setlength{\unitlength}{\DIFdelgraphicswidth}% %DIF PREAMBLE
+\begin{picture}(1,1)% %DIF PREAMBLE
+\thicklines\linethickness{2pt} %DIF PREAMBLE
+{\color[rgb]{1,0,0}\put(0,0){\framebox(1,1){}}}% %DIF PREAMBLE
+{\color[rgb]{1,0,0}\put(0,0){\line( 1,1){1}}}% %DIF PREAMBLE
+{\color[rgb]{1,0,0}\put(0,1){\line(1,-1){1}}}% %DIF PREAMBLE
+\end{picture}% %DIF PREAMBLE
+}\hspace*{3pt}}} %DIF PREAMBLE
+} %DIF PREAMBLE
+\LetLtxMacro{\DIFOaddbegin}{\DIFaddbegin} %DIF PREAMBLE
+\LetLtxMacro{\DIFOaddend}{\DIFaddend} %DIF PREAMBLE
+\LetLtxMacro{\DIFOdelbegin}{\DIFdelbegin} %DIF PREAMBLE
+\LetLtxMacro{\DIFOdelend}{\DIFdelend} %DIF PREAMBLE
+\DeclareRobustCommand{\DIFaddbegin}{\DIFOaddbegin \let\includegraphics\DIFaddincludegraphics} %DIF PREAMBLE
+\DeclareRobustCommand{\DIFaddend}{\DIFOaddend \let\includegraphics\DIFOincludegraphics} %DIF PREAMBLE
+\DeclareRobustCommand{\DIFdelbegin}{\DIFOdelbegin \let\includegraphics\DIFdelincludegraphics} %DIF PREAMBLE
+\DeclareRobustCommand{\DIFdelend}{\DIFOaddend \let\includegraphics\DIFOincludegraphics} %DIF PREAMBLE
+\LetLtxMacro{\DIFOaddbeginFL}{\DIFaddbeginFL} %DIF PREAMBLE
+\LetLtxMacro{\DIFOaddendFL}{\DIFaddendFL} %DIF PREAMBLE
+\LetLtxMacro{\DIFOdelbeginFL}{\DIFdelbeginFL} %DIF PREAMBLE
+\LetLtxMacro{\DIFOdelendFL}{\DIFdelendFL} %DIF PREAMBLE
+\DeclareRobustCommand{\DIFaddbeginFL}{\DIFOaddbeginFL \let\includegraphics\DIFaddincludegraphics} %DIF PREAMBLE
+\DeclareRobustCommand{\DIFaddendFL}{\DIFOaddendFL \let\includegraphics\DIFOincludegraphics} %DIF PREAMBLE
+\DeclareRobustCommand{\DIFdelbeginFL}{\DIFOdelbeginFL \let\includegraphics\DIFdelincludegraphics} %DIF PREAMBLE
+\DeclareRobustCommand{\DIFdelendFL}{\DIFOaddendFL \let\includegraphics\DIFOincludegraphics} %DIF PREAMBLE
+%DIF LISTINGS PREAMBLE %DIF PREAMBLE
+\RequirePackage{listings} %DIF PREAMBLE
+\RequirePackage{color} %DIF PREAMBLE
+\lstdefinelanguage{DIFcode}{ %DIF PREAMBLE
+%DIF DIFCODE_UNDERLINE %DIF PREAMBLE
+  moredelim=[il][\color{red}\sout]{\%DIF\ <\ }, %DIF PREAMBLE
+  moredelim=[il][\color{blue}\uwave]{\%DIF\ >\ } %DIF PREAMBLE
+} %DIF PREAMBLE
+\lstdefinestyle{DIFverbatimstyle}{ %DIF PREAMBLE
+	language=DIFcode, %DIF PREAMBLE
+	basicstyle=\ttfamily, %DIF PREAMBLE
+	columns=fullflexible, %DIF PREAMBLE
+	keepspaces=true %DIF PREAMBLE
+} %DIF PREAMBLE
+\lstnewenvironment{DIFverbatim}{\lstset{style=DIFverbatimstyle}}{} %DIF PREAMBLE
+\lstnewenvironment{DIFverbatim*}{\lstset{style=DIFverbatimstyle,showspaces=true}}{} %DIF PREAMBLE
+%DIF END PREAMBLE EXTENSION ADDED BY LATEXDIFF
+
+\begin{document}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Frontmatter
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frontmatter}
+%% -*- coding: utf-8 -*-
+%% Timestamp: "2025-05-05 13:20:00 (ywatanabe)"
+%% File: "/home/ywatanabe/proj/SciTex/manuscript/src/highlights.tex"
+
+\begin{highlights}
+\pdfbookmark[1]{Highlights}{highlights}
+
+\item SciTex combines modular LaTeX templates with AI assistance for scientific manuscript preparation
+
+\item The system reduces document preparation time by 45\% compared to traditional methods
+
+\item AI-powered revision tools maintain scientific accuracy while improving grammar and clarity
+
+\item Automated figure and citation management streamlines common scientific writing tasks
+
+\end{highlights}
+
+%%%% EOF%% -*- coding: utf-8 -*-
+%% Timestamp: "2025-05-05 12:35:00 (ywatanabe)"
+%% File: "/home/ywatanabe/proj/SciTex/manuscript/src/title.tex"
+
+\title{
+    SciTex: An AI-Assisted LaTeX Template System for Efficient Scientific Manuscript Preparation
+}
+
+%%%% EOF%% -*- coding: utf-8 -*-
+%% Timestamp: "2025-05-05 12:40:00 (ywatanabe)"
+%% File: "/home/ywatanabe/proj/SciTex/manuscript/src/authors.tex"
+
+% This demonstrates how to format author information in a scientific paper
+% using the Elsevier template style
+
+\author[1,2]{Yusuke Watanabe\corref{cor1}}
+\author[3]{Jane Smith}
+\author[4]{John Doe}
+\author[1,5]{Alex Johnson}
+
+% The \corref command marks an author as corresponding author
+\corref{cor1}
+\address[1]{Institute for Advanced Cocreation Studies, Osaka University, 2-2 Yamadaoka, Suita, 565-0871, Osaka, Japan}
+\address[2]{NeuroEngineering Research Laboratory, Department of Biomedical Engineering, The University of Melbourne, Parkville VIC 3010, Australia}
+\address[3]{Department of Computer Science, Stanford University, Stanford, CA 94305, USA}
+\address[4]{Digital Humanities Center, University of Oxford, Oxford OX1 2JD, UK}
+\address[5]{Center for Scientific Document Analysis, National Institute of Informatics, Tokyo 101-8430, Japan}
+
+% The \cortext command adds the corresponding author information
+\cortext[cor1]{Corresponding author. Tel: +81-6-6879-7675, Email: ywatanabe@alumni.u-tokyo.ac.jp}
+
+%%%% EOF%% -*- coding: utf-8 -*-
+%% Timestamp: "2025-05-04 08:35:38 (ywatanabe)"
+%% File: "/home/ywatanabe/proj/SciTex/manuscript/src/graphical_abstract.tex"
+
+%%Graphical abstract
+%\pdfbookmark[1]{Graphical Abstract}{graphicalabstract}        
+%\begin{graphicalabstract}
+%\includegraphics{grabs}
+%\end{graphicalabstract}
+
+%%%% EOF%% -*- coding: utf-8 -*-
+%% Timestamp: "2025-05-05 12:30:00 (ywatanabe)"
+%% File: "/home/ywatanabe/proj/SciTex/manuscript/src/abstract.tex"
+
+\begin{abstract}
+  \pdfbookmark[1]{Abstract}{abstract}
+  % This demonstrates how to write an effective abstract for a scientific paper
+
+  Scientific manuscript preparation presents significant challenges, particularly for researchers balancing complex content with formatting requirements. This paper introduces SciTex, an AI-assisted LaTeX template system designed to streamline the document preparation workflow. SciTex integrates modular LaTeX templates with artificial intelligence tools that assist with text revision, terminology consistency, and citation management. We evaluated the system through a user study with 50 researchers across multiple disciplines, demonstrating a 45\% reduction in document preparation time compared to traditional methods. Quality assessments show that AI-revised text achieved clarity and grammar scores comparable to expert revisions while maintaining scientific accuracy. Key innovations include automated figure and table management, version control integration, and a standardized compilation pipeline. The template system is adaptable to various journal formats and includes comprehensive documentation. By reducing technical barriers to effective LaTeX usage, SciTex makes high-quality document preparation more accessible to researchers, potentially enhancing scientific communication across disciplines.
+\end{abstract}
+
+%%%% EOF%% -*- coding: utf-8 -*-
+%% Timestamp: "2025-05-05 13:15:00 (ywatanabe)"
+%% File: "/home/ywatanabe/proj/SciTex/manuscript/src/keywords.tex"
+
+\begin{keyword}
+LaTeX template \sep scientific writing \sep AI-assisted writing \sep document automation \sep scientific manuscript
+\end{keyword}
+
+%%%% EOF\end{frontmatter}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Counters
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{wordcount}
+\readwordcount{./src/wordcounts/figure_count.txt} figures, \readwordcount{./src/wordcounts/table_count.txt} tables, \readwordcount{./src/wordcounts/abstract_count.txt} words for abstract, and \readwordcount{./src/wordcounts/imrd_count.txt} words for main text
+\end{wordcount}
+
+%% \begin{*wordcount}
+%% \readwordcount{./src/wordcounts/figure_count.txt} figures, \readwordcount{./src/wordcounts/table_count.txt} tables, \readwordcount{./src/wordcounts/abstract_count.txt} words for abstract, and \readwordcount{./src/wordcounts/imrd_count.txt} words for main text
+%% \end{*wordcount}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% INTRODUCTION
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% -*- coding: utf-8 -*-
+%% Timestamp: "2025-05-05 12:10:00 (ywatanabe)"
+%% File: "/home/ywatanabe/proj/SciTex/manuscript/src/introduction.tex"
+
+\section{Introduction}
+\label{sec:introduction}
+
+Scientific writing in LaTeX presents several challenges, particularly for researchers unfamiliar with the system or those managing complex documents with numerous figures, tables, and citations \cite{Smith2020}. SciTex addresses these challenges by providing a modular LaTeX template specifically designed for scientific manuscripts. 
+
+This template is seamlessly integrated with AI-assistance tools that can revise text, check terminology consistency, and suggest relevant citations \cite{Johnson2023}. Figure~\ref{fig:workflow} illustrates the overall workflow of a typical manuscript preparation using SciTex, while Figure~\ref{fig:04_user_satisfaction} demonstrates the improved user satisfaction compared to traditional methods.
+
+% Note the cross-referencing capability using the \ref{} command
+% This references an image in the figures directory
+
+Three key innovations of this system include:
+
+\begin{itemize}
+    \item Modular organization of manuscript content into separate files for easier management
+    \item Integration with AI-assistance tools for text revision and citation suggestions
+    \item Automation of tedious tasks such as figure conversion and bibliography management
+\end{itemize}
+
+Prior research has shown that well-designed templates can significantly improve writing efficiency and reduce formatting errors \cite{Williams2021}. However, existing templates often lack flexibility or are overly complex for everyday use \cite{Garcia2019}.
+
+Our approach builds on established scientific writing methodologies while adding modern capabilities like version control integration and AI-assistance \cite{Taylor2022}. The system architecture (Figure~\ref{fig:02_architecture}) illustrates the modular design of SciTex. The principles guiding this design are detailed in Section~\ref{sec:methods}.
+
+% This is a demonstration of how to cite references from the bibliography.bib file
+% You can use \cite{} for standard citations
+% Or \citep{} and \citet{} for parenthetical and textual citations
+
+Researchers across disciplines have reported that document preparation can consume up to 30\% of their total research time, with formatting and citation management being particularly time-consuming \cite{Lee2018}. By automating these aspects, SciTex aims to reduce this burden and allow scientists to focus more on research content.
+
+In this paper, we present the design and implementation of SciTex, followed by evaluation results and usage examples.
+
+%%%% EOF
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% METHODS
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% -*- coding: utf-8 -*-
+%% Timestamp: "2025-05-05 12:15:00 (ywatanabe)"
+%% File: "/home/ywatanabe/proj/SciTex/manuscript/src/methods.tex"
+
+\section{Methods}
+\label{sec:methods}
+
+% This demonstrates how to create subsections and use LaTeX formatting features
+
+\subsection{Template Architecture}
+\label{subsec:architecture}
+
+The SciTex template is organized into a hierarchical structure to facilitate modularity and reuse. As shown in Figure~\ref{fig:architecture} and further detailed in Figure~\ref{fig:07_demo_architecture}, the template consists of three main components:
+
+\begin{enumerate}
+    \item \textbf{Main document entry point} - \DIFdelbegin %
+{\color{red}%DIFAUXCMD
+\verb|main.tex| %DIFAUXCMD
+}%DIFAUXCMD
+%DIFDELCMD < \verb|main.tex| %%%
+\DIFdelend \DIFaddbegin {\color{blue}%DIFAUXCMD
+\verb|structure.tex| %
+}%DIFAUXCMD
+\DIFaddend controls the overall document structure
+    \item \textbf{Content sections} - Individual .tex files in the \verb|src/| directory contain the actual content
+    \item \textbf{Style definitions} - Files in \verb|src/styles/| control formatting and appearance
+\end{enumerate}
+
+This architecture allows authors to focus on content without worrying about formatting details. The separation of content and formatting makes it easier to adapt the template to different journal requirements by modifying only the style files.
+
+% This demonstrates the use of equations in LaTeX
+
+\subsection{AI-Assisted Revision Process}
+\label{subsec:ai-revision}
+
+The revision process employs a specialized prompt formulation technique that preserves LaTeX commands while improving the surrounding text, as visualized in Figure~\ref{fig:06_demo_workflow}. Let $T$ represent the original text, $P$ the prompt template, and $R$ the revised text. The revision process can be formalized as:
+
+\begin{equation}
+R = f_{\text{GPT}}(P \oplus T)
+\end{equation}
+
+where $f_{\text{GPT}}$ is the GPT model function and $\oplus$ represents concatenation. The prompt $P$ includes specific instructions to maintain LaTeX syntax and scientific terminology, as shown in Table~\ref{tab:prompts}. Figure~\ref{fig:10_citations} illustrates how this AI-assisted approach extends to citation management.
+
+% This demonstrates how to reference tables
+
+\subsection{Figure and Table Management}
+\label{subsec:figure-management}
+
+Figures and tables are managed through a standardized pipeline that includes:
+
+\begin{itemize}
+    \item Automatic conversion of PowerPoint slides to TIF format
+    \item Automated cropping to remove excess whitespace
+    \item LaTeX wrapper generation for consistent formatting
+    \item Directory structure for organizing source and compiled files
+\end{itemize}
+
+Figure~\ref{fig:figure-pipeline} illustrates this process in detail.
+
+% This demonstrates how to create a simple table in LaTeX
+
+\begin{table}[h!]
+\centering
+\caption{Components of the SciTex System}
+\label{tab:components}
+\begin{tabular}{lp{8cm}}
+\hline
+\textbf{Component} & \textbf{Description} \\
+\hline
+LaTeX Template & Modular document structure with sections for introduction, methods, results, etc. \\
+Python Scripts & Tools for text revision, citation insertion, and terminology checking \\
+Shell Scripts & Automation for compilation, figure processing, and version management \\
+Documentation & Comprehensive guides and examples for users \\
+\hline
+\end{tabular}
+\end{table}
+
+\subsection{Version Control Integration}
+\label{subsec:version-control}
+
+SciTex integrates with Git for version control, providing benefits such as:
+
+\begin{itemize}
+    \item Tracking changes to all document components
+    \item Facilitating collaboration between multiple authors
+    \item Maintaining a history of document revisions
+    \item Enabling branching for experimental content
+\end{itemize}
+
+This integration is managed through shell scripts that handle common Git operations and maintain a clean version history.
+
+% This demonstrates LaTeX cross-referencing capabilities
+
+For implementation details of these methods, please refer to the code repository and documentation. The results of applying these methods are presented in Section~\ref{sec:results}.
+
+%%%% EOF
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% RESULTS
+ %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% -*- coding: utf-8 -*-
+%% Timestamp: "2025-05-05 12:20:00 (ywatanabe)"
+%% File: "/home/ywatanabe/proj/SciTex/manuscript/src/results.tex"
+
+\section{Results}
+\label{sec:results}
+
+% This section demonstrates various LaTeX features and how to present results effectively
+
+\subsection{Efficiency Improvements}
+\label{subsec:efficiency}
+
+To evaluate the efficiency gains from using SciTex, we conducted a comparative study with 50 researchers across different disciplines. Figure~\ref{fig:time-comparison} shows the average time spent on various document preparation tasks with and without SciTex. This time difference is further illustrated in Figure~\ref{fig:08_demo_time_comparison}, which demonstrates the significant efficiency improvements in each category.
+
+% This demonstrates how to reference figures
+
+The most significant improvements were observed in figure preparation (72\% reduction in time) and citation management (68\% reduction). Overall, researchers reported a 45\% reduction in total document preparation time when using SciTex compared to traditional methods.
+
+% This demonstrates how to use inline math and special characters in LaTeX
+
+The mean time savings ($\Delta t$) can be calculated as $\Delta t = t_{\text{traditional}} - t_{\text{SciTex}}$, which was 14.3 $\pm$ 2.7 hours per manuscript (mean $\pm$ SD, $n = 50$, $p < 0.001$).
+
+\subsection{Quality Assessment}
+\label{subsec:quality}
+
+We evaluated the quality of AI-assisted revisions by comparing original text, AI-revised text, and expert-revised text across 30 sample paragraphs. As shown in Table~\ref{tab:quality-metrics}, the AI-revised text achieved scores comparable to expert revisions in clarity and grammar, while maintaining scientific accuracy.
+
+% This demonstrates how to create a more complex LaTeX table with multiple columns
+
+\begin{table}[h!]
+\centering
+\caption{Quality Assessment Metrics (Scale 1-10)}
+\label{tab:quality-metrics}
+\begin{tabular}{lccc}
+\hline
+\textbf{Metric} & \textbf{Original Text} & \textbf{AI-Revised} & \textbf{Expert-Revised} \\
+\hline
+Grammar         & $6.2 \pm 1.3$ & $8.7 \pm 0.8$ & $9.2 \pm 0.5$ \\
+Clarity         & $5.8 \pm 1.5$ & $8.3 \pm 0.9$ & $8.9 \pm 0.6$ \\
+Scientific Accuracy & $8.5 \pm 0.7$ & $8.4 \pm 0.8$ & $8.9 \pm 0.3$ \\
+Style Consistency  & $6.7 \pm 1.2$ & $8.5 \pm 0.7$ & $8.8 \pm 0.4$ \\
+Overall Quality    & $6.8 \pm 1.1$ & $8.5 \pm 0.6$ & $9.0 \pm 0.3$ \\
+\hline
+\end{tabular}
+\end{table}
+
+\subsection{User Experience}
+\label{subsec:user-experience}
+
+Feedback from users (n=50) indicated high satisfaction with SciTex, with 92\% of participants reporting that they would use it for future manuscripts. Key advantages cited by users included:
+
+\begin{itemize}
+    \item Reduced time spent on formatting (cited by 94\% of users)
+    \item Improved manuscript organization (cited by 89\%)
+    \item Helpful AI suggestions for citations and revisions (cited by 87\%)
+    \item Easier collaboration with co-authors (cited by 76\%)
+\end{itemize}
+
+Figure~\ref{fig:user-satisfaction} shows the distribution of satisfaction scores across different aspects of the system.
+
+% This demonstrates how to create a simple bulleted list with LaTeX
+
+Areas for improvement identified by users included:
+
+\begin{itemize}
+    \item More intuitive figure management (cited by 32\% of users)
+    \item Better integration with cloud platforms (cited by 28\%)
+    \item Additional journal template options (cited by 23\%)
+\end{itemize}
+
+These results demonstrate that SciTex effectively addresses the common challenges in scientific manuscript preparation. The implications of these findings are discussed in Section~\ref{sec:discussion}.
+
+%%%% EOF
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% DISCUSSION
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% -*- coding: utf-8 -*-
+%% Timestamp: "2025-05-05 12:25:00 (ywatanabe)"
+%% File: "/home/ywatanabe/proj/SciTex/manuscript/src/discussion.tex"
+
+\section{Discussion}
+\label{sec:discussion}
+
+% This section demonstrates effective discussion structure and LaTeX features
+
+Our results demonstrate that SciTex significantly improves the efficiency and quality of scientific manuscript preparation. As illustrated in Figure~\ref{fig:09_comparison}, the observed 45\% reduction in document preparation time aligns with findings from previous studies on scientific writing tools \cite{Robinson2023}, but the additional benefits of AI-assisted revision represent a novel advancement.
+
+% This demonstrates how to effectively discuss results and compare to previous work
+
+\subsection{Implications for Scientific Writing}
+\label{subsec:implications}
+
+The integration of AI assistance for text revision and citation management has several important implications for scientific writing practices. First, it addresses the well-documented challenges of maintaining consistent terminology and style throughout lengthy documents \cite{Edwards2019}. Second, it reduces the cognitive load on researchers, allowing them to focus more on scientific content rather than formatting concerns.
+
+As shown in Section~\ref{sec:results}, users particularly valued the improved manuscript organization and reduced time spent on formatting. This suggests that SciTex succeeds in its primary goal of streamlining the document preparation process while maintaining high quality standards.
+
+% This demonstrates how to reference previous sections
+
+\subsection{Limitations and Future Directions}
+\label{subsec:limitations}
+
+Despite its advantages, SciTex has several limitations that should be addressed in future work. First, while the AI revision capabilities are generally effective (Table~\ref{tab:quality-metrics}), they occasionally struggle with highly specialized scientific terminology or complex mathematical expressions. This limitation could be addressed through domain-specific training of language models.
+
+Second, as noted by 32\% of users, the figure management system could be more intuitive. Future versions should incorporate a more visual interface for organizing and arranging figures, potentially through integration with graphical editors.
+
+% This demonstrates how to create a numbered list in LaTeX
+
+Several promising directions for future development include:
+
+\begin{enumerate}
+    \item \textbf{Expanded journal template library} - Adding support for more publisher-specific formats
+    \item \textbf{Real-time collaborative editing} - Incorporating web-based concurrent editing capabilities
+    \item \textbf{Smart citation recommendations} - Using AI to suggest relevant papers based on manuscript content
+    \item \textbf{Integrated literature review tools} - Adding features to assist with literature synthesis and comparison
+\end{enumerate}
+
+\subsection{Broader Impact}
+\label{subsec:impact}
+
+The broader impact of tools like SciTex extends beyond individual efficiency gains. By reducing the technical barriers to effective LaTeX usage, such tools can democratize access to high-quality document preparation, particularly benefiting researchers with limited experience or resources. This aligns with calls for more accessible scientific communication tools \cite{Patel2022}.
+
+Furthermore, standardized templates can improve the consistency and readability of scientific literature as a whole, potentially enhancing knowledge transfer and interdisciplinary collaboration.
+
+In conclusion, SciTex represents a significant step forward in scientific document preparation by combining the structural advantages of LaTeX with the efficiency benefits of AI assistance and automation. While there is room for improvement, the current implementation already offers substantial benefits to researchers across disciplines.
+
+%%%% EOF
+\DIFdelbegin %DIFDELCMD < 
+
+%DIFDELCMD < %%%
+\DIFdelend %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% DATA AVAILABILITY
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% -*- coding: utf-8 -*-
+%% Timestamp: "2025-05-04 08:33:32 (ywatanabe)"
+%% File: "/home/ywatanabe/proj/SciTex/manuscript/src/data_availability.tex"
+
+\pdfbookmark[1]{Data Availability Statement}{data_availability}
+\section*{Data Availability Statement}
+Data and code used in this study is available on https://github.com/ywatanabe1989/torchPAC.
+\label{data and code availability}
+
+%%%% EOF
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% REFERENCE STYLES
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\pdfbookmark[1]{References}{references}
+%DIF < % \bibliography{main}
+\bibliography{./src/bibliography}
+% Note Re-compile is required
+
+% %% Numbering Style (sorted and listed)
+% [1, 2, 3, 4]
+
+%% Numbering Style (sorted)
+\bibliographystyle{elsarticle-num}
+
+% Author Style
+% \bibliographystyle{plainnat}
+% use \citet{}
+
+% Numbering Style (not-sorted) 
+% \bibliographystyle{plainnat}
+% use \cite{}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% ADDITIONAL INFORMATION
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% -*- coding: utf-8 -*-
+%% Timestamp: "2025-05-04 08:33:31 (ywatanabe)"
+%% File: "/home/ywatanabe/proj/SciTex/manuscript/src/additional_info.tex"
+\pdfbookmark[1]{Additional Information}{additional_information}
+
+\pdfbookmark[2]{Ethics Declarations}{ethics_declarations}                    
+\section*{Ethics Declarations}
+All study participants provided their written informed consent ...
+\label{ethics declarations}
+
+\pdfbookmark[2]{Contributors}{author_contributions}                    
+\section*{Author Contributions}
+Y.W. and T.Y. conceptualized the study ...
+\label{author contributions}
+
+\pdfbookmark[2]{Acknowledgments}{acknowledgments}                    
+\section*{Acknowledgments}
+This research was funded by ...
+\label{acknowledgments}
+
+\pdfbookmark[2]{Declaration of Interests}{declaration_of_interest}                    
+\section*{Declaration of Interests}
+The authors declare that they have no competing interests.
+\label{declaration of interests}
+
+\pdfbookmark[2]{Inclusion and Diversity Statement}{inclusion_and_diversity_statement}        
+\section*{Inclusion and Diversity Statement}
+We support inclusive, diverse, and equitable conduct of research.
+\label{inclusion and diversity statement}
+
+\pdfbookmark[2]{Declaration of Generative AI in Scientific Writing}{declaration_of_generative_ai}
+\section*{Declaration of Generative AI in Scientific Writing}
+The authors employed ChatGPT, provided by OpenAI, for enhancing the manuscript's English language quality. After incorporating the suggested improvements, the authors meticulously revised the content. Ultimate responsibility for the final content of this publication rests entirely with the authors.
+\label{declaration of generative ai in scientific writing}
+
+%% \pdfbookmark[2]{Appendices}{appendices}                    
+%% \appendix
+%% \section{}
+%% \label{}
+
+%%%% EOF
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% TABLES
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\clearpage
+\section*{Tables}
+\label{tables}
+\pdfbookmark[1]{Tables}{tables}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% FIGURES
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\clearpage
+\section*{Figures}
+\label{figures}
+\pdfbookmark[1]{Figures}{figures}
+%DIF >  Generated by gather_tex_files() on Tue May  6 12:34:17 PM AEST 2025
+%DIF >  This file includes all figure files in order
+
+\DIFdelbegin %DIFDELCMD < \clearpage
+%DIFDELCMD <         \begin{figure}[ht]
+%DIFDELCMD <             \pdfbookmark[2]{ID 00_example}{figure_id_00_example}
+%DIFDELCMD <         	\centering
+%DIFDELCMD < %%%
+%DIF <             \includegraphics[width=1\textwidth]{./src/figures/src/jpg/Figure_ID_00_example.jpg.jpg}
+        	%DIF < % -*- coding: utf-8 -*-
+%DIF < % Timestamp: "2025-05-04 08:34:51 (ywatanabe)"
+%DIF < % File: "/home/ywatanabe/proj/SciTex/manuscript/src/figures/src/Figure_ID_00_example.jpg.tex"
+%DIFDELCMD < 
+
+%DIFDELCMD < %%%
+%DIFDELCMD < \caption{%
+{%DIFAUXCMD
+\textbf{\DIFdelFL{FIGURE TITLE HERE
+}}
+%DIFAUXCMD
+%DIFDELCMD < \smallskip
+%DIFDELCMD < \\
+%DIFDELCMD < %%%
+\DIFdelFL{FIGURE LEGEND HERE.
+}}
+%DIFAUXCMD
+%DIF <  width=1\textwidth
+%DIFDELCMD < 
+
+%DIFDELCMD < %%%
+%DIF < %%% EOF
+        	%DIFDELCMD < \label{fig:00_example}
+%DIFDELCMD <         \end{figure}
+%DIFDELCMD <         \clearpage
+%DIFDELCMD <         \begin{figure}[ht]
+%DIFDELCMD <             \pdfbookmark[2]{ID 01_workflow}{figure_id_01_workflow}
+%DIFDELCMD <         	\centering
+%DIFDELCMD < %%%
+%DIF <             \includegraphics[width=0.8\textwidth]{./src/figures/src/jpg/Figure_ID_01_workflow.jpg}
+        	%DIF < % -*- coding: utf-8 -*-
+%DIF < % Timestamp: "2025-05-05 12:45:00 (ywatanabe)"
+%DIF < % File: "/home/ywatanabe/proj/SciTex/manuscript/src/figures/src/Figure_ID_01_workflow.tex"
+%DIFDELCMD < 
+
+%DIFDELCMD < %%%
+%DIF <  This is an example figure file for the SciTex template.
+%DIF <  It demonstrates how to structure a figure in LaTeX.
+%DIFDELCMD < 
+
+%DIFDELCMD < \begin{figure}[ht!]
+%DIFDELCMD <     \centering
+%DIFDELCMD <     %%%
+%DIF <  In a real document, you would include a real image here:
+    %DIF <  \includegraphics[width=0.8\textwidth]{./path/to/figure.pdf}
+    %DIFDELCMD < 
+
+%DIFDELCMD <     %%%
+%DIF <  For this example, we'll create a simple diagram using TikZ
+    %DIFDELCMD < \begin{tikzpicture}[
+%DIFDELCMD <         block/.style={rectangle, draw, fill=blue!20, 
+%DIFDELCMD <                      text width=2.5cm, text centered, rounded corners, minimum height=1.5cm},
+%DIFDELCMD <         line/.style={draw, -latex'},
+%DIFDELCMD <         cloud/.style={draw, ellipse, fill=red!20, minimum height=1cm}
+%DIFDELCMD <     ]
+%DIFDELCMD <     
+
+%DIFDELCMD <     % Place blocks
+%DIFDELCMD <     \node [block] (manuscript) {Manuscript Preparation};
+%DIFDELCMD <     \node [block, right=of manuscript] (AI) {AI-Assisted Revision};
+%DIFDELCMD <     \node [block, right=of AI] (compile) {LaTeX Compilation};
+%DIFDELCMD <     \node [block, below=of AI] (figures) {Figure Processing};
+%DIFDELCMD <     \node [block, below=of manuscript] (citations) {Citation Management};
+%DIFDELCMD <     \node [cloud, below=of compile] (output) {Final Document};
+%DIFDELCMD <     
+
+%DIFDELCMD <     % Connect blocks with arrows
+%DIFDELCMD <     \path [line] (manuscript) -- (AI);
+%DIFDELCMD <     \path [line] (AI) -- (compile);
+%DIFDELCMD <     \path [line] (figures) -- (compile);
+%DIFDELCMD <     \path [line] (citations) -- (manuscript);
+%DIFDELCMD <     \path [line] (compile) -- (output);
+%DIFDELCMD <     \path [line] (manuscript) to[out=250,in=110] (citations);
+%DIFDELCMD <     \path [line] (manuscript) to[out=290,in=90] (figures);
+%DIFDELCMD <     
+
+%DIFDELCMD <     \end{tikzpicture}
+%DIFDELCMD <     
+
+%DIFDELCMD <     %%%
+%DIFDELCMD < \caption{%
+{%DIFAUXCMD
+\textbf{\DIFdelFL{SciTex workflow diagram.}} %DIFAUXCMD
+\DIFdelFL{The figure illustrates the key components and workflow of the SciTex system, including manuscript preparation, AI-assisted revision, figure processing, citation management, and LaTeX compilation to generate the final document. The modular design allows for customization at each stage of the process.}}
+    %DIFAUXCMD
+%DIFDELCMD < \label{fig:workflow}
+%DIFDELCMD < \end{figure}
+%DIFDELCMD < 
+
+%DIFDELCMD < %%%
+%DIF < %%% EOF
+        	%DIFDELCMD < \label{fig:01_workflow}
+%DIFDELCMD <         \end{figure}
+%DIFDELCMD <         \clearpage
+%DIFDELCMD <         \begin{figure}[ht]
+%DIFDELCMD <             \pdfbookmark[2]{ID 02_architecture}{figure_id_02_architecture}
+%DIFDELCMD <         	\centering
+%DIFDELCMD < %%%
+%DIF <             \includegraphics[width=]{./src/figures/src/jpg/Figure_ID_02_architecture.jpg}
+        	%DIF < % -*- coding: utf-8 -*-
+%DIF < % Timestamp: "2025-05-05 12:50:00 (ywatanabe)"
+%DIF < % File: "/home/ywatanabe/proj/SciTex/manuscript/src/figures/src/Figure_ID_02_architecture.tex"
+%DIFDELCMD < 
+
+%DIFDELCMD < %%%
+%DIF <  This is an example figure file showing the SciTex architecture.
+%DIF <  It demonstrates how to create more complex figures with multiple panels.
+%DIFDELCMD < 
+
+%DIFDELCMD < \begin{figure}[ht!]
+%DIFDELCMD <     \centering
+%DIFDELCMD <     
+
+%DIFDELCMD <     %%%
+%DIF <  For this example, we'll create a simple diagram using TikZ
+    %DIFDELCMD < \begin{tikzpicture}[
+%DIFDELCMD <         file/.style={rectangle, draw, fill=green!10, 
+%DIFDELCMD <                      text width=2.5cm, text centered, minimum height=0.7cm},
+%DIFDELCMD <         directory/.style={rectangle, draw, fill=blue!10, 
+%DIFDELCMD <                      text width=2.5cm, text centered, minimum height=0.7cm},
+%DIFDELCMD <         arrow/.style={draw, -latex, thick},
+%DIFDELCMD <         level 1/.style={sibling distance=5cm},
+%DIFDELCMD <         level 2/.style={sibling distance=2.5cm},
+%DIFDELCMD <         level 3/.style={sibling distance=1.2cm}
+%DIFDELCMD <     ]
+%DIFDELCMD <     
+
+%DIFDELCMD <     % Draw a hierarchical tree of the SciTex architecture
+%DIFDELCMD <     \node[directory] (root) {SciTex Repository}
+%DIFDELCMD <         child[level 1] {
+%DIFDELCMD <             node[directory] (manuscript) {manuscript/}
+%DIFDELCMD <             child[level 2] {
+%DIFDELCMD <                 node[file] {main.tex}
+%DIFDELCMD <             }
+%DIFDELCMD <             child[level 2] {
+%DIFDELCMD <                 node[directory] {src/}
+%DIFDELCMD <                 child[level 3] { node[file] {introduction.tex} }
+%DIFDELCMD <                 child[level 3] { node[file] {methods.tex} }
+%DIFDELCMD <                 child[level 3] { node[file] {results.tex} }
+%DIFDELCMD <                 child[level 3] { node[file] {discussion.tex} }
+%DIFDELCMD <                 child[level 3] { node[directory] {figures/} }
+%DIFDELCMD <                 child[level 3] { node[directory] {tables/} }
+%DIFDELCMD <                 child[level 3] { node[directory] {styles/} }
+%DIFDELCMD <             }
+%DIFDELCMD <             child[level 2] {
+%DIFDELCMD <                 node[directory] {scripts/}
+%DIFDELCMD <                 child[level 3] { node[directory] {py/} }
+%DIFDELCMD <                 child[level 3] { node[directory] {sh/} }
+%DIFDELCMD <             }
+%DIFDELCMD <         }
+%DIFDELCMD <         child[level 1] {
+%DIFDELCMD <             node[directory] (revision) {revision/}
+%DIFDELCMD <         }
+%DIFDELCMD <         child[level 1] {
+%DIFDELCMD <             node[directory] (supplementary) {supplementary/}
+%DIFDELCMD <         };
+%DIFDELCMD <     
+
+%DIFDELCMD <     \end{tikzpicture}
+%DIFDELCMD <     
+
+%DIFDELCMD <     %%%
+%DIFDELCMD < \caption{%
+{%DIFAUXCMD
+\textbf{\DIFdelFL{SciTex template architecture.}} %DIFAUXCMD
+\DIFdelFL{The figure shows the hierarchical organization of the SciTex repository, with emphasis on the manuscript component. The modular structure separates content files (introduction, methods, results, discussion), supporting materials (figures, tables), styling definitions, and automation scripts. This organization facilitates collaboration, version control, and maintenance of complex documents.}}
+    %DIFAUXCMD
+%DIFDELCMD < \label{fig:architecture}
+%DIFDELCMD < \end{figure}
+%DIFDELCMD < 
+
+%DIFDELCMD < %%%
+%DIF < %%% EOF
+        	%DIFDELCMD < \label{fig:02_architecture}
+%DIFDELCMD <         \end{figure}
+%DIFDELCMD <         \clearpage
+%DIFDELCMD <         \begin{figure}[ht]
+%DIFDELCMD <             \pdfbookmark[2]{ID 03_figure_pipeline}{figure_id_03_figure_pipeline}
+%DIFDELCMD <         	\centering
+%DIFDELCMD < %%%
+%DIF <             \includegraphics[width=]{./src/figures/src/jpg/Figure_ID_03_figure_pipeline.jpg}
+        	%DIF < % -*- coding: utf-8 -*-
+%DIF < % Timestamp: "2025-05-05 12:55:00 (ywatanabe)"
+%DIF < % File: "/home/ywatanabe/proj/SciTex/manuscript/src/figures/src/Figure_ID_03_figure_pipeline.tex"
+%DIFDELCMD < 
+
+%DIFDELCMD < %%%
+%DIF <  This is an example figure showing the figure processing pipeline.
+%DIF <  It demonstrates how to create a sequential flow diagram.
+%DIFDELCMD < 
+
+%DIFDELCMD < \begin{figure}[ht!]
+%DIFDELCMD <     \centering
+%DIFDELCMD <     
+
+%DIFDELCMD <     %%%
+%DIF <  Create a pipeline diagram using TikZ
+    %DIFDELCMD < \begin{tikzpicture}[
+%DIFDELCMD <         process/.style={rectangle, draw, fill=yellow!20, 
+%DIFDELCMD <                      text width=2.5cm, text centered, rounded corners, minimum height=1cm},
+%DIFDELCMD <         io/.style={trapezium, trapezium left angle=70, trapezium right angle=110, 
+%DIFDELCMD <                   draw, fill=blue!20, text width=2.5cm, text centered, minimum height=1cm},
+%DIFDELCMD <         arrow/.style={draw, -latex, thick},
+%DIFDELCMD <         node distance=2cm
+%DIFDELCMD <     ]
+%DIFDELCMD <     
+
+%DIFDELCMD <     % Define the nodes/steps in the pipeline
+%DIFDELCMD <     \node[io] (powerpoint) {PowerPoint Slides};
+%DIFDELCMD <     \node[process, right=of powerpoint] (convert) {Convert to TIF};
+%DIFDELCMD <     \node[process, right=of convert] (crop) {Auto-crop Whitespace};
+%DIFDELCMD <     \node[process, right=of crop] (wrap) {Generate LaTeX Wrapper};
+%DIFDELCMD <     \node[io, right=of wrap] (output) {Final Figure};
+%DIFDELCMD <     
+
+%DIFDELCMD <     % Optional processes below main flow
+%DIFDELCMD <     \node[process, below=1cm of convert] (resolution) {Adjust Resolution};
+%DIFDELCMD <     \node[process, below=1cm of crop] (manual) {Manual Adjustments};
+%DIFDELCMD <     \node[process, below=1cm of wrap] (metadata) {Add Metadata};
+%DIFDELCMD <     
+
+%DIFDELCMD <     % Connect the nodes with arrows
+%DIFDELCMD <     \draw[arrow] (powerpoint) -- (convert);
+%DIFDELCMD <     \draw[arrow] (convert) -- (crop);
+%DIFDELCMD <     \draw[arrow] (crop) -- (wrap);
+%DIFDELCMD <     \draw[arrow] (wrap) -- (output);
+%DIFDELCMD <     
+
+%DIFDELCMD <     % Optional paths
+%DIFDELCMD <     \draw[arrow, dashed] (convert) -- (resolution);
+%DIFDELCMD <     \draw[arrow, dashed] (resolution) -| (crop);
+%DIFDELCMD <     \draw[arrow, dashed] (crop) -- (manual);
+%DIFDELCMD <     \draw[arrow, dashed] (manual) -| (wrap);
+%DIFDELCMD <     \draw[arrow, dashed] (wrap) -- (metadata);
+%DIFDELCMD <     \draw[arrow, dashed] (metadata) -| (output);
+%DIFDELCMD <     
+
+%DIFDELCMD <     \end{tikzpicture}
+%DIFDELCMD <     
+
+%DIFDELCMD <     %%%
+%DIFDELCMD < \caption{%
+{%DIFAUXCMD
+\textbf{\DIFdelFL{SciTex figure processing pipeline.}} %DIFAUXCMD
+\DIFdelFL{The diagram illustrates the automated workflow for processing figures in SciTex, from PowerPoint slides to final LaTeX-ready images. Solid lines indicate the standard pipeline, while dashed lines show optional processing steps. This pipeline ensures consistent figure quality and formatting throughout the manuscript.}}
+    %DIFAUXCMD
+%DIFDELCMD < \label{fig:figure-pipeline}
+%DIFDELCMD < \end{figure}
+%DIFDELCMD < 
+
+%DIFDELCMD < %%%
+%DIF < %%% EOF
+        	%DIFDELCMD < \label{fig:03_figure_pipeline}
+%DIFDELCMD <         \end{figure}
+%DIFDELCMD <         \clearpage
+%DIFDELCMD <         \begin{figure}[ht]
+%DIFDELCMD <             \pdfbookmark[2]{ID 04_user_satisfaction}{figure_id_04_user_satisfaction}
+%DIFDELCMD <         	\centering
+%DIFDELCMD < %%%
+%DIF <             \includegraphics[width=]{./src/figures/src/jpg/Figure_ID_04_user_satisfaction.jpg}
+        	%DIF < % -*- coding: utf-8 -*-
+%DIF < % Timestamp: "2025-05-05 13:00:00 (ywatanabe)"
+%DIF < % File: "/home/ywatanabe/proj/SciTex/manuscript/src/figures/src/Figure_ID_04_user_satisfaction.tex"
+%DIFDELCMD < 
+
+%DIFDELCMD < %%%
+%DIF <  This is an example figure showing user satisfaction results.
+%DIF <  It demonstrates how to create a bar chart in LaTeX.
+%DIFDELCMD < 
+
+%DIFDELCMD < \begin{figure}[ht!]
+%DIFDELCMD <     \centering
+%DIFDELCMD <     
+
+%DIFDELCMD <     %%%
+%DIF <  Create a bar chart using pgfplots
+    %DIFDELCMD < \begin{tikzpicture}
+%DIFDELCMD <     \begin{axis}[
+%DIFDELCMD <         width=12cm,
+%DIFDELCMD <         height=8cm,
+%DIFDELCMD <         ybar,
+%DIFDELCMD <         enlargelimits=0.15,
+%DIFDELCMD <         ylabel={Satisfaction Score (1-10)},
+%DIFDELCMD <         xlabel={Feature Category},
+%DIFDELCMD <         symbolic x coords={Template Structure, AI Assistance, Figure Management, Citation Tools, Version Control},
+%DIFDELCMD <         xtick=data,
+%DIFDELCMD <         xticklabel style={rotate=45, anchor=east},
+%DIFDELCMD <         nodes near coords,
+%DIFDELCMD <         nodes near coords align={vertical},
+%DIFDELCMD <         ymin=0, ymax=10,
+%DIFDELCMD <         legend style={at={(0.5,-0.2)}, anchor=north, legend columns=-1},
+%DIFDELCMD <         ylabel near ticks,
+%DIFDELCMD <         grid=major
+%DIFDELCMD <     ]
+%DIFDELCMD <     \addplot[fill=blue!70] coordinates {
+%DIFDELCMD <         (Template Structure, 8.7)
+%DIFDELCMD <         (AI Assistance, 8.3)
+%DIFDELCMD <         (Figure Management, 7.2)
+%DIFDELCMD <         (Citation Tools, 8.9)
+%DIFDELCMD <         (Version Control, 8.5)
+%DIFDELCMD <     };
+%DIFDELCMD <     \addplot[fill=red!70] coordinates {
+%DIFDELCMD <         (Template Structure, 6.2)
+%DIFDELCMD <         (AI Assistance, 5.8)
+%DIFDELCMD <         (Figure Management, 5.5)
+%DIFDELCMD <         (Citation Tools, 6.7)
+%DIFDELCMD <         (Version Control, 5.9)
+%DIFDELCMD <     };
+%DIFDELCMD <     \legend{SciTex, Traditional Methods}
+%DIFDELCMD <     \end{axis}
+%DIFDELCMD <     \end{tikzpicture}
+%DIFDELCMD <     
+
+%DIFDELCMD <     %%%
+%DIFDELCMD < \caption{%
+{%DIFAUXCMD
+\textbf{\DIFdelFL{User satisfaction comparison.}} %DIFAUXCMD
+\DIFdelFL{The chart shows average satisfaction scores (scale 1-10) from a survey of 50 researchers comparing SciTex to traditional LaTeX methods across five key feature categories. SciTex consistently received higher satisfaction ratings, with the largest improvements in AI assistance and citation tools. Error bars represent standard deviation.}}
+    %DIFAUXCMD
+%DIFDELCMD < \label{fig:user-satisfaction}
+%DIFDELCMD < \end{figure}
+%DIFDELCMD < 
+
+%DIFDELCMD < %%%
+%DIF < %%% EOF
+        	%DIFDELCMD < \label{fig:04_user_satisfaction}
+%DIFDELCMD <         \end{figure}
+%DIFDELCMD <         \clearpage
+%DIFDELCMD <         \begin{figure}[ht]
+%DIFDELCMD <             \pdfbookmark[2]{ID 05_time_comparison}{figure_id_05_time_comparison}
+%DIFDELCMD <         	\centering
+%DIFDELCMD < %%%
+%DIF <             \includegraphics[width=]{./src/figures/src/jpg/Figure_ID_05_time_comparison.jpg}
+        	%DIF < % -*- coding: utf-8 -*-
+%DIF < % Timestamp: "2025-05-05 13:05:00 (ywatanabe)"
+%DIF < % File: "/home/ywatanabe/proj/SciTex/manuscript/src/figures/src/Figure_ID_05_time_comparison.tex"
+%DIFDELCMD < 
+
+%DIFDELCMD < %%%
+%DIF <  This is an example figure showing time comparison results.
+%DIF <  It demonstrates how to create a more complex chart in LaTeX.
+%DIFDELCMD < 
+
+%DIFDELCMD < \begin{figure}[ht!]
+%DIFDELCMD <     \centering
+%DIFDELCMD <     
+
+%DIFDELCMD <     %%%
+%DIF <  Create a horizontal bar chart using pgfplots
+    %DIFDELCMD < \begin{tikzpicture}
+%DIFDELCMD <     \begin{axis}[
+%DIFDELCMD <         width=12cm,
+%DIFDELCMD <         height=8cm,
+%DIFDELCMD <         xbar,
+%DIFDELCMD <         enlargelimits=0.15,
+%DIFDELCMD <         xlabel={Average Time (hours)},
+%DIFDELCMD <         ylabel={Task},
+%DIFDELCMD <         symbolic y coords={Content Writing, Formatting, Figure Preparation, Table Creation, Citation Management, Revision, Total},
+%DIFDELCMD <         ytick=data,
+%DIFDELCMD <         y dir=reverse,
+%DIFDELCMD <         nodes near coords,
+%DIFDELCMD <         nodes near coords align={horizontal},
+%DIFDELCMD <         xmin=0, xmax=35,
+%DIFDELCMD <         legend style={at={(0.5,-0.15)}, anchor=north, legend columns=-1},
+%DIFDELCMD <         xlabel near ticks,
+%DIFDELCMD <         grid=major
+%DIFDELCMD <     ]
+%DIFDELCMD <     \addplot[fill=blue!50] coordinates {
+%DIFDELCMD <         (15.2, Content Writing)
+%DIFDELCMD <         (3.8, Formatting)
+%DIFDELCMD <         (4.1, Figure Preparation)
+%DIFDELCMD <         (2.9, Table Creation)
+%DIFDELCMD <         (3.2, Citation Management)
+%DIFDELCMD <         (4.6, Revision)
+%DIFDELCMD <         (33.8, Total)
+%DIFDELCMD <     };
+%DIFDELCMD <     \addplot[fill=green!50] coordinates {
+%DIFDELCMD <         (14.7, Content Writing)
+%DIFDELCMD <         (1.5, Formatting)
+%DIFDELCMD <         (1.1, Figure Preparation)
+%DIFDELCMD <         (0.9, Table Creation)
+%DIFDELCMD <         (1.0, Citation Management)
+%DIFDELCMD <         (1.8, Revision)
+%DIFDELCMD <         (21.0, Total)
+%DIFDELCMD <     };
+%DIFDELCMD <     \legend{Traditional Methods, SciTex}
+%DIFDELCMD <     \end{axis}
+%DIFDELCMD <     \end{tikzpicture}
+%DIFDELCMD <     
+
+%DIFDELCMD <     %%%
+%DIFDELCMD < \caption{%
+{%DIFAUXCMD
+\textbf{\DIFdelFL{Time comparison for document preparation tasks.}} %DIFAUXCMD
+\DIFdelFL{The chart compares the average time spent (in hours) on various document preparation tasks using traditional LaTeX methods versus SciTex. Data collected from 50 researchers across multiple disciplines. The most significant time savings were observed in figure preparation (72\% reduction), citation management (68\% reduction), and formatting (61\% reduction). Content writing time remained similar between the two approaches, as expected.}}
+    %DIFAUXCMD
+%DIFDELCMD < \label{fig:time-comparison}
+%DIFDELCMD < \end{figure}
+%DIFDELCMD < 
+
+%DIFDELCMD < %%%
+%DIF < %%% EOF
+        	%DIFDELCMD < \label{fig:05_time_comparison}
+%DIFDELCMD <         \end{figure}
+%DIFDELCMD <         \clearpage
+%DIFDELCMD <         \begin{figure}[ht]
+%DIFDELCMD <             \pdfbookmark[2]{ID 06_demo_workflow}{figure_id_06_demo_workflow}
+%DIFDELCMD <         	\centering
+%DIFDELCMD < %%%
+%DIF <             \includegraphics[width=0.95\textwidth]{./src/figures/src/jpg/Figure_ID_06_demo_workflow.jpg.jpg}
+        	%DIF < % -*- coding: utf-8 -*-
+%DIF < % Timestamp: "2025-05-05 13:45:00 (ywatanabe)"
+%DIF < % File: "/home/ywatanabe/proj/SciTex/manuscript/src/figures/src/Figure_ID_06_demo_workflow.jpg.tex"
+%DIFDELCMD < 
+
+%DIFDELCMD < %%%
+%DIFDELCMD < \caption{%
+{%DIFAUXCMD
+\textbf{\DIFdelFL{SciTex Workflow Diagram
+}}
+%DIFAUXCMD
+%DIFDELCMD < \smallskip
+%DIFDELCMD < \\
+%DIFDELCMD < %%%
+\DIFdelFL{This diagram illustrates the core workflow of the SciTex system, showing how documents move through the processing pipeline from input to output. The AI-assisted revision process enables automated improvements to text quality, terminology consistency, and citation management.
+}}
+%DIFAUXCMD
+%DIF <  width=0.95\textwidth
+\DIFdelendFL %DIF >  Set up proper figure structure - using figure* environment to wrap all figures
+%DIF >  We don't need the headers since we're already in the Figures section
+
+%DIF < %%% EOF
+        	\DIFdelbeginFL %DIFDELCMD < \label{fig:06_demo_workflow}
+%DIFDELCMD <         \end{figure}
+%DIFDELCMD <         %%%
+\DIFdelend %DIF >  Figure 00: Figure 00
+\clearpage
+\DIFdelbegin %DIFDELCMD < \begin{figure}[ht]
+%DIFDELCMD <             \pdfbookmark[2]{ID 07_demo_architecture}{figure_id_07_demo_architecture}
+%DIFDELCMD <         	%%%
+\DIFdelendFL \DIFaddbeginFL \begin{figure*}[p]
+    \pdfbookmark[2]{Figure 00}{figure_id_00}
+    \DIFaddendFL \centering
+    %DIF <             \includegraphics[width=0.95\textwidth]{./src/figures/src/jpg/Figure_ID_07_demo_architecture.jpg.jpg}
+        	%DIF < % -*- coding: utf-8 -*-
+%DIF < % Timestamp: "2025-05-05 13:45:10 (ywatanabe)"
+%DIF < % File: "/home/ywatanabe/proj/SciTex/manuscript/src/figures/src/Figure_ID_07_demo_architecture.jpg.tex"
+\DIFdelbeginFL %DIFDELCMD < 
+
+%DIFDELCMD < %%%
+\DIFdelendFL \DIFaddbeginFL \includegraphics[width=1\textwidth]{./src/figures/src/jpg/Figure_ID_00_example.jpg}
+    \DIFaddendFL \caption{\DIFdelbeginFL \textbf{\DIFdelFL{SciTex System Architecture
+}}
+%DIFAUXCMD
+\DIFdelendFL 
+\DIFaddbeginFL \textbf{
+\DIFaddFL{Figure 00
+}}
+\DIFaddendFL \smallskip
+\\
+\DIFdelbeginFL \DIFdelFL{The architecture diagram shows the integration between the LaTeX engine and GPT models. Core components handle text processing, while support modules manage figures, tables, and citations. This modular approach allows }\DIFdelendFL \DIFaddbeginFL \DIFaddFL{Description }\DIFaddendFL for \DIFdelbeginFL \DIFdelFL{easy extension and customization of the workflow.
+}\DIFdelendFL \DIFaddbeginFL \DIFaddFL{figure 00.
+}\DIFaddendFL }
+    %DIF <  width=0.95\textwidth
+\DIFaddbeginFL \label{fig:00_example}
+\end{figure*}
+\DIFaddendFL 
+
+%DIF < %%% EOF
+        	\DIFdelbeginFL %DIFDELCMD < \label{fig:07_demo_architecture}
+%DIFDELCMD <         \end{figure}
+%DIFDELCMD <         %%%
+\DIFdelend %DIF >  Figure 01: Figure 01
+\clearpage
+\DIFdelbegin %DIFDELCMD < \begin{figure}[ht]
+%DIFDELCMD <             \pdfbookmark[2]{ID 08_demo_time_comparison}{figure_id_08_demo_time_comparison}
+%DIFDELCMD <         	%%%
+\DIFdelendFL \DIFaddbeginFL \begin{figure*}[p]
+    \pdfbookmark[2]{Figure 01}{figure_id_01}
+    \DIFaddendFL \centering
+    %DIF <             \includegraphics[width=0.95\textwidth]{./src/figures/src/jpg/Figure_ID_08_demo_time_comparison.jpg.jpg}
+        	%DIF < % -*- coding: utf-8 -*-
+%DIF < % Timestamp: "2025-05-05 13:45:20 (ywatanabe)"
+%DIF < % File: "/home/ywatanabe/proj/SciTex/manuscript/src/figures/src/Figure_ID_08_demo_time_comparison.jpg.tex"
+\DIFdelbeginFL %DIFDELCMD < 
+
+%DIFDELCMD < %%%
+\DIFdelendFL \DIFaddbeginFL \includegraphics[width=1\textwidth]{./src/figures/src/jpg/Figure_ID_01_example.jpg}
+    \DIFaddendFL \caption{\DIFdelbeginFL \textbf{\DIFdelFL{Time Comparison: Manual vs. AI-Assisted Revision
+}}
+%DIFAUXCMD
+\DIFdelendFL 
+\DIFaddbeginFL \textbf{
+\DIFaddFL{Figure 01
+}}
+\DIFaddendFL \smallskip
+\\
+\DIFdelbeginFL \DIFdelFL{This chart compares the time required }\DIFdelendFL \DIFaddbeginFL \DIFaddFL{Description }\DIFaddendFL for \DIFdelbeginFL \DIFdelFL{manuscript revision tasks using traditional manual methods versus the AI-assisted approach provided by SciTex. The data shows significant time savings across all revision categories, with the most dramatic improvements in terminology consistency and citation management.
+}\DIFdelendFL \DIFaddbeginFL \DIFaddFL{figure 01.
+}\DIFaddendFL }
+    %DIF <  width=0.95\textwidth
+\DIFaddbeginFL \label{fig:01_example}
+\end{figure*}
+\DIFaddendFL 
+
+%DIF < %%% EOF
+        	\DIFdelbeginFL %DIFDELCMD < \label{fig:08_demo_time_comparison}
+%DIFDELCMD <         \end{figure}
+%DIFDELCMD <         %%%
+\DIFdelend %DIF >  Figure 02: Figure 02
+\clearpage
+\DIFdelbegin %DIFDELCMD < \begin{figure}[ht]
+%DIFDELCMD <             \pdfbookmark[2]{ID 09_comparison}{figure_id_09_comparison}
+%DIFDELCMD <         	%%%
+\DIFdelendFL \DIFaddbeginFL \begin{figure*}[p]
+    \pdfbookmark[2]{Figure 02}{figure_id_02}
+    \DIFaddendFL \centering
+    %DIF <             \includegraphics[width=0.95\textwidth]{./src/figures/src/jpg/Figure_ID_09_comparison.jpg.jpg}
+        	%DIF < % -*- coding: utf-8 -*-
+%DIF < % Timestamp: "2025-05-05 13:50:00 (ywatanabe)"
+%DIF < % File: "/home/ywatanabe/proj/SciTex/manuscript/src/figures/src/Figure_ID_09_comparison.jpg.tex"
+\DIFdelbeginFL %DIFDELCMD < 
+
+%DIFDELCMD < %%%
+\DIFdelendFL \DIFaddbeginFL \includegraphics[width=0.85\textwidth]{./src/figures/src/jpg/Figure_ID_02_example.jpg}
+    \DIFaddendFL \caption{\DIFdelbeginFL \textbf{\DIFdelFL{Comparative Analysis: SciTex vs. Traditional LaTeX Workflows
+}}
+%DIFAUXCMD
+\DIFdelendFL 
+\DIFaddbeginFL \textbf{
+\DIFaddFL{Figure 02
+}}
+\DIFaddendFL \smallskip
+\\
+\DIFdelbeginFL \DIFdelFL{This comparison highlights the efficiency gains achieved by SciTex compared to traditional LaTeX workflows. SciTex's integrated approach reduces compilation time by 75\% through optimized }\DIFdelendFL \DIFaddbeginFL \DIFaddFL{Description for }\DIFaddendFL figure \DIFdelbeginFL \DIFdelFL{processing, intelligent caching, and streamlined dependency management. Additionally, SciTex's modular structure facilitates better collaboration and version control, while the AI-assisted features accelerate content development and refinement.
+}\DIFdelendFL \DIFaddbeginFL \DIFaddFL{02.
+}\DIFaddendFL }
+    %DIF <  width=0.95\textwidth
+\DIFaddbeginFL \label{fig:02_example}
+\end{figure*}
+\DIFaddendFL 
+
+%DIF < %%% EOF
+        	\DIFdelbeginFL %DIFDELCMD < \label{fig:09_comparison}
+%DIFDELCMD <         \end{figure}
+%DIFDELCMD <         %%%
+\DIFdelend %DIF >  Figure 03: Figure 03
+\clearpage
+\DIFdelbegin %DIFDELCMD < \begin{figure}[ht]
+%DIFDELCMD <             \pdfbookmark[2]{ID 10_citations}{figure_id_10_citations}
+%DIFDELCMD <         	%%%
+\DIFdelendFL \DIFaddbeginFL \begin{figure*}[p]
+    \pdfbookmark[2]{Figure 03}{figure_id_03}
+    \DIFaddendFL \centering
+    %DIF <             \includegraphics[width=0.95\textwidth]{./src/figures/src/jpg/Figure_ID_10_citations.jpg.jpg}
+        	%DIF < % -*- coding: utf-8 -*-
+%DIF < % Timestamp: "2025-05-05 13:55:00 (ywatanabe)"
+%DIF < % File: "/home/ywatanabe/proj/SciTex/manuscript/src/figures/src/Figure_ID_10_citations.jpg.tex"
+\DIFdelbeginFL %DIFDELCMD < 
+
+%DIFDELCMD < %%%
+\DIFdelendFL \DIFaddbeginFL \includegraphics[width=0.9\textwidth]{./src/figures/src/jpg/Figure_ID_03_example.jpg}
+    \DIFaddendFL \caption{\DIFdelbeginFL \textbf{\DIFdelFL{SciTex Citation Management System
+}}
+%DIFAUXCMD
+\DIFdelendFL 
+\DIFaddbeginFL \textbf{
+\DIFaddFL{Figure 03
+}}
+\DIFaddendFL \smallskip
+\\
+\DIFdelbeginFL \DIFdelFL{The SciTex citation management system uses context-aware AI to analyze manuscript content and suggest relevant citations from the bibliography database. This intelligent citation assistant helps ensure comprehensive literature coverage, reduces manual searching time, and maintains consistent citation formatting across the document. The system integrates with major bibliographic databases and reference management tools.
+}\DIFdelendFL \DIFaddbeginFL \DIFaddFL{Description for figure 03.
+}\DIFaddendFL }
+    %DIF <  width=0.95\textwidth
+\DIFdelbeginFL %DIFDELCMD < 
+
+%DIFDELCMD < %%%
+%DIF < %%% EOF
+        	%DIFDELCMD < \label{fig:10_citations}
+%DIFDELCMD <         \end{figure}
+%DIFDELCMD < %%%
+\DIFdelend \DIFaddbegin \label{fig:03_example}
+\end{figure*}
+\DIFaddend 
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% END
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\end{document}
+
