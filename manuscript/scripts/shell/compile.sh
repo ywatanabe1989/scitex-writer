@@ -1,6 +1,6 @@
 #!/bin/bash
 # -*- coding: utf-8 -*-
-# Timestamp: "2025-05-06 22:19:31 (ywatanabe)"
+# Timestamp: "2025-05-06 23:09:48 (ywatanabe)"
 # File: ./manuscript/scripts/shell/compile.sh
 
 THIS_DIR="$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)"
@@ -11,7 +11,7 @@ touch "$LOG_PATH" >/dev/null 2>&1
 set -e
 set -o pipefail
 
-source ./scripts/shell/modules/config.src
+source ./config.src
 mkdir -p $LOG_DIR && touch $GLOBAL_LOG_FILE
 
 do_insert_citations=false
