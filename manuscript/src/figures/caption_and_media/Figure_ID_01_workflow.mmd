@@ -3,20 +3,42 @@ graph TD
     A[base.tex] --> B[Compilation Process]
     
     subgraph ContentInput["Content Input"]
-        C[src/*.tex Files] --> B
-        D[Figure Files] --> E[Figure Processing]
+        C[src/ TEX Files] --> B
+        TITLE[title.tex] --> C
+        AUTH[authors.tex] --> C
+        ABST[abstract.tex] --> C
+        INTRO[introduction.tex] --> C
+        METH[methods.tex] --> C
+        RES[results.tex] --> C
+        DISC[discussion.tex] --> C
+        D["Figure Files (.pptx, .mmd, .png, etc.)"] --> E[Figure Processing]
         F[Table Files] --> G[Table Processing]
     end
     
-    subgraph ProcessingSteps["Processing Steps"]
-        E --> H[PPTX to TIF Conversion]
-        H --> I[Image Cropping]
-        I --> J[Image Optimization]
+    subgraph ImageProcessing["Image Processing Pipeline"]
+        E --> MMD[Mermaid to PNG Conversion]
+        E --> PPTX[PPTX to TIF Conversion]
+        MMD --> PNG2TIF[PNG to TIF Conversion]
+        PPTX --> IC[Image Cropping]
+        PNG2TIF --> IC
+        IC --> IO[Image Optimization]
+        IO --> JPG[TIF/PNG to JPG Conversion]
+    end
+    
+    subgraph FigureCompilation["Figure Compilation"]
+        JPG --> CL[Compile Legends]
+        CL --> FV[Figure Visibility]
+        FV --> CF[Compile Figure TEX Files]
+    end
+    
+    subgraph OtherProcessing["Other Processing"]
         G --> K[Table Formatting]
     end
     
     subgraph OutputGeneration["Output Generation"]
         B --> L[compiled.tex]
+        CF --> L
+        K --> L
         L --> M[compiled.pdf]
         L --> N[diff.tex]
         N --> O[diff.pdf]
