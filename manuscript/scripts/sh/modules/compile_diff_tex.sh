@@ -1,10 +1,24 @@
 #!/bin/bash
+# -*- coding: utf-8 -*-
+# Timestamp: "2025-05-06 10:38:29 (ywatanabe)"
+# File: ./manuscript/scripts/sh/modules/compile_diff_tex.sh
 
-echo -e "$0 ...\n"
+THIS_DIR="$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)"
+LOG_PATH="$THIS_DIR/.$(basename $0).log"
+touch "$LOG_PATH" >/dev/null 2>&1
 
-function compile_diff_tex() {
-    input_diff_tex=./main/diff.tex
+
+YELLOW="\033[1;33m"
+NC="\033[0m"
+RED="\033[1;31m"
+
+echo -e "$0 ..."
+
+compile_diff_tex() {
+    input_diff_tex=./diff.tex
     output_diff_pdf=./diff.pdf
+
+    if [ ! -f $input_diff_tex ]; then echo "${RED}Not found: $input_diff_tex${NC}"; fi
 
     # Main
     pdf_latex_command="pdflatex \
@@ -12,36 +26,31 @@ function compile_diff_tex() {
         -interaction=nonstopmode \
         -file-line-error \
         $input_diff_tex"
-    
-    if [ -s $input_diff_tex ]; then
-        echo -e "\nCompiling $input_diff_tex..."
 
+    if [ -f $input_diff_tex ]; then
+        echo -e "Compiling $input_diff_tex..."
         eval "$pdf_latex_command"
-        bibtex diff # 2>&1 > /dev/null
+        bibtex diff
         eval "$pdf_latex_command"
-        eval "$pdf_latex_command"        
-
-        if [ -f $output_diff_pdf ]; then
-            echo -e "\n\033[1;33mCompiled: $output_diff_pdf\033[0m"
-        fi
+        eval "$pdf_latex_command"
+        if [ -f $output_diff_pdf ]; then echo -e "${YELLOW}Compiled: $output_diff_pdf${NC}"; fi
     else
-        echo -e "\n$input_diff_tex is empty. Skip compiling $input_diff_tex"
+        echo -e "$input_diff_tex is empty. Skip compiling $input_diff_tex"
     fi
 }
 
 cleanup() {
     if [ -f ./diff.pdf ]; then
-        mv ./diff.pdf ./main/diff.pdf
-        echo -e "\n\033[1;33mCongratulations! ./main/diff.pdf is ready.\033[0m"
-        sleep 3        
+        echo -e "${YELLOW}Congratulations! ./diff.pdf is ready.${NC}"
+        sleep 3
     else
-        echo -e "\n\033[1;33mUnfortunately, ./main/diff.pdf was not created.\033[0m"        
+        echo -e "${RED}Unfortunately, ./diff.pdf was not created.${NC}"
         # Extract errors from main.log
         cat main.log | grep error | grep -v -E "infwarerr|error style messages enabled"
         echo "Error: diff.pdf not found. Stopping. Check main.log."
         exit 1
     fi
-}    
+}
 
 main() {
     local verbose="$1"
@@ -58,3 +67,5 @@ main "$@"
 
 
 ## EOF
+
+# EOF
