@@ -1,6 +1,14 @@
 #!/bin/bash
+# -*- coding: utf-8 -*-
+# Timestamp: "2025-05-06 10:14:34 (ywatanabe)"
+# File: ./manuscript/scripts/sh/modules/count_words_figures_and_tables.sh
 
-echo -e "$0 ...\n"
+THIS_DIR="$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)"
+LOG_PATH="$THIS_DIR/.$(basename $0).log"
+touch "$LOG_PATH" >/dev/null 2>&1
+
+
+echo -e "$0 ..."
 
 source ./scripts/sh/modules/config.sh
 
@@ -67,10 +75,6 @@ main() {
 
 main
 
-# EOF
-
-
-
 # ## EOF
 
 # #!/bin/bash
@@ -120,3 +124,5 @@ main
 # cat $WORDCOUNT_DIR/{introduction,methods,results,discussion}_count.txt | awk '{s+=$1} END {print s}' > $WORDCOUNT_DIR/imrd_count.txt
 
 # ## EOF
+
+# EOF
