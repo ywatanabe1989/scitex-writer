@@ -1,15 +1,8 @@
-%% -*- coding: utf-8 -*-
-%% Timestamp: "2025-05-06 11:54:25 (ywatanabe)"
-%% File: "/home/ywatanabe/proj/SciTex/manuscript/structure.tex"
-%% -*- mode: latex -*-
-%% Time-stamp: "2024-11-06 08:36:15 (ywatanabe)"
-%% File: ./torchPAC/paper/manuscript/structure.tex
-
 \UseRawInputEncoding
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% ----------------------------------------
 %% SETTINGS
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% ----------------------------------------
 %% Columns
 %% \documentclass[final,3p,times,twocolumn]{elsarticle} %% Use it for submission
 %% Use the options 1p,twocolumn; 3p; 3p,twocolumn; 5p; or 5p,twocolumn
@@ -20,7 +13,8 @@
 %% \documentclass[final,3p,times,twocolumn]{elsarticle}
 %% \documentclass[final,5p,times]{elsarticle}
 %% \documentclass[final,5p,times,twocolumn]{elsarticle}
-\documentclass[preprint,review,12pt]{elsarticle}%% -*- coding: utf-8 -*-
+\documentclass[preprint,review,12pt]{elsarticle}\n
+%% -*- coding: utf-8 -*-
 %% Timestamp: "2025-05-06 11:52:14 (ywatanabe)"
 %% File: "/home/ywatanabe/proj/SciTex/manuscript/src/styles/packages.tex"
 %% preamble
@@ -74,7 +68,8 @@
 %% \usepackage{xr}
 \usepackage{xr-hyper}
 
-%%%% EOF% Edit to ref between main text & supplemental material
+%%%% EOF\n
+% Edit to ref between main text & supplemental material
 \usepackage{xr}
 \makeatletter
 \newcommand*{\addFileDependency}[1]{% argument=file name and extension
@@ -89,6 +84,7 @@
     \addFileDependency{#2.tex}%
     \addFileDependency{#2.aux}%
 }
+\n
 %% Image width
 \newlength{\imagewidth}
 \newlength{\imagescale}
@@ -183,27 +179,28 @@
     Supplementary Materials S\hlref{#1}}
 
 
-\link[supple-]{../supplementary/main} % Works
+\n
+\link[supple-]{../supplementary/main}
 
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% ----------------------------------------
 %% JOURNAL NAME
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% ----------------------------------------
 %% -*- coding: utf-8 -*-
 %% Timestamp: "2025-05-04 08:36:10 (ywatanabe)"
 %% File: "/home/ywatanabe/proj/SciTex/manuscript/src/journal_name.tex"
 
 \journal{JOURNAL NAME HERE}
 
-%%%% EOF
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% DOCUMENT STARTS
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%% EOF\n
+
+%% ----------------------------------------
+%% START of DOCUMENT
+%% ----------------------------------------
 \begin{document}
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% ----------------------------------------
 %% Frontmatter
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% ----------------------------------------
 \begin{frontmatter}
 %% -*- coding: utf-8 -*-
 %% Timestamp: "2025-05-05 13:20:00 (ywatanabe)"
@@ -222,7 +219,8 @@
 
 \end{highlights}
 
-%%%% EOF%% -*- coding: utf-8 -*-
+%%%% EOF\n
+%% -*- coding: utf-8 -*-
 %% Timestamp: "2025-05-05 12:35:00 (ywatanabe)"
 %% File: "/home/ywatanabe/proj/SciTex/manuscript/src/title.tex"
 
@@ -230,7 +228,8 @@
     SciTex: An AI-Assisted LaTeX Template System for Efficient Scientific Manuscript Preparation
 }
 
-%%%% EOF%% -*- coding: utf-8 -*-
+%%%% EOF\n
+%% -*- coding: utf-8 -*-
 %% Timestamp: "2025-05-05 12:40:00 (ywatanabe)"
 %% File: "/home/ywatanabe/proj/SciTex/manuscript/src/authors.tex"
 
@@ -253,7 +252,8 @@
 % The \cortext command adds the corresponding author information
 \cortext[cor1]{Corresponding author. Tel: +81-6-6879-7675, Email: ywatanabe@alumni.u-tokyo.ac.jp}
 
-%%%% EOF%% -*- coding: utf-8 -*-
+%%%% EOF\n
+%% -*- coding: utf-8 -*-
 %% Timestamp: "2025-05-04 08:35:38 (ywatanabe)"
 %% File: "/home/ywatanabe/proj/SciTex/manuscript/src/graphical_abstract.tex"
 
@@ -263,7 +263,8 @@
 %\includegraphics{grabs}
 %\end{graphicalabstract}
 
-%%%% EOF%% -*- coding: utf-8 -*-
+%%%% EOF\n
+%% -*- coding: utf-8 -*-
 %% Timestamp: "2025-05-05 12:30:00 (ywatanabe)"
 %% File: "/home/ywatanabe/proj/SciTex/manuscript/src/abstract.tex"
 
@@ -274,7 +275,8 @@
   Scientific manuscript preparation presents significant challenges, particularly for researchers balancing complex content with formatting requirements. This paper introduces SciTex, an AI-assisted LaTeX template system designed to streamline the document preparation workflow. SciTex integrates modular LaTeX templates with artificial intelligence tools that assist with text revision, terminology consistency, and citation management. We evaluated the system through a user study with 50 researchers across multiple disciplines, demonstrating a 45\% reduction in document preparation time compared to traditional methods. Quality assessments show that AI-revised text achieved clarity and grammar scores comparable to expert revisions while maintaining scientific accuracy. Key innovations include automated figure and table management, version control integration, and a standardized compilation pipeline. The template system is adaptable to various journal formats and includes comprehensive documentation. By reducing technical barriers to effective LaTeX usage, SciTex makes high-quality document preparation more accessible to researchers, potentially enhancing scientific communication across disciplines.
 \end{abstract}
 
-%%%% EOF%% -*- coding: utf-8 -*-
+%%%% EOF\n
+%% -*- coding: utf-8 -*-
 %% Timestamp: "2025-05-05 13:15:00 (ywatanabe)"
 %% File: "/home/ywatanabe/proj/SciTex/manuscript/src/keywords.tex"
 
@@ -282,11 +284,12 @@
 LaTeX template \sep scientific writing \sep AI-assisted writing \sep document automation \sep scientific manuscript
 \end{keyword}
 
-%%%% EOF\end{frontmatter}
+%%%% EOF\n
+\end{frontmatter}
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% Counters
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% ----------------------------------------
+%% Word Counter
+%% ----------------------------------------
 \begin{wordcount}
 \readwordcount{./src/wordcounts/figure_count.txt} figures, \readwordcount{./src/wordcounts/table_count.txt} tables, \readwordcount{./src/wordcounts/abstract_count.txt} words for abstract, and \readwordcount{./src/wordcounts/imrd_count.txt} words for main text
 \end{wordcount}
@@ -294,12 +297,13 @@ LaTeX template \sep scientific writing \sep AI-assisted writing \sep document au
 %% \begin{*wordcount}
 %% \readwordcount{./src/wordcounts/figure_count.txt} figures, \readwordcount{./src/wordcounts/table_count.txt} tables, \readwordcount{./src/wordcounts/abstract_count.txt} words for abstract, and \readwordcount{./src/wordcounts/imrd_count.txt} words for main text
 %% \end{*wordcount}
+\n
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% ----------------------------------------
 %% INTRODUCTION
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% ----------------------------------------
 %% -*- coding: utf-8 -*-
-%% Timestamp: "2025-05-05 12:10:00 (ywatanabe)"
+%% Timestamp: "2025-05-06 20:02:18 (ywatanabe)"
 %% File: "/home/ywatanabe/proj/SciTex/manuscript/src/introduction.tex"
 
 \section{Introduction}
@@ -332,10 +336,11 @@ Researchers across disciplines have reported that document preparation can consu
 
 In this paper, we present the design and implementation of SciTex, followed by evaluation results and usage examples.
 
-%%%% EOF
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%% EOF\n
+
+%% ----------------------------------------
 %% METHODS
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% ----------------------------------------
 %% -*- coding: utf-8 -*-
 %% Timestamp: "2025-05-05 12:15:00 (ywatanabe)"
 %% File: "/home/ywatanabe/proj/SciTex/manuscript/src/methods.tex"
@@ -423,10 +428,11 @@ This integration is managed through shell scripts that handle common Git operati
 
 For implementation details of these methods, please refer to the code repository and documentation. The results of applying these methods are presented in Section~\ref{sec:results}.
 
-%%%% EOF
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%% EOF\n
+
+%% ----------------------------------------
 %% RESULTS
- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+ %% ----------------------------------------
 %% -*- coding: utf-8 -*-
 %% Timestamp: "2025-05-05 12:20:00 (ywatanabe)"
 %% File: "/home/ywatanabe/proj/SciTex/manuscript/src/results.tex"
@@ -499,10 +505,11 @@ Areas for improvement identified by users included:
 
 These results demonstrate that SciTex effectively addresses the common challenges in scientific manuscript preparation. The implications of these findings are discussed in Section~\ref{sec:discussion}.
 
-%%%% EOF
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%% EOF\n
+
+%% ----------------------------------------
 %% DISCUSSION
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% ----------------------------------------
 %% -*- coding: utf-8 -*-
 %% Timestamp: "2025-05-05 12:25:00 (ywatanabe)"
 %% File: "/home/ywatanabe/proj/SciTex/manuscript/src/discussion.tex"
@@ -552,10 +559,11 @@ Furthermore, standardized templates can improve the consistency and readability 
 
 In conclusion, SciTex represents a significant step forward in scientific document preparation by combining the structural advantages of LaTeX with the efficiency benefits of AI assistance and automation. While there is room for improvement, the current implementation already offers substantial benefits to researchers across disciplines.
 
-%%%% EOF
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%% EOF\n
+
+%% ----------------------------------------
 %% DATA AVAILABILITY
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% ----------------------------------------
 %% -*- coding: utf-8 -*-
 %% Timestamp: "2025-05-04 08:33:32 (ywatanabe)"
 %% File: "/home/ywatanabe/proj/SciTex/manuscript/src/data_availability.tex"
@@ -565,11 +573,11 @@ In conclusion, SciTex represents a significant step forward in scientific docume
 Data and code used in this study is available on https://github.com/ywatanabe1989/torchPAC.
 \label{data and code availability}
 
-%%%% EOF
+%%%% EOF\n
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% ----------------------------------------
 %% REFERENCE STYLES
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% ----------------------------------------
 \pdfbookmark[1]{References}{references}
 \bibliography{./src/bibliography}
 % Note Re-compile is required
@@ -589,10 +597,11 @@ Data and code used in this study is available on https://github.com/ywatanabe198
 % use \cite{}
 
 
+\n
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% ----------------------------------------
 %% ADDITIONAL INFORMATION
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% ----------------------------------------
 %% -*- coding: utf-8 -*-
 %% Timestamp: "2025-05-04 08:33:31 (ywatanabe)"
 %% File: "/home/ywatanabe/proj/SciTex/manuscript/src/additional_info.tex"
@@ -633,31 +642,29 @@ The authors employed ChatGPT, provided by OpenAI, for enhancing the manuscript's
 %% \section{}
 %% \label{}
 
-%%%% EOF
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%% EOF\n
+
+%% ----------------------------------------
 %% TABLES
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% ----------------------------------------
 \clearpage
 \section*{Tables}
 \label{tables}
 \pdfbookmark[1]{Tables}{tables}
 
+\n
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% ----------------------------------------
 %% FIGURES
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% ----------------------------------------
 \clearpage
 \section*{Figures}
 \label{figures}
 \pdfbookmark[1]{Figures}{figures}
-% Generated by gather_tex_files() on Tue May  6 12:34:17 PM AEST 2025
+% Generated by gather_tex_files() on Tue May  6 10:25:06 PM AEST 2025
 % This file includes all figure files in order
 
-% Set up proper figure structure - using figure* environment to wrap all figures
-% We don't need the headers since we're already in the Figures section
-
 % Figure 00: Figure 00
-\clearpage
 \begin{figure*}[p]
     \pdfbookmark[2]{Figure 00}{figure_id_00}
     \centering
@@ -724,9 +731,10 @@ Description for figure 03.
     \label{fig:03_example}
 \end{figure*}
 
+\n
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% END
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% ----------------------------------------
+%% END of DOCUMENT
+%% ----------------------------------------
 \end{document}
 
