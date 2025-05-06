@@ -1,0 +1,68 @@
+#!/bin/bash
+# -*- coding: utf-8 -*-
+# Timestamp: "2025-05-07 00:09:20 (ywatanabe)"
+# File: /home/ywatanabe/proj/SciTex/manuscript/config.src
+
+THIS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+
+# Verbosity
+VERBOSE_PDFLATEX="${VERBOSE_PDFLATEX:-false}"
+VERBOSE_BIBTEX="${VERBOSE_BIBTEX:-false}"
+
+# Logging
+LOG_DIR="./logs"
+GLOBAL_LOG_FILE="${LOG_DIR}/global.log"
+
+# Base Structure
+BASE_TEX="./base.tex"
+
+# Compilation target
+COMPILED_TEX="./compiled.tex"
+COMPILED_PDF="./compiled.pdf"
+
+# Differences
+DIFF_TEX="./diff.tex"
+DIFF_PDF="./diff.pdf"
+
+# Versioning
+VERSIONS_DIR="./versions"
+VERSION_COUNTER_TXT="${VERSIONS_DIR}/.version_counter.txt"
+
+# Figure
+FIGURE_DIR="./src/figures"
+FIGURE_CAPTION_MEDIA_DIR="${FIGURE_DIR}/caption_and_media"
+FIGURE_JPG_DIR="${FIGURE_CAPTION_MEDIA_DIR}/jpg"
+FIGURE_COMPILED_DIR="${FIGURE_DIR}/compiled"
+FIGURE_COMPILED_FILE="${FIGURE_COMPILED_DIR}/FINAL.tex"
+FIGURE_TEMPLATES_DIR="${FIGURE_DIR}/templates"
+FIGURE_TEMPLATE_TEX="$FIGURE_TEMPLATES_DIR/_Figure_ID_00_TEMPLATE.tex"
+FIGURE_TEMPLATE_JPG="$FIGURE_TEMPLATES_DIR/_Figure_ID_00_TEMPLATE.jpg"
+FIGURE_TEMPLATE_PPTX="$FIGURE_TEMPLATES_DIR/_Figure_ID_00_TEMPLATE.pptx"
+FIGURE_TEMPLATE_JNT="$FIGURE_TEMPLATES_DIR/_Figure_ID_00_TEMPLATE.jnt"
+
+# Table
+TABLE_DIR="./src/tables"
+TABLE_CAPTION_MEDIA_DIR="$TABLE_DIR/caption_and_media"
+TABLE_COMPILED_DIR="$TABLE_DIR/compiled" # ???
+TABLE_COMPILED_FILE="${TABLE_COMPILED_DIR}/FINAL.tex"
+
+# Misc.
+WORDCOUNT_DIR="./src/wordcounts"
+TREE_TXT="./docs/tree.txt"
+
+# Color
+GRAY="\033[1;30m"
+GREEN="\033[1;32m"
+YELLOW="\033[1;33m"
+RED="\033[1;31m"
+NC="\033[0m"
+
+# Function to echo text in yellow color
+echo_info() { echo -e "${GRAY}INFO: $1${NC}"; }
+echo_success() { echo -e "${GREEN}SUCCESS: $1${NC}"; }
+echo_warn() { echo -e "${YELLOW}Warning: $1${NC}"; }
+echo_error_soft() { echo -e "${RED}Error: $1${NC}"; }
+echo_error() { echo -e "${RED}Error: $1${NC}"; exit 1 ; }
+
+# EOF
