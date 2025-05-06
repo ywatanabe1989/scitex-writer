@@ -1,7 +1,8 @@
 
 ### Source: /home/ywatanabe/.git-templates/.gitignore-templates/Custom/Specific.gitignore ###
 # Please add files here
-./manuscript/versions
+./manuscript/versions/*.tex
+./manuscript/versions/*.pdf
 
 ### Source: /home/ywatanabe/.git-templates/.gitignore-templates/Custom/Secrets.gitignore ###
 .git-crypt/keys
@@ -2049,3 +2050,36 @@ supplementary/main/debug/manuscript_stage_999.tex
 supplementary/main/debug/manuscript_stage_99.tex
 supplementary/main/debug/manuscript_stage_9.tex
 supplementary/compiled/debug/
+manuscript/versions/compiled_v001.tex
+manuscript/versions/compiled_v021.tex
+manuscript/versions/compiled_v022.tex
+manuscript/versions/compiled_v023.tex
+manuscript/versions/compiled_v024.tex
+manuscript/versions/compiled_v025.tex
+manuscript/versions/compiled_v026.tex
+manuscript/versions/compiled_v027.tex
+manuscript/versions/compiled_v028.tex
+manuscript/versions/compiled_v029.tex
+manuscript/versions/compiled_v030.tex
+manuscript/versions/compiled_v031.tex
+manuscript/versions/compiled_v1.tex
+manuscript/versions/diff_v004.tex
+manuscript/versions/diff_v005.tex
+manuscript/versions/diff_v006.tex
+manuscript/versions/diff_v007.tex
+manuscript/versions/diff_v008.tex
+manuscript/versions/diff_v009.tex
+manuscript/versions/diff_v010.tex
+manuscript/versions/diff_v021.tex
+manuscript/versions/diff_v022.tex
+manuscript/versions/diff_v023.tex
+manuscript/versions/diff_v024.tex
+manuscript/versions/diff_v025.tex
+manuscript/versions/diff_v026.tex
+manuscript/versions/diff_v027.tex
+manuscript/versions/diff_v028.tex
+manuscript/versions/diff_v029.tex
+manuscript/versions/diff_v030.tex
+manuscript/versions/diff_v031.tex
+manuscript/versions/manuscript_v002.tex
+manuscript/versions/manuscript_v003.tex
