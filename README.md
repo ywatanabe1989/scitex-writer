@@ -1,5 +1,5 @@
 <!-- ---
-!-- Timestamp: 2025-05-07 06:14:21
+!-- Timestamp: 2025-05-07 06:17:41
 !-- Author: ywatanabe
 !-- File: /home/ywatanabe/proj/SciTex/README.md
 !-- --- -->
@@ -14,8 +14,11 @@
 
 <p align="center">
   <a href="./manuscript/compiled.pdf">
-    <img src="./docs/demo.gif" alt="Demo" width="800">
+    <img src="./docs/demo.gif" alt="the first page of a compiled manuscript" width="800">
   </a>
+  <a href="./manuscript/compiled.pdf">
+    <img src="./manuscript/src/figures/caption_and_media/Figure_ID_01_workflow.gif" alt="workflow chart" width="800">
+  </a>  
 </p>
 
 
