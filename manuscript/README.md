@@ -11,8 +11,8 @@ This LaTeX template complies with [Elsevier's manuscript guidelines](https://www
 To install the template and Python dependencies, execute:
 
 ```bash
-$ ./.scripts/sh/install_on_ubuntu.sh
-$ ./.scripts/sh/gen_pyenv.sh
+$ ./.scripts/shell/install_on_ubuntu.sh
+$ ./.scripts/shell/gen_pyenv.sh
 ```
 
 ## How to Use
@@ -44,7 +44,7 @@ $ echo 'export OPENAI_API_KEY="YOUR_OPENAI_API_KEY"' >> ~/.bashrc # Replace YOUR
 ## How to Manage Versions
 
 ```bash
-$ ./.scripts/sh/.clear_versions.sh # Reset versioning from v001
+$ ./.scripts/shell/.clear_versions.sh # Reset versioning from v001
 $ git reset HEAD~1 # Undo the last push:
 $ git checkout <commit-hash> -- src/ # Revert to a specific commit:
 ```
