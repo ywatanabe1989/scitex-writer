@@ -1,6 +1,6 @@
 #!/bin/bash
 # -*- coding: utf-8 -*-
-# Timestamp: "2025-05-07 00:32:08 (ywatanabe)"
+# Timestamp: "2025-05-07 01:30:34 (ywatanabe)"
 # File: ./manuscript/scripts/shell/modules/process_figures.sh
 
 THIS_DIR="$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)"
@@ -448,15 +448,6 @@ compile_figure_tex_files() {
         echo "\\end{figure*}" >> "$FIGURE_COMPILED_FILE"
         echo "" >> "$FIGURE_COMPILED_FILE"
     done
-
-    # # In process_figures.sh, change validate_figure_tex to validate_tex_file:
-    # if ! validate_tex_file "$FIGURE_COMPILED_FILE"; then
-    #     echo_warn "The combined figure file may have issues."
-    #     echo_info "Please check $FIGURE_COMPILED_FILE manually."
-    # else
-    #     echo_info "TeX validation passed for combined figure file."
-    # fi
-
 }
 
 main() {
@@ -477,7 +468,7 @@ main() {
     compile_figure_tex_files
     local compiled_count=$(find "$FIGURE_COMPILED_DIR" -name "Figure_ID_*.tex" | wc -l)
     if [ "$no_figs" = false ] && [ $compiled_count -gt 0 ]; then
-        echo "Generated $compiled_count figure files."
+        echo_success "$compiled_count figures compiled"
     fi
 }
 
