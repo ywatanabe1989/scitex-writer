@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo -e "$0 ...\n"
+echo -e "$0 ..."
 
 function check_terms() {
   echo -e "\nChecking terms in ${1}"
@@ -9,7 +9,7 @@ function check_terms() {
 }
 
 # Main
-file_to_check_terms=./main/manuscript.tex
+file_to_check_terms=./manuscript.tex
 check_terms $file_to_check_terms
 
 # ./scripts/sh/check_terms.sh
