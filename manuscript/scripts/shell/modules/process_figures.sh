@@ -1,6 +1,6 @@
 #!/bin/bash
 # -*- coding: utf-8 -*-
-# Timestamp: "2025-05-06 22:04:14 (ywatanabe)"
+# Timestamp: "2025-05-07 00:32:08 (ywatanabe)"
 # File: ./manuscript/scripts/shell/modules/process_figures.sh
 
 THIS_DIR="$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)"
@@ -8,39 +8,45 @@ LOG_PATH="$THIS_DIR/.$(basename $0).log"
 touch "$LOG_PATH" >/dev/null 2>&1
 
 
-source ./scripts/shell/modules/config.src
+source ./config.src
+source ./scripts/shell/modules/validate_tex.src
 echo_info "$0 ..."
 
-init() {
+# In process_figures.sh, add the validate_image_file function:
+validate_image_file() {
+    local image_path="$1"
+    if [ ! -f "$image_path" ]; then
+        return 1
+    fi
+    local mime_type=$(file --mime-type -b "$image_path")
+    if [[ "$mime_type" == "image/"* ]]; then
+        return 0
+    fi
+    return 1
+}
+
+init_figures() {
     local timestamp=$(date +"%Y%m%d_%H%M%S")
-
     mkdir -p \
-          "$FIGURE_SRC_DIR" \
+          "$FIGURE_CAPTION_MEDIA_DIR" \
 	      "$FIGURE_COMPILED_DIR" \
-	      "$FIGURE_JPG_DIR" \
-	      "$FIGURE_HIDDEN_DIR"
-
+	      "$FIGURE_JPG_DIR"
     rm -f \
-       "$FIGURE_COMPILED_DIR"/Figure_ID_*.tex \
-       "$FIGURE_HIDDEN_DIR"/*.tex
-    # rm -f "$FIGURE_HIDDEN_DIR/.All_Figures.tex"
-    # touch "$FIGURE_HIDDEN_DIR/.All_Figures.tex"
-    rm -f $FIGURE_ALL_FILE
-    touch $FIGURE_ALL_FILE
+       "$FIGURE_COMPILED_DIR"/Figure_ID_*.tex
+    echo > $FIGURE_COMPILED_FILE
 }
 
 ensure_caption() {
-    for img_file in "$FIGURE_SRC_DIR"/Figure_ID_*.{tif,jpg,png,svg}; do
+    for img_file in "$FIGURE_CAPTION_MEDIA_DIR"/Figure_ID_*.{tif,jpg,png,svg}; do
         [ -e "$img_file" ] || continue
         local ext="${img_file##*.}"
         local filename=$(basename "$img_file")
-        local caption_tex_file="$FIGURE_SRC_DIR/${filename%.$ext}.tex"
-
+        local caption_tex_file="$FIGURE_CAPTION_MEDIA_DIR/${filename%.$ext}.tex"
         if [ ! -f "$caption_tex_file" ] && [ ! -L "$caption_tex_file" ]; then
-            if [ -f "$FIGURE_SRC_DIR/templates/_Figure_ID_XX.tex" ]; then
-                cp "$FIGURE_SRC_DIR/templates/_Figure_ID_XX.tex" "$caption_tex_file"
-            elif [ -f "$FIGURE_SRC_DIR/_Figure_ID_XX.tex" ]; then
-                cp "$FIGURE_SRC_DIR/_Figure_ID_XX.tex" "$caption_tex_file"
+            if [ -f "$FIGURE_CAPTION_MEDIA_DIR/templates/_Figure_ID_XX.tex" ]; then
+                cp "$FIGURE_CAPTION_MEDIA_DIR/templates/_Figure_ID_XX.tex" "$caption_tex_file"
+            elif [ -f "$FIGURE_CAPTION_MEDIA_DIR/_Figure_ID_XX.tex" ]; then
+                cp "$FIGURE_CAPTION_MEDIA_DIR/_Figure_ID_XX.tex" "$caption_tex_file"
             else
                 cat <<EOF > "$caption_tex_file"
 %% -*- coding: utf-8 -*-
@@ -58,7 +64,6 @@ FIGURE LEGEND HERE.
 EOF
             fi
         fi
-
         if [ "$ext" = "jpg" ]; then
             if [ ! -f "$FIGURE_JPG_DIR/$filename" ]; then
                 cp "$img_file" "$FIGURE_JPG_DIR/"
@@ -81,9 +86,9 @@ EOF
     done
 }
 
-ensure_lower_letters() {
+ensure_lower_letter_id() {
     local ORIG_DIR="$(pwd)"
-    cd "$FIGURE_SRC_DIR"
+    cd "$FIGURE_CAPTION_MEDIA_DIR"
     for file in Figure_ID_*; do
         if [[ -f "$file" || -L "$file" ]]; then
             new_name=$(echo "$file" | sed -E 's/(Figure_ID_)(.*)/\1\L\2/')
@@ -111,50 +116,42 @@ crop_tif() {
 
 tif2jpg() {
     local no_figs="$1"
-
     if [[ "$no_figs" == false ]]; then
         echo "Processing images (tif2jpg)..."
-
         if [ -f "./scripts/python/optimize_figure.py" ] && command -v python3 >/dev/null 2>&1; then
-            find "$FIGURE_SRC_DIR" -name "Figure_ID_*.tif" | parallel -j+0 --eta '
+            find "$FIGURE_CAPTION_MEDIA_DIR" -name "Figure_ID_*.tif" | parallel -j+0 --eta '
                 python3 ./scripts/python/optimize_figure.py --input {} --output "'"$FIGURE_JPG_DIR"'/$(basename {} .tif).jpg" --dpi 300 --quality 95
             '
-
-            find "$FIGURE_SRC_DIR" -name "Figure_ID_*.png" | parallel -j+0 --eta '
+            find "$FIGURE_CAPTION_MEDIA_DIR" -name "Figure_ID_*.png" | parallel -j+0 --eta '
                 python3 ./scripts/python/optimize_figure.py --input {} --output "'"$FIGURE_JPG_DIR"'/$(basename {} .png).jpg" --dpi 300 --quality 95
             '
-
             if command -v inkscape >/dev/null 2>&1; then
-                find "$FIGURE_SRC_DIR" -name "Figure_ID_*.svg" | parallel -j+0 --eta '
+                find "$FIGURE_CAPTION_MEDIA_DIR" -name "Figure_ID_*.svg" | parallel -j+0 --eta '
                     inkscape -z -e "'"$FIGURE_JPG_DIR"'/$(basename {} .svg)_temp.png" -w 1200 -h 1200 {}
                     python3 ./scripts/python/optimize_figure.py --input "'"$FIGURE_JPG_DIR"'/$(basename {} .svg)_temp.png" --output "'"$FIGURE_JPG_DIR"'/$(basename {} .svg).jpg" --dpi 300 --quality 95
                     rm -f "'"$FIGURE_JPG_DIR"'/$(basename {} .svg)_temp.png"
                 '
             else
-                find "$FIGURE_SRC_DIR" -name "Figure_ID_*.svg" | parallel -j+0 --eta '
+                find "$FIGURE_CAPTION_MEDIA_DIR" -name "Figure_ID_*.svg" | parallel -j+0 --eta '
                     convert {} -density 300 -quality 95 "'"$FIGURE_JPG_DIR"'/$(basename {} .svg).jpg"
                 '
             fi
-
-            find "$FIGURE_SRC_DIR" -name "Figure_ID_*.jpg" | parallel -j+0 --eta '
+            find "$FIGURE_CAPTION_MEDIA_DIR" -name "Figure_ID_*.jpg" | parallel -j+0 --eta '
                 if [ ! -f "'"$FIGURE_JPG_DIR"'/$(basename {})" ]; then
                     python3 ./scripts/python/optimize_figure.py --input {} --output "'"$FIGURE_JPG_DIR"'/$(basename {})" --dpi 300 --quality 95
                 fi
             '
         else
-            find "$FIGURE_SRC_DIR" -name "Figure_ID_*.tif" | parallel -j+0 --eta '
+            find "$FIGURE_CAPTION_MEDIA_DIR" -name "Figure_ID_*.tif" | parallel -j+0 --eta '
                 convert {} -density 300 -quality 95 "'"$FIGURE_JPG_DIR"'/$(basename {} .tif).jpg"
             '
-
-            find "$FIGURE_SRC_DIR" -name "Figure_ID_*.png" | parallel -j+0 --eta '
+            find "$FIGURE_CAPTION_MEDIA_DIR" -name "Figure_ID_*.png" | parallel -j+0 --eta '
                 convert {} -density 300 -quality 95 "'"$FIGURE_JPG_DIR"'/$(basename {} .png).jpg"
             '
-
-            find "$FIGURE_SRC_DIR" -name "Figure_ID_*.svg" | parallel -j+0 --eta '
+            find "$FIGURE_CAPTION_MEDIA_DIR" -name "Figure_ID_*.svg" | parallel -j+0 --eta '
                 convert {} -density 300 -quality 95 "'"$FIGURE_JPG_DIR"'/$(basename {} .svg).jpg"
             '
-
-            find "$FIGURE_SRC_DIR" -name "Figure_ID_*.jpg" | parallel -j+0 --eta '
+            find "$FIGURE_CAPTION_MEDIA_DIR" -name "Figure_ID_*.jpg" | parallel -j+0 --eta '
                 if [ ! -f "'"$FIGURE_JPG_DIR"'/$(basename {})" ]; then
                     cp {} "'"$FIGURE_JPG_DIR"'/$(basename {})"
                 fi
@@ -166,7 +163,6 @@ tif2jpg() {
 compile_legends() {
     mkdir -p "$FIGURE_COMPILED_DIR"
     rm -f "$FIGURE_COMPILED_DIR"/Figure_ID_*.tex
-
     local figures_header_file="$FIGURE_COMPILED_DIR/00_Figures_Header.tex"
     cat > "$figures_header_file" << "EOF"
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -177,73 +173,57 @@ compile_legends() {
 \label{figures}
 \pdfbookmark[1]{Figures}{figures}
 EOF
-
-    for caption_file in "$FIGURE_SRC_DIR"/Figure_ID_*.tex; do
+    for caption_file in "$FIGURE_CAPTION_MEDIA_DIR"/Figure_ID_*.tex; do
         [ -f "$caption_file" ] || continue
-
         local fname=$(basename "$caption_file")
         local figure_id=""
-
         if [[ "$fname" =~ Figure_ID_([^\.]+) ]]; then
             figure_id="${BASH_REMATCH[1]}"
         else
             continue
         fi
-
         local figure_id_clean=$(echo "$figure_id" | sed 's/\.jpg$//')
         local figure_number=""
-
         if [[ "$figure_id_clean" =~ ^([0-9]+)_ ]]; then
             figure_number="${BASH_REMATCH[1]}"
         else
             figure_number="$figure_id_clean"
         fi
-
         local tgt_file="$FIGURE_COMPILED_DIR/$fname"
         local is_tikz=false
-
         if grep -q "\\\\begin{tikzpicture}" "$caption_file"; then
             is_tikz=true
         fi
-
         local jpg_file=""
         if [[ "$fname" == *".jpg.tex" ]]; then
             jpg_file="${fname%.tex}"
         else
             jpg_file="${fname%.tex}.jpg"
         fi
-
         local width="1\\textwidth"
         local width_spec=$(grep -o "width=.*\\\\textwidth" "$caption_file" | head -1)
-
         if [ -n "$width_spec" ]; then
             width=$(echo "$width_spec" | sed 's/width=//')
         fi
-
         local caption_content=""
-
         if grep -q "\\\\caption{" "$caption_file"; then
             caption_raw=$(sed -n '/\\caption{/,/^}\s*$/p' "$caption_file" | sed '1s/^\\caption{//' | sed '$s/}\s*$//')
             caption_content=$(echo "$caption_raw" | grep -v "\\\\label{" | sed '/^$/d' | sed 's/^[ \t]*//' | sed 's/[ \t]*$//')
         else
             caption_content=$(cat "$caption_file" | grep -v "^%" | grep -v "^$" | sed 's/^[ \t]*//' | sed 's/[ \t]*$//')
         fi
-
         if [ -z "$caption_content" ]; then
             caption_content="\\textbf{Figure $figure_number.} No caption available."
         fi
-
         if [ "$is_tikz" = true ]; then
             local tikz_begin_line=$(grep -n "\\\\begin{tikzpicture}" "$caption_file" | cut -d: -f1)
             local tikz_end_line=$(grep -n "\\\\end{tikzpicture}" "$caption_file" | cut -d: -f1)
-
             if [ -n "$tikz_begin_line" ] && [ -n "$tikz_end_line" ]; then
                 local tikz_code=$(sed -n "${tikz_begin_line},${tikz_end_line}p" "$caption_file")
-
                 cat > "$tgt_file" << EOF
 % FIGURE METADATA - Figure ID ${figure_id_clean}, Number ${figure_number}
 % FIGURE TYPE: TikZ
-% This is not a standalone LaTeX environment - it will be included by gather_tex_files
+% This is not a standalone LaTeX environment - it will be included by compile_figure_tex_files
 {
     "id": "${figure_id_clean}",
     "number": "${figure_number}",
@@ -257,7 +237,7 @@ EOF
                 cat > "$tgt_file" << EOF
 % FIGURE METADATA - Figure ID ${figure_id_clean}, Number ${figure_number}
 % FIGURE TYPE: Image
-% This is not a standalone LaTeX environment - it will be included by gather_tex_files
+% This is not a standalone LaTeX environment - it will be included by compile_figure_tex_files
 {
     "id": "${figure_id_clean}",
     "number": "${figure_number}",
@@ -272,7 +252,7 @@ EOF
             cat > "$tgt_file" << EOF
 % FIGURE METADATA - Figure ID ${figure_id_clean}, Number ${figure_number}
 % FIGURE TYPE: Image
-% This is not a standalone LaTeX environment - it will be included by gather_tex_files
+% This is not a standalone LaTeX environment - it will be included by compile_figure_tex_files
 {
     "id": "${figure_id_clean}",
     "number": "${figure_number}",
@@ -283,60 +263,59 @@ EOF
 $caption_content
 EOF
         fi
+
+        # Validate the figure-related files
+        if [ -f "$FIGURE_JPG_DIR/$jpg_file" ]; then
+            if file "$FIGURE_JPG_DIR/$jpg_file" | grep -qv "JPEG image data"; then
+                echo_warn "File $jpg_file exists but may not be a valid JPEG image."
+            fi
+        else
+            if [ "$is_tikz" = false ]; then
+                echo_warn "Required image file not found: $FIGURE_JPG_DIR/$jpg_file"
+            fi
+        fi
+
     done
 }
 
 _toggle_figures() {
     local action=$1
-
-    mkdir -p "$FIGURE_COMPILED_DIR/debug"
-
     if [ ! -d "$FIGURE_COMPILED_DIR" ]; then
         mkdir -p "$FIGURE_COMPILED_DIR"
         return 0
     fi
-
     if [[ ! -n $(find "$FIGURE_COMPILED_DIR" -name "Figure_ID_*.tex" 2>/dev/null) ]]; then
         return 0
     fi
-
     if [[ $action == "disable" ]]; then
         sed -i 's/^\(\s*\)\\includegraphics/%\1\\includegraphics/g' "$FIGURE_COMPILED_DIR"/Figure_ID_*.tex
     else
         mkdir -p "$FIGURE_JPG_DIR"
-
-        find "$FIGURE_SRC_DIR" -name "*.jpg" | while read src_jpg; do
+        find "$FIGURE_CAPTION_MEDIA_DIR" -name "*.jpg" | while read src_jpg; do
             base_jpg=$(basename "$src_jpg")
             if [ ! -f "$FIGURE_JPG_DIR/$base_jpg" ]; then
                 cp "$src_jpg" "$FIGURE_JPG_DIR/"
             fi
         done
-
         for fig_tex in "$FIGURE_COMPILED_DIR"/Figure_ID_*.tex; do
             [ -e "$fig_tex" ] || continue
-
             local fname=$(basename "$fig_tex")
             local jpg_file=""
-
             if [[ "$fname" == *".jpg.tex" ]]; then
                 jpg_file="${fname%.tex}"
             else
                 jpg_file="${fname%.tex}.jpg"
             fi
-
             if [ -f "$FIGURE_JPG_DIR/$jpg_file" ]; then
                 local width_spec=$(grep -o "width=.*\\\\textwidth" "$fig_tex" | head -1 | sed 's/width=//')
-
                 if [[ -z "$width_spec" ]]; then
                     width_spec="1\\\\textwidth"
                 fi
-
                 if [[ ! "$width_spec" == *"\\textwidth"* ]]; then
                     if [[ "$width_spec" =~ ^[0-9]+(\.[0-9]+)?$ ]]; then
                         width_spec="${width_spec}\\\\textwidth"
                     fi
                 fi
-
                 sed -i 's/^%\(\s*\\includegraphics\)/\1/g' "$fig_tex"
                 sed -i "s|\\\\includegraphics\[width=[^]]*\]{[^}]*}|\\\\includegraphics[width=$width_spec]{$FIGURE_JPG_DIR/$jpg_file}|g" "$fig_tex"
                 sed -i "s|\\\\includegraphics\[width=\]{|\\\\includegraphics[width=$width_spec]{|g" "$fig_tex"
@@ -357,15 +336,12 @@ handle_figure_visibility() {
     fi
 }
 
-
-gather_tex_files() {
-    echo "% Generated by gather_tex_files() on $(date)" > "$FIGURE_ALL_FILE"
-    echo "% This file includes all figure files in order" >> "$FIGURE_ALL_FILE"
-    echo "" >> "$FIGURE_ALL_FILE"
-
+compile_figure_tex_files() {
+    echo "% Generated by compile_figure_tex_files() on $(date)" > "$FIGURE_COMPILED_FILE"
+    echo "% This file includes all figure files in order" >> "$FIGURE_COMPILED_FILE"
+    echo "" >> "$FIGURE_COMPILED_FILE"
     # Variable to track if we're on the first figure
     local first_figure=true
-
     for fig_tex in $(find "$FIGURE_COMPILED_DIR" -maxdepth 1 -name "Figure_ID_*.tex" | sort); do
         [ -e "$fig_tex" ] || continue
         local basename=$(basename "$fig_tex")
@@ -417,7 +393,7 @@ gather_tex_files() {
                 figure_title="Figure $figure_number"
             fi
         fi
-        local original_caption_file="$FIGURE_SRC_DIR/${basename}"
+        local original_caption_file="$FIGURE_CAPTION_MEDIA_DIR/${basename}"
         if [ -f "$original_caption_file" ]; then
             local original_caption=$(sed -n '/\\caption{/,/^}\s*$/p' "$original_caption_file" | sed '1s/^\\caption{//' | sed '$s/}\s*$//')
             if [ -n "$original_caption" ]; then
@@ -432,72 +408,78 @@ gather_tex_files() {
         if [ -z "$caption_text" ]; then
             caption_text="Description for figure $figure_number."
         fi
-        echo "% Figure $figure_number: ${figure_title}" >> "$FIGURE_ALL_FILE"
-
+        echo "% Figure $figure_number: ${figure_title}" >> "$FIGURE_COMPILED_FILE"
         # Only add \clearpage for figures after the first one
         if [ "$first_figure" = true ]; then
             first_figure=false
         else
-            echo "\\clearpage" >> "$FIGURE_ALL_FILE"
+            echo "\\clearpage" >> "$FIGURE_COMPILED_FILE"
         fi
-
-        echo "\\begin{figure*}[p]" >> "$FIGURE_ALL_FILE"
-        echo "    \\pdfbookmark[2]{Figure $figure_number}{figure_id_$figure_number}" >> "$FIGURE_ALL_FILE"
-        echo "    \\centering" >> "$FIGURE_ALL_FILE"
+        echo "\\begin{figure*}[p]" >> "$FIGURE_COMPILED_FILE"
+        echo "    \\pdfbookmark[2]{Figure $figure_number}{figure_id_$figure_number}" >> "$FIGURE_COMPILED_FILE"
+        echo "    \\centering" >> "$FIGURE_COMPILED_FILE"
         if [ "$figure_type" = "tikz" ]; then
             local tikz_code=$(grep -A100 "\\\\begin{tikzpicture}" "$fig_tex" | sed -n '/\\begin{tikzpicture}/,/\\end{tikzpicture}/p')
             if [ -n "$tikz_code" ]; then
-                echo "$tikz_code" >> "$FIGURE_ALL_FILE"
+                echo "$tikz_code" >> "$FIGURE_COMPILED_FILE"
             else
                 if [ -n "$image_path" ]; then
-                    echo "    \\includegraphics[width=$width]{$image_path}" >> "$FIGURE_ALL_FILE"
+                    echo "    \\includegraphics[width=$width]{$image_path}" >> "$FIGURE_COMPILED_FILE"
                 fi
             fi
         else
             if [ -n "$image_path" ]; then
-                echo "    \\includegraphics[width=$width]{$image_path}" >> "$FIGURE_ALL_FILE"
+                echo "    \\includegraphics[width=$width]{$image_path}" >> "$FIGURE_COMPILED_FILE"
+                # Validate image path
+                if ! validate_image_file "$image_path"; then
+                    echo_warn "Image file not found in output: $image_path"
+                fi
             fi
         fi
-        echo "    \\caption{" >> "$FIGURE_ALL_FILE"
-        echo "\\textbf{" >> "$FIGURE_ALL_FILE"
-        echo "$figure_title" >> "$FIGURE_ALL_FILE"
-        echo "}" >> "$FIGURE_ALL_FILE"
-        echo "\\smallskip" >> "$FIGURE_ALL_FILE"
-        echo "\\\\" >> "$FIGURE_ALL_FILE"
-        echo "$caption_text" >> "$FIGURE_ALL_FILE"
-        echo "}" >> "$FIGURE_ALL_FILE"
-        echo "    \\label{fig:${figure_id}}" >> "$FIGURE_ALL_FILE"
-        echo "\\end{figure*}" >> "$FIGURE_ALL_FILE"
-        echo "" >> "$FIGURE_ALL_FILE"
+        echo "    \\caption{" >> "$FIGURE_COMPILED_FILE"
+        echo "\\textbf{" >> "$FIGURE_COMPILED_FILE"
+        echo "$figure_title" >> "$FIGURE_COMPILED_FILE"
+        echo "}" >> "$FIGURE_COMPILED_FILE"
+        echo "\\smallskip" >> "$FIGURE_COMPILED_FILE"
+        echo "\\\\" >> "$FIGURE_COMPILED_FILE"
+        echo "$caption_text" >> "$FIGURE_COMPILED_FILE"
+        echo "}" >> "$FIGURE_COMPILED_FILE"
+        echo "    \\label{fig:${figure_id}}" >> "$FIGURE_COMPILED_FILE"
+        echo "\\end{figure*}" >> "$FIGURE_COMPILED_FILE"
+        echo "" >> "$FIGURE_COMPILED_FILE"
     done
+
+    # # In process_figures.sh, change validate_figure_tex to validate_tex_file:
+    # if ! validate_tex_file "$FIGURE_COMPILED_FILE"; then
+    #     echo_warn "The combined figure file may have issues."
+    #     echo_info "Please check $FIGURE_COMPILED_FILE manually."
+    # else
+    #     echo_info "TeX validation passed for combined figure file."
+    # fi
+
 }
 
 main() {
     local no_figs="${1:-true}"
     local p2t="${2:-false}"
     local verbose="${3:-false}"
-
     if [ "$verbose" = true ]; then
         echo "Figure processing: Starting with parameters: no_figs=$no_figs, p2t=$p2t"
     fi
-
-    init "$@"
+    init_figures
     pptx2tif "$p2t"
-    ensure_lower_letters
+    ensure_lower_letter_id
     ensure_caption
     crop_tif "$no_figs"
     tif2jpg "$no_figs"
     compile_legends
     handle_figure_visibility "$no_figs"
-    gather_tex_files
-
+    compile_figure_tex_files
     local compiled_count=$(find "$FIGURE_COMPILED_DIR" -name "Figure_ID_*.tex" | wc -l)
-
     if [ "$no_figs" = false ] && [ $compiled_count -gt 0 ]; then
         echo "Generated $compiled_count figure files."
     fi
 }
-
 
 main "$@"
 
