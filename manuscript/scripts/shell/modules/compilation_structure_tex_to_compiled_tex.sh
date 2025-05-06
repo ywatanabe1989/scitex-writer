@@ -1,6 +1,6 @@
 #!/bin/bash
 # -*- coding: utf-8 -*-
-# Timestamp: "2025-05-06 22:19:57 (ywatanabe)"
+# Timestamp: "2025-05-06 22:27:34 (ywatanabe)"
 # File: ./manuscript/scripts/shell/modules/compilation_structure_tex_to_compiled_tex.sh
 
 THIS_DIR="$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)"
@@ -13,7 +13,7 @@ echo_info "$0 ..."
 
 gather_tex_contents() {
     # First, create initial compiled.tex from structure.tex
-    cp "$STRUCTURE_TEX" "$COMPILED_TEX"
+    cp "$BASE_TEX" "$COMPILED_TEX"
 
     process_input() {
         local file_path="$1"
