@@ -1,10 +1,10 @@
 #!/bin/bash
-# Test script for config.sh
+# Test script for config.src
 
 # Source the script to test
 THIS_DIR="$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)"
 MODULES_DIR="${THIS_DIR}/../modules"
-source "${MODULES_DIR}/config.sh"
+source "${MODULES_DIR}/config.src"
 
 # Set colors for output
 GREEN='\033[0;32m'
@@ -26,7 +26,7 @@ test_function() {
 }
 
 # Begin tests
-echo "Testing config.sh..."
+echo "Testing config.src..."
 
 # Test directory variables are set
 test_function "FIGURE_SRC_DIR is set" "[ -n \"$FIGURE_SRC_DIR\" ]"

@@ -1,7 +1,7 @@
 #!/bin/bash
 # -*- coding: utf-8 -*-
-# Timestamp: "2025-05-06 12:50:55 (ywatanabe)"
-# File: ./manuscript/scripts/sh/tests/test_check_commands.sh
+# Timestamp: "2025-05-06 12:58:22 (ywatanabe)"
+# File: ./manuscript/scripts/shell/tests/test_check_commands.sh
 
 THIS_DIR="$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)"
 LOG_PATH="$THIS_DIR/.$(basename $0).log"

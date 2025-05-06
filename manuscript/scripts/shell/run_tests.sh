@@ -1,11 +1,12 @@
 #!/bin/bash
 # -*- coding: utf-8 -*-
-# Timestamp: "2025-05-06 12:51:18 (ywatanabe)"
+# Timestamp: "2025-05-06 12:58:23 (ywatanabe)"
 # File: ./manuscript/scripts/shell/run_tests.sh
 
 THIS_DIR="$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)"
 LOG_PATH="$THIS_DIR/.$(basename $0).log"
 touch "$LOG_PATH" >/dev/null 2>&1
+
 
 # Run tests for SciTex
 

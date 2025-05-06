@@ -1,6 +1,6 @@
 #!/bin/bash
 # -*- coding: utf-8 -*-
-# Timestamp: "2025-05-06 12:51:18 (ywatanabe)"
+# Timestamp: "2025-05-06 12:58:57 (ywatanabe)"
 # File: ./manuscript/scripts/shell/revise.sh
 
 THIS_DIR="$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)"
