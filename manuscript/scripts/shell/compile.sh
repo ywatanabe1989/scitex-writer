@@ -1,9 +1,18 @@
 #!/bin/bash
+# -*- coding: utf-8 -*-
+# Timestamp: "2025-05-06 22:19:31 (ywatanabe)"
+# File: ./manuscript/scripts/shell/compile.sh
+
+THIS_DIR="$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)"
+LOG_PATH="$THIS_DIR/.$(basename $0).log"
+touch "$LOG_PATH" >/dev/null 2>&1
+
+
 set -e
 set -o pipefail
 
-LOG_FILE="./.logs/compile.log"
-mkdir -p .logs && touch $LOG_FILE
+source ./scripts/shell/modules/config.src
+mkdir -p $LOG_DIR && touch $GLOBAL_LOG_FILE
 
 do_insert_citations=false
 do_revise=false
@@ -48,7 +57,6 @@ main() {
     parse_arguments "$@"
 
     # Log command options
-    echo -n "./compile.sh"
     $do_push && echo -n " --push"
     $do_revise && echo -n " --revise"
     $do_term_check && echo -n " --terms"
@@ -56,12 +64,6 @@ main() {
     $do_insert_citations && echo -n " --citations"
     ! $no_figs && echo -n " --figs"
     $do_verbose && echo -n " --verbose"
-    echo  # Add a newline
-
-    # # Clear main directory
-    # for f in compiled.pdf diff.pdf manuscript.pdf manuscript.tex diff.tex; do
-    #     rm .//$f 2>/dev/null || true
-    # done
 
     # Check dependencies
     ./scripts/shell/modules/check_dependancy_commands.sh
@@ -74,18 +76,21 @@ main() {
 
     # Process figures, tables, and count
     ./scripts/shell/modules/process_figures.sh "$no_figs" "$do_p2t" "$do_verbose"
-    ./scripts/shell/modules/process_tables.sh "$do_verbose"
-    ./scripts/shell/modules/count_words_figures_and_tables.sh
+    ./scripts/shell/modules/process_tables.sh
+    ./scripts/shell/modules/count_words.sh
 
     # Compile documents
-    ./scripts/shell/modules/compile_tex.sh
-    ./scripts/shell/modules/compiled_tex_to_compiled_pdf.sh "$do_verbose" || { echo "Error in compile_main_tex"; exit 1; }
-    ./scripts/shell/modules/take_diff_tex.sh
-    ./scripts/shell/modules/compile_diff_tex.sh "$do_verbose"
+    ./scripts/shell/modules/compilation_structure_tex_to_compiled_tex.sh
+    ./scripts/shell/modules/compilation_compiled_tex_to_compiled_pdf.sh
 
-    # Post-processing steps
+    # Diff
+    ./scripts/shell/modules/process_diff.sh "$do_verbose"
+
+    # Versioning
+    ./scripts/shell/modules/process_versions.sh
+
+    # Cleanup
     ./scripts/shell/modules/cleanup.sh
-    ./scripts/shell/modules/versioning.sh
 
     # Check terms if needed
     if [ "$do_term_check" = true ]; then
@@ -94,7 +99,8 @@ main() {
 
     # Final steps
     ./scripts/shell/modules/custom_tree.sh
-    echo -e "\nLog saved to $LOG_FILE\n"
+
+    echo_success "See $GLOBAL_LOG_FILE"
 
     # Git push if needed
     if [ "$do_push" = true ]; then
@@ -102,4 +108,6 @@ main() {
     fi
 }
 
-main "$@" 2>&1 | tee "$LOG_FILE"
+main "$@" 2>&1 | tee "$GLOBAL_LOG_FILE"
+
+# EOF
