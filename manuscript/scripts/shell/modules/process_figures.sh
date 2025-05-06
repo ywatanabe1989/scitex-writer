@@ -1,6 +1,6 @@
 #!/bin/bash
 # -*- coding: utf-8 -*-
-# Timestamp: "2025-05-07 01:30:34 (ywatanabe)"
+# Timestamp: "2025-05-07 04:30:06 (ywatanabe)"
 # File: ./manuscript/scripts/shell/modules/process_figures.sh
 
 THIS_DIR="$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)"
@@ -37,7 +37,7 @@ init_figures() {
 }
 
 ensure_caption() {
-    for img_file in "$FIGURE_CAPTION_MEDIA_DIR"/Figure_ID_*.{tif,jpg,png,svg}; do
+    for img_file in "$FIGURE_CAPTION_MEDIA_DIR"/Figure_ID_*.{tif,jpg,png,svg,mmd}; do
         [ -e "$img_file" ] || continue
         local ext="${img_file##*.}"
         local filename=$(basename "$img_file")
@@ -82,6 +82,9 @@ EOF
                     convert "$img_file" -density 300 -quality 90 "$FIGURE_JPG_DIR/$jpg_filename"
                 fi
             fi
+        elif [ "$ext" = "mmd" ]; then
+            # Just create the caption file for mmd, processing is done separately
+            :
         fi
     done
 }
@@ -111,7 +114,7 @@ crop_tif() {
     local no_figs="$1"
     local do_crop_tif="$2"
     local verbose="$3"
-    
+
     if [[ "$no_figs" == false && "$do_crop_tif" == true ]]; then
         echo_info "Processing images (crop_tif)..."
         if [ -f "./scripts/python/crop_tif.py" ] && command -v python3 >/dev/null 2>&1; then
@@ -120,33 +123,33 @@ crop_tif() {
                 echo_warn "Required Python packages (opencv, numpy) not found. Skipping crop_tif."
                 return 1
             fi
-            
+
             # Process all TIF files in the caption_and_media directory
             local tif_files=$(find "$FIGURE_CAPTION_MEDIA_DIR" -name "Figure_ID_*.tif")
             local count=$(echo "$tif_files" | wc -l)
-            
+
             if [ -z "$tif_files" ]; then
                 echo_info "No TIF files found to crop."
                 return 0
             fi
-            
+
             echo_info "Found $count TIF files to crop"
-            
+
             # Create a temporary directory for processed files if needed
             local temp_dir="${FIGURE_CAPTION_MEDIA_DIR}/processed"
             mkdir -p "$temp_dir"
-            
+
             # Process each TIF file
             echo "$tif_files" | while read -r tif_file; do
                 if [ -z "$tif_file" ]; then continue; fi
-                
+
                 local filename=$(basename "$tif_file")
                 local output_path="${temp_dir}/${filename}"
-                
+
                 if [ "$verbose" = true ]; then
                     echo_info "Cropping: $filename"
                 fi
-                
+
                 # Run the Python script with appropriate parameters
                 if [ "$verbose" = true ]; then
                     python3 ./scripts/python/crop_tif.py file \
@@ -160,16 +163,16 @@ crop_tif() {
                         --output "$output_path" \
                         --margin 30
                 fi
-                
+
                 # If successful, replace the original file
                 if [ -f "$output_path" ]; then
                     mv "$output_path" "$tif_file"
                 fi
             done
-            
+
             # Clean up temporary directory
             rmdir "$temp_dir" 2>/dev/null
-            
+
             echo_success "Cropped $count TIF files"
         else
             echo_warn "crop_tif.py script or Python 3 not found. Skipping crop_tif."
@@ -513,6 +516,7 @@ compile_figure_tex_files() {
     done
 }
 
+
 main() {
     local no_figs="${1:-true}"
     local p2t="${2:-false}"
@@ -521,8 +525,15 @@ main() {
     if [ "$verbose" = true ]; then
         echo "Figure processing: Starting with parameters: no_figs=$no_figs, p2t=$p2t, crop_tif=$do_crop_tif"
     fi
+
+    # Mermaid
+    local THIS_DIR="$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)"
+    eval "$THIS_DIR/mmd2png_all.sh"
+    eval "$THIS_DIR/png2tif_all.sh"
+
     init_figures
     pptx2tif "$p2t"
+
     ensure_lower_letter_id
     ensure_caption
     crop_tif "$no_figs" "$do_crop_tif" "$verbose"

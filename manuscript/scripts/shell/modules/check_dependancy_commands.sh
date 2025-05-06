@@ -34,6 +34,14 @@ check_python_dependencies() {
         else
             echo_info "Required Python packages for crop_tif are available."
         fi
+        
+        # Check for Mermaid CLI if we need to process .mmd files
+        if ! command -v mmdc &> /dev/null; then
+            echo_warn "Mermaid CLI (mmdc) not found. Mermaid diagram processing will be disabled."
+            echo_warn "To use Mermaid diagrams, install with: npm install -g @mermaid-js/mermaid-cli"
+        else
+            echo_info "Mermaid CLI found. Mermaid diagrams can be processed."
+        fi
     fi
 }
 
