@@ -1,6 +1,6 @@
 #!/bin/bash
 # -*- coding: utf-8 -*-
-# Timestamp: "2025-05-07 01:11:28 (ywatanabe)"
+# Timestamp: "2025-05-07 01:33:45 (ywatanabe)"
 # File: ./manuscript/scripts/shell/modules/process_tables.sh
 
 THIS_DIR="$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)"
@@ -57,8 +57,10 @@ function check_csv_for_special_chars() {
     local problems=$(grep -n "$problem_chars" "$csv_file" 2>/dev/null || echo "")
     if [ -n "$problems" ]; then
         echo_warn "Potential LaTeX special characters found in $csv_file:"
+        echo -e ${YELLOW}
         echo "$problems" | head -5
         echo "These may need proper LaTeX escaping."
+        echo -e ${NC}
     fi
 }
 
@@ -140,7 +142,7 @@ function csv2tex() {
             echo "\\restoregeometry"
         } > "$compiled_file"
 
-        echo_info "Successfully compiled $compiled_file"
+        echo_info "$compiled_file compiled"
     done
 }
 
@@ -162,7 +164,7 @@ function gather_table_tex_files() {
     if [ $table_count -eq 0 ]; then
         echo_warn "No tables were found to compile."
     else
-        echo_success "$table_count tables compiled into $output_file"
+        echo_success "$table_count tables compiled"
     fi
 }
 
