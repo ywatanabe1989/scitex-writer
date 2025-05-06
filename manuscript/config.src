@@ -1,6 +1,6 @@
 #!/bin/bash
 # -*- coding: utf-8 -*-
-# Timestamp: "2025-05-07 00:09:20 (ywatanabe)"
+# Timestamp: "2025-05-07 01:25:32 (ywatanabe)"
 # File: /home/ywatanabe/proj/SciTex/manuscript/config.src
 
 THIS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
