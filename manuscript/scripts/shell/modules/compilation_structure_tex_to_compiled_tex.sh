@@ -1,6 +1,6 @@
 #!/bin/bash
 # -*- coding: utf-8 -*-
-# Timestamp: "2025-05-06 22:27:34 (ywatanabe)"
+# Timestamp: "2025-05-06 23:09:28 (ywatanabe)"
 # File: ./manuscript/scripts/shell/modules/compilation_structure_tex_to_compiled_tex.sh
 
 THIS_DIR="$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)"
@@ -8,7 +8,7 @@ LOG_PATH="$THIS_DIR/.$(basename $0).log"
 touch "$LOG_PATH" >/dev/null 2>&1
 
 
-source ./scripts/shell/modules/config.src
+source ./config.src
 echo_info "$0 ..."
 
 gather_tex_contents() {
