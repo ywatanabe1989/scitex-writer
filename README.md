@@ -1,16 +1,23 @@
 <!-- ---
-!-- Timestamp: 2025-05-06 20:10:46
+!-- Timestamp: 2025-05-07 05:07:45
 !-- Author: ywatanabe
 !-- File: /home/ywatanabe/proj/SciTex/README.md
 !-- --- -->
 
 # SciTex: Scientific Manuscripts Compilation System using LaTeX
 
-![Compile Test](https://github.com/ywatanabe1989/SciTex/actions/workflows/compile-test.yml/badge.svg)
-![Python Tests](https://github.com/ywatanabe1989/SciTex/actions/workflows/python-tests.yml/badge.svg)
-![Lint](https://github.com/ywatanabe1989/SciTex/actions/workflows/lint.yml/badge.svg)
+<!-- ![Compile Test](https://github.com/ywatanabe1989/SciTex/actions/workflows/compile-test.yml/badge.svg)
+ !-- ![Python Tests](https://github.com/ywatanabe1989/SciTex/actions/workflows/python-tests.yml/badge.svg)
+ !-- ![Lint](https://github.com/ywatanabe1989/SciTex/actions/workflows/lint.yml/badge.svg) -->
 
-SciTex is a LaTeX template system for scientific manuscript preparation from text and media files. It complies with [Elsevier's manuscript guidelines](https://www.elsevier.com/researcher/author/policies-and-guidelines/latex-instructions) while remaining adaptable for other journals.
+<!-- SciTex is a LaTeX template system for scientific manuscript preparation from text and media files. It complies with [Elsevier's manuscript guidelines](https://www.elsevier.com/researcher/author/policies-and-guidelines/latex-instructions) while remaining adaptable for other journals. -->
+
+<div style="text-align:center;">
+  <a href="./manuscript/compiled.pdf">
+    <img src="./docs/demo.gif" alt="Demo" width="200">
+  </a>
+</div>
+
 
 ## Key Features
 
