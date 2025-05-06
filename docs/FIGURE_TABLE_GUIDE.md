@@ -1,3 +1,9 @@
+<!-- ---
+!-- Timestamp: 2025-05-06 19:57:46
+!-- Author: ywatanabe
+!-- File: /home/ywatanabe/proj/SciTex/docs/FIGURE_TABLE_GUIDE.md
+!-- --- -->
+
 # SciTex Figure and Table Management Guide
 
 This comprehensive guide explains how to manage figures and tables in the SciTex system, including naming conventions, directory structure, file formats, and referencing in your manuscript.
@@ -55,8 +61,7 @@ manuscript/src/figures/
 ├── compiled/           # Auto-generated LaTeX files (DO NOT EDIT)
 │   ├── 00_Figures_Header.tex     # Figure section header
 │   ├── Figure_ID_01_workflow.tex # Compiled figure 1
-│   ├── Figure_ID_02_methods.tex  # Compiled figure 2
-│   └── debug/                    # Debugging files (preserve for troubleshooting)
+│   └── Figure_ID_02_methods.tex  # Compiled figure 2
 ├── src/                # Source files (PLACE YOUR FILES HERE)
 │   ├── Figure_ID_XX.png  # Source image files (PNG format)
 │   ├── Figure_ID_XX.tex  # Caption files
@@ -469,3 +474,5 @@ styling definitions, and automation scripts.
 ```
 
 This format ensures that each figure appears on its own page with proper labeling, referencing, and formatting for academic publications.
+
+<!-- EOF -->
