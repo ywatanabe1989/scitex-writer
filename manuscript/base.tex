@@ -1,0 +1,102 @@
+%% -*- coding: utf-8 -*-
+%% Timestamp: "2025-05-06 23:41:14 (ywatanabe)"
+%% File: "/home/ywatanabe/proj/SciTex/manuscript/base.tex"
+\UseRawInputEncoding
+
+%% ----------------------------------------
+%% SETTINGS
+%% ----------------------------------------
+\input{./src/styles/columns}
+\input{./src/styles/packages}
+\input{./src/styles/linker}
+\input{./src/styles/formatting}
+\link[supple-]{../supplementary/main}
+
+%% ----------------------------------------
+%% JOURNAL NAME
+%% ----------------------------------------
+\input{./src/journal_name}
+
+%% ----------------------------------------
+%% START of DOCUMENT
+%% ----------------------------------------
+\begin{document}
+
+%% ----------------------------------------
+%% Frontmatter
+%% ----------------------------------------
+\begin{frontmatter}
+\input{./src/highlights}
+\input{./src/title}
+\input{./src/authors}
+\input{./src/graphical_abstract}
+\input{./src/abstract}
+\input{./src/keywords}
+\end{frontmatter}
+
+%% ----------------------------------------
+%% Word Counter
+%% ----------------------------------------
+\input{./src/wordcount}
+
+%% ----------------------------------------
+%% INTRODUCTION
+%% ----------------------------------------
+\input{./src/introduction}
+
+%% ----------------------------------------
+%% METHODS
+%% ----------------------------------------
+\input{./src/methods}
+
+%% ----------------------------------------
+%% RESULTS
+ %% ----------------------------------------
+\input{./src/results}
+
+%% ----------------------------------------
+%% DISCUSSION
+%% ----------------------------------------
+\input{./src/discussion}
+
+%% ----------------------------------------
+%% DATA AVAILABILITY
+%% ----------------------------------------
+\input{./src/data_availability}
+
+%% ----------------------------------------
+%% REFERENCE STYLES
+%% ----------------------------------------
+\pdfbookmark[1]{References}{references}
+\bibliography{./src/bibliography}
+\input{./src/styles/bibliography}
+
+%% ----------------------------------------
+%% ADDITIONAL INFORMATION
+%% ----------------------------------------
+\input{./src/additional_info}
+
+%% ----------------------------------------
+%% TABLES
+%% ----------------------------------------
+\clearpage
+\section*{Tables}
+\label{tables}
+\pdfbookmark[1]{Tables}{tables}
+\input{./src/tables/compiled/FINAL}
+
+%% ----------------------------------------
+%% FIGURES
+%% ----------------------------------------
+\clearpage
+\section*{Figures}
+\label{figures}
+\pdfbookmark[1]{Figures}{figures}
+\input{./src/figures/compiled/FINAL}
+
+%% ----------------------------------------
+%% END of DOCUMENT
+%% ----------------------------------------
+\end{document}
+
+%%%% EOF

@@ -107,6 +107,9 @@ graph TD
     F --> F3[USAGE_FOR_LLM.md]
     F --> F4[PLAN.md]
     F --> F5[TO_CLAUDE.md]
+    F --> F6[FIGURE_TABLE_GUIDE.md]
+    F --> F7[NAMING_CONVENTIONS.md]
+    F --> F8[TEST_SYNC_GUIDE.md]
     
     %% Progress docs
     F1 --> F1_1[progress.md]
@@ -140,6 +143,7 @@ graph TD
     classDef docs fill:#ff9,stroke:#993,stroke-width:1px;
     classDef examples fill:#bff,stroke:#3ff,stroke-width:1px;
     classDef tests fill:#fbf,stroke:#f3f,stroke-width:1px;
+    classDef new fill:#fbb,stroke:#f33,stroke-width:3px,stroke-dasharray: 5 5;
     
     %% Apply styling
     class A main;
@@ -150,3 +154,4 @@ graph TD
     class F,F1,F2,F3,F4,F5,F1_1,F1_2,F1_3,F2_1,F2_2,F2_3 docs;
     class G,G1,G2,G3,G4,G5,G6 examples;
     class H,H1,H2,H3,H4 tests;
+    class F6,F7,F8 new;

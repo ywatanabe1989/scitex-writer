@@ -18,17 +18,17 @@ compile_revision() {
 }
 
 usage() {
-    echo "Usage: $0 [-m] [-s] [-r] [-h] [-- additional_args]"
+    echo "Usage: $0 [options] [-- additional_args]"
     echo "Options:"
-    echo "  -m  Compile manuscript"
-    echo "  -s  Compile supplementary"
-    echo "  -r  Compile revision"
-    echo "  -h  Display this help message"
-    echo "  --  Pass additional arguments to compile scripts"
+    echo "  -m, --manuscript     Compile manuscript"
+    echo "  -s, --supplementary  Compile supplementary"
+    echo "  -r, --revision       Compile revision"
+    echo "  -h, --help           Display this help message"
+    echo "  --                   Pass additional arguments to compile scripts"
     echo
     echo "Example:"
-    echo "  $0 -m -s -- arg1 arg2  # Compile supplementary first and manuscript afterward with additional args"
-    echo "  $0 -- arg1 arg2        # Compile all sections with additional args"
+    echo "  $0 --manuscript --supplementary -- arg1 arg2  # Compile supplementary first and manuscript afterward with additional args"
+    echo "  $0 -- arg1 arg2                              # Compile all sections with additional args"
     exit 1
 }
 
@@ -40,18 +40,18 @@ main() {
 
     while [[ $# -gt 0 ]]; do
         case $1 in
-            -h)
+            -h|--help)
                 usage
                 ;;
-            -m)
+            -m|--manuscript)
                 compile_m=true
                 shift
                 ;;
-            -s)
+            -s|--supplementary)
                 compile_s=true
                 shift
                 ;;
-            -r)
+            -r|--revision)
                 compile_r=true
                 shift
                 ;;
@@ -80,42 +80,4 @@ main() {
     wait
 }
 
-# main() {
-#     local compile_flags=""
-#     local additional_args=()
-
-#     while [[ $# -gt 0 ]]; do
-#         case $1 in
-#             -h)
-#                 usage
-#                 ;;
-#             -m|-s|-r) 
-#                 compile_flags+="${1#-}"
-#                 shift
-#                 ;;
-#             --)
-#                 shift
-#                 additional_args=("$@")
-#                 break
-#                 ;;
-#             *)
-#                 echo "Invalid option: $1" >&2
-#                 usage
-#                 ;;
-#         esac
-#     done
-
-#     if [ -z "$compile_flags" ]; then
-#         compile_flags="msr"
-#     fi
-
-#     [[ $compile_flags == *"s"* ]] && compile_supplementary.sh "${additional_args[@]}" && \
-#     [[ $compile_flags == *"m"* ]] && compile_manuscript.sh "${additional_args[@]}" && \
-#     [[ $compile_flags == *"r"* ]] && compile_revision.sh "${additional_args[@]}"
-
-#     wait
-# }
-
 main "$@" 2>&1 | tee "$LOG_FILE"
-
-# EOF

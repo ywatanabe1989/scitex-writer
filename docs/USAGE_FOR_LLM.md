@@ -350,136 +350,386 @@ If you encounter issues:
 
 # SciTex Usage Guide for LLM Agents
 
-## Overview
+This comprehensive guide is designed specifically for LLM agents working with the SciTex scientific manuscript system. It provides detailed information about the repository structure, key workflows, and important conventions.
 
-SciTex is an AI-assisted LaTeX template for scientific manuscripts. It provides tools for manuscript preparation with integrated GPT assistance for text revision, terminology checking, and citation insertion.
+## Table of Contents
 
-## Repository Structure
+1. [Repository Overview](#repository-overview)
+2. [Key Components](#key-components)
+3. [Compilation Workflow](#compilation-workflow)
+4. [Figure and Table Management](#figure-and-table-management)
+5. [AI-Assisted Features](#ai-assisted-features)
+6. [LaTeX Conventions](#latex-conventions)
+7. [Common Operations](#common-operations)
+8. [Troubleshooting](#troubleshooting)
+9. [Best Practices](#best-practices)
+
+## Repository Overview
+
+SciTex is a LaTeX-based system for scientific manuscript preparation with AI assistance. It follows Elsevier's guidelines but can be adapted for other journals. The repository is organized into these main components:
 
 ```
 SciTex/
-├── manuscript/        # Main manuscript directory
-│   ├── main.tex       # Main document entry point
-│   ├── src/           # Content sections (introduction, methods, etc.)
-│   ├── scripts/       # Automation scripts
-│      ├── py/         # Python scripts for AI assistance
-│      ├── sh/         # Bash scripts for compilation
-├── revision/          # Revision response documents
-├── supplementary/     # Supplementary materials
-├── examples/          # Example scripts demonstrating functionality
-├── docs/              # Documentation
-│   ├── progress/      # Progress tracking
-│   ├── structure/     # Project structure documentation
-│   └── USAGE_FOR_LLM.md  # This file
+├── manuscript/      # Main scientific manuscript
+├── revision/        # Revision response documents
+├── supplementary/   # Supplementary materials
+├── examples/        # Example usage
+├── docs/            # Documentation
+├── scripts/         # Build/automation scripts
+└── tests/           # Test suite
 ```
 
-## Core Functionality
+## Key Components
 
-SciTex combines LaTeX document preparation with AI assistance through:
+### Manuscript Component
 
-1. **Document Framework**: Modular LaTeX template following Elsevier guidelines
-2. **AI Integration**: GPT-powered tools for text improvement
-3. **Automated Compilation**: Shell scripts to assemble the final PDF
+The `manuscript/` directory contains the core scientific manuscript files:
 
-## Using SciTex
+```
+manuscript/
+├── main.tex         # Main LaTeX entry point
+├── compile          # Compilation script
+├── scripts/         # Processing scripts
+│   ├── py/          # Python utilities
+│   └── sh/          # Shell scripts
+└── src/             # Content source files
+    ├── abstract.tex
+    ├── introduction.tex
+    ├── methods.tex
+    ├── results.tex
+    ├── discussion.tex
+    ├── bibliography.bib
+    ├── figures/     # Figure files
+    └── tables/      # Table files
+```
+
+### Revision Component
+
+The `revision/` directory contains materials for responding to reviewer comments:
+
+```
+revision/
+├── main.tex         # Main revision document
+├── compile          # Compilation script
+└── src/             # Response content
+    ├── reviewer1/   # Responses to reviewer 1
+    ├── reviewer2/   # Responses to reviewer 2
+    └── editor/      # Responses to editor
+```
+
+### Supplementary Component
+
+The `supplementary/` directory contains supplementary materials:
+
+```
+supplementary/
+├── main.tex         # Main supplementary document
+├── compile          # Compilation script
+└── src/             # Supplementary content
+    ├── methods.tex
+    ├── results.tex
+    ├── figures/     # Supplementary figures
+    └── tables/      # Supplementary tables
+```
+
+## Compilation Workflow
+
+SciTex uses a sophisticated compilation process that handles figures, tables, and references automatically.
 
 ### Basic Compilation
 
-```bash
-./compile               # Compile manuscript
-./compile -h            # Show help
-```
-
-### AI-Assisted Features
+From the root directory:
 
 ```bash
-./compile -r            # Revise with GPT
-./compile -t            # Check terminology
-./compile -c            # Insert citations
+# Compile manuscript only
+./compile.sh -m
+
+# Compile manuscript with figures
+./compile.sh -m --figs
+
+# Compile all components
+./compile.sh
 ```
 
-### Additional Tools
+From component directories:
 
 ```bash
-./compile -p2t          # Convert PowerPoint to TIF
-./compile -nf           # Compile without figures
-./compile -p            # Push changes to GitHub
+# Navigate to component directory
+cd manuscript
+
+# Basic compilation
+./compile
+
+# With figures
+./compile -f
 ```
 
-## Python Module Usage
+### Compilation Steps
 
-The refactored Python modules can be used directly:
+The compilation process performs these steps:
 
-```python
-# Text revision
-from revise import revise_by_GPT
-revise_by_GPT("path/to/file.tex")
+1. **Initial Checks**: Validate directory structure and dependencies
+2. **Figure Processing**: Convert and prepare figures (if enabled)
+3. **Table Processing**: Format tables from CSV data
+4. **TeX Files Gathering**: Combine separate TeX files
+5. **LaTeX Compilation**: Generate PDF output
+6. **Diff Generation**: Create diff version showing changes
+7. **Cleanup**: Remove temporary files
+8. **Versioning**: Create versioned backup
 
-# Terminology checking
-from check_terms import check_terms_by_GPT
-check_terms_by_GPT("path/to/file.tex")
+### Important Flags
 
-# Citation insertion
-from insert_citations import insert_citations
-insert_citations("path/to/file.tex", "path/to/bibliography.bib")
+When using compilation scripts, these flags control behavior:
+
+- `-f, --figs`: Include figures (slower compilation)
+- `-r, --revise`: Enable AI-assisted text revision
+- `-t, --terms`: Check terminology consistency
+- `-c, --citations`: Insert citations automatically
+- `-p2t, --pptx2tif`: Convert PowerPoint to TIF
+- `-p, --push`: Push changes to GitHub
+
+## Figure and Table Management
+
+SciTex provides a standardized system for managing figures and tables.
+
+### Figure Directory Structure
+
+```
+manuscript/src/figures/
+├── compiled/           # Auto-generated LaTeX files (DO NOT EDIT)
+├── src/                # Source files (PLACE YOUR FILES HERE)
+│   ├── Figure_ID_XX.tif  # Source image files
+│   ├── Figure_ID_XX.tex  # Caption files
+│   └── jpg/              # Auto-generated JPEG versions
+├── templates/          # Templates for new figures
+└── .tex/               # Hidden directory for compiled figure files
 ```
 
-## CLI Usage
+### Figure Naming Conventions
 
-The unified command-line interface:
+All figures must follow this pattern:
+```
+Figure_ID_XX_descriptive_name.ext
+```
+
+Where:
+- `Figure_ID`: Fixed prefix (required)
+- `XX`: Two-digit figure number (01, 02, etc.) (required)
+- `descriptive_name`: Short, descriptive name (required)
+- `.ext`: File extension: `.tif` for images or `.tex` for captions
+
+### Table Directory Structure
+
+```
+manuscript/src/tables/
+├── compiled/           # Auto-generated LaTeX files (DO NOT EDIT)
+└── src/                # Source files (PLACE YOUR FILES HERE)
+    ├── Table_ID_XX.csv  # Source data files
+    ├── Table_ID_XX.tex  # Caption files
+    └── _Table_ID_XX.tex # Template file
+```
+
+### Table Naming Conventions
+
+All tables must follow this pattern:
+```
+Table_ID_XX_descriptive_name.ext
+```
+
+Where:
+- `Table_ID`: Fixed prefix (required)
+- `XX`: Two-digit table number (01, 02, etc.) (required)
+- `descriptive_name`: Short, descriptive name (required)
+- `.ext`: File extension: `.csv` for data or `.tex` for captions
+
+### Referencing Figures and Tables
+
+In LaTeX files, use these reference formats:
+
+```latex
+Figure~\ref{fig:XX}   % For figures (e.g., Figure~\ref{fig:01})
+Table~\ref{tab:XX}    % For tables (e.g., Table~\ref{tab:01})
+```
+
+For more details, see the [Figure and Table Guide](./FIGURE_TABLE_GUIDE.md) and [Naming Conventions](./NAMING_CONVENTIONS.md).
+
+## AI-Assisted Features
+
+SciTex integrates AI assistance through Python scripts that use OpenAI's GPT models.
+
+### Text Revision
+
+Automatically revise text for clarity, grammar, and style:
 
 ```bash
-# Revise text
-python scitex.py revise --input path/to/file.tex
+# From manuscript directory
+./compile -r
 
-# Check terminology
-python scitex.py check-terms --input path/to/file.tex
-
-# Insert citations
-python scitex.py insert-citations --input path/to/file.tex --bibliography path/to/bib.bib
+# Or from root
+./compile.sh -m --revise
 ```
 
-## Common Tasks
+The process reads LaTeX files, identifies text blocks, submits them to GPT for revision, and updates the files with improved text.
 
-### Creating a New Manuscript
+### Terminology Checking
 
-1. Edit content in `manuscript/src/` files (abstract.tex, introduction.tex, etc.)
-2. Add references to `manuscript/src/bibliography.bib`
-3. Run `./compile` to generate the PDF
+Check for consistent terminology and abbreviations:
 
-### Revising Content
+```bash
+# From manuscript directory
+./compile -t
 
-1. Make changes to the relevant section files
-2. Use `./compile -r` to apply AI revision
-3. Review changes and adjust as needed
+# Or from root
+./compile.sh -m --terms
+```
 
-### Adding Figures
+The process scans the manuscript for inconsistent terminology and abbreviations, providing a report and suggestions.
 
-1. Place PowerPoint slides in designated directory
-2. Run `./compile -p2t` to convert to TIF format
-3. Edit figure captions in the corresponding TeX files
+### Citation Management
 
-### Preparing for Submission
+Automatically insert appropriate citations:
 
-1. Finalize all content and run `./compile`
-2. Check the generated PDF for errors
-3. Submit the final PDF along with source files if requested
+```bash
+# From manuscript directory
+./compile -c
 
-## LLM Agent Integration Tips
+# Or from root
+./compile.sh -m --cite
+```
 
-For LLM agents interacting with SciTex:
+The process identifies statements that need citation, searches the bibliography for relevant references, and inserts proper citation commands.
 
-1. **Document Analysis**: Begin by examining the structure in manuscript/src/
-2. **Content Creation**: Generate content for specific sections (introduction, methods, etc.)
-3. **AI Assistance**: Use the built-in GPT tools for polishing content
-4. **Check References**: Ensure bibliography.bib contains all necessary citations
+## LaTeX Conventions
 
-## Common Errors and Solutions
+SciTex uses specific LaTeX conventions to ensure consistent formatting.
 
-1. **Compilation Failures**: Check LaTeX syntax in recently edited files
-2. **Missing References**: Ensure citations match entries in bibliography.bib
-3. **Figure Issues**: Verify figure paths and format compatibility
-4. **AI Integration Errors**: Check API key setup in environment variables
+### Document Structure
+
+- `\documentclass{elsarticle}`: Base class for manuscript
+- Two-column layout with standard academic formatting
+- Section structure: Introduction, Methods, Results, Discussion
+- References using BibTeX and natbib
+
+### Label Conventions
+
+- Sections: `\label{sec:name}` (e.g., `\label{sec:methods}`)
+- Figures: `\label{fig:XX}` (e.g., `\label{fig:01}`)
+- Tables: `\label{tab:XX}` (e.g., `\label{tab:01}`)
+- Equations: `\label{eq:name}` (e.g., `\label{eq:energy}`)
+
+### Citation Conventions
+
+- Standard citation: `\cite{author_year}`
+- Parenthetical citation: `\citep{author_year}`
+- Textual citation: `\citet{author_year}`
+
+## Common Operations
+
+### Adding a New Figure
+
+1. Create your figure in TIF format (300 DPI recommended)
+2. Name it following the convention: `Figure_ID_XX_description.tif`
+3. Place it in `manuscript/src/figures/src/`
+4. Create a caption file with the same name but `.tex` extension
+5. Reference it in text with `Figure~\ref{fig:XX}`
+6. Compile with the `-f` or `--figs` flag
+
+### Adding a New Table
+
+1. Create your table data in CSV format
+2. Name it following the convention: `Table_ID_XX_description.csv`
+3. Place it in `manuscript/src/tables/src/`
+4. Create a caption file with the same name but `.tex` extension
+5. Reference it in text with `Table~\ref{tab:XX}`
+6. Compile the document
+
+### Updating Bibliography
+
+1. Edit the `manuscript/src/bibliography.bib` file
+2. Add new entries following BibTeX format:
+   ```bibtex
+   @article{author_year,
+     author  = {Author, A. and Another, B.},
+     title   = {Title of the article},
+     journal = {Journal Name},
+     volume  = {42},
+     number  = {3},
+     pages   = {123--456},
+     year    = {2022},
+     doi     = {10.xxxx/xxxxx}
+   }
+   ```
+3. Reference citations in text using `\cite{author_year}`
+4. Compile the document to update references
+
+### Running Tests
+
+The test suite can be executed to verify system functionality:
+
+```bash
+# Run all tests
+./run_tests.sh
+
+# Run with verbose output
+./run_tests.sh -v
+
+# Run specific tests
+./run_tests.sh -p test_file_utils.py
+```
+
+## Troubleshooting
+
+### Common Issues
+
+1. **Figures Not Appearing**:
+   - Check naming follows convention exactly
+   - Ensure files are in the correct directories
+   - Verify compilation uses the `-f` flag
+
+2. **References Not Resolving**:
+   - Check label formats match the conventions
+   - Run multiple LaTeX passes to resolve references
+   - Verify reference commands use correct IDs
+
+3. **Python Script Errors**:
+   - Ensure OpenAI API key is properly set
+   - Check Python dependencies are installed
+   - Verify file permissions allow script execution
+
+### Debugging Compilation
+
+For detailed debugging information:
+
+```bash
+# Enable verbose compilation
+./compile -v
+
+# Check LaTeX logs
+cat manuscript/main.log
+
+# Check script logs
+cat manuscript/.logs/compile.log
+```
+
+## Best Practices
+
+1. **Consistent Naming**: Follow naming conventions exactly
+2. **Regular Compilation**: Compile frequently to catch issues early
+3. **Version Control**: Use git for tracking changes
+4. **Backup Original Files**: Keep copies of important originals
+5. **Modular Editing**: Work on one section at a time
+6. **Comment Code**: Add helpful LaTeX comments
+7. **Use Templates**: Start from provided templates
+8. **Test References**: Verify all cross-references work
+9. **Organize Figures**: Keep figures in appropriate directories
+10. **Follow Documentation**: Refer to guides for specific tasks
+
+For LLM agents in particular:
+1. **Preserve Structure**: Maintain the existing directory structure
+2. **Follow Conventions**: Adhere to naming and reference patterns
+3. **Use Appropriate Commands**: Use the right LaTeX commands for different elements
+4. **Understand the Workflow**: Know how compilation processes figures and tables
+5. **Check Reference Formats**: Ensure cross-references use correct label formats
 
 ## Examples
 
@@ -487,28 +737,18 @@ SciTex includes various examples to help you understand its functionality:
 
 ### Basic Examples
 
-- `examples/basic_revision.py`: Demonstrates basic text revision using GPT
-- `examples/check_terms.py`: Shows how to check terminology consistency
-- `examples/insert_citations.py`: Illustrates citation insertion from a bibliography
+- `examples/basic_revision.py`: Demonstrates text revision using GPT
+- `examples/check_terms.py`: Shows terminology consistency checking
+- `examples/insert_citations.py`: Illustrates citation insertion
 
 ### Complete Workflow Example
 
-- `examples/complete_workflow.sh`: A comprehensive bash script demonstrating the full manuscript preparation workflow
+- `examples/complete_workflow.sh`: End-to-end manuscript preparation workflow
 
 ### Python API Example
 
-- `examples/using_python_api.py`: Demonstrates how to use the SciTex Python API programmatically
+- `examples/using_python_api.py`: Programmatic use of the SciTex Python API
 
-To run these examples:
-
-```bash
-# For Python examples
-python examples/basic_revision.py
-
-# For shell script examples
-bash examples/complete_workflow.sh
-```
-
-These examples serve as both documentation and functional tests of the SciTex system. Refer to them when implementing your own workflows or when you need to understand how specific features work.
+For more detailed information, refer to the other documentation files in the `docs/` directory.
 
 <!-- EOF -->

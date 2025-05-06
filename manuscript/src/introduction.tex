@@ -1,34 +1,33 @@
 %% -*- coding: utf-8 -*-
-%% Timestamp: "2025-05-05 12:10:00 (ywatanabe)"
+%% Timestamp: "2025-05-06 20:02:18 (ywatanabe)"
 %% File: "/home/ywatanabe/proj/SciTex/manuscript/src/introduction.tex"
 
 \section{Introduction}
 \label{sec:introduction}
 
-Scientific writing in LaTeX presents several challenges, particularly for researchers unfamiliar with the system or those managing complex documents with numerous figures, tables, and citations \cite{Smith2020}. SciTex addresses these challenges by providing a modular LaTeX template specifically designed for scientific manuscripts. 
+Scientific writing in LaTeX presents challenges for researchers unfamiliar with the system or managing documents with multiple figures, tables, and citations \cite{Smith2020}. SciTex addresses these issues with a modular LaTeX template designed specifically for scientific manuscripts.
 
-This template is seamlessly integrated with AI-assistance tools that can revise text, check terminology consistency, and suggest relevant citations \cite{Johnson2023}. Figure~\ref{fig:workflow} illustrates the overall workflow of a typical manuscript preparation using SciTex.
+This template organizes content into separate files with clear structure and provides tools for automating common document preparation tasks. SciTex creates a structured workflow for manuscript preparation that helps researchers focus on content rather than formatting.
 
 % Note the cross-referencing capability using the \ref{} command
-% This references an image in the figures directory
+% This demonstrates LaTeX's cross-referencing system
 
-Three key innovations of this system include:
+Key features of the SciTex system include:
 
 \begin{itemize}
-    \item Modular organization of manuscript content into separate files for easier management
-    \item Integration with AI-assistance tools for text revision and citation suggestions
-    \item Automation of tedious tasks such as figure conversion and bibliography management
+    \item Modular organization of manuscript content into separate files
+    \item Structured figure and table management system
+    \item Automated compilation with version tracking
+    \item Consistent formatting and referencing throughout the document
 \end{itemize}
 
-Prior research has shown that well-designed templates can significantly improve writing efficiency and reduce formatting errors \cite{Williams2021}. However, existing templates often lack flexibility or are overly complex for everyday use \cite{Garcia2019}.
-
-Our approach builds on established scientific writing methodologies while adding modern capabilities like version control integration and AI-assistance \cite{Taylor2022}. The principles guiding this design are detailed in Section~\ref{sec:methods}.
+The template system builds on established scientific writing methodologies while adding practical features for modern document preparation \cite{Taylor2022}. SciTex employs a modular architecture with key components detailed in Section~\ref{sec:methods}.
 
 % This is a demonstration of how to cite references from the bibliography.bib file
 % You can use \cite{} for standard citations
 % Or \citep{} and \citet{} for parenthetical and textual citations
 
-Researchers across disciplines have reported that document preparation can consume up to 30\% of their total research time, with formatting and citation management being particularly time-consuming \cite{Lee2018}. By automating these aspects, SciTex aims to reduce this burden and allow scientists to focus more on research content.
+Document preparation can be a time-intensive aspect of research, with formatting and citation management being particularly demanding tasks \cite{Lee2018}. By providing automation for these aspects, SciTex aims to help researchers focus more on scientific content rather than document formatting details.
 
 In this paper, we present the design and implementation of SciTex, followed by evaluation results and usage examples.
 
