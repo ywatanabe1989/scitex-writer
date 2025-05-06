@@ -29,9 +29,9 @@ The easiest way to run tests is using the provided script:
 
 ```bash
 # From the manuscript directory
-./scripts/sh/run_tests.sh       # Run all tests
-./scripts/sh/run_tests.sh -v    # Run with verbose output
-./scripts/sh/run_tests.sh -p test_file_utils.py  # Run specific tests
+./scripts/shell/run_tests.sh       # Run all tests
+./scripts/shell/run_tests.sh -v    # Run with verbose output
+./scripts/shell/run_tests.sh -p test_file_utils.py  # Run specific tests
 ```
 
 ### Using Python Directly
@@ -39,11 +39,11 @@ The easiest way to run tests is using the provided script:
 You can also run tests using Python directly:
 
 ```bash
-# From the scripts/py directory
+# From the scripts/python directory
 python run_tests.py
 
 # Using pytest directly
-cd scripts/py
+cd scripts/python
 pytest tests/
 ```
 

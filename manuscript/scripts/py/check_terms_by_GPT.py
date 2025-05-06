@@ -6,7 +6,7 @@
 import os
 import sys
 
-sys.path.append("./scripts/py/")
+sys.path.append("./scripts/python/")
 from utils import ChatGPT, load_tex, back_up, save_tex
 from pprint import pprint
 import re

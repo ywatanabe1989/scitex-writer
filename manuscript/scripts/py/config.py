@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # Timestamp: "2025-05-05 13:20:05 (ywatanabe)"
-# File: /home/ywatanabe/proj/SciTex/manuscript/scripts/py/config.py
+# File: /home/ywatanabe/proj/SciTex/manuscript/scripts/python/config.py
 # ----------------------------------------
 import os
 __FILE__ = (
-    "./manuscript/scripts/py/config.py"
+    "./manuscript/scripts/python/config.py"
 )
 __DIR__ = os.path.dirname(__FILE__)
 # ----------------------------------------
@@ -31,8 +31,8 @@ API_KEY_ERROR = (
 )
 
 # File paths
-SCRIPTS_DIR = "./scripts/py/"
-TEMPLATES_DIR = "./scripts/py/templates/"
+SCRIPTS_DIR = "./scripts/python/"
+TEMPLATES_DIR = "./scripts/python/templates/"
 
 # Colors for diff display
 DIFF_COLORS = {

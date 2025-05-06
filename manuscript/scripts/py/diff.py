@@ -5,7 +5,7 @@
 import os
 import sys
 
-sys.path.append("./scripts/py/")
+sys.path.append("./scripts/python/")
 from utils import load_tex, save_tex, show_diff
 
 
