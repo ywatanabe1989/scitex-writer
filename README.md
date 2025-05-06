@@ -1,5 +1,5 @@
 <!-- ---
-!-- Timestamp: 2025-05-07 05:07:45
+!-- Timestamp: 2025-05-07 05:47:39
 !-- Author: ywatanabe
 !-- File: /home/ywatanabe/proj/SciTex/README.md
 !-- --- -->
@@ -12,11 +12,11 @@
 
 <!-- SciTex is a LaTeX template system for scientific manuscript preparation from text and media files. It complies with [Elsevier's manuscript guidelines](https://www.elsevier.com/researcher/author/policies-and-guidelines/latex-instructions) while remaining adaptable for other journals. -->
 
-<div style="text-align:center;">
+<center>
   <a href="./manuscript/compiled.pdf">
-    <img src="./docs/demo.gif" alt="Demo" width="200">
+    <img src="./docs/demo.gif" alt="Demo" width="400">
   </a>
-</div>
+</center>
 
 
 ## Key Features
