@@ -86,16 +86,18 @@ Each figure in the final manuscript will appear like this:
 \end{figure*}
 ```
 
-## PowerPoint to PNG Conversion
+## PowerPoint to TIF Conversion
 
-You can convert PowerPoint slides to PNG format using:
+You can convert PowerPoint slides to TIF format using:
 
 ```bash
 # From the manuscript directory
-./compile --pptx2png
+./compile --pptx2tif
 # OR
-./compile -p2p
+./compile -p2t
 ```
+
+**Note:** The PowerPoint to TIF conversion functionality requires Windows with PowerPoint installed, running through WSL (Windows Subsystem for Linux). This feature is not available on standalone Linux or macOS systems.
 
 ## Example Structure
 
