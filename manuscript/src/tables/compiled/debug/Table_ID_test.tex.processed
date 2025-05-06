@@ -1,0 +1,23 @@
+\pdfbookmark[2]{ID test}{id_test}
+\begin{table}[htbp]
+\centering
+\small
+\setlength{\tabcolsep}{5pt}
+\begin{tabular}{*{4}{p{0.15\textwidth}}}
+\toprule
+\textbf{\thead{$\mathrm{Parameter}$}} & \textbf{\thead{$\mathrm{Value}$}} & \textbf{\thead{$\mathrm{Unit}$}} & \textbf{\thead{$\mathrm{Notes}$}}\\
+\midrule
+$\mathrm{Resolution}$ & $\mathrm{300}$ & $\mathrm{dpi}$ & $\mathrm{Standard for print}$\\
+\rowcolor{lightgray}
+$\mathrm{Width}$ & $\mathrm{2000}$ & $\mathrm{pixels}$ & $\mathrm{Recommended for figures}$\\
+$\mathrm{Height}$ & $\mathrm{1332}$ & $\mathrm{pixels}$ & $\mathrm{Maintains aspect ratio}$\\
+\rowcolor{lightgray}
+$\mathrm{File size}$ & $\mathrm{48.5}$ & $\mathrm{KB}$ & $\mathrm{After optimization}$\\
+$\mathrm{Compression ratio}$ & $\mathrm{92.3}$ & $\mathrm{\%}$ & $\mathrm{Size reduction achieved}$\\
+\bottomrule
+\end{tabular}
+\captionsetup{width=1\textwidth}
+\input{./src/tables/src/Table_ID_test.tex}
+\label{tab:test}
+\end{table}
+

@@ -1,0 +1,6 @@
+Parameter,Value,Unit,Notes
+Resolution,300,dpi,Standard for print
+Width,2000,pixels,Recommended for figures
+Height,1332,pixels,Maintains aspect ratio
+File size,48.5,KB,After optimization
+Compression ratio,92.3,%,Size reduction achieved
