@@ -1,6 +1,6 @@
 #!/bin/bash
 # -*- coding: utf-8 -*-
-# Timestamp: "2025-05-06 22:23:35 (ywatanabe)"
+# Timestamp: "2025-05-06 22:27:58 (ywatanabe)"
 # File: /home/ywatanabe/proj/SciTex/manuscript/scripts/shell/modules/config.src
 
 THIS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -14,18 +14,20 @@ GLOBAL_LOG_FILE="$LOG_DIR"/global.log
 VERBOSE_PDFLATEX="${VERBOSE_PDFLATEX:-false}"
 VERBOSE_BIBTEX="${VERBOSE_BIBTEX:-false}"
 
-# Compilation
-STRUCTURE_TEX="./base_structure.tex"
+# Base Structure Components
+BASE_TEX="./base.tex"
+
+# Compiled
 COMPILED_TEX="./compiled.tex"
 COMPILED_PDF="./compiled.pdf"
-
-# Versioning
-VERSIONS_DIR="./versions"
-VERSION_COUNTER_TXT="${VERSIONS_DIR}/.version_counter.txt"
 
 # Differences
 DIFF_TEX="./diff.tex"
 DIFF_PDF="./diff.pdf"
+
+# Versioning
+VERSIONS_DIR="./versions"
+VERSION_COUNTER_TXT="${VERSIONS_DIR}/.version_counter.txt"
 
 # Figure
 FIGURE_SRC_DIR="./src/figures/src"
