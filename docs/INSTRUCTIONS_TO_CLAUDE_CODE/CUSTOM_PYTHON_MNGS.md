@@ -1,7 +1,7 @@
 <!-- ---
-!-- Timestamp: 2025-05-06 08:43:32
+!-- Timestamp: 2025-05-06 09:29:16
 !-- Author: ywatanabe
-!-- File: /home/ywatanabe/proj/prompt_factory/CUSTOM_PYTHON_MNGS.md
+!-- File: /home/ywatanabe/proj/SciTex/docs/INSTRUCTIONS_TO_CLAUDE_CODE/CUSTOM_PYTHON_MNGS.md
 !-- --- -->
 
 
@@ -9,6 +9,8 @@
 #### `./.env`
 - Python env can be created by `$HOME/.bin/python/python_init_with_local_mngs.sh`
 
+- Add +x permission to all .py scripts
+- 
 - For python scripts, ensure to follow this MNGS FORMAT:
   ``` python
   #!/usr/bin/env python3

@@ -1,17 +1,18 @@
 <!-- ---
-!-- Timestamp: 2025-05-06 06:00:52
+!-- Timestamp: 2025-05-06 09:28:56
 !-- Author: ywatanabe
-!-- File: /home/ywatanabe/proj/prompt_factory/_custom_shell.md
+!-- File: /home/ywatanabe/proj/SciTex/docs/INSTRUCTIONS_TO_CLAUDE_CODE/CUSTOM_SHELL.md
 !-- --- -->
 
 #### Shell Rules
 - Include one-line docsting for functions, followed by example usage at the first lines of a function.
-- A complete shell script should include the following components:
+- A shell script must include the following components:
   1. argument parser
   2. usage (with -h|--help option)
   3. logging
-  4. test
+  4. test code
 
+- Add +x permission to execute
 
 - The template of shell script is as follows:
   ``` bash
