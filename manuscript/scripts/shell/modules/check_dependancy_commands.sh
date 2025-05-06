@@ -22,4 +22,21 @@ check_dependency_commands() {
 
 check_dependency_commands pdflatex bibtex xlsx2csv csv2latex parallel
 
+# Check for Python dependencies if available
+check_python_dependencies() {
+    if command -v python3 &> /dev/null; then
+        echo_info "Checking Python dependencies..."
+        # Check if OpenCV and NumPy are installed (required for crop_tif.py)
+        if ! python3 -c "import cv2, numpy" &> /dev/null; then
+            echo_warn "Python packages cv2 (OpenCV) and/or numpy not found."
+            echo_warn "To use the --crop_tif feature, install them with: pip install opencv-python numpy"
+            echo_warn "Crop TIF functionality will be disabled."
+        else
+            echo_info "Required Python packages for crop_tif are available."
+        fi
+    fi
+}
+
+check_python_dependencies
+
 # EOF
