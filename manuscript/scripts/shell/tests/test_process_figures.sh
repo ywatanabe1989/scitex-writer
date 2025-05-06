@@ -1,4 +1,13 @@
 #!/bin/bash
+# -*- coding: utf-8 -*-
+# Timestamp: "2025-05-06 23:43:42 (ywatanabe)"
+# File: ./manuscript/scripts/shell/tests/test_process_figures.sh
+
+THIS_DIR="$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)"
+LOG_PATH="$THIS_DIR/.$(basename $0).log"
+touch "$LOG_PATH" >/dev/null 2>&1
+
+
 # Test script for process_figures.sh
 
 # Set colors for output
@@ -10,7 +19,7 @@ NC='\033[0m' # No Color
 test_function() {
     local test_name="$1"
     local condition="$2"
-    
+
     if eval "$condition"; then
         echo -e "${GREEN}[PASS]${NC} $test_name"
         return 0
@@ -21,7 +30,6 @@ test_function() {
 }
 
 # Setup
-THIS_DIR="$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)"
 MODULES_DIR="${THIS_DIR}/../modules"
 TEST_TMP_DIR="${THIS_DIR}/tmp_test_process_figures"
 
@@ -33,10 +41,10 @@ setup_test_env() {
     mkdir -p "${TEST_TMP_DIR}/src/figures/compiled"
     mkdir -p "${TEST_TMP_DIR}/src/figures/.tex"
     mkdir -p "${TEST_TMP_DIR}/scripts/shell/modules"
-    
+
     # Create a sample image
     convert -size 100x100 canvas:white "${TEST_TMP_DIR}/src/figures/src/Figure_ID_01_test.jpg"
-    
+
     # Create a sample caption file
     cat > "${TEST_TMP_DIR}/src/figures/src/Figure_ID_01_test.tex" << EOF
 \caption{\textbf{
@@ -51,14 +59,13 @@ EOF
 
     # Create a modified version of process_figures.sh for testing
     cp "${MODULES_DIR}/process_figures.sh" "${TEST_TMP_DIR}/scripts/shell/modules/process_figures_test.sh"
-    
+
     # Create a modified version of config.src for testing
     cat > "${TEST_TMP_DIR}/scripts/shell/modules/config.src" << EOF
-#!/bin/bash
 # Modified config.src for testing
 
 # Figure
-FIGURE_SRC_DIR="${TEST_TMP_DIR}/src/figures/src"
+FIGURE_CAPTION_MEDIA_DIR="${TEST_TMP_DIR}/src/figures/src"
 FIGURE_JPG_DIR="${TEST_TMP_DIR}/src/figures/jpg"
 FIGURE_COMPILED_DIR="${TEST_TMP_DIR}/src/figures/compiled"
 FIGURE_HIDDEN_DIR="${TEST_TMP_DIR}/src/figures/.tex"
@@ -77,64 +84,64 @@ cleanup_test_env() {
 # Main test function
 run_tests() {
     echo "Testing process_figures.sh..."
-    
+
     # Source the modified script to test its functions
     cd "${TEST_TMP_DIR}"
     source "${TEST_TMP_DIR}/scripts/shell/modules/process_figures_test.sh"
-    
+
     # Test initialization
     test_function "init function creates required directories" "
         init > /dev/null 2>&1
-        [ -d \"$FIGURE_SRC_DIR\" ] && [ -d \"$FIGURE_COMPILED_DIR\" ] && [ -d \"$FIGURE_JPG_DIR\" ] && [ -d \"$FIGURE_HIDDEN_DIR\" ]
+        [ -d \"$FIGURE_CAPTION_MEDIA_DIR\" ] && [ -d \"$FIGURE_COMPILED_DIR\" ] && [ -d \"$FIGURE_JPG_DIR\" ] && [ -d \"$FIGURE_HIDDEN_DIR\" ]
     "
-    
+
     # Test ensure_caption function
     test_function "ensure_caption creates captions when missing" "
-        rm -f \"$FIGURE_SRC_DIR/Figure_ID_02_test.tex\"
-        touch \"$FIGURE_SRC_DIR/Figure_ID_02_test.jpg\"
+        rm -f \"$FIGURE_CAPTION_MEDIA_DIR/Figure_ID_02_test.tex\"
+        touch \"$FIGURE_CAPTION_MEDIA_DIR/Figure_ID_02_test.jpg\"
         ensure_caption > /dev/null 2>&1
-        [ -f \"$FIGURE_SRC_DIR/Figure_ID_02_test.tex\" ]
+        [ -f \"$FIGURE_CAPTION_MEDIA_DIR/Figure_ID_02_test.tex\" ]
     "
-    
+
     # Test ensure_lower_letters function
     test_function "ensure_lower_letters converts filenames to lowercase" "
-        touch \"$FIGURE_SRC_DIR/Figure_ID_03_TEST_UPPER.jpg\"
+        touch \"$FIGURE_CAPTION_MEDIA_DIR/Figure_ID_03_TEST_UPPER.jpg\"
         ensure_lower_letters
-        [ -f \"$FIGURE_SRC_DIR/Figure_ID_03_test_upper.jpg\" ] && [ ! -f \"$FIGURE_SRC_DIR/Figure_ID_03_TEST_UPPER.jpg\" ]
+        [ -f \"$FIGURE_CAPTION_MEDIA_DIR/Figure_ID_03_test_upper.jpg\" ] && [ ! -f \"$FIGURE_CAPTION_MEDIA_DIR/Figure_ID_03_TEST_UPPER.jpg\" ]
     "
-    
+
     # Test compile_legends function (simplified)
     test_function "compile_legends creates figure legend files" "
         compile_legends > /dev/null 2>&1
         [ -f \"$FIGURE_COMPILED_DIR/Figure_ID_01_test.tex\" ]
     "
-    
+
     # Test gather_tex_files function
     test_function "gather_tex_files creates aggregate file" "
         gather_tex_files > /dev/null 2>&1
-        [ -f \"$FIGURE_HIDDEN_DIR/.All_Figures.tex\" ] && grep -q \"Figure_ID_01_test\" \"$FIGURE_HIDDEN_DIR/.All_Figures.tex\"
+        [ -f \"$FIGURE_COMPILED_FILE\" ] && grep -q \"Figure_ID_01_test\" \"$FIGURE_COMPILED_FILE\"
     "
-    
+
     # Test tif2jpg function (basic check)
     test_function "tif2jpg handles jpg files correctly" "
         mkdir -p \"$FIGURE_JPG_DIR\"
         tif2jpg false > /dev/null 2>&1
         [ -f \"$FIGURE_JPG_DIR/Figure_ID_01_test.jpg\" ]
     "
-    
+
     # Test _toggle_figures function
     test_function "_toggle_figures enable works correctly" "
         _toggle_figures enable > /dev/null 2>&1
-        grep -q '\\\\includegraphics' \"$FIGURE_COMPILED_DIR/Figure_ID_01_test.tex\" && 
+        grep -q '\\\\includegraphics' \"$FIGURE_COMPILED_DIR/Figure_ID_01_test.tex\" &&
         ! grep -q '^%\\\\includegraphics' \"$FIGURE_COMPILED_DIR/Figure_ID_01_test.tex\"
     "
-    
+
     test_function "_toggle_figures disable works correctly" "
         _toggle_figures disable > /dev/null 2>&1
         grep -q '^%\\\\includegraphics' \"$FIGURE_COMPILED_DIR/Figure_ID_01_test.tex\" ||
         ! grep -q '\\\\includegraphics' \"$FIGURE_COMPILED_DIR/Figure_ID_01_test.tex\"
     "
-    
+
     # Test main function (simplified)
     test_function "main function runs without errors" "
         main true false false > /dev/null 2>&1
@@ -148,3 +155,5 @@ run_tests
 cleanup_test_env
 
 echo "Process figures tests completed."
+
+# EOF
