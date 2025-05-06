@@ -109,8 +109,71 @@ pptx2tif() {
 
 crop_tif() {
     local no_figs="$1"
-    if [[ "$no_figs" == false ]]; then
-        echo "Skipping crop_tif step for demonstration"
+    local do_crop_tif="$2"
+    local verbose="$3"
+    
+    if [[ "$no_figs" == false && "$do_crop_tif" == true ]]; then
+        echo_info "Processing images (crop_tif)..."
+        if [ -f "./scripts/python/crop_tif.py" ] && command -v python3 >/dev/null 2>&1; then
+            # Check for required Python dependencies
+            if ! python3 -c "import cv2, numpy" >/dev/null 2>&1; then
+                echo_warn "Required Python packages (opencv, numpy) not found. Skipping crop_tif."
+                return 1
+            fi
+            
+            # Process all TIF files in the caption_and_media directory
+            local tif_files=$(find "$FIGURE_CAPTION_MEDIA_DIR" -name "Figure_ID_*.tif")
+            local count=$(echo "$tif_files" | wc -l)
+            
+            if [ -z "$tif_files" ]; then
+                echo_info "No TIF files found to crop."
+                return 0
+            fi
+            
+            echo_info "Found $count TIF files to crop"
+            
+            # Create a temporary directory for processed files if needed
+            local temp_dir="${FIGURE_CAPTION_MEDIA_DIR}/processed"
+            mkdir -p "$temp_dir"
+            
+            # Process each TIF file
+            echo "$tif_files" | while read -r tif_file; do
+                if [ -z "$tif_file" ]; then continue; fi
+                
+                local filename=$(basename "$tif_file")
+                local output_path="${temp_dir}/${filename}"
+                
+                if [ "$verbose" = true ]; then
+                    echo_info "Cropping: $filename"
+                fi
+                
+                # Run the Python script with appropriate parameters
+                if [ "$verbose" = true ]; then
+                    python3 ./scripts/python/crop_tif.py file \
+                        --input "$tif_file" \
+                        --output "$output_path" \
+                        --margin 30 \
+                        --verbose
+                else
+                    python3 ./scripts/python/crop_tif.py file \
+                        --input "$tif_file" \
+                        --output "$output_path" \
+                        --margin 30
+                fi
+                
+                # If successful, replace the original file
+                if [ -f "$output_path" ]; then
+                    mv "$output_path" "$tif_file"
+                fi
+            done
+            
+            # Clean up temporary directory
+            rmdir "$temp_dir" 2>/dev/null
+            
+            echo_success "Cropped $count TIF files"
+        else
+            echo_warn "crop_tif.py script or Python 3 not found. Skipping crop_tif."
+        fi
     fi
 }
 
@@ -454,14 +517,15 @@ main() {
     local no_figs="${1:-true}"
     local p2t="${2:-false}"
     local verbose="${3:-false}"
+    local do_crop_tif="${4:-false}"
     if [ "$verbose" = true ]; then
-        echo "Figure processing: Starting with parameters: no_figs=$no_figs, p2t=$p2t"
+        echo "Figure processing: Starting with parameters: no_figs=$no_figs, p2t=$p2t, crop_tif=$do_crop_tif"
     fi
     init_figures
     pptx2tif "$p2t"
     ensure_lower_letter_id
     ensure_caption
-    crop_tif "$no_figs"
+    crop_tif "$no_figs" "$do_crop_tif" "$verbose"
     tif2jpg "$no_figs"
     compile_legends
     handle_figure_visibility "$no_figs"
