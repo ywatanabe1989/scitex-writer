@@ -7,67 +7,104 @@
 
 % This section demonstrates various LaTeX features and how to present results effectively
 
-\subsection{Efficiency Improvements}
-\label{subsec:efficiency}
+\subsection{Structure and Organization}
+\label{subsec:structure}
 
-To evaluate the efficiency gains from using SciTex, we conducted a comparative study with 50 researchers across different disciplines. Figure~\ref{fig:time-comparison} shows the average time spent on various document preparation tasks with and without SciTex.
+SciTex organizes manuscript content into separate directories with clear naming conventions. This modular approach separates content from formatting, making it easier to update individual sections without affecting the entire document.
 
-% This demonstrates how to reference figures
+% This demonstrates how to reference sections
 
-The most significant improvements were observed in figure preparation (72\% reduction in time) and citation management (68\% reduction). Overall, researchers reported a 45\% reduction in total document preparation time when using SciTex compared to traditional methods.
+Key structural features include:
+
+\begin{itemize}
+    \item Content files separated by section (introduction, methods, results, etc.)
+    \item Style definitions isolated in a dedicated directory
+    \item Automated figure and table management with consistent labeling
+    \item Version control tracking for document revisions
+\end{itemize}
 
 % This demonstrates how to use inline math and special characters in LaTeX
 
-The mean time savings ($\Delta t$) can be calculated as $\Delta t = t_{\text{traditional}} - t_{\text{SciTex}}$, which was 14.3 $\pm$ 2.7 hours per manuscript (mean $\pm$ SD, $n = 50$, $p < 0.001$).
+The template allows for mathematical content with standard LaTeX notation: $E = mc^2$, chemical formulas: H$_2$O, and special symbols: $\alpha$, $\beta$, $\Delta$. Complex equations can be typeset using the equation environment.
 
-\subsection{Quality Assessment}
-\label{subsec:quality}
+\subsection{System Workflow}
+\label{subsec:workflow}
 
-We evaluated the quality of AI-assisted revisions by comparing original text, AI-revised text, and expert-revised text across 30 sample paragraphs. As shown in Table~\ref{tab:quality-metrics}, the AI-revised text achieved scores comparable to expert revisions in clarity and grammar, while maintaining scientific accuracy.
+SciTex follows a structured workflow that processes various content types through dedicated pipelines, as illustrated in Figure~\ref{fig:01_workflow}. The workflow begins with the main entry point (\verb|base.tex|) that coordinates the compilation of all individual content files.
+
+Each content type follows a specific processing path:
+
+\begin{itemize}
+    \item Document content files are processed through the main compilation pipeline
+    \item Figures undergo specialized pre-processing including format conversion and optimization
+    \item Tables are formatted and standardized for consistent presentation
+    \item References are managed through a structured bibliography system
+\end{itemize}
+
+The compilation process generates both the final document (\verb|compiled.pdf|) and a diff visualization (\verb|diff.pdf|) that highlights changes between versions. This systematic approach ensures consistent outputs while maintaining traceability of changes.
+
+\subsection{Table Features}
+\label{subsec:tables}
+
+SciTex provides structured table management with automated formatting and consistent referencing. Tables can be referenced using the standard LaTeX cross-referencing system.
 
 % This demonstrates how to create a more complex LaTeX table with multiple columns
 
 \begin{table}[h!]
 \centering
-\caption{Quality Assessment Metrics (Scale 1-10)}
-\label{tab:quality-metrics}
-\begin{tabular}{lccc}
+\caption{LaTeX Template Features}
+\label{tab:features}
+\begin{tabular}{lp{8cm}}
 \hline
-\textbf{Metric} & \textbf{Original Text} & \textbf{AI-Revised} & \textbf{Expert-Revised} \\
+\textbf{Feature} & \textbf{Description} \\
 \hline
-Grammar         & $6.2 \pm 1.3$ & $8.7 \pm 0.8$ & $9.2 \pm 0.5$ \\
-Clarity         & $5.8 \pm 1.5$ & $8.3 \pm 0.9$ & $8.9 \pm 0.6$ \\
-Scientific Accuracy & $8.5 \pm 0.7$ & $8.4 \pm 0.8$ & $8.9 \pm 0.3$ \\
-Style Consistency  & $6.7 \pm 1.2$ & $8.5 \pm 0.7$ & $8.8 \pm 0.4$ \\
-Overall Quality    & $6.8 \pm 1.1$ & $8.5 \pm 0.6$ & $9.0 \pm 0.3$ \\
+Modular Structure & Separates content into individual files for easier maintenance \\
+Figure Management & Automated pipeline for consistent figure formatting and referencing \\
+Table System & Standardized table creation with proper spacing and formatting \\
+Bibliography & Integrated BibTeX support with flexible citation styles \\
+Version Control & Built-in Git integration for tracking document changes \\
 \hline
 \end{tabular}
 \end{table}
 
-\subsection{User Experience}
-\label{subsec:user-experience}
+\subsection{Figure Management}
+\label{subsec:figures}
 
-Feedback from users (n=50) indicated high satisfaction with SciTex, with 92\% of participants reporting that they would use it for future manuscripts. Key advantages cited by users included:
+SciTex includes a structured figure management system with the following capabilities:
 
 \begin{itemize}
-    \item Reduced time spent on formatting (cited by 94\% of users)
-    \item Improved manuscript organization (cited by 89\%)
-    \item Helpful AI suggestions for citations and revisions (cited by 87\%)
-    \item Easier collaboration with co-authors (cited by 76\%)
+    \item Dedicated directories for source files, captions, and compiled outputs
+    \item Consistent naming conventions for automatic referencing
+    \item Support for multiple figure formats (TIF, JPG, PNG)
+    \item Automated conversion utilities for PowerPoint slides
+    \item Image optimization with automatic cropping
 \end{itemize}
-
-Figure~\ref{fig:user-satisfaction} shows the distribution of satisfaction scores across different aspects of the system.
 
 % This demonstrates how to create a simple bulleted list with LaTeX
 
-Areas for improvement identified by users included:
+The figure pipeline automates several common tasks:
 
 \begin{itemize}
-    \item More intuitive figure management (cited by 32\% of users)
-    \item Better integration with cloud platforms (cited by 28\%)
-    \item Additional journal template options (cited by 23\%)
+    \item Formats figures with consistent spacing and borders
+    \item Places figures in appropriate sections with proper referencing
+    \item Ensures high-quality image reproduction in the final document
+    \item Maintains a clean directory structure for source materials
 \end{itemize}
 
-These results demonstrate that SciTex effectively addresses the common challenges in scientific manuscript preparation. The implications of these findings are discussed in Section~\ref{sec:discussion}.
+This organizational approach maintains separation between content and presentation. Additional documentation on figure management is provided in the repository documentation.
+
+\subsection{Document Change Visualization}
+\label{subsec:diff-visualization}
+
+SciTex's diff functionality provides a practical solution for tracking and visualizing document changes. By leveraging the \texttt{latexdiff} utility, the system:
+
+\begin{itemize}
+    \item Generates side-by-side comparisons between versions with color-coded changes
+    \item Tracks modifications across all document components, including equations and references
+    \item Preserves the PDF format for easy sharing and annotation
+    \item Maintains version history with sequential numbering (e.g., v001, v002)
+\end{itemize}
+
+Figure~\ref{fig:00_template} demonstrates the template structure. When changes are made to document content, the diff visualization shows added content in blue underlined text and deleted content in red strikethrough text, providing immediate visual indicators of modifications. This feature proves especially valuable during collaborative editing cycles, where multiple contributors may suggest changes across different document sections.
 
 %%%% EOF
