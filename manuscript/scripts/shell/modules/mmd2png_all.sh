@@ -1,6 +1,6 @@
 #!/bin/bash
 # -*- coding: utf-8 -*-
-# Timestamp: "2025-05-07 04:40:08 (ywatanabe)"
+# Timestamp: "2025-05-07 04:57:38 (ywatanabe)"
 # File: ./manuscript/scripts/shell/modules/mmd2png_all.sh
 
 THIS_DIR="$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)"
@@ -15,7 +15,7 @@ mmd2png(){
     ls "$FIGURE_CAPTION_MEDIA_DIR"/Figure_ID_*.mmd | \
     parallel --joblog progress.log \
       'in={}; out={.}.png
-       mmdc -i "$in" -o "$out" --backgroundColor white
+       mmdc -i "$in" -o "$out" --backgroundColor white -s 3
        echo "Processed: {#}/'"$total"'"' \
       2>&1 | tee -a "$LOG_PATH"
 }
