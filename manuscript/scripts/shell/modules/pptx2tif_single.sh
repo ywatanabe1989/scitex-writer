@@ -1,6 +1,6 @@
 #!/bin/bash
 # -*- coding: utf-8 -*-
-# Timestamp: "2025-05-06 20:50:24 (ywatanabe)"
+# Timestamp: "2025-05-06 23:09:30 (ywatanabe)"
 # File: ./manuscript/scripts/shell/modules/pptx2tif_single.sh
 
 THIS_DIR="$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)"
@@ -9,7 +9,7 @@ touch "$LOG_PATH" >/dev/null 2>&1
 
 
 echo -e "$0 ..."
-source ./scripts/shell/modules/config.src
+source ./config.src
 
 usage() {
     echo "Usage: $0 [-i|--input INPUT_FILE] [-o|--output OUTPUT_FILE] [-h|--help]"
