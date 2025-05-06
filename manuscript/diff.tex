@@ -1,7 +1,7 @@
 %% -*- coding: utf-8 -*-
 %DIF LATEXDIFF DIFFERENCE FILE
-%DIF DEL ./versions/compiled_v006.tex   Wed May  7 01:33:46 2025
-%DIF ADD ./compiled.tex                 Wed May  7 01:45:49 2025
+%DIF DEL ./versions/compiled_v040.tex   Wed May  7 04:35:45 2025
+%DIF ADD ./compiled.tex                 Wed May  7 04:40:17 2025
 %% Timestamp: "2025-05-06 23:41:14 (ywatanabe)"
 %% File: "/home/ywatanabe/proj/SciTex/manuscript/base.tex"
 \UseRawInputEncoding
@@ -297,13 +297,13 @@
 \begin{highlights}
 \pdfbookmark[1]{Highlights}{highlights}
 
-\item SciTex combines modular LaTeX templates with AI assistance for scientific manuscript preparation
+\item SciTex provides modular LaTeX templates for scientific manuscript preparation
 
-\item The system reduces document preparation time by 45\% compared to traditional methods
+\item The system organizes content with separate directories for manuscript sections, figures, and tables
 
-\item AI-powered revision tools maintain scientific accuracy while improving grammar and clarity
+\item Automated compilation tools simplify document generation and version tracking
 
-\item Automated figure and citation management streamlines common scientific writing tasks
+\item Structured figure and table management promotes consistent formatting and referencing
 
 \end{highlights}
 
@@ -313,7 +313,7 @@
 %% File: "/home/ywatanabe/proj/SciTex/manuscript/src/title.tex"
 
 \title{
-    SciTex: An AI-Assisted LaTeX Template System for Efficient Scientific Manuscript Preparation
+    SciTex: A Modular LaTeX Template System for Scientific Manuscript Preparation
 }
 
 %%%% EOF\n
@@ -325,20 +325,16 @@
 % using the Elsevier template style
 
 \author[1,2]{Yusuke Watanabe\corref{cor1}}
-\author[3]{Jane Smith}
-\author[4]{John Doe}
-\author[1,5]{Alex Johnson}
+\author[3]{Claude Code}
 
 % The \corref command marks an author as corresponding author
 \corref{cor1}
 \address[1]{Institute for Advanced Cocreation Studies, Osaka University, 2-2 Yamadaoka, Suita, 565-0871, Osaka, Japan}
 \address[2]{NeuroEngineering Research Laboratory, Department of Biomedical Engineering, The University of Melbourne, Parkville VIC 3010, Australia}
-\address[3]{Department of Computer Science, Stanford University, Stanford, CA 94305, USA}
-\address[4]{Digital Humanities Center, University of Oxford, Oxford OX1 2JD, UK}
-\address[5]{Center for Scientific Document Analysis, National Institute of Informatics, Tokyo 101-8430, Japan}
+\address[3]{Anthropic, San Francisco, CA, USA}
 
 % The \cortext command adds the corresponding author information
-\cortext[cor1]{Corresponding author. Tel: +81-6-6879-7675, Email: ywatanabe@alumni.u-tokyo.ac.jp}
+\cortext[cor1]{Corresponding author. Tel: +62-XXX-XXX-XXX, Email: ywatanabe@unimelb.edu.au}
 
 %%%% EOF\n
 %% -*- coding: utf-8 -*-
@@ -360,7 +356,7 @@
   \pdfbookmark[1]{Abstract}{abstract}
   % This demonstrates how to write an effective abstract for a scientific paper
 
-  Scientific manuscript preparation presents significant challenges, particularly for researchers balancing complex content with formatting requirements. This paper introduces SciTex, an AI-assisted LaTeX template system designed to streamline the document preparation workflow. SciTex integrates modular LaTeX templates with artificial intelligence tools that assist with text revision, terminology consistency, and citation management. We evaluated the system through a user study with 50 researchers across multiple disciplines, demonstrating a 45\% reduction in document preparation time compared to traditional methods. Quality assessments show that AI-revised text achieved clarity and grammar scores comparable to expert revisions while maintaining scientific accuracy. Key innovations include automated figure and table management, version control integration, and a standardized compilation pipeline. The template system is adaptable to various journal formats and includes comprehensive documentation. By reducing technical barriers to effective LaTeX usage, SciTex makes high-quality document preparation more accessible to researchers, potentially enhancing scientific communication across disciplines.
+  LaTeX manuscript preparation poses challenges for researchers balancing content with formatting requirements. This paper introduces SciTex, a modular LaTeX template system for scientific document preparation. SciTex organizes manuscript content into separate files with clear structure and provides automated tools for common tasks. Key features include modular document organization, automated figure and table management, version control integration, and a standardized compilation pipeline. The template includes structured directories for figures and tables with consistent naming conventions. By providing clear organization and automation of repetitive tasks, SciTex helps researchers focus on content while maintaining formatting consistency. This template serves as both a demonstration of effective LaTeX practices and a practical tool for manuscript preparation.
 \end{abstract}
 
 %%%% EOF\n
@@ -369,7 +365,7 @@
 %% File: "/home/ywatanabe/proj/SciTex/manuscript/src/keywords.tex"
 
 \begin{keyword}
-LaTeX template \sep scientific writing \sep AI-assisted writing \sep document automation \sep scientific manuscript
+LaTeX template \sep scientific writing \sep document automation \sep version control \sep scientific manuscript
 \end{keyword}
 
 %%%% EOF\n
@@ -397,30 +393,29 @@ LaTeX template \sep scientific writing \sep AI-assisted writing \sep document au
 \section{Introduction}
 \label{sec:introduction}
 
-Scientific writing in LaTeX presents several challenges, particularly for researchers unfamiliar with the system or those managing complex documents with numerous figures, tables, and citations \cite{Smith2020}. SciTex addresses these challenges by providing a modular LaTeX template specifically designed for scientific manuscripts. 
+Scientific writing in LaTeX presents challenges for researchers unfamiliar with the system or managing documents with multiple figures, tables, and citations \cite{Smith2020}. SciTex addresses these issues with a modular LaTeX template designed specifically for scientific manuscripts.
 
-This template is seamlessly integrated with AI-assistance tools that can revise text, check terminology consistency, and suggest relevant citations \cite{Johnson2023}. Figure~\ref{fig:workflow} illustrates the overall workflow of a typical manuscript preparation using SciTex, while Figure~\ref{fig:04_user_satisfaction} demonstrates the improved user satisfaction compared to traditional methods.
+This template organizes content into separate files with clear structure and provides tools for automating common document preparation tasks. SciTex creates a structured workflow for manuscript preparation that helps researchers focus on content rather than formatting.
 
 % Note the cross-referencing capability using the \ref{} command
-% This references an image in the figures directory
+% This demonstrates LaTeX's cross-referencing system
 
-Three key innovations of this system include:
+Key features of the SciTex system include:
 
 \begin{itemize}
-    \item Modular organization of manuscript content into separate files for easier management
-    \item Integration with AI-assistance tools for text revision and citation suggestions
-    \item Automation of tedious tasks such as figure conversion and bibliography management
+    \item Modular organization of manuscript content into separate files
+    \item Structured figure and table management system
+    \item Automated compilation with version tracking
+    \item Consistent formatting and referencing throughout the document
 \end{itemize}
 
-Prior research has shown that well-designed templates can significantly improve writing efficiency and reduce formatting errors \cite{Williams2021}. However, existing templates often lack flexibility or are overly complex for everyday use \cite{Garcia2019}.
-
-Our approach builds on established scientific writing methodologies while adding modern capabilities like version control integration and AI-assistance \cite{Taylor2022}. The system architecture (Figure~\ref{fig:02_architecture}) illustrates the modular design of SciTex. The principles guiding this design are detailed in Section~\ref{sec:methods}.
+The template system builds on established scientific writing methodologies while adding practical features for modern document preparation \cite{Taylor2022}. SciTex employs a modular architecture with key components detailed in Section~\ref{sec:methods}.
 
 % This is a demonstration of how to cite references from the bibliography.bib file
 % You can use \cite{} for standard citations
 % Or \citep{} and \citet{} for parenthetical and textual citations
 
-Researchers across disciplines have reported that document preparation can consume up to 30\% of their total research time, with formatting and citation management being particularly time-consuming \cite{Lee2018}. By automating these aspects, SciTex aims to reduce this burden and allow scientists to focus more on research content.
+Document preparation can be a time-intensive aspect of research, with formatting and citation management being particularly demanding tasks \cite{Lee2018}. By providing automation for these aspects, SciTex aims to help researchers focus more on scientific content rather than document formatting details.
 
 In this paper, we present the design and implementation of SciTex, followed by evaluation results and usage examples.
 
@@ -441,10 +436,10 @@ In this paper, we present the design and implementation of SciTex, followed by e
 \subsection{Template Architecture}
 \label{subsec:architecture}
 
-The SciTex template is organized into a hierarchical structure to facilitate modularity and reuse. As shown in Figure~\ref{fig:architecture} and further detailed in Figure~\ref{fig:07_demo_architecture}, the template consists of three main components:
+The SciTex template is organized into a hierarchical structure for modularity and reuse. The template consists of three main components:
 
 \begin{enumerate}
-    \item \textbf{Main document entry point} - \verb|structure.tex| controls the overall document structure
+    \item \textbf{Main document entry point} - \verb|base.tex| controls the overall document structure
     \item \textbf{Content sections} - Individual .tex files in the \verb|src/| directory contain the actual content
     \item \textbf{Style definitions} - Files in \verb|src/styles/| control formatting and appearance
 \end{enumerate}
@@ -453,16 +448,16 @@ This architecture allows authors to focus on content without worrying about form
 
 % This demonstrates the use of equations in LaTeX
 
-\subsection{AI-Assisted Revision Process}
-\label{subsec:ai-revision}
+\subsection{Document Compilation Process}
+\label{subsec:compilation}
 
-The revision process employs a specialized prompt formulation technique that preserves LaTeX commands while improving the surrounding text, as visualized in Figure~\ref{fig:06_demo_workflow}. Let $T$ represent the original text, $P$ the prompt template, and $R$ the revised text. The revision process can be formalized as:
+The compilation process uses a structured approach that converts modular source files into a formatted PDF document. Let $S$ represent the source files, $C$ the compilation configuration, and $D$ the output document. The compilation process can be expressed as:
 
 \begin{equation}
-R = f_{\text{GPT}}(P \oplus T)
+D = f_{\text{compile}}(C \oplus S)
 \end{equation}
 
-where $f_{\text{GPT}}$ is the GPT model function and $\oplus$ represents concatenation. The prompt $P$ includes specific instructions to maintain LaTeX syntax and scientific terminology, as shown in Table~\ref{tab:prompts}. Figure~\ref{fig:10_citations} illustrates how this AI-assisted approach extends to citation management.
+where $f_{\text{compile}}$ is the LaTeX compilation function and $\oplus$ represents the integration of configuration with source files. The configuration $C$ contains parameters for document formatting and structure.
 
 % This demonstrates how to reference tables
 
@@ -472,13 +467,13 @@ where $f_{\text{GPT}}$ is the GPT model function and $\oplus$ represents concate
 Figures and tables are managed through a standardized pipeline that includes:
 
 \begin{itemize}
-    \item Automatic conversion of PowerPoint slides to TIF format
+    \item Automatic conversion of PowerPoint slides to TIF format (requires Windows with PowerPoint via WSL)
     \item Automated cropping to remove excess whitespace
     \item LaTeX wrapper generation for consistent formatting
     \item Directory structure for organizing source and compiled files
 \end{itemize}
 
-Figure~\ref{fig:figure-pipeline} illustrates this process in detail.
+This standardized pipeline ensures consistent figure and table presentation throughout the document.
 
 % This demonstrates how to create a simple table in LaTeX
 
@@ -493,12 +488,12 @@ Figure~\ref{fig:figure-pipeline} illustrates this process in detail.
 LaTeX Template & Modular document structure with sections for introduction, methods, results, etc. \\
 Python Scripts & Tools for text revision, citation insertion, and terminology checking \\
 Shell Scripts & Automation for compilation, figure processing, and version management \\
-Documentation & Comprehensive guides and examples for users \\
+Documentation & Usage guides and examples for users \\
 \hline
 \end{tabular}
 \end{table}
 
-\subsection{Version Control Integration}
+\subsection{Version Control and Change Tracking}
 \label{subsec:version-control}
 
 SciTex integrates with Git for version control, providing benefits such as:
@@ -511,6 +506,20 @@ SciTex integrates with Git for version control, providing benefits such as:
 \end{itemize}
 
 This integration is managed through shell scripts that handle common Git operations and maintain a clean version history.
+
+\subsection{Diff Functionality for Collaborative Revision}
+\label{subsec:diff-functionality}
+
+SciTex includes an automated diff generation system that highlights changes between document versions. This feature is particularly valuable for researcher-AI collaborative work, as it:
+
+\begin{itemize}
+    \item Automatically produces a highlighted version showing additions, deletions, and modifications
+    \item Enables researchers to quickly review changes suggested by AI tools
+    \item Facilitates efficient editorial decisions by isolating only the modified content
+    \item Creates a permanent record of collaborative changes for each version
+\end{itemize}
+
+The diff functionality uses \texttt{latexdiff} to generate a visual comparison between versions, with deleted text shown in red strikethrough formatting and added text highlighted in blue. This visual differentiation makes the collaborative revision process more transparent and efficient, allowing researchers to focus on substantive changes while maintaining full control over the document's evolution.
 
 % This demonstrates LaTeX cross-referencing capabilities
 
@@ -530,68 +539,105 @@ For implementation details of these methods, please refer to the code repository
 
 % This section demonstrates various LaTeX features and how to present results effectively
 
-\subsection{Efficiency Improvements}
-\label{subsec:efficiency}
+\subsection{Structure and Organization}
+\label{subsec:structure}
 
-To evaluate the efficiency gains from using SciTex, we conducted a comparative study with 50 researchers across different disciplines. Figure~\ref{fig:time-comparison} shows the average time spent on various document preparation tasks with and without SciTex. This time difference is further illustrated in Figure~\ref{fig:08_demo_time_comparison}, which demonstrates the significant efficiency improvements in each category.
+SciTex organizes manuscript content into separate directories with clear naming conventions. This modular approach separates content from formatting, making it easier to update individual sections without affecting the entire document.
 
-% This demonstrates how to reference figures
+% This demonstrates how to reference sections
 
-The most significant improvements were observed in figure preparation (72\% reduction in time) and citation management (68\% reduction). Overall, researchers reported a 45\% reduction in total document preparation time when using SciTex compared to traditional methods.
+Key structural features include:
+
+\begin{itemize}
+    \item Content files separated by section (introduction, methods, results, etc.)
+    \item Style definitions isolated in a dedicated directory
+    \item Automated figure and table management with consistent labeling
+    \item Version control tracking for document revisions
+\end{itemize}
 
 % This demonstrates how to use inline math and special characters in LaTeX
 
-The mean time savings ($\Delta t$) can be calculated as $\Delta t = t_{\text{traditional}} - t_{\text{SciTex}}$, which was 14.3 $\pm$ 2.7 hours per manuscript (mean $\pm$ SD, $n = 50$, $p < 0.001$).
+The template allows for mathematical content with standard LaTeX notation: $E = mc^2$, chemical formulas: H$_2$O, and special symbols: $\alpha$, $\beta$, $\Delta$. Complex equations can be typeset using the equation environment.
 
-\subsection{Quality Assessment}
-\label{subsec:quality}
+\subsection{System Workflow}
+\label{subsec:workflow}
 
-We evaluated the quality of AI-assisted revisions by comparing original text, AI-revised text, and expert-revised text across 30 sample paragraphs. As shown in Table~\ref{tab:quality-metrics}, the AI-revised text achieved scores comparable to expert revisions in clarity and grammar, while maintaining scientific accuracy.
+SciTex follows a structured workflow that processes various content types through dedicated pipelines, as illustrated in Figure~\ref{fig:01_workflow}. The workflow begins with the main entry point (\verb|base.tex|) that coordinates the compilation of all individual content files.
+
+Each content type follows a specific processing path:
+
+\begin{itemize}
+    \item Document content files are processed through the main compilation pipeline
+    \item Figures undergo specialized pre-processing including format conversion and optimization
+    \item Tables are formatted and standardized for consistent presentation
+    \item References are managed through a structured bibliography system
+\end{itemize}
+
+The compilation process generates both the final document (\verb|compiled.pdf|) and a diff visualization (\verb|diff.pdf|) that highlights changes between versions. This systematic approach ensures consistent outputs while maintaining traceability of changes.
+
+\subsection{Table Features}
+\label{subsec:tables}
+
+SciTex provides structured table management with automated formatting and consistent referencing. Tables can be referenced using the standard LaTeX cross-referencing system.
 
 % This demonstrates how to create a more complex LaTeX table with multiple columns
 
 \begin{table}[h!]
 \centering
-\caption{Quality Assessment Metrics (Scale 1-10)}
-\label{tab:quality-metrics}
-\begin{tabular}{lccc}
+\caption{LaTeX Template Features}
+\label{tab:features}
+\begin{tabular}{lp{8cm}}
 \hline
-\textbf{Metric} & \textbf{Original Text} & \textbf{AI-Revised} & \textbf{Expert-Revised} \\
+\textbf{Feature} & \textbf{Description} \\
 \hline
-Grammar         & $6.2 \pm 1.3$ & $8.7 \pm 0.8$ & $9.2 \pm 0.5$ \\
-Clarity         & $5.8 \pm 1.5$ & $8.3 \pm 0.9$ & $8.9 \pm 0.6$ \\
-Scientific Accuracy & $8.5 \pm 0.7$ & $8.4 \pm 0.8$ & $8.9 \pm 0.3$ \\
-Style Consistency  & $6.7 \pm 1.2$ & $8.5 \pm 0.7$ & $8.8 \pm 0.4$ \\
-Overall Quality    & $6.8 \pm 1.1$ & $8.5 \pm 0.6$ & $9.0 \pm 0.3$ \\
+Modular Structure & Separates content into individual files for easier maintenance \\
+Figure Management & Automated pipeline for consistent figure formatting and referencing \\
+Table System & Standardized table creation with proper spacing and formatting \\
+Bibliography & Integrated BibTeX support with flexible citation styles \\
+Version Control & Built-in Git integration for tracking document changes \\
 \hline
 \end{tabular}
 \end{table}
 
-\subsection{User Experience}
-\label{subsec:user-experience}
+\subsection{Figure Management}
+\label{subsec:figures}
 
-Feedback from users (n=50) indicated high satisfaction with SciTex, with 92\% of participants reporting that they would use it for future manuscripts. Key advantages cited by users included:
+SciTex includes a structured figure management system with the following capabilities:
 
 \begin{itemize}
-    \item Reduced time spent on formatting (cited by 94\% of users)
-    \item Improved manuscript organization (cited by 89\%)
-    \item Helpful AI suggestions for citations and revisions (cited by 87\%)
-    \item Easier collaboration with co-authors (cited by 76\%)
+    \item Dedicated directories for source files, captions, and compiled outputs
+    \item Consistent naming conventions for automatic referencing
+    \item Support for multiple figure formats (TIF, JPG, PNG)
+    \item Automated conversion utilities for PowerPoint slides
+    \item Image optimization with automatic cropping
 \end{itemize}
-
-Figure~\ref{fig:user-satisfaction} shows the distribution of satisfaction scores across different aspects of the system.
 
 % This demonstrates how to create a simple bulleted list with LaTeX
 
-Areas for improvement identified by users included:
+The figure pipeline automates several common tasks:
 
 \begin{itemize}
-    \item More intuitive figure management (cited by 32\% of users)
-    \item Better integration with cloud platforms (cited by 28\%)
-    \item Additional journal template options (cited by 23\%)
+    \item Formats figures with consistent spacing and borders
+    \item Places figures in appropriate sections with proper referencing
+    \item Ensures high-quality image reproduction in the final document
+    \item Maintains a clean directory structure for source materials
 \end{itemize}
 
-These results demonstrate that SciTex effectively addresses the common challenges in scientific manuscript preparation. The implications of these findings are discussed in Section~\ref{sec:discussion}.
+This organizational approach maintains separation between content and presentation. Additional documentation on figure management is provided in the repository documentation.
+
+\subsection{Document Change Visualization}
+\label{subsec:diff-visualization}
+
+SciTex's diff functionality provides a practical solution for tracking and visualizing document changes. By leveraging the \texttt{latexdiff} utility, the system:
+
+\begin{itemize}
+    \item Generates side-by-side comparisons between versions with color-coded changes
+    \item Tracks modifications across all document components, including equations and references
+    \item Preserves the PDF format for easy sharing and annotation
+    \item Maintains version history with sequential numbering (e.g., v001, v002)
+\end{itemize}
+
+Figure~\ref{fig:00_template} demonstrates the template structure. When changes are made to document content, the diff visualization shows added content in blue underlined text and deleted content in red strikethrough text, providing immediate visual indicators of modifications. This feature proves especially valuable during collaborative editing cycles, where multiple contributors may suggest changes across different document sections.
 
 %%%% EOF\n
 
@@ -607,45 +653,83 @@ These results demonstrate that SciTex effectively addresses the common challenge
 
 % This section demonstrates effective discussion structure and LaTeX features
 
-Our results demonstrate that SciTex significantly improves the efficiency and quality of scientific manuscript preparation. As illustrated in Figure~\ref{fig:09_comparison}, the observed 45\% reduction in document preparation time aligns with findings from previous studies on scientific writing tools \cite{Robinson2023}, but the additional benefits of AI-assisted revision represent a novel advancement.
+SciTex demonstrates how structured LaTeX templates can improve the organization and consistency of scientific manuscripts. The modular design provides clear separation between content and formatting, allowing for more efficient document preparation.
 
 % This demonstrates how to effectively discuss results and compare to previous work
 
-\subsection{Implications for Scientific Writing}
-\label{subsec:implications}
+\subsection{Benefits of Structured Templates}
+\label{subsec:benefits}
 
-The integration of AI assistance for text revision and citation management has several important implications for scientific writing practices. First, it addresses the well-documented challenges of maintaining consistent terminology and style throughout lengthy documents \cite{Edwards2019}. Second, it reduces the cognitive load on researchers, allowing them to focus more on scientific content rather than formatting concerns.
+The organization of content into modular files offers several benefits for scientific writing. First, it enables focused editing of individual sections without navigating through the entire document. Second, it provides consistent formatting across the manuscript while allowing authors to concentrate on content development.
 
-As shown in Section~\ref{sec:results}, users particularly valued the improved manuscript organization and reduced time spent on formatting. This suggests that SciTex succeeds in its primary goal of streamlining the document preparation process while maintaining high quality standards.
+As shown in Section~\ref{sec:results}, the template includes features for figure management, table formatting, and consistent referencing. These elements help maintain document consistency and reduce manual formatting tasks.
 
 % This demonstrates how to reference previous sections
 
-\subsection{Limitations and Future Directions}
-\label{subsec:limitations}
+\subsection{Areas for Customization}
+\label{subsec:customization}
 
-Despite its advantages, SciTex has several limitations that should be addressed in future work. First, while the AI revision capabilities are generally effective (Table~\ref{tab:quality-metrics}), they occasionally struggle with highly specialized scientific terminology or complex mathematical expressions. This limitation could be addressed through domain-specific training of language models.
+While the current template provides a solid foundation, users may want to customize it for specific purposes. Users can modify the template structure based on their specific requirements without disrupting the overall system.
 
-Second, as noted by 32\% of users, the figure management system could be more intuitive. Future versions should incorporate a more visual interface for organizing and arranging figures, potentially through integration with graphical editors.
+The figure and table management systems are designed with flexibility in mind, allowing adaptation to different journal or conference formatting requirements. Users can adjust settings in the configuration files to meet specific publication guidelines.
 
 % This demonstrates how to create a numbered list in LaTeX
 
-Several promising directions for future development include:
+Potential customizations include:
 
 \begin{enumerate}
-    \item \textbf{Expanded journal template library} - Adding support for more publisher-specific formats
-    \item \textbf{Real-time collaborative editing} - Incorporating web-based concurrent editing capabilities
-    \item \textbf{Smart citation recommendations} - Using AI to suggest relevant papers based on manuscript content
-    \item \textbf{Integrated literature review tools} - Adding features to assist with literature synthesis and comparison
+    \item \textbf{Journal-specific formatting} - Adjusting margins, fonts, and layout for different publishers
+    \item \textbf{Citation style adaptation} - Modifying bibliography formatting for different fields or journals
+    \item \textbf{Custom section organization} - Adding, removing, or reordering document sections
+    \item \textbf{Figure formatting options} - Adjusting how figures are presented and captioned
 \end{enumerate}
 
-\subsection{Broader Impact}
-\label{subsec:impact}
+\subsection{Application Areas}
+\label{subsec:applications}
 
-The broader impact of tools like SciTex extends beyond individual efficiency gains. By reducing the technical barriers to effective LaTeX usage, such tools can democratize access to high-quality document preparation, particularly benefiting researchers with limited experience or resources. This aligns with calls for more accessible scientific communication tools \cite{Patel2022}.
+The SciTex template can be applied to various document types beyond traditional research papers. With minimal adaptation, it can be used for:
 
-Furthermore, standardized templates can improve the consistency and readability of scientific literature as a whole, potentially enhancing knowledge transfer and interdisciplinary collaboration.
+\begin{itemize}
+    \item Research proposals and grant applications
+    \item Technical reports and white papers
+    \item Conference proceedings and extended abstracts
+    \item Academic theses and dissertations
+\end{itemize}
 
-In conclusion, SciTex represents a significant step forward in scientific document preparation by combining the structural advantages of LaTeX with the efficiency benefits of AI assistance and automation. While there is room for improvement, the current implementation already offers substantial benefits to researchers across disciplines.
+The structured approach to document preparation is particularly beneficial for documents with complex elements like figures, tables, equations, and citations. The consistency in formatting across different document types helps establish a recognizable style for research groups or organizations.
+
+\subsection{Future Work}
+\label{subsec:future-work}
+
+Several planned enhancements for the SciTex system will further improve its capabilities:
+
+\begin{itemize}
+    \item \textbf{Literature Review Assistant} - An integrated tool to help researchers organize, summarize, and cite relevant literature. This feature will:
+    \begin{itemize}
+        \item Import citation data from reference managers and databases
+        \item Generate structured literature review templates with key information fields
+        \item Provide automated citation clustering based on topic and relevance
+        \item Create citation network visualizations to identify research gaps
+    \end{itemize}
+
+    \item \textbf{Mermaid Diagram Support} - Integration of Mermaid syntax for creating flowcharts, sequence diagrams, and other visualizations directly in the manuscript:
+    \begin{itemize}
+        \item Automatic conversion of Mermaid code to publication-quality vector graphics
+        \item Template library for common scientific diagram types
+        \item Visual editor for diagram creation and modification
+        \item Version control for diagram evolution
+    \end{itemize}
+
+    \item \textbf{Advanced Statistical Integration} - Direct integration with statistical packages for result generation and visualization
+
+    \item \textbf{Journal-Specific Template Repository} - A collection of pre-configured templates for major scientific journals
+
+    \item \textbf{Collaboration Enhancement} - Real-time collaborative editing with change tracking and comment system
+\end{itemize}
+
+The literature review feature, in particular, addresses a critical pain point in scientific writing by helping researchers maintain organized connections between their work and existing literature. By structuring literature data into a standardized format, the system will facilitate evidence synthesis and gap identification, making it easier for researchers to position their work within the broader scientific context.
+
+In conclusion, SciTex demonstrates how structured LaTeX templates can simplify the preparation of scientific documents. The modular organization, automated figure and table management, and consistent referencing system help researchers focus on content while maintaining professional document formatting. Future enhancements will continue to address the challenges researchers face in document preparation and collaboration.
 
 %%%% EOF\n
 
@@ -658,7 +742,7 @@ In conclusion, SciTex represents a significant step forward in scientific docume
 
 \pdfbookmark[1]{Data Availability Statement}{data_availability}
 \section*{Data Availability Statement}
-Data and code used in this study is available on https://github.com/ywatanabe1989/torchPAC.
+Data and code used in this study is available on https://github.com/ywatanabe1989/SciTex.
 \label{data and code availability}
 
 %%%% EOF\n
@@ -702,7 +786,7 @@ All study participants provided their written informed consent ...
 
 \pdfbookmark[2]{Contributors}{author_contributions}                    
 \section*{Author Contributions}
-Y.W. and T.Y. conceptualized the study ...
+Y.W. conceptualized the study, designed the template system, and developed the core components. Claude Code assisted with text refinement, content organization, and feature documentation. Y.W. supervised and validated all aspects of the final manuscript.
 \label{author contributions}
 
 \pdfbookmark[2]{Acknowledgments}{acknowledgments}                    
@@ -722,7 +806,7 @@ We support inclusive, diverse, and equitable conduct of research.
 
 \pdfbookmark[2]{Declaration of Generative AI in Scientific Writing}{declaration_of_generative_ai}
 \section*{Declaration of Generative AI in Scientific Writing}
-The authors employed ChatGPT, provided by OpenAI, for enhancing the manuscript's English language quality. After incorporating the suggested improvements, the authors meticulously revised the content. Ultimate responsibility for the final content of this publication rests entirely with the authors.
+The authors utilized Claude Code, provided by Anthropic, for enhancing manuscript content organization, text conciseness, and formatting consistency. The authors reviewed and verified all AI-generated content. Responsibility for the final manuscript content rests entirely with the authors.
 \label{declaration of generative ai in scientific writing}
 
 %% \pdfbookmark[2]{Appendices}{appendices}                    
@@ -781,8 +865,8 @@ Compression ratio & 92.3 & \% & Size reduction achieved\\
 \section*{Figures}
 \label{figures}
 \pdfbookmark[1]{Figures}{figures}
-%DIF <  Generated by compile_figure_tex_files() on Wed May  7 01:33:32 AM AEST 2025
-%DIF >  Generated by compile_figure_tex_files() on Wed May  7 01:45:50 AM AEST 2025
+%DIF <  Generated by compile_figure_tex_files() on Wed May  7 04:35:30 AM AEST 2025
+%DIF >  Generated by compile_figure_tex_files() on Wed May  7 04:40:16 AM AEST 2025
 % This file includes all figure files in order
 
 % Figure 00: Figure 00
@@ -799,6 +883,23 @@ Figure 00
 Description for figure 00.
 }
     \label{fig:00_template}
+\end{figure*}
+
+% Figure 01: Figure 01
+\clearpage
+\begin{figure*}[p]
+    \pdfbookmark[2]{Figure 01}{figure_id_01}
+    \centering
+    \includegraphics[width=0.95\textwidth]{./src/figures/caption_and_media/jpg/Figure_ID_01_workflow.jpg}
+    \caption{
+\textbf{
+Figure 01
+}
+\smallskip
+\\
+Description for figure 01.
+}
+    \label{fig:01_workflow}
 \end{figure*}
 
 \n
