@@ -1,6 +1,12 @@
 #!/bin/bash
+# -*- coding: utf-8 -*-
+# Timestamp: "2025-05-06 10:07:40 (ywatanabe)"
+# File: ./manuscript/scripts/sh/modules/load_files_list.sh
 
-echo -e "$0 ...\n"
+THIS_DIR="$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)"
+LOG_PATH="$THIS_DIR/.$(basename $0).log"
+touch "$LOG_PATH" >/dev/null 2>&1
+
 
 # Function to load file paths from a config file
 load_files_list() {
@@ -28,4 +34,4 @@ load_files_list() {
     echo "${tex_files[@]}"
 }
 
-## EOF
+# EOF

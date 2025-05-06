@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo -e "$0 ...\n"
+echo -e "$0 ..."
 
 function open_pdf_with_pdfstudio2020_on_WSL() {
     # Define the path to PDF Studio executable in Windows format

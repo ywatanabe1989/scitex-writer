@@ -1,4 +1,14 @@
 #!/bin/bash
+# -*- coding: utf-8 -*-
+# Timestamp: "2025-05-06 10:06:43 (ywatanabe)"
+# File: ./manuscript/scripts/sh/revise.sh
+
+THIS_DIR="$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)"
+LOG_PATH="$THIS_DIR/.$(basename $0).log"
+touch "$LOG_PATH" >/dev/null 2>&1
+
+
+source ./scripts/sh/modules/load_files_list.sh
 
 function revise() {
   echo -e "The following texfiles are being revised:\n"
@@ -11,7 +21,7 @@ function revise() {
   fi
 }
 
-source ./scripts/sh/modules/load_files_list.sh
+
 
 # Load from the config file
 config_file_path="./config/files_to_revise.txt"
@@ -21,3 +31,5 @@ files_to_revise=$(load_files_list "$config_file_path")
 revise $files_to_revise
 
 # ./scripts/sh/revise.sh
+
+# EOF
