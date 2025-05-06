@@ -1,0 +1,29 @@
+%%{init: {'theme': 'neutral'}}%%
+graph TD
+    A[base.tex] --> B[Compilation Process]
+    
+    subgraph ContentInput["Content Input"]
+        C[src/*.tex Files] --> B
+        D[Figure Files] --> E[Figure Processing]
+        F[Table Files] --> G[Table Processing]
+    end
+    
+    subgraph ProcessingSteps["Processing Steps"]
+        E --> H[PPTX to TIF Conversion]
+        H --> I[Image Cropping]
+        I --> J[Image Optimization]
+        G --> K[Table Formatting]
+    end
+    
+    subgraph OutputGeneration["Output Generation"]
+        B --> L[compiled.tex]
+        L --> M[compiled.pdf]
+        L --> N[diff.tex]
+        N --> O[diff.pdf]
+    end
+    
+    subgraph VersionControl["Version Control"]
+        M --> P[Version Tracking]
+        O --> P
+        P --> Q[versions Directory]
+    end
