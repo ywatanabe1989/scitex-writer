@@ -1,4 +1,12 @@
 #!/bin/bash
+# -*- coding: utf-8 -*-
+# Timestamp: "2025-05-06 09:20:22 (ywatanabe)"
+# File: ./manuscript/scripts/sh/modules/config.sh
+
+THIS_DIR="$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)"
+LOG_PATH="$THIS_DIR/.$(basename $0).log"
+touch "$LOG_PATH" >/dev/null 2>&1
+
 
 # Figure
 FIGURE_SRC_DIR="./src/figures/src"
