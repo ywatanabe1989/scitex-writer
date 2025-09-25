@@ -11,8 +11,8 @@ touch "$LOG_PATH" >/dev/null 2>&1
 source ./config.src
 echo_info "$0..."
 
-mkdir -p "$(dirname $TREE_TXT)"
-tree -I "compiled_*|diff_*|*.pyc|*.cpython-38.pyc|*.so|*.pdf|*.tif|*.csv|*.ipynb|env|__pycache__|*.dist-info|*.whl|*.exe|*.tmpl|*.sh|cache|*.txt|*.md|manually_edited|old|*.xml|*.1" config/ > $TREE_TXT
-echo_success "$TREE_TXT created"
+mkdir -p "$(dirname $STXW_TREE_TXT)"
+tree -I "compiled_*|diff_*|*.pyc|*.cpython-38.pyc|*.so|*.pdf|*.tif|*.csv|*.ipynb|env|__pycache__|*.dist-info|*.whl|*.exe|*.tmpl|*.sh|cache|*.txt|*.md|manually_edited|old|*.xml|*.1" config/ > $STXW_TREE_TXT
+echo_success "$STXW_TREE_TXT created"
 
 # EOF

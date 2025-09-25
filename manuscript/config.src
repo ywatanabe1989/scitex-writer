@@ -1,68 +1,72 @@
 #!/bin/bash
 # -*- coding: utf-8 -*-
-# Timestamp: "2025-09-26 01:55:23 (ywatanabe)"
+# Timestamp: "2025-09-26 09:49:11 (ywatanabe)"
 # File: /ssh:sp:/home/ywatanabe/proj/neurovista/paper/manuscript/config.src
 
 THIS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # ---------------------------------------
 
-# Verbosity
-VERBOSE_PDFLATEX="${VERBOSE_PDFLATEX:-false}"
-VERBOSE_BIBTEX="${VERBOSE_BIBTEX:-false}"
+ORIG_DIR="$(pwd)"
+# LOG_PATH="$THIS_DIR/.$(basename $0).log"
+echo > "$LOG_PATH"
 
-# Logging
-LOG_DIR="./logs"
-GLOBAL_LOG_FILE="${LOG_DIR}/global.log"
+BLACK='\033[0;30m'
+LIGHT_GRAY='\033[0;37m'
+GREEN='\033[0;32m'
+YELLOW='\033[0;33m'
+RED='\033[0;31m'
+NC='\033[0m' # No Color
 
-# Base Structure
-BASE_TEX="./base.tex"
+echo_info() { echo -e "${LIGHT_GRAY}$1${NC}"; }
+echo_success() { echo -e "${GREEN}$1${NC}"; }
+echo_warning() { echo -e "${YELLOW}$1${NC}"; }
+echo_error() { echo -e "${RED}$1${NC}"; }
 
-# Compilation target
-COMPILED_TEX="./compiled.tex"
-COMPILED_PDF="./compiled.pdf"
+#THIS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+CONFIG_FILE="$THIS_DIR/config.yaml"
 
-# Differences
-DIFF_TEX="./diff.tex"
-DIFF_PDF="./diff.pdf"
+export STXW_VERBOSE_PDFLATEX="${STXW_VERBOSE_PDFLATEX:-$(yq '.verbosity.pdflatex' $CONFIG_FILE)}"
+export STXW_VERBOSE_BIBTEX="${STXW_VERBOSE_BIBTEX:-$(yq '.verbosity.bibtex' $CONFIG_FILE)}"
 
-# Versioning
-VERSIONS_DIR="./versions"
-VERSION_COUNTER_TXT="${VERSIONS_DIR}/.version_counter.txt"
+export LOG_DIR="$(yq '.paths.log_dir' $CONFIG_FILE)"
+export STXW_GLOBAL_LOG_FILE="$(yq '.paths.global_log_file' $CONFIG_FILE)"
+export STXW_BASE_TEX="$(yq '.paths.base_tex' $CONFIG_FILE)"
+export STXW_COMPILED_TEX="$(yq '.paths.compiled_tex' $CONFIG_FILE)"
+export STXW_COMPILED_PDF="$(yq '.paths.compiled_pdf' $CONFIG_FILE)"
+export STXW_DIFF_TEX="$(yq '.paths.diff_tex' $CONFIG_FILE)"
+export STXW_DIFF_PDF="$(yq '.paths.diff_pdf' $CONFIG_FILE)"
+export STXW_VERSIONS_DIR="$(yq '.paths.versions_dir' $CONFIG_FILE)"
+export STXW_VERSION_COUNTER_TXT="$(yq '.paths.version_counter_txt' $CONFIG_FILE)"
 
-# Figure
-FIGURE_DIR="./src/figures"
-FIGURE_CAPTION_MEDIA_DIR="${FIGURE_DIR}/caption_and_media"
-FIGURE_JPG_DIR="${FIGURE_CAPTION_MEDIA_DIR}/jpg"
-FIGURE_COMPILED_DIR="${FIGURE_DIR}/compiled"
-FIGURE_COMPILED_FILE="${FIGURE_COMPILED_DIR}/FINAL.tex"
-FIGURE_TEMPLATES_DIR="${FIGURE_DIR}/templates"
-FIGURE_TEMPLATE_TEX="$FIGURE_TEMPLATES_DIR/_Figure_ID_00_TEMPLATE.tex"
-FIGURE_TEMPLATE_JPG="$FIGURE_TEMPLATES_DIR/_Figure_ID_00_TEMPLATE.jpg"
-FIGURE_TEMPLATE_PPTX="$FIGURE_TEMPLATES_DIR/_Figure_ID_00_TEMPLATE.pptx"
-FIGURE_TEMPLATE_JNT="$FIGURE_TEMPLATES_DIR/_Figure_ID_00_TEMPLATE.jnt"
+export STXW_FIGURE_DIR="$(yq '.figures.dir' $CONFIG_FILE)"
+export STXW_FIGURE_CAPTION_MEDIA_DIR="$(yq '.figures.caption_media_dir' $CONFIG_FILE)"
+export STXW_FIGURE_JPG_DIR="$(yq '.figures.jpg_dir' $CONFIG_FILE)"
+export STXW_FIGURE_COMPILED_DIR="$(yq '.figures.compiled_dir' $CONFIG_FILE)"
+export STXW_FIGURE_COMPILED_FILE="$(yq '.figures.compiled_file' $CONFIG_FILE)"
+export STXW_FIGURE_TEMPLATES_DIR="$(yq '.figures.templates_dir' $CONFIG_FILE)"
+export STXW_FIGURE_TEMPLATE_TEX="$(yq '.figures.template_tex' $CONFIG_FILE)"
+export STXW_FIGURE_TEMPLATE_JPG="$(yq '.figures.template_jpg' $CONFIG_FILE)"
+export STXW_FIGURE_TEMPLATE_PPTX="$(yq '.figures.template_pptx' $CONFIG_FILE)"
+export STXW_FIGURE_TEMPLATE_JNT="$(yq '.figures.template_jnt' $CONFIG_FILE)"
 
-# Table
-TABLE_DIR="./src/tables"
-TABLE_CAPTION_MEDIA_DIR="$TABLE_DIR/caption_and_media"
-TABLE_COMPILED_DIR="$TABLE_DIR/compiled" # ???
-TABLE_COMPILED_FILE="${TABLE_COMPILED_DIR}/FINAL.tex"
+export STXW_TABLE_DIR="$(yq '.tables.dir' $CONFIG_FILE)"
+export STXW_TABLE_CAPTION_MEDIA_DIR="$(yq '.tables.caption_media_dir' $CONFIG_FILE)"
+export STXW_TABLE_COMPILED_DIR="$(yq '.tables.compiled_dir' $CONFIG_FILE)"
+export STXW_TABLE_COMPILED_FILE="$(yq '.tables.compiled_file' $CONFIG_FILE)"
 
-# Misc.
-WORDCOUNT_DIR="./src/wordcounts"
-TREE_TXT="./docs/tree.txt"
+export STXW_WORDCOUNT_DIR="$(yq '.misc.wordcount_dir' $CONFIG_FILE)"
+export STXW_TREE_TXT="$(yq '.misc.tree_txt' $CONFIG_FILE)"
 
-# Color
 GRAY="\033[1;30m"
 GREEN="\033[1;32m"
 YELLOW="\033[1;33m"
 RED="\033[1;31m"
 NC="\033[0m"
 
-# Function to echo text in yellow color
 echo_info() { echo -e "${GRAY}INFO: $1${NC}"; }
 echo_success() { echo -e "${GREEN}SUCCESS: $1${NC}"; }
-echo_warn() { echo -e "${YELLOW}Warning: $1${NC}"; }
-echo_error_soft() { echo -e "${RED}Error: $1${NC}"; }
-echo_error() { echo -e "${RED}Error: $1${NC}"; exit 1 ; }
+echo_warn() { echo -e "${YELLOW}WARNING: $1${NC}"; }
+echo_error_soft() { echo -e "${RED}ERROR: $1${NC}"; }
+echo_error() { echo -e "${RED}ERROR: $1${NC}"; exit 1; }
 
 # EOF

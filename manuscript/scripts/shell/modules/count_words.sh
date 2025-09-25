@@ -13,8 +13,8 @@ echo_info "$0 ..."
 
 
 init() {
-    rm -f $WORDCOUNT_DIR/*.txt
-    mkdir -p $WORDCOUNT_DIR
+    rm -f $STXW_WORDCOUNT_DIR/*.txt
+    mkdir -p $STXW_WORDCOUNT_DIR
 }
 
 _count_elements() {
@@ -38,23 +38,23 @@ _count_words() {
 }
 
 count_tables() {
-    _count_elements "$TABLE_COMPILED_DIR" "Table_ID_*.tex" "$WORDCOUNT_DIR/table_count.txt"
+    _count_elements "$STXW_TABLE_COMPILED_DIR" "Table_ID_*.tex" "$STXW_WORDCOUNT_DIR/table_count.txt"
 }
 
 count_figures() {
-    _count_elements "$FIGURE_COMPILED_DIR" "Figure_ID_*.tex" "$WORDCOUNT_DIR/figure_count.txt"
+    _count_elements "$STXW_FIGURE_COMPILED_DIR" "Figure_ID_*.tex" "$STXW_WORDCOUNT_DIR/figure_count.txt"
 }
 
 count_IMRaD() {
     for section in abstract introduction methods results discussion; do
         local section_tex="./src/$section.tex"
         if [ -e "$section_tex" ]; then
-            _count_words "$section_tex" "$WORDCOUNT_DIR/${section}_count.txt"
+            _count_words "$section_tex" "$STXW_WORDCOUNT_DIR/${section}_count.txt"
         else
-            echo 0 > "$WORDCOUNT_DIR/${section}_count.txt"
+            echo 0 > "$STXW_WORDCOUNT_DIR/${section}_count.txt"
         fi
     done
-    cat $WORDCOUNT_DIR/{introduction,methods,results,discussion}_count.txt | awk '{s+=$1} END {print s}' > $WORDCOUNT_DIR/imrd_count.txt
+    cat $STXW_WORDCOUNT_DIR/{introduction,methods,results,discussion}_count.txt | awk '{s+=$1} END {print s}' > $STXW_WORDCOUNT_DIR/imrd_count.txt
 }
 
 main() {

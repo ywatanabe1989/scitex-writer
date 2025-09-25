@@ -13,18 +13,18 @@ echo_info "$0 ..."
 
 function init_tables() {
     # Cleanup and prepare directories
-    rm -f "$TABLE_COMPILED_DIR"/*.tex
-    mkdir -p "$TABLE_DIR" "$TABLE_CAPTION_MEDIA_DIR" "$TABLE_COMPILED_DIR" > /dev/null
-    echo > "$TABLE_COMPILED_FILE"
+    rm -f "$STXW_TABLE_COMPILED_DIR"/*.tex
+    mkdir -p "$STXW_TABLE_DIR" "$STXW_TABLE_CAPTION_MEDIA_DIR" "$STXW_TABLE_COMPILED_DIR" > /dev/null
+    echo > "$STXW_TABLE_COMPILED_FILE"
 }
 
 function ensure_caption() {
     # Create default captions for any table without one
-    for csv_file in "$TABLE_CAPTION_MEDIA_DIR"/Table_ID_*.csv; do
+    for csv_file in "$STXW_TABLE_CAPTION_MEDIA_DIR"/Table_ID_*.csv; do
         [ -e "$csv_file" ] || continue
         local base_name=$(basename "$csv_file" .csv)
         local table_id=$(echo "$base_name" | grep -oP '(?<=Table_ID_)[^\.]+' | tr '[:upper:]' '[:lower:]')
-        local caption_file="${TABLE_CAPTION_MEDIA_DIR}/${base_name}.tex"
+        local caption_file="${STXW_TABLE_CAPTION_MEDIA_DIR}/${base_name}.tex"
 
         if [ ! -f "$caption_file" ] && [ ! -L "$caption_file" ]; then
             echo_warn "Caption file $caption_file not found. Creating a default one."
@@ -39,7 +39,7 @@ EOF
 function ensure_lower_letter_id() {
     # Ensure all table IDs use lowercase
     local ORIG_DIR="$(pwd)"
-    cd "$TABLE_CAPTION_MEDIA_DIR"
+    cd "$STXW_TABLE_CAPTION_MEDIA_DIR"
     for file in Table_ID_*; do
         [ -e "$file" ] || continue
         new_name=$(echo "$file" | sed -E 's/(Table_ID_)(.*)/\1\L\2/')
@@ -66,13 +66,13 @@ function check_csv_for_special_chars() {
 
 function csv2tex() {
     # Compile CSV tables into LaTeX files
-    for csv_file in "$TABLE_CAPTION_MEDIA_DIR"/Table_*.csv; do
+    for csv_file in "$STXW_TABLE_CAPTION_MEDIA_DIR"/Table_*.csv; do
         [ -e "$csv_file" ] || continue
 
         base_name=$(basename "$csv_file" .csv)
         table_id=$(basename "$csv_file" .csv | grep -oP '(?<=Table_ID_)[^\.]+' | tr '[:upper:]' '[:lower:]')
-        caption_file="${TABLE_CAPTION_MEDIA_DIR}/${base_name}.tex"
-        compiled_file="$TABLE_COMPILED_DIR/${base_name}.tex"
+        caption_file="${STXW_TABLE_CAPTION_MEDIA_DIR}/${base_name}.tex"
+        compiled_file="$STXW_TABLE_COMPILED_DIR/${base_name}.tex"
 
         # Pre-check CSV for problematic characters
         check_csv_for_special_chars "$csv_file"
@@ -148,13 +148,13 @@ function csv2tex() {
 
 function gather_table_tex_files() {
     # Gather all table tex files into the final compiled file
-    output_file="${TABLE_COMPILED_FILE}"
+    output_file="${STXW_TABLE_COMPILED_FILE}"
     rm -f "$output_file" > /dev/null 2>&1
     echo "% Auto-generated file containing all table inputs" > "$output_file"
 
     # Count available tables
     table_count=0
-    for table_tex in "$TABLE_COMPILED_DIR"/Table_*.tex; do
+    for table_tex in "$STXW_TABLE_COMPILED_DIR"/Table_*.tex; do
         if [ -f "$table_tex" ] || [ -L "$table_tex" ]; then
             echo "\\input{$table_tex}" >> "$output_file"
             table_count=$((table_count + 1))

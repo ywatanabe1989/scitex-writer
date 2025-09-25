@@ -1,6 +1,6 @@
 #!/bin/bash
 # -*- coding: utf-8 -*-
-# Timestamp: "2025-09-26 09:22:02 (ywatanabe)"
+# Timestamp: "2025-09-26 08:07:29 (ywatanabe)"
 # File: ./paper/manuscript/scripts/shell/modules/process_figures.sh
 
 ORIG_DIR="$(pwd)"
@@ -57,11 +57,11 @@ ensure_caption() {
         local ext="${img_file##*.}"
         local filename=$(basename "$img_file")
         local caption_tex_file="$STXW_FIGURE_CAPTION_MEDIA_DIR/${filename%.$ext}.tex"
-        local template_tex_file="$STXW_FIGURE_CAPTION_MEDIA_DIR/templates/Figure_ID_00_template.tex"
-        # local template_tex_file="$STXW_FIGURE_CAPTION_MEDIA_DIR/templates/_Figure_ID_XX.tex"
         if [ ! -f "$caption_tex_file" ] && [ ! -L "$caption_tex_file" ]; then
-            if [ -f "$template_tex_file" ]; then
-                cp "$template_tex_file" "$caption_tex_file"
+            if [ -f "$STXW_FIGURE_CAPTION_MEDIA_DIR/templates/_Figure_ID_XX.tex" ]; then
+                cp "$STXW_FIGURE_CAPTION_MEDIA_DIR/templates/_Figure_ID_XX.tex" "$caption_tex_file"
+            elif [ -f "$STXW_FIGURE_CAPTION_MEDIA_DIR/_Figure_ID_XX.tex" ]; then
+                cp "$STXW_FIGURE_CAPTION_MEDIA_DIR/_Figure_ID_XX.tex" "$caption_tex_file"
             else
                 cat <<EOF > "$caption_tex_file"
 %% -*- coding: utf-8 -*-
@@ -135,7 +135,7 @@ crop_tif() {
         if [ -f "./scripts/python/crop_tif.py" ] && command -v python3 >/dev/null 2>&1; then
             # Check for required Python dependencies
             if ! python3 -c "import cv2, numpy" >/dev/null 2>&1; then
-                echo_warn "crop_tif in $0: Required Python packages (opencv, numpy) not found. Skipping crop_tif."
+                echo_warn "Required Python packages (opencv, numpy) not found. Skipping crop_tif."
                 return 1
             fi
 
@@ -190,7 +190,7 @@ crop_tif() {
 
             echo_success "Cropped $count TIF files"
         else
-            echo_warn "crop_tif in $0: crop_tif.py script or Python 3 not found. Skipping crop_tif."
+            echo_warn "crop_tif.py script or Python 3 not found. Skipping crop_tif."
         fi
     fi
 }
@@ -204,7 +204,7 @@ tif2jpg() {
 
             find "$STXW_FIGURE_CAPTION_MEDIA_DIR" -name "Figure_ID_*.tif" \
                 | parallel -j+0 --eta '
-                python3 ./scripts/python/optimize_figure.py --input {} --output "$STXW_FIGURE_JPG_DIR"/$(basename {} .tif).jpg" --dpi 300 --quality 95
+                python3 ./scripts/python/optimize_figure.py --input {} --output "'"$STXW_FIGURE_JPG_DIR"'/$(basename {} .tif).jpg" --dpi 300 --quality 95
             '
 
             find "$STXW_FIGURE_CAPTION_MEDIA_DIR" -name "Figure_ID_*.png" \
@@ -213,39 +213,39 @@ tif2jpg() {
 ./scripts/python/optimize_figure.py
 --input {}
 --output
-"$STXW_FIGURE_JPG_DIR"/$(basename {} .png).jpg"
+"'"$STXW_FIGURE_JPG_DIR"'/$(basename {} .png).jpg"
 --dpi 300
 --quality 95
             '
             if command -v inkscape >/dev/null 2>&1; then
                 find "$STXW_FIGURE_CAPTION_MEDIA_DIR" -name "Figure_ID_*.svg" | parallel -j+0 --eta '
-                    inkscape -z -e "$STXW_FIGURE_JPG_DIR"/$(basename {} .svg)_temp.png" -w 1200 -h 1200 {}
-                    python3 ./scripts/python/optimize_figure.py --input "$STXW_FIGURE_JPG_DIR"/$(basename {} .svg)_temp.png" --output "$STXW_FIGURE_JPG_DIR"/$(basename {} .svg).jpg" --dpi 300 --quality 95
-                    rm -f "$STXW_FIGURE_JPG_DIR"/$(basename {} .svg)_temp.png"
+                    inkscape -z -e "'"$STXW_FIGURE_JPG_DIR"'/$(basename {} .svg)_temp.png" -w 1200 -h 1200 {}
+                    python3 ./scripts/python/optimize_figure.py --input "'"$STXW_FIGURE_JPG_DIR"'/$(basename {} .svg)_temp.png" --output "'"$STXW_FIGURE_JPG_DIR"'/$(basename {} .svg).jpg" --dpi 300 --quality 95
+                    rm -f "'"$STXW_FIGURE_JPG_DIR"'/$(basename {} .svg)_temp.png"
                 '
             else
                 find "$STXW_FIGURE_CAPTION_MEDIA_DIR" -name "Figure_ID_*.svg" | parallel -j+0 --eta '
-                    convert {} -density 300 -quality 95 "$STXW_FIGURE_JPG_DIR"/$(basename {} .svg).jpg"
+                    convert {} -density 300 -quality 95 "'"$STXW_FIGURE_JPG_DIR"'/$(basename {} .svg).jpg"
                 '
             fi
             find "$STXW_FIGURE_CAPTION_MEDIA_DIR" -name "Figure_ID_*.jpg" | parallel -j+0 --eta '
-                if [ ! -f "$STXW_FIGURE_JPG_DIR"/$(basename {})" ]; then
-                    python3 ./scripts/python/optimize_figure.py --input {} --output "$STXW_FIGURE_JPG_DIR"/$(basename {})" --dpi 300 --quality 95
+                if [ ! -f "'"$STXW_FIGURE_JPG_DIR"'/$(basename {})" ]; then
+                    python3 ./scripts/python/optimize_figure.py --input {} --output "'"$STXW_FIGURE_JPG_DIR"'/$(basename {})" --dpi 300 --quality 95
                 fi
             '
         else
             find "$STXW_FIGURE_CAPTION_MEDIA_DIR" -name "Figure_ID_*.tif" | parallel -j+0 --eta '
-                convert {} -density 300 -quality 95 "$STXW_FIGURE_JPG_DIR"/$(basename {} .tif).jpg"
+                convert {} -density 300 -quality 95 "'"$STXW_FIGURE_JPG_DIR"'/$(basename {} .tif).jpg"
             '
             find "$STXW_FIGURE_CAPTION_MEDIA_DIR" -name "Figure_ID_*.png" | parallel -j+0 --eta '
-                convert {} -density 300 -quality 95 "$STXW_FIGURE_JPG_DIR"/$(basename {} .png).jpg"
+                convert {} -density 300 -quality 95 "'"$STXW_FIGURE_JPG_DIR"'/$(basename {} .png).jpg"
             '
             find "$STXW_FIGURE_CAPTION_MEDIA_DIR" -name "Figure_ID_*.svg" | parallel -j+0 --eta '
-                convert {} -density 300 -quality 95 "$STXW_FIGURE_JPG_DIR"/$(basename {} .svg).jpg"
+                convert {} -density 300 -quality 95 "'"$STXW_FIGURE_JPG_DIR"'/$(basename {} .svg).jpg"
             '
             find "$STXW_FIGURE_CAPTION_MEDIA_DIR" -name "Figure_ID_*.jpg" | parallel -j+0 --eta '
-                if [ ! -f "$STXW_FIGURE_JPG_DIR"/$(basename {})" ]; then
-                    cp {} "$STXW_FIGURE_JPG_DIR"/$(basename {})"
+                if [ ! -f "'"$STXW_FIGURE_JPG_DIR"'/$(basename {})" ]; then
+                    cp {} "'"$STXW_FIGURE_JPG_DIR"'/$(basename {})"
                 fi
             '
         fi
@@ -359,11 +359,11 @@ EOF
         # Validate the figure-related files
         if [ -f "$STXW_FIGURE_JPG_DIR/$jpg_file" ]; then
             if file "$STXW_FIGURE_JPG_DIR/$jpg_file" | grep -qv "JPEG image data"; then
-                echo_warn "compile_legend in $0: File $jpg_file exists but may not be a valid JPEG image."
+                echo_warn "File $jpg_file exists but may not be a valid JPEG image."
             fi
         else
             if [ "$is_tikz" = false ]; then
-                echo_warn "compile_legend in $0: Required image file not found: $STXW_FIGURE_JPG_DIR/$jpg_file"
+                echo_warn "Required image file not found: $STXW_FIGURE_JPG_DIR/$jpg_file"
             fi
         fi
 
@@ -524,7 +524,7 @@ compile_figure_tex_files() {
                 echo "    \\includegraphics[width=$width]{$image_path}" >> "$STXW_FIGURE_COMPILED_FILE"
                 # Validate image path
                 if ! validate_image_file "$image_path"; then
-                    echo_warn "compile_figure_tex_files in $0: Image file not found in output: $image_path"
+                    echo_warn "Image file not found in output: $image_path"
                 fi
             fi
         fi
@@ -555,7 +555,7 @@ main() {
 
     # Mermaid
     local THIS_DIR="$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)"
-    eval "$THIS_DIR/mmd2png_all.sh" >/dev/null 2>&1 || echo "mmd2png failed"
+    eval "$THIS_DIR/mmd2png_all.sh"
     eval "$THIS_DIR/png2tif_all.sh"
 
     init_figures

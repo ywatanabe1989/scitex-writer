@@ -13,7 +13,7 @@ echo_info "$0 ..."
 
 gather_tex_contents() {
     # First, create initial compiled.tex from structure.tex
-    cp "$BASE_TEX" "$COMPILED_TEX"
+    cp "$STXW_BASE_TEX" "$STXW_COMPILED_TEX"
 
     process_input() {
         local file_path="$1"
@@ -38,15 +38,15 @@ gather_tex_contents() {
             fi
         done < "$file_path"
 
-        mv "$temp_file" "$COMPILED_TEX"
+        mv "$temp_file" "$STXW_COMPILED_TEX"
     }
 
     # Process until no more \input commands remain
-    while grep -q '\\input{' "$COMPILED_TEX"; do
-        process_input "$COMPILED_TEX"
+    while grep -q '\\input{' "$STXW_COMPILED_TEX"; do
+        process_input "$STXW_COMPILED_TEX"
     done
 
-    echo_success "$COMPILED_TEX compiled"
+    echo_success "$STXW_COMPILED_TEX compiled"
 }
 
 gather_tex_contents

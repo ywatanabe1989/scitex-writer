@@ -1,0 +1,41 @@
+# Timestamp: "2025-09-26 07:21:49 (ywatanabe)"
+# File: ./paper/manuscript/config.yaml
+
+verbosity:
+  pdflatex: false
+  bibtex: false
+
+paths:
+  log_dir: "./logs"
+  global_log_file: "./logs/global.log"
+  base_tex: "./base.tex"
+  compiled_tex: "./compiled.tex"
+  compiled_pdf: "./compiled.pdf"
+  diff_tex: "./diff.tex"
+  diff_pdf: "./diff.pdf"
+  versions_dir: "./versions"
+  version_counter_txt: "./versions/.version_counter.txt"
+  
+figures:
+  dir: "./src/figures"
+  caption_media_dir: "./src/figures/caption_and_media"
+  jpg_dir: "./src/figures/caption_and_media/jpg"
+  compiled_dir: "./src/figures/compiled"
+  compiled_file: "./src/figures/compiled/FINAL.tex"
+  templates_dir: "./src/figures/templates"
+  template_tex: "./src/figures/templates/_Figure_ID_00_TEMPLATE.tex"
+  template_jpg: "./src/figures/templates/_Figure_ID_00_TEMPLATE.jpg"
+  template_pptx: "./src/figures/templates/_Figure_ID_00_TEMPLATE.pptx"
+  template_jnt: "./src/figures/templates/_Figure_ID_00_TEMPLATE.jnt"
+
+tables:
+  dir: "./src/tables"
+  caption_media_dir: "./src/tables/caption_and_media"
+  compiled_dir: "./src/tables/compiled"
+  compiled_file: "./src/tables/compiled/FINAL.tex"
+
+misc:
+  wordcount_dir: "./src/wordcounts"
+  tree_txt: "./docs/tree.txt"
+
+# EOF

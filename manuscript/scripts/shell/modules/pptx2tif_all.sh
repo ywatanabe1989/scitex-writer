@@ -13,8 +13,8 @@ echo -e "$0 ..."
 source ./config.src
 
 # PowerPoint to TIF
-total=$(ls "$FIGURE_CAPTION_MEDIA_DIR"/Figure_ID_*.pptx | wc -l)
-ls "$FIGURE_CAPTION_MEDIA_DIR"/Figure_ID_*.pptx | \
+total=$(ls "$STXW_FIGURE_CAPTION_MEDIA_DIR"/Figure_ID_*.pptx | wc -l)
+ls "$STXW_FIGURE_CAPTION_MEDIA_DIR"/Figure_ID_*.pptx | \
 parallel --eta --progress --joblog progress.log \
     './scripts/shell/modules/pptx2tif_single.sh -i "$(realpath {})" -o "$(realpath {.}.tif)"; \
     echo "Processed: {#}/$total"'

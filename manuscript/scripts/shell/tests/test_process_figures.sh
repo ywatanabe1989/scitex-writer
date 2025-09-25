@@ -65,9 +65,9 @@ EOF
 # Modified config.src for testing
 
 # Figure
-FIGURE_CAPTION_MEDIA_DIR="${TEST_TMP_DIR}/src/figures/src"
-FIGURE_JPG_DIR="${TEST_TMP_DIR}/src/figures/jpg"
-FIGURE_COMPILED_DIR="${TEST_TMP_DIR}/src/figures/compiled"
+STXW_FIGURE_CAPTION_MEDIA_DIR="${TEST_TMP_DIR}/src/figures/src"
+STXW_FIGURE_JPG_DIR="${TEST_TMP_DIR}/src/figures/jpg"
+STXW_FIGURE_COMPILED_DIR="${TEST_TMP_DIR}/src/figures/compiled"
 FIGURE_HIDDEN_DIR="${TEST_TMP_DIR}/src/figures/.tex"
 EOF
 
@@ -92,54 +92,54 @@ run_tests() {
     # Test initialization
     test_function "init function creates required directories" "
         init > /dev/null 2>&1
-        [ -d \"$FIGURE_CAPTION_MEDIA_DIR\" ] && [ -d \"$FIGURE_COMPILED_DIR\" ] && [ -d \"$FIGURE_JPG_DIR\" ] && [ -d \"$FIGURE_HIDDEN_DIR\" ]
+        [ -d \"$STXW_FIGURE_CAPTION_MEDIA_DIR\" ] && [ -d \"$STXW_FIGURE_COMPILED_DIR\" ] && [ -d \"$STXW_FIGURE_JPG_DIR\" ] && [ -d \"$FIGURE_HIDDEN_DIR\" ]
     "
 
     # Test ensure_caption function
     test_function "ensure_caption creates captions when missing" "
-        rm -f \"$FIGURE_CAPTION_MEDIA_DIR/Figure_ID_02_test.tex\"
-        touch \"$FIGURE_CAPTION_MEDIA_DIR/Figure_ID_02_test.jpg\"
+        rm -f \"$STXW_FIGURE_CAPTION_MEDIA_DIR/Figure_ID_02_test.tex\"
+        touch \"$STXW_FIGURE_CAPTION_MEDIA_DIR/Figure_ID_02_test.jpg\"
         ensure_caption > /dev/null 2>&1
-        [ -f \"$FIGURE_CAPTION_MEDIA_DIR/Figure_ID_02_test.tex\" ]
+        [ -f \"$STXW_FIGURE_CAPTION_MEDIA_DIR/Figure_ID_02_test.tex\" ]
     "
 
     # Test ensure_lower_letters function
     test_function "ensure_lower_letters converts filenames to lowercase" "
-        touch \"$FIGURE_CAPTION_MEDIA_DIR/Figure_ID_03_TEST_UPPER.jpg\"
+        touch \"$STXW_FIGURE_CAPTION_MEDIA_DIR/Figure_ID_03_TEST_UPPER.jpg\"
         ensure_lower_letters
-        [ -f \"$FIGURE_CAPTION_MEDIA_DIR/Figure_ID_03_test_upper.jpg\" ] && [ ! -f \"$FIGURE_CAPTION_MEDIA_DIR/Figure_ID_03_TEST_UPPER.jpg\" ]
+        [ -f \"$STXW_FIGURE_CAPTION_MEDIA_DIR/Figure_ID_03_test_upper.jpg\" ] && [ ! -f \"$STXW_FIGURE_CAPTION_MEDIA_DIR/Figure_ID_03_TEST_UPPER.jpg\" ]
     "
 
     # Test compile_legends function (simplified)
     test_function "compile_legends creates figure legend files" "
         compile_legends > /dev/null 2>&1
-        [ -f \"$FIGURE_COMPILED_DIR/Figure_ID_01_test.tex\" ]
+        [ -f \"$STXW_FIGURE_COMPILED_DIR/Figure_ID_01_test.tex\" ]
     "
 
     # Test gather_tex_files function
     test_function "gather_tex_files creates aggregate file" "
         gather_tex_files > /dev/null 2>&1
-        [ -f \"$FIGURE_COMPILED_FILE\" ] && grep -q \"Figure_ID_01_test\" \"$FIGURE_COMPILED_FILE\"
+        [ -f \"$STXW_FIGURE_COMPILED_FILE\" ] && grep -q \"Figure_ID_01_test\" \"$STXW_FIGURE_COMPILED_FILE\"
     "
 
     # Test tif2jpg function (basic check)
     test_function "tif2jpg handles jpg files correctly" "
-        mkdir -p \"$FIGURE_JPG_DIR\"
+        mkdir -p \"$STXW_FIGURE_JPG_DIR\"
         tif2jpg false > /dev/null 2>&1
-        [ -f \"$FIGURE_JPG_DIR/Figure_ID_01_test.jpg\" ]
+        [ -f \"$STXW_FIGURE_JPG_DIR/Figure_ID_01_test.jpg\" ]
     "
 
     # Test _toggle_figures function
     test_function "_toggle_figures enable works correctly" "
         _toggle_figures enable > /dev/null 2>&1
-        grep -q '\\\\includegraphics' \"$FIGURE_COMPILED_DIR/Figure_ID_01_test.tex\" &&
-        ! grep -q '^%\\\\includegraphics' \"$FIGURE_COMPILED_DIR/Figure_ID_01_test.tex\"
+        grep -q '\\\\includegraphics' \"$STXW_FIGURE_COMPILED_DIR/Figure_ID_01_test.tex\" &&
+        ! grep -q '^%\\\\includegraphics' \"$STXW_FIGURE_COMPILED_DIR/Figure_ID_01_test.tex\"
     "
 
     test_function "_toggle_figures disable works correctly" "
         _toggle_figures disable > /dev/null 2>&1
-        grep -q '^%\\\\includegraphics' \"$FIGURE_COMPILED_DIR/Figure_ID_01_test.tex\" ||
-        ! grep -q '\\\\includegraphics' \"$FIGURE_COMPILED_DIR/Figure_ID_01_test.tex\"
+        grep -q '^%\\\\includegraphics' \"$STXW_FIGURE_COMPILED_DIR/Figure_ID_01_test.tex\" ||
+        ! grep -q '\\\\includegraphics' \"$STXW_FIGURE_COMPILED_DIR/Figure_ID_01_test.tex\"
     "
 
     # Test main function (simplified)

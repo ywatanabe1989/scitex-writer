@@ -16,14 +16,14 @@ compile_compiled_tex() {
         -shell-escape \
         -interaction=nonstopmode \
         -file-line-error \
-        $COMPILED_TEX"
-    local bibtex_command="bibtex ${COMPILED_TEX%.tex}"
+        $STXW_COMPILED_TEX"
+    local bibtex_command="bibtex ${STXW_COMPILED_TEX%.tex}"
 
-    if [ "$VERBOSE_PDFLATEX" != "true" ]; then
+    if [ "$STXW_VERBOSE_PDFLATEX" != "true" ]; then
         pdf_latex_command="$pdf_latex_command >/dev/null 2>&1"
     fi
 
-    if [ "$VERBOSE_BIBTEX" != "true" ]; then
+    if [ "$STXW_VERBOSE_BIBTEX" != "true" ]; then
         bibtex_command="$bibtex_command >/dev/null 2>&1"
     fi
 
@@ -34,15 +34,15 @@ compile_compiled_tex() {
 }
 
 cleanup() {
-    if [ -f $COMPILED_PDF ]; then
-        echo_success "$COMPILED_PDF ready"
+    if [ -f $STXW_COMPILED_PDF ]; then
+        echo_success "$STXW_COMPILED_PDF ready"
         sleep 1
     else
-        echo_error "$COMPILED_PDF was not created."
+        echo_error "$STXW_COMPILED_PDF was not created."
         # Extract errors from main.log
-        local log_file={$COMPILED_PDF%.pdf}.log
+        local log_file={$STXW_COMPILED_PDF%.pdf}.log
         cat $log_file | grep error | grep -v -E "infwarerr|error style messages enabled"
-        echo_error "$COMPILED_PDF not found. Stopping. Check $log_file"
+        echo_error "$STXW_COMPILED_PDF not found. Stopping. Check $log_file"
         return 1
     fi
 }

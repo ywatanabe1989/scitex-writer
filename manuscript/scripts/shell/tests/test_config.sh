@@ -29,27 +29,27 @@ test_function() {
 echo "Testing config.src..."
 
 # Test directory variables are set
-test_function "FIGURE_CAPTION_MEDIA_DIR is set" "[ -n \"$FIGURE_CAPTION_MEDIA_DIR\" ]"
-test_function "FIGURE_JPG_DIR is set" "[ -n \"$FIGURE_JPG_DIR\" ]"
-test_function "FIGURE_COMPILED_DIR is set" "[ -n \"$FIGURE_COMPILED_DIR\" ]"
+test_function "STXW_FIGURE_CAPTION_MEDIA_DIR is set" "[ -n \"$STXW_FIGURE_CAPTION_MEDIA_DIR\" ]"
+test_function "STXW_FIGURE_JPG_DIR is set" "[ -n \"$STXW_FIGURE_JPG_DIR\" ]"
+test_function "STXW_FIGURE_COMPILED_DIR is set" "[ -n \"$STXW_FIGURE_COMPILED_DIR\" ]"
 test_function "FIGURE_HIDDEN_DIR is set" "[ -n \"$FIGURE_HIDDEN_DIR\" ]"
 
-test_function "TABLE_CAPTION_MEDIA_DIR is set" "[ -n \"$TABLE_CAPTION_MEDIA_DIR\" ]"
-test_function "TABLE_COMPILED_DIR is set" "[ -n \"$TABLE_COMPILED_DIR\" ]"
+test_function "STXW_TABLE_CAPTION_MEDIA_DIR is set" "[ -n \"$STXW_TABLE_CAPTION_MEDIA_DIR\" ]"
+test_function "STXW_TABLE_COMPILED_DIR is set" "[ -n \"$STXW_TABLE_COMPILED_DIR\" ]"
 test_function "TABLE_HIDDEN_DIR is set" "[ -n \"$TABLE_HIDDEN_DIR\" ]"
 
-test_function "WORDCOUNT_DIR is set" "[ -n \"$WORDCOUNT_DIR\" ]"
+test_function "STXW_WORDCOUNT_DIR is set" "[ -n \"$STXW_WORDCOUNT_DIR\" ]"
 
 # Check if directories exist or can be created
-test_function "FIGURE_CAPTION_MEDIA_DIR exists or can be created" "mkdir -p \"$FIGURE_CAPTION_MEDIA_DIR\" && [ -d \"$FIGURE_CAPTION_MEDIA_DIR\" ]"
-test_function "FIGURE_JPG_DIR exists or can be created" "mkdir -p \"$FIGURE_JPG_DIR\" && [ -d \"$FIGURE_JPG_DIR\" ]"
-test_function "FIGURE_COMPILED_DIR exists or can be created" "mkdir -p \"$FIGURE_COMPILED_DIR\" && [ -d \"$FIGURE_COMPILED_DIR\" ]"
+test_function "STXW_FIGURE_CAPTION_MEDIA_DIR exists or can be created" "mkdir -p \"$STXW_FIGURE_CAPTION_MEDIA_DIR\" && [ -d \"$STXW_FIGURE_CAPTION_MEDIA_DIR\" ]"
+test_function "STXW_FIGURE_JPG_DIR exists or can be created" "mkdir -p \"$STXW_FIGURE_JPG_DIR\" && [ -d \"$STXW_FIGURE_JPG_DIR\" ]"
+test_function "STXW_FIGURE_COMPILED_DIR exists or can be created" "mkdir -p \"$STXW_FIGURE_COMPILED_DIR\" && [ -d \"$STXW_FIGURE_COMPILED_DIR\" ]"
 test_function "FIGURE_HIDDEN_DIR exists or can be created" "mkdir -p \"$FIGURE_HIDDEN_DIR\" && [ -d \"$FIGURE_HIDDEN_DIR\" ]"
 
-test_function "TABLE_CAPTION_MEDIA_DIR exists or can be created" "mkdir -p \"$TABLE_CAPTION_MEDIA_DIR\" && [ -d \"$TABLE_CAPTION_MEDIA_DIR\" ]"
-test_function "TABLE_COMPILED_DIR exists or can be created" "mkdir -p \"$TABLE_COMPILED_DIR\" && [ -d \"$TABLE_COMPILED_DIR\" ]"
+test_function "STXW_TABLE_CAPTION_MEDIA_DIR exists or can be created" "mkdir -p \"$STXW_TABLE_CAPTION_MEDIA_DIR\" && [ -d \"$STXW_TABLE_CAPTION_MEDIA_DIR\" ]"
+test_function "STXW_TABLE_COMPILED_DIR exists or can be created" "mkdir -p \"$STXW_TABLE_COMPILED_DIR\" && [ -d \"$STXW_TABLE_COMPILED_DIR\" ]"
 test_function "TABLE_HIDDEN_DIR exists or can be created" "mkdir -p \"$TABLE_HIDDEN_DIR\" && [ -d \"$TABLE_HIDDEN_DIR\" ]"
 
-test_function "WORDCOUNT_DIR exists or can be created" "mkdir -p \"$WORDCOUNT_DIR\" && [ -d \"$WORDCOUNT_DIR\" ]"
+test_function "STXW_WORDCOUNT_DIR exists or can be created" "mkdir -p \"$STXW_WORDCOUNT_DIR\" && [ -d \"$STXW_WORDCOUNT_DIR\" ]"
 
 echo "Config tests completed."

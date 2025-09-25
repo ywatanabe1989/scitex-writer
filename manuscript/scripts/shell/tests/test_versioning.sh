@@ -39,10 +39,10 @@ cp "${MODULES_DIR}/versioning.sh" "${TEST_TMP_DIR}/versioning_test.sh"
 
 # Replace the paths with our test paths
 sed -i "s|OLD_DIR=\./old/|OLD_DIR=${TEST_TMP_DIR}/old/|g" "${TEST_TMP_DIR}/versioning_test.sh"
-sed -i "s|COMPILED_PDF=\./main/manuscript.pdf|COMPILED_PDF=${TEST_TMP_DIR}/main/manuscript.pdf|g" "${TEST_TMP_DIR}/versioning_test.sh"
-sed -i "s|COMPILED_TEX=\./main/manuscript.tex|COMPILED_TEX=${TEST_TMP_DIR}/main/manuscript.tex|g" "${TEST_TMP_DIR}/versioning_test.sh"
-sed -i "s|DIFF_TEX=\./diff.tex|DIFF_TEX=${TEST_TMP_DIR}/diff.tex|g" "${TEST_TMP_DIR}/versioning_test.sh"
-sed -i "s|DIFF_PDF=\./diff.pdf|DIFF_PDF=${TEST_TMP_DIR}/diff.pdf|g" "${TEST_TMP_DIR}/versioning_test.sh"
+sed -i "s|STXW_COMPILED_PDF=\./main/manuscript.pdf|STXW_COMPILED_PDF=${TEST_TMP_DIR}/main/manuscript.pdf|g" "${TEST_TMP_DIR}/versioning_test.sh"
+sed -i "s|STXW_COMPILED_TEX=\./main/manuscript.tex|STXW_COMPILED_TEX=${TEST_TMP_DIR}/main/manuscript.tex|g" "${TEST_TMP_DIR}/versioning_test.sh"
+sed -i "s|STXW_DIFF_TEX=\./diff.tex|STXW_DIFF_TEX=${TEST_TMP_DIR}/diff.tex|g" "${TEST_TMP_DIR}/versioning_test.sh"
+sed -i "s|STXW_DIFF_PDF=\./diff.pdf|STXW_DIFF_PDF=${TEST_TMP_DIR}/diff.pdf|g" "${TEST_TMP_DIR}/versioning_test.sh"
 
 # Comment out the actual versioning call at the end so we can test functions individually
 sed -i "s|versioning|# versioning|g" "${TEST_TMP_DIR}/versioning_test.sh"
@@ -55,14 +55,14 @@ echo "Testing versioning.sh..."
 # Test the count_version function
 test_function "count_version initializes version counter" "
     rm -f ${TEST_TMP_DIR}/old/.version_counter.txt
-    VERSION_COUNTER_TXT=${TEST_TMP_DIR}/old/.version_counter.txt
+    STXW_VERSION_COUNTER_TXT=${TEST_TMP_DIR}/old/.version_counter.txt
     count_version
     [ -f ${TEST_TMP_DIR}/old/.version_counter.txt ] && [ \$(cat ${TEST_TMP_DIR}/old/.version_counter.txt) = '001' ]
 "
 
 test_function "count_version increments version counter" "
     echo '001' > ${TEST_TMP_DIR}/old/.version_counter.txt
-    VERSION_COUNTER_TXT=${TEST_TMP_DIR}/old/.version_counter.txt
+    STXW_VERSION_COUNTER_TXT=${TEST_TMP_DIR}/old/.version_counter.txt
     count_version
     [ \$(cat ${TEST_TMP_DIR}/old/.version_counter.txt) = '002' ]
 "
@@ -72,8 +72,8 @@ mkdir -p "${TEST_TMP_DIR}/main"
 echo "Test content" > "${TEST_TMP_DIR}/main/test.pdf"
 
 test_function "store_files copies file correctly" "
-    VERSION_COUNTER_TXT=${TEST_TMP_DIR}/old/.version_counter.txt
-    echo '003' > \$VERSION_COUNTER_TXT
+    STXW_VERSION_COUNTER_TXT=${TEST_TMP_DIR}/old/.version_counter.txt
+    echo '003' > \$STXW_VERSION_COUNTER_TXT
     store_files ${TEST_TMP_DIR}/main/test.pdf pdf
     [ -f ${TEST_TMP_DIR}/old/test_v003.pdf ]
 "
@@ -96,8 +96,8 @@ test_function "full versioning process" "
     echo 'Test content' > ${TEST_TMP_DIR}/main/manuscript.tex
     echo 'Test content' > ${TEST_TMP_DIR}/diff.pdf
     echo 'Test content' > ${TEST_TMP_DIR}/diff.tex
-    VERSION_COUNTER_TXT=${TEST_TMP_DIR}/old/.version_counter.txt
-    echo '004' > \$VERSION_COUNTER_TXT
+    STXW_VERSION_COUNTER_TXT=${TEST_TMP_DIR}/old/.version_counter.txt
+    echo '004' > \$STXW_VERSION_COUNTER_TXT
     versioning
     [ -f ${TEST_TMP_DIR}/old/manuscript_v005.pdf ] && 
     [ -f ${TEST_TMP_DIR}/old/manuscript_v005.tex ] && 
