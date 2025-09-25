@@ -7,12 +7,11 @@ THIS_DIR="$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)"
 LOG_PATH="$THIS_DIR/.$(basename $0).log"
 touch "$LOG_PATH" >/dev/null 2>&1
 
-
 set -e
 set -o pipefail
 
 source ./config.src
-mkdir -p $LOG_DIR && touch $GLOBAL_LOG_FILE
+mkdir -p "$LOG_DIR" && touch "$GLOBAL_LOG_FILE"
 
 do_p2t=false
 no_figs=true

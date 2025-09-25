@@ -1,7 +1,7 @@
 <!-- ---
-!-- Timestamp: 2025-05-07 06:17:41
+!-- Timestamp: 2025-09-24 17:04:53
 !-- Author: ywatanabe
-!-- File: /home/ywatanabe/proj/SciTex/README.md
+!-- File: /ssh:sp:/home/ywatanabe/proj/neurovista/scitex_writer_origin/README.md
 !-- --- -->
 
 # SciTex: Scientific Manuscripts Compilation System using LaTeX
@@ -35,13 +35,6 @@
 ```bash
 $ ./manuscript/scripts/shell/install_on_ubuntu.sh # Install LaTeX and system dependencies
 $ ./manuscript/scripts/shell/gen_pyenv.sh # Set up Python environment
-```
-
-### Set Up OpenAI API
-
-```bash
-$ echo 'export OPENAI_API_KEY="YOUR_OPENAI_API_KEY"' >> ~/.bashrc
-$ source ~/.bashrc
 ```
 
 ## Quick Start

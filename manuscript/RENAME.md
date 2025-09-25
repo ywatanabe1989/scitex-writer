@@ -1,10 +1,44 @@
-#!/bin/bash
-# -*- coding: utf-8 -*-
-# Timestamp: "2025-09-26 01:55:23 (ywatanabe)"
-# File: /ssh:sp:/home/ywatanabe/proj/neurovista/paper/manuscript/config.src
+<!-- ---
+!-- Timestamp: 2025-09-26 02:01:26
+!-- Author: ywatanabe
+!-- File: /ssh:sp:/home/ywatanabe/proj/neurovista/paper/manuscript/RENAME.md
+!-- --- -->
 
-THIS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-# ---------------------------------------
+
+vars=(
+    VERBOSE_PDFLATEX
+    VERBOSE_BIBTEX
+    GLOBAL_LOG_FILE
+    BASE_TEX
+    COMPILED_TEX
+    COMPILED_PDF
+    DIFF_TEX
+    DIFF_PDF
+    VERSIONS_DIR
+    VERSION_COUNTER_TXT
+    FIGURE_DIR
+    FIGURE_CAPTION_MEDIA_DIR
+    FIGURE_JPG_DIR
+    FIGURE_COMPILED_DIR
+    FIGURE_COMPILED_FILE
+    FIGURE_TEMPLATES_DIR
+    FIGURE_TEMPLATE_TEX
+    FIGURE_TEMPLATE_JPG
+    FIGURE_TEMPLATE_PPTX
+    FIGURE_TEMPLATE_JNT
+    TABLE_DIR
+    TABLE_CAPTION_MEDIA_DIR
+    TABLE_COMPILED_DIR
+    TABLE_COMPILED_FILE
+    WORDCOUNT_DIR
+    TREE_TXT
+)
+
+for var in "${vars[@]}"; do
+    rename.sh $var SCITEX_WRITER_$var -n
+done
+
+    
 
 # Verbosity
 VERBOSE_PDFLATEX="${VERBOSE_PDFLATEX:-false}"
@@ -51,18 +85,4 @@ TABLE_COMPILED_FILE="${TABLE_COMPILED_DIR}/FINAL.tex"
 WORDCOUNT_DIR="./src/wordcounts"
 TREE_TXT="./docs/tree.txt"
 
-# Color
-GRAY="\033[1;30m"
-GREEN="\033[1;32m"
-YELLOW="\033[1;33m"
-RED="\033[1;31m"
-NC="\033[0m"
-
-# Function to echo text in yellow color
-echo_info() { echo -e "${GRAY}INFO: $1${NC}"; }
-echo_success() { echo -e "${GREEN}SUCCESS: $1${NC}"; }
-echo_warn() { echo -e "${YELLOW}Warning: $1${NC}"; }
-echo_error_soft() { echo -e "${RED}Error: $1${NC}"; }
-echo_error() { echo -e "${RED}Error: $1${NC}"; exit 1 ; }
-
-# EOF
+<!-- EOF -->
