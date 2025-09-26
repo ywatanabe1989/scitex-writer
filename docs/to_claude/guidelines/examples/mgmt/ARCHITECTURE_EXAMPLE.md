@@ -618,7 +618,7 @@ config_structure:
         width: 1200
         height: 800
 
-      node_styles:
+      node_latex_styles:
         document:
           color: "#4CAF50"
           shape: "circle"
@@ -634,7 +634,7 @@ config_structure:
           shape: "diamond"
           size: "degree"
 
-      edge_styles:
+      edge_latex_styles:
         references:
           color: "#666666"
           style: "solid"

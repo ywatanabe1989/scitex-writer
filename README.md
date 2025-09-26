@@ -46,14 +46,24 @@ $ ./scripts/installation/download_containers.sh
 paper/
 ├── compile_manuscript              # Main script
 ├── config/                         # YAML configurations
+├── shared/                         # Common files (single source of truth)
+│   ├── bibliography.bib            # References
+│   ├── authors.tex                 # Author list
+│   ├── title.tex                   # Paper title
+│   ├── journal_name.tex            # Target journal
+│   ├── keywords.tex                # Keywords
+│   └── latex_styles/               # LaTeX formatting
 ├── scripts/
 │   ├── installation/               # Setup scripts
 │   └── shell/modules/              # Compilation modules
 ├── 01_manuscript/
-│   ├── src/                        # Edit these files
-│   │   ├── *.tex                   # Sections
-│   │   ├── bibliography.bib        # References
-│   │   └── figures/                # Images & diagrams
+│   ├── src/                        # Document-specific content
+│   │   ├── abstract.tex            # Abstract
+│   │   ├── introduction.tex        # Introduction
+│   │   ├── methods.tex             # Methods
+│   │   ├── results.tex             # Results
+│   │   ├── discussion.tex          # Discussion
+│   │   └── [symlinks to shared/]   # Metadata & styles
 │   ├── manuscript.pdf              # Output
 │   └── diff.pdf                    # Changes tracking
 └── .cache/containers/              # Auto-downloaded
@@ -64,7 +74,7 @@ paper/
 1. **Text**: Edit `.tex` files in `01_manuscript/src/`
 2. **Figures**: Place images in `01_manuscript/src/figures/caption_and_media/`
    - Supports: `.jpg`, `.png`, `.tif`, `.mmd` (Mermaid diagrams)
-3. **References**: Update `01_manuscript/src/bibliography.bib`
+3. **References**: Update `shared/bibliography.bib` (used by all documents)
 
 ## Features
 
@@ -86,6 +96,10 @@ paper/
 ## Configuration
 
 Edit `config/config_manuscript.yaml` for paths and settings.
+
+## For AI Agents
+
+See [AI_AGENT_GUIDE.md](./AI_AGENT_GUIDE.md) for automated manuscript generation from research projects.
 
 ## Contact
 

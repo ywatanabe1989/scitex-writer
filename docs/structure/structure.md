@@ -21,7 +21,7 @@ The SciTex project is organized into several main components:
 The manuscript component is the core of the project and contains:
 
 - **main.tex** - The primary LaTeX file that combines all sections
-- **src/** - Contains all the content sections, figures, tables, and styles
+- **src/** - Contains all the content sections, figures, tables, and latex_styles
   - **LaTeX files** - Main content files
     - introduction.tex - Introduction section
     - methods.tex - Methods section
@@ -36,7 +36,7 @@ The manuscript component is the core of the project and contains:
   - **tables/** - Directory for tables
     - src/ - Source CSV and caption files
     - compiled/ - Compiled table files
-  - **styles/** - Contains formatting and styling LaTeX files
+  - **latex_styles/** - Contains formatting and styling LaTeX files
 - **scripts/** - Automation tools
   - Python scripts for AI-assisted tasks
   - Shell scripts for compilation and general automation

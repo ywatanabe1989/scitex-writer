@@ -251,7 +251,7 @@ manuscript/src/
 ├── results.tex            # Results
 ├── discussion.tex         # Discussion
 ├── bibliography.bib       # References in BibTeX format
-├── styles/                # Style definitions
+├── latex_styles/                # Style definitions
 │   ├── packages.tex       # Package imports
 │   └── formatting.tex     # Format settings
 ```
