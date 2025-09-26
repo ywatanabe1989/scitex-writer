@@ -78,6 +78,20 @@ else
     echo_success "Mermaid container already exists"
 fi
 
+# Download ImageMagick container (optional but recommended)
+IMAGEMAGICK_SIF="$CONTAINER_DIR/imagemagick_container.sif"
+if [ ! -f "$IMAGEMAGICK_SIF" ]; then
+    echo_info "Downloading ImageMagick container (~200MB)..."
+    $RUNTIME pull "$IMAGEMAGICK_SIF" docker://dpokidov/imagemagick:latest
+    if [ -f "$IMAGEMAGICK_SIF" ]; then
+        echo_success "ImageMagick container downloaded successfully"
+    else
+        echo_warning "Failed to download ImageMagick container (optional)"
+    fi
+else
+    echo_success "ImageMagick container already exists"
+fi
+
 # Create puppeteer config for Mermaid
 PUPPETEER_CONFIG="$PROJECT_ROOT/.cache/puppeteer-config.json"
 if [ ! -f "$PUPPETEER_CONFIG" ]; then

@@ -1,18 +1,18 @@
 <!-- ---
-!-- Timestamp: 2025-09-26 22:40:36
+!-- Timestamp: 2025-09-26 22:43:59
 !-- Author: ywatanabe
 !-- File: /ssh:sp:/home/ywatanabe/proj/neurovista/paper/README.md
 !-- --- -->
 
-# SciTeX Manuscript Compilation System
+# SciTeX Writer
 
-Container-based LaTeX compilation for reproducible scientific manuscripts.
+LaTeX compilation system with predefined project structure
 
 ## Quick Start
 
 ```bash
 # Compile manuscript
-$ export STXW_MANUSCRIPT_TYPE=manuscript
+$ export STXW_MANUSCRIPT_TYPE=manuscript # SciTeX Writer
 $ ./compile_manuscript
 
 # Output: 
@@ -26,7 +26,7 @@ $ ./compile_manuscript
 # Check requirements
 $ ./scripts/installation/check_requirements.sh
 
-# Optional: Download containers upfront (~3GB)
+# Optional: Download all containers upfront (~3.2GB total)
 $ ./scripts/installation/download_containers.sh
 ```
 
@@ -35,7 +35,10 @@ $ ./scripts/installation/download_containers.sh
 - yq (YAML parser)
 - bash
 
-Containers are auto-downloaded on first use if not present.
+**Auto-downloaded containers:**
+- TeXLive (~2.3GB) - LaTeX, BibTeX, latexdiff
+- Mermaid (~750MB) - Diagram rendering
+- ImageMagick (~200MB) - Format conversion
 
 ## Project Structure
 
@@ -66,9 +69,10 @@ paper/
 ## Features
 
 - **Container-based**: Consistent compilation across systems
-- **Auto-fallback**: Native → Container → Module system
+- **Auto-fallback**: Native → Container → Module system  
 - **Version tracking**: Automatic versioning with diff generation
 - **Mermaid support**: `.mmd` files auto-convert to images
+- **Image processing**: Automatic format conversion via ImageMagick
 - **HPC-ready**: Project-local containers for compute clusters
 
 ## Troubleshooting

@@ -76,11 +76,25 @@ fi
 
 echo
 echo_info "Optional tools (will use containers if not found):"
-check_command "pdflatex" "LaTeX compiler" "apt-get install texlive-full"
-check_command "bibtex" "BibTeX processor" "apt-get install texlive-bibtex-extra"
-check_command "latexdiff" "LaTeX diff tool" "apt-get install latexdiff"
-check_command "mmdc" "Mermaid diagram tool" "npm install -g @mermaid-js/mermaid-cli"
-check_command "convert" "ImageMagick" "apt-get install imagemagick"
+
+# Track optional tools separately
+check_optional_command() {
+    local cmd=$1
+    local description=$2
+    local install_hint=$3
+    
+    if command -v $cmd &> /dev/null; then
+        echo_success "✓ $description ($cmd found)"
+    else
+        echo_warning "○ $description (will use container)"
+    fi
+}
+
+check_optional_command "pdflatex" "LaTeX compiler" 
+check_optional_command "bibtex" "BibTeX processor"
+check_optional_command "latexdiff" "LaTeX diff tool"
+check_optional_command "mmdc" "Mermaid diagram tool"
+check_optional_command "convert" "ImageMagick"
 
 echo
 echo_info "Module system (for HPC):"

@@ -54,11 +54,22 @@ mmd2png(){
             
             if [ -f "$png_file" ]; then
                 echo_success "    Created: $(basename "$png_file")"
-                # Copy PNG as JPG for LaTeX compatibility (since convert isn't available)
-                # LaTeX can handle PNG files renamed as JPG in many cases
-                cp "$png_file" "$jpg_file" 2>/dev/null
-                if [ -f "$jpg_file" ]; then
-                    echo_success "    Created: $(basename "$jpg_file") (PNG format)"
+                
+                # Convert PNG to JPG using ImageMagick (with container fallback)
+                local convert_cmd=$(get_cmd_convert "$ORIG_DIR")
+                if [ -n "$convert_cmd" ]; then
+                    echo_info "    Converting to JPG..."
+                    eval "$convert_cmd \"$png_file\" \"$jpg_file\"" 2>/dev/null
+                    if [ -f "$jpg_file" ]; then
+                        echo_success "    Created: $(basename "$jpg_file")"
+                    fi
+                else
+                    # Fallback: copy PNG as JPG for LaTeX compatibility
+                    echo_warning "    ImageMagick not available, copying PNG as JPG"
+                    cp "$png_file" "$jpg_file" 2>/dev/null
+                    if [ -f "$jpg_file" ]; then
+                        echo_success "    Created: $(basename "$jpg_file") (PNG format)"
+                    fi
                 fi
             fi
         done 2>&1 | tee -a "$LOG_PATH"
