@@ -1,6 +1,6 @@
 #!/bin/bash
 # -*- coding: utf-8 -*-
-# Timestamp: "2025-09-26 11:09:57 (ywatanabe)"
+# Timestamp: "2025-09-26 16:52:14 (ywatanabe)"
 # File: ./paper/scripts/shell/modules/process_versions.sh
 
 ORIG_DIR="$(pwd)"
@@ -83,7 +83,7 @@ function store_files() {
         rm $hidden_link -f > /dev/null 2>&1
         ln -s $tgt_path_current $hidden_link
     else
-        echo_error "    File not found: $file"
+        echo_warning "    File not found: $file"
     fi
 }
 
