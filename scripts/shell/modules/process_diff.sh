@@ -1,6 +1,6 @@
 #!/bin/bash
 # -*- coding: utf-8 -*-
-# Timestamp: "2025-09-26 11:02:04 (ywatanabe)"
+# Timestamp: "2025-09-26 11:08:00 (ywatanabe)"
 # File: ./paper/scripts/shell/modules/process_diff.sh
 
 ORIG_DIR="$(pwd)"
@@ -100,9 +100,11 @@ cleanup() {
     else
         echo_warn "    $STXW_DIFF_PDF not created."
         # Extract errors from main.log
-        cat $log_file | grep error | grep -v -E "infwarerr|error style messages enabled"
-        echo_warn "    Check $log_file."
-        exit 1
+        if [ -f $log_file ]; then
+            cat $log_file | grep error | grep -v -E "infwarerr|error style messages enabled"
+            echo_warn "    Check $log_file."
+        fi
+        # exit 1
     fi
 }
 

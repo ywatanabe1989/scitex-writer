@@ -1,6 +1,6 @@
 #!/bin/bash
 # -*- coding: utf-8 -*-
-# Timestamp: "2025-09-26 10:35:04 (ywatanabe)"
+# Timestamp: "2025-09-26 11:09:57 (ywatanabe)"
 # File: ./paper/scripts/shell/modules/process_versions.sh
 
 ORIG_DIR="$(pwd)"
@@ -26,17 +26,18 @@ source ./config/load_config.sh $MANUSCRIPT_TYPE
 
 # Logging
 touch "$LOG_PATH" >/dev/null 2>&1
-echo_info "$0..."
+echo
+echo_info "Running $0..."
 
 
 function process_versions() {
-    echo_info "Starting versioning process..."
+    echo_info "    Starting versioning process..."
     mkdir -p $STXW_VERSIONS_DIR
-    echo_info "Created backup directory: $STXW_VERSIONS_DIR"
+    echo_info "    Created backup directory: $STXW_VERSIONS_DIR"
 
     count_version
 
-    echo_info "Processing v$(cat $STXW_VERSION_COUNTER_TXT) files..."
+    echo_info "    Processing v$(cat $STXW_VERSION_COUNTER_TXT) files..."
     store_files $STXW_COMPILED_PDF "pdf"
     store_files $STXW_COMPILED_TEX "tex"
     store_files $STXW_DIFF_PDF "pdf"
@@ -44,18 +45,18 @@ function process_versions() {
 }
 
 function count_version() {
-    echo_info "Updating version counter..."
+    echo_info "    Updating version counter..."
     if [ ! -f $STXW_VERSION_COUNTER_TXT ]; then
         echo "000" > $STXW_VERSION_COUNTER_TXT
-        echo_info "$STXW_VERSION_COUNTER_TXT Not Found"
-        echo_success "Initialized version counter: 000"
+        echo_info "    $STXW_VERSION_COUNTER_TXT Not Found"
+        echo_success "    Initialized version counter: 000"
     fi
 
     if [ -f $STXW_VERSION_COUNTER_TXT ]; then
         version=$(<$STXW_VERSION_COUNTER_TXT)
         next_version=$(printf "%03d" $((10#$version + 1)))
         echo $next_version > $STXW_VERSION_COUNTER_TXT
-        echo_success "Version allocated as: v$next_version"
+        echo_success "    Version allocated as: v$next_version"
     fi
 }
 
@@ -64,7 +65,7 @@ function store_files() {
     local extension=$2
     local filename=$(basename ${file%.*})
 
-    echo_info "Processing file: $file"
+    echo_info "    Processing file: $file"
 
     if [ -f $file ]; then
         version=$(<"$STXW_VERSION_COUNTER_TXT")
@@ -72,17 +73,17 @@ function store_files() {
         local tgt_path_current="./${filename}_v${version}.${extension}"
         local tgt_path_old="${STXW_VERSIONS_DIR}/${filename}_v${version}.${extension}"
 
-        echo_info "  Copying to: $tgt_path_old"
+        echo_info "    Copying to: $tgt_path_old"
         cp $file $tgt_path_old
 
-        echo_info "  Creating current version: $tgt_path_current"
+        echo_info "    Creating current version: $tgt_path_current"
         cp $file $tgt_path_current
 
-        echo_info "  Creating symbolic link: $hidden_link"
+        echo_info "    Creating symbolic link: $hidden_link"
         rm $hidden_link -f > /dev/null 2>&1
         ln -s $tgt_path_current $hidden_link
     else
-        echo_error "  File not found: $file"
+        echo_error "    File not found: $file"
     fi
 }
 

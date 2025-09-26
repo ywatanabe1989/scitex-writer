@@ -1,6 +1,6 @@
 #!/bin/bash
 # -*- coding: utf-8 -*-
-# Timestamp: "2025-09-26 10:49:20 (ywatanabe)"
+# Timestamp: "2025-09-26 11:06:31 (ywatanabe)"
 # File: ./paper/config/load_config.sh
 
 ORIG_DIR="$(pwd)"
@@ -24,9 +24,7 @@ echo_error() { echo -e "${RED}$1${NC}"; }
 THIS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # Manuscript Type
-# CONFIG_FILE="$THIS_DIR/config_manuscript.yaml"
-# export MANUSCRIPT_TYPE="$1"
-MANUSCRIPT_TYPE="${1:-MANUSCRIPT_TYPE}"
+MANUSCRIPT_TYPE="${1:-$MANUSCRIPT_TYPE}"
 CONFIG_FILE="$THIS_DIR/config_${MANUSCRIPT_TYPE}.yaml"
 if [ ! -f "$CONFIG_FILE" ]; then
     echo "Error: Config file $CONFIG_FILE not found"
