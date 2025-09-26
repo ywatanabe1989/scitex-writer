@@ -25,7 +25,6 @@ echo_error() { echo -e "${RED}$1${NC}"; }
 export STXW_MANUSCRIPT_TYPE="manuscript"
 source ./config/load_config.sh "$STXW_MANUSCRIPT_TYPE"
 echo
-# echo_info "Running $0..."
 
 # Log
 touch $LOG_PATH >/dev/null 2>&1
@@ -70,12 +69,11 @@ main() {
     parse_arguments "$@"
 
     # Log command options
-    options_display=" "
-    $do_p2t && options_display="${options_display}--ppt2tif "
-    ! $no_figs && options_display="${options_display}--figs "
-    $do_crop_tif && options_display="${options_display}--crop_tif "
-    $do_quiet && options_display="${options_display}--quiet "
-    # echo_info "    Options: ${options_display:-none}"
+    options_display=""
+    $do_p2t && options_display="${options_display} --ppt2tif"
+    ! $no_figs && options_display="${options_display} --figs"
+    $do_crop_tif && options_display="${options_display} --crop_tif"
+    $do_quiet && options_display="${options_display} --quiet"
     echo_info "Running $0${options_display}..."
 
     # Verbosity
@@ -113,7 +111,7 @@ main() {
     ./scripts/shell/modules/process_diff.sh "$do_quiet"
 
     # Versioning
-    ./scripts/shell/modules/process_versions.sh
+    ./scripts/shell/modules/process_archive.sh
 
     # Cleanup
     ./scripts/shell/modules/cleanup.sh
@@ -122,6 +120,7 @@ main() {
     ./scripts/shell/modules/custom_tree.sh
 
     # Logging
+    echo
     echo_success "See $STXW_GLOBAL_LOG_FILE"
 }
 

@@ -55,14 +55,14 @@ _count_words() {
     local output_file="$2"
     
     # Get texcount command from shared module
-    local texcount_cmd=$(get_cmd_texcount "$(dirname $input_file)")
+    local texcount_cmd=$(get_cmd_texcount "$ORIG_DIR")
     
     if [ -z "$texcount_cmd" ]; then
         echo_error "    texcount not found"
         return 1
     fi
 
-    $texcount_cmd "$input_file" -inc -1 -sum > "$output_file"
+    eval "$texcount_cmd \"$input_file\" -inc -1 -sum 2> >(grep -v 'gocryptfs not found' >&2)" > "$output_file"
 }
 
 count_tables() {
@@ -75,7 +75,7 @@ count_figures() {
 
 count_IMRaD() {
     for section in abstract introduction methods results discussion; do
-        local section_tex="./src/$section.tex"
+        local section_tex="./01_manuscript/contents/$section.tex"
         if [ -e "$section_tex" ]; then
             _count_words "$section_tex" "$STXW_WORDCOUNT_DIR/${section}_count.txt"
         else
@@ -85,11 +85,25 @@ count_IMRaD() {
     cat $STXW_WORDCOUNT_DIR/{introduction,methods,results,discussion}_count.txt | awk '{s+=$1} END {print s}' > $STXW_WORDCOUNT_DIR/imrd_count.txt
 }
 
+display_counts() {
+    local fig_count=$(cat "$STXW_WORDCOUNT_DIR/figure_count.txt" 2>/dev/null || echo 0)
+    local tab_count=$(cat "$STXW_WORDCOUNT_DIR/table_count.txt" 2>/dev/null || echo 0)
+    local abs_count=$(cat "$STXW_WORDCOUNT_DIR/abstract_count.txt" 2>/dev/null || echo 0)
+    local imrd_count=$(cat "$STXW_WORDCOUNT_DIR/imrd_count.txt" 2>/dev/null || echo 0)
+    
+    echo_success "    Word counts updated:"
+    echo_success "      Figures: $fig_count"
+    echo_success "      Tables: $tab_count"
+    echo_success "      Abstract: $abs_count words"
+    echo_success "      Main text (IMRD): $imrd_count words"
+}
+
 main() {
     init
     count_tables
     count_figures
     count_IMRaD
+    display_counts
 }
 
 main

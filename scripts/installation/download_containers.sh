@@ -1,11 +1,12 @@
 #!/bin/bash
 # -*- coding: utf-8 -*-
-# Timestamp: "2025-09-26 22:45:00 (ywatanabe)"
+# Timestamp: "2025-09-26 23:29:05 (ywatanabe)"
 # File: ./paper/scripts/installation/download_containers.sh
 
 ORIG_DIR="$(pwd)"
 THIS_DIR="$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)"
-PROJECT_ROOT="$(cd $THIS_DIR/../../ && pwd)"
+LOG_PATH="$THIS_DIR/.$(basename $0).log"
+echo > "$LOG_PATH"
 
 BLACK='\033[0;30m'
 LIGHT_GRAY='\033[0;37m'
@@ -18,8 +19,10 @@ echo_info() { echo -e "${LIGHT_GRAY}$1${NC}"; }
 echo_success() { echo -e "${GREEN}$1${NC}"; }
 echo_warning() { echo -e "${YELLOW}$1${NC}"; }
 echo_error() { echo -e "${RED}$1${NC}"; }
-
 # ---------------------------------------
+
+PROJECT_ROOT="$(cd $THIS_DIR/../../ && pwd)"
+
 echo
 echo_info "Downloading containers for SciTeX compilation system..."
 
@@ -49,7 +52,7 @@ CONTAINER_DIR="$PROJECT_ROOT/.cache/containers"
 mkdir -p "$CONTAINER_DIR"
 
 # Download TeXLive container
-TEXLIVE_SIF="$CONTAINER_DIR/texlive.sif"
+TEXLIVE_SIF="$CONTAINER_DIR/texlive_container.sif"
 if [ ! -f "$TEXLIVE_SIF" ]; then
     echo_info "Downloading TeXLive container (~2.3GB)..."
     $RUNTIME pull "$TEXLIVE_SIF" docker://texlive/texlive:latest

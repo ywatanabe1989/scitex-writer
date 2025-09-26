@@ -4,14 +4,14 @@
 !-- File: /home/ywatanabe/proj/SciTex/docs/INSTRUCTIONS_TO_CLAUDE_CODE/CUSTOM_PYTHON_TESTS_STRUCTURE.md
 !-- --- -->
 
-# Python Custom Test Structure (src/tests Mirror Rule)
+# Python Custom Test Structure (contents/tests Mirror Rule)
 
 #### ALL SOURCE CODE MUST HAVE THE CORRESPONDING TEST CODE
     - WE DO NEVER ALLOW ANY SOURCE CODE WITHOUT TEST IMPLEMENTED
     - TEST-DRIVEN DEVELOPMENT IS A GOOD STRUTEGY FOR AGENTIC DEVELOPMENT
 
 #### Project Structure
-  - `./src`
+  - `./contents`
     - Should include a pip-installable package
 
   - `./scripts` 
@@ -20,10 +20,10 @@
 
   - `./tests`
     - Should include all test codes
-    - Must mirror the src/ directory hierarchy exactly
-      - For every src/xxx/path/module.py, put tests in tests/xxx/path/test_module.py.
+    - Must mirror the contents/ directory hierarchy exactly
+      - For every contents/xxx/path/module.py, put tests in tests/xxx/path/test_module.py.
       - Subdirectories and nesting must be preserved.
-      - Every source file in src/ gets a corresponding test_*.py file in tests/.
+      - Every source file in contents/ gets a corresponding test_*.py file in tests/.
     - Custom/integration/CLI/non-mirrored tests go in tests/custom/, never in tests/xxx/....
     - Test file should be named as `test_<source-file-name>.py`
 
@@ -51,7 +51,7 @@ if __name__ == "__main__":
 #### Tooling and Updates
 - Use this to maintain test file structure, code stubs, and synchronization of code
   - `./tests/sync_tests_with_source.sh`
-  - This script guarantees that `./tests/` always matches the structure of `./src/`.
+  - This script guarantees that `./tests/` always matches the structure of `./contents/`.
   - Unmatched or obsolete test files will be moved to .old-TIMESTAMP/, not deleted.
   - Test code themselves and mainguard for pytest are preserved; just the source code is updated
 

@@ -1,6 +1,6 @@
 #!/bin/bash
 # -*- coding: utf-8 -*-
-# Timestamp: "2025-09-26 10:53:49 (ywatanabe)"
+# Timestamp: "2025-09-27 00:15:04 (ywatanabe)"
 # File: ./paper/scripts/shell/modules/pptx2tif_all.sh
 
 ORIG_DIR="$(pwd)"
@@ -27,7 +27,7 @@ source ./config/load_config.sh $STXW_MANUSCRIPT_TYPE
 # Logging
 touch "$LOG_PATH" >/dev/null 2>&1
 echo
-echo "Running $0..."
+echo_info "Running $0..."
 
 # PowerPoint to TIF
 total=$(ls "$STXW_FIGURE_CAPTION_MEDIA_DIR"/Figure_ID_*.pptx | wc -l)
@@ -35,7 +35,5 @@ ls "$STXW_FIGURE_CAPTION_MEDIA_DIR"/Figure_ID_*.pptx | \
 parallel --eta --progress --joblog progress.log \
     './scripts/shell/modules/pptx2tif_single.sh -i "$(realpath {})" -o "$(realpath {.}.tif)"; \
     echo "Processed: {#}/$total"'
-
-## EOF
 
 # EOF

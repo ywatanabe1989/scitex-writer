@@ -18,7 +18,7 @@ Please create and keep your ID by running this at startup:
 03. Understand specification intent behind failing tests
 04. Understand the usage of `Makefile`
 05. Develop source code to meet functional and architectual requirements
-05. Do not forget to add +x permission to scripts. (e.g., `find ./src -type f -name "*.py" -exec chmod +x {} \;`)
+05. Do not forget to add +x permission to scripts. (e.g., `find ./contents -type f -name "*.py" -exec chmod +x {} \;`)
 06. Ensure code quality before commits
 07. Use appropriate git strategies for clean history
 08. Update documentation for API changes
@@ -31,7 +31,7 @@ Please create and keep your ID by running this at startup:
 - Writing Test Code -> Delegate to TestDeveloperAgent
 
 ## Files to Edit
-- `./src/package-name`
+- `./contents/package-name`
 - `./mgmt/BULLETIN_BOARD_v??.md`
 
 ## Rules to Follow

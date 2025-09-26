@@ -9,7 +9,7 @@ A powerful, reusable testing framework that brings modern CI/CD practices to the
 - **GitHub Actions**: Ready-to-use CI/CD templates
 - **Zero Configuration**: Works out-of-box for standard project structures
 - **Local Development**: Fast feedback loops with watch mode
-- **Coverage Reports**: Track test coverage across versions
+- **Coverage Reports**: Track test coverage across archive
 - **Dependency Analysis**: Automatically detect package dependencies
 
 ## 📦 Quick Start
@@ -43,14 +43,14 @@ This creates:
 # Test current Emacs version
 elisp-ci test
 
-# Test all supported versions
-elisp-ci test --all-versions
+# Test all supported archive
+elisp-ci test --all-archive
 
 # Test specific version
 elisp-ci test --version 29.1
 
 # Test in Docker (reproducible)
-elisp-ci docker-test --all-versions
+elisp-ci docker-test --all-archive
 ```
 
 ## 🔧 Configuration
@@ -62,7 +62,7 @@ project:
   name: "my-package"
   entry: "my-package.el"
   
-emacs_versions:
+emacs_archive:
   - "27.1"
   - "28.2" 
   - "29.1"
@@ -113,7 +113,7 @@ github_actions:
 
 - `elisp-ci test --watch` - Watch mode for development
 - `elisp-ci test --coverage` - Generate coverage report
-- `elisp-ci benchmark` - Performance testing across versions
+- `elisp-ci benchmark` - Performance testing across archive
 
 ## 🎯 Project Structure
 
@@ -122,7 +122,7 @@ Elisp-CI works with standard Emacs Lisp project structures:
 ```
 your-project/
 ├── my-package.el              # Main entry point
-├── src/                       # Source files (optional)
+├── contents/                       # Source files (optional)
 │   ├── my-package-core.el
 │   └── my-package-utils.el
 ├── tests/                     # Test files
@@ -175,8 +175,8 @@ your-project/
 # Build test environments
 elisp-ci docker-build
 
-# Test all versions in Docker
-elisp-ci docker-test --all-versions
+# Test all archive in Docker
+elisp-ci docker-test --all-archive
 
 # Test specific version
 elisp-ci docker-test --version 29.1
@@ -265,7 +265,7 @@ elisp-ci analyze
 ```bash
 cd emacs-tab-manager/
 elisp-ci init
-elisp-ci test --all-versions
+elisp-ci test --all-archive
 
 # Results in reliable testing across:
 # ✓ Emacs 27.1  ✓ Emacs 28.2  ✓ Emacs 29.1
@@ -305,7 +305,7 @@ elisp-ci test --watch --pattern "test-specific.el"
 ### Performance Benchmarking
 
 ```bash
-# Compare performance across Emacs versions
+# Compare performance across Emacs archive
 elisp-ci benchmark
 
 # Results:
@@ -328,7 +328,7 @@ test:
 ## 🌟 Benefits for Emacs Ecosystem
 
 ### For Package Maintainers
-- **Quality Assurance**: Consistent testing across Emacs versions
+- **Quality Assurance**: Consistent testing across Emacs archive
 - **CI/CD Standardization**: Familiar workflow across projects
 - **Reduced Setup Time**: Zero-config testing for standard projects
 - **Community Standards**: Shared best practices
@@ -386,7 +386,7 @@ Elisp-CI is designed to serve the entire Emacs community. Contributions welcome!
 # Test elisp-ci itself
 cd ~/.claude/to_claude/bin/elisp-ci/
 elisp-ci init
-elisp-ci test --all-versions
+elisp-ci test --all-archive
 
 # Submit improvements
 git checkout -b feature/enhancement

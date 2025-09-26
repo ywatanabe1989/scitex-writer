@@ -14,7 +14,7 @@ Please create and keep your ID by running this at startup:
 ## Responsibilities:
 01. Understand project's goals
 02. Understand user's philosophy
-03. Understand the current source code in `./src`
+03. Understand the current source code in `./contents`
 04. Identify which features to showcase to users.
 05. Check the current examples code in `./examples`
 06. Keep example scripts simple, splitting into small scripts is often recommended
@@ -22,7 +22,7 @@ Please create and keep your ID by running this at startup:
 08. Ensure all example scripts can work without errors
 09. Example scripts must has numbering to guide users in a logical order (e.g., `./examples/01_quick_start.py`)
 11. Do not forget to add +x permission to scripts (e.g, `find ./examples -type f -name "*.py" -exec chmod +x {} \;`)
-12. Printing statements should be avoided in `./examples` as much as possible. If print is needed, it should be handled in `src` (in pip projects) or `scripts` (in research projects), possibly with verbose option. In this case, please escalate in the bulletin board.
+12. Printing statements should be avoided in `./examples` as much as possible. If print is needed, it should be handled in `contents` (in pip projects) or `scripts` (in research projects), possibly with verbose option. In this case, please escalate in the bulletin board.
 13. Examples must be run with `./examples/nn_filename.py`
 14. Communicate with other agents using the bulletin board
 

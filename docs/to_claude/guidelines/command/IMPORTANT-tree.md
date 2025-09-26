@@ -32,7 +32,7 @@ The `tree` command displays the directory structure in a visual tree format, mak
 | Use Case | Command | Description |
 |----------|---------|-------------|
 | Project Overview | `tree -L 2` | View top-level directories and immediate subdirectories |
-| Code Navigation | `tree -L 3 src` | View source code structure to 3 levels deep |
+| Code Navigation | `tree -L 3 contents` | View source code structure to 3 levels deep |
 | Full Directory Analysis | `tree -a -h --du` | Show all files with human-readable sizes and calculate directory sizes |
 | Exclude Build Artifacts | `tree -I "node_modules\|build\|dist\|__pycache__"` | Show only relevant source files |
 | Find Large Directories | `tree -d -h --du \| grep -B 3 -A 1 "[GM]"` | Identify directories with large content |
@@ -46,7 +46,7 @@ The `tree` command displays the directory structure in a visual tree format, mak
 ├── docs
 │   ├── api
 │   └── user-guide
-├── src
+├── contents
 │   ├── components
 │   ├── services
 │   └── utils
@@ -59,7 +59,7 @@ The `tree` command displays the directory structure in a visual tree format, mak
 
 ### Detailed Source Analysis
 ```
-src
+contents
 ├── components
 │   ├── Button
 │   │   ├── Button.jsx

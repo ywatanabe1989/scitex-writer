@@ -19,10 +19,10 @@ Systematic approach for refactoring duplicate functions, aliases, and inconsiste
 ### 1.1 Identify Duplicates
 ```bash
 # Find duplicate function definitions
-grep -r "^(defun\|^def\|^function\|^const.*=.*function" --include="*.el" --include="*.py" --include="*.js" src/ | sort | uniq -d
+grep -r "^(defun\|^def\|^function\|^const.*=.*function" --include="*.el" --include="*.py" --include="*.js" contents/ | sort | uniq -d
 
 # Find aliases (language-specific)
-grep -r "defalias\|alias\|=.*function" --include="*.el" --include="*.py" --include="*.js" src/
+grep -r "defalias\|alias\|=.*function" --include="*.el" --include="*.py" --include="*.js" contents/
 ```
 
 ### 1.2 Analyze Patterns
@@ -249,7 +249,7 @@ Located in `~/.claude/to_claude/bin/`:
 ### Quick Start:
 ```bash
 # 1. Analyze current state
-~/.claude/to_claude/bin/analyze-duplicates.sh ./src elisp
+~/.claude/to_claude/bin/analyze-duplicates.sh ./contents elisp
 
 # 2. Create rename mappings file
 cat > rename-mappings.txt << EOF
@@ -258,19 +258,19 @@ another-old:another-new:Different reason
 EOF
 
 # 3. Perform renaming (dry run first)
-~/.claude/to_claude/bin/refactor-rename.sh ./src rename-mappings.txt
+~/.claude/to_claude/bin/refactor-rename.sh ./contents rename-mappings.txt
 
 # 4. Apply changes
-DRY_RUN=false ~/.claude/to_claude/bin/refactor-rename.sh ./src rename-mappings.txt
+DRY_RUN=false ~/.claude/to_claude/bin/refactor-rename.sh ./contents rename-mappings.txt
 
 # 5. Create cleanup plan
 cat > cleanup-plan.txt << EOF
-remove-function:src/module.el:duplicate-func:Keep version in main module
-remove-alias:src/api.el:old-alias:Replaced with new name
+remove-function:contents/module.el:duplicate-func:Keep version in main module
+remove-alias:contents/api.el:old-alias:Replaced with new name
 EOF
 
 # 6. Clean up duplicates
-DRY_RUN=false ~/.claude/to_claude/bin/cleanup-duplicates.sh ./src cleanup-plan.txt
+DRY_RUN=false ~/.claude/to_claude/bin/cleanup-duplicates.sh ./contents cleanup-plan.txt
 ```
 
 ## Language-Specific Considerations

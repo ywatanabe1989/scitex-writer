@@ -25,7 +25,7 @@ This approach uses a single pre-assembled image containing all panels with embed
 1. Use your preferred graphics software (PowerPoint, Illustrator, Python, etc.) to create a figure with multiple panels
 2. Add panel labels (A, B, C, etc.) directly in the image, typically in the upper-left corner of each panel
 3. Export as a high-resolution PNG file (300 DPI recommended)
-4. Place in `manuscript/src/figures/src/`
+4. Place in `manuscript/contents/figures/contents/`
 5. Create a caption file explaining each panel
 
 **Advantages:**
@@ -36,8 +36,8 @@ This approach uses a single pre-assembled image containing all panels with embed
 
 **Example Files:**
 ```
-manuscript/src/figures/src/Figure_ID_01_multipanel.png   # Image with all panels
-manuscript/src/figures/src/Figure_ID_01_multipanel.tex   # Caption file
+manuscript/contents/figures/contents/Figure_ID_01_multipanel.png   # Image with all panels
+manuscript/contents/figures/contents/Figure_ID_01_multipanel.tex   # Caption file
 ```
 
 **Recommended Tools:**
@@ -57,13 +57,13 @@ For simple grid layouts, use the subfigure environment to combine individual pan
 \begin{figure*}[htbp]
   \centering
   \begin{subfigure}[b]{0.48\textwidth}
-    \includegraphics[width=\textwidth]{./src/figures/src/panel_a_data.png}
+    \includegraphics[width=\textwidth]{./contents/figures/contents/panel_a_data.png}
     \caption{}
     \label{fig:02A}
   \end{subfigure}
   \hfill
   \begin{subfigure}[b]{0.48\textwidth}
-    \includegraphics[width=\textwidth]{./src/figures/src/panel_b_model.png}
+    \includegraphics[width=\textwidth]{./contents/figures/contents/panel_b_model.png}
     \caption{}
     \label{fig:02B}
   \end{subfigure}
@@ -71,13 +71,13 @@ For simple grid layouts, use the subfigure environment to combine individual pan
   \vspace{1em}
   
   \begin{subfigure}[b]{0.48\textwidth}
-    \includegraphics[width=\textwidth]{./src/figures/src/panel_c_analysis.png}
+    \includegraphics[width=\textwidth]{./contents/figures/contents/panel_c_analysis.png}
     \caption{}
     \label{fig:02C}
   \end{subfigure}
   \hfill
   \begin{subfigure}[b]{0.48\textwidth}
-    \includegraphics[width=\textwidth]{./src/figures/src/panel_d_results.png}
+    \includegraphics[width=\textwidth]{./contents/figures/contents/panel_d_results.png}
     \caption{}
     \label{fig:02D}
   \end{subfigure}
@@ -330,7 +330,7 @@ This technique allows for more precise control over panel layout but requires cu
 5. **Figure Not Appearing**
    - **Problem**: The multi-panel figure doesn't appear in the compiled PDF
    - **Solution**: Check the file paths in your LaTeX code, ensure files exist
-   - **Debugging**: Examine the log files in `manuscript/src/figures/compiled/debug/`
+   - **Debugging**: Examine the log files in `manuscript/contents/figures/compiled/debug/`
 
 6. **Missing or Duplicate Labels**
    - **Problem**: Panel labels are missing or duplicated in the compiled figure

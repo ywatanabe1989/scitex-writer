@@ -41,7 +41,7 @@ Follow these guidelines when preparing the codebase for production. The goal is 
 3. Create a cleanup checklist
 
 ## Clean Project Directories
-1. Source code: `./src`, `./scripts`
+1. Source code: `./contents`, `./scripts`
 2. Documentation: `./docs/`
 3. Examples: `./examples`
 4. Project management: `./project_management`

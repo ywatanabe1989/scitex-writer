@@ -1,6 +1,6 @@
 #!/bin/bash
 # -*- coding: utf-8 -*-
-# Timestamp: "2025-09-26 21:18:56 (ywatanabe)"
+# Timestamp: "2025-09-27 00:15:55 (ywatanabe)"
 # File: ./paper/scripts/shell/modules/process_diff.sh
 
 ORIG_DIR="$(pwd)"
@@ -50,7 +50,7 @@ function determine_previous() {
 function take_diff_tex() {
     local previous=$(determine_previous)
 
-    echo_info "    Creating diff between versions..."
+    echo_info "    Creating diff between archive..."
 
     if [ ! -f "$STXW_COMPILED_TEX" ]; then
         echo_warning "    $STXW_COMPILED_TEX not found."
@@ -59,20 +59,20 @@ function take_diff_tex() {
 
     # Get latexdiff command from shared module
     local latexdiff_cmd=$(get_cmd_latexdiff "$ORIG_DIR")
-    
+
     if [ -z "$latexdiff_cmd" ]; then
         echo_error "    latexdiff not found (native, module, or container)"
         return 1
     fi
-    
-    echo_info "    Using latexdiff command: $latexdiff_cmd"
+
+    # echo_info "    Using latexdiff command: $latexdiff_cmd"
 
     $latexdiff_cmd \
         --encoding=utf8 \
         --type=CULINECHBAR \
         --disable-citation-markup \
         --append-safecmd="cite,citep,citet" \
-        "$previous" "$STXW_COMPILED_TEX" > "$STXW_DIFF_TEX"
+        "$previous" "$STXW_COMPILED_TEX" 2> >(grep -v 'gocryptfs not found' >&2) > "$STXW_DIFF_TEX"
 
     if [ -f "$STXW_DIFF_TEX" ] && [ -s "$STXW_DIFF_TEX" ]; then
         echo_success "    $STXW_DIFF_TEX created"
@@ -98,8 +98,8 @@ compile_diff_tex() {
         echo_error "    No LaTeX installation found (native, module, or container)"
         return 1
     fi
-    
-    echo_info "    Using pdflatex command: $pdf_cmd"
+
+    # echo_info "    Using pdflatex command: $pdf_cmd"
 
     # Add compilation options
     pdf_cmd="$pdf_cmd -output-directory=$(dirname $tex_file) -shell-escape -interaction=nonstopmode -file-line-error"

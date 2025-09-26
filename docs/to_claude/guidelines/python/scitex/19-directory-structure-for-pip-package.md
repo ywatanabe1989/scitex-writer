@@ -11,22 +11,22 @@
 
 ```
 <project-root>/
-├── src/                      # Source code directory
+├── contents/                      # Source code directory
 │   └── <package_name>/       # Your actual package
 │       ├── __init__.py
 │       ├── module1.py
 │       ├── module2.py
 │       └── subpackage/
 │           └── __init__.py
-├── tests/                    # Test files (mirrors src/ structure)
+├── tests/                    # Test files (mirrors contents/ structure)
 │   ├── conftest.py          # pytest configuration
-│   ├── sync_tests_with_source.sh  # Auto-sync test structure with src/
-│   └── <package_name>/      # Mirrors src/<package_name>/
+│   ├── sync_tests_with_source.sh  # Auto-sync test structure with contents/
+│   └── <package_name>/      # Mirrors contents/<package_name>/
 │       ├── test_module1.py
 │       ├── test_module2.py
 │       └── subpackage/
 │           └── test_submodule.py
-├── examples/                 # Example scripts (can mirror src/ for complex packages)
+├── examples/                 # Example scripts (can mirror contents/ for complex packages)
 │   ├── 01_filename.py
 │   ├── 02_filename.py
 │   └── data/                 # Example inputs (gitignored)
@@ -45,11 +45,11 @@
 
 ### Test Directory Mirroring
 
-The `tests/` directory **MUST mirror the structure of `src/`** for consistency:
+The `tests/` directory **MUST mirror the structure of `contents/`** for consistency:
 
 ```bash
 # Example mirroring:
-src/
+contents/
 └── gpac/
     ├── __init__.py
     ├── _PAC.py
@@ -74,7 +74,7 @@ tests/
 ### Auto-sync Script: `sync_tests_with_source.sh`
 
 This script automatically:
-1. Creates test directory structure mirroring `src/`
+1. Creates test directory structure mirroring `contents/`
 2. Creates test files for all source modules
 3. Preserves existing test code when updating
 4. Adds source code as comments for reference
@@ -120,8 +120,8 @@ Key features:
 ### Key Points
 
 1. **Use `pyproject.toml` ONLY** - Don't create `setup.py` unless absolutely necessary
-2. **Source in `src/`** - Prevents accidental imports during development
-3. **Tests MUST mirror `src/`** - Use `sync_tests_with_source.sh` to maintain
+2. **Source in `contents/`** - Prevents accidental imports during development
+3. **Tests MUST mirror `contents/`** - Use `sync_tests_with_source.sh` to maintain
 4. **Examples use scitex conventions**:
    ```python
    import scitex as stx
@@ -157,12 +157,12 @@ Homepage = "https://github.com/username/repo"
 Repository = "https://github.com/username/repo"
 
 [tool.setuptools]
-package-dir = {"" = "src"}
+package-dir = {"" = "contents"}
 packages = ["your_package"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-pythonpath = ["src"]
+pythonpath = ["contents"]
 ```
 
 ### Temporal Working Space: `.dev/`
@@ -180,15 +180,15 @@ pythonpath = ["src"]
 ### Important Rules
 1. **NEVER create files/directories in project root** - Use predefined directories
 2. **NEVER create setup.py** - Use pyproject.toml only
-3. **ALWAYS use src/ layout** - Better testing and import isolation
+3. **ALWAYS use contents/ layout** - Better testing and import isolation
 4. **ALWAYS follow scitex conventions** in examples
-5. **ALWAYS mirror src/ structure in tests/** - Use sync_tests_with_source.sh
+5. **ALWAYS mirror contents/ structure in tests/** - Use sync_tests_with_source.sh
 6. **ALWAYS use test_ prefix** for test files (e.g., `test_module.py`)
 
 ### Example Directory After Following Guidelines
 ```
 my-package/
-├── src/
+├── contents/
 │   └── my_package/
 │       ├── __init__.py
 │       ├── core.py

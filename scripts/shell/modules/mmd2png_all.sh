@@ -1,6 +1,6 @@
 #!/bin/bash
 # -*- coding: utf-8 -*-
-# Timestamp: "2025-09-26 10:53:33 (ywatanabe)"
+# Timestamp: "2025-09-27 00:08:56 (ywatanabe)"
 # File: ./paper/scripts/shell/modules/mmd2png_all.sh
 
 ORIG_DIR="$(pwd)"
@@ -27,6 +27,9 @@ source ./config/load_config.sh $STXW_MANUSCRIPT_TYPE
 # Source the shared commands module for mmdc
 source "$(dirname ${BASH_SOURCE[0]})/command_switching.src"
 
+# Override echo_xxx functions
+source ./config/load_config.sh $STXW_MANUSCRIPT_TYPE
+
 # Logging
 touch "$LOG_PATH" >/dev/null 2>&1
 echo
@@ -35,26 +38,26 @@ echo "Running $0..."
 mmd2png(){
     # Get mmdc command
     local mmdc_cmd=$(get_cmd_mmdc "$ORIG_DIR")
-    
+
     if [ -z "$mmdc_cmd" ]; then
-        echo_warning "    mmdc not found (native or container)"
+        echo_warn "    mmdc not found (native or container)"
         return 1
     fi
-    
-    echo_info "    Using mmdc command: $mmdc_cmd"
-    
+
+    # echo_info "    Using mmdc command: $mmdc_cmd"
+
     n_mmd_files="$(ls $STXW_FIGURE_CAPTION_MEDIA_DIR/Figure_ID_*.mmd 2>/dev/null | wc -l)"
     if [[ $n_mmd_files -gt 0 ]]; then
         for mmd_file in "$STXW_FIGURE_CAPTION_MEDIA_DIR"/Figure_ID_*.mmd; do
             png_file="${mmd_file%.mmd}.png"
             jpg_file="$STXW_FIGURE_JPG_DIR/$(basename "${mmd_file%.mmd}.jpg")"
-            
+
             echo_info "    Converting $(basename "$mmd_file") to PNG..."
-            eval "$mmdc_cmd -i \"$mmd_file\" -o \"$png_file\""
-            
+            eval "$mmdc_cmd -i \"$mmd_file\" -o \"$png_file\"" > /dev/null 2>&1
+
             if [ -f "$png_file" ]; then
                 echo_success "    Created: $(basename "$png_file")"
-                
+
                 # Convert PNG to JPG using ImageMagick (with container fallback)
                 local convert_cmd=$(get_cmd_convert "$ORIG_DIR")
                 if [ -n "$convert_cmd" ]; then
@@ -65,7 +68,7 @@ mmd2png(){
                     fi
                 else
                     # Fallback: copy PNG as JPG for LaTeX compatibility
-                    echo_warning "    ImageMagick not available, copying PNG as JPG"
+                    echo_warn "    ImageMagick not available, copying PNG as JPG"
                     cp "$png_file" "$jpg_file" 2>/dev/null
                     if [ -f "$jpg_file" ]; then
                         echo_success "    Created: $(basename "$jpg_file") (PNG format)"

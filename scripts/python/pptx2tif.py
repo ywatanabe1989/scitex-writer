@@ -146,10 +146,10 @@ def convert_pptx_to_tif_libreoffice(
                 output_path = os.path.join(output_dir, output_name)
 
                 # Copy file to output directory
-                with open(tif_file, "rb") as src_file, open(
+                with open(tif_file, "rb") as contents_file, open(
                     output_path, "wb"
                 ) as dst_file:
-                    dst_file.write(src_file.read())
+                    dst_file.write(contents_file.read())
 
                 output_files.append(output_path)
 

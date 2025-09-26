@@ -1,6 +1,6 @@
 #!/bin/bash
 # -*- coding: utf-8 -*-
-# Timestamp: "2025-09-26 20:37:46 (ywatanabe)"
+# Timestamp: "2025-09-27 00:05:04 (ywatanabe)"
 # File: ./paper/scripts/shell/modules/check_dependancy_commands.sh
 
 ORIG_DIR="$(pwd)"
@@ -26,6 +26,9 @@ source ./config/load_config.sh $STXW_MANUSCRIPT_TYPE
 
 # Source the shared LaTeX commands module
 source "$(dirname ${BASH_SOURCE[0]})/command_switching.src"
+
+# To override echo_xxx functions
+source ./config/load_config.sh $STXW_MANUSCRIPT_TYPE
 
 # Logging
 touch "$LOG_PATH" >/dev/null 2>&1

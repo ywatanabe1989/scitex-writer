@@ -70,17 +70,17 @@
     Each source file maps to the corresponding test file
     
     **Mapping step**:
-    Step 1. src -> tests
+    Step 1. contents -> tests
     Step 2. filename.py -> test_filename.py
     
     Example 1:
-    src:   `/path/to/src/package/domain/filename.py`
+    contents:   `/path/to/contents/package/domain/filename.py`
     tests: `/path/to/tests/package/domain/test_filename.py`
     
     Note that when source file starts from underscore, use **double underscore** (test_ + _filename.py)
     
     Example 2:
-    src:   `/path/to/src/package/domain/_filename.py`
+    contents:   `/path/to/contents/package/domain/_filename.py`
     tests: `/path/to/tests/package/domain/test__filename.py`
 
 ## 4. Split Type Definitions

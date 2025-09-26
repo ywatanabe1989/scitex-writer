@@ -10,7 +10,7 @@
 **ANY PYTHON SCRIPTS MUST BE WRITTEN IN THE SCITEX FORMAT EXPLAINED BELOW.**
 THE EXCEPTIONS ARE:
     - Pacakges authored by others
-    - Source (`./src` and `./tests`) of pip packages to reduce dependency
+    - Source (`./contents` and `./tests`) of pip packages to reduce dependency
 IN OTHER WORDS, IN ANY PYTHON PROJECT, SCITEX MUST BE USED AT LEAST IN:
 - `./scripts`
 - `./examples`
@@ -23,7 +23,7 @@ When SCITEX does not work, create a bug-report under `~/proj/scitex_repo/project
     - A Python utility package
     - Designed to standardize scientific analyses and applications
     - Maintained by the user and installed via editable mode.
-    - Located in `~/proj/scitex_repo/src/scitex`
+    - Located in `~/proj/scitex_repo/contents/scitex`
     - Remote repository: `git@github.com:ywatanabe1989:SciTeX-Code`
     - Installed via pip in development mode: `pip install -e ~/proj/scitex_repo`
 - `scitex` MUST BE:

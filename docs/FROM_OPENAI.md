@@ -10,7 +10,7 @@ Findings
 Your figure images and captions exist and are processed.
 The compilation log and script output show:
 Figures are processed, .jpg and .tex files are generated in the correct places.
-The correct number of Figure_ID_*.tex files appears in src/figures/compiled/.
+The correct number of Figure_ID_*.tex files appears in contents/figures/compiled/.
 The figure processing scripts run many times (possibly from repeated calls).
 The gather_tex_files() function in process_figures.sh is responsible for concatenating the compiled figures into .All_Figures.tex.
 Compilation succeeds, but the produced PDF is missing captions/legends or has broken formatting.
@@ -50,7 +50,7 @@ Each compiled figure file (in compiled/) should look like this:
 \begin{figure*}[p]
     \pdfbookmark[2]{ID 01}{figure_id_01}
     \centering
-    \includegraphics[width=0.95\textwidth]{./src/figures/src/jpg/Figure_ID_01_example.jpg}
+    \includegraphics[width=0.95\textwidth]{./contents/figures/contents/jpg/Figure_ID_01_example.jpg}
     \caption{\textbf{
     Example figure showing the SciTex system workflow
     }
@@ -111,9 +111,9 @@ EOF
 }
 4. Best Practices and Sanity Checks
 After you compile, spot-check the generated files:
-src/figures/compiled/Figure_ID_0X_example.tex — does it consist of exactly the correct LaTeX block above?
-src/figures/.tex/.All_Figures.tex should \input{} each compiled figure file, one per line.
-The main.tex (or the main/manuscript.tex) should \input{src/figures/.tex/.All_Figures.tex} in its "Figures" section.
+contents/figures/compiled/Figure_ID_0X_example.tex — does it consist of exactly the correct LaTeX block above?
+contents/figures/.tex/.All_Figures.tex should \input{} each compiled figure file, one per line.
+The main.tex (or the main/manuscript.tex) should \input{contents/figures/.tex/.All_Figures.tex} in its "Figures" section.
 After running, check a few figure captions in the PDF to confirm it's working as desired.
 Test with multi-line captions, special characters, etc.
 If you have TikZ or vector figures, handle them in separate branches.

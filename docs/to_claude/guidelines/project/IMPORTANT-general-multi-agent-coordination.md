@@ -41,7 +41,7 @@ project_root/
 │   ├── AGENT_BULLETIN_BOARD.md    # Central coordination
 │   ├── .locks/                     # Lightweight locks (optional)
 │   └── .events/                    # Event notifications (optional)
-├── src/                            # Source code
+├── contents/                            # Source code
 ├── tests/                          # Test files
 ├── docs/                           # Documentation
 └── scripts/                        # Utility scripts
@@ -61,7 +61,7 @@ project_root/
 ## Work Claims
 | Module/File | Agent | Claimed At | ETA |
 |-------------|-------|------------|-----|
-| src/auth.py | core-CLAUDE-abc123 | 10:15 | 11:00 |
+| contents/auth.py | core-CLAUDE-abc123 | 10:15 | 11:00 |
 
 ## Recent Handoffs
 | From | To | Module | Status | Time |
@@ -126,8 +126,8 @@ Notes: <important_info>
 
 ### Strategy 1: Module-Based (Recommended)
 ```
-Agent 1: src/auth/* (authentication)
-Agent 2: src/api/* (API endpoints)
+Agent 1: contents/auth/* (authentication)
+Agent 2: contents/api/* (API endpoints)
 Agent 3: tests/* (all testing)
 Agent 4: docs/* (documentation)
 ```

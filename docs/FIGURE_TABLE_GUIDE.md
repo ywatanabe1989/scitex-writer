@@ -36,7 +36,7 @@ This comprehensive guide explains how to manage figures and tables in the SciTex
 
 1. **Create your figure** in PNG format (recommended 300 DPI)
 2. **Name it properly**: `Figure_ID_XX_description.png` (e.g., `Figure_ID_01_workflow.png`)
-3. **Place it in**: `manuscript/src/figures/src/`
+3. **Place it in**: `manuscript/contents/figures/contents/`
 4. **Create a caption file**: `Figure_ID_XX_description.tex` with the same base name
 5. **Reference it in text**: Use `Figure~\ref{fig:XX}` (e.g., `Figure~\ref{fig:01}`)
 6. **Compile with figures**: Run `./compile --figs` or `./compile -f`
@@ -45,7 +45,7 @@ This comprehensive guide explains how to manage figures and tables in the SciTex
 
 1. **Create your table** in CSV format or directly in LaTeX
 2. **Name it properly**: `Table_ID_XX_description.csv` (e.g., `Table_ID_01_results.csv`)
-3. **Place it in**: `manuscript/src/tables/src/`
+3. **Place it in**: `manuscript/contents/tables/contents/`
 4. **Create a caption file**: `Table_ID_XX_description.tex` with the same base name
 5. **Reference it in text**: Use `Table~\ref{tab:XX}` (e.g., `Table~\ref{tab:01}`)
 6. **Compile**: Run `./compile`
@@ -57,15 +57,15 @@ This comprehensive guide explains how to manage figures and tables in the SciTex
 The figure management system uses the following directory structure:
 
 ```
-manuscript/src/figures/
+manuscript/contents/figures/
 ├── compiled/           # Auto-generated LaTeX files (DO NOT EDIT)
 │   ├── 00_Figures_Header.tex     # Figure section header
 │   ├── Figure_ID_01_workflow.tex # Compiled figure 1
 │   └── Figure_ID_02_methods.tex  # Compiled figure 2
-├── src/                # Source files (PLACE YOUR FILES HERE)
+├── contents/                # Source files (PLACE YOUR FILES HERE)
 │   ├── Figure_ID_XX.png  # Source image files (PNG format)
 │   ├── Figure_ID_XX.tex  # Caption files
-│   └── png/              # Auto-generated processed PNG versions
+│   └── png/              # Auto-generated processed PNG archive
 ├── templates/          # Templates for new figures
 └── .tex/               # Hidden directory for compiled figure files
 ```
@@ -92,7 +92,7 @@ Where:
 
 1. Create a PNG or JPG file with appropriate resolution (300 DPI recommended)
 2. Name it according to the naming convention (e.g., `Figure_ID_01_workflow.png`)
-3. Place it in the `manuscript/src/figures/src/` directory
+3. Place it in the `manuscript/contents/figures/contents/` directory
 
 #### Method 2: From PowerPoint Slides
 
@@ -114,7 +114,7 @@ For high-quality vector graphics created in tools like Inkscape, Illustrator, or
 1. Create your figure in your preferred vector drawing tool
 2. Export as SVG format
 3. Name according to convention (e.g., `Figure_ID_03_flowchart.svg`)
-4. Place in the `manuscript/src/figures/src/` directory
+4. Place in the `manuscript/contents/figures/contents/` directory
 5. Create a caption file with same base name (e.g., `Figure_ID_03_flowchart.tex`)
 6. Use the SVG template from templates directory for better formatting
 
@@ -185,7 +185,7 @@ In the final manuscript, figures are compiled into a dedicated "Figures" section
 \begin{figure*}[ht]
     \pdfbookmark[2]{ID XX}{figure_id_XX}
     \centering
-    \includegraphics[width=1\textwidth]{./src/figures/png/Figure_ID_XX.png}
+    \includegraphics[width=1\textwidth]{./contents/figures/png/Figure_ID_XX.png}
     \caption{\textbf{
     FIGURE TITLE HERE
     }
@@ -230,9 +230,9 @@ Figure~\ref{fig:01}(i)
 ### Table Directory Structure
 
 ```
-manuscript/src/tables/
+manuscript/contents/tables/
 ├── compiled/           # Auto-generated LaTeX files (DO NOT EDIT)
-└── src/                # Source files (PLACE YOUR FILES HERE)
+└── contents/                # Source files (PLACE YOUR FILES HERE)
     ├── Table_ID_XX.csv  # Source data files
     ├── Table_ID_XX.tex  # Caption files
     └── _Table_ID_XX.tex # Template file
@@ -264,7 +264,7 @@ Where:
    ```
 
 2. Name it according to the naming convention (e.g., `Table_ID_01_results.csv`)
-3. Place it in the `manuscript/src/tables/src/` directory
+3. Place it in the `manuscript/contents/tables/contents/` directory
 
 ### Table Captions
 
@@ -339,7 +339,7 @@ The processing is handled by the `process_tables.sh` script.
    - Check that the PNG and TEX files have matching names
    - Verify the PNG file format (8-bit, RGB, or grayscale)
    - Ensure the file is in the correct directory
-   - Examine debug files in `manuscript/src/figures/compiled/debug/`
+   - Examine debug files in `manuscript/contents/figures/compiled/debug/`
 
 2. **Figure Too Large or Small**:
    - Adjust the width parameter in the caption file
@@ -375,9 +375,9 @@ The processing is handled by the `process_tables.sh` script.
 
 ### Example Figure Files
 
-File: `manuscript/src/figures/src/Figure_ID_01_workflow.png` (Image file)
+File: `manuscript/contents/figures/contents/Figure_ID_01_workflow.png` (Image file)
 
-File: `manuscript/src/figures/src/Figure_ID_01_workflow.tex` (Caption file)
+File: `manuscript/contents/figures/contents/Figure_ID_01_workflow.tex` (Caption file)
 ```latex
 \caption{\textbf{
 Workflow diagram for the SciTex system.
@@ -391,21 +391,21 @@ citation management, and LaTeX compilation.
 % width=0.9\textwidth
 ```
 
-Referenced in text (`manuscript/src/introduction.tex`):
+Referenced in text (`manuscript/contents/introduction.tex`):
 ```latex
 Figure~\ref{fig:01} illustrates the overall workflow of the SciTex system.
 ```
 
 ### Example Table Files
 
-File: `manuscript/src/tables/src/Table_ID_01_results.csv` (Data file)
+File: `manuscript/contents/tables/contents/Table_ID_01_results.csv` (Data file)
 ```csv
 Method,Accuracy (%),Runtime (s)
 Baseline,85.2,12.3
 SciTex,92.7,8.9
 ```
 
-File: `manuscript/src/tables/src/Table_ID_01_results.tex` (Caption file)
+File: `manuscript/contents/tables/contents/Table_ID_01_results.tex` (Caption file)
 ```latex
 \caption{\textbf{
 Performance comparison of baseline and SciTex methods.
@@ -418,7 +418,7 @@ baseline method compared to the SciTex approach across standardized tests.
 % width=0.8\textwidth
 ```
 
-Referenced in text (`manuscript/src/results.tex`):
+Referenced in text (`manuscript/contents/results.tex`):
 ```latex
 Table~\ref{tab:01} shows the performance comparison between the baseline and 
 SciTex methods.
@@ -441,7 +441,7 @@ Below is an example of a complete Figure section that will be generated:
         \begin{figure*}[ht]
             \pdfbookmark[2]{ID 01}{figure_id_01}
             \centering
-            \includegraphics[width=1\textwidth]{./src/figures/png/Figure_ID_01_workflow.png}
+            \includegraphics[width=1\textwidth]{./contents/figures/png/Figure_ID_01_workflow.png}
             \caption{\textbf{
 Workflow diagram for the SciTex system.
 }
@@ -458,7 +458,7 @@ citation management, and LaTeX compilation.
         \begin{figure*}[ht]
             \pdfbookmark[2]{ID 02}{figure_id_02}
             \centering
-            \includegraphics[width=0.8\textwidth]{./src/figures/png/Figure_ID_02_architecture.png}
+            \includegraphics[width=0.8\textwidth]{./contents/figures/png/Figure_ID_02_architecture.png}
             \caption{\textbf{
 Architecture of the SciTex system.
 }

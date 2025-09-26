@@ -59,7 +59,7 @@ The most important guideline in this document is that we adopt test-driven devel
 ## Test in Elisp Projects
 - Read the report `./*REPORT*.org`
 - THINK next steps based on test results and project progress
-- ~~Known issues are often related to path settings in `./src` and `./test`~~
+- ~~Known issues are often related to path settings in `./contents` and `./test`~~
 
 ## Test in Python Projects
 - In Python projects, `./run_tests.sh -s` will synchronize `./tests` directories: test structure is validated and the corresponding source code is embedded as comments

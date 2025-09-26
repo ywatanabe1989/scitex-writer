@@ -2,12 +2,12 @@
 
 ## Overview
 
-Docker provides a consistent, reproducible environment for testing Elisp code across different Emacs versions and configurations. This guide covers both Docker and Apptainer (formerly Singularity) approaches for containerized testing.
+Docker provides a consistent, reproducible environment for testing Elisp code across different Emacs archive and configurations. This guide covers both Docker and Apptainer (formerly Singularity) approaches for containerized testing.
 
 ## Why Use Container-Based Testing?
 
 1. **Reproducibility**: Ensures tests run in identical environments
-2. **Cross-Version Testing**: Test against multiple Emacs versions easily
+2. **Cross-Version Testing**: Test against multiple Emacs archive easily
 3. **Clean Environment**: No interference from local Emacs configuration
 4. **CI/CD Integration**: Seamless integration with continuous integration pipelines
 5. **Dependency Isolation**: Manage package dependencies without affecting local setup
@@ -28,7 +28,7 @@ elisp-ci docker-test
 # Test with specific Emacs version
 elisp-ci docker-test --emacs-version 28.2
 
-# Test with multiple versions
+# Test with multiple archive
 elisp-ci docker-test --emacs-version 27.2,28.2,29.1
 ```
 
@@ -171,7 +171,7 @@ apptainer exec --bind $(pwd):/workspace "$IMAGE_NAME" \
 
 ## Best Practices
 
-1. **Version Matrix Testing**: Always test against multiple Emacs versions
+1. **Version Matrix Testing**: Always test against multiple Emacs archive
 2. **Minimal Images**: Use alpine-based images when possible for faster builds
 3. **Layer Caching**: Structure Dockerfiles to maximize layer reuse
 4. **CI Integration**: Use container testing in GitHub Actions/GitLab CI
