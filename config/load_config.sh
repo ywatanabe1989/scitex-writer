@@ -1,13 +1,11 @@
 #!/bin/bash
 # -*- coding: utf-8 -*-
-# Timestamp: "2025-09-26 10:03:01 (ywatanabe)"
-# File: /ssh:sp:/home/ywatanabe/proj/neurovista/paper/config/config_manuscript.src
-
-THIS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-# ---------------------------------------
+# Timestamp: "2025-09-26 10:49:20 (ywatanabe)"
+# File: ./paper/config/load_config.sh
 
 ORIG_DIR="$(pwd)"
-
+THIS_DIR="$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)"
+LOG_PATH="$THIS_DIR/.$(basename $0).log"
 echo > "$LOG_PATH"
 
 BLACK='\033[0;30m'
@@ -21,9 +19,21 @@ echo_info() { echo -e "${LIGHT_GRAY}$1${NC}"; }
 echo_success() { echo -e "${GREEN}$1${NC}"; }
 echo_warning() { echo -e "${YELLOW}$1${NC}"; }
 echo_error() { echo -e "${RED}$1${NC}"; }
+# ---------------------------------------
 
-CONFIG_FILE="$THIS_DIR/config_manuscript.yaml"
+THIS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
+# Manuscript Type
+# CONFIG_FILE="$THIS_DIR/config_manuscript.yaml"
+# export MANUSCRIPT_TYPE="$1"
+MANUSCRIPT_TYPE="${1:-MANUSCRIPT_TYPE}"
+CONFIG_FILE="$THIS_DIR/config_${MANUSCRIPT_TYPE}.yaml"
+if [ ! -f "$CONFIG_FILE" ]; then
+    echo "Error: Config file $CONFIG_FILE not found"
+    exit 1
+fi
+
+# Main
 export STXW_VERBOSE_PDFLATEX="${STXW_VERBOSE_PDFLATEX:-$(yq '.verbosity.pdflatex' $CONFIG_FILE)}"
 export STXW_VERBOSE_BIBTEX="${STXW_VERBOSE_BIBTEX:-$(yq '.verbosity.bibtex' $CONFIG_FILE)}"
 
@@ -64,9 +74,9 @@ RED="\033[1;31m"
 NC="\033[0m"
 
 echo_info() { echo -e "${GRAY}INFO: $1${NC}"; }
-echo_success() { echo -e "${GREEN}SUCCESS: $1${NC}"; }
-echo_warn() { echo -e "${YELLOW}WARNING: $1${NC}"; }
-echo_error_soft() { echo -e "${RED}ERROR: $1${NC}"; }
-echo_error() { echo -e "${RED}ERROR: $1${NC}"; exit 1; }
+echo_success() { echo -e "${GREEN}SUCC: $1${NC}"; }
+echo_warn() { echo -e "${YELLOW}WARN: $1${NC}"; }
+echo_error_soft() { echo -e "${RED}ERRO: $1${NC}"; }
+echo_error() { echo -e "${RED}ERRO: $1${NC}"; exit 1; }
 
 # EOF

@@ -1,7 +1,7 @@
 #!/bin/bash
 # -*- coding: utf-8 -*-
-# Timestamp: "2025-09-26 09:37:52 (ywatanabe)"
-# File: ./paper/manuscript/scripts/shell/modules/check_dependancy_commands.sh
+# Timestamp: "2025-09-26 10:52:33 (ywatanabe)"
+# File: ./paper/scripts/shell/modules/check_dependancy_commands.sh
 
 ORIG_DIR="$(pwd)"
 THIS_DIR="$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)"
@@ -21,10 +21,14 @@ echo_warning() { echo -e "${YELLOW}$1${NC}"; }
 echo_error() { echo -e "${RED}$1${NC}"; }
 # ---------------------------------------
 
-touch "$LOG_PATH" >/dev/null 2>&1
-source ./config/config_manuscript.src
+# Configurations
+source ./config/load_config.sh $MANUSCRIPT_TYPE
 
-echo_info "Checking dependencies..."
+# Logging
+touch "$LOG_PATH" >/dev/null 2>&1
+echo
+echo_info "Running $0..."
+# echo_info "Checking dependencies..."
 
 
 # Load modules if available
@@ -241,7 +245,7 @@ check_all_dependencies() {
     fi
 
     if [ -n "$optional_output" ]; then
-        echo_warning "Missing optional tools and potential installation commands:"
+        echo_warning "    Missing optional tools and potential installation commands:"
         echo -e "$optional_output"
         exit 1
     fi

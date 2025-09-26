@@ -1,20 +1,40 @@
 #!/bin/bash
 # -*- coding: utf-8 -*-
-# Timestamp: "2025-05-07 01:33:45 (ywatanabe)"
-# File: ./manuscript/scripts/shell/modules/process_tables.sh
+# Timestamp: "2025-09-26 10:52:29 (ywatanabe)"
+# File: ./paper/scripts/shell/modules/process_tables.sh
 
+ORIG_DIR="$(pwd)"
 THIS_DIR="$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)"
 LOG_PATH="$THIS_DIR/.$(basename $0).log"
+echo > "$LOG_PATH"
+
+BLACK='\033[0;30m'
+LIGHT_GRAY='\033[0;37m'
+GREEN='\033[0;32m'
+YELLOW='\033[0;33m'
+RED='\033[0;31m'
+NC='\033[0m' # No Color
+
+echo_info() { echo -e "${LIGHT_GRAY}$1${NC}"; }
+echo_success() { echo -e "${GREEN}$1${NC}"; }
+echo_warning() { echo -e "${YELLOW}$1${NC}"; }
+echo_error() { echo -e "${RED}$1${NC}"; }
+# ---------------------------------------
+
+# Configurations
+source ./config/load_config.sh $MANUSCRIPT_TYPE
+
+# Logging
 touch "$LOG_PATH" >/dev/null 2>&1
-
-
-source ./config/config_manuscript.src
-echo_info "$0 ..."
+echo
+echo_info "Running $0 ..."
 
 function init_tables() {
     # Cleanup and prepare directories
     rm -f "$STXW_TABLE_COMPILED_DIR"/*.tex
-    mkdir -p "$STXW_TABLE_DIR" "$STXW_TABLE_CAPTION_MEDIA_DIR" "$STXW_TABLE_COMPILED_DIR" > /dev/null
+    mkdir -p "$STXW_TABLE_DIR" >/dev/null
+    mkdir -p "$STXW_TABLE_CAPTION_MEDIA_DIR" >/dev/null
+    mkdir -p "$STXW_TABLE_COMPILED_DIR" >/dev/null
     echo > "$STXW_TABLE_COMPILED_FILE"
 }
 
@@ -27,7 +47,7 @@ function ensure_caption() {
         local caption_file="${STXW_TABLE_CAPTION_MEDIA_DIR}/${base_name}.tex"
 
         if [ ! -f "$caption_file" ] && [ ! -L "$caption_file" ]; then
-            echo_warn "Caption file $caption_file not found. Creating a default one."
+            echo_warn "    Caption file $caption_file not found. Creating a default one."
             mkdir -p $(dirname "$caption_file")
             cat > "$caption_file" << EOF
 \\caption{Table $table_id: Default caption. Please edit $caption_file to customize.}
@@ -56,7 +76,7 @@ function check_csv_for_special_chars() {
     local problem_chars="[&%$#_{}^~\\|<>]"
     local problems=$(grep -n "$problem_chars" "$csv_file" 2>/dev/null || echo "")
     if [ -n "$problems" ]; then
-        echo_warn "Potential LaTeX special characters found in $csv_file:"
+        echo_warn "    Potential LaTeX special characters found in $csv_file:"
         echo -e ${YELLOW}
         echo "$problems" | head -5
         echo "These may need proper LaTeX escaping."
@@ -142,7 +162,7 @@ function csv2tex() {
             echo "\\restoregeometry"
         } > "$compiled_file"
 
-        echo_info "$compiled_file compiled"
+        echo_info "    $compiled_file compiled"
     done
 }
 
@@ -162,9 +182,9 @@ function gather_table_tex_files() {
     done
 
     if [ $table_count -eq 0 ]; then
-        echo_warn "No tables were found to compile."
+        echo_warn "    No tables were found to compile."
     else
-        echo_success "$table_count tables compiled"
+        echo_success "    $table_count tables compiled"
     fi
 }
 

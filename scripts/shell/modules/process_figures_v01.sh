@@ -23,7 +23,7 @@ echo_error() { echo -e "${RED}$1${NC}"; }
 
 touch "$LOG_PATH" >/dev/null 2>&1
 
-source ./config/config_manuscript.src
+source ./config/load_config.sh $MANUSCRIPT_TYPE 
 source ./scripts/shell/modules/validate_tex.src
 echo_info "$0 ..."
 

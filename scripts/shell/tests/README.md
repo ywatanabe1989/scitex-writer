@@ -4,7 +4,7 @@ This directory contains test scripts for the shell modules in the SciTex project
 
 ## Available Tests
 
-- `test_config.src`: Tests the configuration file
+- `test_load_config.sh`: Tests the configuration file
 - `test_versioning.sh`: Tests version management functionality
 - `test_check_commands.sh`: Tests dependency checking
 - `test_process_figures.sh`: Tests figure processing
@@ -27,7 +27,7 @@ This will execute all the test scripts in sequence and provide a summary of the 
 You can also run individual test scripts if you need to focus on testing a specific module:
 
 ```bash
-./test_config.src
+./test_load_config.sh
 ./test_versioning.sh
 ./test_check_commands.sh
 ./test_process_figures.sh

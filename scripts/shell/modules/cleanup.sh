@@ -1,6 +1,6 @@
 #!/bin/bash
 # -*- coding: utf-8 -*-
-# Timestamp: "2025-09-26 10:04:13 (ywatanabe)"
+# Timestamp: "2025-09-26 10:52:38 (ywatanabe)"
 # File: ./paper/scripts/shell/modules/cleanup.sh
 
 ORIG_DIR="$(pwd)"
@@ -22,11 +22,12 @@ echo_error() { echo -e "${RED}$1${NC}"; }
 # ---------------------------------------
 
 # Configurations
-source ./config/config_manuscript.src
+source ./config/load_config.sh $MANUSCRIPT_TYPE
 
 # Logging
 touch "$LOG_PATH" >/dev/null 2>&1
-echo_info "$0..."
+echo
+echo_info "Running $0..."
 
 function cleanup() {
     # Ensure logging directory
@@ -43,7 +44,7 @@ function cleanup() {
         find "$STWX_ROOT_DIR" -maxdepth 1 -type f -name "*.$ext" -exec mv {} $LOG_DIR/ \; 2>/dev/null
     done
 
-    echo_info "Removing versioned files from current directory..."
+    echo_info "    Removing versioned files from current directory..."
     rm ./compiled_v* -f
     rm ./diff_v* -f
 }

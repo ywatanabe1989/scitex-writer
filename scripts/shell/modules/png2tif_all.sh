@@ -1,7 +1,7 @@
 #!/bin/bash
 # -*- coding: utf-8 -*-
-# Timestamp: "2025-09-26 08:09:11 (ywatanabe)"
-# File: ./paper/manuscript/scripts/shell/modules/png2tif_all.sh
+# Timestamp: "2025-09-26 10:53:39 (ywatanabe)"
+# File: ./paper/scripts/shell/modules/png2tif_all.sh
 
 ORIG_DIR="$(pwd)"
 THIS_DIR="$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)"
@@ -21,10 +21,13 @@ echo_warning() { echo -e "${YELLOW}$1${NC}"; }
 echo_error() { echo -e "${RED}$1${NC}"; }
 # ---------------------------------------
 
+# Configurations
+source ./config/load_config.sh $MANUSCRIPT_TYPE
+
+# Logging
 touch "$LOG_PATH" >/dev/null 2>&1
-
-
-source ./config/config_manuscript.src
+echo
+echo "Running $0..."
 
 png2tif_all(){
     find "$STXW_FIGURE_CAPTION_MEDIA_DIR" -maxdepth 1 \

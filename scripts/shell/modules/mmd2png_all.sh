@@ -1,7 +1,7 @@
 #!/bin/bash
 # -*- coding: utf-8 -*-
-# Timestamp: "2025-09-26 08:49:39 (ywatanabe)"
-# File: ./paper/manuscript/scripts/shell/modules/mmd2png_all.sh
+# Timestamp: "2025-09-26 10:53:33 (ywatanabe)"
+# File: ./paper/scripts/shell/modules/mmd2png_all.sh
 
 ORIG_DIR="$(pwd)"
 THIS_DIR="$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)"
@@ -21,9 +21,13 @@ echo_warning() { echo -e "${YELLOW}$1${NC}"; }
 echo_error() { echo -e "${RED}$1${NC}"; }
 # ---------------------------------------
 
-touch "$LOG_PATH" >/dev/null 2>&1
+# Configurations
+source ./config/load_config.sh $MANUSCRIPT_TYPE
 
-source ./config/config_manuscript.src
+# Logging
+touch "$LOG_PATH" >/dev/null 2>&1
+echo
+echo "Running $0..."
 
 mmd2png(){
     n_mmd_files="$(ls $STXW_FIGURE_CAPTION_MEDIA_DIR/Figure_ID_*.mmd 2>/dev/null | wc -l)"

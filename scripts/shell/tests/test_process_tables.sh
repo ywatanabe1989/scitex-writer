@@ -74,9 +74,9 @@ EOF
     # Create a modified version of process_tables.sh for testing
     cp "${MODULES_DIR}/process_tables.sh" "${TEST_TMP_DIR}/scripts/shell/modules/process_tables_test.sh"
 
-    # Create a modified version of config.src for testing
-    cat > "${TEST_TMP_DIR}/scripts/shell/modules/config.src" << EOF
-# Modified config.src for testing
+    # Create a modified version of load_config.sh for testing
+    cat > "${TEST_TMP_DIR}/scripts/shell/modules/load_config.sh" << EOF
+# Modified load_config.sh for testing
 
 # Table
 STXW_TABLE_CAPTION_MEDIA_DIR="${TEST_TMP_DIR}/src/tables/src"
@@ -85,7 +85,7 @@ TABLE_HIDDEN_DIR="${TEST_TMP_DIR}/src/tables/.tex"
 EOF
 
     # Modify paths in the test script
-    sed -i "s|source \./scripts/shell/modules/config.src|source ${TEST_TMP_DIR}/scripts/shell/modules/config.src|g" "${TEST_TMP_DIR}/scripts/shell/modules/process_tables_test.sh"
+    sed -i "s|source \./scripts/shell/modules/load_config.sh|source ${TEST_TMP_DIR}/scripts/shell/modules/load_config.sh|g" "${TEST_TMP_DIR}/scripts/shell/modules/process_tables_test.sh"
 }
 
 # Clean up test environment

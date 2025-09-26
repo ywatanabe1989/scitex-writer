@@ -1,10 +1,10 @@
 #!/bin/bash
-# Test script for config.src
+# Test script for load_config.sh
 
 # Source the script to test
 THIS_DIR="$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)"
 MODULES_DIR="${THIS_DIR}/../modules"
-source "${MODULES_DIR}/config.src"
+source "${MODULES_DIR}/load_config.sh"
 
 # Set colors for output
 GREEN='\033[0;32m'
@@ -26,7 +26,7 @@ test_function() {
 }
 
 # Begin tests
-echo "Testing config.src..."
+echo "Testing load_config.sh..."
 
 # Test directory variables are set
 test_function "STXW_FIGURE_CAPTION_MEDIA_DIR is set" "[ -n \"$STXW_FIGURE_CAPTION_MEDIA_DIR\" ]"

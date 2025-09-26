@@ -1,7 +1,7 @@
 #!/bin/bash
 # -*- coding: utf-8 -*-
-# Timestamp: "2025-09-26 09:50:41 (ywatanabe)"
-# File: ./paper/manuscript/scripts/shell/modules/process_diff.sh
+# Timestamp: "2025-09-26 11:02:04 (ywatanabe)"
+# File: ./paper/scripts/shell/modules/process_diff.sh
 
 ORIG_DIR="$(pwd)"
 THIS_DIR="$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)"
@@ -22,11 +22,12 @@ echo_error() { echo -e "${RED}$1${NC}"; }
 # ---------------------------------------
 
 # Configuration
-source ./config/config_manuscript.src
+source ./config/load_config.sh $MANUSCRIPT_TYPE
 
 # Logging
 touch "$LOG_PATH" >/dev/null 2>&1
-echo_info "$0 ..."
+echo
+echo_info "Running $0 ..."
 
 
 function determine_previous() {
@@ -56,12 +57,14 @@ function take_diff_tex() {
     if [ -f "$STXW_COMPILED_TEX" ]; then
         latexdiff "$previous" "$STXW_COMPILED_TEX" > "$STXW_DIFF_TEX" 2>/dev/null
         if [ -s "$STXW_DIFF_TEX" ]; then
-            echo_success "$STXW_DIFF_TEX created"
+            echo_success "    $STXW_DIFF_TEX created"
         else
-            echo_warn "$STXW_DIFF_TEX is empty. $previous and $STXW_COMPILED_TEX may be identical.${NC}"
+            echo_warn "    $STXW_DIFF_TEX is empty.${NC}"
+            echo_warn "    $previous and $STXW_COMPILED_TEX may be identical.${NC}"
+
         fi
     else
-        echo_warn "$STXW_COMPILED_TEX not found."
+        echo_warn "    $STXW_COMPILED_TEX not found."
     fi
 
     # cleanup_if_fake_previous "$previous"
@@ -92,13 +95,13 @@ compile_diff_tex() {
 cleanup() {
     local log_file=${STXW_COMPILED_TEX%.tex}.log
     if [ -f ./diff.pdf ]; then
-        echo_success "$STXW_DIFF_PDF ready"
+        echo_success "    $STXW_DIFF_PDF ready"
         sleep 3
     else
-        echo_warn "$STXW_DIFF_PDF not created."
+        echo_warn "    $STXW_DIFF_PDF not created."
         # Extract errors from main.log
         cat $log_file | grep error | grep -v -E "infwarerr|error style messages enabled"
-        echo_warn "Check $log_file."
+        echo_warn "    Check $log_file."
         exit 1
     fi
 }

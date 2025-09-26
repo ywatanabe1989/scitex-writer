@@ -1,6 +1,6 @@
 #!/bin/bash
 # -*- coding: utf-8 -*-
-# Timestamp: "2025-09-26 10:06:29 (ywatanabe)"
+# Timestamp: "2025-09-26 10:35:04 (ywatanabe)"
 # File: ./paper/scripts/shell/modules/process_versions.sh
 
 ORIG_DIR="$(pwd)"
@@ -22,7 +22,7 @@ echo_error() { echo -e "${RED}$1${NC}"; }
 # ---------------------------------------
 
 # Configurations
-source ./config/config_manuscript.src
+source ./config/load_config.sh $MANUSCRIPT_TYPE
 
 # Logging
 touch "$LOG_PATH" >/dev/null 2>&1

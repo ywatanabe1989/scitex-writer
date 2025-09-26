@@ -60,9 +60,9 @@ EOF
     # Create a modified version of process_figures.sh for testing
     cp "${MODULES_DIR}/process_figures.sh" "${TEST_TMP_DIR}/scripts/shell/modules/process_figures_test.sh"
 
-    # Create a modified version of config.src for testing
-    cat > "${TEST_TMP_DIR}/scripts/shell/modules/config.src" << EOF
-# Modified config.src for testing
+    # Create a modified version of load_config.sh for testing
+    cat > "${TEST_TMP_DIR}/scripts/shell/modules/load_config.sh" << EOF
+# Modified load_config.sh for testing
 
 # Figure
 STXW_FIGURE_CAPTION_MEDIA_DIR="${TEST_TMP_DIR}/src/figures/src"
@@ -72,7 +72,7 @@ FIGURE_HIDDEN_DIR="${TEST_TMP_DIR}/src/figures/.tex"
 EOF
 
     # Modify paths in the test script
-    sed -i "s|source \./scripts/shell/modules/config.src|source ${TEST_TMP_DIR}/scripts/shell/modules/config.src|g" "${TEST_TMP_DIR}/scripts/shell/modules/process_figures_test.sh"
+    sed -i "s|source \./scripts/shell/modules/load_config.sh|source ${TEST_TMP_DIR}/scripts/shell/modules/load_config.sh|g" "${TEST_TMP_DIR}/scripts/shell/modules/process_figures_test.sh"
 }
 
 # Clean up test environment

@@ -1,7 +1,7 @@
 #!/bin/bash
 # -*- coding: utf-8 -*-
-# Timestamp: "2025-09-26 09:22:02 (ywatanabe)"
-# File: ./paper/manuscript/scripts/shell/modules/process_figures.sh
+# Timestamp: "2025-09-26 11:00:33 (ywatanabe)"
+# File: ./paper/scripts/shell/modules/process_figures.sh
 
 ORIG_DIR="$(pwd)"
 THIS_DIR="$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)"
@@ -21,11 +21,14 @@ echo_warning() { echo -e "${YELLOW}$1${NC}"; }
 echo_error() { echo -e "${RED}$1${NC}"; }
 # ---------------------------------------
 
-touch "$LOG_PATH" >/dev/null 2>&1
-
-source ./config/config_manuscript.src
+# Configurations
+source ./config/load_config.sh $MANUSCRIPT_TYPE
 source ./scripts/shell/modules/validate_tex.src
-echo_info "$0 ..."
+
+# Logging
+touch "$LOG_PATH" >/dev/null 2>&1
+echo
+echo_info "Running $0 ..."
 
 # In process_figures.sh, add the validate_image_file function:
 validate_image_file() {
@@ -131,11 +134,11 @@ crop_tif() {
     local verbose="$3"
 
     if [[ "$no_figs" == false && "$do_crop_tif" == true ]]; then
-        echo_info "Processing images (crop_tif)..."
+        echo_info "    Processing images (crop_tif)..."
         if [ -f "./scripts/python/crop_tif.py" ] && command -v python3 >/dev/null 2>&1; then
             # Check for required Python dependencies
             if ! python3 -c "import cv2, numpy" >/dev/null 2>&1; then
-                echo_warn "crop_tif in $0: Required Python packages (opencv, numpy) not found. Skipping crop_tif."
+                echo_warn "    Required Python packages (opencv, numpy) not found. Skipping crop_tif."
                 return 1
             fi
 
@@ -144,11 +147,11 @@ crop_tif() {
             local count=$(echo "$tif_files" | wc -l)
 
             if [ -z "$tif_files" ]; then
-                echo_info "No TIF files found to crop."
+                echo_info "    No TIF files found to crop."
                 return 0
             fi
 
-            echo_info "Found $count TIF files to crop"
+            echo_info "    Found $count TIF files to crop"
 
             # Create a temporary directory for processed files if needed
             local temp_dir="${STXW_FIGURE_CAPTION_MEDIA_DIR}/processed"
@@ -162,7 +165,7 @@ crop_tif() {
                 local output_path="${temp_dir}/${filename}"
 
                 if [ "$verbose" = true ]; then
-                    echo_info "Cropping: $filename"
+                    echo_info "    Cropping: $filename"
                 fi
 
                 # Run the Python script with appropriate parameters
@@ -188,9 +191,9 @@ crop_tif() {
             # Clean up temporary directory
             rmdir "$temp_dir" 2>/dev/null
 
-            echo_success "Cropped $count TIF files"
+            echo_success "    Cropped $count TIF files"
         else
-            echo_warn "crop_tif in $0: crop_tif.py script or Python 3 not found. Skipping crop_tif."
+            echo_warn "    crop_tif.py script or Python 3 not found. Skipping crop_tif."
         fi
     fi
 }
@@ -359,11 +362,11 @@ EOF
         # Validate the figure-related files
         if [ -f "$STXW_FIGURE_JPG_DIR/$jpg_file" ]; then
             if file "$STXW_FIGURE_JPG_DIR/$jpg_file" | grep -qv "JPEG image data"; then
-                echo_warn "compile_legend in $0: File $jpg_file exists but may not be a valid JPEG image."
+                echo_warn "   File $jpg_file exists but may not be a valid JPEG image."
             fi
         else
             if [ "$is_tikz" = false ]; then
-                echo_warn "compile_legend in $0: Required image file not found: $STXW_FIGURE_JPG_DIR/$jpg_file"
+                echo_warn "    Image file not found: $STXW_FIGURE_JPG_DIR/$jpg_file"
             fi
         fi
 
@@ -524,7 +527,7 @@ compile_figure_tex_files() {
                 echo "    \\includegraphics[width=$width]{$image_path}" >> "$STXW_FIGURE_COMPILED_FILE"
                 # Validate image path
                 if ! validate_image_file "$image_path"; then
-                    echo_warn "compile_figure_tex_files in $0: Image file not found in output: $image_path"
+                    echo_warn "    Image file not found: $image_path"
                 fi
             fi
         fi
@@ -570,7 +573,7 @@ main() {
     compile_figure_tex_files
     local compiled_count=$(find "$STXW_FIGURE_COMPILED_DIR" -name "Figure_ID_*.tex" | wc -l)
     if [ "$no_figs" = false ] && [ $compiled_count -gt 0 ]; then
-        echo_success "$compiled_count figures compiled"
+        echo_success "    $compiled_count figures compiled"
     fi
 }
 
