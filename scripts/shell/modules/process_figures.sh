@@ -22,7 +22,7 @@ echo_error() { echo -e "${RED}$1${NC}"; }
 # ---------------------------------------
 
 # Configurations
-source ./config/load_config.sh $MANUSCRIPT_TYPE
+source ./config/load_config.sh $STXW_MANUSCRIPT_TYPE
 source ./scripts/shell/modules/validate_tex.src
 
 # Logging

@@ -1,6 +1,6 @@
 #!/bin/bash
 # -*- coding: utf-8 -*-
-# Timestamp: "2025-09-26 11:06:31 (ywatanabe)"
+# Timestamp: "2025-09-26 20:03:34 (ywatanabe)"
 # File: ./paper/config/load_config.sh
 
 ORIG_DIR="$(pwd)"
@@ -21,14 +21,28 @@ echo_warning() { echo -e "${YELLOW}$1${NC}"; }
 echo_error() { echo -e "${RED}$1${NC}"; }
 # ---------------------------------------
 
+echo_info() { echo -e "${GRAY}INFO: $1${NC}"; }
+echo_success() { echo -e "${GREEN}SUCC: $1${NC}"; }
+echo_warn() { echo -e "${YELLOW}WARN: $1${NC}"; }
+echo_error_soft() { echo -e "${RED}ERRO: $1${NC}"; }
+echo_error() { echo -e "${RED}ERRO: $1${NC}"; exit 1; }
+
 THIS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
+# Logging
+CONFIG_LOADED=${CONFIG_LOADED:-false}
+if [ "$CONFIG_LOADED" != "true" ]; then
+    echo_info "Running $0..."
+fi
+
 # Manuscript Type
-MANUSCRIPT_TYPE="${1:-$MANUSCRIPT_TYPE}"
-CONFIG_FILE="$THIS_DIR/config_${MANUSCRIPT_TYPE}.yaml"
+STXW_MANUSCRIPT_TYPE="${1:-$STXW_MANUSCRIPT_TYPE}"
+CONFIG_FILE="$THIS_DIR/config_${STXW_MANUSCRIPT_TYPE}.yaml"
 if [ ! -f "$CONFIG_FILE" ]; then
-    echo "Error: Config file $CONFIG_FILE not found"
-    exit 1
+    echo "ERROR: Config file $CONFIG_FILE not found"
+    echo "ERROR: Please check STXW_MANUSCRIPT_TYPE is set correctly"
+    echo "ERROR: (e.g., export STXW_MANUSCRIPT_TYPE=manuscript # (manuscript, supplementary, or revision))"
+    exit
 fi
 
 # Main
@@ -45,6 +59,8 @@ export STXW_DIFF_TEX="$(yq '.paths.diff_tex' $CONFIG_FILE)"
 export STXW_DIFF_PDF="$(yq '.paths.diff_pdf' $CONFIG_FILE)"
 export STXW_VERSIONS_DIR="$(yq '.paths.versions_dir' $CONFIG_FILE)"
 export STXW_VERSION_COUNTER_TXT="$(yq '.paths.version_counter_txt' $CONFIG_FILE)"
+export STXW_TEXLIVE_APPTAINER_SIF="$(yq '.paths.texlive_apptainer_sif' $CONFIG_FILE)"
+
 
 export STXW_FIGURE_DIR="$(yq '.figures.dir' $CONFIG_FILE)"
 export STXW_FIGURE_CAPTION_MEDIA_DIR="$(yq '.figures.caption_media_dir' $CONFIG_FILE)"
@@ -65,16 +81,9 @@ export STXW_TABLE_COMPILED_FILE="$(yq '.tables.compiled_file' $CONFIG_FILE)"
 export STXW_WORDCOUNT_DIR="$(yq '.misc.wordcount_dir' $CONFIG_FILE)"
 export STXW_TREE_TXT="$(yq '.misc.tree_txt' $CONFIG_FILE)"
 
-GRAY="\033[1;30m"
-GREEN="\033[1;32m"
-YELLOW="\033[1;33m"
-RED="\033[1;31m"
-NC="\033[0m"
-
-echo_info() { echo -e "${GRAY}INFO: $1${NC}"; }
-echo_success() { echo -e "${GREEN}SUCC: $1${NC}"; }
-echo_warn() { echo -e "${YELLOW}WARN: $1${NC}"; }
-echo_error_soft() { echo -e "${RED}ERRO: $1${NC}"; }
-echo_error() { echo -e "${RED}ERRO: $1${NC}"; exit 1; }
+if [ "$CONFIG_LOADED" != "true" ]; then
+    echo_success "    Configuration Loaded for $STXW_MANUSCRIPT_TYPE"
+    export CONFIG_LOADED=true
+fi
 
 # EOF

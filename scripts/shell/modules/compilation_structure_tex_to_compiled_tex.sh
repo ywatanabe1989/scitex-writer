@@ -1,6 +1,6 @@
 #!/bin/bash
 # -*- coding: utf-8 -*-
-# Timestamp: "2025-09-26 10:56:39 (ywatanabe)"
+# Timestamp: "2025-09-26 18:00:21 (ywatanabe)"
 # File: ./paper/scripts/shell/modules/compilation_structure_tex_to_compiled_tex.sh
 
 ORIG_DIR="$(pwd)"
@@ -21,8 +21,10 @@ echo_warning() { echo -e "${YELLOW}$1${NC}"; }
 echo_error() { echo -e "${RED}$1${NC}"; }
 # ---------------------------------------
 
+NC='\033[0m'
+
 # Configurations
-source ./config/load_config.sh $MANUSCRIPT_TYPE
+source ./config/load_config.sh $STXW_MANUSCRIPT_TYPE
 
 # Logging
 touch "$LOG_PATH" >/dev/null 2>&1
@@ -30,7 +32,7 @@ echo
 echo_info "Running $0 ..."
 
 gather_tex_contents() {
-    # First, create initial compiled.tex from structure.tex
+    # First, create initial compiled.tex from base.tex
     cp "$STXW_BASE_TEX" "$STXW_COMPILED_TEX"
 
     process_input() {
@@ -45,8 +47,12 @@ gather_tex_contents() {
 
                 if [[ -f "$input_path" ]]; then
                     echo_info "    Processing $input_path"
+                    echo -e "\n%% ========================================" >> "$temp_file"
+                    echo -e "%% $input_path" >> "$temp_file"
+                    echo -e "%% ========================================" >> "$temp_file"
                     cat "$input_path" >> "$temp_file"
-                    echo "    \n" >> "$temp_file"
+                    # echo "    \n" >> "$temp_file"
+                    echo -e "\n" >> "$temp_file"
                 else
                     echo_warn "$input_path not found."
                     echo "$line" >> "$temp_file"

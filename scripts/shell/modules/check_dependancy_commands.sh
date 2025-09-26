@@ -1,6 +1,6 @@
 #!/bin/bash
 # -*- coding: utf-8 -*-
-# Timestamp: "2025-09-26 10:52:33 (ywatanabe)"
+# Timestamp: "2025-09-26 20:28:07 (ywatanabe)"
 # File: ./paper/scripts/shell/modules/check_dependancy_commands.sh
 
 ORIG_DIR="$(pwd)"
@@ -22,7 +22,7 @@ echo_error() { echo -e "${RED}$1${NC}"; }
 # ---------------------------------------
 
 # Configurations
-source ./config/load_config.sh $MANUSCRIPT_TYPE
+source ./config/load_config.sh $STXW_MANUSCRIPT_TYPE
 
 # Logging
 touch "$LOG_PATH" >/dev/null 2>&1
@@ -30,19 +30,50 @@ echo
 echo_info "Running $0..."
 # echo_info "Checking dependencies..."
 
+setup_container() {
+    # Check if container path is already set
+    if [ -n "$STXW_TEXLIVE_APPTAINER_SIF" ] && [ -f "$STXW_TEXLIVE_APPTAINER_SIF" ]; then
+        return 0
+    fi
 
-# Load modules if available
-if command -v module &> /dev/null; then
-    if module avail texlive &> /dev/null 2>&1; then
-        module load texlive
+    if [ ! -f "$STXW_TEXLIVE_APPTAINER_SIF" ]; then
+        echo_info "    Downloading TeXLive container (one-time setup)..."
+        mkdir -p "$(dirname $STXW_TEXLIVE_APPTAINER_SIF)"
+
+        # Try Apptainer first, then Singularity
+        if command -v apptainer &> /dev/null; then
+            apptainer pull "$STXW_TEXLIVE_APPTAINER_SIF" docker://texlive/texlive:latest >/dev/null 2>&1
+        elif command -v singularity &> /dev/null; then
+            singularity pull "$STXW_TEXLIVE_APPTAINER_SIF" docker://texlive/texlive:latest >/dev/null 2>&1
+        else
+            return 1
+        fi
+
+        if [ -f "$STXW_TEXLIVE_APPTAINER_SIF" ]; then
+            echo_success "    Container downloaded to $STXW_TEXLIVE_APPTAINER_SIF"
+            export STXW_TEXLIVE_APPTAINER_SIF="$STXW_TEXLIVE_APPTAINER_SIF"
+        else
+            return 1
+        fi
     fi
-    if module avail parallel &> /dev/null 2>&1; then
-        module load parallel
-    fi
-    if module avail nodejs &> /dev/null 2>&1; then
-        module load nodejs
-    fi
-fi
+
+    return 0
+}
+
+setup_container
+
+# # Load modules if available
+# if command -v module &> /dev/null; then
+#     if module avail texlive &> /dev/null 2>&1; then
+#         module load texlive
+#     fi
+#     if module avail parallel &> /dev/null 2>&1; then
+#         module load parallel
+#     fi
+#     if module avail nodejs &> /dev/null 2>&1; then
+#         module load nodejs
+#     fi
+# fi
 
 # Detect package manager
 detect_package_manager() {
@@ -64,11 +95,15 @@ has_module_command() {
 
 # Standalone checker for each tool
 check_pdflatex() {
-    # if ! command -v pdflatex &> /dev/null; then
-    #     if command -v module &> /dev/null && module avail texlive &> /dev/null; then
-    #         module load texlive
-    #     fi
-    # fi
+    if [ -n "$STXW_TEXLIVE_APPTAINER_SIF" ] && [ -f "$STXW_TEXLIVE_APPTAINER_SIF" ]; then
+        return 0
+    fi
+
+    if ! command -v pdflatex &> /dev/null; then
+        if command -v module &> /dev/null && module avail texlive &> /dev/null; then
+            module load texlive
+        fi
+    fi
 
     if ! command -v pdflatex &> /dev/null; then
         echo "- pdflatex"
@@ -86,11 +121,15 @@ check_pdflatex() {
 }
 
 check_bibtex() {
-    # if ! command -v bibtex &> /dev/null; then
-    #     if command -v module &> /dev/null && module avail texlive &> /dev/null; then
-    #         module load texlive
-    #     fi
-    # fi
+    if [ -n "$STXW_TEXLIVE_APPTAINER_SIF" ] && [ -f "$STXW_TEXLIVE_APPTAINER_SIF" ]; then
+        return 0
+    fi
+
+    if ! command -v bibtex &> /dev/null; then
+        if command -v module &> /dev/null && module avail texlive &> /dev/null; then
+            module load texlive
+        fi
+    fi
 
     if ! command -v bibtex &> /dev/null; then
         echo "- bibtex"
@@ -109,11 +148,15 @@ check_bibtex() {
 
 
 check_texcount() {
-    # if ! command -v texcount &> /dev/null; then
-    #     if command -v module &> /dev/null && module avail texlive &> /dev/null; then
-    #         module load texlive
-    #     fi
-    # fi
+    if [ -n "$STXW_TEXLIVE_APPTAINER_SIF" ] && [ -f "$STXW_TEXLIVE_APPTAINER_SIF" ]; then
+        return 0
+    fi
+
+    if ! command -v texcount &> /dev/null; then
+        if command -v module &> /dev/null && module avail texlive &> /dev/null; then
+            module load texlive
+        fi
+    fi
 
     if ! command -v texcount &> /dev/null; then
         echo "- texcount"
@@ -237,11 +280,11 @@ check_all_dependencies() {
 
     # Display results
     if [ -n "$required_output" ]; then
-        echo "Missing required tools and potential installation commands:"
+        echo "    Missing required tools and potential installation commands:"
         echo -e "$required_output"
         exit 1
     else
-        echo_success "All required tools are available."
+        echo_success "    All required tools are available."
     fi
 
     if [ -n "$optional_output" ]; then

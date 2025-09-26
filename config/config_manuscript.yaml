@@ -1,42 +1,43 @@
-# Timestamp: "2025-09-26 10:02:37 (ywatanabe)"
+# Timestamp: "2025-09-26 20:15:32 (ywatanabe)"
 # File: ./paper/config/config_manuscript.yaml
 
 verbosity:
-  pdflatex: false
-  bibtex: false
+  pdflatex: true
+  bibtex: true
 
 paths:
-  root_dir: "./manuscript"
-  log_dir: "./manuscript/logs"
-  global_log_file: "./manuscript/logs/global.log"
-  base_tex: "./manuscript/base.tex"
-  compiled_tex: "./manuscript/compiled.tex"
-  compiled_pdf: "./manuscript/compiled.pdf"
-  diff_tex: "./manuscript/diff.tex"
-  diff_pdf: "./manuscript/diff.pdf"
-  versions_dir: "./manuscript/versions"
-  version_counter_txt: "./manuscript/versions/.version_counter.txt"
+  root_dir: "./01_manuscript"
+  log_dir: "./01_manuscript/logs"
+  global_log_file: "./01_manuscript/logs/global.log"
+  base_tex: "./01_manuscript/base.tex"
+  compiled_tex: "./01_manuscript/manuscript.tex"
+  compiled_pdf: "./01_manuscript/manuscript.pdf"
+  diff_tex: "./01_manuscript/diff.tex"
+  diff_pdf: "./01_manuscript/diff.pdf"
+  versions_dir: "./01_manuscript/versions"
+  version_counter_txt: "./01_manuscript/versions/.version_counter.txt"
+  texlive_apptainer_sif: "./texlive.sif"
   
 figures:
-  dir: "./manuscript/src/figures"
-  caption_media_dir: "./manuscript/src/figures/caption_and_media"
-  jpg_dir: "./manuscript/src/figures/caption_and_media/jpg"
-  compiled_dir: "./manuscript/src/figures/compiled"
-  compiled_file: "./manuscript/src/figures/compiled/FINAL.tex"
-  templates_dir: "./manuscript/src/figures/templates"
-  template_tex: "./manuscript/src/figures/templates/_Figure_ID_00_TEMPLATE.tex"
-  template_jpg: "./manuscript/src/figures/templates/_Figure_ID_00_TEMPLATE.jpg"
-  template_pptx: "./manuscript/src/figures/templates/_Figure_ID_00_TEMPLATE.pptx"
-  template_jnt: "./manuscript/src/figures/templates/_Figure_ID_00_TEMPLATE.jnt"
+  dir: "./01_manuscript/src/figures"
+  caption_media_dir: "./01_manuscript/src/figures/caption_and_media"
+  jpg_dir: "./01_manuscript/src/figures/caption_and_media/jpg"
+  compiled_dir: "./01_manuscript/src/figures/compiled"
+  compiled_file: "./01_manuscript/src/figures/compiled/FINAL.tex"
+  templates_dir: "./01_manuscript/src/figures/templates"
+  template_tex: "./01_manuscript/src/figures/templates/_Figure_ID_00_TEMPLATE.tex"
+  template_jpg: "./01_manuscript/src/figures/templates/_Figure_ID_00_TEMPLATE.jpg"
+  template_pptx: "./01_manuscript/src/figures/templates/_Figure_ID_00_TEMPLATE.pptx"
+  template_jnt: "./01_manuscript/src/figures/templates/_Figure_ID_00_TEMPLATE.jnt"
 
 tables:
-  dir: "./manuscript/src/tables"
-  caption_media_dir: "./manuscript/src/tables/caption_and_media"
-  compiled_dir: "./manuscript/src/tables/compiled"
-  compiled_file: "./manuscript/src/tables/compiled/FINAL.tex"
+  dir: "./01_manuscript/src/tables"
+  caption_media_dir: "./01_manuscript/src/tables/caption_and_media"
+  compiled_dir: "./01_manuscript/src/tables/compiled"
+  compiled_file: "./01_manuscript/src/tables/compiled/FINAL.tex"
 
 misc:
-  wordcount_dir: "./manuscript/src/wordcounts"
-  tree_txt: "./manuscript/docs/tree.txt"
+  wordcount_dir: "./01_manuscript/src/wordcounts"
+  tree_txt: "./01_manuscript/docs/tree.txt"
 
 # EOF

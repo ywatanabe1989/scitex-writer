@@ -1,6 +1,6 @@
 #!/bin/bash
 # -*- coding: utf-8 -*-
-# Timestamp: "2025-09-26 10:53:39 (ywatanabe)"
+# Timestamp: "2025-09-26 17:15:00 (ywatanabe)"
 # File: ./paper/scripts/shell/modules/png2tif_all.sh
 
 ORIG_DIR="$(pwd)"
@@ -22,12 +22,12 @@ echo_error() { echo -e "${RED}$1${NC}"; }
 # ---------------------------------------
 
 # Configurations
-source ./config/load_config.sh $MANUSCRIPT_TYPE
+source ./config/load_config.sh $STXW_MANUSCRIPT_TYPE
 
 # Logging
 touch "$LOG_PATH" >/dev/null 2>&1
 echo
-echo "Running $0..."
+echo_info "Running $0..."
 
 png2tif_all(){
     find "$STXW_FIGURE_CAPTION_MEDIA_DIR" -maxdepth 1 \

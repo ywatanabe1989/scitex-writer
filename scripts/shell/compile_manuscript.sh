@@ -22,9 +22,10 @@ echo_error() { echo -e "${RED}$1${NC}"; }
 # ---------------------------------------
 
 # Configurations
-export MANUSCRIPT_TYPE="manuscript"
-source ./config/load_config.sh "$MANUSCRIPT_TYPE"
-echo_info "Running $0..."
+export STXW_MANUSCRIPT_TYPE="manuscript"
+source ./config/load_config.sh "$STXW_MANUSCRIPT_TYPE"
+echo
+# echo_info "Running $0..."
 
 # Log
 touch $LOG_PATH >/dev/null 2>&1
@@ -37,7 +38,7 @@ set -o pipefail
 # Deafult values for arguments
 do_p2t=false
 no_figs=true
-do_verbose=false
+do_quiet=false
 do_crop_tif=false
 
 usage() {
@@ -46,7 +47,7 @@ usage() {
     echo "  -f,   --figs          Includes figures (default: $(if $no_figs; then echo "false"; else echo "true"; fi))"
     echo "  -p2t, --ppt2tif       Converts Power Point to TIF on WSL (default: $do_p2t)"
     echo "  -c,   --crop_tif      Crop TIF images to remove excess whitespace (default: $do_crop_tif)"
-    echo "  -v,   --verbose       Shows detailed logs for latex compilation (default: $do_verbose)"
+    echo "  -q,   --quiet         Do not shows detailed logs for latex compilation (default: $do_quiet)"
     echo "  -h,   --help          Display this help message"
     exit 0
 }
@@ -58,7 +59,7 @@ parse_arguments() {
             -p2t|--ppt2tif) do_p2t=true; no_figs=false ;;
             -f|--figs) no_figs=false ;;
             -c|--crop_tif) do_crop_tif=true; no_figs=false ;;
-            -v|--verbose) do_verbose=true ;;
+            -q|--quiet) do_quiet=true ;;
             *) echo "Unknown option: $1"; usage ;;
         esac
         shift
@@ -69,14 +70,21 @@ main() {
     parse_arguments "$@"
 
     # Log command options
-    $do_p2t && echo -n " --ppt2tif"
-    ! $no_figs && echo -n " --figs"
-    $do_crop_tif && echo -n " --crop_tif"
-    $do_verbose && echo -n " --verbose"
+    options_display=""
+    $do_p2t && options_display="${options_display}--ppt2tif "
+    ! $no_figs && options_display="${options_display}--figs "
+    $do_crop_tif && options_display="${options_display}--crop_tif "
+    $do_quiet && options_display="${options_display}--quiet "
+    # echo_info "    Options: ${options_display:-none}"
+    echo_info "Running $0 ${options_display:-none}..."
 
-    if [ $do_verbose == true ]; then
-        export STXW_VERBOSE_PDFLATEX=$do_verbose
-        export STXW_VERBOSE_BIBTEX=$do_verbose
+    # Verbosity
+    if [ "$do_quiet" == "true" ]; then
+        export STXW_VERBOSE_PDFLATEX="false"
+        export STXW_VERBOSE_BIBTEX="false"
+    else
+        export STXW_VERBOSE_PDFLATEX=${true:-"$STXW_VERBOSE_PDFLATEX"}
+        export STXW_VERBOSE_BIBTEX=${true:-"$STXW_VERBOSE_BIBTEX"}
     fi
 
     # Check dependencies
@@ -86,7 +94,7 @@ main() {
     ./scripts/shell/modules/process_figures.sh \
         "$no_figs" \
         "$do_p2t" \
-        "$do_verbose" \
+        "$do_quiet" \
         "$do_crop_tif"
 
     # Process tables
@@ -102,7 +110,7 @@ main() {
     ./scripts/shell/modules/compilation_compiled_tex_to_compiled_pdf.sh
 
     # Diff
-    ./scripts/shell/modules/process_diff.sh "$do_verbose"
+    ./scripts/shell/modules/process_diff.sh "$do_quiet"
 
     # Versioning
     ./scripts/shell/modules/process_versions.sh

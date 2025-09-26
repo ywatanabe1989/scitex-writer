@@ -1,0 +1,102 @@
+%% -*- coding: utf-8 -*-
+%% Timestamp: "2025-09-26 16:57:33 (ywatanabe)"
+%% File: "/ssh:sp:/home/ywatanabe/proj/neurovista/paper/01_manuscript/base.tex"
+\UseRawInputEncoding
+
+%% ----------------------------------------
+%% SETTINGS
+%% ----------------------------------------
+\input{./01_manuscript/src/styles/columns}
+\input{./01_manuscript/src/styles/packages}
+\input{./01_manuscript/src/styles/linker}
+\input{./01_manuscript/src/styles/formatting}
+\link[supple-]{../supplementary/main}
+
+%% ----------------------------------------
+%% JOURNAL NAME
+%% ----------------------------------------
+\input{./01_manuscript/src/journal_name}
+
+%% ----------------------------------------
+%% START of DOCUMENT
+%% ----------------------------------------
+\begin{document}
+
+%% ----------------------------------------
+%% Frontmatter
+%% ----------------------------------------
+\begin{frontmatter}
+\input{./01_manuscript/src/highlights}
+\input{./01_manuscript/src/title}
+\input{./01_manuscript/src/authors}
+\input{./01_manuscript/src/graphical_abstract}
+\input{./01_manuscript/src/abstract}
+\input{./01_manuscript/src/keywords}
+\end{frontmatter}
+
+%% ----------------------------------------
+%% Word Counter
+%% ----------------------------------------
+\input{./01_manuscript/src/wordcount}
+
+%% ----------------------------------------
+%% INTRODUCTION
+%% ----------------------------------------
+\input{./01_manuscript/src/introduction}
+
+%% ----------------------------------------
+%% METHODS
+%% ----------------------------------------
+\input{./01_manuscript/src/methods}
+
+%% ----------------------------------------
+%% RESULTS
+ %% ----------------------------------------
+\input{./01_manuscript/src/results}
+
+%% ----------------------------------------
+%% DISCUSSION
+%% ----------------------------------------
+\input{./01_manuscript/src/discussion}
+
+%% ----------------------------------------
+%% DATA AVAILABILITY
+%% ----------------------------------------
+\input{./01_manuscript/src/data_availability}
+
+%% ----------------------------------------
+%% REFERENCE STYLES
+%% ----------------------------------------
+\pdfbookmark[1]{References}{references}
+\bibliography{./01_manuscript/src/bibliography}
+\input{./01_manuscript/src/styles/bibliography}
+
+%% ----------------------------------------
+%% ADDITIONAL INFORMATION
+%% ----------------------------------------
+\input{./01_manuscript/src/additional_info}
+
+%% ----------------------------------------
+%% TABLES
+%% ----------------------------------------
+\clearpage
+\section*{Tables}
+\label{tables}
+\pdfbookmark[1]{Tables}{tables}
+\input{./01_manuscript/src/tables/compiled/FINAL}
+
+%% ----------------------------------------
+%% FIGURES
+%% ----------------------------------------
+\clearpage
+\section*{Figures}
+\label{figures}
+\pdfbookmark[1]{Figures}{figures}
+\input{./01_manuscript/src/figures/compiled/FINAL}
+
+%% ----------------------------------------
+%% END of DOCUMENT
+%% ----------------------------------------
+\end{document}
+
+%%%% EOF
