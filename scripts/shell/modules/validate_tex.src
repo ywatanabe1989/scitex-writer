@@ -1,10 +1,12 @@
 #!/bin/bash
 # -*- coding: utf-8 -*-
-# Timestamp: "2025-09-26 07:45:49 (ywatanabe)"
-# File: /ssh:sp:/home/ywatanabe/proj/neurovista/paper/manuscript/scripts/shell/modules/validate_tex.src
+# Timestamp: "2025-09-27 00:14:01 (ywatanabe)"
+# File: /ssh:sp:/home/ywatanabe/proj/neurovista/paper/scripts/shell/modules/validate_tex.src
 
 THIS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # ---------------------------------------
+
+source ./config/load_config.sh $STXW_MANUSCRIPT_TYPE
 
 # Make sure echo_error_soft is defined if not already defined
 echo_error_soft() { echo -e "${RED}Error: $1${NC}"; }

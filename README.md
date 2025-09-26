@@ -57,7 +57,7 @@ paper/
 │   ├── installation/               # Setup scripts
 │   └── shell/modules/              # Compilation modules
 ├── 01_manuscript/
-│   ├── src/                        # Document-specific content
+│   ├── contents/                        # Document-specific content
 │   │   ├── abstract.tex            # Abstract
 │   │   ├── introduction.tex        # Introduction
 │   │   ├── methods.tex             # Methods
@@ -71,8 +71,8 @@ paper/
 
 ## Editing
 
-1. **Text**: Edit `.tex` files in `01_manuscript/src/`
-2. **Figures**: Place images in `01_manuscript/src/figures/caption_and_media/`
+1. **Text**: Edit `.tex` files in `01_manuscript/contents/`
+2. **Figures**: Place images in `01_manuscript/contents/figures/caption_and_media/`
    - Supports: `.jpg`, `.png`, `.tif`, `.mmd` (Mermaid diagrams)
 3. **References**: Update `shared/bibliography.bib` (used by all documents)
 

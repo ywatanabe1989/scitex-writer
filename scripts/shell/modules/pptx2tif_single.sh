@@ -127,6 +127,6 @@ main() {
 { main "$@" ; } 2>&1 | tee "$LOG_PATH"
 
 # Usage:
-# ./scripts/shell/modules/pptx2tif.sh -i /home/ywatanabe/proj/ripple-wm/paper/manuscript/src/figures/src/Figure_ID_10_vswr_jump.pptx
+# ./scripts/shell/modules/pptx2tif.sh -i /home/ywatanabe/proj/ripple-wm/paper/manuscript/contents/figures/contents/Figure_ID_10_vswr_jump.pptx
 
 # EOF

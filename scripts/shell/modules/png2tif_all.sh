@@ -1,6 +1,6 @@
 #!/bin/bash
 # -*- coding: utf-8 -*-
-# Timestamp: "2025-09-26 17:15:00 (ywatanabe)"
+# Timestamp: "2025-09-27 00:29:33 (ywatanabe)"
 # File: ./paper/scripts/shell/modules/png2tif_all.sh
 
 ORIG_DIR="$(pwd)"
@@ -24,18 +24,29 @@ echo_error() { echo -e "${RED}$1${NC}"; }
 # Configurations
 source ./config/load_config.sh $STXW_MANUSCRIPT_TYPE
 
+# Source the shared command module
+source "$(dirname ${BASH_SOURCE[0]})/command_switching.src"
+
 # Logging
 touch "$LOG_PATH" >/dev/null 2>&1
 echo
 echo_info "Running $0..."
 
 png2tif_all(){
+    # Get convert command from shared module
+    local convert_cmd=$(get_cmd_convert "$ORIG_DIR")
+
+    if [ -z "$convert_cmd" ]; then
+        echo_error "No ImageMagick installation found (native, module, or container)"
+        return 1
+    fi
+
     find "$STXW_FIGURE_CAPTION_MEDIA_DIR" -maxdepth 1 \
          -name 'Figure_ID_*.png' | \
     parallel --joblog progress.log \
         'in={}; out={.}.tif
-         convert -density 300 -units PixelsPerInch "$in" "$out"
-         echo "TIFF {#}/'"$(wc -l <<< "$(find "$STXW_FIGURE_CAPTION_MEDIA_DIR" -maxdepth 1 -name 'Figure_ID_*.png')")"' -> $out"'
+         '"$convert_cmd"' -density 300 -units PixelsPerInch "$in" "$out"
+         echo "    TIFF {#}/'"$(wc -l <<< "$(find "$STXW_FIGURE_CAPTION_MEDIA_DIR" -maxdepth 1 -name 'Figure_ID_*.png')")"' -> $out"'
 }
 
 png2tif_all 2>&1 | tee -a "$LOG_PATH"

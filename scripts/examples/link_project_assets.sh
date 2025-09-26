@@ -12,8 +12,8 @@ MANUSCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 echo "Linking assets from $PROJECT_DIR to SciTeX Writer..."
 
 # Create target directories
-FIGURE_DIR="$MANUSCRIPT_DIR/01_manuscript/src/figures/caption_and_media"
-TABLE_DIR="$MANUSCRIPT_DIR/01_manuscript/src/tables/caption_and_media"
+FIGURE_DIR="$MANUSCRIPT_DIR/01_manuscript/contents/figures/caption_and_media"
+TABLE_DIR="$MANUSCRIPT_DIR/01_manuscript/contents/tables/caption_and_media"
 mkdir -p "$FIGURE_DIR" "$TABLE_DIR"
 
 # Counter for sequential IDs

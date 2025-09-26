@@ -59,7 +59,7 @@ Ready for: auth-tests agent can start
 ### HANDOFF: auth module
 From: core-CLAUDE-123
 Status: ✅ COMPLETE
-Files: src/auth.py, tests/test_auth.py
+Files: contents/auth.py, tests/test_auth.py
 Interface: AuthService.login(user, pass) → token
 Dependencies: database layer required
 Ready for: test-CLAUDE-456 integration

@@ -68,7 +68,7 @@ DEBUG=false
 SKIP_FAIL=false
 NO_REPORT=false
 VERBOSE=false
-SRC_DIR="src"
+SRC_DIR="contents"
 TESTS_DIR="tests"
 CHECK_PARENS=true
 
@@ -94,7 +94,7 @@ while [[ $# -gt 0 ]]; do
       CHECK_PARENS=false
       shift
       ;;
-    --src-dir=*)
+    --contents-dir=*)
       SRC_DIR="${1#*=}"
       shift
       ;;
@@ -111,17 +111,17 @@ done
 # Auto-detect project structure
 detect_project_structure() {
   # Create arrays to store discovered source and test directories
-  src_dirs=()
+  contents_dirs=()
   test_dirs=()
 
   # Check if the specified source directory exists
   if [ -d "$THIS_DIR/$SRC_DIR" ]; then
     # Add the main source directory
-    src_dirs+=("$THIS_DIR/$SRC_DIR")
+    contents_dirs+=("$THIS_DIR/$SRC_DIR")
     # Find all subdirectories in the source directory
     while IFS= read -r dir; do
       if [ -d "$dir" ]; then
-        src_dirs+=("$dir")
+        contents_dirs+=("$dir")
       fi
     done < <(find "$THIS_DIR/$SRC_DIR" -type d -not -path "*/\.*" 2>/dev/null | sort)
   fi
@@ -139,7 +139,7 @@ detect_project_structure() {
   fi
 
   # Return discovered directories as space-separated strings
-  echo "SOURCE_DIRS=\"${src_dirs[*]}\""
+  echo "SOURCE_DIRS=\"${contents_dirs[*]}\""
   echo "TEST_DIRS=\"${test_dirs[*]}\""
 }
 
@@ -159,8 +159,8 @@ run_tests() {
   emacs_cmd+=" --eval \"(add-to-list 'load-path \\\"$THIS_DIR\\\")\" "
 
   # Handle paths by finding all source and test directories
-  for src_subdir in $(find "$THIS_DIR/src" -type d 2>/dev/null); do
-    emacs_cmd+=" --eval \"(add-to-list 'load-path \\\"$src_subdir\\\")\" "
+  for contents_subdir in $(find "$THIS_DIR/contents" -type d 2>/dev/null); do
+    emacs_cmd+=" --eval \"(add-to-list 'load-path \\\"$contents_subdir\\\")\" "
   done
   for test_subdir in $(find "$THIS_DIR/tests" -type d 2>/dev/null); do
     emacs_cmd+=" --eval \"(add-to-list 'load-path \\\"$test_subdir\\\")\" "

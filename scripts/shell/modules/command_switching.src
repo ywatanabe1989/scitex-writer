@@ -1,30 +1,40 @@
 #!/bin/bash
 # -*- coding: utf-8 -*-
-# Timestamp: "2025-09-26 21:39:44 (ywatanabe)"
-# File: ./paper/scripts/shell/modules/command_switching.src
+# Timestamp: "2025-09-27 00:06:56 (ywatanabe)"
+# File: /ssh:sp:/home/ywatanabe/proj/neurovista/paper/scripts/shell/modules/command_switching.src
 
-ORIG_DIR="$(pwd)"
-THIS_DIR="$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)"
-LOG_PATH="$THIS_DIR/.$(basename $0).log"
-echo > "$LOG_PATH"
-
-BLACK='\033[0;30m'
-LIGHT_GRAY='\033[0;37m'
-GREEN='\033[0;32m'
-YELLOW='\033[0;33m'
-RED='\033[0;31m'
-NC='\033[0m' # No Color
-
-echo_info() { echo -e "${LIGHT_GRAY}$1${NC}"; }
-echo_success() { echo -e "${GREEN}$1${NC}"; }
-echo_warning() { echo -e "${YELLOW}$1${NC}"; }
-echo_error() { echo -e "${RED}$1${NC}"; }
+THIS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # ---------------------------------------
+# #!/bin/bash
+# # -*- coding: utf-8 -*-
+# # Timestamp: "2025-09-27 00:06:42 (ywatanabe)"
+# # File: /ssh:sp:/home/ywatanabe/proj/neurovista/paper/scripts/shell/modules/command_switching.src
+
+# THIS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# # ---------------------------------------
+
+# ORIG_DIR="$(pwd)"
+# LOG_PATH="$THIS_DIR/.$(basename $0).log"
+# echo > "$LOG_PATH"
+
+# BLACK='\033[0;30m'
+# LIGHT_GRAY='\033[0;37m'
+# GREEN='\033[0;32m'
+# YELLOW='\033[0;33m'
+# RED='\033[0;31m'
+# NC='\033[0m' # No Color
+
+# echo_info() { echo -e "${LIGHT_GRAY}$1${NC}"; }
+# echo_success() { echo -e "${GREEN}$1${NC}"; }
+# echo_warning() { echo -e "${YELLOW}$1${NC}"; }
+# echo_error() { echo -e "${RED}$1${NC}"; }
 
 #
 # Shared module for resolving LaTeX-related commands
 # Provides functions to get commands for pdflatex, bibtex, latexdiff, etc.
 # with automatic fallback to module loading or container usage
+
+source ./config/load_config.sh $STXW_MANUSCRIPT_TYPE
 
 # Setup container path (Singularity/Apptainer)
 setup_latex_container() {
@@ -179,22 +189,22 @@ get_cmd_texcount() {
     local working_dir="${1:-$(pwd)}"
     local abs_dir=$(realpath "$working_dir")
 
-    # First choice: Native texcount
-    if command -v texcount &> /dev/null; then
-        echo "texcount"
-        return 0
-    fi
-
-    # Second choice: Module system
-    if load_texlive_module && command -v texcount &> /dev/null; then
-        echo "texcount"
-        return 0
-    fi
-
-    # Third choice: Container (Apptainer/Singularity)
+    # First choice: Container (Apptainer/Singularity) - prioritize for HPC
     local runtime=$(get_container_runtime)
     if [ -n "$runtime" ] && setup_latex_container; then
         echo "$runtime exec --bind ${abs_dir}:${abs_dir} --pwd ${abs_dir} $STXW_TEXLIVE_APPTAINER_SIF texcount"
+        return 0
+    fi
+
+    # Second choice: Native texcount (only if it actually works)
+    if command -v texcount &> /dev/null && texcount --version &> /dev/null 2>&1; then
+        echo "texcount"
+        return 0
+    fi
+
+    # Third choice: Module system
+    if load_texlive_module && command -v texcount &> /dev/null; then
+        echo "texcount"
         return 0
     fi
 
@@ -327,8 +337,11 @@ get_cmd_convert() {
     local working_dir="${1:-$(pwd)}"
     local abs_dir=$(realpath "$working_dir")
 
-    # First choice: Native convert
-    if command -v convert &> /dev/null; then
+    # First choice: Native magick (ImageMagick v7+) or convert (v6)
+    if command -v magick &> /dev/null; then
+        echo "magick"  # In v7, just use 'magick' not 'magick convert'
+        return 0
+    elif command -v convert &> /dev/null; then
         echo "convert"
         return 0
     fi
@@ -336,14 +349,18 @@ get_cmd_convert() {
     # Second choice: Container (Apptainer/Singularity)
     local runtime=$(get_container_runtime)
     if [ -n "$runtime" ] && setup_imagemagick_container; then
-        echo "$runtime exec --bind ${abs_dir}:${abs_dir} --pwd ${abs_dir} $STXW_IMAGEMAGICK_APPTAINER_SIF convert"
+        # Container likely has v7, so use magick to avoid deprecation warning
+        echo "$runtime exec --bind ${abs_dir}:${abs_dir} --pwd ${abs_dir} $STXW_IMAGEMAGICK_APPTAINER_SIF magick 2>/dev/null"
         return 0
     fi
 
     # Third choice: Module system (rare for ImageMagick)
     if command -v module &> /dev/null && module avail imagemagick &> /dev/null 2>&1; then
         module load imagemagick &> /dev/null
-        if command -v convert &> /dev/null; then
+        if command -v magick &> /dev/null; then
+            echo "magick"
+            return 0
+        elif command -v convert &> /dev/null; then
             echo "convert"
             return 0
         fi

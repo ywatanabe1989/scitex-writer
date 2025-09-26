@@ -1,6 +1,6 @@
 #!/bin/bash
 # -*- coding: utf-8 -*-
-# Timestamp: "2025-09-26 11:00:33 (ywatanabe)"
+# Timestamp: "2025-09-27 00:13:32 (ywatanabe)"
 # File: ./paper/scripts/shell/modules/process_figures.sh
 
 ORIG_DIR="$(pwd)"
@@ -25,6 +25,12 @@ echo_error() { echo -e "${RED}$1${NC}"; }
 source ./config/load_config.sh $STXW_MANUSCRIPT_TYPE
 source ./scripts/shell/modules/validate_tex.src
 
+# Source the shared command module
+source "$(dirname ${BASH_SOURCE[0]})/command_switching.src"
+
+# Override echo_xxx functions
+source ./config/load_config.sh $STXW_MANUSCRIPT_TYPE
+
 # Logging
 touch "$LOG_PATH" >/dev/null 2>&1
 echo
@@ -43,6 +49,91 @@ validate_image_file() {
     return 1
 }
 
+create_placeholder_jpg() {
+    local figure_id="$1"  # e.g., "Figure_ID_01_missing"
+    local jpg_path="$STXW_FIGURE_JPG_DIR/$figure_id.jpg"
+    
+    # Primary: Use template TIF file
+    local template_tif="$STXW_FIGURE_CAPTION_MEDIA_DIR/../templates/FIGURE_ID_00_TEMPLATE.tif"
+    
+    if [ -f "$template_tif" ]; then
+        # Copy and convert template TIF to JPG
+        local convert_cmd=$(get_cmd_convert "$ORIG_DIR")
+        if [ -n "$convert_cmd" ]; then
+            eval "$convert_cmd \"$template_tif\" -density 300 -quality 90 \"$jpg_path\""
+            echo_success "    Created placeholder from template: $figure_id.jpg"
+            return 0
+        fi
+    fi
+    
+    # Fallback: Create a generated text placeholder with guidance
+    local convert_cmd=$(get_cmd_convert "$ORIG_DIR")
+    if [ -n "$convert_cmd" ]; then
+        # Create guidance text with specific path information
+        local source_path="$STXW_FIGURE_CAPTION_MEDIA_DIR/$figure_id"
+        local rel_source_path=$(realpath --relative-to="$(pwd)" "$source_path")
+        
+        # Extract figure number and description for citation reference
+        local fig_ref=$(echo "$figure_id" | sed -E 's/Figure_ID_([0-9]+)_?(.*)/\1_\2/' | sed 's/_$//')
+        
+        # Create a 800x600 placeholder with helpful guidance text
+        eval "$convert_cmd -size 800x600 xc:'#f0f0f0' -fill black -font Arial-Bold \
+            -pointsize 32 -draw 'text 50,100 \"FIGURE PLACEHOLDER\"' \
+            -pointsize 24 -draw 'text 50,160 \"Figure ID: $figure_id\"' \
+            -pointsize 18 -fill '#666666' \
+            -draw 'text 50,220 \"Place your image file at:\"' \
+            -pointsize 16 -fill '#0066cc' \
+            -draw 'text 50,260 \"$rel_source_path.[png|tif|jpg|svg|mmd|pptx]\"' \
+            -pointsize 14 -fill '#666666' \
+            -draw 'text 50,300 \"Supported formats: PNG, TIF/TIFF, JPG/JPEG, SVG, MMD, PPTX\"' \
+            -draw 'text 50,330 \"Then run: ./compile_manuscript\"' \
+            -pointsize 16 -fill '#cc6600' \
+            -draw 'text 50,380 \"Reference in LaTeX as:\"' \
+            -pointsize 18 -fill '#cc3300' \
+            -draw 'text 50,410 \"Figure~\\\\ref{fig:$fig_ref}\"' \
+            -pointsize 12 -fill '#999999' \
+            -draw 'text 50,500 \"This placeholder will be automatically replaced\"' \
+            -draw 'text 50,520 \"when you add the actual image file.\"' \
+            \"$jpg_path\""
+        echo_warning "    Created guided placeholder: $figure_id.jpg"
+    else
+        echo_error "    Cannot create placeholder: No ImageMagick available"
+        return 1
+    fi
+}
+
+check_and_create_placeholders() {
+    echo_info "    Checking for missing figures..."
+    
+    # Look for .tex caption files without corresponding source images
+    for tex_file in "$STXW_FIGURE_CAPTION_MEDIA_DIR"/Figure_ID_*.tex; do
+        [ -e "$tex_file" ] || continue
+        
+        local base_name=$(basename "$tex_file" .tex)
+        local has_source=false
+        
+        # Check if any source file exists for this figure
+        for ext in tif tiff jpg jpeg png svg mmd pptx; do
+            if [ -f "$STXW_FIGURE_CAPTION_MEDIA_DIR/$base_name.$ext" ]; then
+                has_source=true
+                break
+            fi
+        done
+        
+        # Check if JPG already exists in compilation directory
+        local jpg_exists=false
+        if [ -f "$STXW_FIGURE_JPG_DIR/$base_name.jpg" ]; then
+            jpg_exists=true
+        fi
+        
+        # Create placeholder if no source and no JPG exists
+        if [ "$has_source" = false ] && [ "$jpg_exists" = false ]; then
+            echo_warning "    Missing source for: $base_name"
+            create_placeholder_jpg "$base_name"
+        fi
+    done
+}
+
 init_figures() {
     local timestamp=$(date +"%Y%m%d_%H%M%S")
     mkdir -p \
@@ -55,7 +146,7 @@ init_figures() {
 }
 
 ensure_caption() {
-    for img_file in "$STXW_FIGURE_CAPTION_MEDIA_DIR"/Figure_ID_*.{tif,jpg,png,svg,mmd}; do
+    for img_file in "$STXW_FIGURE_CAPTION_MEDIA_DIR"/Figure_ID_*.{tif,tiff,jpg,jpeg,png,svg,mmd,pptx}; do
         [ -e "$img_file" ] || continue
         local ext="${img_file##*.}"
         local filename=$(basename "$img_file")
@@ -82,14 +173,37 @@ FIGURE LEGEND HERE.
 EOF
             fi
         fi
-        if [ "$ext" = "jpg" ]; then
-            if [ ! -f "$STXW_FIGURE_JPG_DIR/$filename" ]; then
-                cp "$img_file" "$STXW_FIGURE_JPG_DIR/"
+        if [ "$ext" = "jpg" ] || [ "$ext" = "jpeg" ]; then
+            # Normalize .jpeg to .jpg
+            local target_filename="$filename"
+            if [ "$ext" = "jpeg" ]; then
+                target_filename="${filename%.jpeg}.jpg"
+            fi
+            if [ ! -f "$STXW_FIGURE_JPG_DIR/$target_filename" ]; then
+                cp "$img_file" "$STXW_FIGURE_JPG_DIR/$target_filename"
+                echo_success "    Copied: $(basename "$img_file") -> jpg_for_compilation/$target_filename"
+            fi
+        elif [ "$ext" = "tif" ] || [ "$ext" = "tiff" ]; then
+            # Normalize both .tif and .tiff to .jpg
+            local jpg_filename="${filename%.$ext}.jpg"
+            if [ ! -f "$STXW_FIGURE_JPG_DIR/$jpg_filename" ]; then
+                local convert_cmd=$(get_cmd_convert "$ORIG_DIR")
+                if [ -n "$convert_cmd" ]; then
+                    eval "$convert_cmd \"$img_file\" -density 300 -quality 90 \"$STXW_FIGURE_JPG_DIR/$jpg_filename\""
+                    echo_success "    Converted: $(basename "$img_file") -> $(basename "$jpg_filename")"
+                else
+                    echo_warning "    No ImageMagick found, skipping TIF/TIFF to JPG conversion"
+                fi
             fi
         elif [ "$ext" = "png" ]; then
             local jpg_filename="${filename%.png}.jpg"
             if [ ! -f "$STXW_FIGURE_JPG_DIR/$jpg_filename" ]; then
-                convert "$img_file" -density 300 -quality 90 "$STXW_FIGURE_JPG_DIR/$jpg_filename"
+                local convert_cmd=$(get_cmd_convert "$ORIG_DIR")
+                if [ -n "$convert_cmd" ]; then
+                    eval "$convert_cmd \"$img_file\" -density 300 -quality 90 \"$STXW_FIGURE_JPG_DIR/$jpg_filename\""
+                else
+                    echo_warning "    No ImageMagick found, skipping PNG to JPG conversion"
+                fi
             fi
         elif [ "$ext" = "svg" ]; then
             local jpg_filename="${filename%.svg}.jpg"
@@ -97,7 +211,12 @@ EOF
                 if command -v inkscape >/dev/null 2>&1; then
                     inkscape -z -e "$STXW_FIGURE_JPG_DIR/$jpg_filename" -w 1200 -h 1200 "$img_file"
                 else
-                    convert "$img_file" -density 300 -quality 90 "$STXW_FIGURE_JPG_DIR/$jpg_filename"
+                    local convert_cmd=$(get_cmd_convert "$ORIG_DIR")
+                    if [ -n "$convert_cmd" ]; then
+                        eval "$convert_cmd \"$img_file\" -density 300 -quality 90 \"$STXW_FIGURE_JPG_DIR/$jpg_filename\""
+                    else
+                        echo_warning "    No ImageMagick found, skipping SVG to JPG conversion"
+                    fi
                 fi
             fi
         elif [ "$ext" = "mmd" ]; then
@@ -227,9 +346,17 @@ tif2jpg() {
                     rm -f "$STXW_FIGURE_JPG_DIR"/$(basename {} .svg)_temp.png"
                 '
             else
-                find "$STXW_FIGURE_CAPTION_MEDIA_DIR" -name "Figure_ID_*.svg" | parallel -j+0 --eta '
-                    convert {} -density 300 -quality 95 "$STXW_FIGURE_JPG_DIR"/$(basename {} .svg).jpg"
-                '
+                # Get convert command for use in parallel
+                local convert_cmd=$(get_cmd_convert "$ORIG_DIR")
+                if [ -n "$convert_cmd" ]; then
+                    export -f get_cmd_convert
+                    export ORIG_DIR
+                    find "$STXW_FIGURE_CAPTION_MEDIA_DIR" -name "Figure_ID_*.svg" | parallel -j+0 --eta '
+                        '"$convert_cmd"' {} -density 300 -quality 95 "$STXW_FIGURE_JPG_DIR"/$(basename {} .svg).jpg"
+                    '
+                else
+                    echo_warning "    No ImageMagick found, skipping SVG conversions"
+                fi
             fi
             find "$STXW_FIGURE_CAPTION_MEDIA_DIR" -name "Figure_ID_*.jpg" | parallel -j+0 --eta '
                 if [ ! -f "$STXW_FIGURE_JPG_DIR"/$(basename {})" ]; then
@@ -237,15 +364,23 @@ tif2jpg() {
                 fi
             '
         else
-            find "$STXW_FIGURE_CAPTION_MEDIA_DIR" -name "Figure_ID_*.tif" | parallel -j+0 --eta '
-                convert {} -density 300 -quality 95 "$STXW_FIGURE_JPG_DIR"/$(basename {} .tif).jpg"
-            '
-            find "$STXW_FIGURE_CAPTION_MEDIA_DIR" -name "Figure_ID_*.png" | parallel -j+0 --eta '
-                convert {} -density 300 -quality 95 "$STXW_FIGURE_JPG_DIR"/$(basename {} .png).jpg"
-            '
-            find "$STXW_FIGURE_CAPTION_MEDIA_DIR" -name "Figure_ID_*.svg" | parallel -j+0 --eta '
-                convert {} -density 300 -quality 95 "$STXW_FIGURE_JPG_DIR"/$(basename {} .svg).jpg"
-            '
+            # Get convert command for use in parallel
+            local convert_cmd=$(get_cmd_convert "$ORIG_DIR")
+            if [ -n "$convert_cmd" ]; then
+                export -f get_cmd_convert
+                export ORIG_DIR
+                find "$STXW_FIGURE_CAPTION_MEDIA_DIR" -name "Figure_ID_*.tif" | parallel -j+0 --eta '
+                    '"$convert_cmd"' {} -density 300 -quality 95 "$STXW_FIGURE_JPG_DIR"/$(basename {} .tif).jpg"
+                '
+                find "$STXW_FIGURE_CAPTION_MEDIA_DIR" -name "Figure_ID_*.png" | parallel -j+0 --eta '
+                    '"$convert_cmd"' {} -density 300 -quality 95 "$STXW_FIGURE_JPG_DIR"/$(basename {} .png).jpg"
+                '
+                find "$STXW_FIGURE_CAPTION_MEDIA_DIR" -name "Figure_ID_*.svg" | parallel -j+0 --eta '
+                    '"$convert_cmd"' {} -density 300 -quality 95 "$STXW_FIGURE_JPG_DIR"/$(basename {} .svg).jpg"
+                '
+            else
+                echo_warning "    No ImageMagick found, skipping image conversions"
+            fi
             find "$STXW_FIGURE_CAPTION_MEDIA_DIR" -name "Figure_ID_*.jpg" | parallel -j+0 --eta '
                 if [ ! -f "$STXW_FIGURE_JPG_DIR"/$(basename {})" ]; then
                     cp {} "$STXW_FIGURE_JPG_DIR"/$(basename {})"
@@ -386,10 +521,10 @@ _toggle_figures() {
         sed -i 's/^\(\s*\)\\includegraphics/%\1\\includegraphics/g' "$STXW_FIGURE_COMPILED_DIR"/Figure_ID_*.tex
     else
         mkdir -p "$STXW_FIGURE_JPG_DIR"
-        find "$STXW_FIGURE_CAPTION_MEDIA_DIR" -name "*.jpg" | while read src_jpg; do
-            base_jpg=$(basename "$src_jpg")
+        find "$STXW_FIGURE_CAPTION_MEDIA_DIR" -name "*.jpg" | while read contents_jpg; do
+            base_jpg=$(basename "$contents_jpg")
             if [ ! -f "$STXW_FIGURE_JPG_DIR/$base_jpg" ]; then
-                cp "$src_jpg" "$STXW_FIGURE_JPG_DIR/"
+                cp "$contents_jpg" "$STXW_FIGURE_JPG_DIR/"
             fi
         done
         for fig_tex in "$STXW_FIGURE_COMPILED_DIR"/Figure_ID_*.tex; do
@@ -552,8 +687,8 @@ main() {
     local verbose="${3:-false}"
     local do_crop_tif="${4:-false}"
     if [ "$verbose" = true ]; then
-        echo -n "Figure processing: Starting with parameters: "
-        echo "no_figs=$no_figs, p2t=$p2t, crop_tif=$do_crop_tif"
+        echo_info "    Figure processing: Starting with parameters: "
+        echo_info "    no_figs=$no_figs, p2t=$p2t, crop_tif=$do_crop_tif"
     fi
 
     # Mermaid
@@ -566,6 +701,7 @@ main() {
 
     ensure_lower_letter_id
     ensure_caption
+    check_and_create_placeholders  # Create placeholders for missing figures
     crop_tif "$no_figs" "$do_crop_tif" "$verbose"
     tif2jpg "$no_figs"
     compile_legends

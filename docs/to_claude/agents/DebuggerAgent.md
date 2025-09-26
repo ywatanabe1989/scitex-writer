@@ -18,7 +18,7 @@ Please create and keep your ID by running this at startup:
 04. Communicate and collaborate with other agents using the bulletin board
 
 ## Files to Edit
-- `./src/package-name`
+- `./contents/package-name`
 - `./tests/package-name`
 - `./examples/`
 - `./mgmt/BULLETIN_BOARD_v??.md`

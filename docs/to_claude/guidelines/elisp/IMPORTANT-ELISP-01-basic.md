@@ -51,9 +51,9 @@ Example:
         (add-to-list 'load-path dir)
         (--elisp-add-subdirs-to-loadpath-recursive dir)))))
 
-;; Usage: add ./src and ./tests directories to load-path
+;; Usage: add ./contents and ./tests directories to load-path
 (let ((current-dir (file-name-directory (or load-file-name buffer-file-name))))
-  (--elisp-add-subdirs-to-loadpath-recursive (concat current-dir "src"))
+  (--elisp-add-subdirs-to-loadpath-recursive (concat current-dir "contents"))
   (--elisp-add-subdirs-to-loadpath-recursive (concat current-dir "tests")))
 ```
 

@@ -1,6 +1,6 @@
 # SciTeX: AI-assisted Template for Scientific Manuscripts
 
-![Demo GIF](./src/.demo.gif)
+![Demo GIF](./contents/.demo.gif)
 
 ![CI](https://github.com/ywatanabe1989/LaTeX-Scientific-Template/actions/workflows/compile.yml/badge.svg)
 
@@ -20,7 +20,7 @@ $ ./.scripts/shell/gen_pyenv.sh
 To create your manuscript, modify the following files:
 - Bibliography: [`./bibliography.bib`](./bibliography.bib)
 - Main document: [`./manuscript.tex`](./manuscript.tex)
-- Manuscript sections: [`./src/`](./src/)
+- Manuscript sections: [`./contents/`](./contents/)
 - ChatGPT configuration: [`./config/`](./config/)
 
 ```bash
@@ -44,9 +44,9 @@ $ echo 'export OPENAI_API_KEY="YOUR_OPENAI_API_KEY"' >> ~/.bashrc # Replace YOUR
 ## How to Manage Versions
 
 ```bash
-$ ./.scripts/shell/.clear_versions.sh # Reset versioning from v001
+$ ./.scripts/shell/.clear_archive.sh # Reset versioning from v001
 $ git reset HEAD~1 # Undo the last push:
-$ git checkout <commit-hash> -- src/ # Revert to a specific commit:
+$ git checkout <commit-hash> -- contents/ # Revert to a specific commit:
 ```
 
 ## Which Files to Edit
@@ -56,7 +56,7 @@ The project's structure is outlined in [`./.tree.txt`](./.tree.txt), which is au
 - `bibliography.bib`: The bibliography file
 - `config/`: Configuration files for ChatGPT
 - `manuscript.tex`: The primary LaTeX file
-- `src/`: Sections of the manuscript and figures
+- `contents/`: Sections of the manuscript and figures
 
 ## Support
 

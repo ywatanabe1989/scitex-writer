@@ -29,20 +29,20 @@ Instead of copying files, use symlinks to maintain single source of truth:
 ```bash
 # Link figures from analysis
 ln -s ~/proj/neurovista/scripts/analysis/output/fig1.png \
-      01_manuscript/src/figures/caption_and_media/Figure_ID_01_seizure_prediction.png
+      01_manuscript/contents/figures/caption_and_media/Figure_ID_01_seizure_prediction.png
 
 # Link tables from results
 ln -s ~/proj/neurovista/data/results/performance.csv \
-      01_manuscript/src/tables/caption_and_media/Table_ID_01_performance.csv
+      01_manuscript/contents/tables/caption_and_media/Table_ID_01_performance.csv
 
 # Link Mermaid diagrams
 ln -s ~/proj/neurovista/docs/workflow.mmd \
-      01_manuscript/src/figures/caption_and_media/Figure_ID_02_workflow.mmd
+      01_manuscript/contents/figures/caption_and_media/Figure_ID_02_workflow.mmd
 ```
 
 ### 2. Write Content
 
-Edit section files in `01_manuscript/src/`:
+Edit section files in `01_manuscript/contents/`:
 
 ```latex
 % introduction.tex
@@ -62,7 +62,7 @@ Previous work \cite{Tort2010} demonstrated...
 
 ### 3. Add Figure Captions
 
-Create `01_manuscript/src/figures/caption_and_media/Figure_ID_01_seizure_prediction.tex`:
+Create `01_manuscript/contents/figures/caption_and_media/Figure_ID_01_seizure_prediction.tex`:
 
 ```latex
 \textbf{Seizure prediction performance.}
@@ -162,7 +162,7 @@ ls ~/proj/neurovista/scripts/analysis/results/
 for fig in ~/proj/neurovista/scripts/pac/visualization/*_out/*.png; do
     name=$(basename $fig .png)
     id=$(printf "%02d" $counter)
-    ln -s $fig 01_manuscript/src/figures/caption_and_media/Figure_ID_${id}_${name}.png
+    ln -s $fig 01_manuscript/contents/figures/caption_and_media/Figure_ID_${id}_${name}.png
     ((counter++))
 done
 
@@ -215,20 +215,20 @@ docs/
 ```bash
 # Link a PAC analysis result
 ln -s ~/proj/neurovista/scripts/pac/visualization/pac_duration_out/summary.png \
-      01_manuscript/src/figures/caption_and_media/Figure_ID_03_pac_duration.png
+      01_manuscript/contents/figures/caption_and_media/Figure_ID_03_pac_duration.png
 
 # Link performance metrics table  
 ln -s ~/proj/neurovista/data/results/classifier_performance.csv \
-      01_manuscript/src/tables/caption_and_media/Table_ID_01_classifier_performance.csv
+      01_manuscript/contents/tables/caption_and_media/Table_ID_01_classifier_performance.csv
 
 # Link workflow diagram
 ln -s ~/proj/neurovista/docs/analysis_pipeline.mmd \
-      01_manuscript/src/figures/caption_and_media/Figure_ID_01_analysis_pipeline.mmd
+      01_manuscript/contents/figures/caption_and_media/Figure_ID_01_analysis_pipeline.mmd
 ```
 
 ### Step 2: Write Captions
 
-`01_manuscript/src/figures/caption_and_media/Figure_ID_03_pac_duration.tex`:
+`01_manuscript/contents/figures/caption_and_media/Figure_ID_03_pac_duration.tex`:
 ```latex
 \textbf{Phase-amplitude coupling duration analysis.}
 Distribution of PAC burst durations across (A) preictal and (B) interictal periods.
@@ -238,7 +238,7 @@ Statistical significance: ***p<0.001, **p<0.01, *p<0.05 (Wilcoxon signed-rank te
 
 ### Step 3: Reference in Manuscript
 
-`01_manuscript/src/results.tex`:
+`01_manuscript/contents/results.tex`:
 ```latex
 \section{Results}
 
@@ -271,7 +271,7 @@ import subprocess
 
 def link_figures(source_dir, manuscript_dir):
     """Create symlinks for all figures."""
-    fig_dir = Path(manuscript_dir) / "01_manuscript/src/figures/caption_and_media"
+    fig_dir = Path(manuscript_dir) / "01_manuscript/contents/figures/caption_and_media"
     
     for i, fig_path in enumerate(Path(source_dir).glob("**/*.png"), 1):
         target = fig_dir / f"Figure_ID_{i:02d}_{fig_path.stem}.png"
@@ -300,7 +300,7 @@ def compile_manuscript():
 
 if __name__ == "__main__":
     link_figures("~/proj/neurovista/scripts", ".")
-    generate_methods("~/proj/neurovista/scripts", "01_manuscript/src/methods.tex")
+    generate_methods("~/proj/neurovista/scripts", "01_manuscript/contents/methods.tex")
     compile_manuscript()
 ```
 

@@ -1,6 +1,6 @@
 #!/bin/bash
 # -*- coding: utf-8 -*-
-# Timestamp: "2025-09-26 21:18:34 (ywatanabe)"
+# Timestamp: "2025-09-27 00:28:29 (ywatanabe)"
 # File: ./paper/scripts/shell/modules/compilation_compiled_tex_to_compiled_pdf.sh
 
 ORIG_DIR="$(pwd)"
