@@ -1,6 +1,6 @@
 #!/bin/bash
 # -*- coding: utf-8 -*-
-# Timestamp: "2025-09-26 20:24:29 (ywatanabe)"
+# Timestamp: "2025-09-26 21:18:56 (ywatanabe)"
 # File: ./paper/scripts/shell/modules/process_diff.sh
 
 ORIG_DIR="$(pwd)"
@@ -24,42 +24,18 @@ echo_error() { echo -e "${RED}$1${NC}"; }
 # Configuration
 source ./config/load_config.sh $STXW_MANUSCRIPT_TYPE
 
+# Source the shared LaTeX commands module
+source "$(dirname ${BASH_SOURCE[0]})/command_switching.src"
+
 # Logging
 touch "$LOG_PATH" >/dev/null 2>&1
 echo
 echo_info "Running $0 ..."
 
-# Setup container (same as main compilation)
-setup_container() {
-    if [ -n "$STXW_APPTAINER_TEXLIVE" ] && [ -f "$STXW_APPTAINER_TEXLIVE" ]; then
-        TEXLIVE_CONTAINER="$STXW_APPTAINER_TEXLIVE"
-        return 0
-    fi
-
-    local container_path="${HOME}/.cache/texlive.sif"
-
-    if [ ! -f "$container_path" ]; then
-        echo_info "    Setting up TeXLive container..."
-        mkdir -p "$(dirname $container_path)"
-
-        if command -v apptainer &> /dev/null; then
-            apptainer pull "$container_path" docker://texlive/texlive:latest >/dev/null 2>&1
-        elif command -v singularity &> /dev/null; then
-            singularity pull "$container_path" docker://texlive/texlive:latest >/dev/null 2>&1
-        else
-            return 1
-        fi
-
-        [ -f "$container_path" ] && export STXW_APPTAINER_TEXLIVE="$container_path"
-    fi
-
-    TEXLIVE_CONTAINER="$container_path"
-    return 0
-}
 
 function determine_previous() {
-    local base_tex=$(ls -v "$STXW_VERSIONS_DIR"/compiled_v*base.tex 2>/dev/null | tail -n 1)
-    local latest_tex=$(ls -v "$STXW_VERSIONS_DIR"/compiled_v[0-9]*.tex 2>/dev/null | tail -n 1)
+    local base_tex=$(ls -v "$STXW_VERSIONS_DIR"/*_v*base.tex 2>/dev/null | tail -n 1)
+    local latest_tex=$(ls -v "$STXW_VERSIONS_DIR"/*_v[0-9]*.tex 2>/dev/null | tail -n 1)
     local current_tex="$STXW_COMPILED_TEX"
 
     if [[ -n "$base_tex" ]]; then
@@ -81,23 +57,28 @@ function take_diff_tex() {
         return 1
     fi
 
-    if [ "$previous" == "$STXW_COMPILED_TEX" ]; then
-        echo_warning "    No previous version found for comparison"
+    # Get latexdiff command from shared module
+    local latexdiff_cmd=$(get_cmd_latexdiff "$ORIG_DIR")
+    
+    if [ -z "$latexdiff_cmd" ]; then
+        echo_error "    latexdiff not found (native, module, or container)"
         return 1
     fi
+    
+    echo_info "    Using latexdiff command: $latexdiff_cmd"
 
-    latexdiff \
+    $latexdiff_cmd \
         --encoding=utf8 \
         --type=CULINECHBAR \
         --disable-citation-markup \
         --append-safecmd="cite,citep,citet" \
-        "$previous" "$STXW_COMPILED_TEX" > "$STXW_DIFF_TEX" 2>/dev/null
+        "$previous" "$STXW_COMPILED_TEX" > "$STXW_DIFF_TEX"
 
-    if [ -s "$STXW_DIFF_TEX" ]; then
+    if [ -f "$STXW_DIFF_TEX" ] && [ -s "$STXW_DIFF_TEX" ]; then
         echo_success "    $STXW_DIFF_TEX created"
         return 0
     else
-        echo_warning "    $STXW_DIFF_TEX is empty - documents may be identical"
+        echo_warn "    $STXW_DIFF_TEX not created or is empty"
         return 1
     fi
 }
@@ -108,33 +89,20 @@ compile_diff_tex() {
     local abs_dir=$(realpath "$ORIG_DIR")
     local tex_file="$STXW_DIFF_TEX"
     local tex_base="${STXW_DIFF_TEX%.tex}"
-    local compilation_method=""
 
-    # Determine compilation method (same priority as main script)
-    if command -v pdflatex &> /dev/null; then
-        compilation_method="native"
-    elif command -v apptainer &> /dev/null || command -v singularity &> /dev/null; then
-        setup_container && compilation_method="container"
-    elif command -v module &> /dev/null && module avail texlive &> /dev/null 2>&1; then
-        module load texlive
-        command -v pdflatex &> /dev/null && compilation_method="native"
-    fi
+    # Get commands from shared module
+    local pdf_cmd=$(get_cmd_pdflatex "$ORIG_DIR")
+    local bib_cmd=$(get_cmd_bibtex "$ORIG_DIR")
 
-    if [ -z "$compilation_method" ]; then
-        echo_error "    No LaTeX installation found"
+    if [ -z "$pdf_cmd" ] || [ -z "$bib_cmd" ]; then
+        echo_error "    No LaTeX installation found (native, module, or container)"
         return 1
     fi
+    
+    echo_info "    Using pdflatex command: $pdf_cmd"
 
-    # Build commands
-    if [ "$compilation_method" = "container" ]; then
-        local runtime=$(command -v apptainer &> /dev/null && echo "apptainer" || echo "singularity")
-        local container_base="$runtime exec --bind ${abs_dir}:${abs_dir} --pwd ${abs_dir} $TEXLIVE_CONTAINER"
-        local pdf_cmd="$container_base pdflatex -output-directory=$(dirname $tex_file) -shell-escape -interaction=nonstopmode -file-line-error"
-        local bib_cmd="$container_base bibtex"
-    else
-        local pdf_cmd="pdflatex -output-directory=$(dirname $tex_file) -shell-escape -interaction=nonstopmode -file-line-error"
-        local bib_cmd="bibtex"
-    fi
+    # Add compilation options
+    pdf_cmd="$pdf_cmd -output-directory=$(dirname $tex_file) -shell-escape -interaction=nonstopmode -file-line-error"
 
     # Compilation function
     run_pass() {
@@ -145,9 +113,9 @@ compile_diff_tex() {
         local start=$(date +%s)
 
         if [ "$STXW_VERBOSE_PDFLATEX" == "true" ]; then
-            $cmd 2>&1 | grep -v "gocryptfs not found"
+            eval "$cmd" 2>&1 | grep -v "gocryptfs not found"
         else
-            $cmd >/dev/null 2>&1
+            eval "$cmd" >/dev/null 2>&1
         fi
 
         echo_info "      ($(($(date +%s) - $start))s)"
@@ -156,7 +124,8 @@ compile_diff_tex() {
     # Compile
     run_pass "$pdf_cmd $tex_file" "Pass 1/3: Initial"
 
-    if [ -f "${tex_base}.aux" ] && grep -q "\\citation" "${tex_base}.aux" 2>/dev/null; then
+    if [ -f "${tex_base}.aux" ] && grep -q "\\citation" "${tex_base}.aux" \
+                                        2>/dev/null; then
         run_pass "$bib_cmd $tex_base" "Processing bibliography"
     fi
 
@@ -170,7 +139,7 @@ cleanup() {
         echo_success "    $STXW_DIFF_PDF ready (${size})"
         sleep 1
     else
-        echo_warning "    $STXW_DIFF_PDF not created"
+        echo_warn "    $STXW_DIFF_PDF not created"
     fi
 }
 

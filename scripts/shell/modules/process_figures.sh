@@ -558,7 +558,7 @@ main() {
 
     # Mermaid
     local THIS_DIR="$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)"
-    eval "$THIS_DIR/mmd2png_all.sh" >/dev/null 2>&1 || echo "mmd2png failed"
+    eval "$THIS_DIR/mmd2png_all.sh" || echo_warning "    mmd2png failed"
     eval "$THIS_DIR/png2tif_all.sh"
 
     init_figures

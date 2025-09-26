@@ -1,6 +1,6 @@
 #!/bin/bash
 # -*- coding: utf-8 -*-
-# Timestamp: "2025-09-26 20:28:07 (ywatanabe)"
+# Timestamp: "2025-09-26 20:37:46 (ywatanabe)"
 # File: ./paper/scripts/shell/modules/check_dependancy_commands.sh
 
 ORIG_DIR="$(pwd)"
@@ -24,56 +24,14 @@ echo_error() { echo -e "${RED}$1${NC}"; }
 # Configurations
 source ./config/load_config.sh $STXW_MANUSCRIPT_TYPE
 
+# Source the shared LaTeX commands module
+source "$(dirname ${BASH_SOURCE[0]})/command_switching.src"
+
 # Logging
 touch "$LOG_PATH" >/dev/null 2>&1
 echo
 echo_info "Running $0..."
-# echo_info "Checking dependencies..."
 
-setup_container() {
-    # Check if container path is already set
-    if [ -n "$STXW_TEXLIVE_APPTAINER_SIF" ] && [ -f "$STXW_TEXLIVE_APPTAINER_SIF" ]; then
-        return 0
-    fi
-
-    if [ ! -f "$STXW_TEXLIVE_APPTAINER_SIF" ]; then
-        echo_info "    Downloading TeXLive container (one-time setup)..."
-        mkdir -p "$(dirname $STXW_TEXLIVE_APPTAINER_SIF)"
-
-        # Try Apptainer first, then Singularity
-        if command -v apptainer &> /dev/null; then
-            apptainer pull "$STXW_TEXLIVE_APPTAINER_SIF" docker://texlive/texlive:latest >/dev/null 2>&1
-        elif command -v singularity &> /dev/null; then
-            singularity pull "$STXW_TEXLIVE_APPTAINER_SIF" docker://texlive/texlive:latest >/dev/null 2>&1
-        else
-            return 1
-        fi
-
-        if [ -f "$STXW_TEXLIVE_APPTAINER_SIF" ]; then
-            echo_success "    Container downloaded to $STXW_TEXLIVE_APPTAINER_SIF"
-            export STXW_TEXLIVE_APPTAINER_SIF="$STXW_TEXLIVE_APPTAINER_SIF"
-        else
-            return 1
-        fi
-    fi
-
-    return 0
-}
-
-setup_container
-
-# # Load modules if available
-# if command -v module &> /dev/null; then
-#     if module avail texlive &> /dev/null 2>&1; then
-#         module load texlive
-#     fi
-#     if module avail parallel &> /dev/null 2>&1; then
-#         module load parallel
-#     fi
-#     if module avail nodejs &> /dev/null 2>&1; then
-#         module load nodejs
-#     fi
-# fi
 
 # Detect package manager
 detect_package_manager() {
@@ -86,103 +44,93 @@ detect_package_manager() {
     fi
 }
 
-PKG_MANAGER=$(detect_package_manager)
-
-# Check for module command availability
-has_module_command() {
-    command -v module &> /dev/null
+# Check if sudo is available
+has_sudo() {
+    if command -v sudo &> /dev/null; then
+        return 0
+    else
+        return 1
+    fi
 }
+
+PKG_MANAGER=$(detect_package_manager)
+SUDO_PREFIX=""
+if has_sudo; then
+    SUDO_PREFIX="sudo "
+fi
 
 # Standalone checker for each tool
 check_pdflatex() {
-    if [ -n "$STXW_TEXLIVE_APPTAINER_SIF" ] && [ -f "$STXW_TEXLIVE_APPTAINER_SIF" ]; then
-        return 0
-    fi
-
-    if ! command -v pdflatex &> /dev/null; then
-        if command -v module &> /dev/null && module avail texlive &> /dev/null; then
-            module load texlive
-        fi
-    fi
-
-    if ! command -v pdflatex &> /dev/null; then
+    local cmd=$(get_cmd_pdflatex "$ORIG_DIR")
+    if [ -z "$cmd" ]; then
         echo "- pdflatex"
-        if has_module_command; then
-            echo "    - module load texlive"
-        fi
         if [ "$PKG_MANAGER" = "apt" ]; then
-            echo "    - sudo apt install texlive-latex-base"
+            echo "    - ${SUDO_PREFIX}apt install texlive-latex-base"
         elif [ "$PKG_MANAGER" = "yum" ]; then
-            echo "    - sudo yum install texlive-latex"
+            echo "    - ${SUDO_PREFIX}yum install texlive-latex"
         fi
+        echo "    - Or use: module load texlive"
+        echo "    - Or use: apptainer/singularity with texlive container"
         return 1
     fi
     return 0
 }
 
 check_bibtex() {
-    if [ -n "$STXW_TEXLIVE_APPTAINER_SIF" ] && [ -f "$STXW_TEXLIVE_APPTAINER_SIF" ]; then
-        return 0
-    fi
-
-    if ! command -v bibtex &> /dev/null; then
-        if command -v module &> /dev/null && module avail texlive &> /dev/null; then
-            module load texlive
-        fi
-    fi
-
-    if ! command -v bibtex &> /dev/null; then
+    local cmd=$(get_cmd_bibtex "$ORIG_DIR")
+    if [ -z "$cmd" ]; then
         echo "- bibtex"
-        if has_module_command; then
-            echo "    - module load texlive"
-        fi
         if [ "$PKG_MANAGER" = "apt" ]; then
-            echo "    - sudo apt install texlive-bibtex-extra"
+            echo "    - ${SUDO_PREFIX}apt install texlive-bibtex-extra"
         elif [ "$PKG_MANAGER" = "yum" ]; then
-            echo "    - sudo yum install texlive-bibtex"
+            echo "    - ${SUDO_PREFIX}yum install texlive-bibtex"
         fi
+        echo "    - Or use: module load texlive"
+        echo "    - Or use: apptainer/singularity with texlive container"
         return 1
     fi
     return 0
 }
 
+check_latexdiff() {
+    local cmd=$(get_cmd_latexdiff "$ORIG_DIR")
+    if [ -z "$cmd" ]; then
+        echo "- latexdiff"
+        if [ "$PKG_MANAGER" = "apt" ]; then
+            echo "    - ${SUDO_PREFIX}apt install latexdiff"
+        elif [ "$PKG_MANAGER" = "yum" ]; then
+            echo "    - ${SUDO_PREFIX}yum install texlive-latexdiff"
+        fi
+        echo "    - Or use: module load texlive"
+        echo "    - Or use: apptainer/singularity with texlive container"
+        return 1
+    fi
+    return 0
+}
 
 check_texcount() {
-    if [ -n "$STXW_TEXLIVE_APPTAINER_SIF" ] && [ -f "$STXW_TEXLIVE_APPTAINER_SIF" ]; then
-        return 0
-    fi
-
-    if ! command -v texcount &> /dev/null; then
-        if command -v module &> /dev/null && module avail texlive &> /dev/null; then
-            module load texlive
-        fi
-    fi
-
-    if ! command -v texcount &> /dev/null; then
+    local cmd=$(get_cmd_texcount "$ORIG_DIR")
+    if [ -z "$cmd" ]; then
         echo "- texcount"
-        if has_module_command; then
-            echo "    - module load texlive"
-        fi
         if [ "$PKG_MANAGER" = "apt" ]; then
-            echo "    - sudo apt install texlive-extra-utils"
+            echo "    - ${SUDO_PREFIX}apt install texlive-extra-utils"
         elif [ "$PKG_MANAGER" = "yum" ]; then
-            echo "    - sudo yum install texlive-texcount"
+            echo "    - ${SUDO_PREFIX}yum install texlive-texcount"
         fi
+        echo "    - Or use: module load texlive"
+        echo "    - Or use: apptainer/singularity with texlive container"
         return 1
     fi
     return 0
 }
-
 
 check_xlsx2csv() {
     if ! command -v xlsx2csv &> /dev/null && ! python3 -c "import xlsx2csv" &> /dev/null 2>&1; then
-        echo "  - xlsx2csv"
+        echo "- xlsx2csv"
+        echo "    - pip install xlsx2csv"
         if [ "$PKG_MANAGER" = "apt" ]; then
-            echo "      sudo apt install xlsx2csv"
-        elif [ "$PKG_MANAGER" = "yum" ]; then
-            echo "      sudo yum install python3-xlsx2csv"
+            echo "    - Or: ${SUDO_PREFIX}apt install xlsx2csv"
         fi
-        echo "      pip install xlsx2csv"
         return 1
     fi
     return 0
@@ -190,11 +138,8 @@ check_xlsx2csv() {
 
 check_csv2latex() {
     if ! command -v csv2latex &> /dev/null && ! python3 -c "import csv2latex" &> /dev/null 2>&1; then
-        echo "  - csv2latex"
-        if [ "$PKG_MANAGER" = "apt" ]; then
-            echo "      sudo apt install csv2latex"
-        fi
-        echo "      pip install csv2latex"
+        echo "- csv2latex"
+        echo "    - pip install csv2latex"
         return 1
     fi
     return 0
@@ -203,13 +148,10 @@ check_csv2latex() {
 check_parallel() {
     if ! command -v parallel &> /dev/null; then
         echo "- parallel"
-        # if has_module_command; then
-        #     echo "    - module load parallel"
-        # fi
         if [ "$PKG_MANAGER" = "apt" ]; then
-            echo "    - sudo apt install parallel"
+            echo "    - ${SUDO_PREFIX}apt install parallel"
         elif [ "$PKG_MANAGER" = "yum" ]; then
-            echo "    - sudo yum install parallel"
+            echo "    - ${SUDO_PREFIX}yum install parallel"
         fi
         return 1
     fi
@@ -218,7 +160,7 @@ check_parallel() {
 
 check_opencv() {
     if command -v python3 &> /dev/null; then
-        if ! python3 -c "import cv2" &> /dev/null; then
+        if ! python3 -c "import cv2" &> /dev/null 2>&1; then
             echo "- opencv-python (optional, for --crop_tif)"
             echo "    - pip install opencv-python"
             return 1
@@ -229,7 +171,7 @@ check_opencv() {
 
 check_numpy() {
     if command -v python3 &> /dev/null; then
-        if ! python3 -c "import numpy" &> /dev/null; then
+        if ! python3 -c "import numpy" &> /dev/null 2>&1; then
             echo "- numpy (optional, for --crop_tif)"
             echo "    - pip install numpy"
             return 1
@@ -239,18 +181,16 @@ check_numpy() {
 }
 
 check_mmdc() {
-    if ! command -v npm &> /dev/null; then
-        echo "- npm (optional, for Mermaid diagrams)"
-        echo "    - module load nodejs"
-        return 1
-    fi
-
-    if ! command -v mmdc &> /dev/null; then
+    local cmd=$(get_cmd_mmdc "$ORIG_DIR")
+    if [ -z "$cmd" ]; then
         echo "- mmdc (optional, for Mermaid diagrams)"
+        if ! command -v npm &> /dev/null; then
+            echo "    - First install npm/nodejs"
+        fi
         echo "    - npm install -g @mermaid-js/mermaid-cli"
+        echo "    - Or use: apptainer/singularity with mermaid container"
         return 1
     fi
-
     return 0
 }
 
@@ -261,11 +201,15 @@ check_all_dependencies() {
     local required_output=""
     local optional_output=""
 
+    # Try to setup container first if needed
+    # Container setup is now handled by individual command functions via command_switching.sh
+
     # Required tools
-    for checker in check_pdflatex check_bibtex check_texcount check_xlsx2csv check_csv2latex check_parallel; do
+    for checker in check_pdflatex check_bibtex check_latexdiff check_texcount check_xlsx2csv check_csv2latex check_parallel; do
         output=$($checker)
         if [ -n "$output" ]; then
-            required_output="${required_output}${output}\n\n"
+            has_missing_required=true
+            required_output="${required_output}${output}\n"
         fi
     done
 
@@ -274,27 +218,35 @@ check_all_dependencies() {
         output=$($checker)
         if [ -n "$output" ]; then
             has_missing_optional=true
-            optional_output="${optional_output}${output}\n\n"
+            optional_output="${optional_output}${output}\n"
         fi
     done
 
     # Display results
-    if [ -n "$required_output" ]; then
-        echo "    Missing required tools and potential installation commands:"
+    if [ "$has_missing_required" = true ]; then
+        echo_error "    Missing required tools:"
         echo -e "$required_output"
-        exit 1
+        return 1
     else
-        echo_success "    All required tools are available."
+        if [ -n "$STXW_TEXLIVE_APPTAINER_SIF" ] && [ -f "$STXW_TEXLIVE_APPTAINER_SIF" ]; then
+            echo_success "    All required tools available (using container for LaTeX)"
+        else
+            echo_success "    All required tools available (native installation)"
+        fi
     fi
 
-    if [ -n "$optional_output" ]; then
-        echo_warning "    Missing optional tools and potential installation commands:"
+    if [ "$has_missing_optional" = true ]; then
+        echo_warning "    Missing optional tools:"
         echo -e "$optional_output"
-        exit 1
     fi
+
+    return 0
 }
 
 # Run checks
 check_all_dependencies
+exit_code=$?
+
+exit $exit_code
 
 # EOF

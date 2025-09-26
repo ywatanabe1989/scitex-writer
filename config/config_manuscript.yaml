@@ -16,7 +16,8 @@ paths:
   diff_pdf: "./01_manuscript/diff.pdf"
   versions_dir: "./01_manuscript/versions"
   version_counter_txt: "./01_manuscript/versions/.version_counter.txt"
-  texlive_apptainer_sif: "./texlive.sif"
+  texlive_apptainer_sif: "./.cache/containers/texlive.sif"
+  mermaid_apptainer_sif: "./.cache/containers/mermaid_container.sif"
   
 figures:
   dir: "./01_manuscript/src/figures"

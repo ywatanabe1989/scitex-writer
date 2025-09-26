@@ -70,13 +70,13 @@ main() {
     parse_arguments "$@"
 
     # Log command options
-    options_display=""
+    options_display=" "
     $do_p2t && options_display="${options_display}--ppt2tif "
     ! $no_figs && options_display="${options_display}--figs "
     $do_crop_tif && options_display="${options_display}--crop_tif "
     $do_quiet && options_display="${options_display}--quiet "
     # echo_info "    Options: ${options_display:-none}"
-    echo_info "Running $0 ${options_display:-none}..."
+    echo_info "Running $0${options_display}..."
 
     # Verbosity
     if [ "$do_quiet" == "true" ]; then

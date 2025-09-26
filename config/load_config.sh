@@ -1,6 +1,6 @@
 #!/bin/bash
 # -*- coding: utf-8 -*-
-# Timestamp: "2025-09-26 20:03:34 (ywatanabe)"
+# Timestamp: "2025-09-26 21:04:50 (ywatanabe)"
 # File: ./paper/config/load_config.sh
 
 ORIG_DIR="$(pwd)"
@@ -60,6 +60,7 @@ export STXW_DIFF_PDF="$(yq '.paths.diff_pdf' $CONFIG_FILE)"
 export STXW_VERSIONS_DIR="$(yq '.paths.versions_dir' $CONFIG_FILE)"
 export STXW_VERSION_COUNTER_TXT="$(yq '.paths.version_counter_txt' $CONFIG_FILE)"
 export STXW_TEXLIVE_APPTAINER_SIF="$(yq '.paths.texlive_apptainer_sif' $CONFIG_FILE)"
+export STXW_MERMAID_APPTAINER_SIF="$(yq '.paths.mermaid_apptainer_sif' $CONFIG_FILE)"
 
 
 export STXW_FIGURE_DIR="$(yq '.figures.dir' $CONFIG_FILE)"

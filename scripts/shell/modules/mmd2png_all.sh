@@ -24,21 +24,46 @@ echo_error() { echo -e "${RED}$1${NC}"; }
 # Configurations
 source ./config/load_config.sh $STXW_MANUSCRIPT_TYPE
 
+# Source the shared commands module for mmdc
+source "$(dirname ${BASH_SOURCE[0]})/command_switching.src"
+
 # Logging
 touch "$LOG_PATH" >/dev/null 2>&1
 echo
 echo "Running $0..."
 
 mmd2png(){
+    # Get mmdc command
+    local mmdc_cmd=$(get_cmd_mmdc "$ORIG_DIR")
+    
+    if [ -z "$mmdc_cmd" ]; then
+        echo_warning "    mmdc not found (native or container)"
+        return 1
+    fi
+    
+    echo_info "    Using mmdc command: $mmdc_cmd"
+    
     n_mmd_files="$(ls $STXW_FIGURE_CAPTION_MEDIA_DIR/Figure_ID_*.mmd 2>/dev/null | wc -l)"
     if [[ $n_mmd_files -gt 0 ]]; then
         for mmd_file in "$STXW_FIGURE_CAPTION_MEDIA_DIR"/Figure_ID_*.mmd; do
             png_file="${mmd_file%.mmd}.png"
-            mmdc -i "$mmd_file" -o "$png_file"
-            echo "Processed: $(basename "$mmd_file")"
+            jpg_file="$STXW_FIGURE_JPG_DIR/$(basename "${mmd_file%.mmd}.jpg")"
+            
+            echo_info "    Converting $(basename "$mmd_file") to PNG..."
+            eval "$mmdc_cmd -i \"$mmd_file\" -o \"$png_file\""
+            
+            if [ -f "$png_file" ]; then
+                echo_success "    Created: $(basename "$png_file")"
+                # Copy PNG as JPG for LaTeX compatibility (since convert isn't available)
+                # LaTeX can handle PNG files renamed as JPG in many cases
+                cp "$png_file" "$jpg_file" 2>/dev/null
+                if [ -f "$jpg_file" ]; then
+                    echo_success "    Created: $(basename "$jpg_file") (PNG format)"
+                fi
+            fi
         done 2>&1 | tee -a "$LOG_PATH"
     else
-        echo "No .mmd files found in $STXW_FIGURE_CAPTION_MEDIA_DIR" | tee -a "$LOG_PATH"
+        echo_info "    No .mmd files found in $STXW_FIGURE_CAPTION_MEDIA_DIR" | tee -a "$LOG_PATH"
     fi
 }
 

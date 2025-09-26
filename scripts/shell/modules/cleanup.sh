@@ -1,6 +1,6 @@
 #!/bin/bash
 # -*- coding: utf-8 -*-
-# Timestamp: "2025-09-26 10:52:38 (ywatanabe)"
+# Timestamp: "2025-09-26 20:42:47 (ywatanabe)"
 # File: ./paper/scripts/shell/modules/cleanup.sh
 
 ORIG_DIR="$(pwd)"
@@ -40,13 +40,12 @@ function cleanup() {
     find "$STWX_ROOT_DIR" -type f -name "#*#" -exec rm {} \;
 
     # Move files with these extensions to LOGDIR
-    for ext in log out bbl blg spl dvi toc bak stderr stdout; do
+    for ext in log out bbl blg spl dvi toc bak stderr stdout aux fls fdb_latexmk synctex.gz cb cb2; do
         find "$STWX_ROOT_DIR" -maxdepth 1 -type f -name "*.$ext" -exec mv {} $LOG_DIR/ \; 2>/dev/null
     done
 
     echo_info "    Removing versioned files from current directory..."
-    rm ./compiled_v* -f
-    rm ./diff_v* -f
+    rm *_v*.pdf *_v*.tex -f
 }
 
 cleanup

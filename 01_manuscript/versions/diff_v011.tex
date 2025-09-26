@@ -1,4 +1,7 @@
 %% -*- coding: utf-8 -*-
+%DIF LATEXDIFF DIFFERENCE FILE
+%DIF DEL ./01_manuscript/versions/manuscript_v010.tex   Fri Sep 26 22:15:39 2025
+%DIF ADD ./01_manuscript/manuscript.tex                 Fri Sep 26 22:19:03 2025
 %% Timestamp: "2025-09-26 16:57:33 (ywatanabe)"
 %% File: "/ssh:sp:/home/ywatanabe/proj/neurovista/paper/01_manuscript/base.tex"
 \UseRawInputEncoding
@@ -234,6 +237,96 @@
 %% ----------------------------------------
 %% START of DOCUMENT
 %% ----------------------------------------
+%DIF PREAMBLE EXTENSION ADDED BY LATEXDIFF
+%DIF CULINECHBAR PREAMBLE %DIF PREAMBLE
+\RequirePackage[normalem]{ulem} %DIF PREAMBLE
+\RequirePackage[pdftex]{changebar} %DIF PREAMBLE
+\RequirePackage{color}\definecolor{RED}{rgb}{1,0,0}\definecolor{BLUE}{rgb}{0,0,1} %DIF PREAMBLE
+\providecommand{\DIFaddtex}[1]{\protect\cbstart{\protect\color{blue}\uwave{#1}}\protect\cbend} %DIF PREAMBLE
+\providecommand{\DIFdeltex}[1]{\protect\cbdelete{\protect\color{red}\sout{#1}}\protect\cbdelete} %DIF PREAMBLE
+%DIF SAFE PREAMBLE %DIF PREAMBLE
+\providecommand{\DIFaddbegin}{} %DIF PREAMBLE
+\providecommand{\DIFaddend}{} %DIF PREAMBLE
+\providecommand{\DIFdelbegin}{} %DIF PREAMBLE
+\providecommand{\DIFdelend}{} %DIF PREAMBLE
+\providecommand{\DIFmodbegin}{} %DIF PREAMBLE
+\providecommand{\DIFmodend}{} %DIF PREAMBLE
+%DIF FLOATSAFE PREAMBLE %DIF PREAMBLE
+\providecommand{\DIFaddFL}[1]{\DIFadd{#1}} %DIF PREAMBLE
+\providecommand{\DIFdelFL}[1]{\DIFdel{#1}} %DIF PREAMBLE
+\providecommand{\DIFaddbeginFL}{} %DIF PREAMBLE
+\providecommand{\DIFaddendFL}{} %DIF PREAMBLE
+\providecommand{\DIFdelbeginFL}{} %DIF PREAMBLE
+\providecommand{\DIFdelendFL}{} %DIF PREAMBLE
+%DIF HYPERREF PREAMBLE %DIF PREAMBLE
+\providecommand{\DIFadd}[1]{\texorpdfstring{\DIFaddtex{#1}}{#1}} %DIF PREAMBLE
+\providecommand{\DIFdel}[1]{\texorpdfstring{\DIFdeltex{#1}}{}} %DIF PREAMBLE
+\newcommand{\DIFscaledelfig}{0.5}
+%DIF HIGHLIGHTGRAPHICS PREAMBLE %DIF PREAMBLE
+\RequirePackage{settobox} %DIF PREAMBLE
+\RequirePackage{letltxmacro} %DIF PREAMBLE
+\newsavebox{\DIFdelgraphicsbox} %DIF PREAMBLE
+\newlength{\DIFdelgraphicswidth} %DIF PREAMBLE
+\newlength{\DIFdelgraphicsheight} %DIF PREAMBLE
+% store original definition of \includegraphics %DIF PREAMBLE
+\LetLtxMacro{\DIFOincludegraphics}{\includegraphics} %DIF PREAMBLE
+\newcommand{\DIFaddincludegraphics}[2][]{{\color{blue}\fbox{\DIFOincludegraphics[#1]{#2}}}} %DIF PREAMBLE
+\newcommand{\DIFdelincludegraphics}[2][]{% %DIF PREAMBLE
+\sbox{\DIFdelgraphicsbox}{\DIFOincludegraphics[#1]{#2}}% %DIF PREAMBLE
+\settoboxwidth{\DIFdelgraphicswidth}{\DIFdelgraphicsbox} %DIF PREAMBLE
+\settoboxtotalheight{\DIFdelgraphicsheight}{\DIFdelgraphicsbox} %DIF PREAMBLE
+\scalebox{\DIFscaledelfig}{% %DIF PREAMBLE
+\parbox[b]{\DIFdelgraphicswidth}{\usebox{\DIFdelgraphicsbox}\\[-\baselineskip] \rule{\DIFdelgraphicswidth}{0em}}\llap{\resizebox{\DIFdelgraphicswidth}{\DIFdelgraphicsheight}{% %DIF PREAMBLE
+\setlength{\unitlength}{\DIFdelgraphicswidth}% %DIF PREAMBLE
+\begin{picture}(1,1)% %DIF PREAMBLE
+\thicklines\linethickness{2pt} %DIF PREAMBLE
+{\color[rgb]{1,0,0}\put(0,0){\framebox(1,1){}}}% %DIF PREAMBLE
+{\color[rgb]{1,0,0}\put(0,0){\line( 1,1){1}}}% %DIF PREAMBLE
+{\color[rgb]{1,0,0}\put(0,1){\line(1,-1){1}}}% %DIF PREAMBLE
+\end{picture}% %DIF PREAMBLE
+}\hspace*{3pt}}} %DIF PREAMBLE
+} %DIF PREAMBLE
+\LetLtxMacro{\DIFOaddbegin}{\DIFaddbegin} %DIF PREAMBLE
+\LetLtxMacro{\DIFOaddend}{\DIFaddend} %DIF PREAMBLE
+\LetLtxMacro{\DIFOdelbegin}{\DIFdelbegin} %DIF PREAMBLE
+\LetLtxMacro{\DIFOdelend}{\DIFdelend} %DIF PREAMBLE
+\DeclareRobustCommand{\DIFaddbegin}{\DIFOaddbegin \let\includegraphics\DIFaddincludegraphics} %DIF PREAMBLE
+\DeclareRobustCommand{\DIFaddend}{\DIFOaddend \let\includegraphics\DIFOincludegraphics} %DIF PREAMBLE
+\DeclareRobustCommand{\DIFdelbegin}{\DIFOdelbegin \let\includegraphics\DIFdelincludegraphics} %DIF PREAMBLE
+\DeclareRobustCommand{\DIFdelend}{\DIFOaddend \let\includegraphics\DIFOincludegraphics} %DIF PREAMBLE
+\LetLtxMacro{\DIFOaddbeginFL}{\DIFaddbeginFL} %DIF PREAMBLE
+\LetLtxMacro{\DIFOaddendFL}{\DIFaddendFL} %DIF PREAMBLE
+\LetLtxMacro{\DIFOdelbeginFL}{\DIFdelbeginFL} %DIF PREAMBLE
+\LetLtxMacro{\DIFOdelendFL}{\DIFdelendFL} %DIF PREAMBLE
+\DeclareRobustCommand{\DIFaddbeginFL}{\DIFOaddbeginFL \let\includegraphics\DIFaddincludegraphics} %DIF PREAMBLE
+\DeclareRobustCommand{\DIFaddendFL}{\DIFOaddendFL \let\includegraphics\DIFOincludegraphics} %DIF PREAMBLE
+\DeclareRobustCommand{\DIFdelbeginFL}{\DIFOdelbeginFL \let\includegraphics\DIFdelincludegraphics} %DIF PREAMBLE
+\DeclareRobustCommand{\DIFdelendFL}{\DIFOaddendFL \let\includegraphics\DIFOincludegraphics} %DIF PREAMBLE
+%DIF AMSMATHULEM PREAMBLE %DIF PREAMBLE
+\makeatletter %DIF PREAMBLE
+\let\sout@orig\sout %DIF PREAMBLE
+\renewcommand{\sout}[1]{\ifmmode\text{\sout@orig{\ensuremath{#1}}}\else\sout@orig{#1}\fi} %DIF PREAMBLE
+\makeatother %DIF PREAMBLE
+%DIF COLORLISTINGS PREAMBLE %DIF PREAMBLE
+\RequirePackage{listings} %DIF PREAMBLE
+\RequirePackage{color} %DIF PREAMBLE
+\lstdefinelanguage{DIFcode}{ %DIF PREAMBLE
+%DIF DIFCODE_CULINECHBAR %DIF PREAMBLE
+  moredelim=[il][\color{red}\sout]{\%DIF\ <\ }, %DIF PREAMBLE
+  moredelim=[il][\color{blue}\uwave]{\%DIF\ >\ } %DIF PREAMBLE
+} %DIF PREAMBLE
+\lstdefinestyle{DIFverbatimstyle}{ %DIF PREAMBLE
+	language=DIFcode, %DIF PREAMBLE
+	basicstyle=\ttfamily, %DIF PREAMBLE
+	columns=fullflexible, %DIF PREAMBLE
+	keepspaces=true %DIF PREAMBLE
+} %DIF PREAMBLE
+\lstnewenvironment{DIFverbatim}{\lstset{style=DIFverbatimstyle}}{} %DIF PREAMBLE
+\lstnewenvironment{DIFverbatim*}{\lstset{style=DIFverbatimstyle,showspaces=true}}{} %DIF PREAMBLE
+\lstset{extendedchars=\true,inputencoding=utf8}
+
+%DIF END PREAMBLE EXTENSION ADDED BY LATEXDIFF
+
 \begin{document}
 
 %% ----------------------------------------
@@ -307,7 +400,7 @@ Phase-amplitude coupling for detection and prediction of epileptic seizures in l
 %% File: "/ssh:sp:/home/ywatanabe/proj/neurovista/paper/manuscript/src/abstract.tex"
 \begin{abstract}
   \pdfbookmark[1]{Abstract}{abstract}
-  
+
 Neural oscillations exhibit complex cross-frequency interactions that are fundamental to brain function and disrupted in neurological disorders. Phase-amplitude coupling (PAC), where the phase of low-frequency oscillations modulates the amplitude of high-frequency activity, serves as a biomarker for various brain states including epileptic seizures. Previous studies have demonstrated PAC changes around seizure events, but comprehensive characterization across extended timescales remains limited due to the scarcity of long-term recording data and computational constraints. The challenge of processing continuous, long-term neural recordings has hindered the development of reliable seizure prediction systems. Here we show that GPU-accelerated PAC computation enables comprehensive analysis of 4.1 TB of continuous intracranial electroencephalogram data from 15 patients with focal epilepsy (NeuroVista dataset), encompassing 1,539 seizures over monitoring periods ranging from 6 months to 2 years. \hl{We found distinct PAC signatures between theta-to-beta phase (2-30 Hz, 25 bands) and gamma amplitude (60-180 Hz, 25 bands) that systematically modulated 5-60 minutes before seizure onset}, achieving balanced accuracy of \hl{0.55±0.04} and ROC-AUC of \hl{0.58±0.02} for discriminating pre-ictal from interictal states. Our GPU-accelerated implementation achieved \hl{100-fold} speed improvements compared to conventional CPU-based methods, reducing computation time from years to months and potentially enabling real-time PAC monitoring with less than 2-minute processing latency. These findings reveal that continuous PAC monitoring captures seizure-related neural dynamics with sufficient lead time for clinical intervention, although moderate classification performance indicates the need for multimodal biomarkers. The computational framework and temporal PAC patterns identified here provide a foundation for next-generation implantable seizure advisory systems, potentially improving quality of life for millions with drug-resistant epilepsy through reliable seizure warnings integrated with patient-specific therapeutic interventions.
 
 \end{abstract}
@@ -355,8 +448,8 @@ epilepsy \sep seizure detection \sep seizure prediction \sep NeuroVista dataset 
 %% ./01_manuscript/src/introduction.tex
 %% ========================================
 %% -*- coding: utf-8 -*-
-%% Timestamp: "2025-09-22 08:01:23 (ywatanabe)"
-%% File: "/ssh:sp:/home/ywatanabe/proj/neurovista/paper/manuscript/src/introduction.tex"
+%% Timestamp: "2025-09-26 21:47:51 (ywatanabe)"
+%% File: "/ssh:sp:/home/ywatanabe/proj/neurovista/paper/01_manuscript/src/introduction.tex"
 
 %% \[START of [0-9]\. .* Statement\]
 %% \[\(START\|END\) of [0-9]+\. [^]]*\] *
@@ -376,6 +469,7 @@ Epilepsy affects approximately 70 million people worldwide, representing one of 
 
 These findings establish PAC as a computationally tractable biomarker for seizure prediction in large-scale clinical datasets, providing a foundation for next-generation implantable advisory systems that could transform epilepsy management from reactive to predictive care. The moderate classification performance observed highlights the need for multimodal biomarker integration while demonstrating sufficient predictive capacity to warrant clinical investigation of PAC-based seizure warning systems. 
 
+Add this text for testing diff
 \label{sec:introduction}
 
 %%%% EOF
@@ -690,7 +784,8 @@ The authors employed Claude Code (provided by Anthropic) for code development an
 %% ========================================
 %% ./01_manuscript/src/figures/compiled/FINAL.tex
 %% ========================================
-% Generated by compile_figure_tex_files() on Fri Sep 26 08:25:06 PM AEST 2025
+%DIF <  Generated by compile_figure_tex_files() on Fri Sep 26 10:15:16 PM AEST 2025
+%DIF >  Generated by compile_figure_tex_files() on Fri Sep 26 10:19:02 PM AEST 2025
 % This file includes all figure files in order
 
 % Figure 00: Figure 00
@@ -707,6 +802,23 @@ Figure 00
 Description for figure 00.
 }
     \label{fig:00_template}
+\end{figure*}
+
+% Figure 01: Figure 01
+\clearpage
+\begin{figure*}[p]
+    \pdfbookmark[2]{Figure 01}{figure_id_01}
+    \centering
+    \includegraphics[width=0.95\textwidth]{./01_manuscript/src/figures/caption_and_media/jpg/Figure_ID_01_workflow.jpg}
+    \caption{
+\textbf{
+Figure 01
+}
+\smallskip
+\\
+Description for figure 01.
+}
+    \label{fig:01_workflow}
 \end{figure*}
 
 

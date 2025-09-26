@@ -1,11 +1,19 @@
 %% -*- coding: utf-8 -*-
-%% Timestamp: "2025-09-26 09:59:09 (ywatanabe)"
-%% File: "/ssh:sp:/home/ywatanabe/proj/neurovista/paper/manuscript/base.tex"
+%% Timestamp: "2025-09-26 16:57:33 (ywatanabe)"
+%% File: "/ssh:sp:/home/ywatanabe/proj/neurovista/paper/01_manuscript/base.tex"
 \UseRawInputEncoding
 
 %% ----------------------------------------
 %% SETTINGS
 %% ----------------------------------------
+
+%% ========================================
+%% ./01_manuscript/src/styles/columns.tex
+%% ========================================
+%% -*- coding: utf-8 -*-
+%% Timestamp: "2025-09-26 18:18:13 (ywatanabe)"
+%% File: "/ssh:sp:/home/ywatanabe/proj/neurovista/paper/01_manuscript/src/styles/columns.tex"
+
 %% Columns
 %% \documentclass[final,3p,times,twocolumn]{elsarticle} %% Use it for submission
 %% Use the options 1p,twocolumn; 3p; 3p,twocolumn; 5p; or 5p,twocolumn
@@ -16,10 +24,18 @@
 %% \documentclass[final,3p,times,twocolumn]{elsarticle}
 %% \documentclass[final,5p,times]{elsarticle}
 %% \documentclass[final,5p,times,twocolumn]{elsarticle}
-\documentclass[preprint,review,12pt]{elsarticle}    \n
+\documentclass[preprint,review,12pt]{elsarticle}
+
+%%%% EOF
+
+
+%% ========================================
+%% ./01_manuscript/src/styles/packages.tex
+%% ========================================
 %% -*- coding: utf-8 -*-
-%% Timestamp: "2025-05-06 11:52:14 (ywatanabe)"
-%% File: "/home/ywatanabe/proj/SciTex/manuscript/src/styles/packages.tex"
+%% Timestamp: "2025-09-26 18:17:51 (ywatanabe)"
+%% File: "/ssh:sp:/home/ywatanabe/proj/neurovista/paper/01_manuscript/src/styles/packages.tex"
+
 %% preamble
 \usepackage[english]{babel}
 \usepackage[table]{xcolor} % For coloring tables
@@ -71,7 +87,16 @@
 %% \usepackage{xr}
 \usepackage{xr-hyper}
 
-%%%% EOF    \n
+%%%% EOF
+
+
+%% ========================================
+%% ./01_manuscript/src/styles/linker.tex
+%% ========================================
+%% -*- coding: utf-8 -*-
+%% Timestamp: "2025-09-26 18:18:21 (ywatanabe)"
+%% File: "/ssh:sp:/home/ywatanabe/proj/neurovista/paper/01_manuscript/src/styles/linker.tex"
+
 % Edit to ref between main text & supplemental material
 \usepackage{xr}
 \makeatletter
@@ -87,7 +112,17 @@
     \addFileDependency{#2.tex}%
     \addFileDependency{#2.aux}%
 }
-    \n
+
+%%%% EOF
+
+
+%% ========================================
+%% ./01_manuscript/src/styles/formatting.tex
+%% ========================================
+%% -*- coding: utf-8 -*-
+%% Timestamp: "2025-09-26 18:18:18 (ywatanabe)"
+%% File: "/ssh:sp:/home/ywatanabe/proj/neurovista/paper/01_manuscript/src/styles/formatting.tex"
+
 %% Image width
 \newlength{\imagewidth}
 \newlength{\imagescale}
@@ -181,15 +216,20 @@
 \newcommand*\smref[1]{%
     Supplementary Materials S\hlref{#1}}
 
+%%%% EOF
 
-    \n
 \link[supple-]{../supplementary/main}
 
 %% ----------------------------------------
 %% JOURNAL NAME
 %% ----------------------------------------
+
+%% ========================================
+%% ./01_manuscript/src/journal_name.tex
+%% ========================================
 \journal{Journal Name Here}
-    \n
+
+
 
 %% ----------------------------------------
 %% START of DOCUMENT
@@ -200,6 +240,10 @@
 %% Frontmatter
 %% ----------------------------------------
 \begin{frontmatter}
+
+%% ========================================
+%% ./01_manuscript/src/highlights.tex
+%% ========================================
 %% \begin{highlights}
 %% \pdfbookmark[1]{Highlights}{highlights}
 
@@ -212,11 +256,21 @@
 %% \item Highlight \#4
 
 %% \end{highlights}
-    \n
+
+
+
+%% ========================================
+%% ./01_manuscript/src/title.tex
+%% ========================================
 \title{
 Phase-amplitude coupling for detection and prediction of epileptic seizures in long-term intracranial electroencephalogram data
 }
-    \n
+
+
+
+%% ========================================
+%% ./01_manuscript/src/authors.tex
+%% ========================================
 %% -*- coding: utf-8 -*-
 %% Timestamp: "2025-09-24 18:07:39 (ywatanabe)"
 %% File: "/ssh:sp:/home/ywatanabe/proj/neurovista/paper/manuscript/src/authors.tex"
@@ -231,13 +285,23 @@ Phase-amplitude coupling for detection and prediction of epileptic seizures in l
 
 \cortext[cor1]{Corresponding author. Tel: +XX-X-XXXX-XXXX Email: grayden@unimelb.edu.au}
 
-%%%% EOF    \n
+%%%% EOF
+
+
+%% ========================================
+%% ./01_manuscript/src/graphical_abstract.tex
+%% ========================================
 %%Graphical abstract
 %\pdfbookmark[1]{Graphical Abstract}{graphicalabstract}        
 %\begin{graphicalabstract}
 %\includegraphics{grabs}
 %\end{graphicalabstract}
-    \n
+
+
+
+%% ========================================
+%% ./01_manuscript/src/abstract.tex
+%% ========================================
 %% -*- coding: utf-8 -*-
 %% Timestamp: "2025-09-22 07:46:14 (ywatanabe)"
 %% File: "/ssh:sp:/home/ywatanabe/proj/neurovista/paper/manuscript/src/abstract.tex"
@@ -248,32 +312,51 @@ Neural oscillations exhibit complex cross-frequency interactions that are fundam
 
 \end{abstract}
 
-%%%% EOF    \n
+%%%% EOF
+
+
+%% ========================================
+%% ./01_manuscript/src/keywords.tex
+%% ========================================
 % \pdfbookmark[1]{Keywords}{keywords}                
 \begin{keyword}
 epilepsy \sep seizure detection \sep seizure prediction \sep NeuroVista dataset \sep phase-amplitude coupling 
 \end{keyword}
-    \n
+
+
 \end{frontmatter}
 
 %% ----------------------------------------
 %% Word Counter
 %% ----------------------------------------
+
+%% ========================================
+%% ./01_manuscript/src/wordcount.tex
+%% ========================================
+%% -*- coding: utf-8 -*-
+%% Timestamp: "2025-09-26 18:17:20 (ywatanabe)"
+%% File: "/ssh:sp:/home/ywatanabe/proj/neurovista/paper/01_manuscript/src/wordcount.tex"
 \begin{wordcount}
-\readwordcount{./src/wordcounts/figure_count.txt} figures, \readwordcount{./src/wordcounts/table_count.txt} tables, \readwordcount{./src/wordcounts/abstract_count.txt} words for abstract, and \readwordcount{./src/wordcounts/imrd_count.txt} words for main text
+\readwordcount{./01_manuscript/src/wordcounts/figure_count.txt} figures, \readwordcount{./01_manuscript/src/wordcounts/table_count.txt} tables, \readwordcount{./01_manuscript/src/wordcounts/abstract_count.txt} words for abstract, and \readwordcount{./01_manuscript/src/wordcounts/imrd_count.txt} words for main text
 \end{wordcount}
 
 %% \begin{*wordcount}
-%% \readwordcount{./src/wordcounts/figure_count.txt} figures, \readwordcount{./src/wordcounts/table_count.txt} tables, \readwordcount{./src/wordcounts/abstract_count.txt} words for abstract, and \readwordcount{./src/wordcounts/imrd_count.txt} words for main text
+%% \readwordcount{./01_manuscript/src/wordcounts/figure_count.txt} figures, \readwordcount{./01_manuscript/src/wordcounts/table_count.txt} tables, \readwordcount{./01_manuscript/src/wordcounts/abstract_count.txt} words for abstract, and \readwordcount{./01_manuscript/src/wordcounts/imrd_count.txt} words for main text
 %% \end{*wordcount}
-    \n
+
+%%%% EOF
+
 
 %% ----------------------------------------
 %% INTRODUCTION
 %% ----------------------------------------
+
+%% ========================================
+%% ./01_manuscript/src/introduction.tex
+%% ========================================
 %% -*- coding: utf-8 -*-
-%% Timestamp: "2025-09-22 08:01:23 (ywatanabe)"
-%% File: "/ssh:sp:/home/ywatanabe/proj/neurovista/paper/manuscript/src/introduction.tex"
+%% Timestamp: "2025-09-26 21:47:51 (ywatanabe)"
+%% File: "/ssh:sp:/home/ywatanabe/proj/neurovista/paper/01_manuscript/src/introduction.tex"
 
 %% \[START of [0-9]\. .* Statement\]
 %% \[\(START\|END\) of [0-9]+\. [^]]*\] *
@@ -293,13 +376,19 @@ Epilepsy affects approximately 70 million people worldwide, representing one of 
 
 These findings establish PAC as a computationally tractable biomarker for seizure prediction in large-scale clinical datasets, providing a foundation for next-generation implantable advisory systems that could transform epilepsy management from reactive to predictive care. The moderate classification performance observed highlights the need for multimodal biomarker integration while demonstrating sufficient predictive capacity to warrant clinical investigation of PAC-based seizure warning systems. 
 
+Add this text for testing diff
 \label{sec:introduction}
 
-%%%% EOF    \n
+%%%% EOF
+
 
 %% ----------------------------------------
 %% METHODS
 %% ----------------------------------------
+
+%% ========================================
+%% ./01_manuscript/src/methods.tex
+%% ========================================
 %% -*- coding: utf-8 -*-
 %% Timestamp: "2025-09-22 07:49:38 (ywatanabe)"
 %% File: "/ssh:sp:/home/ywatanabe/proj/neurovista/paper/manuscript/src/methods.tex"
@@ -376,11 +465,16 @@ Results were visualized through multiple complementary approaches. Comodulograms
 
 \label{sec:methods}
 
-%%%% EOF    \n
+%%%% EOF
+
 
 %% ----------------------------------------
 %% RESULTS
  %% ----------------------------------------
+
+%% ========================================
+%% ./01_manuscript/src/results.tex
+%% ========================================
 %% -*- coding: utf-8 -*-
 %% Timestamp: "2025-09-22 08:12:53 (ywatanabe)"
 %% File: "/ssh:sp:/home/ywatanabe/proj/neurovista/paper/manuscript/src/results.tex"
@@ -436,19 +530,34 @@ Stratified time series cross-validation maintaining temporal ordering and class 
 
 \label{sec:results}
 
-%%%% EOF    \n
+%%%% EOF
+
 
 %% ----------------------------------------
 %% DISCUSSION
 %% ----------------------------------------
+
+%% ========================================
+%% ./01_manuscript/src/discussion.tex
+%% ========================================
+%% -*- coding: utf-8 -*-
+%% Timestamp: "2025-09-26 18:19:43 (ywatanabe)"
+%% File: "/ssh:sp:/home/ywatanabe/proj/neurovista/paper/01_manuscript/src/discussion.tex"
+
 \section{Discussion}
 Discussion here.
 \label{sec:discussion}
-    \n
+
+%%%% EOF
+
 
 %% ----------------------------------------
 %% DATA AVAILABILITY
 %% ----------------------------------------
+
+%% ========================================
+%% ./01_manuscript/src/data_availability.tex
+%% ========================================
 %% -*- coding: utf-8 -*-
 %% Timestamp: "2025-09-19 10:34:25 (ywatanabe)"
 %% File: "/ssh:sp:/home/ywatanabe/proj/neurovista/paper/manuscript/src/data_availability_revised.tex"
@@ -471,13 +580,22 @@ For questions regarding data access or analysis procedures, please contact the c
 
 \label{data and code availability}
 
-%%%% EOF    \n
+%%%% EOF
+
 
 %% ----------------------------------------
 %% REFERENCE STYLES
 %% ----------------------------------------
 \pdfbookmark[1]{References}{references}
-\bibliography{./manuscript/src/bibliography}
+\bibliography{./01_manuscript/src/bibliography}
+
+%% ========================================
+%% ./01_manuscript/src/styles/bibliography.tex
+%% ========================================
+%% -*- coding: utf-8 -*-
+%% Timestamp: "2025-09-26 18:18:03 (ywatanabe)"
+%% File: "/ssh:sp:/home/ywatanabe/proj/neurovista/paper/01_manuscript/src/styles/bibliography.tex"
+
 % Note Re-compile is required
 
 % %% Numbering Style (sorted and listed)
@@ -494,12 +612,16 @@ For questions regarding data access or analysis procedures, please contact the c
 % \bibliographystyle{plainnat}
 % use \cite{}
 
+%%%% EOF
 
-    \n
 
 %% ----------------------------------------
 %% ADDITIONAL INFORMATION
 %% ----------------------------------------
+
+%% ========================================
+%% ./01_manuscript/src/additional_info.tex
+%% ========================================
 %% -*- coding: utf-8 -*-
 %% Timestamp: "2025-09-22 08:08:53 (ywatanabe)"
 %% File: "/ssh:sp:/home/ywatanabe/proj/neurovista/paper/manuscript/src/additional_info.tex"
@@ -540,7 +662,8 @@ The authors employed Claude Code (provided by Anthropic) for code development an
 %% \section{}
 %% \label{}
 
-%%%% EOF    \n
+%%%% EOF
+
 
 %% ----------------------------------------
 %% TABLES
@@ -549,8 +672,13 @@ The authors employed Claude Code (provided by Anthropic) for code development an
 \section*{Tables}
 \label{tables}
 \pdfbookmark[1]{Tables}{tables}
+
+%% ========================================
+%% ./01_manuscript/src/tables/compiled/FINAL.tex
+%% ========================================
 % Auto-generated file containing all table inputs
-    \n
+
+
 
 %% ----------------------------------------
 %% FIGURES
@@ -559,14 +687,18 @@ The authors employed Claude Code (provided by Anthropic) for code development an
 \section*{Figures}
 \label{figures}
 \pdfbookmark[1]{Figures}{figures}
-% Generated by compile_figure_tex_files() on Fri Sep 26 11:08:07 AM AEST 2025
+
+%% ========================================
+%% ./01_manuscript/src/figures/compiled/FINAL.tex
+%% ========================================
+% Generated by compile_figure_tex_files() on Fri Sep 26 10:27:39 PM AEST 2025
 % This file includes all figure files in order
 
 % Figure 00: Figure 00
 \begin{figure*}[p]
     \pdfbookmark[2]{Figure 00}{figure_id_00}
     \centering
-    \includegraphics[width=0.95\textwidth]{./manuscript/src/figures/caption_and_media/jpg/Figure_ID_00_template.jpg}
+    \includegraphics[width=0.95\textwidth]{./01_manuscript/src/figures/caption_and_media/jpg/Figure_ID_00_template.jpg}
     \caption{
 \textbf{
 Figure 00
@@ -583,7 +715,7 @@ Description for figure 00.
 \begin{figure*}[p]
     \pdfbookmark[2]{Figure 01}{figure_id_01}
     \centering
-    \includegraphics[width=0.95\textwidth]{./manuscript/src/figures/caption_and_media/jpg/Figure_ID_01_workflow.jpg}
+    \includegraphics[width=0.95\textwidth]{./01_manuscript/src/figures/caption_and_media/jpg/Figure_ID_01_workflow.jpg}
     \caption{
 \textbf{
 Figure 01
@@ -595,7 +727,8 @@ Description for figure 01.
     \label{fig:01_workflow}
 \end{figure*}
 
-    \n
+
+
 
 %% ----------------------------------------
 %% END of DOCUMENT

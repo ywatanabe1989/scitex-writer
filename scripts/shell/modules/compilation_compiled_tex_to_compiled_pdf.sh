@@ -1,6 +1,6 @@
 #!/bin/bash
 # -*- coding: utf-8 -*-
-# Timestamp: "2025-09-26 20:26:39 (ywatanabe)"
+# Timestamp: "2025-09-26 21:18:34 (ywatanabe)"
 # File: ./paper/scripts/shell/modules/compilation_compiled_tex_to_compiled_pdf.sh
 
 ORIG_DIR="$(pwd)"
@@ -24,41 +24,13 @@ echo_error() { echo -e "${RED}$1${NC}"; }
 # Configurations
 source ./config/load_config.sh $STXW_MANUSCRIPT_TYPE
 
+# Source the shared LaTeX commands module
+source "$(dirname ${BASH_SOURCE[0]})/command_switching.src"
+
 # Logging
 touch "$LOG_PATH" >/dev/null 2>&1
 echo
 echo_info "Running $0 ..."
-
-# Setup container path (Singularity/Apptainer)
-setup_container() {
-    # Check if container path is already set
-    if [ -n "$STXW_TEXLIVE_APPTAINER_SIF" ] && [ -f "$STXW_TEXLIVE_APPTAINER_SIF" ]; then
-        return 0
-    fi
-
-    if [ ! -f "$STXW_TEXLIVE_APPTAINER_SIF" ]; then
-        echo_info "    Downloading TeXLive container (one-time setup)..."
-        mkdir -p "$(dirname $STXW_TEXLIVE_APPTAINER_SIF)"
-
-        # Try Apptainer first, then Singularity
-        if command -v apptainer &> /dev/null; then
-            apptainer pull "$STXW_TEXLIVE_APPTAINER_SIF" docker://texlive/texlive:latest >/dev/null 2>&1
-        elif command -v singularity &> /dev/null; then
-            singularity pull "$STXW_TEXLIVE_APPTAINER_SIF" docker://texlive/texlive:latest >/dev/null 2>&1
-        else
-            return 1
-        fi
-
-        if [ -f "$STXW_TEXLIVE_APPTAINER_SIF" ]; then
-            echo_success "    Container downloaded to $STXW_TEXLIVE_APPTAINER_SIF"
-            export STXW_TEXLIVE_APPTAINER_SIF="$STXW_TEXLIVE_APPTAINER_SIF"
-        else
-            return 1
-        fi
-    fi
-
-    return 0
-}
 
 compiled_tex_to_pdf() {
     echo_info "    Converting $STXW_COMPILED_TEX to PDF..."
@@ -69,51 +41,17 @@ compiled_tex_to_pdf() {
     local tex_base="${STXW_COMPILED_TEX%.tex}"
     local aux_file="${tex_base}.aux"
 
-    local compilation_method=""
+    # Get commands from shared module
+    local pdf_cmd=$(get_cmd_pdflatex "$ORIG_DIR")
+    local bib_cmd=$(get_cmd_bibtex "$ORIG_DIR")
 
-    # First choice: Native pdflatex
-    if command -v pdflatex &> /dev/null; then
-        compilation_method="native"
-        echo_info "    Using native pdflatex"
-    # Second choice: Container (Apptainer/Singularity)
-    elif command -v apptainer &> /dev/null || command -v singularity &> /dev/null; then
-        if setup_container; then
-            compilation_method="container"
-            echo_info "    Using containerized TeXLive"
-        fi
-    # Third choice: Module system
-    elif command -v module &> /dev/null && module avail texlive &> /dev/null 2>&1; then
-        echo_info "    Loading texlive module..."
-        module load texlive
-        if command -v pdflatex &> /dev/null; then
-            compilation_method="native"
-            echo_info "    Using module-loaded pdflatex"
-        fi
-    fi
-
-    # Check if we have a working method
-    if [ -z "$compilation_method" ]; then
+    if [ -z "$pdf_cmd" ] || [ -z "$bib_cmd" ]; then
         echo_error "    No LaTeX installation found (native, module, or container)"
         return 1
     fi
 
-    # Build commands based on method
-    if [ "$compilation_method" = "container" ]; then
-        # Determine container runtime
-        if command -v apptainer &> /dev/null; then
-            local runtime="apptainer"
-        else
-            local runtime="singularity"
-        fi
-
-        local container_base="$runtime exec --bind ${abs_dir}:${abs_dir} --pwd ${abs_dir} $STXW_TEXLIVE_APPTAINER_SIF"
-        local pdf_cmd="$container_base pdflatex -output-directory=$(dirname $tex_file) -shell-escape -interaction=nonstopmode -file-line-error"
-        local bib_cmd="$container_base bibtex"
-    else
-        # Native commands
-        local pdf_cmd="pdflatex -output-directory=$(dirname $tex_file) -shell-escape -interaction=nonstopmode -file-line-error"
-        local bib_cmd="bibtex"
-    fi
+    # Add compilation options to commands
+    pdf_cmd="$pdf_cmd -output-directory=$(dirname $tex_file) -shell-escape -interaction=nonstopmode -file-line-error"
 
     # Function to run command with timing
     run_command() {
@@ -125,10 +63,10 @@ compiled_tex_to_pdf() {
         local start=$(date +%s)
 
         if [ "$verbose" == "true" ]; then
-            $cmd 2>&1 | grep -v "gocryptfs not found"
+            eval "$cmd" 2>&1 | grep -v "gocryptfs not found"
             local ret=${PIPESTATUS[0]}
         else
-            $cmd >/dev/null 2>&1
+            eval "$cmd" >/dev/null 2>&1
             local ret=$?
         fi
 

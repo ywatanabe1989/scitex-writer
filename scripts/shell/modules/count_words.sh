@@ -24,6 +24,9 @@ echo_error() { echo -e "${RED}$1${NC}"; }
 # Configurations
 source ./config/load_config.sh $STXW_MANUSCRIPT_TYPE
 
+# Source the shared command switching module
+source "$(dirname ${BASH_SOURCE[0]})/command_switching.src"
+
 # Logging
 touch "$LOG_PATH" >/dev/null 2>&1
 echo
@@ -50,8 +53,16 @@ _count_elements() {
 _count_words() {
     local input_file="$1"
     local output_file="$2"
+    
+    # Get texcount command from shared module
+    local texcount_cmd=$(get_cmd_texcount "$(dirname $input_file)")
+    
+    if [ -z "$texcount_cmd" ]; then
+        echo_error "    texcount not found"
+        return 1
+    fi
 
-    texcount "$input_file" -inc -1 -sum > "$output_file"
+    $texcount_cmd "$input_file" -inc -1 -sum > "$output_file"
 }
 
 count_tables() {
