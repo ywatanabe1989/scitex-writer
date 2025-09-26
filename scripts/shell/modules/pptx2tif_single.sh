@@ -9,7 +9,7 @@ touch "$LOG_PATH" >/dev/null 2>&1
 
 
 echo -e "$0 ..."
-source ./config.src
+source ./config/config_manuscript.src
 
 usage() {
     echo "Usage: $0 [-i|--input INPUT_FILE] [-o|--output OUTPUT_FILE] [-h|--help]"

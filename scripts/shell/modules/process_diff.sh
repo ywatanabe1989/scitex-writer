@@ -22,7 +22,7 @@ echo_error() { echo -e "${RED}$1${NC}"; }
 # ---------------------------------------
 
 # Configuration
-source ./config.src
+source ./config/config_manuscript.src
 
 # Logging
 touch "$LOG_PATH" >/dev/null 2>&1

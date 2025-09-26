@@ -1,13 +1,13 @@
 #!/bin/bash
 # -*- coding: utf-8 -*-
-# Timestamp: "2025-09-26 09:49:11 (ywatanabe)"
-# File: /ssh:sp:/home/ywatanabe/proj/neurovista/paper/manuscript/config.src
+# Timestamp: "2025-09-26 10:03:01 (ywatanabe)"
+# File: /ssh:sp:/home/ywatanabe/proj/neurovista/paper/config/config_manuscript.src
 
 THIS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # ---------------------------------------
 
 ORIG_DIR="$(pwd)"
-# LOG_PATH="$THIS_DIR/.$(basename $0).log"
+
 echo > "$LOG_PATH"
 
 BLACK='\033[0;30m'
@@ -22,12 +22,12 @@ echo_success() { echo -e "${GREEN}$1${NC}"; }
 echo_warning() { echo -e "${YELLOW}$1${NC}"; }
 echo_error() { echo -e "${RED}$1${NC}"; }
 
-#THIS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-CONFIG_FILE="$THIS_DIR/config.yaml"
+CONFIG_FILE="$THIS_DIR/config_manuscript.yaml"
 
 export STXW_VERBOSE_PDFLATEX="${STXW_VERBOSE_PDFLATEX:-$(yq '.verbosity.pdflatex' $CONFIG_FILE)}"
 export STXW_VERBOSE_BIBTEX="${STXW_VERBOSE_BIBTEX:-$(yq '.verbosity.bibtex' $CONFIG_FILE)}"
 
+export STWX_ROOT_DIR="$(yq '.paths.root_dir' $CONFIG_FILE)"
 export LOG_DIR="$(yq '.paths.log_dir' $CONFIG_FILE)"
 export STXW_GLOBAL_LOG_FILE="$(yq '.paths.global_log_file' $CONFIG_FILE)"
 export STXW_BASE_TEX="$(yq '.paths.base_tex' $CONFIG_FILE)"

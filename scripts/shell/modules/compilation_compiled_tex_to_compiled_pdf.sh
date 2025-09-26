@@ -8,7 +8,7 @@ LOG_PATH="$THIS_DIR/.$(basename $0).log"
 touch "$LOG_PATH" >/dev/null 2>&1
 
 
-source ./config.src
+source ./config/config_manuscript.src
 echo_info "$0 ..."
 
 compile_compiled_tex() {

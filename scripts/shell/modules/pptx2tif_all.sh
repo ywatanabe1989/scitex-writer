@@ -10,7 +10,7 @@ touch "$LOG_PATH" >/dev/null 2>&1
 
 echo -e "$0 ..."
 
-source ./config.src
+source ./config/config_manuscript.src
 
 # PowerPoint to TIF
 total=$(ls "$STXW_FIGURE_CAPTION_MEDIA_DIR"/Figure_ID_*.pptx | wc -l)

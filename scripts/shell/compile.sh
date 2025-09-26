@@ -1,7 +1,7 @@
 #!/bin/bash
 # -*- coding: utf-8 -*-
-# Timestamp: "2025-09-26 02:20:59 (ywatanabe)"
-# File: ./paper/manuscript/main.sh
+# Timestamp: "2025-09-26 09:56:27 (ywatanabe)"
+# File: ./paper/scripts/shell/compile.sh
 
 ORIG_DIR="$(pwd)"
 THIS_DIR="$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)"
@@ -22,10 +22,10 @@ echo_error() { echo -e "${RED}$1${NC}"; }
 # ---------------------------------------
 
 # Configurations
-source ./config.src
+source ./config/config_manuscript.src
 
-# Working directory
-cd $THIS_DIR
+# # Working directory
+# cd $THIS_DIR
 
 # Log
 touch $LOG_PATH >/dev/null 2>&1

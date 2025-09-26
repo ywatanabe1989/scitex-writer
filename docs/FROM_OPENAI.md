@@ -77,9 +77,9 @@ compile_legends() {
     for caption_file in "$FIGURE_SRC_DIR"/Figure_ID_*.tex; do
         [ -f "$caption_file" ] || continue
         local fname=$(basename "$caption_file")
-        local tgt_file="$FIGURE_COMPILED_DIR/$fname"
+        local tgt_file="$STXW_FIGURE_COMPILED_DIR/$fname"
         local basename_noext="${fname%.tex}"
-        local jpg_file="$FIGURE_JPG_DIR/$basename_noext.jpg"
+        local jpg_file="$STXW_FIGURE_JPG_DIR/$basename_noext.jpg"
         # Extract figure number
         local fig_number=$(echo "$fname" | sed -n 's/^Figure_ID_\([0-9][0-9]\).*\.tex$/\1/p')
         [ -n "$fig_number" ] || fig_number="$basename_noext"

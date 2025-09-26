@@ -24,7 +24,7 @@ echo_error() { echo -e "${RED}$1${NC}"; }
 touch "$LOG_PATH" >/dev/null 2>&1
 
 
-source ./config.src
+source ./config/config_manuscript.src
 
 png2tif_all(){
     find "$STXW_FIGURE_CAPTION_MEDIA_DIR" -maxdepth 1 \

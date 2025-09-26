@@ -1,21 +1,21 @@
 %% -*- coding: utf-8 -*-
-%% Timestamp: "2025-05-06 23:41:14 (ywatanabe)"
-%% File: "/home/ywatanabe/proj/SciTex/manuscript/base.tex"
+%% Timestamp: "2025-09-26 09:59:09 (ywatanabe)"
+%% File: "/ssh:sp:/home/ywatanabe/proj/neurovista/paper/manuscript/base.tex"
 \UseRawInputEncoding
 
 %% ----------------------------------------
 %% SETTINGS
 %% ----------------------------------------
-\input{./src/styles/columns}
-\input{./src/styles/packages}
-\input{./src/styles/linker}
-\input{./src/styles/formatting}
+\input{./manuscript/src/styles/columns}
+\input{./manuscript/src/styles/packages}
+\input{./manuscript/src/styles/linker}
+\input{./manuscript/src/styles/formatting}
 \link[supple-]{../supplementary/main}
 
 %% ----------------------------------------
 %% JOURNAL NAME
 %% ----------------------------------------
-\input{./src/journal_name}
+\input{./manuscript/src/journal_name}
 
 %% ----------------------------------------
 %% START of DOCUMENT
@@ -26,55 +26,55 @@
 %% Frontmatter
 %% ----------------------------------------
 \begin{frontmatter}
-\input{./src/highlights}
-\input{./src/title}
-\input{./src/authors}
-\input{./src/graphical_abstract}
-\input{./src/abstract}
-\input{./src/keywords}
+\input{./manuscript/src/highlights}
+\input{./manuscript/src/title}
+\input{./manuscript/src/authors}
+\input{./manuscript/src/graphical_abstract}
+\input{./manuscript/src/abstract}
+\input{./manuscript/src/keywords}
 \end{frontmatter}
 
 %% ----------------------------------------
 %% Word Counter
 %% ----------------------------------------
-\input{./src/wordcount}
+\input{./manuscript/src/wordcount}
 
 %% ----------------------------------------
 %% INTRODUCTION
 %% ----------------------------------------
-\input{./src/introduction}
+\input{./manuscript/src/introduction}
 
 %% ----------------------------------------
 %% METHODS
 %% ----------------------------------------
-\input{./src/methods}
+\input{./manuscript/src/methods}
 
 %% ----------------------------------------
 %% RESULTS
  %% ----------------------------------------
-\input{./src/results}
+\input{./manuscript/src/results}
 
 %% ----------------------------------------
 %% DISCUSSION
 %% ----------------------------------------
-\input{./src/discussion}
+\input{./manuscript/src/discussion}
 
 %% ----------------------------------------
 %% DATA AVAILABILITY
 %% ----------------------------------------
-\input{./src/data_availability}
+\input{./manuscript/src/data_availability}
 
 %% ----------------------------------------
 %% REFERENCE STYLES
 %% ----------------------------------------
 \pdfbookmark[1]{References}{references}
-\bibliography{./src/bibliography}
-\input{./src/styles/bibliography}
+\bibliography{./manuscript/src/bibliography}
+\input{./manuscript/src/styles/bibliography}
 
 %% ----------------------------------------
 %% ADDITIONAL INFORMATION
 %% ----------------------------------------
-\input{./src/additional_info}
+\input{./manuscript/src/additional_info}
 
 %% ----------------------------------------
 %% TABLES
@@ -83,7 +83,7 @@
 \section*{Tables}
 \label{tables}
 \pdfbookmark[1]{Tables}{tables}
-\input{./src/tables/compiled/FINAL}
+\input{./manuscript/src/tables/compiled/FINAL}
 
 %% ----------------------------------------
 %% FIGURES
@@ -92,7 +92,7 @@
 \section*{Figures}
 \label{figures}
 \pdfbookmark[1]{Figures}{figures}
-\input{./src/figures/compiled/FINAL}
+\input{./manuscript/src/figures/compiled/FINAL}
 
 %% ----------------------------------------
 %% END of DOCUMENT

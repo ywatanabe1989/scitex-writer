@@ -23,7 +23,7 @@ echo_error() { echo -e "${RED}$1${NC}"; }
 
 touch "$LOG_PATH" >/dev/null 2>&1
 
-source ./config.src
+source ./config/config_manuscript.src
 
 mmd2png(){
     n_mmd_files="$(ls $STXW_FIGURE_CAPTION_MEDIA_DIR/Figure_ID_*.mmd 2>/dev/null | wc -l)"
