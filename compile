@@ -75,8 +75,10 @@ else
             exit 0
             ;;
         *)
-            # If first arg is not recognized, assume manuscript and pass all args
-            DOC_TYPE="manuscript"
+            echo "ERROR: Unknown document type '$1'"
+            echo "Valid types: manuscript, supplementary, revision"
+            echo "Use './compile --help' for usage information"
+            exit 1
             ;;
     esac
 fi

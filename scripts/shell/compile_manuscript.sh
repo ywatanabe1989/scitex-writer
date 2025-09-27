@@ -112,7 +112,7 @@ main() {
     ./scripts/shell/modules/compilation_compiled_tex_to_compiled_pdf.sh
 
     # Diff
-    ./scripts/shell/modules/process_diff.sh "$do_quiet"
+    ./scripts/shell/modules/process_diff.sh
 
     # Versioning
     ./scripts/shell/modules/process_archive.sh

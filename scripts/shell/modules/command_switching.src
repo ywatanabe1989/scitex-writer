@@ -34,7 +34,7 @@ THIS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # Provides functions to get commands for pdflatex, bibtex, latexdiff, etc.
 # with automatic fallback to module loading or container usage
 
-source ./config/load_config.sh $STXW_MANUSCRIPT_TYPE
+source ./config/load_config.sh $STXW_DOC_TYPE
 
 # Setup container path (Singularity/Apptainer)
 setup_latex_container() {
