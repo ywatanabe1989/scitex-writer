@@ -1,4 +1,4 @@
-# Timestamp: "2025-09-27 12:59:29 (ywatanabe)"
+# Timestamp: "2025-09-27 18:59:28 (ywatanabe)"
 # File: ./paper/config/config_supplementary.yaml
 
 verbosity:
@@ -31,7 +31,6 @@ figures:
   template_tif: "./shared/templates/figures/FIGURE_ID_00_TEMPLATE.tif"  
   template_jpg: "./shared/templates/figures/FIGURE_ID_00_TEMPLATE.jpg"
   template_jnb: "./shared/templates/figures/FIGURE_ID_00_TEMPLATE.JNB"  
-
 
 tables:
   dir: "./02_supplementary/contents/tables"

@@ -39,6 +39,7 @@ do_p2t=false
 no_figs=true
 do_quiet=false
 do_crop_tif=false
+do_force=false
 
 usage() {
     echo "Usage: $0 [options]"
@@ -47,6 +48,7 @@ usage() {
     echo "  -p2t, --ppt2tif       Converts Power Point to TIF on WSL (default: $do_p2t)"
     echo "  -c,   --crop_tif      Crop TIF images to remove excess whitespace (default: $do_crop_tif)"
     echo "  -q,   --quiet         Do not shows detailed logs for latex compilation (default: $do_quiet)"
+    echo "  --force               Force full recompilation (ignore cache) (default: $do_force)"
     echo "  -h,   --help          Display this help message"
     exit 0
 }
@@ -59,6 +61,7 @@ parse_arguments() {
             -f|--figs) no_figs=false ;;
             -c|--crop_tif) do_crop_tif=true; no_figs=false ;;
             -q|--quiet) do_quiet=true ;;
+            --force) do_force=true ;;
             *) echo "Unknown option: $1"; usage ;;
         esac
         shift
@@ -87,6 +90,7 @@ main() {
 
     # Check dependencies
     ./scripts/shell/modules/check_dependancy_commands.sh
+
 
     # Process figures, tables, and count
     ./scripts/shell/modules/process_figures.sh \

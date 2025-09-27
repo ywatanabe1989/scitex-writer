@@ -82,6 +82,7 @@ export STXW_TABLE_COMPILED_FILE="$(yq '.tables.compiled_file' $CONFIG_FILE)"
 export STXW_WORDCOUNT_DIR="$(yq '.misc.wordcount_dir' $CONFIG_FILE)"
 export STXW_TREE_TXT="$(yq '.misc.tree_txt' $CONFIG_FILE)"
 
+
 if [ "$CONFIG_LOADED" != "true" ]; then
     echo_success "    Configuration Loaded for $STXW_DOC_TYPE"
     export CONFIG_LOADED=true
