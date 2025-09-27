@@ -22,13 +22,13 @@ echo_error() { echo -e "${RED}$1${NC}"; }
 # ---------------------------------------
 
 # Configurations
-source ./config/load_config.sh $STXW_MANUSCRIPT_TYPE
+source ./config/load_config.sh $STXW_DOC_TYPE
 
 # Source the shared commands module for mmdc
 source "$(dirname ${BASH_SOURCE[0]})/command_switching.src"
 
 # Override echo_xxx functions
-source ./config/load_config.sh $STXW_MANUSCRIPT_TYPE
+source ./config/load_config.sh $STXW_DOC_TYPE
 
 # Logging
 touch "$LOG_PATH" >/dev/null 2>&1

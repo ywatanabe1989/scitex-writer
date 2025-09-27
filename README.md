@@ -12,7 +12,7 @@ LaTeX compilation system with predefined project structure
 
 ```bash
 # Compile manuscript
-$ export STXW_MANUSCRIPT_TYPE=manuscript # SciTeX Writer
+$ export STXW_DOC_TYPE=manuscript # SciTeX Writer
 $ ./compile_manuscript
 
 # Output: 

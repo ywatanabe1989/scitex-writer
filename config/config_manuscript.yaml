@@ -1,4 +1,4 @@
-# Timestamp: "2025-09-26 23:22:45 (ywatanabe)"
+# Timestamp: "2025-09-27 16:05:01 (ywatanabe)"
 # File: ./paper/config/config_manuscript.yaml
 
 verbosity:
@@ -6,8 +6,8 @@ verbosity:
   bibtex: true
 
 paths:
-  root_dir: "./01_manuscript"
-  log_dir: "./01_manuscript/logs"
+  doc_root_dir: "./01_manuscript"
+  doc_log_dir: "./01_manuscript/logs"
   global_log_file: "./01_manuscript/logs/global.log"
   base_tex: "./01_manuscript/base.tex"
   compiled_tex: "./01_manuscript/manuscript.tex"
@@ -26,12 +26,12 @@ figures:
   jpg_dir: "./01_manuscript/contents/figures/caption_and_media/jpg_for_compilation"
   compiled_dir: "./01_manuscript/contents/figures/compiled"
   compiled_file: "./01_manuscript/contents/figures/compiled/FINAL.tex"
-  templates_dir: "./01_manuscript/contents/figures/templates"
-  template_tex: "./01_manuscript/contents/figures/templates/_Figure_ID_00_TEMPLATE.tex"
-  template_jpg: "./01_manuscript/contents/figures/templates/_Figure_ID_00_TEMPLATE.jpg"
-  template_pptx: "./01_manuscript/contents/figures/templates/_Figure_ID_00_TEMPLATE.pptx"
-  template_jnt: "./01_manuscript/contents/figures/templates/_Figure_ID_00_TEMPLATE.jnt"
-
+  templates_dir: "./shared/templates/figures"
+  template_pptx: "./shared/templates/figures/FIGURE_ID_00_TEMPLATE.pptx"  
+  template_tif: "./shared/templates/figures/FIGURE_ID_00_TEMPLATE.tif"  
+  template_jpg: "./shared/templates/figures/FIGURE_ID_00_TEMPLATE.jpg"
+  template_jnb: "./shared/templates/figures/FIGURE_ID_00_TEMPLATE.JNB"  
+  
 tables:
   dir: "./01_manuscript/contents/tables"
   caption_media_dir: "./01_manuscript/contents/tables/caption_and_media"

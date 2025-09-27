@@ -36,9 +36,9 @@ find_error() {
         last_run_path=$(find "$error_dir" -maxdepth 1 -name "2025Y-*" -type d | sort | tail -n1)
 
         if [ -n "$last_run_path" ]; then
-            log_dir="$last_run_path/logs"
-            stdout="$log_dir/stdout.log"
-            stderr="$log_dir/stderr.log"
+            doc_log_dir="$last_run_path/logs"
+            stdout="$doc_log_dir/stdout.log"
+            stderr="$doc_log_dir/stderr.log"
 
             # if [ -f "$stdout" ]; then
             #     echo_success "stdout:"

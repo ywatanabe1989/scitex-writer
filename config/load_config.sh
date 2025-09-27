@@ -1,6 +1,6 @@
 #!/bin/bash
 # -*- coding: utf-8 -*-
-# Timestamp: "2025-09-27 00:26:32 (ywatanabe)"
+# Timestamp: "2025-09-27 16:05:15 (ywatanabe)"
 # File: ./paper/config/load_config.sh
 
 ORIG_DIR="$(pwd)"
@@ -36,12 +36,12 @@ if [ "$CONFIG_LOADED" != "true" ]; then
 fi
 
 # Manuscript Type
-STXW_MANUSCRIPT_TYPE="${1:-$STXW_MANUSCRIPT_TYPE}"
-CONFIG_FILE="$THIS_DIR/config_${STXW_MANUSCRIPT_TYPE}.yaml"
+STXW_DOC_TYPE="${1:-$STXW_DOC_TYPE}"
+CONFIG_FILE="$THIS_DIR/config_${STXW_DOC_TYPE}.yaml"
 if [ ! -f "$CONFIG_FILE" ]; then
     echo "ERROR: Config file $CONFIG_FILE not found"
-    echo "ERROR: Please check STXW_MANUSCRIPT_TYPE is set correctly"
-    echo "ERROR: (e.g., export STXW_MANUSCRIPT_TYPE=manuscript # (manuscript, supplementary, or revision))"
+    echo "ERROR: Please check STXW_DOC_TYPE is set correctly"
+    echo "ERROR: (e.g., export STXW_DOC_TYPE=manuscript # (manuscript, supplementary, or revision))"
     exit
 fi
 
@@ -49,8 +49,8 @@ fi
 export STXW_VERBOSE_PDFLATEX="${STXW_VERBOSE_PDFLATEX:-$(yq '.verbosity.pdflatex' $CONFIG_FILE)}"
 export STXW_VERBOSE_BIBTEX="${STXW_VERBOSE_BIBTEX:-$(yq '.verbosity.bibtex' $CONFIG_FILE)}"
 
-export STWX_ROOT_DIR="$(yq '.paths.root_dir' $CONFIG_FILE)"
-export LOG_DIR="$(yq '.paths.log_dir' $CONFIG_FILE)"
+export STWX_ROOT_DIR="$(yq '.paths.doc_root_dir' $CONFIG_FILE)"
+export LOG_DIR="$(yq '.paths.doc_log_dir' $CONFIG_FILE)"
 export STXW_GLOBAL_LOG_FILE="$(yq '.paths.global_log_file' $CONFIG_FILE)"
 export STXW_BASE_TEX="$(yq '.paths.base_tex' $CONFIG_FILE)"
 export STXW_COMPILED_TEX="$(yq '.paths.compiled_tex' $CONFIG_FILE)"
@@ -83,7 +83,7 @@ export STXW_WORDCOUNT_DIR="$(yq '.misc.wordcount_dir' $CONFIG_FILE)"
 export STXW_TREE_TXT="$(yq '.misc.tree_txt' $CONFIG_FILE)"
 
 if [ "$CONFIG_LOADED" != "true" ]; then
-    echo_success "    Configuration Loaded for $STXW_MANUSCRIPT_TYPE"
+    echo_success "    Configuration Loaded for $STXW_DOC_TYPE"
     export CONFIG_LOADED=true
 fi
 

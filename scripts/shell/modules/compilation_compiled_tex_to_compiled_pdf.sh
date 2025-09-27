@@ -22,7 +22,7 @@ echo_error() { echo -e "${RED}$1${NC}"; }
 # ---------------------------------------
 
 # Configurations
-source ./config/load_config.sh $STXW_MANUSCRIPT_TYPE
+source ./config/load_config.sh $STXW_DOC_TYPE
 
 # Source the shared LaTeX commands module
 source "$(dirname ${BASH_SOURCE[0]})/command_switching.src"

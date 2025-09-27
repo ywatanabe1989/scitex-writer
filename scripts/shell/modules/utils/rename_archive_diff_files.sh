@@ -20,7 +20,7 @@ echo_warning() { echo -e "${YELLOW}$1${NC}"; }
 echo_error() { echo -e "${RED}$1${NC}"; }
 
 # Configuration
-source ./config/load_config.sh $STXW_MANUSCRIPT_TYPE
+source ./config/load_config.sh $STXW_DOC_TYPE
 
 echo
 echo_info "Renaming archive diff files to new naming convention..."

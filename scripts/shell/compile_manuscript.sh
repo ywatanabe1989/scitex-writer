@@ -1,6 +1,6 @@
 #!/bin/bash
 # -*- coding: utf-8 -*-
-# Timestamp: "2025-09-26 10:41:46 (ywatanabe)"
+# Timestamp: "2025-09-27 15:10:53 (ywatanabe)"
 # File: ./paper/scripts/shell/compile_manuscript.sh
 
 ORIG_DIR="$(pwd)"
@@ -22,8 +22,8 @@ echo_error() { echo -e "${RED}$1${NC}"; }
 # ---------------------------------------
 
 # Configurations
-export STXW_MANUSCRIPT_TYPE="manuscript"
-source ./config/load_config.sh "$STXW_MANUSCRIPT_TYPE"
+export STXW_DOC_TYPE="manuscript"
+source ./config/load_config.sh "$STXW_DOC_TYPE"
 echo
 
 # Log

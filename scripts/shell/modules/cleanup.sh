@@ -1,6 +1,6 @@
 #!/bin/bash
 # -*- coding: utf-8 -*-
-# Timestamp: "2025-09-26 20:42:47 (ywatanabe)"
+# Timestamp: "2025-09-27 16:35:00 (ywatanabe)"
 # File: ./paper/scripts/shell/modules/cleanup.sh
 
 ORIG_DIR="$(pwd)"
@@ -22,7 +22,7 @@ echo_error() { echo -e "${RED}$1${NC}"; }
 # ---------------------------------------
 
 # Configurations
-source ./config/load_config.sh $STXW_MANUSCRIPT_TYPE
+source ./config/load_config.sh $STXW_DOC_TYPE
 
 # Logging
 touch "$LOG_PATH" >/dev/null 2>&1
@@ -39,15 +39,19 @@ function cleanup() {
     # Remove Emacs temporary files
     find "$STWX_ROOT_DIR" -type f -name "#*#" -exec rm {} \;
 
-    # Move files with these extensions to LOGDIR
+    # Move files with these extensions to LOG_DIR
     for ext in log out bbl blg spl dvi toc bak stderr stdout aux fls fdb_latexmk synctex.gz cb cb2; do
         find "$STWX_ROOT_DIR" -maxdepth 1 -type f -name "*.$ext" -exec mv {} $LOG_DIR/ \; 2>/dev/null
     done
+    
+    # Remove progress.log files (from parallel commands)
+    find "$STWX_ROOT_DIR" -name "progress.log" -type f -delete 2>/dev/null
 
     echo_info "    Removing versioned files from current directory..."
-    rm *_v*.pdf *_v*.tex -f
+    rm -f *_v*.pdf *_v*.tex 2>/dev/null
 }
 
+# Main
 cleanup
 
 # EOF

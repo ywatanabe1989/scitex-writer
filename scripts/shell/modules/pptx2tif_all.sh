@@ -22,7 +22,7 @@ echo_error() { echo -e "${RED}$1${NC}"; }
 # ---------------------------------------
 
 # Configurations
-source ./config/load_config.sh $STXW_MANUSCRIPT_TYPE
+source ./config/load_config.sh $STXW_DOC_TYPE
 
 # Logging
 touch "$LOG_PATH" >/dev/null 2>&1
@@ -32,7 +32,7 @@ echo_info "Running $0..."
 # PowerPoint to TIF
 total=$(ls "$STXW_FIGURE_CAPTION_MEDIA_DIR"/Figure_ID_*.pptx | wc -l)
 ls "$STXW_FIGURE_CAPTION_MEDIA_DIR"/Figure_ID_*.pptx | \
-parallel --eta --progress --joblog progress.log \
+parallel --no-notice --quiet \
     './scripts/shell/modules/pptx2tif_single.sh -i "$(realpath {})" -o "$(realpath {.}.tif)"; \
     echo "Processed: {#}/$total"'
 
