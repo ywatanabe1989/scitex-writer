@@ -325,20 +325,20 @@ tif2jpg() {
                && command -v python3 >/dev/null 2>&1; then
 
             find "$STXW_FIGURE_CAPTION_MEDIA_DIR" -name "Figure_ID_*.tif" \
-                | parallel -j+0 --no-notice --silent '
-                python3 ./scripts/python/optimize_figure.py --input {} --output "$STXW_FIGURE_JPG_DIR"/$(basename {} .tif).jpg" --dpi 300 --quality 95
-            '
+                | parallel -j+0 --no-notice --silent "
+                python3 ./scripts/python/optimize_figure.py --input {} --output $STXW_FIGURE_JPG_DIR/\$(basename {} .tif).jpg --dpi 300 --quality 95
+            "
 
             find "$STXW_FIGURE_CAPTION_MEDIA_DIR" -name "Figure_ID_*.png" \
-                | parallel -j+0 --no-notice --silent '
-                python3 ./scripts/python/optimize_figure.py --input {} --output "$STXW_FIGURE_JPG_DIR"/$(basename {} .png).jpg" --dpi 300 --quality 95
-            '
+                | parallel -j+0 --no-notice --silent "
+                python3 ./scripts/python/optimize_figure.py --input {} --output $STXW_FIGURE_JPG_DIR/\$(basename {} .png).jpg --dpi 300 --quality 95
+            "
             if command -v inkscape >/dev/null 2>&1; then
-                find "$STXW_FIGURE_CAPTION_MEDIA_DIR" -name "Figure_ID_*.svg" | parallel -j+0 --no-notice --silent '
-                    inkscape -z -e "$STXW_FIGURE_JPG_DIR"/$(basename {} .svg)_temp.png" -w 1200 -h 1200 {}
-                    python3 ./scripts/python/optimize_figure.py --input "$STXW_FIGURE_JPG_DIR"/$(basename {} .svg)_temp.png" --output "$STXW_FIGURE_JPG_DIR"/$(basename {} .svg).jpg" --dpi 300 --quality 95
-                    rm -f "$STXW_FIGURE_JPG_DIR"/$(basename {} .svg)_temp.png"
-                '
+                find "$STXW_FIGURE_CAPTION_MEDIA_DIR" -name "Figure_ID_*.svg" | parallel -j+0 --no-notice --silent "
+                    inkscape -z -e $STXW_FIGURE_JPG_DIR/\$(basename {} .svg)_temp.png -w 1200 -h 1200 {}
+                    python3 ./scripts/python/optimize_figure.py --input $STXW_FIGURE_JPG_DIR/\$(basename {} .svg)_temp.png --output $STXW_FIGURE_JPG_DIR/\$(basename {} .svg).jpg --dpi 300 --quality 95
+                    rm -f $STXW_FIGURE_JPG_DIR/\$(basename {} .svg)_temp.png
+                "
             else
                 # Get convert command for use in parallel
                 local convert_cmd=$(get_cmd_convert "$ORIG_DIR")
