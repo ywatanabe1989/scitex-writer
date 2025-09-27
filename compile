@@ -44,9 +44,9 @@ EXAMPLES:
 
 DELEGATION:
     This script delegates to:
-    - ./compile_manuscript for manuscripts
-    - ./compile_supplementary for supplementary materials
-    - ./compile_revision for revision responses
+    - ./scripts/shell/compile_manuscript for manuscripts
+    - ./scripts/shell/compile_supplementary for supplementary materials
+    - ./scripts/shell/compile_revision for revision responses
 
     Each specific script has its own options and behaviors.
 
@@ -88,20 +88,19 @@ echo "  Document type: $DOC_TYPE"
 if [ $# -gt 0 ]; then
     echo "  Additional options: $@"
 fi
-echo "  Delegating to: ./compile_$DOC_TYPE"
+echo "  Delegating to: ./scripts/shell/compile_$DOC_TYPE.sh"
 echo "=========================================="
-echo ""
 
 # Delegate to the appropriate compilation script
 case $DOC_TYPE in
     manuscript)
-        ./compile_manuscript "$@"
+        ./scripts/shell/compile_manuscript.sh "$@"
         ;;
     supplementary)
-        ./compile_supplementary "$@"
+        ./scripts/shell/compile_supplementary.sh "$@"
         ;;
     revision)
-        ./compile_revision "$@"
+        ./scripts/shell/compile_revision.sh "$@"
         ;;
     *)
         echo "Error: Unknown document type: $DOC_TYPE"
