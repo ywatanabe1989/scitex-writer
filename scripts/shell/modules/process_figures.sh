@@ -110,6 +110,11 @@ check_and_create_placeholders() {
         [ -e "$tex_file" ] || continue
 
         local base_name=$(basename "$tex_file" .tex)
+        
+        # Skip panel files (e.g., Figure_ID_01A_name, Figure_ID_01a_name)
+        if [[ "$base_name" =~ Figure_ID_[0-9]+[A-Za-z]_ ]]; then
+            continue
+        fi
         local has_source=false
 
         # Check if any source file exists for this figure
@@ -150,6 +155,12 @@ ensure_caption() {
         [ -e "$img_file" ] || continue
         local ext="${img_file##*.}"
         local filename=$(basename "$img_file")
+        
+        # Skip panel files (e.g., Figure_ID_01A_name, Figure_ID_01a_name)
+        if [[ "$filename" =~ Figure_ID_[0-9]+[A-Za-z]_ ]]; then
+            continue
+        fi
+        
         local caption_tex_file="$STXW_FIGURE_CAPTION_MEDIA_DIR/${filename%.$ext}.tex"
         local template_tex_file="$STXW_FIGURE_CAPTION_MEDIA_DIR/templates/Figure_ID_00_template.tex"
         # local template_tex_file="$STXW_FIGURE_CAPTION_MEDIA_DIR/templates/_Figure_ID_XX.tex"
@@ -400,6 +411,12 @@ EOF
     for caption_file in "$STXW_FIGURE_CAPTION_MEDIA_DIR"/Figure_ID_*.tex; do
         [ -f "$caption_file" ] || continue
         local fname=$(basename "$caption_file")
+        
+        # Skip panel files (e.g., Figure_ID_01A_name.tex, Figure_ID_01a_name.tex)
+        if [[ "$fname" =~ Figure_ID_[0-9]+[A-Za-z]_ ]]; then
+            continue
+        fi
+        
         local figure_id=""
         if [[ "$fname" =~ Figure_ID_([^\.]+) ]]; then
             figure_id="${BASH_REMATCH[1]}"
@@ -550,6 +567,46 @@ _toggle_figures() {
     fi
 }
 
+auto_tile_panels() {
+    local no_figs="$1"
+    if [[ "$no_figs" == true ]]; then
+        return 0
+    fi
+    
+    echo "INFO:     Checking for panel figures to tile..."
+    
+    # Find all base figure names (looking for Figure_ID_XXA or Figure_ID_XXa format) - exclude jpg_for_compilation directory
+    local figure_bases=($(find "$STXW_FIGURE_CAPTION_MEDIA_DIR" -maxdepth 1 -name "Figure_ID_*[A-Za-z]_*.jpg" | \
+        sed 's/\([0-9]\)[A-Za-z]_/\1_/' | sort -u))
+    
+    for base in "${figure_bases[@]}"; do
+        local base_name=$(basename "$base")
+        # Extract the ID part (e.g., "01" from "Figure_ID_01_demographic_data")
+        local figure_id=$(echo "$base_name" | sed 's/Figure_ID_\([0-9]\+\)_.*/\1/')
+        local panels=($(find "$STXW_FIGURE_CAPTION_MEDIA_DIR" -maxdepth 1 -name "Figure_ID_${figure_id}[A-Za-z]_*.jpg" | sort))
+        
+        if [ ${#panels[@]} -gt 1 ]; then
+            echo "INFO:     Found ${#panels[@]} panels for $base_name - creating tiled figure..."
+            
+            if command -v python3 >/dev/null 2>&1 && [ -f "./scripts/python/tile_panels.py" ]; then
+                python3 ./scripts/python/tile_panels.py \
+                    --figure-base "$base_name" \
+                    --search-dir "$STXW_FIGURE_CAPTION_MEDIA_DIR" \
+                    --output "$STXW_FIGURE_JPG_DIR/${base_name}.jpg" \
+                    --spacing 30
+                
+                if [ $? -eq 0 ]; then
+                    echo_success "    Created tiled figure: ${base_name}.jpg"
+                else
+                    echo_warning "    Failed to create tiled figure for $base_name"
+                fi
+            else
+                echo_warning "    Python3 or tile_panels.py not available - skipping tiling"
+            fi
+        fi
+    done
+}
+
 handle_figure_visibility() {
     local no_figs="$1"
     if [[ "$no_figs" == true ]]; then
@@ -617,20 +674,20 @@ compile_figure_tex_files() {
                 figure_title="Figure $figure_number"
             fi
         fi
+        # Simply use the original caption file as-is 
         local original_caption_file="$STXW_FIGURE_CAPTION_MEDIA_DIR/${basename}"
         if [ -f "$original_caption_file" ]; then
-            local original_caption=$(sed -n '/\\caption{/,/^}\s*$/p' "$original_caption_file" | sed '1s/^\\caption{//' | sed '$s/}\s*$//')
-            if [ -n "$original_caption" ]; then
-                caption_content="$original_caption"
+            # Read the entire caption content from the original file
+            caption_content=$(cat "$original_caption_file" | grep -v "^%" | grep -v "^$")
+            # Extract title from first textbf for the figure comment
+            if [[ "$caption_content" =~ \\textbf\{([^}]*)\} ]]; then
+                figure_title="${BASH_REMATCH[1]}"
             fi
         fi
-        local caption_text=""
-        if [[ "$caption_content" =~ \\textbf\{.*\}(.*) ]]; then
-            caption_text="${BASH_REMATCH[1]}"
-            caption_text=$(echo "$caption_text" | grep -v "^%" | sed 's/^[ \t]*//' | sed 's/[ \t]*$//')
-        fi
-        if [ -z "$caption_text" ]; then
-            caption_text="Description for figure $figure_number."
+        
+        # Use simple fallback if no caption found
+        if [ -z "$caption_content" ]; then
+            caption_content="\\caption{\\textbf{Figure $figure_number}\\\\Description for figure $figure_number.}"
         fi
         echo "% Figure $figure_number: ${figure_title}" >> "$STXW_FIGURE_COMPILED_FILE"
         # Only add \clearpage for figures after the first one
@@ -660,14 +717,8 @@ compile_figure_tex_files() {
                 fi
             fi
         fi
-        echo "    \\caption{" >> "$STXW_FIGURE_COMPILED_FILE"
-        echo "\\textbf{" >> "$STXW_FIGURE_COMPILED_FILE"
-        echo "$figure_title" >> "$STXW_FIGURE_COMPILED_FILE"
-        echo "}" >> "$STXW_FIGURE_COMPILED_FILE"
-        echo "\\smallskip" >> "$STXW_FIGURE_COMPILED_FILE"
-        echo "\\\\" >> "$STXW_FIGURE_COMPILED_FILE"
-        echo "$caption_text" >> "$STXW_FIGURE_COMPILED_FILE"
-        echo "}" >> "$STXW_FIGURE_COMPILED_FILE"
+        # Use the complete caption content from the original file
+        echo "    $caption_content" >> "$STXW_FIGURE_COMPILED_FILE"
         echo "    \\label{fig:${figure_id}}" >> "$STXW_FIGURE_COMPILED_FILE"
         echo "\\end{figure*}" >> "$STXW_FIGURE_COMPILED_FILE"
         echo "" >> "$STXW_FIGURE_COMPILED_FILE"
@@ -698,6 +749,7 @@ main() {
     check_and_create_placeholders  # Create placeholders for missing figures
     crop_tif "$no_figs" "$do_crop_tif" "$verbose"
     tif2jpg "$no_figs"
+    auto_tile_panels "$no_figs"
     compile_legends
     handle_figure_visibility "$no_figs"
     compile_figure_tex_files
