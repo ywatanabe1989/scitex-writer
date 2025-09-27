@@ -22,14 +22,14 @@ echo_error() { echo -e "${RED}$1${NC}"; }
 # ---------------------------------------
 
 # Configurations
-source ./config/load_config.sh $STXW_MANUSCRIPT_TYPE
+source ./config/load_config.sh $STXW_DOC_TYPE
 source ./scripts/shell/modules/validate_tex.src
 
 # Source the shared command module
 source "$(dirname ${BASH_SOURCE[0]})/command_switching.src"
 
 # Override echo_xxx functions
-source ./config/load_config.sh $STXW_MANUSCRIPT_TYPE
+source ./config/load_config.sh $STXW_DOC_TYPE
 
 # Logging
 touch "$LOG_PATH" >/dev/null 2>&1
@@ -53,8 +53,8 @@ create_placeholder_jpg() {
     local figure_id="$1"  # e.g., "Figure_ID_01_missing"
     local jpg_path="$STXW_FIGURE_JPG_DIR/$figure_id.jpg"
     
-    # Primary: Use template TIF file
-    local template_tif="$STXW_FIGURE_CAPTION_MEDIA_DIR/../templates/FIGURE_ID_00_TEMPLATE.tif"
+    # Primary: Use template TIF file from shared directory
+    local template_tif="./shared/templates/figures/FIGURE_ID_00_TEMPLATE.tif"
     
     if [ -f "$template_tif" ]; then
         # Copy and convert template TIF to JPG
@@ -325,22 +325,16 @@ tif2jpg() {
                && command -v python3 >/dev/null 2>&1; then
 
             find "$STXW_FIGURE_CAPTION_MEDIA_DIR" -name "Figure_ID_*.tif" \
-                | parallel -j+0 --eta '
+                | parallel -j+0 --no-notice --quiet '
                 python3 ./scripts/python/optimize_figure.py --input {} --output "$STXW_FIGURE_JPG_DIR"/$(basename {} .tif).jpg" --dpi 300 --quality 95
             '
 
             find "$STXW_FIGURE_CAPTION_MEDIA_DIR" -name "Figure_ID_*.png" \
-                | parallel -j+0 --eta '
-                python3
-./scripts/python/optimize_figure.py
---input {}
---output
-"$STXW_FIGURE_JPG_DIR"/$(basename {} .png).jpg"
---dpi 300
---quality 95
+                | parallel -j+0 --no-notice --quiet '
+                python3 ./scripts/python/optimize_figure.py --input {} --output "$STXW_FIGURE_JPG_DIR"/$(basename {} .png).jpg" --dpi 300 --quality 95
             '
             if command -v inkscape >/dev/null 2>&1; then
-                find "$STXW_FIGURE_CAPTION_MEDIA_DIR" -name "Figure_ID_*.svg" | parallel -j+0 --eta '
+                find "$STXW_FIGURE_CAPTION_MEDIA_DIR" -name "Figure_ID_*.svg" | parallel -j+0 --no-notice --quiet '
                     inkscape -z -e "$STXW_FIGURE_JPG_DIR"/$(basename {} .svg)_temp.png" -w 1200 -h 1200 {}
                     python3 ./scripts/python/optimize_figure.py --input "$STXW_FIGURE_JPG_DIR"/$(basename {} .svg)_temp.png" --output "$STXW_FIGURE_JPG_DIR"/$(basename {} .svg).jpg" --dpi 300 --quality 95
                     rm -f "$STXW_FIGURE_JPG_DIR"/$(basename {} .svg)_temp.png"
@@ -351,14 +345,14 @@ tif2jpg() {
                 if [ -n "$convert_cmd" ]; then
                     export -f get_cmd_convert
                     export ORIG_DIR
-                    find "$STXW_FIGURE_CAPTION_MEDIA_DIR" -name "Figure_ID_*.svg" | parallel -j+0 --eta '
+                    find "$STXW_FIGURE_CAPTION_MEDIA_DIR" -name "Figure_ID_*.svg" | parallel -j+0 --no-notice --quiet '
                         '"$convert_cmd"' {} -density 300 -quality 95 "$STXW_FIGURE_JPG_DIR"/$(basename {} .svg).jpg"
                     '
                 else
                     echo_warning "    No ImageMagick found, skipping SVG conversions"
                 fi
             fi
-            find "$STXW_FIGURE_CAPTION_MEDIA_DIR" -name "Figure_ID_*.jpg" | parallel -j+0 --eta '
+            find "$STXW_FIGURE_CAPTION_MEDIA_DIR" -name "Figure_ID_*.jpg" | parallel -j+0 --no-notice --quiet '
                 if [ ! -f "$STXW_FIGURE_JPG_DIR"/$(basename {})" ]; then
                     python3 ./scripts/python/optimize_figure.py --input {} --output "$STXW_FIGURE_JPG_DIR"/$(basename {})" --dpi 300 --quality 95
                 fi
@@ -369,23 +363,23 @@ tif2jpg() {
             if [ -n "$convert_cmd" ]; then
                 export -f get_cmd_convert
                 export ORIG_DIR
-                find "$STXW_FIGURE_CAPTION_MEDIA_DIR" -name "Figure_ID_*.tif" | parallel -j+0 --eta '
+                find "$STXW_FIGURE_CAPTION_MEDIA_DIR" -name "Figure_ID_*.tif" | parallel -j+0 --no-notice --quiet '
                     '"$convert_cmd"' {} -density 300 -quality 95 "$STXW_FIGURE_JPG_DIR"/$(basename {} .tif).jpg"
                 '
-                find "$STXW_FIGURE_CAPTION_MEDIA_DIR" -name "Figure_ID_*.png" | parallel -j+0 --eta '
+                find "$STXW_FIGURE_CAPTION_MEDIA_DIR" -name "Figure_ID_*.png" | parallel -j+0 --no-notice --quiet '
                     '"$convert_cmd"' {} -density 300 -quality 95 "$STXW_FIGURE_JPG_DIR"/$(basename {} .png).jpg"
                 '
-                find "$STXW_FIGURE_CAPTION_MEDIA_DIR" -name "Figure_ID_*.svg" | parallel -j+0 --eta '
+                find "$STXW_FIGURE_CAPTION_MEDIA_DIR" -name "Figure_ID_*.svg" | parallel -j+0 --no-notice --quiet '
                     '"$convert_cmd"' {} -density 300 -quality 95 "$STXW_FIGURE_JPG_DIR"/$(basename {} .svg).jpg"
                 '
             else
                 echo_warning "    No ImageMagick found, skipping image conversions"
             fi
-            find "$STXW_FIGURE_CAPTION_MEDIA_DIR" -name "Figure_ID_*.jpg" | parallel -j+0 --eta '
-                if [ ! -f "$STXW_FIGURE_JPG_DIR"/$(basename {})" ]; then
-                    cp {} "$STXW_FIGURE_JPG_DIR"/$(basename {})"
+            find "$STXW_FIGURE_CAPTION_MEDIA_DIR" -name "Figure_ID_*.jpg" | parallel -j+0 --no-notice --quiet "
+                if [ ! -f '$STXW_FIGURE_JPG_DIR'/\$(basename {}) ]; then
+                    cp {} '$STXW_FIGURE_JPG_DIR'/\$(basename {})
                 fi
-            '
+            "
         fi
     fi
 }

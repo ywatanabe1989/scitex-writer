@@ -1,7 +1,7 @@
 #!/bin/bash
 # -*- coding: utf-8 -*-
-# Timestamp: "2025-09-27 15:10:53 (ywatanabe)"
-# File: ./paper/scripts/shell/compile_manuscript.sh
+# Timestamp: "2025-09-27 15:20:00 (ywatanabe)"
+# File: ./paper/scripts/shell/compile_supplementary.sh
 
 ORIG_DIR="$(pwd)"
 THIS_DIR="$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)"
@@ -22,7 +22,7 @@ echo_error() { echo -e "${RED}$1${NC}"; }
 # ---------------------------------------
 
 # Configurations
-export STXW_DOC_TYPE="manuscript"
+export STXW_DOC_TYPE="supplementary"
 source ./config/load_config.sh "$STXW_DOC_TYPE"
 echo
 
@@ -34,9 +34,9 @@ mkdir -p "$LOG_DIR" && touch "$STXW_GLOBAL_LOG_FILE"
 set -e
 set -o pipefail
 
-# Deafult values for arguments
+# Default values for arguments
 do_p2t=false
-no_figs=true
+no_figs=false  # Supplementary typically includes figures
 do_quiet=false
 do_crop_tif=false
 

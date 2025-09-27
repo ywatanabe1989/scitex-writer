@@ -24,7 +24,7 @@ echo_error() { echo -e "${RED}$1${NC}"; }
 NC='\033[0m'
 
 # Configurations
-source ./config/load_config.sh $STXW_MANUSCRIPT_TYPE
+source ./config/load_config.sh $STXW_DOC_TYPE
 
 # Logging
 touch "$LOG_PATH" >/dev/null 2>&1

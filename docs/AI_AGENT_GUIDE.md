@@ -12,7 +12,7 @@ This guide helps AI agents create scientific manuscripts from research projects 
 
 ```bash
 # Initialize manuscript
-export STXW_MANUSCRIPT_TYPE=manuscript
+export STXW_DOC_TYPE=manuscript
 ./compile_manuscript
 
 # Output locations
@@ -255,7 +255,7 @@ continuous iEEG recordings through multiple stages...
 ### Step 4: Compile
 
 ```bash
-export STXW_MANUSCRIPT_TYPE=manuscript
+export STXW_DOC_TYPE=manuscript
 ./compile_manuscript
 ```
 
@@ -295,7 +295,7 @@ def generate_methods(code_dir, output_file):
 def compile_manuscript():
     """Run SciTeX Writer compilation."""
     env = os.environ.copy()
-    env['STXW_MANUSCRIPT_TYPE'] = 'manuscript'
+    env['STXW_DOC_TYPE'] = 'manuscript'
     subprocess.run(['./compile_manuscript'], env=env)
 
 if __name__ == "__main__":

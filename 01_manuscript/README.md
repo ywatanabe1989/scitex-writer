@@ -1,63 +1,91 @@
-# SciTeX: AI-assisted Template for Scientific Manuscripts
+<!-- ---
+!-- Timestamp: 2025-09-27 15:35:10
+!-- Author: ywatanabe
+!-- File: /ssh:sp:/home/ywatanabe/proj/neurovista/paper/01_manuscript/README.md
+!-- --- -->
 
-![Demo GIF](./contents/.demo.gif)
+# Manuscript
 
-![CI](https://github.com/ywatanabe1989/LaTeX-Scientific-Template/actions/workflows/compile.yml/badge.svg)
+This directory contains the main manuscript files and compilation outputs.
 
-This LaTeX template complies with [Elsevier's manuscript guidelines](https://www.elsevier.com/researcher/author/policies-and-guidelines/latex-instructions) and is adaptable for use with other journals. It simplifies the writing process for documents that have intricate structures and include mathematical expressions.
+## Quick Start
 
-## Quick Start on Ubuntu
-
-To install the template and Python dependencies, execute:
-
+From the paper root directory:
 ```bash
-$ ./.scripts/shell/install_on_ubuntu.sh
-$ ./.scripts/shell/gen_pyenv.sh
+# Basic compilation (no figures)
+./compile_manuscript
+
+# Full compilation with figures
+./compile_manuscript -f
+
+# Quiet mode (minimal output)
+./compile_manuscript -q
+
+# All options
+./compile_manuscript -f -p2t -c -q
 ```
 
-## How to Use
+## Directory Structure
 
-To create your manuscript, modify the following files:
-- Bibliography: [`./bibliography.bib`](./bibliography.bib)
-- Main document: [`./manuscript.tex`](./manuscript.tex)
-- Manuscript sections: [`./contents/`](./contents/)
-- ChatGPT configuration: [`./config/`](./config/)
-
-```bash
-$ ./compile.sh               # Compiles the document
-$ ./compile.sh -h            # Displays help for these commands
-$ ./compile.sh -p            # Pushes changes to GitHub
-$ ./compile.sh -r            # Revises with ChatGPT
-$ ./compile.sh -t            # Checks terms with ChatGPT
-$ ./compile.sh -c            # Inserts citations with ChatGPT
-$ ./compile.sh -p2t          # Converts PowerPoint to TIF
-$ ./compile.sh -nf           # Does not include figures
-$ yes | ./compile.sh -r -i -p # Executes multiple commands and automatically answers yes
+```
+01_manuscript/
+├── base.tex                  # Main LaTeX document
+├── contents/
+│   ├── figures/
+│   │   ├── caption_and_media/   # Place figure files here
+│   │   └── captions/            # Figure captions (auto-generated)
+│   ├── tables/
+│   │   ├── caption_and_media/   # Place table files here
+│   │   └── captions/            # Table captions (auto-generated)
+│   ├── latex_styles/            # LaTeX packages and formatting
+│   ├── abstract.tex
+│   ├── introduction.tex
+│   ├── methods.tex
+│   ├── results.tex
+│   ├── discussion.tex
+│   └── conclusion.tex
+├── archive/                    # Version history
+├── logs/                       # Compilation logs
+└── docs/                       # Documentation
 ```
 
-To integrate ChatGPT, set your OpenAI API key:
+## Output Files
 
-```bash
-$ echo 'export OPENAI_API_KEY="YOUR_OPENAI_API_KEY"' >> ~/.bashrc # Replace YOUR_OPENAI_API_KEY with your actual key. For further information, vist the OpenAI API documentation (https://openai.com/blog/openai-api).
-```
+After successful compilation:
+- `manuscript.pdf` - Final compiled manuscript
+- `manuscript.tex` - Processed LaTeX source
+- `manuscript_diff.pdf` - PDF showing changes (when diff enabled)
+- `manuscript_diff.tex` - LaTeX with change tracking
 
-## How to Manage Versions
+## Adding Figures
 
-```bash
-$ ./.scripts/shell/.clear_archive.sh # Reset versioning from v001
-$ git reset HEAD~1 # Undo the last push:
-$ git checkout <commit-hash> -- contents/ # Revert to a specific commit:
-```
+1. Place figure files in `contents/figures/caption_and_media/`
+2. Use naming convention: `Figure_ID_NN_description.ext`
+   - NN: Two-digit number (01, 02, ...)
+   - description: Brief description (optional)
+   - ext: png, jpg, tif, svg, mmd (Mermaid), pptx
 
-## Which Files to Edit
+Example: `Figure_ID_01_workflow.png`
 
-The project's structure is outlined in [`./.tree.txt`](./.tree.txt), which is automatically generated. The main components are:
+Missing figures automatically generate placeholder images with instructions.
 
-- `bibliography.bib`: The bibliography file
-- `config/`: Configuration files for ChatGPT
-- `manuscript.tex`: The primary LaTeX file
-- `contents/`: Sections of the manuscript and figures
+## Adding Tables
 
-## Support
+1. Place table files in `contents/tables/caption_and_media/`
+2. Use naming convention: `Table_ID_NN_description.tex`
 
-For help or feedback, please contact ywatanabe@alumni.u-tokyo.ac.jp.
+## Compilation Options
+
+- `-f, --figs` - Process and include figures
+- `-p2t, --ppt2tif` - Convert PowerPoint slides to TIF format (WSL)
+- `-c, --crop_tif` - Auto-crop TIF images to remove whitespace
+- `-q, --quiet` - Suppress detailed LaTeX compilation output
+- `-h, --help` - Show help message
+
+## Troubleshooting
+
+- Check `logs/global.log` for compilation errors
+- Ensure all symlinks in `contents/` are properly set
+- Verify LaTeX container is available (Apptainer/Singularity)
+
+<!-- EOF -->

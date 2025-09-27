@@ -22,7 +22,7 @@ echo_error() { echo -e "${RED}$1${NC}"; }
 # ---------------------------------------
 
 # Configurations
-source ./config/load_config.sh $STXW_MANUSCRIPT_TYPE
+source ./config/load_config.sh $STXW_DOC_TYPE
 
 # Source the shared command switching module
 source "$(dirname ${BASH_SOURCE[0]})/command_switching.src"
@@ -75,14 +75,23 @@ count_figures() {
 
 count_IMRaD() {
     for section in abstract introduction methods results discussion; do
-        local section_tex="./01_manuscript/contents/$section.tex"
+        local section_tex="$STWX_ROOT_DIR/contents/$section.tex"
         if [ -e "$section_tex" ]; then
             _count_words "$section_tex" "$STXW_WORDCOUNT_DIR/${section}_count.txt"
         else
             echo 0 > "$STXW_WORDCOUNT_DIR/${section}_count.txt"
         fi
     done
-    cat $STXW_WORDCOUNT_DIR/{introduction,methods,results,discussion}_count.txt | awk '{s+=$1} END {print s}' > $STXW_WORDCOUNT_DIR/imrd_count.txt
+    
+    # Calculate IMRD total (only count sections that exist)
+    local imrd_total=0
+    for section in introduction methods results discussion; do
+        if [ -f "$STXW_WORDCOUNT_DIR/${section}_count.txt" ]; then
+            local count=$(cat "$STXW_WORDCOUNT_DIR/${section}_count.txt" 2>/dev/null || echo 0)
+            imrd_total=$((imrd_total + count))
+        fi
+    done
+    echo "$imrd_total" > "$STXW_WORDCOUNT_DIR/imrd_count.txt"
 }
 
 display_counts() {
@@ -94,8 +103,19 @@ display_counts() {
     echo_success "    Word counts updated:"
     echo_success "      Figures: $fig_count"
     echo_success "      Tables: $tab_count"
-    echo_success "      Abstract: $abs_count words"
-    echo_success "      Main text (IMRD): $imrd_count words"
+    
+    # For supplementary, don't show abstract if it doesn't exist
+    if [ "$STXW_DOC_TYPE" = "supplementary" ]; then
+        if [ "$abs_count" -gt 0 ]; then
+            echo_success "      Abstract: $abs_count words"
+        fi
+        if [ "$imrd_count" -gt 0 ]; then
+            echo_success "      Supplementary text: $imrd_count words"
+        fi
+    else
+        echo_success "      Abstract: $abs_count words"
+        echo_success "      Main text (IMRD): $imrd_count words"
+    fi
 }
 
 main() {
