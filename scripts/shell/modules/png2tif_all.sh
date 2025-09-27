@@ -43,7 +43,7 @@ png2tif_all(){
 
     find "$STXW_FIGURE_CAPTION_MEDIA_DIR" -maxdepth 1 \
          -name 'Figure_ID_*.png' | \
-    parallel --no-notice --quiet \
+    parallel --no-notice --silent \
         'in={}; out={.}.tif
          '"$convert_cmd"' -density 300 -units PixelsPerInch "$in" "$out"
          echo "    TIFF {#}/'"$(wc -l <<< "$(find "$STXW_FIGURE_CAPTION_MEDIA_DIR" -maxdepth 1 -name 'Figure_ID_*.png')")"' -> $out"'

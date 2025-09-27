@@ -32,7 +32,7 @@ echo_info "Running $0..."
 # PowerPoint to TIF
 total=$(ls "$STXW_FIGURE_CAPTION_MEDIA_DIR"/Figure_ID_*.pptx | wc -l)
 ls "$STXW_FIGURE_CAPTION_MEDIA_DIR"/Figure_ID_*.pptx | \
-parallel --no-notice --quiet \
+parallel --no-notice --silent \
     './scripts/shell/modules/pptx2tif_single.sh -i "$(realpath {})" -o "$(realpath {.}.tif)"; \
     echo "Processed: {#}/$total"'
 
