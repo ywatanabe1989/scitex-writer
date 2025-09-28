@@ -108,7 +108,7 @@ describe('UserService.createUser', () => {
 
 ### Directory Structure
 ```
-contents/
+src/
 ├── components/
 │   ├── UserService.js
 │   └── __tests__/

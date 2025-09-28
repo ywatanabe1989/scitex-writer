@@ -6,8 +6,8 @@
 
 
 ## Code Organization
-- contents and tests: no mngs dependency
-- contents, tests, and examples: 
+- src and tests: no mngs dependency
+- src, tests, and examples: 
   - strictly mirror structure to link each other
   - Understand different roles
 - Use .playground for temporal testing

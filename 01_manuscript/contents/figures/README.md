@@ -1,234 +1,263 @@
-# Figure Management in SciTex
+# Figure Management System
 
-This directory contains all figure-related files for the manuscript. SciTex uses a structured approach to manage figures efficiently.
+This directory implements an automated figure processing pipeline for scientific manuscripts, handling multi-panel figures, format conversions, and LaTeX integration seamlessly.
 
-## Quick Start Guide
+## Quick Start
 
-### Adding a New Figure
+### Adding a Figure
 
-1. **Create your figure** in PNG, TIF/TIFF, SVG, JPG/JPEG, PowerPoint (.pptx), or Mermaid (.mmd) format (300 DPI recommended)
-2. **Name it properly**: `Figure_ID_XX_description.[ext]` (e.g., `Figure_ID_01_workflow.png`)
-3. **Place it in**: `caption_and_media/` directory
-4. **Create a caption file**: `Figure_ID_XX_description.tex` with the same base name
-5. **Reference it in text**: Use `Figure~\ref{fig:XX_description}` (e.g., `Figure~\ref{fig:01_workflow}`)
-6. **Compile**: Run `./compile_manuscript` (figures are processed automatically)
+1. **Place figure file**: Add to `caption_and_media/` with format `XX_description.ext`
+   - Single figure: `01_demographic_data.jpg`
+   - Multi-panel: `01a_demographic_data.jpg`, `01b_demographic_data.jpg`
+2. **Add caption**: Create `XX_description.tex` in same directory
+3. **Compile**: Run `./compile -m` (figures included by default)
+4. **Reference**: Use `Figure~\ref{fig:XX_description}` in manuscript
 
 ## Directory Structure
 
-- `caption_and_media/`: Source directory for all figure files and captions
-  - Place your image files here (PNG, TIF/TIFF, SVG, JPG/JPEG, PowerPoint .pptx, or Mermaid .mmd)
-  - For each image, create a matching `.tex` caption file with the same base name
-  - `jpg_for_compilation/`: Auto-generated directory containing normalized JPG versions for LaTeX compilation
-- `compiled/`: Contains compiled LaTeX files for each figure (auto-generated)
-- `templates/`: Templates for figure creation
+```
+figures/
+├── caption_and_media/           # Source files and captions
+│   ├── [0-9]*.{jpg,png,tif,...} # Figure source files
+│   ├── [0-9]*.tex               # Caption files
+│   ├── jpg_for_compilation/     # Auto-generated final JPGs
+│   └── templates/               # Caption templates
+├── compiled/                    # Auto-generated LaTeX includes
+│   ├── 00_Figures_Header.tex   # Section header (used only if no figures)
+│   ├── [0-9]*.tex              # Individual figure metadata
+│   └── FINAL.tex               # Combined output for manuscript
+└── README.md
+```
 
-## Naming Conventions
+## Naming Convention
 
-All figures must follow this naming pattern:
+### Format: `XX[panel]_description.ext`
+
+- `XX`: Two-digit figure number (01, 02, ...)
+- `[panel]`: Optional panel letter (a, b, c, ... or A, B, C, ...)
+- `_description`: Descriptive name (underscores allowed)
+- `.ext`: File extension
+
+### Examples
 
 ```
-Figure_ID_XX_descriptive_name.[png|tex]
+01_demographic_data.jpg         # Single figure
+02a_pac_analysis.png           # Panel A of figure 2
+02b_pac_analysis.png           # Panel B of figure 2 (auto-tiled with 2a)
+03_standalone.tif               # Single figure
 ```
 
-Where:
-- `Figure_ID` is the fixed prefix (required)
-- `XX` is a two-digit figure number (e.g., 01, 02)
-- `descriptive_name` is an optional descriptive name (e.g., workflow, architecture)
-- Supported extensions: `.png`, `.tif/.tiff`, `.svg`, `.jpg/.jpeg`, `.pptx` (PowerPoint), `.mmd` (Mermaid), and `.tex` for caption files
+## Processing Pipeline
 
-**Important**: The LaTeX reference label is generated as `\label{fig:XX_descriptive_name}` based on the full filename.
+### 1. Format Conversion Cascade
 
-## Caption Format
+The system automatically converts formats in priority order:
 
-For each figure, create a caption file with the same name but `.tex` extension:
+```
+PPTX → TIF → PNG → JPG → Final Output
+         ↓
+      [Crop]  (optional)
+```
+
+| Source Format | Extensions | Conversion Path |
+|--------------|------------|-----------------|
+| PowerPoint | `.pptx` | → TIF → PNG → JPG |
+| TIFF | `.tif`, `.tiff` | → PNG → JPG |
+| Mermaid | `.mmd` | → PNG → JPG |
+| PNG | `.png` | → JPG |
+| SVG | `.svg` | → JPG |
+| JPEG | `.jpg`, `.jpeg` | Direct use |
+
+### 2. Panel Tiling
+
+Multi-panel figures are automatically detected and combined:
+
+1. **Detection**: Files matching `XXa_`, `XXb_`, etc. identified
+2. **Grouping**: Panels grouped by base number (XX)
+3. **Tiling**: Combined into single composed figure
+4. **Labeling**: Panel labels (A, B, C) added automatically
+5. **Output**: Single JPG created as `XX_description.jpg`
+
+### 3. Compilation Flow
+
+```
+Source Files → Conversion → Tiling → JPG Output → LaTeX Integration → PDF
+```
+
+Key features:
+- **Clean start**: Previous outputs cleared before processing
+- **Temporary workspace**: Conversions in `.temp_jpg_conversion/`
+- **Selective copying**: Only composed figures (not panels) to final directory
+- **Automatic placeholders**: Generated for missing figures with captions
+
+## Caption Files
+
+### Basic Template
 
 ```latex
 \caption{\textbf{
-FIGURE TITLE HERE
+Title of the Figure
 }
 \smallskip
 \\
-FIGURE LEGEND HERE. Provide a detailed description of the figure including all components and their significance.
+Description text here.
 }
-% width=1\textwidth
+% width=0.95\textwidth
 ```
 
-Adjust figure width by modifying the `width=1\textwidth` comment. This width specification will be automatically used when compiling figures.
-
-## Figure Compilation
-
-When you compile with `./compile_manuscript`, SciTex automatically:
-
-1. Converts Mermaid diagrams (.mmd) to PNG
-2. Converts all image formats (TIF, PNG, SVG) to JPG for consistent LaTeX compilation
-3. **Creates placeholders for missing figures** - if a .tex caption exists but no source image, automatically generates a placeholder JPG
-4. Creates a dedicated "Figures" section at the end of the document
-5. Formats each figure with proper spacing, bookmarks, and labels
-6. Creates one figure per page in the final PDF
-
-## Final Figure Format in Manuscript
-
-Each figure in the final manuscript will appear like this:
+### Multi-Panel Template
 
 ```latex
-\clearpage
-\begin{figure*}[ht]
-    \pdfbookmark[2]{ID XX}{figure_id_XX}
-    \centering
-    \includegraphics[width=1\textwidth]{./contents/figures/png/Figure_ID_XX.png}
-    \caption{\textbf{
-    FIGURE TITLE HERE
-    }
-    \smallskip
-    \\
-    FIGURE LEGEND HERE.
-    }
-    % width=1\textwidth
-    \label{fig:XX}
-\end{figure*}
+\caption{\textbf{
+Multi-Panel Figure Title
+}
+\smallskip
+\\
+\textbf{(A)} Description of panel A showing specific results.
+\textbf{(B)} Description of panel B with complementary data.
+\textbf{(C)} Additional panel description if needed.
+}
+% width=0.95\textwidth
 ```
 
-## Supported Image Formats
+## Compilation Options
 
-### Mermaid Diagrams (.mmd)
-Create flowcharts, diagrams, and visualizations using Mermaid syntax. These are automatically converted to PNG/JPG during compilation.
-
-**Figure Processing Workflow:**
-```mermaid
-flowchart TD
-    Start([User runs ./compile_manuscript]) --> CheckFiles[Check caption_and_media/ for Figure_ID_*.files]
-    
-    CheckFiles --> InputFiles{File Types Found}
-    
-    %% Input file types
-    InputFiles -->|.mmd| MMD[Mermaid Diagrams]
-    InputFiles -->|.pptx| PPTX[PowerPoint Files]
-    InputFiles -->|.tif/.tiff| TIF[TIFF Images]
-    InputFiles -->|.png| PNG[PNG Images]
-    InputFiles -->|.svg| SVG[Vector Graphics]
-    InputFiles -->|.jpg/.jpeg| JPG[JPEG Images]
-    
-    %% Processing flows
-    MMD --> MmdToPng[mmdc: .mmd → .png]
-    MmdToPng --> PngToJpg[magick: .png → .jpg]
-    
-    PPTX --> PptxToTif[pptx2tif.py: .pptx → .tif]
-    PptxToTif --> TifToJpg[magick: .tif → .jpg]
-    
-    TIF --> TifToJpg
-    PNG --> PngToJpg
-    SVG --> SvgToJpg[magick: .svg → .jpg]
-    
-    JPG --> NormalizeJpg[Normalize .jpeg → .jpg]
-    NormalizeJpg --> CopyJpg[Copy to jpg_for_compilation/]
-    
-    %% All converters lead to compilation directory
-    PngToJpg --> CompDir[jpg_for_compilation/]
-    TifToJpg --> CompDir
-    SvgToJpg --> CompDir
-    CopyJpg --> CompDir
-    
-    %% Caption processing
-    CheckFiles --> Captions[Check for .tex caption files]
-    Captions --> CreateMissing[Create missing .tex from template]
-    CreateMissing --> CompileFigs[Compile LaTeX figures]
-    
-    CompDir --> CompileFigs
-    CompileFigs --> CompiledDir[compiled/FINAL.tex]
-    CompiledDir --> ManuscriptPDF[Final manuscript.pdf]
-    
-    %% Directory structure
-    subgraph Directories["Directory Structure"]
-        CaptionMedia["caption_and_media/<br/>• Source files<br/>• .tex captions"]
-        JpgComp["jpg_for_compilation/<br/>• Normalized JPGs<br/>• Auto-generated"]
-        Compiled["compiled/<br/>• LaTeX files<br/>• FINAL.tex"]
-        Templates["templates/<br/>• .pptx, .tif, .jnt<br/>• Templates"]
-    end
-    
-    %% Styling
-    classDef inputFile fill:#e1f5fe
-    classDef process fill:#f3e5f5
-    classDef output fill:#e8f5e8
-    classDef directory fill:#fff3e0
-    
-    class MMD,PPTX,TIF,PNG,SVG,JPG inputFile
-    class MmdToPng,PptxToTif,TifToJpg,PngToJpg,SvgToJpg,NormalizeJpg process
-    class CompDir,CompiledDir,ManuscriptPDF output
-    class CaptionMedia,JpgComp,Compiled,Templates directory
-```
-
-This diagram shows the complete figure processing workflow with file type priorities and directory structure.
-
-### TIF/TIFF Images
-High-quality raster images commonly used for publication. Automatically converted to JPG for LaTeX.
-
-### SVG Vector Graphics
-Scalable vector graphics. Automatically converted to JPG for LaTeX compatibility.
-
-### PNG/JPG Images
-Standard web formats. PNG files are converted to JPG for consistency.
-
-### PowerPoint to TIF Conversion
-Convert PowerPoint slides to TIF format using:
 ```bash
-./compile_manuscript --pptx2tif
+# Default: includes figures
+./compile -m
+
+# Quick compilation without figures
+./compile -m -nf
+./compile -m --no_figs
+
+# With PowerPoint conversion (WSL required)
+./compile -m -p2t
+./compile -m --ppt2tif
+
+# With automatic cropping
+./compile -m -c
+./compile -m --crop_tif
+
+# Quiet mode (reduced output)
+./compile -m -q
+./compile -m --quiet
 ```
-**Note:** Requires Windows with PowerPoint (via WSL).
 
-## Placeholder Mechanism
+## Advanced Features
 
-When a `.tex` caption file exists but no corresponding source image is found, SciTex automatically creates a placeholder:
+### Symlink Support
 
-### Placeholder Priority
-1. **Template-based**: Uses `templates/FIGURE_ID_00_TEMPLATE.tif` and converts to JPG
-2. **Generated fallback**: Creates a gray 800x600 image with "Figure Placeholder" text
+Link to data files stored elsewhere:
 
-### Placeholder Benefits
-- **Prevents compilation errors**: Missing figures don't break the PDF generation
-- **Visual feedback**: Clearly shows which figures need source files
-- **Maintains layout**: Preserves document structure during development
-- **Easy identification**: Placeholder text includes the figure ID
-
-### Example Workflow
 ```bash
-# 1. Create caption file first
-echo '\caption{My new figure caption}' > caption_and_media/Figure_ID_02_analysis.tex
-
-# 2. Compile manuscript - placeholder automatically created
-./compile_manuscript
-
-# 3. Add actual source file later
-cp my_analysis.png caption_and_media/Figure_ID_02_analysis.png
-
-# 4. Recompile - real figure replaces placeholder
-./compile_manuscript
+ln -s /data/analysis/figure1.jpg caption_and_media/01_results.jpg
 ```
 
-## Example Structure
+### Placeholder Generation
 
-```
-figures/
-├── caption_and_media/      # Source files
-│   ├── Figure_ID_00_template.tif    # Template figure
-│   ├── Figure_ID_00_template.tex    # Template caption
-│   ├── Figure_ID_01_workflow.mmd    # Mermaid diagram source
-│   ├── Figure_ID_01_workflow.png    # Generated from .mmd
-│   ├── Figure_ID_01_workflow.tex    # Caption file
-│   └── jpg_for_compilation/         # Auto-generated/normalized JPGs
-│       ├── Figure_ID_00_template.jpg   # Converted from TIF
-│       └── Figure_ID_01_workflow.jpg   # Converted from PNG
-├── compiled/               # Auto-generated LaTeX
-│   ├── FINAL.tex                    # Combined figures file
-│   ├── Figure_ID_00_template.tex    # Compiled figure
-│   └── Figure_ID_01_workflow.tex    # Compiled figure
-└── templates/              # Templates
-    └── _Figure_ID_00_TEMPLATE.jnt   # SigmaPlot template file
+When caption exists without source image:
+- Automatic placeholder with instructions
+- Shows required file path and formats
+- Includes LaTeX reference format
+
+### Panel Specifications
+
+- **Automatic detection**: Both lowercase (a-z) and uppercase (A-Z) supported
+- **Smart tiling**: Optimizes layout based on panel count
+- **Consistent sizing**: Panels resized to match for uniform appearance
+- **Label positioning**: Automatic placement with appropriate font size
+
+## Troubleshooting
+
+### Common Issues
+
+| Issue | Solution |
+|-------|----------|
+| Figures not in PDF | Check `jpg_for_compilation/` for output files |
+| Panels not tiling | Verify naming pattern (`XXa_`, `XXb_`) matches |
+| Wrong figure order | Ensure two-digit numbering (01, not 1) |
+| Missing placeholders | Confirm ImageMagick installation |
+| Compilation errors | Review `01_manuscript/logs/global.log` |
+
+### Validation Checklist
+
+- [ ] Figure files follow naming convention
+- [ ] Caption files have matching base names
+- [ ] Panel files share common base (before panel letter)
+- [ ] All referenced figures exist
+- [ ] JPGs appear in `jpg_for_compilation/`
+- [ ] FINAL.tex contains figure entries
+
+## Example Workflows
+
+### Single Figure
+
+```bash
+# 1. Add figure
+cp experiment_results.png caption_and_media/01_results.png
+
+# 2. Create caption
+echo '\caption{\textbf{Experimental Results}
+\smallskip
+\\
+Data showing primary outcomes from the experiment.
+}' > caption_and_media/01_results.tex
+
+# 3. Compile
+./compile -m
 ```
 
-## For More Information
+### Multi-Panel Figure
 
-See the comprehensive figure and table management guide in the documentation:
+```bash
+# 1. Add panels (via symlinks)
+ln -s /data/panel_a.jpg caption_and_media/02a_comparison.jpg
+ln -s /data/panel_b.jpg caption_and_media/02b_comparison.jpg
+ln -s /data/panel_c.jpg caption_and_media/02c_comparison.jpg
 
+# 2. Create unified caption
+cat > caption_and_media/02_comparison.tex << 'EOF'
+\caption{\textbf{
+Comparative Analysis
+}
+\smallskip
+\\
+\textbf{(A)} Baseline measurements.
+\textbf{(B)} Treatment response.
+\textbf{(C)} Long-term follow-up.
+}
+EOF
+
+# 3. Compile (auto-tiles panels)
+./compile -m
 ```
-/docs/FIGURE_TABLE_GUIDE.md
-```
+
+## Technical Details
+
+### File Processing Order
+
+1. `process_figures.sh`: Main orchestrator
+2. Format conversion functions (modular)
+3. `tile_panels.py`: Panel combination
+4. `compile_legends()`: LaTeX generation
+5. `compile_figure_tex_files()`: Final assembly
+
+### Key Functions
+
+- `convert_figure_formats_in_cascade()`: Manages conversion pipeline
+- `tile_panels()`: Handles multi-panel assembly
+- `copy_composed_jpg_files()`: Filters final outputs
+- `compile_legends()`: Generates LaTeX metadata
+- `compile_figure_tex_files()`: Creates FINAL.tex
+
+### Configuration
+
+Paths configured in `config/load_config.sh`:
+- `STXW_FIGURE_CAPTION_MEDIA_DIR`: Source directory
+- `STXW_FIGURE_JPG_DIR`: Output directory
+- `STXW_FIGURE_COMPILED_DIR`: LaTeX directory
+- `STXW_FIGURE_COMPILED_FILE`: Final output (FINAL.tex)
+
+---
+
+*System automatically handles all conversions, tiling, and compilation. Simply add figures and run compile!*

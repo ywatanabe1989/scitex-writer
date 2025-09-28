@@ -143,23 +143,23 @@ SciTex provides a comprehensive system for managing figures and tables in scient
 ### Figure Organization
 
 Figures follow a specific organizational structure:
-- `manuscript/contents/figures/contents/`: Place source files here with naming format `Figure_ID_XX.tif`
-- `manuscript/contents/figures/contents/Figure_ID_XX.tex`: Caption files with matching names
+- `manuscript/contents/figures/contents/`: Place source files here with naming format `.XX.tif`
+- `manuscript/contents/figures/contents/.XX.tex`: Caption files with matching names
 - `manuscript/contents/figures/compiled/`: Auto-generated compilation files
 - `manuscript/contents/figures/templates/`: Templates for creating new figures
 
 ### Table Organization
 
 Tables follow a similar structure:
-- `manuscript/contents/tables/contents/`: Place source files here with naming format `Table_ID_XX.csv`
-- `manuscript/contents/tables/contents/Table_ID_XX.tex`: Caption files with matching names
+- `manuscript/contents/tables/contents/`: Place source files here with naming format `.XX.csv`
+- `manuscript/contents/tables/contents/.XX.tex`: Caption files with matching names
 - `manuscript/contents/tables/compiled/`: Auto-generated compilation files
 
 ### Naming Conventions
 
 All figures and tables must follow these naming conventions:
-- Figures: `Figure_ID_XX.tif/tex` (e.g., `Figure_ID_01_workflow.tif`)
-- Tables: `Table_ID_XX.csv/tex` (e.g., `Table_ID_01_results.csv`)
+- Figures: `.XX.tif/tex` (e.g., `.01_workflow.tif`)
+- Tables: `.XX.csv/tex` (e.g., `.01_results.csv`)
 
 The ID number in the filename is used for LaTeX reference labels, automatically generating `\label{fig:XX}` or `\label{tab:XX}`.
 
@@ -195,7 +195,7 @@ The ID number in the filename is used for LaTeX reference labels, automatically 
 ### Creating Tables
 
 1. **Create CSV File**:
-   Place a CSV file in `manuscript/contents/tables/contents/` with the naming format `Table_ID_XX.csv`
+   Place a CSV file in `manuscript/contents/tables/contents/` with the naming format `.XX.csv`
 
 2. **Create Caption File**:
    Create a corresponding `.tex` file with the same name containing:
@@ -498,8 +498,8 @@ SciTex provides a standardized system for managing figures and tables.
 manuscript/contents/figures/
 ├── compiled/           # Auto-generated LaTeX files (DO NOT EDIT)
 ├── contents/                # Source files (PLACE YOUR FILES HERE)
-│   ├── Figure_ID_XX.tif  # Source image files
-│   ├── Figure_ID_XX.tex  # Caption files
+│   ├── .XX.tif  # Source image files
+│   ├── .XX.tex  # Caption files
 │   └── jpg/              # Auto-generated JPEG archive
 ├── templates/          # Templates for new figures
 └── .tex/               # Hidden directory for compiled figure files
@@ -509,7 +509,7 @@ manuscript/contents/figures/
 
 All figures must follow this pattern:
 ```
-Figure_ID_XX_descriptive_name.ext
+.XX_descriptive_name.ext
 ```
 
 Where:
@@ -524,16 +524,16 @@ Where:
 manuscript/contents/tables/
 ├── compiled/           # Auto-generated LaTeX files (DO NOT EDIT)
 └── contents/                # Source files (PLACE YOUR FILES HERE)
-    ├── Table_ID_XX.csv  # Source data files
-    ├── Table_ID_XX.tex  # Caption files
-    └── _Table_ID_XX.tex # Template file
+    ├── .XX.csv  # Source data files
+    ├── .XX.tex  # Caption files
+    └── _.XX.tex # Template file
 ```
 
 ### Table Naming Conventions
 
 All tables must follow this pattern:
 ```
-Table_ID_XX_descriptive_name.ext
+.XX_descriptive_name.ext
 ```
 
 Where:
@@ -628,7 +628,7 @@ SciTex uses specific LaTeX conventions to ensure consistent formatting.
 ### Adding a New Figure
 
 1. Create your figure in TIF format (300 DPI recommended)
-2. Name it following the convention: `Figure_ID_XX_description.tif`
+2. Name it following the convention: `.XX_description.tif`
 3. Place it in `manuscript/contents/figures/contents/`
 4. Create a caption file with the same name but `.tex` extension
 5. Reference it in text with `Figure~\ref{fig:XX}`
@@ -637,7 +637,7 @@ SciTex uses specific LaTeX conventions to ensure consistent formatting.
 ### Adding a New Table
 
 1. Create your table data in CSV format
-2. Name it following the convention: `Table_ID_XX_description.csv`
+2. Name it following the convention: `.XX_description.csv`
 3. Place it in `manuscript/contents/tables/contents/`
 4. Create a caption file with the same name but `.tex` extension
 5. Reference it in text with `Table~\ref{tab:XX}`

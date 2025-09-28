@@ -42,7 +42,7 @@ setup_test_env() {
     mkdir -p "${TEST_TMP_DIR}/scripts/shell/modules"
 
     # Create a sample CSV file
-    cat > "${TEST_TMP_DIR}/contents/tables/contents/Table_ID_01_test.csv" << EOF
+    cat > "${TEST_TMP_DIR}/contents/tables/contents/.01_test.csv" << EOF
 Column1,Column2,Column3
 1,2,3
 4,5,6
@@ -50,7 +50,7 @@ Column1,Column2,Column3
 EOF
 
     # Create a sample caption file
-    cat > "${TEST_TMP_DIR}/contents/tables/contents/Table_ID_01_test.tex" << EOF
+    cat > "${TEST_TMP_DIR}/contents/tables/contents/.01_test.tex" << EOF
 \caption{
 \textbf{Test Table Title.}
 \smallskip
@@ -61,7 +61,7 @@ Test table caption.
 EOF
 
     # Create a template file
-    cat > "${TEST_TMP_DIR}/contents/tables/contents/_Table_ID_XX.tex" << EOF
+    cat > "${TEST_TMP_DIR}/contents/tables/contents/_.XX.tex" << EOF
 \caption{
 \textbf{TITLE HERE.}
 \smallskip
@@ -112,25 +112,25 @@ run_tests() {
     test_function "ensure_caption creates captions when missing" "
         # Create a CSV file without caption
         echo 'A,B,C
-1,2,3' > \"$STXW_TABLE_CAPTION_MEDIA_DIR/Table_ID_02_no_caption.csv\"
+1,2,3' > \"$STXW_TABLE_CAPTION_MEDIA_DIR/.02_no_caption.csv\"
 
         # Run function
         ensure_caption
 
         # Check if caption file was created
-        [ -f \"$STXW_TABLE_CAPTION_MEDIA_DIR/Table_ID_02_no_caption.tex\" ]
+        [ -f \"$STXW_TABLE_CAPTION_MEDIA_DIR/.02_no_caption.tex\" ]
     "
 
     # Test ensure_lower_letters function
     test_function "ensure_lower_letters converts filenames to lowercase" "
         # Create a file with uppercase letters
-        touch \"$STXW_TABLE_CAPTION_MEDIA_DIR/Table_ID_03_TEST_UPPER.csv\"
+        touch \"$STXW_TABLE_CAPTION_MEDIA_DIR/.03_TEST_UPPER.csv\"
 
         # Run function
         ensure_lower_letters
 
         # Check if file was renamed
-        [ -f \"$STXW_TABLE_CAPTION_MEDIA_DIR/Table_ID_03_test_upper.csv\" ] && [ ! -f \"$STXW_TABLE_CAPTION_MEDIA_DIR/Table_ID_03_TEST_UPPER.csv\" ]
+        [ -f \"$STXW_TABLE_CAPTION_MEDIA_DIR/.03_test_upper.csv\" ] && [ ! -f \"$STXW_TABLE_CAPTION_MEDIA_DIR/.03_TEST_UPPER.csv\" ]
     "
 
     # Test csv2tex function
@@ -139,10 +139,10 @@ run_tests() {
         csv2tex
 
         # Check if TEX file was created
-        [ -f \"$STXW_TABLE_COMPILED_DIR/Table_ID_01_test.tex\" ] &&
-        grep -q '\\\\begin{table}' \"$STXW_TABLE_COMPILED_DIR/Table_ID_01_test.tex\" &&
-        grep -q '\\\\begin{tabular}' \"$STXW_TABLE_COMPILED_DIR/Table_ID_01_test.tex\" &&
-        grep -q '\\\\input{' \"$STXW_TABLE_COMPILED_DIR/Table_ID_01_test.tex\"
+        [ -f \"$STXW_TABLE_COMPILED_DIR/.01_test.tex\" ] &&
+        grep -q '\\\\begin{table}' \"$STXW_TABLE_COMPILED_DIR/.01_test.tex\" &&
+        grep -q '\\\\begin{tabular}' \"$STXW_TABLE_COMPILED_DIR/.01_test.tex\" &&
+        grep -q '\\\\input{' \"$STXW_TABLE_COMPILED_DIR/.01_test.tex\"
     "
 
     # Test gather_tex_files function
@@ -154,7 +154,7 @@ run_tests() {
         gather_tex_files
 
         # Check if the file contains the reference to the compiled table
-        grep -q 'Table_ID_01_test' \"$TABLE_HIDDEN_DIR/.All_Tables.tex\"
+        grep -q '.01_test' \"$TABLE_HIDDEN_DIR/.All_Tables.tex\"
     "
 
     # Test main function
@@ -166,9 +166,9 @@ run_tests() {
         main > /dev/null 2>&1
 
         # Check if all files were created
-        [ -f \"$STXW_TABLE_COMPILED_DIR/Table_ID_01_test.tex\" ] &&
+        [ -f \"$STXW_TABLE_COMPILED_DIR/.01_test.tex\" ] &&
         [ -f \"$TABLE_HIDDEN_DIR/.All_Tables.tex\" ] &&
-        grep -q 'Table_ID_01_test' \"$TABLE_HIDDEN_DIR/.All_Tables.tex\"
+        grep -q '.01_test' \"$TABLE_HIDDEN_DIR/.All_Tables.tex\"
     "
 }
 

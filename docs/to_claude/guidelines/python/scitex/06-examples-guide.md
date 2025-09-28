@@ -23,7 +23,7 @@ Understand all the `scitex` guidelines in this directory
   - Embrace figures for visual understanding
   - Logs are automatically created by the scitex framework is also valuable
   - The less comment in the script, the better.
-  - If comments need, it should be handled in `contents` or `scripts`, possibly with verbose option.
+  - If comments need, it should be handled in `src` or `scripts`, possibly with verbose option.
 
 ## Start from small
 1. Ensure each example works correctly one by one

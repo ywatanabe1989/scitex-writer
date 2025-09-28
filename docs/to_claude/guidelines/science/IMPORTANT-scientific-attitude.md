@@ -6,7 +6,7 @@
 
 
 ## Evidence Requirements
-- Run current codebase scripts and logs, not past archive
+- Run current codebase scripts and logs, not past versions
 - Code is dynamic - regression inevitable
 - All claims must be supported by files as evidence
 - Do not believe what is written but what and how code runs

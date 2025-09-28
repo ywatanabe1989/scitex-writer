@@ -9,9 +9,9 @@
 ## Umbrella Structure
 - Use umbrella structure with up to 1 depth
 - Each umbrella must have at least:
-  - Entry point: e.g., `./contents/<package-prefix>-<umbrella>/<package-prefix>-<umbrella>.el`
+  - Entry point: e.g., `./src/<package-prefix>-<umbrella>/<package-prefix>-<umbrella>.el`
   - A dedicated variable file under the scope of the umbrella: 
-    - e.g., `./contents/<package-prefix>-<umbrella>/<package-prefix>-<umbrella>-variables.el`
+    - e.g., `./src/<package-prefix>-<umbrella>/<package-prefix>-<umbrella>-variables.el`
   - Variables and functions in an umbrella should be named as:
     - `<package-prefix>-<umbrella>-...`
 - Entry script should add load-path to child directories
@@ -31,7 +31,7 @@
 │   # (require 'umbrella-xxx)
 │   # (require 'umbrella-yyy)
 │   # (provide 'package-name)
-├── contents
+├── src
 |   ├── umbrella-xxx/                   # First functional grouping
 |   │   ├── umbrella-xxx.el             # Submodule integrator 
 |   │   │   # Contents:

@@ -6,10 +6,10 @@
 
 ## SCITEX-based Project Examples
  - For Scientific Project
-   - Use `./scripts` instead of `./contents`
+   - Use `./scripts` instead of `./src`
    - See `./docs/to_claude/examples/example-scitex-project`
  - For Python Pip Package Project
-   - Use `./contents` instead of `./scripts`
+   - Use `./src` instead of `./scripts`
    - See `./docs/to_claude/examples/`
 
 ## Your Understanding Check

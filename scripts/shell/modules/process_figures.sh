@@ -1,6 +1,6 @@
 #!/bin/bash
 # -*- coding: utf-8 -*-
-# Timestamp: "2025-09-27 18:34:53 (ywatanabe)"
+# Timestamp: "2025-09-28 17:59:16 (ywatanabe)"
 # File: ./paper/scripts/shell/modules/process_figures.sh
 
 ORIG_DIR="$(pwd)"
@@ -20,6 +20,23 @@ echo_success() { echo -e "${GREEN}$1${NC}"; }
 echo_warning() { echo -e "${YELLOW}$1${NC}"; }
 echo_error() { echo -e "${RED}$1${NC}"; }
 # ---------------------------------------
+
+#
+# Figure Processing Pipeline
+# ==========================
+# Figure conversion cascade:
+#   1. Supported formats: pptx, tif/tiff, mmd, png, jpeg/jpg
+#   2. When pptx located, try to convert to tif
+#   3. When tif/tiff located, try to convert to png
+#   4. When mmd located, try to convert to png
+#   5. When png located, try to convert to jpg
+#
+# Cropping white background:
+# When cropping option is enabled, try to crop image in the earliest entry point (tiff, png, or jpg)
+#
+# Paneling:
+# All panel files (e.g., .01a_*, .01b_*) are processed
+# and then automatically tiled together into the main figure.
 
 # Configurations
 source ./config/load_config.sh $STXW_DOC_TYPE
@@ -50,11 +67,11 @@ validate_image_file() {
 }
 
 create_placeholder_jpg() {
-    local figure_id="$1"  # e.g., "Figure_ID_01_missing"
+    local figure_id="$1"  # e.g., ".01_missing"
     local jpg_path="$STXW_FIGURE_JPG_DIR/$figure_id.jpg"
 
     # Primary: Use template TIF file from shared directory
-    local template_tif="./shared/templates/figures/FIGURE_ID_00_TEMPLATE.tif"
+    local template_tif="./shared/templates/figures/.00_TEMPLATE.tif"
 
     if [ -f "$template_tif" ]; then
         # Copy and convert template TIF to JPG
@@ -74,7 +91,7 @@ create_placeholder_jpg() {
         local rel_source_path=$(realpath --relative-to="$(pwd)" "$source_path")
 
         # Extract figure number and description for citation reference
-        local fig_ref=$(echo "$figure_id" | sed -E 's/Figure_ID_([0-9]+)_?(.*)/\1_\2/' | sed 's/_$//')
+        local fig_ref=$(echo "$figure_id" | sed -E 's/.([0-9]+)_?(.*)/\1_\2/' | sed 's/_$//')
 
         # Create a 800x600 placeholder with helpful guidance text
         eval "$convert_cmd -size 800x600 xc:'#f0f0f0' -fill black -font Arial-Bold \
@@ -106,13 +123,13 @@ check_and_create_placeholders() {
     echo_info "    Checking for missing figures..."
 
     # Look for .tex caption files without corresponding source images
-    for tex_file in "$STXW_FIGURE_CAPTION_MEDIA_DIR"/Figure_ID_*.tex; do
+    for tex_file in "$STXW_FIGURE_CAPTION_MEDIA_DIR"/[0-9]*.tex; do
         [ -e "$tex_file" ] || continue
 
         local base_name=$(basename "$tex_file" .tex)
-        
-        # Skip panel files (e.g., Figure_ID_01A_name, Figure_ID_01a_name)
-        if [[ "$base_name" =~ Figure_ID_[0-9]+[A-Za-z]_ ]]; then
+
+        # Skip panel files (e.g., .01A_name, .01a_name)
+        if [[ "$base_name" =~ [0-9]+[A-Za-z]_ ]]; then
             continue
         fi
         local has_source=false
@@ -145,26 +162,33 @@ init_figures() {
           "$STXW_FIGURE_CAPTION_MEDIA_DIR" \
 	      "$STXW_FIGURE_COMPILED_DIR" \
 	      "$STXW_FIGURE_JPG_DIR"
+
+    # Clean up jpg_for_compilation directory before processing
+    echo_info "    Cleaning jpg_for_compilation directory..."
+    rm -rf "$STXW_FIGURE_JPG_DIR"/*
+
     rm -f \
-       "$STXW_FIGURE_COMPILED_DIR"/Figure_ID_*.tex
+       "$STXW_FIGURE_COMPILED_DIR"/.*.tex
     echo > $STXW_FIGURE_COMPILED_FILE
 }
 
 ensure_caption() {
-    for img_file in "$STXW_FIGURE_CAPTION_MEDIA_DIR"/Figure_ID_*.{tif,tiff,jpg,jpeg,png,svg,mmd,pptx}; do
+    # First, ensure caption files exist for all figure files
+    for img_file in "$STXW_FIGURE_CAPTION_MEDIA_DIR"/[0-9]*.{tif,tiff,jpg,jpeg,png,svg,mmd,pptx}; do
         [ -e "$img_file" ] || continue
         local ext="${img_file##*.}"
         local filename=$(basename "$img_file")
-        
-        # Skip panel files (e.g., Figure_ID_01A_name, Figure_ID_01a_name)
-        if [[ "$filename" =~ Figure_ID_[0-9]+[A-Za-z]_ ]]; then
-            continue
-        fi
-        
+
+        # Process ALL files including panel files - they need captions and conversion too
+
         local caption_tex_file="$STXW_FIGURE_CAPTION_MEDIA_DIR/${filename%.$ext}.tex"
-        local template_tex_file="$STXW_FIGURE_CAPTION_MEDIA_DIR/templates/Figure_ID_00_template.tex"
-        # local template_tex_file="$STXW_FIGURE_CAPTION_MEDIA_DIR/templates/_Figure_ID_XX.tex"
+        local template_tex_file="$STXW_FIGURE_CAPTION_MEDIA_DIR/templates/.00_template.tex"
+        # local template_tex_file="$STXW_FIGURE_CAPTION_MEDIA_DIR/templates/_.XX.tex"
         if [ ! -f "$caption_tex_file" ] && [ ! -L "$caption_tex_file" ]; then
+            # Skip creating caption files for panel files
+            if [[ "$filename" =~ [0-9]+[A-Za-z]_ ]]; then
+                continue
+            fi
             if [ -f "$template_tex_file" ]; then
                 cp "$template_tex_file" "$caption_tex_file"
             else
@@ -184,65 +208,121 @@ FIGURE LEGEND HERE.
 EOF
             fi
         fi
-        if [ "$ext" = "jpg" ] || [ "$ext" = "jpeg" ]; then
-            # Normalize .jpeg to .jpg
-            local target_filename="$filename"
-            if [ "$ext" = "jpeg" ]; then
-                target_filename="${filename%.jpeg}.jpg"
-            fi
-            if [ ! -f "$STXW_FIGURE_JPG_DIR/$target_filename" ]; then
-                cp "$img_file" "$STXW_FIGURE_JPG_DIR/$target_filename"
-                echo_success "    Copied: $(basename "$img_file") -> jpg_for_compilation/$target_filename"
-            fi
-        elif [ "$ext" = "tif" ] || [ "$ext" = "tiff" ]; then
-            # Normalize both .tif and .tiff to .jpg
-            local jpg_filename="${filename%.$ext}.jpg"
-            if [ ! -f "$STXW_FIGURE_JPG_DIR/$jpg_filename" ]; then
-                local convert_cmd=$(get_cmd_convert "$ORIG_DIR")
-                if [ -n "$convert_cmd" ]; then
-                    eval "$convert_cmd \"$img_file\" -density 300 -quality 90 \"$STXW_FIGURE_JPG_DIR/$jpg_filename\""
-                    echo_success "    Converted: $(basename "$img_file") -> $(basename "$jpg_filename")"
-                else
-                    echo_warning "    No ImageMagick found, skipping TIF/TIFF to JPG conversion"
-                fi
-            fi
-        elif [ "$ext" = "png" ]; then
-            local jpg_filename="${filename%.png}.jpg"
-            if [ ! -f "$STXW_FIGURE_JPG_DIR/$jpg_filename" ]; then
-                local convert_cmd=$(get_cmd_convert "$ORIG_DIR")
-                if [ -n "$convert_cmd" ]; then
-                    eval "$convert_cmd \"$img_file\" -density 300 -quality 90 \"$STXW_FIGURE_JPG_DIR/$jpg_filename\""
-                else
-                    echo_warning "    No ImageMagick found, skipping PNG to JPG conversion"
-                fi
-            fi
-        elif [ "$ext" = "svg" ]; then
-            local jpg_filename="${filename%.svg}.jpg"
-            if [ ! -f "$STXW_FIGURE_JPG_DIR/$jpg_filename" ]; then
-                if command -v inkscape >/dev/null 2>&1; then
-                    inkscape -z -e "$STXW_FIGURE_JPG_DIR/$jpg_filename" -w 1200 -h 1200 "$img_file"
-                else
-                    local convert_cmd=$(get_cmd_convert "$ORIG_DIR")
-                    if [ -n "$convert_cmd" ]; then
-                        eval "$convert_cmd \"$img_file\" -density 300 -quality 90 \"$STXW_FIGURE_JPG_DIR/$jpg_filename\""
-                    else
-                        echo_warning "    No ImageMagick found, skipping SVG to JPG conversion"
-                    fi
-                fi
-            fi
-        elif [ "$ext" = "mmd" ]; then
-            # Just create the caption file for mmd, processing is done separately
-            :
+    done
+}
+
+# This function is deprecated - use convert_figure_formats_in_cascade instead
+# Kept for backwards compatibility if needed
+
+# ===============================================
+# Figure Conversion Cascade
+# ===============================================
+# Conversion order:
+#   1. PPTX -> TIF
+#   2. Crop TIF (if enabled)
+#   3. TIF/TIFF -> PNG
+#   4. MMD -> PNG
+#   5. PNG -> JPG
+#   6. Copy JPG/JPEG files
+# ===============================================
+
+convert_figure_formats_in_cascade() {
+    local p2t="$1"      # Convert PPTX to TIF
+    local do_crop="$2"  # Crop images
+
+    echo_info "    Starting figure conversion cascade..."
+
+    # Step 1: PPTX -> TIF (when pptx located, convert to tif)
+    if [ "$p2t" = true ]; then
+        echo_info "    Step 1: Converting PPTX to TIF..."
+        pptx2tif true
+    fi
+
+    # Step 2: Crop TIF files (when cropping option enabled)
+    if [ "$do_crop" = true ]; then
+        echo_info "    Step 2: Cropping TIF files..."
+        for tif_file in "$STXW_FIGURE_CAPTION_MEDIA_DIR"/[0-9]*.{tif,tiff}; do
+            [ -e "$tif_file" ] || continue
+            crop_image "$tif_file" true false
+        done
+    fi
+
+    # Step 3: TIF/TIFF -> PNG (when tif/tiff located, convert to png)
+    echo_info "    Step 3: Converting TIF/TIFF to PNG..."
+    for tif_file in "$STXW_FIGURE_CAPTION_MEDIA_DIR"/[0-9]*.{tif,tiff}; do
+        [ -e "$tif_file" ] || continue
+        local base_name="$(basename "$tif_file" | sed 's/\.tiff\?$//')"
+        local png_path="$STXW_FIGURE_CAPTION_MEDIA_DIR/${base_name}.png"
+
+        if [ ! -f "$png_path" ]; then
+            tif2png "$tif_file" "$png_path"
         fi
     done
+
+    # Step 4: MMD -> PNG (when mmd located, convert to png)
+    echo_info "    Step 4: Converting MMD to PNG..."
+    mmd2png
+
+    # Step 5: PNG -> JPG (convert png to jpg directly in caption_and_media)
+    echo_info "    Step 5: Converting PNG to JPG..."
+    for png_file in "$STXW_FIGURE_CAPTION_MEDIA_DIR"/[0-9]*.png; do
+        [ -e "$png_file" ] || continue
+        local base_name="$(basename "$png_file" .png)"
+        local jpg_path="$STXW_FIGURE_CAPTION_MEDIA_DIR/${base_name}.jpg"
+
+        # Skip if JPG already exists
+        if [ -f "$jpg_path" ]; then
+            echo_info "    JPG already exists: ${base_name}.jpg"
+            continue
+        fi
+
+        if png2jpg "$png_file" "$jpg_path"; then
+            echo_success "    Converted: $(basename "$png_file") -> ${base_name}.jpg"
+        else
+            echo_warning "    Failed to convert: $(basename "$png_file")"
+        fi
+    done
+
+    # Step 6: Process existing JPG/JPEG files (normalize extension)
+    echo_info "    Step 6: Processing existing JPG/JPEG files..."
+    for jpeg_file in "$STXW_FIGURE_CAPTION_MEDIA_DIR"/[0-9]*.jpeg; do
+        [ -e "$jpeg_file" ] || continue
+        local base_name="$(basename "$jpeg_file" .jpeg)"
+        local jpg_path="$STXW_FIGURE_CAPTION_MEDIA_DIR/${base_name}.jpg"
+
+        # Rename .jpeg to .jpg for consistency
+        if [ ! -f "$jpg_path" ]; then
+            mv "$jpeg_file" "$jpg_path"
+            echo_success "    Renamed: $(basename "$jpeg_file") -> ${base_name}.jpg"
+        fi
+    done
+
+    # Optional: SVG -> JPG directly in caption_and_media
+    for svg_file in "$STXW_FIGURE_CAPTION_MEDIA_DIR"/[0-9]*.svg; do
+        [ -e "$svg_file" ] || continue
+        local base_name="$(basename "$svg_file" .svg)"
+        local jpg_path="$STXW_FIGURE_CAPTION_MEDIA_DIR/${base_name}.jpg"
+
+        if [ ! -f "$jpg_path" ]; then
+            svg2jpg "$svg_file" "$jpg_path"
+        fi
+    done
+
+    # Step 7: Tile panel figures into composed figures
+    tile_panels "$STXW_FIGURE_CAPTION_MEDIA_DIR"
+
+    # Step 8: Copy ONLY composed/main figure JPGs to jpg_for_compilation
+    copy_composed_jpg_files "$STXW_FIGURE_CAPTION_MEDIA_DIR" "$STXW_FIGURE_JPG_DIR"
+
+    echo_success "    Figure conversion cascade completed"
 }
 
 ensure_lower_letter_id() {
     local ORIG_DIR="$(pwd)"
     cd "$STXW_FIGURE_CAPTION_MEDIA_DIR"
-    for file in Figure_ID_*; do
+    for file in .*; do
         if [[ -f "$file" || -L "$file" ]]; then
-            new_name=$(echo "$file" | sed -E 's/(Figure_ID_)(.*)/\1\L\2/')
+            new_name=$(echo "$file" | sed -E 's/(.)(.*)/\1\L\2/')
             if [[ "$file" != "$new_name" ]]; then
                 mv "$file" "$new_name"
             fi
@@ -251,153 +331,344 @@ ensure_lower_letter_id() {
     cd $ORIG_DIR
 }
 
+# ===============================================
+# Conversion Functions - Each handles one format
+# ===============================================
+
+copy_composed_jpg_files() {
+    local src_dir="$1"
+    local dst_dir="$2"
+
+    echo_info "    Copying composed figure JPGs to jpg_for_compilation..."
+    local copied_count=0
+
+    for jpg_file in "$src_dir"/[0-9]*.jpg; do
+        [ -e "$jpg_file" ] || continue
+        local basename=$(basename "$jpg_file")
+
+        # Skip panel files (e.g., 01a_*, 01b_*)
+        # Only copy main/composed figure files (e.g., 01_demographic.jpg, 02_pac.jpg)
+        if [[ "$basename" =~ ^[0-9]+[a-z]_ ]]; then
+            echo_info "    Skipping panel file: $basename"
+            continue
+        fi
+
+        # Only copy if the file doesn't already exist in destination
+        if [ ! -f "$dst_dir/$basename" ] || [ "$jpg_file" -nt "$dst_dir/$basename" ]; then
+            cp "$jpg_file" "$dst_dir/"
+            echo_success "    Copied composed figure: $basename"
+            ((copied_count++))
+        else
+            echo_info "    Already up-to-date: $basename"
+        fi
+    done
+
+    if [ $copied_count -gt 0 ]; then
+        echo_success "    Copied $copied_count composed figures to jpg_for_compilation"
+    else
+        echo_info "    All figures already up-to-date in jpg_for_compilation"
+    fi
+}
+
+tile_panels() {
+    local working_dir="$1"
+
+    echo_info "    Creating composed figures from panels..."
+
+    # Track which base figures we've already processed
+    local processed_bases=()
+
+    # Find all panel files (e.g., 01a_demographic_data.jpg, 01b_demographic_data.jpg)
+    for panel_file in "$working_dir"/[0-9]*[a-z]_*.jpg; do
+        [ -e "$panel_file" ] || continue
+
+        # Extract base name (e.g., "01_demographic_data" from "01a_demographic_data.jpg")
+        local panel_name=$(basename "$panel_file")
+        local base_name=$(echo "$panel_name" | sed 's/\([0-9]\+\)[a-z]_/\1_/')
+
+        # Skip if we already processed this base figure
+        if [[ " ${processed_bases[@]} " =~ " ${base_name} " ]]; then
+            continue
+        fi
+        processed_bases+=("$base_name")
+
+        # Find all panels for this base figure
+        # Get the figure number from base_name
+        local fig_num="${base_name%%_*}"
+        local panels=("$working_dir"/${fig_num}[a-z]_*.jpg)
+
+        # echo_info "    Looking for panels matching: ${fig_num}[a-z]_*.jpg"
+        # echo_info "    Found ${#panels[@]} panel files"
+
+        if [ ${#panels[@]} -gt 1 ]; then
+            # echo_info "    Found ${#panels[@]} panels for $base_name"
+
+            # Use tile_panels.py if available
+            if command -v python3 >/dev/null 2>&1 && [ -f "./scripts/python/tile_panels.py" ]; then
+                python3 ./scripts/python/tile_panels.py \
+                    --figure-base "$base_name" \
+                    --search-dir "$working_dir" \
+                    --output "$working_dir/$base_name" \
+                    --spacing 30
+
+                if [ $? -eq 0 ]; then
+                    echo_success "    Created composed figure: $base_name"
+                else
+                    echo_warning "    Failed to tile panels for $base_name"
+                fi
+            else
+                echo_warning "    tile_panels.py not available - skipping panel tiling"
+            fi
+        elif [ ${#panels[@]} -eq 1 ] && [ -e "${panels[0]}" ]; then
+            # Single panel - copy it as the main figure
+            # echo_info "    Found single panel for $base_name - using as main figure"
+            cp "${panels[0]}" "$working_dir/$base_name"
+            # echo_success "    Copied single panel as main figure: $base_name"
+        else
+            # No panels found, but we should still have the main figure if it exists
+            # echo_info "    No panels found for $base_name"
+            :
+        fi
+    done
+}
+
 pptx2tif() {
     local p2t="$1"
     if [[ "$p2t" == true ]]; then
+        echo_info "    Converting PPTX to TIF..."
         ./scripts/shell/modules/pptx2tif_all.sh
     fi
 }
 
-crop_tif() {
-    local no_figs="$1"
-    local do_crop_tif="$2"
-    local verbose="$3"
-
-    if [[ "$no_figs" == false && "$do_crop_tif" == true ]]; then
-        echo_info "    Processing images (crop_tif)..."
-        if [ -f "./scripts/python/crop_tif.py" ] && command -v python3 >/dev/null 2>&1; then
-            # Check for required Python dependencies
-            if ! python3 -c "import cv2, numpy" >/dev/null 2>&1; then
-                echo_warn "    Required Python packages (opencv, numpy) not found. Skipping crop_tif."
-                return 1
-            fi
-
-            # Process all TIF files in the caption_and_media directory
-            local tif_files=$(find "$STXW_FIGURE_CAPTION_MEDIA_DIR" -name "Figure_ID_*.tif")
-            local count=$(echo "$tif_files" | wc -l)
-
-            if [ -z "$tif_files" ]; then
-                echo_info "    No TIF files found to crop."
-                return 0
-            fi
-
-            echo_info "    Found $count TIF files to crop"
-
-            # Create a temporary directory for processed files if needed
-            local temp_dir="${STXW_FIGURE_CAPTION_MEDIA_DIR}/processed"
-            mkdir -p "$temp_dir"
-
-            # Process each TIF file
-            echo "$tif_files" | while read -r tif_file; do
-                if [ -z "$tif_file" ]; then continue; fi
-
-                local filename=$(basename "$tif_file")
-                local output_path="${temp_dir}/${filename}"
-
-                if [ "$verbose" = true ]; then
-                    echo_info "    Cropping: $filename"
-                fi
-
-                # Run the Python script with appropriate parameters
-                if [ "$verbose" = true ]; then
-                    python3 ./scripts/python/crop_tif.py file \
-                        --input "$tif_file" \
-                        --output "$output_path" \
-                        --margin 30 \
-                        --verbose
-                else
-                    python3 ./scripts/python/crop_tif.py file \
-                        --input "$tif_file" \
-                        --output "$output_path" \
-                        --margin 30
-                fi
-
-                # If successful, replace the original file
-                if [ -f "$output_path" ]; then
-                    mv "$output_path" "$tif_file"
-                fi
-            done
-
-            # Clean up temporary directory
-            rmdir "$temp_dir" 2>/dev/null
-
-            echo_success "    Cropped $count TIF files"
-        else
-            echo_warn "    crop_tif.py script or Python 3 not found. Skipping crop_tif."
-        fi
-    fi
+mmd2png() {
+    echo_info "    Converting Mermaid diagrams to PNG..."
+    local THIS_DIR="$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)"
+    eval "$THIS_DIR/mmd2png_all.sh" || echo_warning "    mmd2png failed"
 }
 
-tif2jpg() {
-    local no_figs="$1"
-    if [[ "$no_figs" == false ]]; then
-        echo "Processing images (tif2jpg)..."
-        if [ -f "./scripts/python/optimize_figure.py" ] \
-               && command -v python3 >/dev/null 2>&1; then
+tif2png() {
+    local tif_file="$1"
+    local png_file="$2"
 
-            find "$STXW_FIGURE_CAPTION_MEDIA_DIR" -name "Figure_ID_*.tif" \
-                | parallel -j+0 --no-notice --silent "
-                python3 ./scripts/python/optimize_figure.py --input {} --output $STXW_FIGURE_JPG_DIR/\$(basename {} .tif).jpg --dpi 300 --quality 95
-            "
+    if [ -f "$png_file" ]; then
+        return 0  # PNG already exists
+    fi
 
-            find "$STXW_FIGURE_CAPTION_MEDIA_DIR" -name "Figure_ID_*.png" \
-                | parallel -j+0 --no-notice --silent "
-                python3 ./scripts/python/optimize_figure.py --input {} --output $STXW_FIGURE_JPG_DIR/\$(basename {} .png).jpg --dpi 300 --quality 95
-            "
-            if command -v inkscape >/dev/null 2>&1; then
-                find "$STXW_FIGURE_CAPTION_MEDIA_DIR" -name "Figure_ID_*.svg" | parallel -j+0 --no-notice --silent "
-                    inkscape -z -e $STXW_FIGURE_JPG_DIR/\$(basename {} .svg)_temp.png -w 1200 -h 1200 {}
-                    python3 ./scripts/python/optimize_figure.py --input $STXW_FIGURE_JPG_DIR/\$(basename {} .svg)_temp.png --output $STXW_FIGURE_JPG_DIR/\$(basename {} .svg).jpg --dpi 300 --quality 95
-                    rm -f $STXW_FIGURE_JPG_DIR/\$(basename {} .svg)_temp.png
-                "
-            else
-                # Get convert command for use in parallel
-                local convert_cmd=$(get_cmd_convert "$ORIG_DIR")
-                if [ -n "$convert_cmd" ]; then
-                    export -f get_cmd_convert
-                    export ORIG_DIR
-                    find "$STXW_FIGURE_CAPTION_MEDIA_DIR" -name "Figure_ID_*.svg" | parallel -j+0 --no-notice --silent '
-                        '"$convert_cmd"' {} -density 300 -quality 95 "$STXW_FIGURE_JPG_DIR"/$(basename {} .svg).jpg"
-                    '
-                else
-                    echo_warning "    No ImageMagick found, skipping SVG conversions"
-                fi
-            fi
-            find "$STXW_FIGURE_CAPTION_MEDIA_DIR" -name "Figure_ID_*.jpg" | parallel -j+0 --no-notice --silent '
-                if [ ! -f "$STXW_FIGURE_JPG_DIR"/$(basename {})" ]; then
-                    python3 ./scripts/python/optimize_figure.py --input {} --output "$STXW_FIGURE_JPG_DIR"/$(basename {})" --dpi 300 --quality 95
-                fi
-            '
-        else
-            # Get convert command for use in parallel
-            local convert_cmd=$(get_cmd_convert "$ORIG_DIR")
-            if [ -n "$convert_cmd" ]; then
-                export -f get_cmd_convert
-                export ORIG_DIR
-                find "$STXW_FIGURE_CAPTION_MEDIA_DIR" -name "Figure_ID_*.tif" | parallel -j+0 --no-notice --silent '
-                    '"$convert_cmd"' {} -density 300 -quality 95 "$STXW_FIGURE_JPG_DIR"/$(basename {} .tif).jpg"
-                '
-                find "$STXW_FIGURE_CAPTION_MEDIA_DIR" -name "Figure_ID_*.png" | parallel -j+0 --no-notice --silent '
-                    '"$convert_cmd"' {} -density 300 -quality 95 "$STXW_FIGURE_JPG_DIR"/$(basename {} .png).jpg"
-                '
-                find "$STXW_FIGURE_CAPTION_MEDIA_DIR" -name "Figure_ID_*.svg" | parallel -j+0 --no-notice --silent '
-                    '"$convert_cmd"' {} -density 300 -quality 95 "$STXW_FIGURE_JPG_DIR"/$(basename {} .svg).jpg"
-                '
-            else
-                echo_warning "    No ImageMagick found, skipping image conversions"
-            fi
-            find "$STXW_FIGURE_CAPTION_MEDIA_DIR" -name "Figure_ID_*.jpg" | parallel -j+0 --no-notice --silent "
-                if [ ! -f '$STXW_FIGURE_JPG_DIR'/\$(basename {}) ]; then
-                    cp {} '$STXW_FIGURE_JPG_DIR'/\$(basename {})
-                fi
-            "
+    local convert_cmd=$(get_cmd_convert "$ORIG_DIR")
+    if [ -n "$convert_cmd" ]; then
+        eval "$convert_cmd \"$tif_file\" \"$png_file\""
+        if [ -f "$png_file" ]; then
+            echo_success "    Converted TIF->PNG: $(basename "$tif_file") -> $(basename "$png_file")"
+            return 0
         fi
+    fi
+    return 1
+}
+
+png2jpg() {
+    local png_file="$1"
+    local jpg_file="$2"
+
+    if [ -f "$jpg_file" ]; then
+        echo_info "    JPG already exists: $(basename "$jpg_file")"
+        return 0  # JPG already exists
+    fi
+
+    # For containerized ImageMagick, we need the file to be accessible
+    # If it's a symlink pointing outside the bind mount, copy it temporarily
+    local work_png_file="$png_file"
+    local temp_copy_needed=false
+
+    if [ -L "$png_file" ]; then
+        local target=$(readlink -f "$png_file")
+        if [ ! -f "$target" ]; then
+            echo_warning "    Symlink target not found: $(basename "$png_file")"
+            return 1
+        fi
+        echo_info "    Processing symlink: $(basename "$png_file")"
+
+        # Copy the target to a temp file in the same directory for container access
+        work_png_file="${png_file}.tmp.png"
+        cp -L "$png_file" "$work_png_file"
+        temp_copy_needed=true
+    fi
+
+    local convert_cmd=$(get_cmd_convert "$ORIG_DIR")
+    if [ -n "$convert_cmd" ]; then
+        # For RGBA PNGs, we need to flatten the alpha channel to white background
+        eval "$convert_cmd \"$work_png_file\" -background white -alpha remove -alpha off -density 300 -quality 90 \"$jpg_file\"" 2>/dev/null
+        local result=$?
+
+        if [ $result -ne 0 ] || [ ! -f "$jpg_file" ]; then
+            # Try without alpha channel handling as fallback
+            eval "$convert_cmd \"$work_png_file\" -density 300 -quality 90 \"$jpg_file\"" 2>/dev/null
+            result=$?
+        fi
+
+        # Clean up temp file if we created one
+        if [ "$temp_copy_needed" = true ]; then
+            rm -f "$work_png_file"
+        fi
+
+        if [ $result -eq 0 ] && [ -f "$jpg_file" ]; then
+            echo_success "    Converted PNG->JPG: $(basename "$png_file") -> $(basename "$jpg_file")"
+            return 0
+        else
+            echo_warning "    Failed to convert: $(basename "$png_file")"
+        fi
+    else
+        echo_warning "    No ImageMagick found, cannot convert $(basename "$png_file") to JPG"
+    fi
+    return 1
+}
+
+svg2jpg() {
+    local svg_file="$1"
+    local jpg_file="$2"
+
+    if [ -f "$jpg_file" ]; then
+        return 0  # JPG already exists
+    fi
+
+    # Try inkscape first for better quality
+    if command -v inkscape >/dev/null 2>&1; then
+        inkscape -z -e "$jpg_file" -w 1200 -h 1200 "$svg_file" 2>/dev/null
+        if [ -f "$jpg_file" ]; then
+            echo_success "    Converted SVG->JPG with Inkscape: $(basename "$svg_file") -> $(basename "$jpg_file")"
+            return 0
+        fi
+    fi
+
+    # Fallback to ImageMagick
+    local convert_cmd=$(get_cmd_convert "$ORIG_DIR")
+    if [ -n "$convert_cmd" ]; then
+        eval "$convert_cmd \"$svg_file\" -density 300 -quality 90 \"$jpg_file\""
+        if [ -f "$jpg_file" ]; then
+            echo_success "    Converted SVG->JPG: $(basename "$svg_file") -> $(basename "$jpg_file")"
+            return 0
+        fi
+    else
+        echo_warning "    No converter found for SVG file: $(basename "$svg_file")"
+    fi
+    return 1
+}
+
+copy_jpg() {
+    local src_jpg="$1"
+    local dst_jpg="$2"
+
+    if [ -f "$dst_jpg" ]; then
+        return 0  # Already exists
+    fi
+
+    cp "$src_jpg" "$dst_jpg"
+    echo_success "    Copied: $(basename "$src_jpg") -> $(basename "$dst_jpg")"
+    return 0
+}
+
+crop_image() {
+    local img_file="$1"
+    local do_crop="$2"
+    local verbose="$3"
+
+    if [[ "$do_crop" != true ]]; then
+        return 0
+    fi
+
+    if [ ! -f "./scripts/python/crop_tif.py" ] || ! command -v python3 >/dev/null 2>&1; then
+        return 0
+    fi
+
+    # Check for required Python dependencies
+    if ! python3 -c "import cv2, numpy" >/dev/null 2>&1; then
+        return 0
+    fi
+
+    local filename=$(basename "$img_file")
+    local temp_file="${img_file}.cropped.tmp"
+
+    if [ "$verbose" = true ]; then
+        echo_info "    Cropping: $filename"
+    fi
+
+    # Run the Python script
+    if [ "$verbose" = true ]; then
+        python3 ./scripts/python/crop_tif.py file \
+            --input "$img_file" \
+            --output "$temp_file" \
+            --margin 30 \
+            --verbose
+    else
+        python3 ./scripts/python/crop_tif.py file \
+            --input "$img_file" \
+            --output "$temp_file" \
+            --margin 30 >/dev/null 2>&1
+    fi
+
+    # If successful, replace the original file
+    if [ -f "$temp_file" ]; then
+        mv "$temp_file" "$img_file"
+        if [ "$verbose" = true ]; then
+            echo_success "    Cropped: $filename"
+        fi
+        return 0
+    fi
+    return 1
+}
+
+crop_all_images() {
+    local no_figs="$1"
+    local do_crop="$2"
+    local verbose="$3"
+
+    if [[ "$no_figs" == true || "$do_crop" != true ]]; then
+        return 0
+    fi
+
+    echo_info "    Applying cropping to all image files..."
+
+    # Crop all supported image formats (TIF, PNG, JPG)
+    local count=0
+    for img_file in "$STXW_FIGURE_CAPTION_MEDIA_DIR"/.*.{tif,tiff,png,jpg,jpeg}; do
+        [ -e "$img_file" ] || continue
+
+        # Track which files we've cropped to avoid re-cropping
+        local crop_marker="${img_file}.cropped"
+        if [ -f "$crop_marker" ]; then
+            continue  # Already cropped in this session
+        fi
+
+        if crop_image "$img_file" "$do_crop" "$verbose"; then
+            touch "$crop_marker"  # Mark as cropped
+            ((count++))
+        fi
+    done
+
+    if [ $count -gt 0 ]; then
+        echo_success "    Cropped $count image files"
+    fi
+
+    # Clean up crop markers after processing
+    rm -f "$STXW_FIGURE_CAPTION_MEDIA_DIR"/*.cropped 2>/dev/null
+}
+
+# Legacy function kept for compatibility - now uses new conversion system
+optimize_figures_with_python() {
+    local no_figs="$1"
+    if [[ "$no_figs" == false ]] && [ -f "./scripts/python/optimize_figure.py" ] && command -v python3 >/dev/null 2>&1; then
+        echo_info "    Optimizing figures with Python script..."
+
+        # Optimize any JPG files that were created
+        find "$STXW_FIGURE_JPG_DIR" -name ".*.jpg" -newer "$STXW_FIGURE_JPG_DIR" 2>/dev/null | \
+            parallel -j+0 --no-notice --silent "
+                python3 ./scripts/python/optimize_figure.py --input {} --output {}.tmp --dpi 300 --quality 95 && mv {}.tmp {}
+            "
     fi
 }
 
 compile_legends() {
     mkdir -p "$STXW_FIGURE_COMPILED_DIR"
-    rm -f "$STXW_FIGURE_COMPILED_DIR"/Figure_ID_*.tex
+    rm -f "$STXW_FIGURE_COMPILED_DIR"/[0-9]*.tex
     local figures_header_file="$STXW_FIGURE_COMPILED_DIR/00_Figures_Header.tex"
     cat > "$figures_header_file" << "EOF"
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -408,27 +679,30 @@ compile_legends() {
 \label{figures}
 \pdfbookmark[1]{Figures}{figures}
 EOF
-    for caption_file in "$STXW_FIGURE_CAPTION_MEDIA_DIR"/Figure_ID_*.tex; do
+    # Process all numeric-prefixed caption files
+    for caption_file in "$STXW_FIGURE_CAPTION_MEDIA_DIR"/[0-9]*.tex; do
         [ -f "$caption_file" ] || continue
         local fname=$(basename "$caption_file")
-        
-        # Skip panel files (e.g., Figure_ID_01A_name.tex, Figure_ID_01a_name.tex)
-        if [[ "$fname" =~ Figure_ID_[0-9]+[A-Za-z]_ ]]; then
+
+        # Skip panel files (e.g., 01A_name.tex, 01a_name.tex, .01A_name.tex)
+        if [[ "$fname" =~ ^[0-9]+[A-Za-z]_ ]] || [[ "$fname" =~ [0-9]+[A-Za-z]_ ]]; then
             continue
         fi
-        
+
         local figure_id=""
-        if [[ "$fname" =~ Figure_ID_([^\.]+) ]]; then
+        # Extract figure ID from filename
+        if [[ "$fname" =~ ^([0-9]+.*)\.tex$ ]]; then
+            # Extract figure ID: 01_demographic_data.tex
             figure_id="${BASH_REMATCH[1]}"
         else
             continue
         fi
-        local figure_id_clean=$(echo "$figure_id" | sed 's/\.jpg$//')
+        local clean=$(echo "$figure_id" | sed 's/\.jpg$//')
         local figure_number=""
-        if [[ "$figure_id_clean" =~ ^([0-9]+)_ ]]; then
+        if [[ "$clean" =~ ^([0-9]+)_ ]]; then
             figure_number="${BASH_REMATCH[1]}"
         else
-            figure_number="$figure_id_clean"
+            figure_number="$clean"
         fi
         local tgt_file="$STXW_FIGURE_COMPILED_DIR/$fname"
         local is_tikz=false
@@ -462,11 +736,11 @@ EOF
             if [ -n "$tikz_begin_line" ] && [ -n "$tikz_end_line" ]; then
                 local tikz_code=$(sed -n "${tikz_begin_line},${tikz_end_line}p" "$caption_file")
                 cat > "$tgt_file" << EOF
-% FIGURE METADATA - Figure ID ${figure_id_clean}, Number ${figure_number}
+% FIGURE METADATA - Figure ID ${clean}, Number ${figure_number}
 % FIGURE TYPE: TikZ
 % This is not a standalone LaTeX environment - it will be included by compile_figure_tex_files
 {
-    "id": "${figure_id_clean}",
+    "id": "${clean}",
     "number": "${figure_number}",
     "type": "tikz",
     "width": "$width",
@@ -476,11 +750,11 @@ $caption_content
 EOF
             else
                 cat > "$tgt_file" << EOF
-% FIGURE METADATA - Figure ID ${figure_id_clean}, Number ${figure_number}
+% FIGURE METADATA - Figure ID ${clean}, Number ${figure_number}
 % FIGURE TYPE: Image
 % This is not a standalone LaTeX environment - it will be included by compile_figure_tex_files
 {
-    "id": "${figure_id_clean}",
+    "id": "${clean}",
     "number": "${figure_number}",
     "type": "image",
     "width": "$width",
@@ -491,11 +765,11 @@ EOF
             fi
         else
             cat > "$tgt_file" << EOF
-% FIGURE METADATA - Figure ID ${figure_id_clean}, Number ${figure_number}
+% FIGURE METADATA - Figure ID ${clean}, Number ${figure_number}
 % FIGURE TYPE: Image
 % This is not a standalone LaTeX environment - it will be included by compile_figure_tex_files
 {
-    "id": "${figure_id_clean}",
+    "id": "${clean}",
     "number": "${figure_number}",
     "type": "image",
     "width": "$width",
@@ -525,11 +799,11 @@ _toggle_figures() {
         mkdir -p "$STXW_FIGURE_COMPILED_DIR"
         return 0
     fi
-    if [[ ! -n $(find "$STXW_FIGURE_COMPILED_DIR" -name "Figure_ID_*.tex" 2>/dev/null) ]]; then
+    if [[ ! -n $(find "$STXW_FIGURE_COMPILED_DIR" -name ".*.tex" 2>/dev/null) ]]; then
         return 0
     fi
     if [[ $action == "disable" ]]; then
-        sed -i 's/^\(\s*\)\\includegraphics/%\1\\includegraphics/g' "$STXW_FIGURE_COMPILED_DIR"/Figure_ID_*.tex
+        sed -i 's/^\(\s*\)\\includegraphics/%\1\\includegraphics/g' "$STXW_FIGURE_COMPILED_DIR"/.*.tex
     else
         mkdir -p "$STXW_FIGURE_JPG_DIR"
         find "$STXW_FIGURE_CAPTION_MEDIA_DIR" -name "*.jpg" | while read contents_jpg; do
@@ -538,7 +812,7 @@ _toggle_figures() {
                 cp "$contents_jpg" "$STXW_FIGURE_JPG_DIR/"
             fi
         done
-        for fig_tex in "$STXW_FIGURE_COMPILED_DIR"/Figure_ID_*.tex; do
+        for fig_tex in "$STXW_FIGURE_COMPILED_DIR"/.*.tex; do
             [ -e "$fig_tex" ] || continue
             local fname=$(basename "$fig_tex")
             local jpg_file=""
@@ -553,7 +827,7 @@ _toggle_figures() {
                     width_spec="1\\\\textwidth"
                 fi
                 if [[ ! "$width_spec" == *"\\textwidth"* ]]; then
-                    if [[ "$width_spec" =~ ^[0-9]+(\.[0-9]+)?$ ]]; then
+                    if [[ "$width_spec" =~ ^[0-9]+(\[0-9]+)?$ ]]; then
                         width_spec="${width_spec}\\\\textwidth"
                     fi
                 fi
@@ -572,31 +846,34 @@ auto_tile_panels() {
     if [[ "$no_figs" == true ]]; then
         return 0
     fi
-    
-    echo "INFO:     Checking for panel figures to tile..."
-    
-    # Find all base figure names (looking for Figure_ID_XXA or Figure_ID_XXa format) - exclude jpg_for_compilation directory
-    local figure_bases=($(find "$STXW_FIGURE_CAPTION_MEDIA_DIR" -maxdepth 1 -name "Figure_ID_*[A-Za-z]_*.jpg" | \
-        sed 's/\([0-9]\)[A-Za-z]_/\1_/' | sort -u))
-    
+
+    echo_info "    Checking for panel figures to tile..."
+
+    # Find all base figure names (only numeric-prefixed patterns)
+    # Format: XXa or XXA format (e.g., 01a_demographic_data.jpg)
+    local figure_bases=($(find "$STXW_FIGURE_CAPTION_MEDIA_DIR" -maxdepth 1 -name "[0-9]*[A-Za-z]_*.jpg" | \
+        sed 's/\([0-9]\+\)[A-Za-z]_/\1_/' | sort -u))
+
     for base in "${figure_bases[@]}"; do
         local base_name=$(basename "$base")
-        # Extract the ID part (e.g., "01" from "Figure_ID_01_demographic_data")
-        local figure_id=$(echo "$base_name" | sed 's/Figure_ID_\([0-9]\+\)_.*/\1/')
-        local panels=($(find "$STXW_FIGURE_CAPTION_MEDIA_DIR" -maxdepth 1 -name "Figure_ID_${figure_id}[A-Za-z]_*.jpg" | sort))
-        
+        # Extract the ID part (e.g., "01" from "01_demographic_data")
+        local figure_id=$(echo "$base_name" | sed 's/\([0-9]\+\)_.*/\1/')
+        local panels=($(find "$STXW_FIGURE_CAPTION_MEDIA_DIR" -maxdepth 1 -name "${figure_id}[A-Za-z]_*.jpg" | sort))
+
         if [ ${#panels[@]} -gt 1 ]; then
             echo "INFO:     Found ${#panels[@]} panels for $base_name - creating tiled figure..."
-            
+
             if command -v python3 >/dev/null 2>&1 && [ -f "./scripts/python/tile_panels.py" ]; then
+                # Remove .jpg extension if it already exists in base_name
+                local output_name="${base_name%.jpg}.jpg"
                 python3 ./scripts/python/tile_panels.py \
                     --figure-base "$base_name" \
                     --search-dir "$STXW_FIGURE_CAPTION_MEDIA_DIR" \
-                    --output "$STXW_FIGURE_JPG_DIR/${base_name}.jpg" \
+                    --output "$STXW_FIGURE_JPG_DIR/${output_name}" \
                     --spacing 30
-                
+
                 if [ $? -eq 0 ]; then
-                    echo_success "    Created tiled figure: ${base_name}.jpg"
+                    echo_success "    Created tiled figure: ${output_name}"
                 else
                     echo_warning "    Failed to create tiled figure for $base_name"
                 fi
@@ -612,7 +889,8 @@ handle_figure_visibility() {
     if [[ "$no_figs" == true ]]; then
         _toggle_figures disable
     else
-        tif2jpg "$no_figs"
+        # Optional: Run Python optimizer on generated JPGs
+        optimize_figures_with_python "$no_figs"
         [[ -n $(find "$STXW_FIGURE_JPG_DIR" -name "*.jpg") ]] && _toggle_figures enable || _toggle_figures disable
     fi
 }
@@ -621,11 +899,25 @@ compile_figure_tex_files() {
     echo "% Generated by compile_figure_tex_files()" > "$STXW_FIGURE_COMPILED_FILE"
     echo "% This file includes all figure files in order" >> "$STXW_FIGURE_COMPILED_FILE"
     echo "" >> "$STXW_FIGURE_COMPILED_FILE"
+
+    # First, check if there are any real figure files (not just the header)
+    local figure_files=($(find "$STXW_FIGURE_COMPILED_DIR" -maxdepth 1 \( -name "[0-9]*.tex" \) ! -name "00_Figures_Header.tex" | sort))
+    local has_real_figures=false
+    if [ ${#figure_files[@]} -gt 0 ]; then
+        has_real_figures=true
+    fi
+
     # Variable to track if we're on the first figure
     local first_figure=true
-    for fig_tex in $(find "$STXW_FIGURE_COMPILED_DIR" -maxdepth 1 -name "Figure_ID_*.tex" | sort); do
+    # Handle ([0-9]*) naming patterns
+    for fig_tex in $(find "$STXW_FIGURE_COMPILED_DIR" -maxdepth 1 \( -name ".*.tex" -o -name "[0-9]*.tex" \) | sort); do
         [ -e "$fig_tex" ] || continue
         local basename=$(basename "$fig_tex")
+
+        # Skip the header file if we have real figures
+        if [[ "$basename" == "00_Figures_Header.tex" ]] && [ "$has_real_figures" = true ]; then
+            continue
+        fi
         local figure_id=""
         local figure_number=""
         local figure_title=""
@@ -633,7 +925,7 @@ compile_figure_tex_files() {
         local width="0.9\\\\textwidth"
         local figure_type="image"
         local caption_content=""
-        if [[ "$basename" =~ Figure_ID_([^\.]+) ]]; then
+        if [[ "$basename" =~ .([^\.]+) ]]; then
             figure_id="${BASH_REMATCH[1]}"
             if [[ "$figure_id" =~ ^([0-9]+)_ ]]; then
                 figure_number="${BASH_REMATCH[1]}"
@@ -674,7 +966,7 @@ compile_figure_tex_files() {
                 figure_title="Figure $figure_number"
             fi
         fi
-        # Simply use the original caption file as-is 
+        # Simply use the original caption file as-is
         local original_caption_file="$STXW_FIGURE_CAPTION_MEDIA_DIR/${basename}"
         if [ -f "$original_caption_file" ]; then
             # Read the entire caption content from the original file
@@ -684,12 +976,12 @@ compile_figure_tex_files() {
                 figure_title="${BASH_REMATCH[1]}"
             fi
         fi
-        
+
         # Use simple fallback if no caption found
         if [ -z "$caption_content" ]; then
             caption_content="\\caption{\\textbf{Figure $figure_number}\\\\Description for figure $figure_number.}"
         fi
-        echo "% Figure $figure_number: ${figure_title}" >> "$STXW_FIGURE_COMPILED_FILE"
+        echo "% Figure $figure_number" >> "$STXW_FIGURE_COMPILED_FILE"
         # Only add \clearpage for figures after the first one
         if [ "$first_figure" = true ]; then
             first_figure=false
@@ -697,7 +989,7 @@ compile_figure_tex_files() {
             echo "\\clearpage" >> "$STXW_FIGURE_COMPILED_FILE"
         fi
         echo "\\begin{figure*}[p]" >> "$STXW_FIGURE_COMPILED_FILE"
-        echo "    \\pdfbookmark[2]{Figure $figure_number}{figure_id_$figure_number}" >> "$STXW_FIGURE_COMPILED_FILE"
+        echo "    \\pdfbookmark[2]{Figure $figure_number}{.$figure_number}" >> "$STXW_FIGURE_COMPILED_FILE"
         echo "    \\centering" >> "$STXW_FIGURE_COMPILED_FILE"
         if [ "$figure_type" = "tikz" ]; then
             local tikz_code=$(grep -A100 "\\\\begin{tikzpicture}" "$fig_tex" | sed -n '/\\begin{tikzpicture}/,/\\end{tikzpicture}/p')
@@ -727,33 +1019,35 @@ compile_figure_tex_files() {
 
 
 main() {
-    local no_figs="${1:-true}"
-    local p2t="${2:-false}"
+    local no_figs="${1:-false}"
+    local p2t="${2:-false}"  # Convert PPTX to TIF
     local verbose="${3:-false}"
-    local do_crop_tif="${4:-false}"
+    local do_crop="${4:-false}"  # Crop images
+
     if [ "$verbose" = true ]; then
         echo_info "    Figure processing: Starting with parameters: "
-        echo_info "    no_figs=$no_figs, p2t=$p2t, crop_tif=$do_crop_tif"
+        echo_info "    no_figs=$no_figs, p2t=$p2t, crop=$do_crop"
     fi
 
-    # Mermaid
-    local THIS_DIR="$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)"
-    eval "$THIS_DIR/mmd2png_all.sh" || echo_warning "    mmd2png failed"
-    eval "$THIS_DIR/png2tif_all.sh"
-
+    # Initialize environment
     init_figures
-    pptx2tif "$p2t"
-
     ensure_lower_letter_id
     ensure_caption
-    check_and_create_placeholders  # Create placeholders for missing figures
-    crop_tif "$no_figs" "$do_crop_tif" "$verbose"
-    tif2jpg "$no_figs"
-    auto_tile_panels "$no_figs"
+
+    if [ "$no_figs" = false ]; then
+        # Run the figure conversion cascade
+        convert_figure_formats_in_cascade "$p2t" "$do_crop"
+
+        # Post-processing
+        check_and_create_placeholders
+        auto_tile_panels "$no_figs"
+    fi
+
+    # Final compilation steps
     compile_legends
     handle_figure_visibility "$no_figs"
     compile_figure_tex_files
-    local compiled_count=$(find "$STXW_FIGURE_COMPILED_DIR" -name "Figure_ID_*.tex" | wc -l)
+    local compiled_count=$(find "$STXW_FIGURE_COMPILED_DIR" -name ".*.tex" | wc -l)
     if [ "$no_figs" = false ] && [ $compiled_count -gt 0 ]; then
         echo_success "    $compiled_count figures compiled"
     fi

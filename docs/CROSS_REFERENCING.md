@@ -37,8 +37,8 @@ As shown in the main text (Figure~\ref{main-fig:01_primary_result})...
 
 | Document | File | Label | Reference from Manuscript |
 |----------|------|-------|---------------------------|
-| Main | `Figure_ID_01_result.png` | `fig:01_result` | `\ref{fig:01_result}` |
-| Supplementary | `Figure_ID_01_extra.png` | `fig:01_extra` | `\ref{supple-fig:01_extra}` |
+| Main | `.01_result.png` | `fig:01_result` | `\ref{fig:01_result}` |
+| Supplementary | `.01_extra.png` | `fig:01_extra` | `\ref{supple-fig:01_extra}` |
 
 ## Setting Up Reverse Links
 

@@ -27,11 +27,11 @@ if [ -d "$PROJECT_DIR/scripts/pac/visualization" ]; then
         if [ -f "$fig" ]; then
             name=$(basename "$fig" .png | sed 's/_out$//' | sed 's/[^a-zA-Z0-9_]/_/g')
             id=$(printf "%02d" $FIG_COUNTER)
-            target="$FIGURE_DIR/Figure_ID_${id}_${name}.png"
+            target="$FIGURE_DIR/.${id}_${name}.png"
             
             if [ ! -e "$target" ]; then
                 ln -s "$fig" "$target"
-                echo "  Linked: Figure_ID_${id}_${name}.png"
+                echo "  Linked: .${id}_${name}.png"
                 ((FIG_COUNTER++))
             fi
         fi
@@ -45,11 +45,11 @@ if [ -d "$PROJECT_DIR/data/results" ]; then
         if [ -f "$csv" ]; then
             name=$(basename "$csv" .csv | sed 's/[^a-zA-Z0-9_]/_/g')
             id=$(printf "%02d" $TAB_COUNTER)
-            target="$TABLE_DIR/Table_ID_${id}_${name}.csv"
+            target="$TABLE_DIR/.${id}_${name}.csv"
             
             if [ ! -e "$target" ]; then
                 ln -s "$csv" "$target"
-                echo "  Linked: Table_ID_${id}_${name}.csv"
+                echo "  Linked: .${id}_${name}.csv"
                 ((TAB_COUNTER++))
             fi
         fi
@@ -63,11 +63,11 @@ if [ -d "$PROJECT_DIR/docs" ]; then
         if [ -f "$mmd" ]; then
             name=$(basename "$mmd" .mmd | sed 's/[^a-zA-Z0-9_]/_/g')
             id=$(printf "%02d" $FIG_COUNTER)
-            target="$FIGURE_DIR/Figure_ID_${id}_${name}.mmd"
+            target="$FIGURE_DIR/.${id}_${name}.mmd"
             
             if [ ! -e "$target" ]; then
                 ln -s "$mmd" "$target"
-                echo "  Linked: Figure_ID_${id}_${name}.mmd (will auto-convert)"
+                echo "  Linked: .${id}_${name}.mmd (will auto-convert)"
                 ((FIG_COUNTER++))
             fi
         fi

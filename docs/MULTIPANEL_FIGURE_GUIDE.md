@@ -36,8 +36,8 @@ This approach uses a single pre-assembled image containing all panels with embed
 
 **Example Files:**
 ```
-manuscript/contents/figures/contents/Figure_ID_01_multipanel.png   # Image with all panels
-manuscript/contents/figures/contents/Figure_ID_01_multipanel.tex   # Caption file
+manuscript/contents/figures/contents/.01_multipanel.png   # Image with all panels
+manuscript/contents/figures/contents/.01_multipanel.tex   # Caption file
 ```
 
 **Recommended Tools:**
@@ -51,7 +51,7 @@ manuscript/contents/figures/contents/Figure_ID_01_multipanel.tex   # Caption fil
 For simple grid layouts, use the subfigure environment to combine individual panel images:
 
 ```latex
-% In your figure caption file (e.g., Figure_ID_02_comparison.tex)
+% In your figure caption file (e.g., .02_comparison.tex)
 % This will be automatically processed into a proper figure environment
 
 \begin{figure*}[htbp]

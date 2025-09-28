@@ -1,6 +1,6 @@
 #!/bin/bash
 # -*- coding: utf-8 -*-
-# Timestamp: "2025-09-27 15:10:53 (ywatanabe)"
+# Timestamp: "2025-09-28 17:50:40 (ywatanabe)"
 # File: ./paper/scripts/shell/compile_manuscript.sh
 
 ORIG_DIR="$(pwd)"
@@ -36,18 +36,18 @@ set -o pipefail
 
 # Deafult values for arguments
 do_p2t=false
-no_figs=true
-do_quiet=false
+no_figs=false
+do_verbose=false
 do_crop_tif=false
 do_force=false
 
 usage() {
     echo "Usage: $0 [options]"
     echo "Options:"
-    echo "  -f,   --figs          Includes figures (default: $(if $no_figs; then echo "false"; else echo "true"; fi))"
+    echo "  -nf,  --no_figs       Exclude figures for quick compilation (default: false)"
     echo "  -p2t, --ppt2tif       Converts Power Point to TIF on WSL (default: $do_p2t)"
     echo "  -c,   --crop_tif      Crop TIF images to remove excess whitespace (default: $do_crop_tif)"
-    echo "  -q,   --quiet         Do not shows detailed logs for latex compilation (default: $do_quiet)"
+    echo "  -q,   --quiet         Do not shows detailed logs for latex compilation (default: $do_verbose)"
     echo "  --force               Force full recompilation (ignore cache) (default: $do_force)"
     echo "  -h,   --help          Display this help message"
     exit 0
@@ -57,10 +57,11 @@ parse_arguments() {
     while [[ "$#" -gt 0 ]]; do
         case $1 in
             -h|--help) usage ;;
-            -p2t|--ppt2tif) do_p2t=true; no_figs=false ;;
-            -f|--figs) no_figs=false ;;
-            -c|--crop_tif) do_crop_tif=true; no_figs=false ;;
-            -q|--quiet) do_quiet=true ;;
+            -p2t|--ppt2tif) do_p2t=true ;;
+            -nf|--no_figs) no_figs=true ;;
+            -c|--crop_tif) do_crop_tif=true ;;
+            -v|--verbose) do_verbose=true ;;
+            -q|--quiet) do_verbose=false ;;
             --force) do_force=true ;;
             *) echo "Unknown option: $1"; usage ;;
         esac
@@ -74,29 +75,30 @@ main() {
     # Log command options
     options_display=""
     $do_p2t && options_display="${options_display} --ppt2tif"
-    ! $no_figs && options_display="${options_display} --figs"
+    $no_figs && options_display="${options_display} --no_figs"
     $do_crop_tif && options_display="${options_display} --crop_tif"
-    $do_quiet && options_display="${options_display} --quiet"
+    $do_verbose && options_display="${options_display} --verbose"
     echo_info "Running $0${options_display}..."
 
     # Verbosity
-    if [ "$do_quiet" == "true" ]; then
-        export STXW_VERBOSE_PDFLATEX="false"
-        export STXW_VERBOSE_BIBTEX="false"
-    else
-        export STXW_VERBOSE_PDFLATEX=${true:-"$STXW_VERBOSE_PDFLATEX"}
-        export STXW_VERBOSE_BIBTEX=${true:-"$STXW_VERBOSE_BIBTEX"}
-    fi
+    export STXW_VERBOSE_PDFLATEX=$do_verbose
+    export STXW_VERBOSE_BIBTEX=$do_verbose
+    # if [ "$do_verbose" == "true" ]; then
+    #     export STXW_VERBOSE_PDFLATEX="true"
+    #     export STXW_VERBOSE_BIBTEX="true"
+    # else
+    #     export STXW_VERBOSE_PDFLATEX="false"
+    #     export STXW_VERBOSE_BIBTEX="false"
+    # fi
 
     # Check dependencies
     ./scripts/shell/modules/check_dependancy_commands.sh
-
 
     # Process figures, tables, and count
     ./scripts/shell/modules/process_figures.sh \
         "$no_figs" \
         "$do_p2t" \
-        "$do_quiet" \
+        "$do_verbose" \
         "$do_crop_tif"
 
     # Process tables

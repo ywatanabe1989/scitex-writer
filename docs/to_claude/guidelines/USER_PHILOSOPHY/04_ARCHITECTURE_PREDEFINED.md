@@ -24,7 +24,7 @@
 ## Minimal Experiments
 -   `.dev/` - Development sandbox for miniature tests; gitignored
 -   But not included in final product
--   Need to incorporate successful code into `contents` for permanent use
+-   Need to incorporate successful code into `src` for permanent use
 
 ## Examples
 -   `examples/` - For most important usages in the project

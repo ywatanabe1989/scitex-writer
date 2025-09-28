@@ -9,7 +9,7 @@
 **ANY PYTHON SCRIPTS MUST BE WRITTEN IN THE SCITEX FORMAT EXPLAINED BELOW.**
 THE EXCEPTIONS ARE:
     - Pacakges authored by others
-    - Source (`./contents`) of pip packages to reduce dependency
+    - Source (`./src`) of pip packages to reduce dependency
 THUS, SCITEX MUST BE USED IN:
 - `./scripts`
 - `./tests`

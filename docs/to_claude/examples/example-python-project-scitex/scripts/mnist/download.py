@@ -7,7 +7,7 @@ __file__ = "./scripts/mnist/download.py"
 
 """
 Functionality:
-    - Downloads MNIST dataset and saves preprocessed archive
+    - Downloads MNIST dataset and saves preprocessed versions
 Input:
     - None
 Output:
