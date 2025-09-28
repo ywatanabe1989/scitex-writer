@@ -1,5 +1,5 @@
 <!-- ---
-!-- Timestamp: 2025-09-28 17:24:05
+!-- Timestamp: 2025-09-28 18:42:06
 !-- Author: ywatanabe
 !-- File: /ssh:sp:/home/ywatanabe/proj/neurovista/paper/scripts/shell/modules/README.md
 !-- --- -->
@@ -13,5 +13,11 @@ process_conversion()
 4. When tif/tiff located, try to convert to png
 5. When mmd located, try to convert to png
 6. When png located, try to convert to jpg
+
+## Table handling
+Based on your system, you could also use:
+  - pandoc with CSV reader for even more formats
+  - csvkit for advanced CSV manipulation
+  - tabulate Python library for prettier table formatting
 
 <!-- EOF -->
