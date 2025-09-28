@@ -7,7 +7,7 @@
 # Debug Message Implementation Guidelines
 
 Debugging Message is quite useful, especially with flag and prefixes.
-Follow the exmaples below and keep debugginge messages in contents, scripts, and tests, especially for critical functions.
+Follow the exmaples below and keep debugginge messages in src, scripts, and tests, especially for critical functions.
 
 ## Language-Specific Examples
 

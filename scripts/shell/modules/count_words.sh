@@ -66,11 +66,11 @@ _count_words() {
 }
 
 count_tables() {
-    _count_elements "$STXW_TABLE_COMPILED_DIR" "Table_ID_*.tex" "$STXW_WORDCOUNT_DIR/table_count.txt"
+    _count_elements "$STXW_TABLE_COMPILED_DIR" ".*.tex" "$STXW_WORDCOUNT_DIR/table_count.txt"
 }
 
 count_figures() {
-    _count_elements "$STXW_FIGURE_COMPILED_DIR" "Figure_ID_*.tex" "$STXW_WORDCOUNT_DIR/figure_count.txt"
+    _count_elements "$STXW_FIGURE_COMPILED_DIR" ".*.tex" "$STXW_WORDCOUNT_DIR/figure_count.txt"
 }
 
 count_IMRaD() {

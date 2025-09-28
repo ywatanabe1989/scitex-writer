@@ -39,7 +39,7 @@ project_context:
 ``` yaml
 existing_capabilities:
   knowledge_graph_manager:
-    location: "contents/semantic_graph/graph/_KnowledgeGraphManager.py"
+    location: "src/semantic_graph/graph/_KnowledgeGraphManager.py"
     features:
       - NetworkX MultiDiGraph for directed relationships
       - Node types: document, chunk, entity
@@ -85,7 +85,7 @@ existing_capabilities:
 ### Core Components Structure
 
 ``` text
-contents/semantic_graph/
+src/semantic_graph/
 ├── visualization/                    # NEW: Graph visualization module
 │   ├── __init__.py
 │   │   └── from ._GraphVisualizer import GraphVisualizer
@@ -192,7 +192,7 @@ contents/semantic_graph/
 ### CLI Integration
 
 ``` text
-contents/semantic_graph/cli/
+src/semantic_graph/cli/
 ├── visualize_graph.py               # NEW: CLI command for graph visualization
 │   ├── create_parser() -> ArgumentParser
 │   │   ├── --input-path: "Path to indexed documents or graph file"
@@ -345,10 +345,10 @@ phase_1_foundation:
 
   deliverables:
     files_to_create:
-      - contents/semantic_graph/visualization/__init__.py
-      - contents/semantic_graph/visualization/_GraphVisualizer.py
-      - contents/semantic_graph/visualization/_LayoutEngine.py
-      - contents/semantic_graph/visualization/_StaticExporter.py
+      - src/semantic_graph/visualization/__init__.py
+      - src/semantic_graph/visualization/_GraphVisualizer.py
+      - src/semantic_graph/visualization/_LayoutEngine.py
+      - src/semantic_graph/visualization/_StaticExporter.py
       - tests/semantic_graph/visualization/test_GraphVisualizer.py
       - tests/semantic_graph/visualization/test_LayoutEngine.py
 
@@ -376,10 +376,10 @@ phase_2_advanced:
 
   deliverables:
     files_to_create:
-      - contents/semantic_graph/visualization/_NodeRenderer.py
-      - contents/semantic_graph/visualization/_EdgeRenderer.py
-      - contents/semantic_graph/visualization/_FilterManager.py
-      - contents/semantic_graph/visualization/_ClusteringEngine.py
+      - src/semantic_graph/visualization/_NodeRenderer.py
+      - src/semantic_graph/visualization/_EdgeRenderer.py
+      - src/semantic_graph/visualization/_FilterManager.py
+      - src/semantic_graph/visualization/_ClusteringEngine.py
       - tests/semantic_graph/visualization/test_FilterManager.py
       - tests/semantic_graph/visualization/test_ClusteringEngine.py
 
@@ -406,10 +406,10 @@ phase_3_interactive:
 
   deliverables:
     files_to_create:
-      - contents/semantic_graph/visualization/_InteractiveExporter.py
-      - contents/semantic_graph/visualization/templates/graph_template.html
-      - contents/semantic_graph/visualization/static/graph_viewer.js
-      - contents/semantic_graph/visualization/static/graph_viewer.css
+      - src/semantic_graph/visualization/_InteractiveExporter.py
+      - src/semantic_graph/visualization/templates/graph_template.html
+      - src/semantic_graph/visualization/static/graph_viewer.js
+      - src/semantic_graph/visualization/static/graph_viewer.css
       - tests/semantic_graph/visualization/test_InteractiveExporter.py
 
     features:
@@ -436,7 +436,7 @@ phase_4_integration:
 
   deliverables:
     files_to_create:
-      - contents/semantic_graph/cli/visualize_graph.py
+      - src/semantic_graph/cli/visualize_graph.py
       - examples/visualize_knowledge_graph.py
       - examples/visualize_search_results.py
       - tests/semantic_graph/cli/test_visualize_graph.py
@@ -465,8 +465,8 @@ phase_5_optimization:
 
   deliverables:
     files_to_create:
-      - contents/semantic_graph/visualization/types/_VisualizationConfig.py
-      - contents/semantic_graph/visualization/types/_VisualizationMetrics.py
+      - src/semantic_graph/visualization/types/_VisualizationConfig.py
+      - src/semantic_graph/visualization/types/_VisualizationMetrics.py
       - docs/visualization_guide.md
       - docs/api/visualization.md
       - benchmarks/visualization_performance.py
@@ -618,7 +618,7 @@ config_structure:
         width: 1200
         height: 800
 
-      node_latex_styles:
+      node_styles:
         document:
           color: "#4CAF50"
           shape: "circle"
@@ -634,7 +634,7 @@ config_structure:
           shape: "diamond"
           size: "degree"
 
-      edge_latex_styles:
+      edge_styles:
         references:
           color: "#666666"
           style: "solid"
@@ -797,7 +797,7 @@ identified_risks:
   technical_risks:
     dependency_management:
       risk: "Matplotlib/D3.js version conflicts"
-      mitigation: "Pin archive, provide fallbacks"
+      mitigation: "Pin versions, provide fallbacks"
 
     performance_degradation:
       risk: "Large graphs cause browser crashes"

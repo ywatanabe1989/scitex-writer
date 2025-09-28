@@ -1,6 +1,6 @@
 #!/bin/bash
 # -*- coding: utf-8 -*-
-# Timestamp: "2025-09-27 00:08:56 (ywatanabe)"
+# Timestamp: "2025-09-28 17:55:24 (ywatanabe)"
 # File: ./paper/scripts/shell/modules/mmd2png_all.sh
 
 ORIG_DIR="$(pwd)"
@@ -33,7 +33,7 @@ source ./config/load_config.sh $STXW_DOC_TYPE
 # Logging
 touch "$LOG_PATH" >/dev/null 2>&1
 echo
-echo "Running $0..."
+echo_info "Running $0..."
 
 mmd2png(){
     # Get mmdc command
@@ -46,9 +46,9 @@ mmd2png(){
 
     # echo_info "    Using mmdc command: $mmdc_cmd"
 
-    n_mmd_files="$(ls $STXW_FIGURE_CAPTION_MEDIA_DIR/Figure_ID_*.mmd 2>/dev/null | wc -l)"
+    n_mmd_files="$(ls $STXW_FIGURE_CAPTION_MEDIA_DIR/.*.mmd 2>/dev/null | wc -l)"
     if [[ $n_mmd_files -gt 0 ]]; then
-        for mmd_file in "$STXW_FIGURE_CAPTION_MEDIA_DIR"/Figure_ID_*.mmd; do
+        for mmd_file in "$STXW_FIGURE_CAPTION_MEDIA_DIR"/.*.mmd; do
             png_file="${mmd_file%.mmd}.png"
             jpg_file="$STXW_FIGURE_JPG_DIR/$(basename "${mmd_file%.mmd}.jpg")"
 

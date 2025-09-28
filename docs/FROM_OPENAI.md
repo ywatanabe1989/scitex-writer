@@ -10,7 +10,7 @@ Findings
 Your figure images and captions exist and are processed.
 The compilation log and script output show:
 Figures are processed, .jpg and .tex files are generated in the correct places.
-The correct number of Figure_ID_*.tex files appears in contents/figures/compiled/.
+The correct number of .*.tex files appears in contents/figures/compiled/.
 The figure processing scripts run many times (possibly from repeated calls).
 The gather_tex_files() function in process_figures.sh is responsible for concatenating the compiled figures into .All_Figures.tex.
 Compilation succeeds, but the produced PDF is missing captions/legends or has broken formatting.
@@ -42,15 +42,15 @@ Then inside the figure compiling loop:
 caption_content=$(extract_caption_contents "$caption_file" | sed '/^%/d')
 (B) Always Use the Correct Figure Path and Width
 Confirm that for each figure, you use:
-\includegraphics[width=xxx]{.../Figure_ID_XX_example.jpg}
+\includegraphics[width=xxx]{.../.XX_example.jpg}
 ...and that the width is parsed correctly from any % width=... line.
 (C) Do NOT wrap the figure in extra {} or emit malformed LaTeX
 Each compiled figure file (in compiled/) should look like this:
 \clearpage
 \begin{figure*}[p]
-    \pdfbookmark[2]{ID 01}{figure_id_01}
+    \pdfbookmark[2]{ID 01}{.01}
     \centering
-    \includegraphics[width=0.95\textwidth]{./contents/figures/contents/jpg/Figure_ID_01_example.jpg}
+    \includegraphics[width=0.95\textwidth]{./contents/figures/contents/jpg/.01_example.jpg}
     \caption{\textbf{
     Example figure showing the SciTex system workflow
     }
@@ -74,14 +74,14 @@ Sample fixed snippet:
 compile_legends() {
     # Create figures in the correct format
     local ii=0
-    for caption_file in "$FIGURE_SRC_DIR"/Figure_ID_*.tex; do
+    for caption_file in "$FIGURE_SRC_DIR"/.*.tex; do
         [ -f "$caption_file" ] || continue
         local fname=$(basename "$caption_file")
         local tgt_file="$STXW_FIGURE_COMPILED_DIR/$fname"
         local basename_noext="${fname%.tex}"
         local jpg_file="$STXW_FIGURE_JPG_DIR/$basename_noext.jpg"
         # Extract figure number
-        local fig_number=$(echo "$fname" | sed -n 's/^Figure_ID_\([0-9][0-9]\).*\.tex$/\1/p')
+        local fig_number=$(echo "$fname" | sed -n 's/^.\([0-9][0-9]\).*\.tex$/\1/p')
         [ -n "$fig_number" ] || fig_number="$basename_noext"
 
         # Extract width from caption file (fallback to 1\textwidth)
@@ -97,7 +97,7 @@ compile_legends() {
         cat > "$tgt_file" <<EOF
 \clearpage
 \begin{figure*}[p]
-    \pdfbookmark[2]{ID $fig_number}{figure_id_$fig_number}
+    \pdfbookmark[2]{ID $fig_number}{.$fig_number}
     \centering
     \includegraphics[width=$width]{$jpg_file}
     \caption{\textbf{
@@ -111,7 +111,7 @@ EOF
 }
 4. Best Practices and Sanity Checks
 After you compile, spot-check the generated files:
-contents/figures/compiled/Figure_ID_0X_example.tex — does it consist of exactly the correct LaTeX block above?
+contents/figures/compiled/.0X_example.tex — does it consist of exactly the correct LaTeX block above?
 contents/figures/.tex/.All_Figures.tex should \input{} each compiled figure file, one per line.
 The main.tex (or the main/manuscript.tex) should \input{contents/figures/.tex/.All_Figures.tex} in its "Figures" section.
 After running, check a few figure captions in the PDF to confirm it's working as desired.
@@ -126,10 +126,10 @@ Limit figure processing to one pass.
 6. Optional Future: Switch to Python for Figure Processing
 If shell regex logic keeps getting gnarly, write a Python script that:
 
-Loads each Figure_ID_*.tex caption,
+Loads each .*.tex caption,
 Robustly extracts all {} block contents using a stack parser,
 Assembles the LaTeX file with correct \includegraphics and formatting,
-Writes out compiled/Figure_ID_*.tex.
+Writes out compiled/.*.tex.
 If you make these changes, you will see all figures and captions rendered correctly in the final PDF produced by ./compile -m -- -f.
 If you want a PR or working code sample for your repo, just ask!
 

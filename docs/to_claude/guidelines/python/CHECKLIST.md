@@ -8,9 +8,9 @@
   [ ] Are all matplotlib run in "Agg" mode and figures are saved instead of shown?
 - [ ] Is the directory structure appropriate?
   - [ ] For scientific project:
-    - [ ] `./scripts` instead of `./contents`
+    - [ ] `./scripts` instead of `./src`
   - [ ] For pip package:
-    - [ ] `./contents` instead of `./scripts`
+    - [ ] `./src` instead of `./scripts`
     - [ ] `./pyproject.toml`
         - [ ] Does `uv pip install -e .` work?
     - [ ] `./MANIFEST.in`
@@ -20,7 +20,7 @@
     - [ ] `./LICENSE`
     - [ ] `./docs`
     - [ ] `./examples`
-      - [ ] Is the structure mirroring `./contents`?
+      - [ ] Is the structure mirroring `./src`?
       - [ ] Are all example scripts strictly following the scitex framework?
       - [ ] Are all example scripts produces outputs and logs?
       - [ ] Are all example scripts successfully run?
@@ -29,7 +29,7 @@
       - [ ] Used `./examples/sync_examples_with_source.sh`
       - [ ] Used `./run_examples.sh`
     - [ ] `./tests`
-      - [ ] Is the structure mirroring `./contents`?
+      - [ ] Is the structure mirroring `./src`?
       - [ ] Are all example scripts strictly following the scitex framework?
         - [ ] But to reduce dependency, non-scitex framework is acceptable for tests.
       - [ ] Are all example scripts produces outputs and logs?

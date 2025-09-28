@@ -8,7 +8,7 @@
 
 ## Overview
 
-The Elisp-CI framework provides standardized, zero-configuration CI/CD infrastructure for Emacs Lisp projects. Developed during the ETM project, it addresses the unique challenges of testing across multiple Emacs archive while establishing modern development practices for the Elisp ecosystem.
+The Elisp-CI framework provides standardized, zero-configuration CI/CD infrastructure for Emacs Lisp projects. Developed during the ETM project, it addresses the unique challenges of testing across multiple Emacs versions while establishing modern development practices for the Elisp ecosystem.
 
 **Location:** `.claude/to_claude/bin/elisp/elisp-ci/elisp-ci`  
 **Status:** Production-ready, validated on real projects  
@@ -65,8 +65,8 @@ elisp-ci init
 # Test current Emacs version
 elisp-ci test
 
-# Test all supported archive  
-elisp-ci test --all-archive
+# Test all supported versions  
+elisp-ci test --all-versions
 
 # Analyze project structure
 elisp-ci analyze
@@ -82,7 +82,7 @@ elisp-ci validate
 ```
 your-package/
 ├── package-name.el           # Main entry point
-├── contents/                      # Source files (optional)
+├── src/                      # Source files (optional)
 │   ├── package-core.el
 │   └── package-utils.el
 ├── tests/                    # Test files
@@ -126,7 +126,7 @@ project:
   entry: "my-package.el"
   description: "Brief package description"
   
-emacs_archive:
+emacs_versions:
   - "27.1"
   - "28.2" 
   - "29.1"
@@ -301,7 +301,7 @@ jobs:
 elisp-ci docker-build
 
 # Test in containers
-elisp-ci docker-test --all-archive
+elisp-ci docker-test --all-versions
 
 # Custom Docker configuration
 docker:
@@ -353,7 +353,7 @@ elisp-ci analyze
 ```bash
 elisp-ci benchmark
 
-# Results across Emacs archive:
+# Results across Emacs versions:
 # Emacs 27.1: 1.45s (100%)
 # Emacs 28.2: 1.32s (91.0%)  
 # Emacs 29.1: 1.28s (88.3%)
@@ -536,7 +536,7 @@ test:
    - Keep configuration minimal
 
 2. **Don't Skip Testing**
-   - Test all supported Emacs archive
+   - Test all supported Emacs versions
    - Don't ignore test failures
    - Maintain good test coverage
 
@@ -556,9 +556,9 @@ The Emacs Tab Manager serves as the reference implementation:
 cd emacs-tab-manager/
 elisp-ci analyze
 # → Found 59 Elisp files, 25 test files
-# → 100% CI success across all Emacs archive
+# → 100% CI success across all Emacs versions
 
-elisp-ci test --all-archive
+elisp-ci test --all-versions
 # → ✅ All tests pass on 27.1, 28.2, 29.1, 29.4, snapshot
 ```
 

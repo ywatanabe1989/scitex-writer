@@ -43,10 +43,10 @@ setup_test_env() {
     mkdir -p "${TEST_TMP_DIR}/scripts/shell/modules"
 
     # Create a sample image
-    convert -size 100x100 canvas:white "${TEST_TMP_DIR}/contents/figures/contents/Figure_ID_01_test.jpg"
+    convert -size 100x100 canvas:white "${TEST_TMP_DIR}/contents/figures/contents/.01_test.jpg"
 
     # Create a sample caption file
-    cat > "${TEST_TMP_DIR}/contents/figures/contents/Figure_ID_01_test.tex" << EOF
+    cat > "${TEST_TMP_DIR}/contents/figures/contents/.01_test.tex" << EOF
 \caption{\textbf{
 Test Figure Title
 }
@@ -97,49 +97,49 @@ run_tests() {
 
     # Test ensure_caption function
     test_function "ensure_caption creates captions when missing" "
-        rm -f \"$STXW_FIGURE_CAPTION_MEDIA_DIR/Figure_ID_02_test.tex\"
-        touch \"$STXW_FIGURE_CAPTION_MEDIA_DIR/Figure_ID_02_test.jpg\"
+        rm -f \"$STXW_FIGURE_CAPTION_MEDIA_DIR/.02_test.tex\"
+        touch \"$STXW_FIGURE_CAPTION_MEDIA_DIR/.02_test.jpg\"
         ensure_caption > /dev/null 2>&1
-        [ -f \"$STXW_FIGURE_CAPTION_MEDIA_DIR/Figure_ID_02_test.tex\" ]
+        [ -f \"$STXW_FIGURE_CAPTION_MEDIA_DIR/.02_test.tex\" ]
     "
 
     # Test ensure_lower_letters function
     test_function "ensure_lower_letters converts filenames to lowercase" "
-        touch \"$STXW_FIGURE_CAPTION_MEDIA_DIR/Figure_ID_03_TEST_UPPER.jpg\"
+        touch \"$STXW_FIGURE_CAPTION_MEDIA_DIR/.03_TEST_UPPER.jpg\"
         ensure_lower_letters
-        [ -f \"$STXW_FIGURE_CAPTION_MEDIA_DIR/Figure_ID_03_test_upper.jpg\" ] && [ ! -f \"$STXW_FIGURE_CAPTION_MEDIA_DIR/Figure_ID_03_TEST_UPPER.jpg\" ]
+        [ -f \"$STXW_FIGURE_CAPTION_MEDIA_DIR/.03_test_upper.jpg\" ] && [ ! -f \"$STXW_FIGURE_CAPTION_MEDIA_DIR/.03_TEST_UPPER.jpg\" ]
     "
 
     # Test compile_legends function (simplified)
     test_function "compile_legends creates figure legend files" "
         compile_legends > /dev/null 2>&1
-        [ -f \"$STXW_FIGURE_COMPILED_DIR/Figure_ID_01_test.tex\" ]
+        [ -f \"$STXW_FIGURE_COMPILED_DIR/.01_test.tex\" ]
     "
 
     # Test gather_tex_files function
     test_function "gather_tex_files creates aggregate file" "
         gather_tex_files > /dev/null 2>&1
-        [ -f \"$STXW_FIGURE_COMPILED_FILE\" ] && grep -q \"Figure_ID_01_test\" \"$STXW_FIGURE_COMPILED_FILE\"
+        [ -f \"$STXW_FIGURE_COMPILED_FILE\" ] && grep -q \".01_test\" \"$STXW_FIGURE_COMPILED_FILE\"
     "
 
     # Test tif2jpg function (basic check)
     test_function "tif2jpg handles jpg files correctly" "
         mkdir -p \"$STXW_FIGURE_JPG_DIR\"
         tif2jpg false > /dev/null 2>&1
-        [ -f \"$STXW_FIGURE_JPG_DIR/Figure_ID_01_test.jpg\" ]
+        [ -f \"$STXW_FIGURE_JPG_DIR/.01_test.jpg\" ]
     "
 
     # Test _toggle_figures function
     test_function "_toggle_figures enable works correctly" "
         _toggle_figures enable > /dev/null 2>&1
-        grep -q '\\\\includegraphics' \"$STXW_FIGURE_COMPILED_DIR/Figure_ID_01_test.tex\" &&
-        ! grep -q '^%\\\\includegraphics' \"$STXW_FIGURE_COMPILED_DIR/Figure_ID_01_test.tex\"
+        grep -q '\\\\includegraphics' \"$STXW_FIGURE_COMPILED_DIR/.01_test.tex\" &&
+        ! grep -q '^%\\\\includegraphics' \"$STXW_FIGURE_COMPILED_DIR/.01_test.tex\"
     "
 
     test_function "_toggle_figures disable works correctly" "
         _toggle_figures disable > /dev/null 2>&1
-        grep -q '^%\\\\includegraphics' \"$STXW_FIGURE_COMPILED_DIR/Figure_ID_01_test.tex\" ||
-        ! grep -q '\\\\includegraphics' \"$STXW_FIGURE_COMPILED_DIR/Figure_ID_01_test.tex\"
+        grep -q '^%\\\\includegraphics' \"$STXW_FIGURE_COMPILED_DIR/.01_test.tex\" ||
+        ! grep -q '\\\\includegraphics' \"$STXW_FIGURE_COMPILED_DIR/.01_test.tex\"
     "
 
     # Test main function (simplified)

@@ -29,15 +29,15 @@ Instead of copying files, use symlinks to maintain single source of truth:
 ```bash
 # Link figures from analysis
 ln -s ~/proj/neurovista/scripts/analysis/output/fig1.png \
-      01_manuscript/contents/figures/caption_and_media/Figure_ID_01_seizure_prediction.png
+      01_manuscript/contents/figures/caption_and_media/.01_seizure_prediction.png
 
 # Link tables from results
 ln -s ~/proj/neurovista/data/results/performance.csv \
-      01_manuscript/contents/tables/caption_and_media/Table_ID_01_performance.csv
+      01_manuscript/contents/tables/caption_and_media/.01_performance.csv
 
 # Link Mermaid diagrams
 ln -s ~/proj/neurovista/docs/workflow.mmd \
-      01_manuscript/contents/figures/caption_and_media/Figure_ID_02_workflow.mmd
+      01_manuscript/contents/figures/caption_and_media/.02_workflow.mmd
 ```
 
 ### 2. Write Content
@@ -62,7 +62,7 @@ Previous work \cite{Tort2010} demonstrated...
 
 ### 3. Add Figure Captions
 
-Create `01_manuscript/contents/figures/caption_and_media/Figure_ID_01_seizure_prediction.tex`:
+Create `01_manuscript/contents/figures/caption_and_media/.01_seizure_prediction.tex`:
 
 ```latex
 \textbf{Seizure prediction performance.}
@@ -81,21 +81,21 @@ Create `01_manuscript/contents/figures/caption_and_media/Figure_ID_01_seizure_pr
 
 ### CRITICAL: Naming Rules
 
-**Figures**: `Figure_ID_XX_descriptive_name.{jpg|png|tif|mmd}`
-- Must start with `Figure_ID_`
+**Figures**: `.XX_descriptive_name.{jpg|png|tif|mmd}`
+- Must start with `.`
 - XX = two-digit number (01, 02, 03...)
 - descriptive_name = lowercase with underscores
-- Example: `Figure_ID_01_seizure_prediction.png`
+- Example: `.01_seizure_prediction.png`
 
-**Tables**: `Table_ID_XX_descriptive_name.csv`
-- Must start with `Table_ID_`
+**Tables**: `.XX_descriptive_name.csv`
+- Must start with `.`
 - XX = two-digit number (01, 02, 03...)
 - descriptive_name = lowercase with underscores
-- Example: `Table_ID_01_patient_demographics.csv`
+- Example: `.01_patient_demographics.csv`
 
 **Captions**: Same name but with `.tex` extension
-- `Figure_ID_01_seizure_prediction.tex` (caption for the figure)
-- `Table_ID_01_patient_demographics.tex` (caption for the table)
+- `.01_seizure_prediction.tex` (caption for the figure)
+- `.01_patient_demographics.tex` (caption for the table)
 
 ### LaTeX Citation Syntax
 
@@ -103,7 +103,7 @@ The naming convention automatically generates LaTeX labels:
 
 **Figures**:
 ```latex
-% File: Figure_ID_01_seizure_prediction.png
+% File: .01_seizure_prediction.png
 % LaTeX label generated: fig:01_seizure_prediction
 
 % How to cite:
@@ -115,7 +115,7 @@ As shown in Figure~\ref{fig:01_seizure_prediction}, the results...
 
 **Tables**:
 ```latex
-% File: Table_ID_02_performance_metrics.csv
+% File: .02_performance_metrics.csv
 % LaTeX label generated: tab:02_performance_metrics
 
 % How to cite:
@@ -128,10 +128,10 @@ The results (Table~\ref{tab:02_performance_metrics}) show...
 
 ```
 Filename:                        → LaTeX label:
-Figure_ID_01_pac_analysis.png   → fig:01_pac_analysis
-Figure_ID_02_workflow.mmd        → fig:02_workflow
-Table_ID_01_statistics.csv      → tab:01_statistics
-Table_ID_03_parameters.csv      → tab:03_parameters
+.01_pac_analysis.png   → fig:01_pac_analysis
+.02_workflow.mmd        → fig:02_workflow
+.01_statistics.csv      → tab:01_statistics
+.03_parameters.csv      → tab:03_parameters
 ```
 
 ### Citations
@@ -162,7 +162,7 @@ ls ~/proj/neurovista/scripts/analysis/results/
 for fig in ~/proj/neurovista/scripts/pac/visualization/*_out/*.png; do
     name=$(basename $fig .png)
     id=$(printf "%02d" $counter)
-    ln -s $fig 01_manuscript/contents/figures/caption_and_media/Figure_ID_${id}_${name}.png
+    ln -s $fig 01_manuscript/contents/figures/caption_and_media/.${id}_${name}.png
     ((counter++))
 done
 
@@ -183,14 +183,14 @@ Research Project                    SciTeX Writer
 scripts/analysis/
   ├── compute_pac.py        →      (methods.tex describes)
   └── output/
-      ├── pac_results.png    →      Figure_ID_03_pac.png (symlink)
-      └── statistics.csv     →      Table_ID_02_stats.csv (symlink)
+      ├── pac_results.png    →      .03_pac.png (symlink)
+      └── statistics.csv     →      .02_stats.csv (symlink)
 
 data/processed/
   └── patient_data.csv       →      (referenced in methods.tex)
 
 docs/
-  └── workflow.mmd           →      Figure_ID_01_workflow.mmd (symlink)
+  └── workflow.mmd           →      .01_workflow.mmd (symlink)
 ```
 
 ## Best Practices for AI Agents
@@ -215,20 +215,20 @@ docs/
 ```bash
 # Link a PAC analysis result
 ln -s ~/proj/neurovista/scripts/pac/visualization/pac_duration_out/summary.png \
-      01_manuscript/contents/figures/caption_and_media/Figure_ID_03_pac_duration.png
+      01_manuscript/contents/figures/caption_and_media/.03_pac_duration.png
 
 # Link performance metrics table  
 ln -s ~/proj/neurovista/data/results/classifier_performance.csv \
-      01_manuscript/contents/tables/caption_and_media/Table_ID_01_classifier_performance.csv
+      01_manuscript/contents/tables/caption_and_media/.01_classifier_performance.csv
 
 # Link workflow diagram
 ln -s ~/proj/neurovista/docs/analysis_pipeline.mmd \
-      01_manuscript/contents/figures/caption_and_media/Figure_ID_01_analysis_pipeline.mmd
+      01_manuscript/contents/figures/caption_and_media/.01_analysis_pipeline.mmd
 ```
 
 ### Step 2: Write Captions
 
-`01_manuscript/contents/figures/caption_and_media/Figure_ID_03_pac_duration.tex`:
+`01_manuscript/contents/figures/caption_and_media/.03_pac_duration.tex`:
 ```latex
 \textbf{Phase-amplitude coupling duration analysis.}
 Distribution of PAC burst durations across (A) preictal and (B) interictal periods.
@@ -274,7 +274,7 @@ def link_figures(source_dir, manuscript_dir):
     fig_dir = Path(manuscript_dir) / "01_manuscript/contents/figures/caption_and_media"
     
     for i, fig_path in enumerate(Path(source_dir).glob("**/*.png"), 1):
-        target = fig_dir / f"Figure_ID_{i:02d}_{fig_path.stem}.png"
+        target = fig_dir / f".{i:02d}_{fig_path.stem}.png"
         if not target.exists():
             target.symlink_to(fig_path.resolve())
             print(f"Linked: {fig_path.name} → {target.name}")
@@ -317,22 +317,22 @@ if __name__ == "__main__":
 ## Common Naming Mistakes to Avoid
 
 ❌ **WRONG**:
-- `figure1.png` (missing Figure_ID_ prefix)
+- `figure1.png` (missing . prefix)
 - `Figure_1_results.png` (single digit, should be 01)
-- `Figure_ID_01-results.png` (hyphen not allowed, use underscore)
-- `Figure_ID_01_Results.png` (uppercase in description)
+- `.01-results.png` (hyphen not allowed, use underscore)
+- `.01_Results.png` (uppercase in description)
 - `fig_01_analysis.png` (wrong prefix)
 
 ✅ **CORRECT**:
-- `Figure_ID_01_results.png`
-- `Table_ID_02_patient_data.csv`
-- `Figure_ID_03_pac_analysis.mmd`
+- `.01_results.png`
+- `.02_patient_data.csv`
+- `.03_pac_analysis.mmd`
 
 ## Troubleshooting
 
 | Issue | Solution |
 |-------|----------|
-| "Undefined reference" | Check filename follows `Figure_ID_XX_name` pattern |
+| "Undefined reference" | Check filename follows `.XX_name` pattern |
 | Figure not appearing | Verify symlink target exists and is readable |
 | Wrong figure number | ID in filename must match citation (01 → fig:01_name) |
 | Citation undefined | Add entry to bibliography.bib |

@@ -60,19 +60,19 @@ After successful compilation:
 ## Adding Figures
 
 1. Place figure files in `contents/figures/caption_and_media/`
-2. Use naming convention: `Figure_ID_NN_description.ext`
+2. Use naming convention: `.NN_description.ext`
    - NN: Two-digit number (01, 02, ...)
    - description: Brief description (optional)
    - ext: png, jpg, tif, svg, mmd (Mermaid), pptx
 
-Example: `Figure_ID_01_workflow.png`
+Example: `.01_workflow.png`
 
 Missing figures automatically generate placeholder images with instructions.
 
 ## Adding Tables
 
 1. Place table files in `contents/tables/caption_and_media/`
-2. Use naming convention: `Table_ID_NN_description.tex`
+2. Use naming convention: `.NN_description.tex`
 
 ## Compilation Options
 

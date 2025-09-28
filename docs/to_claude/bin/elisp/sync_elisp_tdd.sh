@@ -31,7 +31,7 @@ REPO_ROOT=$(git rev-parse --show-toplevel 2>/dev/null || realpath "$(dirname "$0
 # Default Values
 DO_MOVE=false
 PACKAGE_NAME=""
-SRC_DIR="$REPO_ROOT/contents"
+SRC_DIR="$REPO_ROOT/src"
 TESTS_DIR="$REPO_ROOT/tests"
 
 usage() {
@@ -133,10 +133,10 @@ EOL
 
 ;;; Code:
 
-;; Add contents directory to load path
+;; Add src directory to load path
 (add-to-list 'load-path (concat (file-name-directory
                                (or load-file-name buffer-file-name))
-                              "contents"))
+                              "src"))
 
 ;; Required umbrella modules
 ;; Will be auto-populated from test requirements
@@ -240,17 +240,17 @@ EOL
 
     # Determine component source file path
     local component_full_name="${umbrella_name}-${component_name}"
-    local component_contents_file="$SRC_DIR/$umbrella_name/$component_full_name.el"
+    local component_src_file="$SRC_DIR/$umbrella_name/$component_full_name.el"
 
     # Extract function definitions from test file
     local functions=$(extract_test_function_definitions "$test_file")
 
     # If source file doesn't exist or we're supposed to update it
-    if [ ! -f "$component_contents_file" ]; then
-        echo -e "${YELLOW}Creating component source from test: $component_contents_file${NC}"
+    if [ ! -f "$component_src_file" ]; then
+        echo -e "${YELLOW}Creating component source from test: $component_src_file${NC}"
 
         # Create function stubs based on test requirements
-        cat > "$component_contents_file" << EOL
+        cat > "$component_src_file" << EOL
 ;;; $component_full_name.el --- $component_name component for $umbrella_name
 
 ;;; Commentary:
@@ -264,7 +264,7 @@ EOL
 
         # Add function stubs based on tested functions
         for func in $functions; do
-            cat >> "$component_contents_file" << EOL
+            cat >> "$component_src_file" << EOL
 
 (defun $func ()
   "Generated stub for $func required by tests."
@@ -273,7 +273,7 @@ EOL
         done
 
         # Add standard footer
-        cat >> "$component_contents_file" << EOL
+        cat >> "$component_src_file" << EOL
 
 (provide '$component_full_name)
 
@@ -438,29 +438,29 @@ move_stale_source_files() {
     local timestamp="$(date +%Y%m%d_%H%M%S)"
 
     # Check for source files without corresponding test files
-    find "$SRC_DIR" -type f -name "*.el" | while read contents_file; do
-        local contents_basename=$(basename "$contents_file" .el)
-        local contents_rel_path="${contents_file#$SRC_DIR/}"
+    find "$SRC_DIR" -type f -name "*.el" | while read src_file; do
+        local src_basename=$(basename "$src_file" .el)
+        local src_rel_path="${src_file#$SRC_DIR/}"
 
         # Skip umbrella integrators
-        if [[ "$contents_basename" =~ ^umbrella-[^-]+$ ]]; then
+        if [[ "$src_basename" =~ ^umbrella-[^-]+$ ]]; then
             continue
         fi
 
         # Determine corresponding test file
         local test_file=""
-        if [[ "$contents_basename" =~ ^(umbrella-[^-]+)-(.+)$ ]]; then
+        if [[ "$src_basename" =~ ^(umbrella-[^-]+)-(.+)$ ]]; then
             umbrella=${BASH_REMATCH[1]}
             component=${BASH_REMATCH[2]}
-            test_file="$TESTS_DIR/test-$umbrella/test-$contents_basename.el"
+            test_file="$TESTS_DIR/test-$umbrella/test-$src_basename.el"
         fi
 
         # If no test file, move to .old directory
         if [ -n "$test_file" ] && [ ! -f "$test_file" ]; then
-            old_dir=$(dirname "$contents_file")/.old-$timestamp
+            old_dir=$(dirname "$src_file")/.old-$timestamp
             mkdir -p "$old_dir"
-            echo -e "${RED}Moving stale source file: $contents_file -> $old_dir/$(basename "$contents_file")${NC}"
-            mv "$contents_file" "$old_dir/"
+            echo -e "${RED}Moving stale source file: $src_file -> $old_dir/$(basename "$src_file")${NC}"
+            mv "$src_file" "$old_dir/"
         fi
     done
 

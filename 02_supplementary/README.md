@@ -46,16 +46,16 @@ After successful compilation:
 ## Adding Supplementary Figures
 
 1. Place files in `contents/figures/caption_and_media/`
-2. Use naming: `Supplementary_Figure_ID_XX_description.ext`
+2. Use naming: `Supplementary_.XX_description.ext`
    - XX: Two-digit number (01, 02, ...)
    - Common extensions: png, jpg, tif, svg, mmd
 
-Example: `Supplementary_Figure_ID_01_additional_analysis.png`
+Example: `Supplementary_.01_additional_analysis.png`
 
 ## Adding Supplementary Tables
 
 1. Place files in `contents/tables/caption_and_media/`
-2. Use naming: `Supplementary_Table_ID_XX_description.tex`
+2. Use naming: `Supplementary_.XX_description.tex`
 
 ## Compilation Options
 

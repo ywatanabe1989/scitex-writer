@@ -33,10 +33,10 @@ figures:
   compiled_dir: "./03_revision/contents/figures/compiled"
   compiled_file: "./03_revision/contents/figures/compiled/FINAL.tex"
   templates_dir: "./shared/templates/figures"
-  template_pptx: "./shared/templates/figures/FIGURE_ID_00_TEMPLATE.pptx"
-  template_tif: "./shared/templates/figures/FIGURE_ID_00_TEMPLATE.tif"
-  template_jpg: "./shared/templates/figures/FIGURE_ID_00_TEMPLATE.jpg"
-  template_jnb: "./shared/templates/figures/FIGURE_ID_00_TEMPLATE.JNB"
+  template_pptx: "./shared/templates/figures/.00_TEMPLATE.pptx"
+  template_tif: "./shared/templates/figures/.00_TEMPLATE.tif"
+  template_jpg: "./shared/templates/figures/.00_TEMPLATE.jpg"
+  template_jnb: "./shared/templates/figures/.00_TEMPLATE.JNB"
 
 tables:
   dir: "./03_revision/contents/tables"

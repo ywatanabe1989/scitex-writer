@@ -5,14 +5,14 @@
 !-- --- -->
 
 <h1 align="center">
-  <img contents="logo.svg" width="220px" height="370px" alt="IceCream">
+  <img src="logo.svg" width="220px" height="370px" alt="IceCream">
 </h1>
 
 <p align="center">
-  <a href="https://pypi.python.org/pypi/icecream"><img contents="https://badge.fury.io/py/icecream.svg"></a>
-  <a href="https://github.com/gruns/icecream/actions/workflows/ci.yml"><img contents="https://github.com/gruns/icecream/actions/workflows/ci.yml/badge.svg"></a>
-  <a href="/LICENSE.txt"><img contents="https://img.shields.io/pypi/l/icecream.svg"></a>
-  <a href="https://pypi.python.org/pypi/icecream"><img contents="https://img.shields.io/pypi/pyarchive/icecream.svg"></a>
+  <a href="https://pypi.python.org/pypi/icecream"><img src="https://badge.fury.io/py/icecream.svg"></a>
+  <a href="https://github.com/gruns/icecream/actions/workflows/ci.yml"><img src="https://github.com/gruns/icecream/actions/workflows/ci.yml/badge.svg"></a>
+  <a href="/LICENSE.txt"><img src="https://img.shields.io/pypi/l/icecream.svg"></a>
+  <a href="https://pypi.python.org/pypi/icecream"><img src="https://img.shields.io/pypi/pyversions/icecream.svg"></a>
 </p>
 
 

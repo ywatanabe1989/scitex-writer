@@ -36,7 +36,7 @@ async def test_weather_operations():
         
         # Test resource retrieval
         forecast = await client.read_resource("weather://forecast")
-        assert forecast.src[0].data == {"days": 5, "conditions": "sunny"}
+        assert forecast.contents[0].data == {"days": 5, "conditions": "sunny"}
 The in-memory approach transforms MCP testing from a deployment challenge into standard unit testing. You focus on testing your server’s behavior, not wrestling with infrastructure.
 ​
 Testing with Frameworks

@@ -35,18 +35,18 @@ This comprehensive guide explains how to manage figures and tables in the SciTex
 ### Adding a New Figure
 
 1. **Create your figure** in PNG format (recommended 300 DPI)
-2. **Name it properly**: `Figure_ID_XX_description.png` (e.g., `Figure_ID_01_workflow.png`)
+2. **Name it properly**: `.XX_description.png` (e.g., `.01_workflow.png`)
 3. **Place it in**: `manuscript/contents/figures/contents/`
-4. **Create a caption file**: `Figure_ID_XX_description.tex` with the same base name
+4. **Create a caption file**: `.XX_description.tex` with the same base name
 5. **Reference it in text**: Use `Figure~\ref{fig:XX}` (e.g., `Figure~\ref{fig:01}`)
 6. **Compile with figures**: Run `./compile --figs` or `./compile -f`
 
 ### Adding a New Table
 
 1. **Create your table** in CSV format or directly in LaTeX
-2. **Name it properly**: `Table_ID_XX_description.csv` (e.g., `Table_ID_01_results.csv`)
+2. **Name it properly**: `.XX_description.csv` (e.g., `.01_results.csv`)
 3. **Place it in**: `manuscript/contents/tables/contents/`
-4. **Create a caption file**: `Table_ID_XX_description.tex` with the same base name
+4. **Create a caption file**: `.XX_description.tex` with the same base name
 5. **Reference it in text**: Use `Table~\ref{tab:XX}` (e.g., `Table~\ref{tab:01}`)
 6. **Compile**: Run `./compile`
 
@@ -60,11 +60,11 @@ The figure management system uses the following directory structure:
 manuscript/contents/figures/
 ├── compiled/           # Auto-generated LaTeX files (DO NOT EDIT)
 │   ├── 00_Figures_Header.tex     # Figure section header
-│   ├── Figure_ID_01_workflow.tex # Compiled figure 1
-│   └── Figure_ID_02_methods.tex  # Compiled figure 2
+│   ├── .01_workflow.tex # Compiled figure 1
+│   └── .02_methods.tex  # Compiled figure 2
 ├── contents/                # Source files (PLACE YOUR FILES HERE)
-│   ├── Figure_ID_XX.png  # Source image files (PNG format)
-│   ├── Figure_ID_XX.tex  # Caption files
+│   ├── .XX.png  # Source image files (PNG format)
+│   ├── .XX.tex  # Caption files
 │   └── png/              # Auto-generated processed PNG archive
 ├── templates/          # Templates for new figures
 └── .tex/               # Hidden directory for compiled figure files
@@ -75,7 +75,7 @@ manuscript/contents/figures/
 All figures must follow this naming pattern:
 
 ```
-Figure_ID_XX_descriptive_name.ext
+.XX_descriptive_name.ext
 ```
 
 Where:
@@ -91,7 +91,7 @@ Where:
 #### Method 1: Direct Image Creation
 
 1. Create a PNG or JPG file with appropriate resolution (300 DPI recommended)
-2. Name it according to the naming convention (e.g., `Figure_ID_01_workflow.png`)
+2. Name it according to the naming convention (e.g., `.01_workflow.png`)
 3. Place it in the `manuscript/contents/figures/contents/` directory
 
 #### Method 2: From PowerPoint Slides
@@ -113,9 +113,9 @@ For high-quality vector graphics created in tools like Inkscape, Illustrator, or
 
 1. Create your figure in your preferred vector drawing tool
 2. Export as SVG format
-3. Name according to convention (e.g., `Figure_ID_03_flowchart.svg`)
+3. Name according to convention (e.g., `.03_flowchart.svg`)
 4. Place in the `manuscript/contents/figures/contents/` directory
-5. Create a caption file with same base name (e.g., `Figure_ID_03_flowchart.tex`)
+5. Create a caption file with same base name (e.g., `.03_flowchart.tex`)
 6. Use the SVG template from templates directory for better formatting
 
 The system will automatically convert SVG files to high-resolution JPGs for inclusion in the PDF.
@@ -157,8 +157,8 @@ Example:
 For each figure image file, create a corresponding caption file with the same name but a `.tex` extension:
 
 ```
-Figure_ID_01_workflow.png   # Image file
-Figure_ID_01_workflow.tex   # Caption file
+.01_workflow.png   # Image file
+.01_workflow.tex   # Caption file
 ```
 
 The caption file should follow this template:
@@ -183,9 +183,9 @@ In the final manuscript, figures are compiled into a dedicated "Figures" section
 ```latex
 \clearpage
 \begin{figure*}[ht]
-    \pdfbookmark[2]{ID XX}{figure_id_XX}
+    \pdfbookmark[2]{ID XX}{.XX}
     \centering
-    \includegraphics[width=1\textwidth]{./contents/figures/png/Figure_ID_XX.png}
+    \includegraphics[width=1\textwidth]{./contents/figures/png/.XX.png}
     \caption{\textbf{
     FIGURE TITLE HERE
     }
@@ -212,7 +212,7 @@ To reference figures in your manuscript text, use:
 Figure~\ref{fig:XX}
 ```
 
-Where `XX` is the ID number from the figure filename. For example, to reference `Figure_ID_01_workflow.tif`, use:
+Where `XX` is the ID number from the figure filename. For example, to reference `.01_workflow.tif`, use:
 
 ```latex
 Figure~\ref{fig:01}
@@ -233,9 +233,9 @@ Figure~\ref{fig:01}(i)
 manuscript/contents/tables/
 ├── compiled/           # Auto-generated LaTeX files (DO NOT EDIT)
 └── contents/                # Source files (PLACE YOUR FILES HERE)
-    ├── Table_ID_XX.csv  # Source data files
-    ├── Table_ID_XX.tex  # Caption files
-    └── _Table_ID_XX.tex # Template file
+    ├── .XX.csv  # Source data files
+    ├── .XX.tex  # Caption files
+    └── _.XX.tex # Template file
 ```
 
 ### Table Naming Conventions
@@ -243,7 +243,7 @@ manuscript/contents/tables/
 All tables must follow this naming pattern:
 
 ```
-Table_ID_XX_descriptive_name.ext
+.XX_descriptive_name.ext
 ```
 
 Where:
@@ -263,7 +263,7 @@ Where:
    Value4,Value5,Value6
    ```
 
-2. Name it according to the naming convention (e.g., `Table_ID_01_results.csv`)
+2. Name it according to the naming convention (e.g., `.01_results.csv`)
 3. Place it in the `manuscript/contents/tables/contents/` directory
 
 ### Table Captions
@@ -271,8 +271,8 @@ Where:
 For each table data file, create a corresponding caption file with the same name but a `.tex` extension:
 
 ```
-Table_ID_01_results.csv   # Data file
-Table_ID_01_results.tex   # Caption file
+.01_results.csv   # Data file
+.01_results.tex   # Caption file
 ```
 
 The caption file should follow this template:
@@ -296,7 +296,7 @@ To reference tables in your manuscript text, use:
 Table~\ref{tab:XX}
 ```
 
-Where `XX` is the ID number from the table filename. For example, to reference `Table_ID_01_results.csv`, use:
+Where `XX` is the ID number from the table filename. For example, to reference `.01_results.csv`, use:
 
 ```latex
 Table~\ref{tab:01}
@@ -375,9 +375,9 @@ The processing is handled by the `process_tables.sh` script.
 
 ### Example Figure Files
 
-File: `manuscript/contents/figures/contents/Figure_ID_01_workflow.png` (Image file)
+File: `manuscript/contents/figures/contents/.01_workflow.png` (Image file)
 
-File: `manuscript/contents/figures/contents/Figure_ID_01_workflow.tex` (Caption file)
+File: `manuscript/contents/figures/contents/.01_workflow.tex` (Caption file)
 ```latex
 \caption{\textbf{
 Workflow diagram for the SciTex system.
@@ -398,14 +398,14 @@ Figure~\ref{fig:01} illustrates the overall workflow of the SciTex system.
 
 ### Example Table Files
 
-File: `manuscript/contents/tables/contents/Table_ID_01_results.csv` (Data file)
+File: `manuscript/contents/tables/contents/.01_results.csv` (Data file)
 ```csv
 Method,Accuracy (%),Runtime (s)
 Baseline,85.2,12.3
 SciTex,92.7,8.9
 ```
 
-File: `manuscript/contents/tables/contents/Table_ID_01_results.tex` (Caption file)
+File: `manuscript/contents/tables/contents/.01_results.tex` (Caption file)
 ```latex
 \caption{\textbf{
 Performance comparison of baseline and SciTex methods.
@@ -439,9 +439,9 @@ Below is an example of a complete Figure section that will be generated:
 
         \clearpage
         \begin{figure*}[ht]
-            \pdfbookmark[2]{ID 01}{figure_id_01}
+            \pdfbookmark[2]{ID 01}{.01}
             \centering
-            \includegraphics[width=1\textwidth]{./contents/figures/png/Figure_ID_01_workflow.png}
+            \includegraphics[width=1\textwidth]{./contents/figures/png/.01_workflow.png}
             \caption{\textbf{
 Workflow diagram for the SciTex system.
 }
@@ -456,9 +456,9 @@ citation management, and LaTeX compilation.
         \end{figure*}
         \clearpage
         \begin{figure*}[ht]
-            \pdfbookmark[2]{ID 02}{figure_id_02}
+            \pdfbookmark[2]{ID 02}{.02}
             \centering
-            \includegraphics[width=0.8\textwidth]{./contents/figures/png/Figure_ID_02_architecture.png}
+            \includegraphics[width=0.8\textwidth]{./contents/figures/png/.02_architecture.png}
             \caption{\textbf{
 Architecture of the SciTex system.
 }

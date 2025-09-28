@@ -8,14 +8,14 @@ This directory contains all table-related files for the manuscript. SciTex uses 
 - `contents/`: Source directory for table files.
   - Place your `.csv` data files here.
   - For each data file, create a matching `.tex` caption file with the same name.
-  - `_Table_ID_XX.tex`: Template file for table captions.
+  - `_.XX.tex`: Template file for table captions.
 
 ## Naming Conventions
 
 All tables must follow this naming pattern:
 
 ```
-Table_ID_XX_descriptive_name.[csv|tex]
+.XX_descriptive_name.[csv|tex]
 ```
 
 Where:
@@ -46,7 +46,7 @@ Where:
 3. **Add to SciTex**:
    - Place the CSV file in the `contents/` directory
    - Create a caption file with the same name but `.tex` extension
-   - Use the template from `_Table_ID_XX.tex`
+   - Use the template from `_.XX.tex`
 
 4. **Caption Template**:
    ```latex
@@ -68,18 +68,18 @@ To reference tables in your manuscript text, use:
 Table~\ref{tab:XX}
 ```
 
-Where `XX` is the ID number from the table filename (e.g., `Table~\ref{tab:01}` for `Table_ID_01_parameters.csv`).
+Where `XX` is the ID number from the table filename (e.g., `Table~\ref{tab:01}` for `.01_parameters.csv`).
 
 ## Example Structure
 
 ```
 tables/
 ├── compiled/
-│   └── Table_ID_01_parameters.tex    # Auto-generated during compilation
+│   └── .01_parameters.tex    # Auto-generated during compilation
 └── contents/
-    ├── Table_ID_01_parameters.csv    # Data file
-    ├── Table_ID_01_parameters.tex    # Caption file
-    └── _Table_ID_XX.tex              # Template file
+    ├── .01_parameters.csv    # Data file
+    ├── .01_parameters.tex    # Caption file
+    └── _.XX.tex              # Template file
 ```
 
 ## For More Information

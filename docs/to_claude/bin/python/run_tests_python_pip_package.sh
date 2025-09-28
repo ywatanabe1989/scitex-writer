@@ -129,7 +129,7 @@ parse_args() {
 ensure_executable() {
     # Make all Python files executable
     echo_info "Making Python files executable..."
-    find "$THIS_DIR/contents" "$THIS_DIR/tests" -name "*.py" -type f -exec chmod +x {} \; 2>/dev/null || true
+    find "$THIS_DIR/src" "$THIS_DIR/tests" -name "*.py" -type f -exec chmod +x {} \; 2>/dev/null || true
 }
 
 ensure_no_existing_runtests_processes() {
