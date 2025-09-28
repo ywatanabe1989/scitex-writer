@@ -220,20 +220,7 @@ function csv2tex_single_fallback() {
         echo "\\begin{table}[htbp]"
         echo "\\centering"
         echo "$fontsize"
-        
-        # Adjust tabcolsep based on number of columns to fit width
-        if [ $num_columns -gt 8 ]; then
-            echo "\\setlength{\\tabcolsep}{2pt}"  # Very tight for many columns
-        elif [ $num_columns -gt 6 ]; then
-            echo "\\setlength{\\tabcolsep}{3pt}"  # Tight spacing
-        elif [ $num_columns -gt 4 ]; then
-            echo "\\setlength{\\tabcolsep}{4pt}"  # Medium spacing
-        else
-            echo "\\setlength{\\tabcolsep}{6pt}"  # Normal spacing
-        fi
-        
-        # Use resizebox to ensure table fits within text width
-        echo "\\resizebox{\\textwidth}{!}{%"
+        echo "\\setlength{\\tabcolsep}{6pt}"
         echo "\\begin{tabular}{*{$num_columns}{l}}"
         echo "\\toprule"
 
@@ -293,8 +280,7 @@ function csv2tex_single_fallback() {
 
         echo "\\bottomrule"
         echo "\\end{tabular}"
-        echo "}"  # Close resizebox
-        
+
         if [ -f "$caption_file" ] || [ -L "$caption_file" ]; then
             if [ "$truncated" = true ]; then
                 # Add truncation note to caption

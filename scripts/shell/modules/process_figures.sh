@@ -905,6 +905,7 @@ compile_figure_tex_files() {
     local has_real_figures=false
     if [ ${#figure_files[@]} -gt 0 ]; then
         has_real_figures=true
+        # Don't add anything here - base.tex handles the section header and spacing
     fi
 
     # Variable to track if we're on the first figure
@@ -914,9 +915,15 @@ compile_figure_tex_files() {
         [ -e "$fig_tex" ] || continue
         local basename=$(basename "$fig_tex")
 
-        # Skip the header file if we have real figures
-        if [[ "$basename" == "00_Figures_Header.tex" ]] && [ "$has_real_figures" = true ]; then
-            continue
+        # Skip the header file completely if we have real figures
+        if [[ "$basename" == "00_Figures_Header.tex" ]]; then
+            if [ "$has_real_figures" = true ]; then
+                continue
+            else
+                # Only use the header template if no real figures exist
+                cat "$fig_tex" >> "$STXW_FIGURE_COMPILED_FILE"
+                continue
+            fi
         fi
         local figure_id=""
         local figure_number=""
@@ -982,13 +989,15 @@ compile_figure_tex_files() {
             caption_content="\\caption{\\textbf{Figure $figure_number}\\\\Description for figure $figure_number.}"
         fi
         echo "% Figure $figure_number" >> "$STXW_FIGURE_COMPILED_FILE"
-        # Only add \clearpage for figures after the first one
+        # Use [htbp] for all figures to allow flexible placement
         if [ "$first_figure" = true ]; then
             first_figure=false
+            # First figure right after header
+            echo "\\begin{figure*}[h!]" >> "$STXW_FIGURE_COMPILED_FILE"
         else
-            echo "\\clearpage" >> "$STXW_FIGURE_COMPILED_FILE"
+            # Allow consecutive figures without forced page breaks
+            echo "\\begin{figure*}[htbp]" >> "$STXW_FIGURE_COMPILED_FILE"
         fi
-        echo "\\begin{figure*}[p]" >> "$STXW_FIGURE_COMPILED_FILE"
         echo "    \\pdfbookmark[2]{Figure $figure_number}{.$figure_number}" >> "$STXW_FIGURE_COMPILED_FILE"
         echo "    \\centering" >> "$STXW_FIGURE_COMPILED_FILE"
         if [ "$figure_type" = "tikz" ]; then

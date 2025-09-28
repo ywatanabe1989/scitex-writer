@@ -185,10 +185,7 @@
   \thewordcount
 }
 
-% Use soul package for better text highlighting with line breaks
-\usepackage{soul}
-\sethlcolor{yellow}
-% Now \hl from soul package will be used directly for text that needs wrapping
+\newcommand{\hl}[1]{\colorbox{yellow}{#1}}
 
 %% Reference
 \usepackage{refcount}
@@ -206,7 +203,8 @@
 \let\oldref\ref
 \newcommand{\hlref}[1]{%
   \ifnum\getrefnumber{#1}=0
-    \colorbox{yellow}{\ref*{#1}}%  % Use colorbox for references (no line break needed)
+    \hl{\ref*{#1}}%
+    %% \sethlcolor{yellow}\hl{\ref*{#1}}%    
   \else
     \ref{#1}%
   \fi
@@ -843,51 +841,63 @@ The authors employed large language models such as Claude (Anthropic Inc.) for c
 \begin{table}[htbp]
 \centering
 \footnotesize
-\setlength{\tabcolsep}{3pt}
-\resizebox{\textwidth}{!}{%
-\begin{tabular}{lrrrrrr}
+\setlength{\tabcolsep}{6pt}
+\begin{tabular}{lll}
 \toprule
-\textbf{Patient Id} & \textbf{Seizure} & \textbf{Seizure Like Event} & \textbf{Abnormal Discharge} & \textbf{Interictal Control} & \textbf{Unknown} & \textbf{Total} \\
+\textbf{Patient Id} & \textbf{Seizure Type} & \textbf{Count} \\
 \midrule
-P01 & 65 & 86 & 0 & 151 & 0 & 302 \\
+P01 & TOTAL & 302 \\
 \rowcolor{gray!10}
-P02 & 31 & 1 & 0 & 32 & 0 & 64 \\
-P03 & 210 & 179 & 0 & 389 & 0 & 778 \\
+P01 & interictal\_control & 151 \\
+P01 & seizure & 65 \\
 \rowcolor{gray!10}
-P04 & 17 & 5 & 0 & 22 & 0 & 44 \\
-P05 & 6 & 3 & 0 & 9 & 0 & 18 \\
+P01 & seizure\_like\_event & 86 \\
+P02 & TOTAL & 64 \\
 \rowcolor{gray!10}
-P06 & 35 & 36 & 0 & 100 & 29 & 200 \\
-P07 & 80 & 232 & 2 & 314 & 0 & 628 \\
+P02 & interictal\_control & 32 \\
+P02 & seizure & 31 \\
 \rowcolor{gray!10}
-P08 & 221 & 246 & 0 & 467 & 0 & 934 \\
-P09 & 179 & 25 & 1 & 205 & 0 & 410 \\
+P02 & seizure\_like\_event & 1 \\
+P03 & TOTAL & 778 \\
 \rowcolor{gray!10}
-P10 & 288 & 257 & 4 & 549 & 0 & 1098 \\
-P11 & 177 & 290 & 0 & 467 & 0 & 934 \\
+P03 & interictal\_control & 389 \\
+P03 & seizure & 210 \\
 \rowcolor{gray!10}
-P12 & 7 & 6 & 2 & 15 & 0 & 30 \\
-P13 & 148 & 352 & 0 & 500 & 0 & 1000 \\
+P03 & seizure\_like\_event & 179 \\
+P04 & TOTAL & 44 \\
 \rowcolor{gray!10}
-P14 & 11 & 1 & 0 & 12 & 0 & 24 \\
-P15 & 64 & 13 & 0 & 77 & 0 & 154 \\
+P04 & interictal\_control & 22 \\
+P04 & seizure & 17 \\
+\rowcolor{gray!10}
+P04 & seizure\_like\_event & 5 \\
+P05 & TOTAL & 18 \\
+\rowcolor{gray!10}
+P05 & interictal\_control & 9 \\
+P05 & seizure & 6 \\
+\rowcolor{gray!10}
+P05 & seizure\_like\_event & 3 \\
+P06 & TOTAL & 200 \\
+\rowcolor{gray!10}
+P06 & interictal\_control & 100 \\
+P06 & seizure & 35 \\
+\rowcolor{gray!10}
+P06 & seizure\_like\_event & 36 \\
+P06 & unknown & 29 \\
+\rowcolor{gray!10}
+P07 & TOTAL & 628 \\
+P07 & abnormal\_discharge & 2 \\
+\rowcolor{gray!10}
+P07 & interictal\_control & 314 \\
+\midrule
+\multicolumn{3}{c}{\textit{... 36 rows omitted ...}} \\
+\midrule
+\rowcolor{gray!10}
+P15 & seizure & 64 \\
+P15 & seizure\_like\_event & 13 \\
 \bottomrule
 \end{tabular}
-}
 \captionsetup{width=\textwidth}
-%% -*- coding: utf-8 -*-
-%% Timestamp: "2025-09-28 19:49:06 (ywatanabe)"
-%% File: "/ssh:sp:/home/ywatanabe/proj/neurovista/paper/01_manuscript/contents/tables/caption_and_media/01_seizure_count.tex"
-\caption{\textbf{
-TABLE TITLE HERE
-}
-\smallskip
-\
-\text{
-TABLE CAPTION HERE.
-}}
-
-%%%% EOF
+\caption{Table 1_seizure_count: Default caption. Please edit ./01_manuscript/contents/tables/caption_and_media/01_seizure_count.tex to customize. \textit{Note: Table truncated to 30 rows from 65 total rows for display purposes.}}
 \label{tab:01_seizure_count}
 \end{table}
 

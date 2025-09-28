@@ -185,10 +185,7 @@
   \thewordcount
 }
 
-% Use soul package for better text highlighting with line breaks
-\usepackage{soul}
-\sethlcolor{yellow}
-% Now \hl from soul package will be used directly for text that needs wrapping
+\newcommand{\hl}[1]{\colorbox{yellow}{#1}}
 
 %% Reference
 \usepackage{refcount}
@@ -206,7 +203,8 @@
 \let\oldref\ref
 \newcommand{\hlref}[1]{%
   \ifnum\getrefnumber{#1}=0
-    \colorbox{yellow}{\ref*{#1}}%  % Use colorbox for references (no line break needed)
+    \hl{\ref*{#1}}%
+    %% \sethlcolor{yellow}\hl{\ref*{#1}}%    
   \else
     \ref{#1}%
   \fi
@@ -843,8 +841,7 @@ The authors employed large language models such as Claude (Anthropic Inc.) for c
 \begin{table}[htbp]
 \centering
 \footnotesize
-\setlength{\tabcolsep}{3pt}
-\resizebox{\textwidth}{!}{%
+\setlength{\tabcolsep}{6pt}
 \begin{tabular}{lrrrrrr}
 \toprule
 \textbf{Patient Id} & \textbf{Seizure} & \textbf{Seizure Like Event} & \textbf{Abnormal Discharge} & \textbf{Interictal Control} & \textbf{Unknown} & \textbf{Total} \\
@@ -873,20 +870,24 @@ P14 & 11 & 1 & 0 & 12 & 0 & 24 \\
 P15 & 64 & 13 & 0 & 77 & 0 & 154 \\
 \bottomrule
 \end{tabular}
-}
 \captionsetup{width=\textwidth}
 %% -*- coding: utf-8 -*-
-%% Timestamp: "2025-09-28 19:49:06 (ywatanabe)"
+%% Timestamp: "2025-09-28 19:30:57 (ywatanabe)"
 %% File: "/ssh:sp:/home/ywatanabe/proj/neurovista/paper/01_manuscript/contents/tables/caption_and_media/01_seizure_count.tex"
 \caption{\textbf{
 TABLE TITLE HERE
 }
 \smallskip
 \
-\text{
 TABLE CAPTION HERE.
-}}
+}
+% width=0.95\textwidth
+%% %% -*- coding: utf-8 -*-
+%% %% Timestamp: "2025-09-28 19:28:54 (ywatanabe)"
+%% %% File: "/ssh:sp:/home/ywatanabe/proj/neurovista/paper/01_manuscript/contents/tables/caption_and_media/01_seizure_count.tex"
+%% \caption{\textbf{Table 1_seizure_count: Default caption. Please edit ./01_manuscript/contents/tables/caption_and_media/01_seizure_count.tex to customize.}}
 
+%% %%%% EOF
 %%%% EOF
 \label{tab:01_seizure_count}
 \end{table}
