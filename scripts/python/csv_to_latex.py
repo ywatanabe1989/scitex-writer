@@ -75,8 +75,16 @@ def format_number(val):
         return val
 
 
-def csv_to_latex(csv_file, output_file, caption=None, label=None):
-    """Convert CSV to LaTeX table with proper formatting."""
+def csv_to_latex(csv_file, output_file, caption=None, label=None, max_rows=30):
+    """Convert CSV to LaTeX table with proper formatting.
+    
+    Args:
+        csv_file: Input CSV file path
+        output_file: Output LaTeX file path
+        caption: Optional table caption
+        label: Optional table label for references
+        max_rows: Maximum number of data rows to display (default: 30)
+    """
     
     # Read CSV with pandas for robust parsing
     try:
@@ -84,6 +92,23 @@ def csv_to_latex(csv_file, output_file, caption=None, label=None):
     except Exception as e:
         print(f"Error reading CSV: {e}", file=sys.stderr)
         return False
+    
+    # Store original row count for truncation message
+    original_rows = len(df)
+    truncated = False
+    
+    # Truncate if necessary
+    if len(df) > max_rows:
+        truncated = True
+        # Keep first N-3 rows and last 2 rows with separator
+        if max_rows > 5:
+            df_top = df.head(max_rows - 2)
+            df_bottom = df.tail(2)
+            # Create separator row with "..." in each column
+            separator = pd.DataFrame([['...' for _ in df.columns]], columns=df.columns)
+            df = pd.concat([df_top, separator, df_bottom], ignore_index=True)
+        else:
+            df = df.head(max_rows)
     
     # Extract metadata from filename
     csv_path = Path(csv_file)
@@ -115,15 +140,23 @@ def csv_to_latex(csv_file, output_file, caption=None, label=None):
     lines.append("\\begin{table}[htbp]")
     lines.append("\\centering")
     
-    # Adjust font size based on number of columns
-    if len(df.columns) > 6:
-        lines.append("\\tiny")
-    elif len(df.columns) > 4:
-        lines.append("\\footnotesize")
-    else:
-        lines.append("\\small")
+    # Use standard font size for tables
+    # Standard academic paper convention: \footnotesize (8pt) for tables
+    lines.append("\\footnotesize")
     
-    lines.append("\\setlength{\\tabcolsep}{6pt}")
+    # Adjust tabcolsep based on number of columns to fit width
+    num_columns = len(df.columns)
+    if num_columns > 8:
+        lines.append("\\setlength{\\tabcolsep}{2pt}")  # Very tight for many columns
+    elif num_columns > 6:
+        lines.append("\\setlength{\\tabcolsep}{3pt}")  # Tight spacing
+    elif num_columns > 4:
+        lines.append("\\setlength{\\tabcolsep}{4pt}")  # Medium spacing
+    else:
+        lines.append("\\setlength{\\tabcolsep}{6pt}")  # Normal spacing
+    
+    # Use resizebox to ensure table fits within text width
+    lines.append("\\resizebox{\\textwidth}{!}{%")
     
     # Begin tabular
     tabular_spec = ''.join(alignments)
@@ -143,31 +176,50 @@ def csv_to_latex(csv_file, output_file, caption=None, label=None):
     
     # Data rows
     for idx, row in df.iterrows():
-        # Add row coloring for readability
-        if idx % 2 == 1:
-            lines.append("\\rowcolor{gray!10}")
-        
         values = []
+        is_separator = False
+        
         for col in df.columns:
             val = row[col]
             
+            # Check if this is the separator row
+            if str(val) == '...':
+                is_separator = True
+            
             # Format the value
             if pd.notna(val):
-                val = format_number(val)
-                val = escape_latex(val)
+                if not is_separator:
+                    val = format_number(val)
+                    val = escape_latex(val)
             else:
                 val = "--"  # Display for missing values
             
             values.append(val)
         
-        lines.append(" & ".join(values) + " \\\\")
+        # Don't add row coloring for separator
+        if is_separator:
+            lines.append("\\midrule")
+            lines.append("\\multicolumn{" + str(len(df.columns)) + "}{c}{\\textit{... " + 
+                        f"{original_rows - max_rows + 1} rows omitted ..." + "}} \\\\")
+            lines.append("\\midrule")
+        else:
+            # Add row coloring for readability (skip separator in count)
+            if idx % 2 == 1:
+                lines.append("\\rowcolor{gray!10}")
+            lines.append(" & ".join(values) + " \\\\")
     
     lines.append("\\bottomrule")
     lines.append("\\end{tabular}")
+    lines.append("}")  # Close resizebox
     
     # Caption
     lines.append("\\captionsetup{width=\\textwidth}")
     if caption:
+        # Add truncation note to existing caption if needed
+        if truncated:
+            caption = caption.rstrip('}')
+            caption += f" \\textit{{Note: Table truncated to {max_rows} rows from {original_rows} total rows for display purposes.}}"
+            caption += "}"
         lines.append(caption)
     else:
         # Generate default caption
@@ -176,7 +228,10 @@ def csv_to_latex(csv_file, output_file, caption=None, label=None):
         else:
             lines.append(f"\\caption{{\\textbf{{{table_name.title()}}}")
         lines.append("\\\\")
-        lines.append("Data table generated from CSV file.")
+        if truncated:
+            lines.append(f"\\textit{{Note: Table truncated to {max_rows} rows from {original_rows} total rows for display purposes.}}")
+        else:
+            lines.append("Data table generated from CSV file.")
         lines.append("}")
     
     # Label

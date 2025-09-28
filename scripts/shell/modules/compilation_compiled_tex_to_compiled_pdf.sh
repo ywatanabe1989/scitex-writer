@@ -100,14 +100,19 @@ compiled_tex_to_pdf() {
 }
 
 cleanup() {
-    if [ -f "$STXW_COMPILED_PDF" ]; then
-        local size=$(du -h "$STXW_COMPILED_PDF" | cut -f1)
-        echo_success "    $STXW_COMPILED_PDF ready (${size})"
+    # Use fallback if STXW_COMPILED_PDF is not set or empty
+    local pdf_file="${STXW_COMPILED_PDF}"
+    if [ -z "$pdf_file" ]; then
+        pdf_file="./01_manuscript/manuscript.pdf"
+    fi
+    if [ -f "$pdf_file" ]; then
+        local size=$(du -h "$pdf_file" | cut -f1)
+        echo_success "    $pdf_file ready (${size})"
         sleep 1
     else
-        echo_error "    $STXW_COMPILED_PDF was not created"
+        echo_error "    $pdf_file was not created"
 
-        local log_file="${STXW_COMPILED_PDF%.pdf}.log"
+        local log_file="${pdf_file%.pdf}.log"
         if [ -f "$log_file" ]; then
             echo_error "    LaTeX errors:"
             grep "^!" "$log_file" 2>/dev/null | head -5
