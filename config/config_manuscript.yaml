@@ -1,4 +1,4 @@
-# Timestamp: "2025-09-27 18:59:11 (ywatanabe)"
+# Timestamp: "2025-09-28 20:19:34 (ywatanabe)"
 # File: ./paper/config/config_manuscript.yaml
 
 verbosity:
@@ -41,5 +41,32 @@ tables:
 misc:
   wordcount_dir: "./01_manuscript/contents/wordcounts"
   tree_txt: "./01_manuscript/docs/tree.txt"
+
+hot-recompile:
+  enabled: true
+  mode: "restart"  # "restart" or "wait" - how to handle ongoing compilations
+  stable_link: "./01_manuscript/manuscript-latest.pdf"  # Symlink (use rsync -L to follow)
+  watching_files:
+    # Content files
+    - "./01_manuscript/contents/*.tex"
+    - "./01_manuscript/contents/**/*.tex"
+    - "./01_manuscript/base.tex"
+    # Tables
+    - "./01_manuscript/contents/tables/caption_and_media/*.csv"
+    - "./01_manuscript/contents/tables/caption_and_media/*.tex"
+    # Figures
+    - "./01_manuscript/contents/figures/caption_and_media/*.tex"
+    - "./01_manuscript/contents/figures/caption_and_media/*.jpg"
+    - "./01_manuscript/contents/figures/caption_and_media/*.png"
+    - "./01_manuscript/contents/figures/caption_and_media/*.tif"
+    - "./01_manuscript/contents/figures/caption_and_media/*.pptx"
+    - "./01_manuscript/contents/figures/caption_and_media/*.mmd"
+    # Bibliography
+    - "./01_manuscript/contents/**/*.bib"
+    # Config
+    - "./config/*.yaml"
+    # Scripts (optional)
+    - "./scripts/shell/modules/*.sh"
+    - "./scripts/python/*.py"
 
 # EOF

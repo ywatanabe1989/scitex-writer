@@ -1,139 +1,33 @@
 %% -*- coding: utf-8 -*-
-%% Timestamp: "2025-09-27 22:37:36 (ywatanabe)"
+%% Timestamp: "2025-09-29 18:31:16 (ywatanabe)"
 %% File: "/ssh:sp:/home/ywatanabe/proj/neurovista/paper/01_manuscript/contents/results.tex"
 \section{Results}
 
-\subsection{Schematic illustration of the study}
+\subsection{Experimental Design}
+The NeuroVista dataset \cite{kuhlmann_epilepsyecosystemorg_2018} comprised continuous intracranial electroencephalogram recordings from 15 patients with drug-resistant focal epilepsy, totaling 4.1 TB of data collected over monitoring periods ranging from 6 months to 2 years (\ref{fig:demographic_data}A). Analysis focused on 1,539 Type 1 clinical seizures with verified clinical manifestations across all patients. The dataset provided XX patient-years of continuous recording (mean: XX months per patient, range: 6-14 months). Processing generated 10,000 PAC z-values per 1-minute window (25 phase bands × 25 amplitude bands × 16 channels), yielding 625 frequency-pair combinations per channel (\ref{fig:demographic_data}B). From these PAC matrices, 17 statistical descriptive features were extracted per time window, resulting in comprehensive temporal profiles spanning from 24 hours before seizure onset to 10 minutes post-onset using hybrid logarithmic-linear sampling (127 time points total). Interictal controls were defined from >4h seizures, matching the number of events and time of day (\ref{fig:demographic_data}C).
 
-\subsection{Demographic analysis of the NeuroVista Dataset}
-The NeuroVista dataset \cite{kuhlmann_epilepsyecosystemorg_2018} comprises continuous intracranial electroencephalogram recordings from 15 patients with drug-resistant focal epilepsy, totaling 4.1 TB of data collected over monitoring periods ranging from 6 months to 2 years (Figure 1A). The NeuroVista dataset includes 1,539 Type 1 clinical seizures labels verified clinical manifestations across all patients. Previous literature revealed circadian rythm of seizure occurrence. \cite{}
+\subsection{Time-dependent Pre-ictal PAC features}
+By treating PAC values as distributions, we computed 17 descriptive metrics\footnote{minimum ($\min_{{PAC}_z}$), maximum ($\max_{{PAC}_z}$), mean ($\mu_{{PAC}_z}$), standard deviation ($\sigma_{{PAC}_z}$), median ($Q_{50,{PAC}_z}$), 25th ($Q_{25,{PAC}_z}$) and 75th ($Q_{75,{PAC}_z}$) percentiles, kurtosis ($\kappa_{{PAC}_z}$), and skewness ($\gamma_{{PAC}_z}$) of PAC z-scores; Ashman's D statistic ($D_{Ashman,{PAC}_z}$), weight ratios ($w_{ratio,{PAC}_z}$), Bhattacharyya coefficient ($B_{coeff,{PAC}_z}$), and bimodality coefficient ($\beta_{coeff,{PAC}_z}$) from GMM fitting; circular mean ($\mu_{circ}$), concentration - inverse of circular variance ($\kappa_{circ}$), circular skewness ($\gamma_{circ}$), and circular kurtosis ($\kappa_{4,circ}$)} (\ref{fig:pac_basic}A). Brunner-Munzel tests were performed on descriptive metrics comparing seizure and interictal control groups across pre-seizure time windows\footnote{[-1370, -730), [-730, -310), [-310, -150), [-150, -70), [-70, -30), [-30, -10), [-10, -1) minutes relative to seizure onset} (\ref{fig:pac_basic}B). Linear regression analysis of effect size across preictal time bins demonstrated R² values exceeding 0.50 in 10 of 15 patients, indicating progressive accumulation of PAC feature changes toward seizure onset with patient-specific variability.
+                  
+\subsection{Seizure Pseudo-prospective Prediction Performance}
+Seizure prediction models achieved balanced accuracy of XX.X ± XX.X\% across 15 patients using [BEST PERFORMING ALGORITHM]. ROC-AUC values ranged from XX.X to XX.X (mean: XX.X ± XX.X), with [NUMBER] patients exceeding 0.70 threshold for clinical utility. Sensitivity reached XX.X ± XX.X\% while maintaining specificity of XX.X ± XX.X\%.
 
-The NeuroVista dataset provided iEEG recordings from 15 patients with drug-resistant focal epilepsy. We analyzed a total of XX patient-years of continuous recording (mean: XX months per patient, range: 6-14 months). Across all patients, we identified and analyzed:
-- Lead seizures (>4h inter-seizure interval): XXX events
-- All seizures (types 1 and 2): XXX events  
-- Interictal control segments: XXX matched segments
+Time-in-warning analysis demonstrated XX.X ± XX.X\% average duration under high-risk advisory states. False positive rates averaged XX.X alarms per hour (range: XX.X - XX.X), with [NUMBER] patients meeting clinical acceptability criteria (FPR/h ≤ 0.2).
 
-The 16-channel electrode arrays provided comprehensive spatial coverage of the seizure onset zones, with an average of XX ± XX channels showing significant PAC modulation during pre-ictal seizure periods.
+\subsection{Feature Importance Analysis}
 
-\subsection{Phase-Amplitude Coupling Patterns}
-
-\subsubsection{Baseline PAC Characteristics}
-During interictal periods (>4 hours from any seizure), we observed stable baseline PAC patterns with the following characteristics:
-- Dominant coupling between theta/alpha phase (4-13 Hz) and gamma amplitude (30-100 Hz)
-- Mean modulation index (MI): 0.XX ± 0.XX (z-score: 0 ± 1 by design)
-- Spatial heterogeneity: XX\% of channels showed significant PAC (z > 2)
-- Temporal stability: coefficient of variation < XX\% over 1-hour windows
-
-\subsubsection{Pre-ictal PAC Evolution}
-Analysis of the 60-minute pre-seizure period revealed progressive changes in PAC:
-- Significant increase in theta-gamma coupling starting XX ± XX minutes before seizure onset (p < 0.001, Wilcoxon signed-rank test)
-- Peak PAC z-scores: XX ± XX in the final 5 minutes before onset
-- Spatial spread: PAC elevation initially focal (XX ± XX channels) expanding to XX ± XX channels at onset
-- Frequency shift: Progressive increase in the optimal phase frequency from XX Hz to XX Hz approaching seizure
-
-\subsubsection{Ictal PAC Dynamics}
-During seizures, PAC showed dramatic alterations:
-- Maximum coupling strength: z-score = XX ± XX (p < 0.001 vs baseline)
-- Dominant frequency pairs: Phase XX-XX Hz coupled with amplitude XX-XX Hz
-- Spatial synchronization: XX\% increase in inter-channel PAC correlation
-- Temporal evolution: Initial spike within XX seconds of electrical onset, followed by sustained elevation
-
-\subsubsection{Post-ictal Recovery}
-Following seizure termination, PAC exhibited gradual normalization:
-- Recovery time to baseline: XX ± XX minutes
-- Transient suppression period: XX\% of seizures showed below-baseline PAC for XX ± XX minutes
-- Asymmetric recovery: Phase frequencies normalized faster (XX min) than amplitude frequencies (XX min)
-
-
-
-\subsection{GPU-accelerated calculation of phase-amplitude coupling}
-The GPU-accelerated PAC computation framework achieved approximately 100-fold speed improvements compared to conventional CPU-based implementations, reducing total computation time for the complete dataset from an estimated 14.2 years to 1.8 months using the Spartan HPC system's distributed GPU architecture. Processing latency for real-time applications was 1.7±0.3 minutes for 1-minute PAC computation windows, demonstrating feasibility for near real-time seizure monitoring applications \hlref{Table3}.
-
-	Memory efficiency optimizations through adaptive chunking and fp16 precision enabled processing of the complete 4.1 TB dataset within available HPC resources (320 GB total VRAM across multiple GPU nodes). Database storage using zlib compression achieved 78\% size reduction, with final processed PAC features requiring 847 GB storage compared to 3.9 TB for uncompressed data. These computational achievements enable comprehensive PAC analysis of large-scale, long-term electrophysiological datasets that were previously computationally intractable \hlref{Figure6}.
-
-% Exploratory analysis revealed heterogeneity in baseline PAC patterns both across patients and recording channels, providing justification for patient-specific modeling approaches. Baseline PAC strength, quantified using the modulation index across 625 phase-amplitude frequency pairs (25×25 combinations), showed significant variation between patients \hl{(Kruskal-Wallis H = 2,847.3, p < 0.001)} and channels within patients \hl{(nested ANOVA F = 89.4, p < 0.001)} \hlref{Figure2A}.
-
-% 	Inter-patient coefficient of variation for mean PAC strength ranged from \hl{0.23 to 0.67} across frequency pairs, with theta-gamma coupling (4-8 Hz phase, 60-100 Hz amplitude) showing the highest variability (CV = 0.61±0.12). This variability extended to preferred coupling phases, where circular variance of phase preferences exceeded 0.8 for 73\% of frequency pairs across patients, indicating substantial individual differences in neural synchronization patterns \hlref{Figure2B}. Channel-wise analysis within individual patients revealed consistent spatial patterns of PAC strength, with seizure onset zone channels exhibiting significantly higher baseline PAC compared to non-seizure onset channels (Wilcoxon signed-rank test, Z = -8.94, p < 0.001) \hlref{Figure2C}.
-
-% 	Temporal stability analysis demonstrated that PAC features remained stable within 1-minute windows, with test-retest reliability coefficients exceeding 0.85 for 89\% of frequency pairs during interictal periods. However, between-day variability was substantial (ICC = 0.42±0.18), emphasizing the importance of adaptive normalization approaches and patient-specific feature weighting in seizure prediction models \hlref{Figure3}.
-
-\subsection{Pre-ictal PAC Dynamics and Temporal Evolution}
-
-\subsection{Seizure Classification and Prediction Performance}
-
-\subsubsection{Classification Accuracy}
-Using PAC features extracted from 10-second windows, we trained patient-specific classifiers to discriminate pre-ictal from interictal states:
-- Mean AUC across patients: 0.XX ± 0.XX (range: 0.XX - 0.XX)
-- Optimal prediction horizon: XX minutes (sensitivity = XX\%, specificity = XX\%)
-- Feature importance: Theta-gamma PAC contributed XX\% of predictive power
-
-\subsubsection{Pseudo-prospective Evaluation}
-Testing on held-out data (post day 200) demonstrated:
-- Sensitivity for lead seizures: XX\% (XX/XX seizures detected)
-- False positive rate: XX per day
-- Time in warning: XX\% ± XX\%
-- Improvement over chance: XX\% (p < 0.001, permutation test)
-
-\subsubsection{Patient-specific Variability}
-Performance varied across patients, correlating with:
-- Seizure frequency (r = 0.XX, p < 0.05)
-- Electrode coverage of onset zone (r = 0.XX, p < 0.05)
-- Baseline PAC stability (r = -0.XX, p < 0.05)
-
-Best performing patients (n=3) achieved AUC > 0.XX with sensitivity > XX\% at <XX\% time in warning.
-
-% Machine learning classification using extracted PAC features achieved balanced accuracy of 0.55±0.04 and area under the receiver operating characteristic curve (ROC-AUC) of 0.58±0.02 for discriminating pre-ictal from interictal states across all patients. Performance metrics showed significant above-chance classification (p < 0.001, permutation test with 10,000 iterations), indicating reliable seizure prediction capability despite moderate effect sizes \hlref{Table2}.
-
-% 	Patient-specific performance varied substantially, with individual balanced accuracies ranging from 0.48 to 0.67 (median: 0.54). Patients with higher baseline seizure frequencies (>100 seizures) showed improved prediction performance (mean BA: 0.59±0.03) compared to those with lower seizure frequencies (<50 seizures, mean BA: 0.51±0.04, t = 3.2, p = 0.007). This relationship suggests that larger training datasets improve model generalization for patient-specific seizure patterns \hlref{Figure5A}.
-
-% 	Feature importance analysis revealed that PAC z-scores from theta-gamma frequency pairs contributed most significantly to classification performance, accounting for 34\% of total feature importance. Bimodality metrics from Gaussian mixture model fitting of PAC distributions provided additional discriminative power (18\% feature importance), while circular statistics of preferred coupling phases contributed moderately (12\% feature importance) \hlref{Figure5B}. Temporal window analysis demonstrated optimal prediction performance using 5-minute sliding windows, balancing temporal resolution with feature stability requirements.
-
-% \subsection{Cross-Validation and Generalization Analysis}
-% Stratified time series cross-validation maintaining temporal ordering and class balance yielded consistent performance across validation folds (CV coefficient of variation: 0.08±0.03). Leave-one-patient-out cross-validation demonstrated moderate generalization capability, with mean balanced accuracy of 0.52±0.06 when models trained on 14 patients were applied to held-out individuals. This reduction compared to within-patient performance (0.55±0.04) highlights the importance of patient-specific adaptation while indicating some transferable PAC patterns across individuals \hlref{Figure7}.
-
-% 	Temporal gap analysis between training and test sets (0-60 minutes) showed robust performance maintenance, with less than 3\% accuracy degradation for gaps up to 30 minutes. This temporal stability supports the clinical applicability of PAC-based seizure prediction, as models trained on historical data maintain predictive capability for future time periods within reasonable clinical timeframes.
-
-
-
-
-% \subsection{Spatial Distribution and Channel Consistency}
-
-% Analysis of PAC spatial patterns across the 16-channel arrays revealed:
-% - Consistent "driver" channels: XX ± XX channels per patient showed reliable pre-ictal PAC elevation
-% - Spatial gradient: PAC strength decreased with distance from seizure onset zone (correlation r = -0.XX, p < 0.01)
-% - Channel stability: XX\% of high-PAC channels remained consistent across multiple seizures
-% - Network effects: Increased inter-channel coupling preceded clinical manifestations by XX ± XX seconds
-
-
-\subsection{Temporal Patterns and Circadian Rhythms}
-
-Long-term PAC analysis revealed multi-scale temporal patterns:
-- Circadian modulation: Peak PAC at XX:XX hours (XX\% increase vs nadir)
-- Weekly patterns: XX\% of patients showed 7-day periodicity
-- Relationship to seizure timing: XX\% of seizures occurred within 2 hours of daily PAC maximum
-- Pre-seizure buildup: Gradual PAC increase over XX ± XX hours before seizure clusters
-
-% \subsection{Comparison with Traditional Features}
-
-% PAC-based prediction outperformed conventional EEG features:
-% - vs. Spectral power: +XX\% AUC improvement (p < 0.01)
-% - vs. Line length: +XX\% AUC improvement (p < 0.05)
-% - vs. Multi-feature combination: Comparable performance with XX\% fewer features
-
-% Combined models incorporating PAC with traditional features achieved marginal improvement (AUC increase: 0.XX, p = 0.XX).
-
-\label{sec:results}
 % Figure and table placeholders with descriptions
-% Figure 1: Patient demographics and seizure frequency distributions
-% Figure 2: PAC pattern heterogeneity across patients and channels  
-% Figure 3: Temporal stability of PAC features
-% Figure 4: Pre-ictal PAC dynamics and evolution
-% Figure 5: Classification performance and feature importance
-% Figure 6: Computational performance metrics
-% Figure 7: Cross-validation and generalization results
+% Figure 1: Experimental Design
+% Figure 2: Patient demographics and seizure frequency distributions
+% Figure 3: PAC pattern heterogeneity across patients and channels  
+% Figure 4: Temporal stability of PAC features
+% Figure 5: Pre-ictal PAC dynamics and evolution
+% Figure 6: Classification performance and feature importance
+% Figure S1: Computational performance metrics
 % Table 1: Patient demographics and recording characteristics
-% Table 2: Detailed classification performance metrics
-% Table 3: Computational performance benchmarks
+% Table 2: Detailed statistical test results for PAC features
+% Table 3: Detailed classification performance metrics
+% Table 4: Computational performance benchmarks
 
 \label{sec:results}
 
