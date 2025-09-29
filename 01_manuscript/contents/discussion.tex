@@ -1,5 +1,5 @@
 %% -*- coding: utf-8 -*-
-%% Timestamp: "2025-09-27 20:22:58 (ywatanabe)"
+%% Timestamp: "2025-09-29 10:48:53 (ywatanabe)"
 %% File: "/ssh:sp:/home/ywatanabe/proj/neurovista/paper/01_manuscript/contents/discussion.tex"
 
 \section{Discussion}
@@ -68,10 +68,19 @@
 % - Low false positive rates (XX per day) minimizing alarm fatigue
 % - Personalized risk assessments based on individual PAC patterns
 
+\subsection{Clinical implementation feasibility}
+\subsubsection{Computational Speed}
+   - Total processing latency: 110 seconds per minute
+     - Data acquisition and transfer: 15 seconds
+     - PAC computation: 30 seconds
+     - Result transmission: 5 seconds
+     - Buffer time: 60 seconds
+
 % Integration with existing seizure detection algorithms and consideration of circadian patterns could further enhance performance.
 
 % \subsection{Conclusion}
 % This comprehensive analysis of phase-amplitude coupling in long-term iEEG recordings provides robust evidence for PAC as a biomarker of seizure susceptibility. The progressive enhancement of theta-gamma coupling during pre-ictal periods offers both mechanistic insights and practical applications for seizure prediction. Our optimized computational pipeline and systematic database management approach enable scalable analysis applicable to next-generation implantable devices. While patient-specific variability remains a challenge, the consistent patterns across multiple seizures and patients support the clinical translation of PAC-based seizure forecasting systems. Future work should focus on real-time implementation, algorithm adaptation, and integration with therapeutic interventions to improve quality of life for patients with drug-resistant epilepsy.
+
 
 \label{sec:discussion}
 

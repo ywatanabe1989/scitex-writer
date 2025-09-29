@@ -1,20 +1,47 @@
 %% -*- coding: utf-8 -*-
-%% Timestamp: "2025-09-22 07:49:38 (ywatanabe)"
-%% File: "/ssh:sp:/home/ywatanabe/proj/neurovista/paper/manuscript/src/methods.tex"
+%% Timestamp: "2025-09-29 18:26:27 (ywatanabe)"
+%% File: "/ssh:sp:/home/ywatanabe/proj/neurovista/paper/01_manuscript/contents/methods.tex"
+
+%% Each section should be coherent and cohesive paragraphs and sentences
+
 \section{Methods}
 
+\subsection{Ethics}
+The NeuroVista dataset was previously collected through approved clinical trials with full informed consent from all participants. All data collection and analyses were conducted under ethical approval from the ethical committees of \hl{XXX}. 
+
 \subsection{Dataset and Study Design}
-Data were obtained from the NeuroVista clinical trial \hlref{Cook2013} through the International Epilepsy Electrophysiology Portal (ieeg.org). The dataset comprised continuous intracranial electroencephalogram (iEEG) recordings from 15 human subjects with drug-resistant focal epilepsy, collected under ethical approval from the original clinical trial \hlref{Ethics}. Each subject was implanted with 16-channel platinum-iridium electrode arrays positioned around the \hl{clinically-identified seizure onset zone}, with signals sampled at 400 Hz and wirelessly transmitted to an external personal advisory device. The total dataset encompassed 4.1 TB of continuous recordings, with individual monitoring periods ranging from 6 months to over 2 years. From the complete dataset containing multiple seizure types, this study specifically analyzed 1,539 Type 1 (clinical) seizures with verified clinical manifestations across the 15 patients to ensure clinical relevance and interpretability of prediction algorithms.
+The NeuroVista dataset, detailed in Cook et al. (2013) \hlref{Cook2013}, comprises continuous intracranial electroencephalogram (iEEG) recordings from 15 subjects with drug-resistant focal epilepsy. Data were collected via clinical trial through the International Epilepsy Electrophysiology Portal (ieeg.org) with subjects implanted with 16-channel platinum-iridium electrode arrays positioned around the clinically-identified seizure onset zone. Signals were sampled at 400 Hz and wirelessly transmitted to external personal advisory devices.
 
-	Seizures were classified following the original trial protocol into clinical (Type 1), clinically-equivalent (Type 2), and subclinical (Type 3) events. For this study, we focused exclusively on Type 1 seizures, which presented with observable clinical symptoms and clear electrographic patterns. Type 2 events (seizure-like events without clinical manifestations) and Type 3 events (subclinical seizures with distinct electrographic signatures) were excluded from analysis to maintain clinical relevance and ensure clear interpretation of prediction performance. Interictal control periods were selected from seizure-free intervals exceeding 4 hours from any Type 1 seizure event, matched for time of day to control for circadian influences on neural oscillations.
+The dataset encompasses 4.1 TB of continuous recordings with individual monitoring periods ranging from 6 months to over 2 years. From the complete dataset containing multiple seizure types, this study analyzed 1,539 Type 1 (clinical) seizures with verified clinical manifestations across all 15 patients to ensure clinical relevance and interpretability of prediction algorithms.
 
-\subsection{Data Preprocessing and Quality Control}
-The entire dataset was split into training, validation, and test sets following temporal progression to ensure pseudo-prospective evaluation. This temporal separation between training and testing phases prevents data leakage and provides realistic assessment of prediction performance. Training data comprised the earliest recordings, followed by validation data for hyperparameter tuning, with the most recent recordings reserved as held-out test data.
+\subsection{Definitions of Relative Temporal Windows from Seizure Onset}
+For each seizure event, relative to seizure onset ($t = 0$) spanning from -1440 minutes (24 hours) to +10 minutes were defined using the following sampling strategy to increase coverage of time windows while controlling computational applicability. Specifically, timestamps were generated using a hybrid sampling approach combining logarithmic and linear resolution:
 
-	Data integrity was maintained through cryptographic hashing (SHA-256) of all iEEG segments and seizure identifiers, enabling complete traceability and reproducibility of analyses. Each processed segment was stored with metadata including patient identifier, seizure type, exact timing, channel configuration, and processing parameters.
+\begin{equation}
+t_i = \begin{cases}
+-\text{round}(10^{(\log_{10}(60) + i \cdot \frac{\log_{10}(1440) - \log_{10}(60)}{N_{log}-1})}) & \text{for } i = 0, 1, \ldots, N_{log}-1 \text{ (logarithmic)} \\
+-60 + j & \text{for } j = 0, 1, \ldots, 70 \text{ (linear)}
+\end{cases}
+\end{equation}
 
-\subsection{Phase-Amplitude Coupling Analysis}
-\subsubsection{GPU-Accelerated Implementation}
+This approach provided (i) Logarithmic sampling from -1440 to -60 minutes with progressively denser resolution approaching seizure onset and (ii) Minute-by-minute linear sampling from -60 to +10 minutes capturing critical peri-ictal and early ictal dynamics.
+
+The complete set of 127 temporal sampling points (in minutes relative to seizure onset) comprised: -1440, -1360, -1285, -1214, -1147, -1084, -1024, -967, -914, -864, -816, -771, -728, -688, -650, -614, -580, -548, -518, -489, -462, -437, -413, -390, -368, -348, -329, -311, -293, -277, -262, -247, -234, -221, -209, -197, -186, -176, -166, -157, -148, -140, -132, -125, -118, -112, -105, -99, -94, -89, -84, -79, -75, -71, -67, -63, -60, -59, ..., -1, 0, 1, ..., 10.
+
+
+\subsection{Definitions of Seizure Period}
+
+Based on the standard of Epilepsy studies (\cite{Kuhlmann2018}), seizure periods were defined as follows: baseline period ($BL_{-1440--240}$) spanning 24 hours to 4 hours before seizure onset, early preictal period ($PI_{-240--60}$) from 4 hours to 1 hour before seizure onset, mid preictal period ($PI_{-60--30}$) covering 60 to 30 minutes before seizure onset, immediate preictal period ($PI_{-30--10}$) from 30 to 10 minutes before seizure onset, critical preictal period ($PI_{-10--1}$) spanning 10 to 1 minute before seizure onset, and ictal period ($I_{0-10}$) from seizure onset to 10 minutes post-onset. This temporal partitioning enables characterization of seizure-related brain state transitions across multiple time scales, from circadian-level changes to minute-by-minute dynamics approaching seizure onset.
+
+This temporal partitioning enables characterization of seizure-related brain state transitions across multiple time scales, from circadian-level changes to minute-by-minute dynamics approaching seizure onset.
+
+\subsection{Definitions of Interictal Control}
+
+For each Type 1 seizure, an equal number of interictal control segments were randomly sampled from the available seizure-free periods (>4 hours from any Type 1 seizure), ensuring balanced representation in subsequent classification analyses. Control segments (Interictal Control) were matched for time of day to account for patient-specific circadian seizure occurrence \cite{loddenkemper2011chrono} \cite{loddenkemper2011circad} \cite{karoly_circadian_2017}.
+
+
+\subsection{Phase-Amplitude Coupling Calculation}
+\subsubsection{gPAC: GPU-Accelerated Implementation}
 PAC strength was quantified using the modulation index (MI) \cite{Tort} following the Shannon entropy-based formulation: MI = 1 + $\\sum$(p $\\times$ log(p))/log(N), where p represents the normalized amplitude distribution across N phase bins and N = 18 bins (20° per bin). Computation was performed using a custom, standalone GPU-accelerated package (https://github.com/ywatanabe1989/gPAC) built on PyTorch with full vectorization across all frequency combinations. The implementation achieved approximately 100-fold speed improvement compared to conventional CPU-based methods through: (1) massive tensor operations eliminating nested loops, (2) optimized memory allocation utilizing up to 320GB total VRAM across multiple GPU nodes, and (3) batch processing with fp16 precision where appropriate. Processing leveraged the Spartan HPC system's distributed GPU architecture \hlref{Spartan} with automatic multi-GPU parallelization. Statistical significance was established using 200 surrogate datasets generated through circular phase shuffling, with PAC values z-score normalized relative to the surrogate distribution to eliminate spurious coupling.
 
 	For each 1-minute non-overlapping time window, PAC was computed between 25 phase frequency bands (2.0-30.0 Hz) and 25 amplitude frequency bands (60.0-180.0 Hz), resulting in a 625-element PAC matrix per channel per time point. Frequency bands were generated using field-standard adaptive bandwidths: phase bands employed bandwidth = f/2 (e.g., 10 Hz center frequency spans 7.5-12.5 Hz), while amplitude bands used bandwidth = f/4 (e.g., 100 Hz center frequency spans 87.5-112.5 Hz). This approach yielded phase bands with bandwidths ranging from 0.5 Hz to 11.9 Hz and amplitude bands with bandwidths from 7.5 Hz to 40.0 Hz. Phase and amplitude information were extracted through bandpass filtering followed by Hilbert transformation to obtain instantaneous phase and amplitude envelopes. MI quantified coupling strength using the Shannon entropy-based formulation across 18 phase bins (20° each):
@@ -25,52 +52,41 @@ MI = 1 + \frac{\sum_{j=1}^{N} p_j \log(p_j)}{\log(N)}
 
 where $p_j$ represents the normalized amplitude probability in phase bin $j$, and $N = 18$ indicates the number of phase bins. Values range from 0 (uniform amplitude distribution) to 1 (maximum concentration in single phase bin). PAC values were z-score normalized using 200 surrogate datasets generated through circular phase shifts to control for spurious coupling effects.
 
-	Missing values (NaN) in PAC computations arose from NaN values in recorded ECoG signals due to limited data type (int16), edge effects in filtering, or numerical instabilities in specific frequency combinations. NaN values found in ECoG signals were replaced with 0 while NaN values in PAC data were handled as is. Features derived from PAC matrices used nanmean, nanstd, and other NaN-aware statistical functions from NumPy to ensure robust computation despite missing values.
+	Missing values (NaN) in PAC computations arose from NaN values in recorded ECoG signals due to limited data type (16 bit integer), edge effects in filtering, or numerical instabilities in specific frequency combinations. NaN values found in ECoG signals were replaced with 0 while NaN values in PAC data were handled as is. Features derived from PAC matrices used nanmean, nanstd, and other NaN-aware statistical functions from NumPy to ensure robust computation despite missing values.
 
-\subsubsection{Temporal Windows and Event Definition}
-PAC dynamics were analyzed across multiple temporal scales relative to seizure onset. For each seizure event, computations spanned from -1440 minutes (24 hours) to +10 minutes post-onset, with adaptive temporal resolution optimized for seizure prediction. Timestamps relative to seizure onset ($t = 0$) were generated using conditional sampling:
+\subsubsection{Calculation Speed of gPAC}
 
-\begin{equation}
-t_i = \begin{cases}
--\text{round}(10^{(\log_{10}(60) + i \cdot \frac{\log_{10}(1440) - \log_{10}(60)}{N_{log}-1})}) & \text{for } i = 0, 1, \ldots, N_{log}-1 \text{ (logarithmic)} \\
--60 + j & \text{for } j = 0, 1, \ldots, 70 \text{ (linear)}
-\end{cases}
-\end{equation}
+The gPAC implementation achieved substantial computational efficiency improvements. Single processing unit performance demonstrated 20 seconds processing time per 1-minute segment with 400 Hz sampling rate across 16 channels, 25 phase bands, and 25 amplitude bands, generating 10,000 PAC z-values with 200 surrogate datasets. Large-scale analysis acceleration was achieved through distributed parallel computation on the Spartan HPC system utilizing multi-GPU architecture with automatic load balancing. This implementation delivered approximately 100-fold speed improvement over conventional CPU methods through memory optimization utilizing 320GB total VRAM capacity across multiple nodes.
 
-where logarithmic sampling from -1440 to -60 minutes provides denser resolution approaching seizure onset, and minute-by-minute linear sampling from -60 to +10 minutes captures critical peri-ictal to early ictal dynamics. The pre-ictal period was operationally defined as -60 to -5 minutes before seizure onset, based on previous seizure prediction studies \hlref{Kuhlmann2018} and clinical requirements for actionable warning times.
+%% \subsubsection{Calculation Speed of gPAC}
 
-	For each Type 1 seizure, an equal number of interictal control segments were randomly sampled from the available seizure-free periods (>4 hours from any Type 1 seizure), ensuring balanced representation in subsequent classification analyses. Control segments were matched for time of day to account for circadian variations \hl{\cite{Pip}} in PAC patterns. All random sampling employed fixed seeds (SHA-256 hash-based) for complete reproducibility across analyses.
+%% The gPAC implementation achieved substantial computational efficiency improvements:
 
-\subsection{Database Architecture and Storage}
-Processed PAC data were organized in patient-specific SQLite3 databases with hierarchical structure optimized for HPC storage allocation and concurrent write operations to maximize parallel computation efficiency. Each database contained three primary components: (1) metadata tables storing patient demographics, seizure annotations, and processing parameters; (2) PAC data tables with zlib-compressed binary large objects (BLOBs) achieving \hl{70-90\%} storage reduction; (3) quality assurance tables tracking computation timestamps, software versions, and validation metrics. The database schema enabled efficient retrieval of specific temporal windows, frequency bands, or statistical measures without loading complete datasets into memory. Database operations were handled using the scitex.db module, a custom database interface optimized for scientific computing workflows.
+%% 1. Single processing unit performance:
+%%    - 1-minute window: 20 seconds per segment
+%%    - Configuration: 400 Hz sampling, 16 channels, 25 phase bands, 25 amplitude bands
+%%    - Generates 10,000 PAC z-values with 200 surrogates
 
-	Data integrity was ensured through transaction-based writes with automatic rollback on errors, regular consistency checks comparing stored and computed checksums, and version control of all processing scripts with git-based tracking.
+%% 2. Large-scale analysis acceleration:
+%%    - Distributed parallel computation on Spartan HPC system
+%%    - Multi-GPU architecture with automatic load balancing
+%%    - 100-fold speed improvement over conventional CPU methods
+%%    - Memory optimization utilizing 320GB total VRAM capacity
+  
+\subsubsection{PAC Descriptive Features}
 
-\subsection{Machine Learning Classification}
-\subsubsection{Feature Engineering and Selection}
-From the raw PAC matrices, we extracted 17 statistical features per time window: mean, standard deviation, median, minimum, maximum, 25th/50th/75th percentiles, kurtosis, skewness of PAC z-scores, plus specialized bimodality metrics from Gaussian mixture model (GMM) fitting including Ashman's D statistic, weight ratios, Bhattacharyya coefficient, and bimodality coefficient. Additionally, circular statistics of the preferred coupling phase were computed: circular mean, concentration (inverse of circular variance), circular skewness, and circular kurtosis.
+From each 1-minute window with 25 phase bands, 25 amplitude bands, and 16 channels, PAC calculation generated 10,000 z-score PAC values (${PAC}_z$) and corresponding amplitude probabilities across phase bins. Considering them as general/circular distributions, we extracted 17 statistical features per time window: minimum ($\min_{{PAC}_z}$), maximum ($\max_{{PAC}_z}$), mean ($\mu_{{PAC}_z}$), standard deviation ($\sigma_{{PAC}_z}$), median ($Q_{50,{PAC}_z}$), 25th ($Q_{25,{PAC}_z}$) and 75th ($Q_{75,{PAC}_z}$) percentiles, kurtosis ($\kappa_{{PAC}_z}$), and skewness ($\gamma_{{PAC}_z}$) of PAC z-scores, plus specialized bimodality metrics from Gaussian Mixture Model (GMM) fitting including Ashman's D statistic ($D_{Ashman,{PAC}_z}$), weight ratios ($w_{ratio,{PAC}_z}$), Bhattacharyya coefficient ($B_{coeff,{PAC}_z}$), and bimodality coefficient ($\beta_{coeff,{PAC}_z}$). Additionally, circular statistics of the preferred coupling phase were computed: circular mean ($\mu_{circ}$), concentration - inverse of circular variance ($\kappa_{circ}$), circular skewness ($\gamma_{circ}$), and circular kurtosis ($\kappa_{4,circ}$).
 
-	\hl{Feature selection employed a data-driven approach combining univariate statistical testing (Mann-Whitney U test with false discovery rate correction), recursive feature elimination with using performances in validation dataset.}
+%% \subsection{Database Architecture and Storage}
+%% Processed PAC data were organized in patient-specific SQLite3 databases with hierarchical structure optimized for HPC storage allocation and concurrent write operations to maximize parallel computation efficiency. Each database contained three primary components: (1) metadata tables storing patient demographics, seizure annotations, and processing parameters; (2) PAC data tables with zlib-compressed binary large objects (BLOBs) achieving \hl{70-90\%} storage reduction; (3) quality assurance tables tracking computation timestamps, software versions, and validation metrics. The database schema enabled efficient retrieval of specific temporal windows, frequency bands, or statistical measures without loading complete datasets into memory. Database operations were handled using the scitex.db module, a custom database interface optimized for scientific computing workflows.
 
-\subsubsection{Classification Algorithms}
-\hl{Three classification approaches were evaluated: (1) logistic regression with L2 regularization for interpretable linear decision boundaries; (2) random forest with 100 estimators for capturing non-linear interactions; (3) support vector machines with radial basis function kernels for maximum-margin classification.} Additionally, a dummy classifier using stratified random predictions served as a baseline for performance comparison.
+%% 	Data integrity was ensured through transaction-based writes with automatic rollback on errors, regular consistency checks comparing stored and computed checksums, and version control of all processing scripts with git-based tracking.
 
-	For temporal context incorporation, we implemented sliding window classification where features from consecutive time points (window sizes of \hl{1, 3, 5, and 10 minutes}) were concatenated, allowing models to capture temporal evolution of PAC patterns. Window labeling followed the last time point in each window to maintain causal prediction constraints.
+\subsection{Seizure Type Classification}
+\subsection{Seizure Prediction}
 
-\subsubsection{Cross-Validation Strategy}
-Model evaluation employed stratified time series cross-validation maintaining temporal ordering and class balance. Specifically, 5-fold stratified time series cross-validation was employed with training and validation data split by 0.8:0.2 ratio. The custom splitter ensured test data always occurred chronologically after training data, with configurable gaps (0-60 minutes) between training and test sets to prevent temporal leakage. Within-patient validation used these 5-fold splits preserving the temporal sequence, while across-patient evaluation employed leave-one-patient-out validation to assess generalization.
-
-	Hyperparameter optimization utilized the validation set (20\% of training data) with \hl{grid search over regularization strengths} (logistic regression: C = 0.001 to 100), tree depths (random forest: 5 to 50), and kernel parameters (SVM: gamma = 0.001 to 10). \hl{Final models were retrained on complete training sets with optimal hyperparameters before evaluation on held-out test data}
-
-\subsection{Performance Metrics and Statistical Analysis}
-Classification performance was assessed using multiple complementary metrics addressing different aspects of seizure prediction requirements. Balanced accuracy weighted sensitivity and specificity equally, accounting for class imbalance. The area under the receiver operating characteristic curve (ROC-AUC) measured discrimination ability across all decision thresholds. Seizure-specific metrics included: sensitivity (proportion of correctly predicted seizures), time in warning (percentage of time under high-risk advisory), false positive rate per hour (FPR/h) normalized by prediction frequency, and alarm episode rate (consecutive false positives counted as single events).
-
-	Clinical acceptability thresholds were defined based on previous implantable device studies: sensitivity ≥90\% for reliable seizure detection, FPR/h ≤0.0033 (equivalent to ≤0.2 alarm episodes/hour for 1-minute resolution), and time in warning ≤20\% to minimize patient burden. Statistical significance was assessed using permutation tests (10,000 iterations) for individual metrics and DeLong's test for ROC curve comparisons, with Bonferroni correction for multiple comparisons across patients and time windows.
-
-\subsection{Visualization and Reporting}
-Results were visualized through multiple complementary approaches. Comodulograms displayed PAC strength across all phase-amplitude frequency combinations as 2D heatmaps with color scaling defined based on baseline periods. Temporal evolution plots showed PAC dynamics from -60 to +10 minutes around seizures with confidence intervals from bootstrap resampling. Channel-wise topographic maps illustrated spatial distribution of PAC across the 16-electrode array. Statistical significance maps highlighted frequency pairs with consistent pre-ictal changes across seizures.
-
-	All analyses were conducted using Python 3.10 with specialized libraries: PyTorch 2.0 for GPU computation, scikit-learn 1.3 for machine learning, MNE-Python 1.5 for electrophysiology-specific processing, and our custom SciTeX framework (https://github.com/ywatanabe1989/SciTeX-Code) for reproducible scientific computing. Complete code, processed features, and trained models are available at \hlref{DataAvailability} to facilitate reproduction and extension of our findings.
+\subsection{Reproducibility Measures}
+All random sampling employed fixed seeds of 42 for complete reproducibility across analyses.
 
 \label{sec:methods}
 

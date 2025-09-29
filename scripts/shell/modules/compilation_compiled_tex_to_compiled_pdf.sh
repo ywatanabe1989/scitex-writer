@@ -108,6 +108,25 @@ cleanup() {
     if [ -f "$pdf_file" ]; then
         local size=$(du -h "$pdf_file" | cut -f1)
         echo_success "    $pdf_file ready (${size})"
+        
+        # Create/update stable symlink to latest archive version (prevents corruption during compilation)
+        local latest_path="${STWX_ROOT_DIR}/manuscript-latest.pdf"
+        
+        # Find the latest archived version (highest version number)
+        local archive_dir="${STXW_VERSIONS_DIR}"
+        local latest_archive=$(ls -1 "$archive_dir"/manuscript_v[0-9]*.pdf 2>/dev/null | grep -v "_diff.pdf" | sort -V | tail -1)
+        
+        if [ -n "$latest_archive" ]; then
+            # Create relative symlink to archive
+            ln -sf "archive/$(basename "$latest_archive")" "$latest_path"
+            echo_success "    Symlink updated: $latest_path -> archive/$(basename "$latest_archive")"
+        else
+            # Fallback to current PDF if no archive exists
+            ln -sf "$(basename "$pdf_file")" "$latest_path"
+            echo_success "    Symlink updated: $latest_path -> $(basename "$pdf_file") (no archive yet)"
+        fi
+        # Note: For rsync, use -L flag to follow symlinks: rsync -avL ...
+        
         sleep 1
     else
         echo_error "    $pdf_file was not created"

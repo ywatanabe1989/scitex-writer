@@ -11,6 +11,8 @@
 # Default values
 DOC_TYPE=""
 SHOW_HELP=false
+WATCH_MODE=false
+WATCH_ARGS=""
 
 # Function to display usage
 show_usage() {
@@ -26,6 +28,8 @@ DOCUMENT TYPES:
 
 GLOBAL OPTIONS:
     -h, --help           Show this help message
+    -w, --watch          Enable watch mode for hot-recompiling
+                         (Only works with manuscript type)
 
 TYPE-SPECIFIC OPTIONS:
     Pass any additional options after the document type.
@@ -41,6 +45,10 @@ EXAMPLES:
     ./compile -m                        # Compile manuscript
     ./compile -s                        # Compile supplementary
     ./compile -r --track-changes        # Compile revision with options
+    
+    Watch mode:
+    ./compile -m -w                     # Watch and recompile manuscript
+    ./compile -m --watch                # Watch mode with long option
 
 DELEGATION:
     This script delegates to:
@@ -53,10 +61,10 @@ DELEGATION:
 EOF
 }
 
-# Parse first argument to determine document type
-if [ $# -eq 0 ]; then
-    DOC_TYPE="manuscript"
-else
+# Parse arguments
+REMAINING_ARGS=""
+
+while [ $# -gt 0 ]; do
     case $1 in
         manuscript|-m)
             DOC_TYPE="manuscript"
@@ -70,39 +78,75 @@ else
             DOC_TYPE="revision"
             shift
             ;;
+        -w|--watch)
+            WATCH_MODE=true
+            shift
+            ;;
         -h|--help)
             show_usage
             exit 0
             ;;
         *)
-            echo "ERROR: Unknown document type '$1'"
-            echo "Valid types: manuscript, supplementary, revision"
-            echo "Use './compile --help' for usage information"
-            exit 1
+            # Collect remaining arguments
+            if [ -z "$DOC_TYPE" ]; then
+                echo "ERROR: Unknown document type '$1'"
+                echo "Valid types: manuscript, supplementary, revision"
+                echo "Use './compile --help' for usage information"
+                exit 1
+            else
+                REMAINING_ARGS="$REMAINING_ARGS $1"
+                shift
+            fi
             ;;
     esac
+done
+
+# Default to manuscript if no type specified
+if [ -z "$DOC_TYPE" ]; then
+    DOC_TYPE="manuscript"
+fi
+
+# Check if watch mode is supported for this document type
+if [ "$WATCH_MODE" = true ] && [ "$DOC_TYPE" != "manuscript" ]; then
+    echo "ERROR: Watch mode is only supported for manuscript compilation"
+    echo "Use: ./compile -m -w"
+    exit 1
 fi
 
 # Display what we're doing
 echo "=========================================="
 echo "Compilation Interface"
 echo "  Document type: $DOC_TYPE"
-if [ $# -gt 0 ]; then
-    echo "  Additional options: $@"
+if [ "$WATCH_MODE" = true ]; then
+    echo "  Mode: WATCH (hot-recompile enabled)"
 fi
-echo "  Delegating to: ./scripts/shell/compile_$DOC_TYPE.sh"
+if [ -n "$REMAINING_ARGS" ]; then
+    echo "  Additional options:$REMAINING_ARGS"
+fi
+if [ "$WATCH_MODE" = true ]; then
+    echo "  Delegating to: ./scripts/shell/watch_compile.sh"
+else
+    echo "  Delegating to: ./scripts/shell/compile_$DOC_TYPE.sh"
+fi
 echo "=========================================="
+
+# Handle watch mode
+if [ "$WATCH_MODE" = true ]; then
+    # Run watch script for manuscript
+    ./scripts/shell/watch_compile.sh "$REMAINING_ARGS"
+    exit $?
+fi
 
 # Delegate to the appropriate compilation script
 case $DOC_TYPE in
     manuscript)
-        ./scripts/shell/compile_manuscript.sh "$@"
+        ./scripts/shell/compile_manuscript.sh $REMAINING_ARGS
         ;;
     supplementary)
-        ./scripts/shell/compile_supplementary.sh "$@"
+        ./scripts/shell/compile_supplementary.sh $REMAINING_ARGS
         ;;
     revision)
-        ./scripts/shell/compile_revision.sh "$@"
+        ./scripts/shell/compile_revision.sh $REMAINING_ARGS
         ;;
     *)
         echo "Error: Unknown document type: $DOC_TYPE"

@@ -1,6 +1,6 @@
 #!/bin/bash
 # -*- coding: utf-8 -*-
-# Timestamp: "2025-09-28 17:59:16 (ywatanabe)"
+# Timestamp: "2025-09-29 18:45:47 (ywatanabe)"
 # File: ./paper/scripts/shell/modules/process_figures.sh
 
 ORIG_DIR="$(pwd)"
@@ -196,11 +196,8 @@ ensure_caption() {
 %% -*- coding: utf-8 -*-
 %% Timestamp: "$(date +"%Y-%m-%d %H:%M:%S") (ywatanabe)"
 %% File: "$caption_tex_file"
-\caption{\textbf{
-FIGURE TITLE HERE
-}
+\caption{\textbf{FIGURE TITLE HERE}\\\\
 \smallskip
-\\
 FIGURE LEGEND HERE.
 }
 % width=0.95\textwidth

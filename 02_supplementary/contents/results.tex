@@ -1,1 +1,15 @@
+%% -*- coding: utf-8 -*-
+%% Timestamp: "2025-09-29 18:31:36 (ywatanabe)"
+%% File: "/ssh:sp:/home/ywatanabe/proj/neurovista/paper/02_supplementary/contents/results.tex"
 Supplementary Results
+
+\subsection{GPU-accelerated calculation of phase-amplitude coupling}
+The GPU-accelerated PAC computation framework achieved approximately 100-fold speed improvements compared to conventional CPU-based implementations, reducing total computation time for the complete dataset from an estimated 14.2 years to 1.8 months using the Spartan HPC system's distributed GPU architecture. Processing latency for real-time applications was 1.7±0.3 minutes for 1-minute PAC computation windows, demonstrating feasibility for near real-time seizure monitoring applications \hlref{Table3}.
+
+	Memory efficiency optimizations through adaptive chunking and fp16 precision enabled processing of the complete 4.1 TB dataset within available HPC resources (320 GB total VRAM across multiple GPU nodes). Database storage using zlib compression achieved 78\% size reduction, with final processed PAC features requiring 847 GB storage compared to 3.9 TB for uncompressed data. These computational achievements enable comprehensive PAC analysis of large-scale, long-term electrophysiological datasets that were previously computationally intractable \hlref{Figure6}.
+
+
+\subsection{Computational Performance and Implementation Efficiency}
+The gPAC implementation demonstrated substantial computational efficiency improvements, processing 1-minute ECoG segments in 20 seconds per unit (400 Hz sampling, 16 channels, 625 frequency pairs, 200 surrogates). Large-scale analysis utilizing distributed multi-GPU architecture achieved approximately 100-fold speed improvement over conventional CPU methods, enabling processing of the complete 4.1 TB dataset within [TIME DURATION].
+
+%%%% EOF
