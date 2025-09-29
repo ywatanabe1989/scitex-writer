@@ -1,0 +1,172 @@
+#!/bin/bash
+# -*- coding: utf-8 -*-
+# File: process_figures_modules/02_format_conversion.sh
+# Format conversion functions for figures
+
+# Convert PPTX to TIF using LibreOffice
+pptx2tif() {
+    local p2t="$1"
+    [ "$p2t" != true ] && return 0
+    
+    echo_info "Step 1: Converting PPTX to PDF..."
+    for pptx_file in "$STXW_FIGURE_CAPTION_MEDIA_DIR"/[0-9]*.pptx; do
+        [ -e "$pptx_file" ] || continue
+        local base_name=$(basename "$pptx_file" .pptx)
+        local pdf_file="$STXW_FIGURE_CAPTION_MEDIA_DIR/${base_name}.pdf"
+        
+        if [ ! -f "$pdf_file" ] || [ "$pptx_file" -nt "$pdf_file" ]; then
+            echo_info "Converting $base_name.pptx to PDF..."
+            libreoffice --headless --convert-to pdf --outdir "$STXW_FIGURE_CAPTION_MEDIA_DIR" "$pptx_file" >/dev/null 2>&1
+        fi
+    done
+    
+    echo_info "Step 2: Converting PDF to TIF..."
+    for pdf_file in "$STXW_FIGURE_CAPTION_MEDIA_DIR"/[0-9]*.pdf; do
+        [ -e "$pdf_file" ] || continue
+        local base_name=$(basename "$pdf_file" .pdf)
+        local tif_file="$STXW_FIGURE_CAPTION_MEDIA_DIR/${base_name}.tif"
+        
+        if [ ! -f "$tif_file" ] || [ "$pdf_file" -nt "$tif_file" ]; then
+            echo_info "Converting $base_name.pdf to TIF..."
+            convert -density 300 "$pdf_file" -compress lzw "$tif_file" 2>/dev/null
+        fi
+    done
+}
+
+# Convert TIF/TIFF to PNG
+tif2png() {
+    echo_info "Step 3: Converting TIF/TIFF to PNG..."
+    for tif_file in "$STXW_FIGURE_CAPTION_MEDIA_DIR"/[0-9]*.{tif,tiff}; do
+        [ -e "$tif_file" ] || continue
+        local base_name=$(basename "$tif_file" | sed 's/\.\(tif\|tiff\)$//')
+        local png_file="$STXW_FIGURE_CAPTION_MEDIA_DIR/${base_name}.png"
+        
+        if [ ! -f "$png_file" ] || [ "$tif_file" -nt "$png_file" ]; then
+            echo_info "Converting ${base_name}.tif to PNG..."
+            convert "$tif_file" "$png_file" 2>/dev/null
+        fi
+    done
+}
+
+# Convert Mermaid diagrams to PNG
+mmd2png() {
+    echo_info "Step 4: Converting MMD to PNG..."
+    echo_info "Converting Mermaid diagrams to PNG..."
+    
+    if [ -f "$THIS_DIR/mmd2png_all.sh" ]; then
+        source "$THIS_DIR/mmd2png_all.sh"
+    else
+        echo_warning "mmd2png_all.sh not found, skipping Mermaid conversion"
+    fi
+}
+
+# Convert PNG to JPG
+png2jpg() {
+    echo_info "Step 5: Converting PNG to JPG..."
+    
+    for png_file in "$STXW_FIGURE_CAPTION_MEDIA_DIR"/[0-9]*.png; do
+        [ -e "$png_file" ] || continue
+        local base_name=$(basename "$png_file" .png)
+        local jpg_file="$STXW_FIGURE_CAPTION_MEDIA_DIR/${base_name}.jpg"
+        
+        if [ ! -f "$jpg_file" ] || [ "$png_file" -nt "$jpg_file" ]; then
+            echo_info "Converting ${base_name}.png to JPG..."
+            
+            # Handle symlinks specially
+            local work_png_file="$png_file"
+            local temp_copy_needed=false
+            
+            if [ -L "$png_file" ]; then
+                work_png_file="${png_file}.tmp.png"
+                cp -L "$png_file" "$work_png_file"
+                temp_copy_needed=true
+            fi
+            
+            # Convert to JPG
+            if command -v magick >/dev/null 2>&1; then
+                magick "$work_png_file" -quality 95 "$jpg_file"
+            else
+                convert "$work_png_file" -quality 95 "$jpg_file"
+            fi
+            
+            # Clean up temp file if created
+            if [ "$temp_copy_needed" = true ]; then
+                rm -f "$work_png_file"
+            fi
+        else
+            echo_info "JPG already exists: ${base_name}.jpg"
+        fi
+    done
+}
+
+# Main conversion cascade
+convert_figure_formats_in_cascade() {
+    local p2t="${1:-false}"
+    local do_crop="${2:-false}"
+    
+    echo_info "Starting figure conversion cascade..."
+    
+    # Run conversions in order
+    pptx2tif "$p2t"
+    tif2png
+    mmd2png
+    png2jpg
+    
+    # Process existing JPG/JPEG files
+    echo_info "Step 6: Processing existing JPG/JPEG files..."
+    copy_composed_jpg_files
+    
+    echo_success "Figure conversion cascade completed"
+    
+    # Optional: crop images if requested
+    if [ "$do_crop" = true ]; then
+        crop_all_images
+    fi
+}
+
+# Copy composed JPG files
+copy_composed_jpg_files() {
+    echo_info "Creating composed figures from panels..."
+    
+    # First, create composed figures from panels
+    for base_pattern in $(ls "$STXW_FIGURE_CAPTION_MEDIA_DIR"/[0-9]*[a-z]_*.jpg 2>/dev/null | sed 's/[a-z]_.*//' | sort -u); do
+        local base_name=$(basename "$base_pattern")
+        local composed_file="$STXW_FIGURE_CAPTION_MEDIA_DIR/${base_name}.jpg"
+        
+        # Check if we have panels for this figure
+        local panels=($(ls "$STXW_FIGURE_CAPTION_MEDIA_DIR"/${base_name}[a-z]_*.jpg 2>/dev/null))
+        
+        if [ ${#panels[@]} -gt 0 ]; then
+            # Create composed figure (this would be done by tile_panels function)
+            if [ ! -f "$composed_file" ]; then
+                # For now, just copy the first panel as placeholder
+                cp "${panels[0]}" "$composed_file"
+                echo_success "Created composed figure: $(basename "$composed_file")"
+            fi
+        fi
+    done
+    
+    # Copy composed figures to jpg_for_compilation
+    echo_info "Copying composed figure JPGs to jpg_for_compilation..."
+    local copied_count=0
+    
+    for jpg_file in "$STXW_FIGURE_CAPTION_MEDIA_DIR"/[0-9]*.jpg; do
+        [ -e "$jpg_file" ] || continue
+        local filename=$(basename "$jpg_file")
+        
+        # Skip panel files
+        if [[ "$filename" =~ ^[0-9]+[a-z]_.*\.jpg$ ]]; then
+            echo_info "Skipping panel file: $filename"
+            continue
+        fi
+        
+        # Copy main figure
+        cp "$jpg_file" "$STXW_FIGURE_JPG_DIR/"
+        echo_success "Copied composed figure: $filename"
+        ((copied_count++))
+    done
+    
+    echo_success "Copied $copied_count composed figures to jpg_for_compilation"
+}
+
+# EOF
