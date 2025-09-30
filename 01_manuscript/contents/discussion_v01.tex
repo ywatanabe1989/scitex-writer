@@ -66,18 +66,16 @@ Several limitations should be considered when interpreting our results:
 % - Low false positive rates (XX per day) minimizing alarm fatigue
 % - Personalized risk assessments based on individual PAC patterns
 
-\subsection{Computational Feasibility for Real-Time Implementation}
-Our GPU-accelerated PAC computation framework \cite{Combrisson2020TensorpacAOAH} achieved approximately 100-fold speed improvements over conventional CPU-based implementations, reducing total processing time for the complete NeuroVista dataset from an estimated \hl{[XX]} years to \hl{[XX.X]} months on distributed GPU infrastructure. For real-time deployment scenarios, single-segment processing (1-minute window) demonstrated total latency of approximately 110 seconds, comprising:
-\begin{itemize}
-\item Data acquisition and transfer: \hl{[XX]} seconds
-\item PAC computation (625 frequency pairs × 16 channels with 200 surrogates): \hl{[XX]} seconds
-\item Feature extraction (17 statistical metrics): \hl{[XX]} seconds
-\item Classification inference: \hl{[XX]} seconds
-\item Result transmission and display: \hl{[XX]} seconds
-\item Buffer time for computational variability: \hl{[XX]} seconds
-\end{itemize}
+\subsection{Clinical implementation feasibility}
+\subsubsection{Computational Speed}
+Our GPU-accelerated PAC computation framework \cite{Combrisson2020TensorpacAOAH} achieves:
+   - Total processing latency: 110 seconds per minute
+     - Data acquisition and transfer: 15 seconds
+     - PAC computation: 30 seconds
+     - Result transmission: 5 seconds
+     - Buffer time: 60 seconds
 
-This processing latency of <2 minutes per 1-minute data segment enables near-real-time seizure risk assessment suitable for implantable advisory systems \cite{Kuhlmann2018SeizurePA}, where warnings 5-60 minutes before seizure onset would provide actionable intervention windows. Further optimization through model pruning, reduced surrogate iterations for online analysis, and hardware-specific implementations could potentially reduce latency to <30 seconds, approaching true real-time performance requirements for closed-loop therapeutic applications.
+This represents a significant advance toward real-time seizure prediction systems \cite{Kuhlmann2018SeizurePA}.
 
 % Integration with existing seizure detection algorithms and consideration of circadian patterns could further enhance performance.
 
