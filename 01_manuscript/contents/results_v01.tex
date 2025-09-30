@@ -1,0 +1,35 @@
+%% -*- coding: utf-8 -*-
+%% Timestamp: "2025-09-29 18:31:16 (ywatanabe)"
+%% File: "/ssh:sp:/home/ywatanabe/proj/neurovista/paper/01_manuscript/contents/results.tex"
+\section{Results}
+
+\subsection{Experimental Design}
+The NeuroVista dataset \cite{Kuhlmann2018SeizurePA} comprised continuous intracranial electroencephalogram recordings from 15 patients with drug-resistant focal epilepsy, totaling 4.1 TB of data collected over monitoring periods ranging from 6 months to 2 years (\ref{fig:demographic_data}A). Analysis focused on 1,539 Type 1 clinical seizures with verified clinical manifestations across all patients. The dataset provided XX patient-years of continuous recording (mean: XX months per patient, range: 6-14 months). Processing generated 10,000 PAC z-values per 1-minute window (25 phase bands × 25 amplitude bands × 16 channels), yielding 625 frequency-pair combinations per channel (\ref{fig:demographic_data}B). From these PAC matrices, 17 statistical descriptive features were extracted per time window, resulting in comprehensive temporal profiles spanning from 24 hours before seizure onset to 10 minutes post-onset using hybrid logarithmic-linear sampling (127 time points total). Interictal controls were defined from >4h seizures, matching the number of events and time of day (\ref{fig:demographic_data}C).
+
+\subsection{Time-dependent Pre-ictal PAC features}
+By treating PAC values as distributions, we computed 17 descriptive metrics\footnote{minimum ($\min_{{PAC}_z}$), maximum ($\max_{{PAC}_z}$), mean ($\mu_{{PAC}_z}$), standard deviation ($\sigma_{{PAC}_z}$), median ($Q_{50,{PAC}_z}$), 25th ($Q_{25,{PAC}_z}$) and 75th ($Q_{75,{PAC}_z}$) percentiles, kurtosis ($\kappa_{{PAC}_z}$), and skewness ($\gamma_{{PAC}_z}$) of PAC z-scores; Ashman's D statistic ($D_{Ashman,{PAC}_z}$), weight ratios ($w_{ratio,{PAC}_z}$), Bhattacharyya coefficient ($B_{coeff,{PAC}_z}$), and bimodality coefficient ($\beta_{coeff,{PAC}_z}$) from GMM fitting; circular mean ($\mu_{circ}$), concentration - inverse of circular variance ($\kappa_{circ}$), circular skewness ($\gamma_{circ}$), and circular kurtosis ($\kappa_{4,circ}$)} (\ref{fig:pac_basic}A). Brunner-Munzel tests were performed on descriptive metrics comparing seizure and interictal control groups across pre-seizure time windows\footnote{[-1370, -730), [-730, -310), [-310, -150), [-150, -70), [-70, -30), [-30, -10), [-10, -1) minutes relative to seizure onset} (\ref{fig:pac_basic}B). Linear regression analysis of effect size across preictal time bins demonstrated R² values exceeding 0.50 in 10 of 15 patients, indicating progressive accumulation of PAC feature changes toward seizure onset with patient-specific variability \cite{Kuhlmann2018SeizurePA}.
+                  
+\subsection{Seizure Pseudo-prospective Prediction Performance}
+Seizure prediction models achieved balanced accuracy of XX.X ± XX.X\% across 15 patients using [BEST PERFORMING ALGORITHM] \cite{Messaoud2021RandomFCR,Hussein2022MultiChannelVTE}. ROC-AUC values ranged from XX.X to XX.X (mean: XX.X ± XX.X), with [NUMBER] patients exceeding 0.70 threshold for clinical utility \cite{Kuhlmann2018SeizurePA}. Sensitivity reached XX.X ± XX.X\% while maintaining specificity of XX.X ± XX.X\%.
+
+Time-in-warning analysis demonstrated XX.X ± XX.X\% average duration under high-risk advisory states. False positive rates averaged XX.X alarms per hour (range: XX.X - XX.X), with [NUMBER] patients meeting clinical acceptability criteria (FPR/h ≤ 0.2) \cite{Freestone2015SeizurePSBF}.
+
+\subsection{Feature Importance Analysis}
+Feature importance analysis revealed that PAC features related to theta-gamma coupling provided the most discriminative power for seizure prediction \cite{Ahn2022TheFIT,Radiske2020CrossFrequencyPCAR}, consistent with theories of cross-frequency interactions in epileptic networks \cite{Ponzi2023ThetagammaPAAT}. Patient-specific feature patterns highlighted the importance of individualized models \cite{Aldahr2023PatientSpecificPPL,Pinto2021APAP}.
+
+% Figure and table placeholders with descriptions
+% Figure 1: Experimental Design
+% Figure 2: Patient demographics and seizure frequency distributions
+% Figure 3: PAC pattern heterogeneity across patients and channels  
+% Figure 4: Temporal stability of PAC features
+% Figure 5: Pre-ictal PAC dynamics and evolution
+% Figure 6: Classification performance and feature importance
+% Figure S1: Computational performance metrics
+% Table 1: Patient demographics and recording characteristics
+% Table 2: Detailed statistical test results for PAC features
+% Table 3: Detailed classification performance metrics
+% Table 4: Computational performance benchmarks
+
+\label{sec:results}
+
+%%%% EOF
