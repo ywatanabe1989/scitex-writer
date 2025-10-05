@@ -90,11 +90,31 @@ check_optional_command() {
     fi
 }
 
-check_optional_command "pdflatex" "LaTeX compiler" 
+check_optional_command "pdflatex" "LaTeX compiler"
 check_optional_command "bibtex" "BibTeX processor"
 check_optional_command "latexdiff" "LaTeX diff tool"
 check_optional_command "mmdc" "Mermaid diagram tool"
 check_optional_command "convert" "ImageMagick"
+
+echo
+echo_info "Python dependencies for bibliography tools:"
+# Check Python packages
+check_python_package() {
+    local package=$1
+    local description=$2
+    local install_hint=$3
+
+    if python3 -c "import $package" &> /dev/null; then
+        echo_success "✓ $description ($package)"
+    else
+        echo_warning "○ $description ($package not found)"
+        if [ -n "$install_hint" ]; then
+            echo_info "  Install with: $install_hint"
+        fi
+    fi
+}
+
+check_python_package "bibtexparser" "BibTeX parser" "pip install bibtexparser"
 
 echo
 echo_info "Module system (for HPC):"

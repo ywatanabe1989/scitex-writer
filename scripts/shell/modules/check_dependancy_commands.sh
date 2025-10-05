@@ -197,6 +197,17 @@ check_mmdc() {
     return 0
 }
 
+check_bibtexparser() {
+    if command -v python3 &> /dev/null; then
+        if ! python3 -c "import bibtexparser" &> /dev/null 2>&1; then
+            echo "- bibtexparser (for bibliography analysis tools)"
+            echo "    - pip install bibtexparser"
+            return 1
+        fi
+    fi
+    return 0
+}
+
 # Check all required commands
 check_all_dependencies() {
     local has_missing_required=false
@@ -217,7 +228,7 @@ check_all_dependencies() {
     done
 
     # Optional tools
-    for checker in check_opencv check_numpy check_mmdc; do
+    for checker in check_opencv check_numpy check_mmdc check_bibtexparser; do
         output=$($checker)
         if [ -n "$output" ]; then
             has_missing_optional=true

@@ -43,7 +43,8 @@ _count_elements() {
     local output_file="$3"
 
     if [[ -n $(find "$dir" -name "$pattern" 2>/dev/null) ]]; then
-        count=$(ls "$dir"/$pattern | wc -l)
+        # Count files matching pattern, excluding *_Header.tex and FINAL.tex
+        count=$(ls "$dir"/$pattern 2>/dev/null | grep -v "_Header.tex" | grep -v "FINAL.tex" | wc -l)
         echo $count > "$output_file"
     else
         echo "0" > "$output_file"
@@ -66,11 +67,11 @@ _count_words() {
 }
 
 count_tables() {
-    _count_elements "$STXW_TABLE_COMPILED_DIR" ".*.tex" "$STXW_WORDCOUNT_DIR/table_count.txt"
+    _count_elements "$STXW_TABLE_COMPILED_DIR" "[0-9]*.tex" "$STXW_WORDCOUNT_DIR/table_count.txt"
 }
 
 count_figures() {
-    _count_elements "$STXW_FIGURE_COMPILED_DIR" ".*.tex" "$STXW_WORDCOUNT_DIR/figure_count.txt"
+    _count_elements "$STXW_FIGURE_COMPILED_DIR" "[0-9]*.tex" "$STXW_WORDCOUNT_DIR/figure_count.txt"
 }
 
 count_IMRaD() {
