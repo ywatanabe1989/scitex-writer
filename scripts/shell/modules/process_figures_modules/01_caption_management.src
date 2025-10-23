@@ -1,0 +1,99 @@
+#!/bin/bash
+# -*- coding: utf-8 -*-
+# File: process_figures_modules/01_caption_management.sh
+# Caption file management for figures
+
+ensure_caption() {
+    # Create caption files only for main figures, NOT for panels
+    for img_file in "$STXW_FIGURE_CAPTION_MEDIA_DIR"/[0-9]*.{tif,tiff,jpg,jpeg,png,svg,mmd,pptx}; do
+        [ -e "$img_file" ] || continue
+        local ext="${img_file##*.}"
+        local filename=$(basename "$img_file")
+        
+        # SKIP panel files - they should NOT have caption files
+        # Panels are identified by pattern: ##[a-zA-Z]_* (e.g., 01a_, 02b_)
+        if [[ "$filename" =~ ^[0-9]+[a-zA-Z]_ ]]; then
+            echo_info "Skipping caption for panel: $filename"
+            continue
+        fi
+        
+        local caption_tex_file="$STXW_FIGURE_CAPTION_MEDIA_DIR/${filename%.$ext}.tex"
+        local template_tex_file="$STXW_FIGURE_CAPTION_MEDIA_DIR/templates/.00_template.tex"
+        
+        if [ ! -f "$caption_tex_file" ] && [ ! -L "$caption_tex_file" ]; then
+            if [ -f "$template_tex_file" ]; then
+                cp "$template_tex_file" "$caption_tex_file"
+                echo_info "Created caption from template: $caption_tex_file"
+            else
+                # Create default caption template
+                cat <<EOF > "$caption_tex_file"
+%% -*- coding: utf-8 -*-
+%% Timestamp: "$(date +"%Y-%m-%d %H:%M:%S") ($(whoami))"
+%% File: "$caption_tex_file"
+\caption{\textbf{FIGURE TITLE HERE}\\\\
+\smallskip
+FIGURE LEGEND HERE.
+}
+% width=0.95\textwidth
+%%%% EOF
+EOF
+                echo_info "Created default caption: $caption_tex_file"
+            fi
+        fi
+    done
+}
+
+# Remove any existing panel caption files that shouldn't exist
+cleanup_panel_captions() {
+    echo_info "Cleaning up panel caption files..."
+    local count=0
+    
+    for tex_file in "$STXW_FIGURE_CAPTION_MEDIA_DIR"/[0-9]*[a-zA-Z]_*.tex; do
+        [ -e "$tex_file" ] || continue
+        local filename=$(basename "$tex_file")
+        
+        # Check if this is a panel caption file
+        if [[ "$filename" =~ ^[0-9]+[a-zA-Z]_.*\.tex$ ]]; then
+            echo_warning "Removing panel caption file: $filename"
+            rm -f "$tex_file"
+            ((count++))
+        fi
+    done
+    
+    if [ $count -gt 0 ]; then
+        echo_success "Removed $count panel caption files"
+    fi
+}
+
+# Compile figure legends/captions
+compile_legends() {
+    # Process captions for compiled directory
+    for tex_file in "$STXW_FIGURE_CAPTION_MEDIA_DIR"/[0-9]*.tex; do
+        [ -e "$tex_file" ] || continue
+        local filename=$(basename "$tex_file")
+        
+        # Skip panel caption files if any still exist
+        if [[ "$filename" =~ ^[0-9]+[a-zA-Z]_.*\.tex$ ]]; then
+            continue
+        fi
+        
+        # Extract figure ID and create compiled version
+        local base_name="${filename%.tex}"
+        local figure_id="${base_name}"
+        
+        # Create compiled caption
+        local compiled_file="$STXW_FIGURE_COMPILED_DIR/${figure_id}.tex"
+        
+        # Copy the caption content with metadata
+        {
+            echo "% FIGURE METADATA - Figure ID ${figure_id}, Number ${figure_id}"
+            echo "% FIGURE TYPE: Image"
+            echo "% This is not a standalone LaTeX environment - it will be included by compile_figure_tex_files"
+            
+            # Parse existing caption file
+            cat "$tex_file" | grep -v "^%"
+        } > "$compiled_file"
+    done
+}
+
+# EOF

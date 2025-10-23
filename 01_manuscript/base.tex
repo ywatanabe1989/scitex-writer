@@ -1,0 +1,104 @@
+%% -*- coding: utf-8 -*-
+%% Timestamp: "2025-09-27 22:21:42 (ywatanabe)"
+%% File: "/ssh:sp:/home/ywatanabe/proj/neurovista/paper/01_manuscript/base.tex"
+\UseRawInputEncoding
+
+%% ----------------------------------------
+%% SETTINGS
+%% ----------------------------------------
+\input{./01_manuscript/contents/latex_styles/columns}
+\input{./01_manuscript/contents/latex_styles/packages}
+\input{./01_manuscript/contents/latex_styles/linker}
+\input{./01_manuscript/contents/latex_styles/formatting}
+\link[supple-]{./02_supplementary/supplementary}
+
+%% ----------------------------------------
+%% JOURNAL NAME
+%% ----------------------------------------
+\input{./01_manuscript/contents/journal_name}
+
+%% ----------------------------------------
+%% START of DOCUMENT
+%% ----------------------------------------
+\begin{document}
+
+%% ----------------------------------------
+%% Frontmatter
+%% ----------------------------------------
+\begin{frontmatter}
+\input{./01_manuscript/contents/highlights}
+\input{./01_manuscript/contents/title}
+\input{./01_manuscript/contents/authors}
+\input{./01_manuscript/contents/graphical_abstract}
+\input{./01_manuscript/contents/abstract}
+\input{./01_manuscript/contents/keywords}
+\end{frontmatter}
+
+%% ----------------------------------------
+%% Word Counter
+%% ----------------------------------------
+\input{./01_manuscript/contents/wordcount}
+
+%% ----------------------------------------
+%% INTRODUCTION
+%% ----------------------------------------
+\input{./01_manuscript/contents/introduction}
+
+%% ----------------------------------------
+%% METHODS
+%% ----------------------------------------
+\input{./01_manuscript/contents/methods}
+
+%% ----------------------------------------
+%% RESULTS
+%% ----------------------------------------
+\input{./01_manuscript/contents/results}
+
+%% ----------------------------------------
+%% DISCUSSION
+%% ----------------------------------------
+\input{./01_manuscript/contents/discussion}
+
+%% ----------------------------------------
+%% REFERENCE STYLES
+%% ----------------------------------------
+\pdfbookmark[1]{References}{references}
+\bibliography{./01_manuscript/contents/bibliography}
+\input{./01_manuscript/contents/latex_styles/bibliography}
+
+%% ----------------------------------------
+%% DATA AVAILABILITY
+%% ----------------------------------------
+\input{./01_manuscript/contents/data_availability}
+
+%% ----------------------------------------
+%% ADDITIONAL INFORMATION
+%% ----------------------------------------
+\input{./01_manuscript/contents/additional_info}
+
+%% ----------------------------------------
+%% TABLES
+%% ----------------------------------------
+\clearpage
+\section*{Tables}
+\label{tables}
+\pdfbookmark[1]{Tables}{tables}
+\vspace{1cm}
+\input{./01_manuscript/contents/tables/compiled/FINAL}
+
+%% ----------------------------------------
+%% FIGURES
+%% ----------------------------------------
+\clearpage
+\section*{Figures}
+\label{figures}
+\pdfbookmark[1]{Figures}{figures}
+\vspace{1cm}
+\input{./01_manuscript/contents/figures/compiled/FINAL}
+
+%% ----------------------------------------
+%% END of DOCUMENT
+%% ----------------------------------------
+\end{document}
+
+%%%% EOF

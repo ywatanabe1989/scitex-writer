@@ -60,16 +60,16 @@ SciTex is organized into three main components:
 
 - `manuscript/`: Main manuscript directory
   - `main.tex`: Main document entry point
-  - `src/`: Content sections
+  - `contents/`: Content sections
   - `scripts/`: Automation scripts
 
 - `revision/`: For revision responses
-  - `src/`: Revision content
+  - `contents/`: Revision content
   - `editor/`: Editor comments and responses
   - `reviewer*/`: Reviewer comments and responses
 
 - `supplementary/`: Supplementary materials
-  - `src/`: Supplementary content
+  - `contents/`: Supplementary content
   - `figures/`: Supplementary figures
   - `tables/`: Supplementary tables
 
@@ -79,10 +79,10 @@ SciTex is organized into three main components:
 
 Edit the following files to create your manuscript:
 
-- `manuscript/src/*.tex`: Section files (introduction, methods, etc.)
-- `manuscript/src/bibliography.bib`: Bibliography file
-- `manuscript/src/figures/`: Figure directories
-- `manuscript/src/tables/`: Table directories
+- `manuscript/contents/*.tex`: Section files (introduction, methods, etc.)
+- `manuscript/contents/bibliography.bib`: Bibliography file
+- `manuscript/contents/figures/`: Figure directories
+- `manuscript/contents/tables/`: Table directories
 
 ### 2. Compile the Document
 
@@ -143,23 +143,23 @@ SciTex provides a comprehensive system for managing figures and tables in scient
 ### Figure Organization
 
 Figures follow a specific organizational structure:
-- `manuscript/src/figures/src/`: Place source files here with naming format `Figure_ID_XX.tif`
-- `manuscript/src/figures/src/Figure_ID_XX.tex`: Caption files with matching names
-- `manuscript/src/figures/compiled/`: Auto-generated compilation files
-- `manuscript/src/figures/templates/`: Templates for creating new figures
+- `manuscript/contents/figures/contents/`: Place source files here with naming format `.XX.tif`
+- `manuscript/contents/figures/contents/.XX.tex`: Caption files with matching names
+- `manuscript/contents/figures/compiled/`: Auto-generated compilation files
+- `manuscript/contents/figures/templates/`: Templates for creating new figures
 
 ### Table Organization
 
 Tables follow a similar structure:
-- `manuscript/src/tables/src/`: Place source files here with naming format `Table_ID_XX.csv`
-- `manuscript/src/tables/src/Table_ID_XX.tex`: Caption files with matching names
-- `manuscript/src/tables/compiled/`: Auto-generated compilation files
+- `manuscript/contents/tables/contents/`: Place source files here with naming format `.XX.csv`
+- `manuscript/contents/tables/contents/.XX.tex`: Caption files with matching names
+- `manuscript/contents/tables/compiled/`: Auto-generated compilation files
 
 ### Naming Conventions
 
 All figures and tables must follow these naming conventions:
-- Figures: `Figure_ID_XX.tif/tex` (e.g., `Figure_ID_01_workflow.tif`)
-- Tables: `Table_ID_XX.csv/tex` (e.g., `Table_ID_01_results.csv`)
+- Figures: `.XX.tif/tex` (e.g., `.01_workflow.tif`)
+- Tables: `.XX.csv/tex` (e.g., `.01_results.csv`)
 
 The ID number in the filename is used for LaTeX reference labels, automatically generating `\label{fig:XX}` or `\label{tab:XX}`.
 
@@ -195,7 +195,7 @@ The ID number in the filename is used for LaTeX reference labels, automatically 
 ### Creating Tables
 
 1. **Create CSV File**:
-   Place a CSV file in `manuscript/src/tables/src/` with the naming format `Table_ID_XX.csv`
+   Place a CSV file in `manuscript/contents/tables/contents/` with the naming format `.XX.csv`
 
 2. **Create Caption File**:
    Create a corresponding `.tex` file with the same name containing:
@@ -225,7 +225,7 @@ During manuscript compilation:
 
 1. The system automatically:
    - Converts figures to appropriate formats
-   - Generates JPEG versions for preview
+   - Generates JPEG archive for preview
    - Compiles figure and table captions
    - Creates LaTeX inclusion code
    - Adds proper references and labels
@@ -245,10 +245,10 @@ During manuscript compilation:
 SciTex includes a versioning system:
 
 ```bash
-./.scripts/sh/.clear_versions.sh  # Reset versioning from v001
+./.scripts/sh/.clear_archive.sh  # Reset versioning from v001
 ```
 
-Previous versions are stored in:
+Previous archive are stored in:
 - `manuscript/main/old/`
 
 ## Python API
@@ -392,7 +392,7 @@ manuscript/
 ├── scripts/         # Processing scripts
 │   ├── py/          # Python utilities
 │   └── sh/          # Shell scripts
-└── src/             # Content source files
+└── contents/             # Content source files
     ├── abstract.tex
     ├── introduction.tex
     ├── methods.tex
@@ -411,7 +411,7 @@ The `revision/` directory contains materials for responding to reviewer comments
 revision/
 ├── main.tex         # Main revision document
 ├── compile          # Compilation script
-└── src/             # Response content
+└── contents/             # Response content
     ├── reviewer1/   # Responses to reviewer 1
     ├── reviewer2/   # Responses to reviewer 2
     └── editor/      # Responses to editor
@@ -425,7 +425,7 @@ The `supplementary/` directory contains supplementary materials:
 supplementary/
 ├── main.tex         # Main supplementary document
 ├── compile          # Compilation script
-└── src/             # Supplementary content
+└── contents/             # Supplementary content
     ├── methods.tex
     ├── results.tex
     ├── figures/     # Supplementary figures
@@ -495,12 +495,12 @@ SciTex provides a standardized system for managing figures and tables.
 ### Figure Directory Structure
 
 ```
-manuscript/src/figures/
+manuscript/contents/figures/
 ├── compiled/           # Auto-generated LaTeX files (DO NOT EDIT)
-├── src/                # Source files (PLACE YOUR FILES HERE)
-│   ├── Figure_ID_XX.tif  # Source image files
-│   ├── Figure_ID_XX.tex  # Caption files
-│   └── jpg/              # Auto-generated JPEG versions
+├── contents/                # Source files (PLACE YOUR FILES HERE)
+│   ├── .XX.tif  # Source image files
+│   ├── .XX.tex  # Caption files
+│   └── jpg/              # Auto-generated JPEG archive
 ├── templates/          # Templates for new figures
 └── .tex/               # Hidden directory for compiled figure files
 ```
@@ -509,7 +509,7 @@ manuscript/src/figures/
 
 All figures must follow this pattern:
 ```
-Figure_ID_XX_descriptive_name.ext
+.XX_descriptive_name.ext
 ```
 
 Where:
@@ -521,19 +521,19 @@ Where:
 ### Table Directory Structure
 
 ```
-manuscript/src/tables/
+manuscript/contents/tables/
 ├── compiled/           # Auto-generated LaTeX files (DO NOT EDIT)
-└── src/                # Source files (PLACE YOUR FILES HERE)
-    ├── Table_ID_XX.csv  # Source data files
-    ├── Table_ID_XX.tex  # Caption files
-    └── _Table_ID_XX.tex # Template file
+└── contents/                # Source files (PLACE YOUR FILES HERE)
+    ├── .XX.csv  # Source data files
+    ├── .XX.tex  # Caption files
+    └── _.XX.tex # Template file
 ```
 
 ### Table Naming Conventions
 
 All tables must follow this pattern:
 ```
-Table_ID_XX_descriptive_name.ext
+.XX_descriptive_name.ext
 ```
 
 Where:
@@ -628,8 +628,8 @@ SciTex uses specific LaTeX conventions to ensure consistent formatting.
 ### Adding a New Figure
 
 1. Create your figure in TIF format (300 DPI recommended)
-2. Name it following the convention: `Figure_ID_XX_description.tif`
-3. Place it in `manuscript/src/figures/src/`
+2. Name it following the convention: `.XX_description.tif`
+3. Place it in `manuscript/contents/figures/contents/`
 4. Create a caption file with the same name but `.tex` extension
 5. Reference it in text with `Figure~\ref{fig:XX}`
 6. Compile with the `-f` or `--figs` flag
@@ -637,15 +637,15 @@ SciTex uses specific LaTeX conventions to ensure consistent formatting.
 ### Adding a New Table
 
 1. Create your table data in CSV format
-2. Name it following the convention: `Table_ID_XX_description.csv`
-3. Place it in `manuscript/src/tables/src/`
+2. Name it following the convention: `.XX_description.csv`
+3. Place it in `manuscript/contents/tables/contents/`
 4. Create a caption file with the same name but `.tex` extension
 5. Reference it in text with `Table~\ref{tab:XX}`
 6. Compile the document
 
 ### Updating Bibliography
 
-1. Edit the `manuscript/src/bibliography.bib` file
+1. Edit the `manuscript/contents/bibliography.bib` file
 2. Add new entries following BibTeX format:
    ```bibtex
    @article{author_year,

@@ -6,10 +6,10 @@ This guide provides a quick reference for common tasks and commands in SciTex.
 
 ### Basic Workflow
 
-1. Edit content files in `manuscript/src/`
-2. Add figures to `manuscript/src/figures/src/`
-3. Add tables to `manuscript/src/tables/src/`
-4. Add citations to `manuscript/src/bibliography.bib`
+1. Edit content files in `manuscript/contents/`
+2. Add figures to `manuscript/contents/figures/contents/`
+3. Add tables to `manuscript/contents/tables/contents/`
+4. Add citations to `manuscript/contents/bibliography.bib`
 5. Compile with `./compile`
 6. View PDF in `manuscript/main/manuscript.pdf`
 
@@ -18,7 +18,7 @@ This guide provides a quick reference for common tasks and commands in SciTex.
 ```
 SciTex/
 ├── manuscript/         # Main manuscript
-│   ├── src/            # Source files
+│   ├── contents/            # Source files
 │   │   ├── figures/    # Figure files
 │   │   ├── tables/     # Table files
 │   │   └── *.tex       # Content files (intro, methods, etc.)
@@ -34,10 +34,10 @@ SciTex/
 ### Adding a Figure
 
 1. Create your figure image (300 DPI PNG recommended)
-2. Save in `manuscript/src/figures/src/` as `Figure_ID_XX_description.png`
+2. Save in `manuscript/contents/figures/contents/` as `.XX_description.png`
    - Replace `XX` with sequential number (01, 02, etc.)
-   - Use descriptive name (e.g., `Figure_ID_01_workflow.png`)
-3. Create caption file `Figure_ID_XX_description.tex` with same name
+   - Use descriptive name (e.g., `.01_workflow.png`)
+3. Create caption file `.XX_description.tex` with same name
 4. Reference in text: `Figure~\ref{fig:XX}`
 5. Compile with figures: `./compile --figs`
 
@@ -89,14 +89,14 @@ python examples/advanced_multipanel_figure.py --id 06 --name complex_analysis
 python
 import multipanel_helper as mph
 fig, axes = mph.create_multi_panel_layout(2, 2, panel_labels=['A', 'B', 'C', 'D'])
-mph.generate_caption_template('Figure_ID_07_analysis.tex', title='Analysis of results')
+mph.generate_caption_template('.07_analysis.tex', title='Analysis of results')
 ```
 
 ### PowerPoint to PNG Conversion
 
 If you create figures in PowerPoint:
 
-1. Save your PowerPoint file to `manuscript/src/figures/src/Figure_ID_XX_description.pptx`
+1. Save your PowerPoint file to `manuscript/contents/figures/contents/.XX_description.pptx`
 2. Run conversion: `./compile -m --pptx2png`
 3. Creates PNG files automatically
 4. Continue with normal figure workflow
@@ -117,7 +117,7 @@ Figures~\ref{fig:01} and \ref{fig:02}  % Multiple figures
 
 If figures don't appear or look incorrect:
 
-1. Check debug files in `manuscript/src/figures/compiled/debug/`
+1. Check debug files in `manuscript/contents/figures/compiled/debug/`
 2. Verify image paths and existence
 3. Ensure proper caption format
 4. Rebuild using `./compile -m --figs --debug`
@@ -126,11 +126,11 @@ If figures don't appear or look incorrect:
 
 ### Adding a Table
 
-1. Create data as CSV: `Table_ID_XX_description.csv`
+1. Create data as CSV: `.XX_description.csv`
    - Replace `XX` with sequential number (01, 02, etc.)
-   - Use descriptive name (e.g., `Table_ID_01_results.csv`)
-2. Save in `manuscript/src/tables/src/`
-3. Create caption file `Table_ID_XX_description.tex` with same name
+   - Use descriptive name (e.g., `.01_results.csv`)
+2. Save in `manuscript/contents/tables/contents/`
+3. Create caption file `.XX_description.tex` with same name
 4. Reference in text: `Table~\ref{tab:XX}`
 5. Compile: `./compile`
 
@@ -220,7 +220,7 @@ Tables~\ref{tab:01} and \ref{tab:02} % Multiple tables
 When you run `./compile`:
 
 1. Figures and tables are processed (if --figs flag is used)
-2. All text files from `src/` are gathered
+2. All text files from `contents/` are gathered
 3. LaTeX is compiled to generate PDF
 4. If requested, GPT processes the text (citations, terminology)
 5. Output files are generated in the `main/` directory
@@ -244,14 +244,14 @@ open revision/main/revision.pdf
 ### Content Files
 
 ```
-manuscript/src/
+manuscript/contents/
 ├── abstract.tex           # Abstract
 ├── introduction.tex       # Introduction
 ├── methods.tex            # Methods
 ├── results.tex            # Results
 ├── discussion.tex         # Discussion
 ├── bibliography.bib       # References in BibTeX format
-├── styles/                # Style definitions
+├── latex_styles/                # Style definitions
 │   ├── packages.tex       # Package imports
 │   └── formatting.tex     # Format settings
 ```
@@ -259,14 +259,14 @@ manuscript/src/
 ### Asset Files
 
 ```
-manuscript/src/figures/
-├── src/                   # Figure source files (your files go here)
+manuscript/contents/figures/
+├── contents/                   # Figure source files (your files go here)
 ├── compiled/              # Auto-generated figure files (don't edit)
 ├── jpg/                   # Processed images (don't edit)
 └── templates/             # Figure templates
 
-manuscript/src/tables/
-├── src/                   # Table source files (your files go here)
+manuscript/contents/tables/
+├── contents/                   # Table source files (your files go here)
 └── compiled/              # Auto-generated table files (don't edit)
 ```
 
@@ -284,11 +284,11 @@ manuscript/main/
 
 ### Missing Figures
 
-1. Check that figure files exist in the correct directory (`manuscript/src/figures/src/`)
-2. Verify file naming matches the convention (`Figure_ID_XX_description.png`)
+1. Check that figure files exist in the correct directory (`manuscript/contents/figures/contents/`)
+2. Verify file naming matches the convention (`.XX_description.png`)
 3. Ensure `--figs` flag was used during compilation
 4. Check for errors in the figure caption file
-5. Look at debug logs in `manuscript/src/figures/compiled/debug/`
+5. Look at debug logs in `manuscript/contents/figures/compiled/debug/`
 6. Try rebuilding with `./compile -m --figs --debug`
 
 ### Incorrect References

@@ -39,7 +39,7 @@
 ## GH Aliases and Functions
 #### $HOME/.bash.d/010_github/github_add_release.src
 #### $HOME/.bash.d/010_github/github_basics.src
-#### $HOME/.bash.d/010_github/github_config.src
+#### $HOME/.bash.d/010_github/github_load_config.sh
 #### $HOME/.bash.d/010_github/github_jump.src
 #### $HOME/.bash.d/010_github/github_variables.src
 

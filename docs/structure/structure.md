@@ -21,7 +21,7 @@ The SciTex project is organized into several main components:
 The manuscript component is the core of the project and contains:
 
 - **main.tex** - The primary LaTeX file that combines all sections
-- **src/** - Contains all the content sections, figures, tables, and styles
+- **contents/** - Contains all the content sections, figures, tables, and latex_styles
   - **LaTeX files** - Main content files
     - introduction.tex - Introduction section
     - methods.tex - Methods section
@@ -30,13 +30,13 @@ The manuscript component is the core of the project and contains:
     - abstract.tex - Abstract section
     - bibliography.bib - Bibliography file
   - **figures/** - Directory for figures and their templates
-    - src/ - Source figure files (tif and tex caption files)
+    - contents/ - Source figure files (tif and tex caption files)
     - compiled/ - Compiled figure files ready for inclusion
     - templates/ - Templates for creating new figures
   - **tables/** - Directory for tables
-    - src/ - Source CSV and caption files
+    - contents/ - Source CSV and caption files
     - compiled/ - Compiled table files
-  - **styles/** - Contains formatting and styling LaTeX files
+  - **latex_styles/** - Contains formatting and styling LaTeX files
 - **scripts/** - Automation tools
   - Python scripts for AI-assisted tasks
   - Shell scripts for compilation and general automation
@@ -83,7 +83,7 @@ The shell scripts automate the compilation and manuscript preparation:
 The revision component helps manage the peer review process:
 
 - **main.tex** - Main LaTeX file for the revision response
-- **src/** - Source files for revision 
+- **contents/** - Source files for revision 
   - **reviewer1/**, **reviewer2/** - Directories for each reviewer
     - comments.tex - Reviewer comments
     - response.tex - Author responses
@@ -96,7 +96,7 @@ The revision component helps manage the peer review process:
 The supplementary component contains additional materials:
 
 - **main.tex** - Main LaTeX file for supplementary materials
-- **src/** - Source files for supplementary content
+- **contents/** - Source files for supplementary content
   - LaTeX source files
   - figures/ - Supplementary figures
   - tables/ - Supplementary tables
@@ -151,9 +151,9 @@ The tests directory contains the project test suite:
 
 The SciTex project follows a clear data flow for manuscript preparation:
 
-1. **Content Creation** - Authors write content in src/*.tex files
-2. **Figure Preparation** - Figures are prepared and placed in src/figures/src/
-3. **Table Preparation** - Tables are prepared and placed in src/tables/src/
+1. **Content Creation** - Authors write content in contents/*.tex files
+2. **Figure Preparation** - Figures are prepared and placed in contents/figures/contents/
+3. **Table Preparation** - Tables are prepared and placed in contents/tables/contents/
 4. **AI Assistance** - GPT models help with revision, term checking, and citations
 5. **Compilation** - Shell scripts compile everything into final PDF
 6. **Version Management** - Changes are tracked and versioned

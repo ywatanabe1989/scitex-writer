@@ -1,0 +1,47 @@
+%% -*- coding: utf-8 -*-
+%% Timestamp: "2025-09-29 18:31:16 (ywatanabe)"
+%% File: "/ssh:sp:/home/ywatanabe/proj/neurovista/paper/01_manuscript/contents/results.tex"
+\section{Results}
+
+%% ============================================================
+%% ORIGINAL VERSION (PRESERVED AS COMMENTS):
+%% ============================================================
+%% The NeuroVista dataset comprised continuous intracranial electroencephalogram recordings from 15 patients with drug-resistant focal epilepsy, totaling 4.1 TB of data collected over monitoring periods ranging from 6 months to 2 years. Analysis focused on 1,539 Type 1 clinical seizures with verified clinical manifestations across all patients. The dataset provided XX patient-years of continuous recording (mean: XX months per patient, range: 6-14 months). Processing generated 10,000 PAC z-values per 1-minute window (25 phase bands × 25 amplitude bands × 16 channels), yielding 625 frequency-pair combinations per channel. From these PAC matrices, 17 statistical descriptive features were extracted per time window, resulting in comprehensive temporal profiles spanning from 24 hours before seizure onset to 10 minutes post-onset using hybrid logarithmic-linear sampling (127 time points total). Interictal controls were defined from >4h seizures, matching the number of events and time of day.
+%% ============================================================
+
+\subsection{Dataset Characteristics and Analysis Pipeline}
+The NeuroVista dataset \cite{Kuhlmann2018SeizurePA} comprised 4.1 TB of continuous intracranial electroencephalogram recordings from 15 patients with drug-resistant focal epilepsy monitored over 6 months to 2 years (Figure~\ref{fig:demographic_data}A). Patient demographics showed \hl{[XX]} males and \hl{[XX]} females (age range: \hl{[XX-XX]} years, mean: \hl{[XX.X±XX.X]} years), with focal epilepsy etiologies including temporal lobe epilepsy (\hl{n=[XX]}), frontal lobe epilepsy (\hl{n=[XX]}), and other focal origins (\hl{n=[XX]}). Analysis focused on 1,539 Type 1 clinical seizures distributed across patients (median: \hl{[XX]} seizures/patient, range: \hl{[XX-XX]}), providing \hl{[XX.X]} total patient-years of continuous monitoring (mean: \hl{[XX.X±XX.X]} months/patient).
+
+Our computational pipeline generated 10,000 PAC z-values per 1-minute window (25 phase bands × 25 amplitude bands × 16 channels), yielding 625 unique frequency-pair combinations per channel (Figure~\ref{fig:demographic_data}B). From these high-dimensional PAC matrices, we extracted 17 statistical descriptive features capturing distribution properties (9 features), bimodality characteristics (4 features), and circular phase preference statistics (4 features). This feature extraction generated comprehensive temporal profiles at 127 sampling points spanning 24 hours pre-seizure to 10 minutes post-onset using hybrid logarithmic-linear sampling that provided fine temporal resolution approaching seizure onset while maintaining computational tractability for extended baselines. Interictal control segments were selected from seizure-free periods (>4 hours from any Type 1 seizure), matched for time of day to control for circadian effects on brain state \cite{Kuhlmann2018SeizurePA}, and balanced to equal the number of seizure events (Figure~\ref{fig:demographic_data}C).
+
+\subsection{Temporal Evolution of Preictal PAC Dynamics}
+Treating PAC z-score distributions as multivariate signals, we extracted 17 descriptive features\footnote{Distribution properties: minimum ($\min_{{PAC}_z}$), maximum ($\max_{{PAC}_z}$), mean ($\mu_{{PAC}_z}$), standard deviation ($\sigma_{{PAC}_z}$), median ($Q_{50,{PAC}_z}$), 25th and 75th percentiles ($Q_{25,{PAC}_z}$, $Q_{75,{PAC}_z}$), kurtosis ($\kappa_{{PAC}_z}$), skewness ($\gamma_{{PAC}_z}$); Bimodality metrics from Gaussian Mixture Model fitting: Ashman's D ($D_{Ashman,{PAC}_z}$), weight ratio ($w_{ratio,{PAC}_z}$), Bhattacharyya coefficient ($B_{coeff,{PAC}_z}$), bimodality coefficient ($\beta_{coeff,{PAC}_z}$); Circular statistics: circular mean ($\mu_{circ}$), concentration ($\kappa_{circ}$), circular skewness ($\gamma_{circ}$), circular kurtosis ($\kappa_{4,circ}$)} capturing fundamental aspects of PAC patterns (Figure~\ref{fig:pac_basic}A). Brunner-Munzel tests compared seizure versus interictal control groups across seven preictal time windows\footnote{Time bins (minutes pre-seizure): [-1370, -730), [-730, -310), [-310, -150), [-150, -70), [-70, -30), [-30, -10), [-10, -1)}, revealing systematic feature divergence intensifying toward seizure onset (Figure~\ref{fig:pac_basic}B).
+
+Quantitative analysis of temporal trends using linear regression on effect sizes (Brunner-Munzel statistic) across preictal bins demonstrated strong temporal accumulation patterns in \hl{[XX]} of 15 patients ($R^2 > 0.50$, $p < $ \hl{[0.XX]}), with \hl{[XX]} patients showing $R^2 > 0.70$, indicating progressive PAC feature changes during the preictal period \cite{Kuhlmann2018SeizurePA}. Patient-specific variability in temporal trajectories reflected heterogeneous seizure dynamics, with \hl{[XX]} patients showing predominantly monotonic increases, \hl{[XX]} showing biphasic patterns, and \hl{[XX]} displaying more complex temporal evolution \cite{Aldahr2023PatientSpecificPPL}. The most discriminative features included \hl{[FEATURE NAMES]}, with theta-gamma coupling metrics showing the strongest effect sizes (Cohen's $d > $ \hl{[X.X]}) during the critical preictal period (10 minutes pre-seizure) \cite{Ahn2022TheFIT,Radiske2020CrossFrequencyPCAR}.
+                  
+\subsection{Pseudo-Prospective Seizure Prediction Performance}
+Patient-specific classification models trained on PAC-derived features achieved balanced accuracy of \hl{[XX.X±XX.X]\%} across 15 patients using \hl{[ALGORITHM NAME]} \cite{Messaoud2021RandomFCR,Hussein2022MultiChannelVTE} (Figure~\ref{fig:prediction_performance}A). ROC-AUC values ranged from \hl{[0.XX]} to \hl{[0.XX]} (mean: \hl{[0.XX±0.XX]}), with \hl{[XX]} of 15 patients exceeding the 0.70 threshold often considered clinically useful \cite{Kuhlmann2018SeizurePA} and \hl{[XX]} patients achieving AUC $> 0.80$. Sensitivity for detecting preictal states reached \hl{[XX.X±XX.X]\%} while maintaining specificity of \hl{[XX.X±XX.X]\%} across the patient cohort (Figure~\ref{fig:prediction_performance}B). Performance varied substantially across patients (coefficient of variation: \hl{[XX]\%}), reflecting individual differences in seizure dynamics and PAC patterns \cite{Aldahr2023PatientSpecificPPL,Pinto2021APAP}.
+
+Temporal warning analysis revealed that high-risk advisory states were active for \hl{[XX.X±XX.X]\%} of total monitoring time, corresponding to an average of \hl{[XX.X±XX.X]} hours per day under elevated seizure risk. False positive rates averaged \hl{[XX.X±XX.X]} alarms per hour (range: \hl{[XX.X-XX.X]}), with \hl{[XX]} of 15 patients meeting proposed clinical acceptability thresholds (FPR ≤ 0.15 per hour) \cite{Freestone2015SeizurePSBF}. Lead time analysis demonstrated that \hl{[XX.X±XX.X]\%} of correctly predicted seizures had warning periods exceeding 10 minutes, providing potentially actionable intervention windows.
+
+\subsection{Feature Importance and Frequency-Band Specificity}
+Permutation-based feature importance analysis revealed that PAC features characterizing theta-gamma (\hl{[X-XX Hz phase, XX-XXX Hz amplitude]}) and alpha-gamma (\hl{[X-XX Hz phase, XX-XXX Hz amplitude]}) coupling provided the most discriminative power for preictal state detection \cite{Ahn2022TheFIT,Radiske2020CrossFrequencyPCAR,Ponzi2023ThetagammaPAAT} (Figure~\ref{fig:feature_importance}A). The top \hl{[XX]} features included \hl{[LIST OF FEATURES]}, accounting for \hl{[XX]\%} of cumulative importance. Across patients, \hl{[XX±XX]} features per patient contributed >5\% to prediction performance, indicating that relatively sparse feature subsets captured essential preictal dynamics.
+
+Frequency-band analysis demonstrated heterogeneity in optimal coupling pairs across patients (Figure~\ref{fig:feature_importance}B). While theta-gamma coupling dominated in \hl{[XX]} patients, \hl{[XX]} patients showed stronger alpha-gamma coupling, and \hl{[XX]} displayed prominent delta-high-gamma interactions. This patient-specific frequency preference aligned with individual seizure onset zone locations and epilepsy subtypes, highlighting the importance of personalized models \cite{Aldahr2023PatientSpecificPPL,Pinto2021APAP}. Channel-wise analysis revealed that \hl{[XX±XX]} of the 16 channels per patient contributed significantly (importance > \hl{[XX]\%}), with highest-ranking channels typically located \hl{[SPATIAL DESCRIPTION]} relative to clinically-identified seizure onset zones.
+
+% Figure and table placeholders with descriptions
+% Figure 1: Experimental Design
+% Figure 2: Patient demographics and seizure frequency distributions
+% Figure 3: PAC pattern heterogeneity across patients and channels  
+% Figure 4: Temporal stability of PAC features
+% Figure 5: Pre-ictal PAC dynamics and evolution
+% Figure 6: Classification performance and feature importance
+% Figure S1: Computational performance metrics
+% Table 1: Patient demographics and recording characteristics
+% Table 2: Detailed statistical test results for PAC features
+% Table 3: Detailed classification performance metrics
+% Table 4: Computational performance benchmarks
+
+\label{sec:results}
+
+%%%% EOF

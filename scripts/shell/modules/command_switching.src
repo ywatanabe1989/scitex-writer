@@ -1,0 +1,386 @@
+#!/bin/bash
+# -*- coding: utf-8 -*-
+# Timestamp: "2025-09-27 00:06:56 (ywatanabe)"
+# File: /ssh:sp:/home/ywatanabe/proj/neurovista/paper/scripts/shell/modules/command_switching.src
+
+THIS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# ---------------------------------------
+# #!/bin/bash
+# # -*- coding: utf-8 -*-
+# # Timestamp: "2025-09-27 00:06:42 (ywatanabe)"
+# # File: /ssh:sp:/home/ywatanabe/proj/neurovista/paper/scripts/shell/modules/command_switching.src
+
+# THIS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# # ---------------------------------------
+
+# ORIG_DIR="$(pwd)"
+# LOG_PATH="$THIS_DIR/.$(basename $0).log"
+# echo > "$LOG_PATH"
+
+# BLACK='\033[0;30m'
+# LIGHT_GRAY='\033[0;37m'
+# GREEN='\033[0;32m'
+# YELLOW='\033[0;33m'
+# RED='\033[0;31m'
+# NC='\033[0m' # No Color
+
+# echo_info() { echo -e "${LIGHT_GRAY}$1${NC}"; }
+# echo_success() { echo -e "${GREEN}$1${NC}"; }
+# echo_warning() { echo -e "${YELLOW}$1${NC}"; }
+# echo_error() { echo -e "${RED}$1${NC}"; }
+
+#
+# Shared module for resolving LaTeX-related commands
+# Provides functions to get commands for pdflatex, bibtex, latexdiff, etc.
+# with automatic fallback to module loading or container usage
+
+source ./config/load_config.sh $STXW_DOC_TYPE
+
+# Setup container path (Singularity/Apptainer)
+setup_latex_container() {
+    # Check if container path is already set
+    if [ -n "$STXW_TEXLIVE_APPTAINER_SIF" ] && [ -f "$STXW_TEXLIVE_APPTAINER_SIF" ]; then
+        return 0
+    fi
+
+    # Use config value if set, otherwise use project directory default
+    if [ -z "$STXW_TEXLIVE_APPTAINER_SIF" ]; then
+        # Use project directory to ensure availability across HPC nodes
+        local project_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../../" && pwd)"
+        STXW_TEXLIVE_APPTAINER_SIF="${project_root}/.cache/containers/texlive_container.sif"
+    fi
+
+    if [ ! -f "$STXW_TEXLIVE_APPTAINER_SIF" ]; then
+        echo_info "    Downloading TeXLive container (one-time setup)..."
+        mkdir -p "$(dirname $STXW_TEXLIVE_APPTAINER_SIF)"
+
+        # Try Apptainer first, then Singularity
+        if command -v apptainer &> /dev/null; then
+            apptainer pull "$STXW_TEXLIVE_APPTAINER_SIF" docker://texlive/texlive:latest >/dev/null 2>&1
+        elif command -v singularity &> /dev/null; then
+            singularity pull "$STXW_TEXLIVE_APPTAINER_SIF" docker://texlive/texlive:latest >/dev/null 2>&1
+        else
+            return 1
+        fi
+
+        if [ -f "$STXW_TEXLIVE_APPTAINER_SIF" ]; then
+            echo_success "    Container downloaded to $STXW_TEXLIVE_APPTAINER_SIF"
+            export STXW_TEXLIVE_APPTAINER_SIF="$STXW_TEXLIVE_APPTAINER_SIF"
+        else
+            return 1
+        fi
+    fi
+
+    return 0
+}
+
+# Get container runtime command if available
+get_container_runtime() {
+    if command -v apptainer &> /dev/null; then
+        echo "apptainer"
+    elif command -v singularity &> /dev/null; then
+        echo "singularity"
+    else
+        echo ""
+    fi
+}
+
+# Load texlive module if available
+load_texlive_module() {
+    if command -v module &> /dev/null && module avail texlive &> /dev/null 2>&1; then
+        module load texlive &> /dev/null
+        return 0
+    fi
+    return 1
+}
+
+# Get pdflatex command with fallbacks
+get_cmd_pdflatex() {
+    local working_dir="${1:-$(pwd)}"
+    local abs_dir=$(realpath "$working_dir")
+
+    # In HPC, prioritize container for consistency
+    # First choice: Container (Apptainer/Singularity)
+    local runtime=$(get_container_runtime)
+    if [ -n "$runtime" ] && setup_latex_container; then
+        echo "$runtime exec --bind ${abs_dir}:${abs_dir} --pwd ${abs_dir} $STXW_TEXLIVE_APPTAINER_SIF pdflatex"
+        return 0
+    fi
+
+    # Second choice: Native pdflatex (rare in HPC)
+    if command -v pdflatex &> /dev/null; then
+        # Verify it's actually executable
+        if pdflatex --version &> /dev/null; then
+            echo "pdflatex"
+            return 0
+        fi
+    fi
+
+    # Third choice: Module system
+    if load_texlive_module && command -v pdflatex &> /dev/null; then
+        echo "pdflatex"
+        return 0
+    fi
+
+    return 1
+}
+
+# Get bibtex command with fallbacks
+get_cmd_bibtex() {
+    local working_dir="${1:-$(pwd)}"
+    local abs_dir=$(realpath "$working_dir")
+
+    # In HPC, prioritize container for consistency
+    # First choice: Container (Apptainer/Singularity)
+    local runtime=$(get_container_runtime)
+    if [ -n "$runtime" ] && setup_latex_container; then
+        echo "$runtime exec --bind ${abs_dir}:${abs_dir} --pwd ${abs_dir} $STXW_TEXLIVE_APPTAINER_SIF bibtex"
+        return 0
+    fi
+
+    # Second choice: Native bibtex (rare in HPC)
+    if command -v bibtex &> /dev/null; then
+        # Verify it's actually executable
+        if bibtex --version &> /dev/null; then
+            echo "bibtex"
+            return 0
+        fi
+    fi
+
+    # Third choice: Module system
+    if load_texlive_module && command -v bibtex &> /dev/null; then
+        echo "bibtex"
+        return 0
+    fi
+
+    return 1
+}
+
+# Get latexdiff command with fallbacks
+get_cmd_latexdiff() {
+    local working_dir="${1:-$(pwd)}"
+    local abs_dir=$(realpath "$working_dir")
+
+    # In HPC environments, prefer container for consistency
+    # Check for container runtime first
+    local runtime=$(get_container_runtime)
+    if [ -n "$runtime" ] && setup_latex_container; then
+        echo "$runtime exec --bind ${abs_dir}:${abs_dir} --pwd ${abs_dir} $STXW_TEXLIVE_APPTAINER_SIF latexdiff"
+        return 0
+    fi
+
+    # Fallback 1: Native latexdiff (check for actual executable file)
+    if [ -x "/usr/bin/latexdiff" ] || [ -x "/usr/local/bin/latexdiff" ]; then
+        echo "latexdiff"
+        return 0
+    fi
+
+    # Fallback 2: Module system
+    if load_texlive_module && command -v latexdiff &> /dev/null; then
+        echo "latexdiff"
+        return 0
+    fi
+
+    return 1
+}
+
+# Get texcount command with fallbacks
+get_cmd_texcount() {
+    local working_dir="${1:-$(pwd)}"
+    local abs_dir=$(realpath "$working_dir")
+
+    # First choice: Container (Apptainer/Singularity) - prioritize for HPC
+    local runtime=$(get_container_runtime)
+    if [ -n "$runtime" ] && setup_latex_container; then
+        echo "$runtime exec --bind ${abs_dir}:${abs_dir} --pwd ${abs_dir} $STXW_TEXLIVE_APPTAINER_SIF texcount"
+        return 0
+    fi
+
+    # Second choice: Native texcount (only if it actually works)
+    if command -v texcount &> /dev/null && texcount --version &> /dev/null 2>&1; then
+        echo "texcount"
+        return 0
+    fi
+
+    # Third choice: Module system
+    if load_texlive_module && command -v texcount &> /dev/null; then
+        echo "texcount"
+        return 0
+    fi
+
+    return 1
+}
+
+# Setup Mermaid container (for mmdc)
+setup_mermaid_container() {
+    # Check if container path is already set
+    if [ -n "$STXW_MERMAID_APPTAINER_SIF" ] && [ -f "$STXW_MERMAID_APPTAINER_SIF" ]; then
+        return 0
+    fi
+
+    # Use config value if set, otherwise use project directory default
+    if [ -z "$STXW_MERMAID_APPTAINER_SIF" ]; then
+        # Use project directory to ensure availability across HPC nodes
+        local project_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../../" && pwd)"
+        STXW_MERMAID_APPTAINER_SIF="${project_root}/.cache/containers/mermaid_container.sif"
+    fi
+
+    if [ ! -f "$STXW_MERMAID_APPTAINER_SIF" ]; then
+        echo_info "    Downloading Mermaid container (one-time setup)..."
+        mkdir -p "$(dirname $STXW_MERMAID_APPTAINER_SIF)"
+
+        # Try Apptainer first, then Singularity
+        if command -v apptainer &> /dev/null; then
+            apptainer pull "$STXW_MERMAID_APPTAINER_SIF" docker://minlag/mermaid-cli:latest >/dev/null 2>&1
+        elif command -v singularity &> /dev/null; then
+            singularity pull "$STXW_MERMAID_APPTAINER_SIF" docker://minlag/mermaid-cli:latest >/dev/null 2>&1
+        else
+            return 1
+        fi
+
+        if [ -f "$STXW_MERMAID_APPTAINER_SIF" ]; then
+            echo_success "    Container downloaded to $STXW_MERMAID_APPTAINER_SIF"
+            export STXW_MERMAID_APPTAINER_SIF="$STXW_MERMAID_APPTAINER_SIF"
+        else
+            return 1
+        fi
+    fi
+
+    return 0
+}
+
+# Get mmdc command with fallbacks
+get_cmd_mmdc() {
+    local working_dir="${1:-$(pwd)}"
+    local abs_dir=$(realpath "$working_dir")
+
+    # In HPC environments, prefer container for consistency
+    # First choice: Container (Apptainer/Singularity)
+    local runtime=$(get_container_runtime)
+    if [ -n "$runtime" ] && setup_mermaid_container; then
+        # Use puppeteer config to point to installed chromium
+        local project_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../../" && pwd)"
+        local puppeteer_config="${project_root}/.cache/puppeteer-config.json"
+        echo "$runtime exec --bind ${abs_dir}:${abs_dir} --bind ${puppeteer_config}:${puppeteer_config}:ro --pwd ${abs_dir} $STXW_MERMAID_APPTAINER_SIF /home/mermaidcli/node_modules/.bin/mmdc -p ${puppeteer_config}"
+        return 0
+    fi
+
+    # Second choice: Native mmdc (if properly configured)
+    if command -v mmdc &> /dev/null; then
+        # Check if Chrome is available for native mmdc
+        if npx puppeteer browsers list 2>/dev/null | grep -q chrome; then
+            echo "mmdc"
+            return 0
+        fi
+    fi
+
+    # Third choice: Try npm install
+    if command -v npm &> /dev/null; then
+        echo_info "    mmdc not found, consider: npm install -g @mermaid-js/mermaid-cli"
+    fi
+
+    return 1
+}
+
+# Check if LaTeX commands are available
+check_latex_commands_available() {
+    local pdflatex_cmd=$(get_cmd_pdflatex)
+    local bibtex_cmd=$(get_cmd_bibtex)
+
+    if [ -z "$pdflatex_cmd" ] || [ -z "$bibtex_cmd" ]; then
+        return 1
+    fi
+
+    return 0
+}
+
+# Setup ImageMagick container
+setup_imagemagick_container() {
+    # Check if container path is already set
+    if [ -n "$STXW_IMAGEMAGICK_APPTAINER_SIF" ] && [ -f "$STXW_IMAGEMAGICK_APPTAINER_SIF" ]; then
+        return 0
+    fi
+
+    # Use config value if set, otherwise use project directory default
+    if [ -z "$STXW_IMAGEMAGICK_APPTAINER_SIF" ]; then
+        # Use project directory to ensure availability across HPC nodes
+        local project_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../../" && pwd)"
+        STXW_IMAGEMAGICK_APPTAINER_SIF="${project_root}/.cache/containers/imagemagick_container.sif"
+    fi
+
+    if [ ! -f "$STXW_IMAGEMAGICK_APPTAINER_SIF" ]; then
+        echo_info "    Downloading ImageMagick container (one-time setup)..."
+        mkdir -p "$(dirname $STXW_IMAGEMAGICK_APPTAINER_SIF)"
+
+        # Try Apptainer first, then Singularity
+        if command -v apptainer &> /dev/null; then
+            apptainer pull "$STXW_IMAGEMAGICK_APPTAINER_SIF" docker://dpokidov/imagemagick:latest >/dev/null 2>&1
+        elif command -v singularity &> /dev/null; then
+            singularity pull "$STXW_IMAGEMAGICK_APPTAINER_SIF" docker://dpokidov/imagemagick:latest >/dev/null 2>&1
+        else
+            return 1
+        fi
+
+        if [ -f "$STXW_IMAGEMAGICK_APPTAINER_SIF" ]; then
+            echo_success "    Container downloaded to $STXW_IMAGEMAGICK_APPTAINER_SIF"
+            export STXW_IMAGEMAGICK_APPTAINER_SIF="$STXW_IMAGEMAGICK_APPTAINER_SIF"
+        else
+            return 1
+        fi
+    fi
+
+    return 0
+}
+
+# Get convert command with fallbacks
+get_cmd_convert() {
+    local working_dir="${1:-$(pwd)}"
+    local abs_dir=$(realpath "$working_dir")
+
+    # First choice: Native magick (ImageMagick v7+) or convert (v6)
+    if command -v magick &> /dev/null; then
+        echo "magick"  # In v7, just use 'magick' not 'magick convert'
+        return 0
+    elif command -v convert &> /dev/null; then
+        echo "convert"
+        return 0
+    fi
+
+    # Second choice: Container (Apptainer/Singularity)
+    local runtime=$(get_container_runtime)
+    if [ -n "$runtime" ] && setup_imagemagick_container; then
+        # Container likely has v7, so use magick to avoid deprecation warning
+        echo "$runtime exec --bind ${abs_dir}:${abs_dir} --pwd ${abs_dir} $STXW_IMAGEMAGICK_APPTAINER_SIF magick 2>/dev/null"
+        return 0
+    fi
+
+    # Third choice: Module system (rare for ImageMagick)
+    if command -v module &> /dev/null && module avail imagemagick &> /dev/null 2>&1; then
+        module load imagemagick &> /dev/null
+        if command -v magick &> /dev/null; then
+            echo "magick"
+            return 0
+        elif command -v convert &> /dev/null; then
+            echo "convert"
+            return 0
+        fi
+    fi
+
+    return 1
+}
+
+# Export functions for use in other scripts
+export -f setup_latex_container
+export -f setup_mermaid_container
+export -f setup_imagemagick_container
+export -f get_container_runtime
+export -f load_texlive_module
+export -f get_cmd_pdflatex
+export -f get_cmd_bibtex
+export -f get_cmd_latexdiff
+export -f get_cmd_texcount
+export -f get_cmd_mmdc
+export -f get_cmd_convert
+export -f check_latex_commands_available
+
+# EOF

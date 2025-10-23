@@ -459,11 +459,11 @@
     - Where to place
     - How file names allocated
     - How to reference in manuscript files:
-      -  `./manuscript/src/{introduction.tex,methods.tex,results.tex,discussion.tex}`
+      -  `./manuscript/contents/{introduction.tex,methods.tex,results.tex,discussion.tex}`
 - Implement an example manuscript as a self-descriptive template
 - Implement "literature review" functionality
   - Add pdf files under `./docs/literature`
-  - Update `./manuscript/src/bibliography.bib`
+  - Update `./manuscript/contents/bibliography.bib`
   - Find the gap to fill
 - Understand the LaTeX compilation scripts under `./scripts/`
 - To create `./main/{manuscript,diff}.pdf` with figures rendered
@@ -488,9 +488,9 @@
 
         \clearpage
         \begin{figure*}[ht]
-            \pdfbookmark[2]{ID 01}{figure_id_01}
+            \pdfbookmark[2]{ID 01}{.01}
         	\centering
-            \includegraphics[width=1\textwidth]{./src/figures/png/Figure_ID_01.png}
+            \includegraphics[width=1\textwidth]{./contents/figures/png/.01.png}
         	\caption{\textbf{
 Local Field Potentials, Multiunit Activity, and Neural Trajectories in the Hippocampus During a Modified Sternberg Task
 }
@@ -503,9 +503,9 @@ Local Field Potentials, Multiunit Activity, and Neural Trajectories in the Hippo
         \end{figure*}
         \clearpage
         \begin{figure*}[ht]
-            \pdfbookmark[2]{ID 02}{figure_id_02}
+            \pdfbookmark[2]{ID 02}{.02}
         	\centering
-            \includegraphics[width=0.5\textwidth]{./src/figures/png/Figure_ID_02.png}
+            \includegraphics[width=0.5\textwidth]{./contents/figures/png/.02.png}
         	\caption{\textbf{
 State-Dependent Neural Trajectory of Hippocampal Neurons
 }
@@ -518,9 +518,9 @@ State-Dependent Neural Trajectory of Hippocampal Neurons
         \end{figure*}
         \clearpage
         \begin{figure*}[ht]
-            \pdfbookmark[2]{ID 03}{figure_id_03}
+            \pdfbookmark[2]{ID 03}{.03}
         	\centering
-            \includegraphics[width=1\textwidth]{./src/figures/png/Figure_ID_03.png}
+            \includegraphics[width=1\textwidth]{./contents/figures/png/.03.png}
         	\caption{\textbf{
 Positive Correlation between Memory Load and Neural Trajectory Distance in the Hippocampus between Encoding and Retrieval Phases
 }
@@ -533,9 +533,9 @@ Positive Correlation between Memory Load and Neural Trajectory Distance in the H
         \end{figure*}
         \clearpage
         \begin{figure*}[ht]
-            \pdfbookmark[2]{ID 04}{figure_id_04}
+            \pdfbookmark[2]{ID 04}{.04}
         	\centering
-            \includegraphics[width=1\textwidth]{./src/figures/png/Figure_ID_04.png}
+            \includegraphics[width=1\textwidth]{./contents/figures/png/.04.png}
         	\caption{\textbf{Detection of SWRs in Putative CA1 Regions}\\
 \textbf{\textit{A.}} Two-dimensional UMAP \cite{mcinnes_umap_2018} projection displays multi-unit spikes during SWR$^+$ candidates (\textit{purple}) and SWR$^-$ candidates (\textit{yellow}). \textbf{\textit{B.}} A cumulative density plot indicates silhouette scores, reflecting UMAP clustering quality (see Table~\ref{tab:02}). Hippocampal regions with silhouette scores exceeding 0.60 (equivalent to the $75^{th}$ percentile) are identified as putative CA1 regions. SWR$^+$ and SWR$^-$ candidates, which were recorded from these regions, are classified as SWR$^+$ and SWR$^-$ respectively (\textit{n}s = 1,170). \textbf{\textit{C.}} Identical distributions of SWR$^+$ (\textit{purple}) and SWR$^-$ (\textit{yellow}) distributions, based on their definitions (93.0 [65.4] ms, median [IQR]). Note that these distributions exhibit log-normality. \textbf{\textit{D.}} Identical SWR incidence for both SWR$^+$ (\textit{purple}) and SWR$^-$ (\textit{yellow}), relative to the probe's timing (mean \textpm 95\% confidence interval). However, 95\% confidence interval may not be visibly apparent due to their narrow ranges. Note that a significant SWR incidence increase was detected during the initial 400 ms of the retrieval phase (0.421 [Hz], *\textit{p} $<$ 0.05, bootstrap test). \textbf{\textit{E.}} Distributions of ripple band peak amplitudes for SWR$^-$ (\textit{yellow}; 2.37 [0.33] SD of baseline, median [IQR]) and SWR$^+$ (\textit{purple}; 3.05 [0.85] SD of baseline, median [IQR]) are manifested (***\textit{p} $<$ 0.001, the Brunner--Munzel test). Note the log-normality for SWR$^+$ events.}
 % width=1\textwidth
@@ -543,9 +543,9 @@ Positive Correlation between Memory Load and Neural Trajectory Distance in the H
         \end{figure*}
         \clearpage
         \begin{figure*}[ht]
-            \pdfbookmark[2]{ID 05}{figure_id_05}
+            \pdfbookmark[2]{ID 05}{.05}
         	\centering
-            \includegraphics[width=1\textwidth]{./src/figures/png/Figure_ID_05.png}
+            \includegraphics[width=1\textwidth]{./contents/figures/png/.05.png}
         	\caption{\textbf{Transient Change in Neural Trajectory during SWR}
 \smallskip
 \\
@@ -555,9 +555,9 @@ Positive Correlation between Memory Load and Neural Trajectory Distance in the H
         \end{figure*}
         \clearpage
         \begin{figure*}[ht]
-            \pdfbookmark[2]{ID 07}{figure_id_07}
+            \pdfbookmark[2]{ID 07}{.07}
         	\centering
-            \includegraphics[width=0.5\textwidth]{./src/figures/png/Figure_ID_07.png}
+            \includegraphics[width=0.5\textwidth]{./contents/figures/png/.07.png}
         	\caption{\textbf{
 Direction of Neural Trajectory During SWR Based on Encoding and Retrieval States
 }
