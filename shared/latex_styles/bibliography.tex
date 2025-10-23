@@ -1,0 +1,120 @@
+%% -*- coding: utf-8 -*-
+%% Timestamp: "2025-09-30 17:40:26 (ywatanabe)"
+%% File: "/ssh:sp:/home/ywatanabe/proj/neurovista/paper/shared/latex_styles/bibliography.tex"
+
+%% ============================================================================
+%% BIBLIOGRAPHY STYLE CONFIGURATION
+%% ============================================================================
+
+%% ----------------------------------------------------------------------------
+%% OPTION 1: NUMBERED CITATIONS (Order of Appearance) - CURRENTLY ACTIVE
+%% ----------------------------------------------------------------------------
+%% Description: Citations numbered [1], [2], [3]... in the order they first
+%%              appear in the manuscript
+%% Sorting: By first citation order (NOT alphabetical)
+%% Example: \cite{Tort2010,Canolty2010} → [1, 2] (if these are first citations)
+%% Commands: \cite{key} → [1]
+%%           \cite{key1,key2} → [1, 2]
+%% Best for: Most scientific journals, clear citation tracking
+%% Compatible with: natbib package
+\bibliographystyle{unsrtnat}
+
+%% ----------------------------------------------------------------------------
+%% OPTION 2: NUMBERED CITATIONS (Alphabetical by Author)
+%% ----------------------------------------------------------------------------
+%% Description: Citations numbered [1], [2], [3]... sorted alphabetically by
+%%              first author's last name
+%% Sorting: Alphabetical by author (Canolty before Tort)
+%% Example: \cite{Tort2010,Canolty2010} → [2, 1] (C before T alphabetically)
+%% Commands: \cite{key} → [1]
+%% Best for: When you want bibliography sorted alphabetically
+%% Compatible with: elsarticle class
+% \bibliographystyle{elsarticle-num}
+
+%% Alternative alphabetical styles:
+% \bibliographystyle{plain}      % Basic alphabetical, no natbib features
+% \bibliographystyle{ieeetr}     % IEEE style, order of appearance
+% \bibliographystyle{siam}       % SIAM style, alphabetical
+
+%% ----------------------------------------------------------------------------
+%% OPTION 3: AUTHOR-YEAR CITATIONS
+%% ----------------------------------------------------------------------------
+%% Description: Citations show author name and year (Smith, 2020) or (Smith 2020)
+%% Format: (Author, Year) or Author (Year) depending on command
+%% Example: \cite{Tort2010} → (Tort et al., 2010)
+%%          \citet{Tort2010} → Tort et al. (2010) [textual]
+%%          \citep{Tort2010} → (Tort et al., 2010) [parenthetical]
+%% Commands:
+%%   - \citet{key}  → Author (Year)  [for text: "As shown by Author (2020)..."]
+%%   - \citep{key}  → (Author, Year) [for parentheses: "...as shown (Author, 2020)"]
+%%   - \cite{key}   → Same as \citep{key}
+%% Best for: Review papers, humanities, some social sciences
+%% Requires: natbib package (already loaded)
+% \bibliographystyle{plainnat}   % Author-year, alphabetical
+% \bibliographystyle{abbrvnat}   % Author-year, abbreviated names
+% \bibliographystyle{apalike}    % APA-like author-year style
+
+%% ----------------------------------------------------------------------------
+%% OPTION 4: JOURNAL-SPECIFIC STYLES
+%% ----------------------------------------------------------------------------
+%% Elsevier journals:
+% \bibliographystyle{elsarticle-num}        % Numbered, alphabetical
+% \bibliographystyle{elsarticle-num-names}  % Numbered, alphabetical, full names
+% \bibliographystyle{elsarticle-harv}       % Author-year (Harvard style)
+
+%% Nature family:
+% \bibliographystyle{naturemag}             % Nature magazine style
+
+%% IEEE:
+% \bibliographystyle{IEEEtran}              % IEEE Transactions style
+
+%% APA:
+% \bibliographystyle{apalike}               % APA-like style
+
+%% ----------------------------------------------------------------------------
+%% CITATION COMMAND REFERENCE (with natbib)
+%% ----------------------------------------------------------------------------
+%% Basic commands:
+%%   \cite{key}              → [1] or (Author, Year) depending on style
+%%   \cite{key1,key2}        → [1, 2] or (Author1, Year1; Author2, Year2)
+%%
+%% Advanced natbib commands (only work with natbib-compatible styles):
+%%   \citet{key}             → Author (Year)  [textual citation]
+%%   \citep{key}             → (Author, Year) [parenthetical citation]
+%%   \citet*{key}            → Full author list (Year)
+%%   \citep*{key}            → (Full author list, Year)
+%%   \citealt{key}           → Author Year [no parentheses]
+%%   \citealp{key}           → Author, Year [no parentheses]
+%%   \citeauthor{key}        → Author [name only]
+%%   \citeyear{key}          → Year [year only]
+%%   \citeyearpar{key}       → (Year) [year in parentheses]
+%%
+%% Pre/post notes:
+%%   \citep[see][p.~10]{key} → (see Author, Year, p. 10)
+%%   \citep[p.~10]{key}      → (Author, Year, p. 10)
+%%
+%% Multiple citations:
+%%   \citep{key1,key2,key3}  → (Author1, Year1; Author2, Year2; Author3, Year3)
+%%
+%% Suppressing parts:
+%%   \citep[e.g.,][]{key}    → (e.g., Author, Year)
+%%   \citep[][see p.~10]{key}→ (Author, Year, see p. 10)
+%%
+%% ----------------------------------------------------------------------------
+%% TROUBLESHOOTING
+%% ----------------------------------------------------------------------------
+%% Problem: Citations appear as [?] or undefined
+%% Solution: Run compilation 3-4 times to resolve all references
+%%
+%% Problem: Citation numbers out of order [3, 1] instead of [1, 3]
+%% Solution: Use unsrtnat (order of appearance) instead of elsarticle-num
+%%
+%% Problem: "Undefined control sequence \citet"
+%% Solution: \citet only works with natbib-compatible styles (unsrtnat, plainnat)
+%%           Use \cite{} with non-natbib styles
+%%
+%% Problem: Bibliography not appearing
+%% Solution: Ensure \bibliography{path/to/bibfile} command exists in main file
+%%           Run: pdflatex → bibtex → pdflatex → pdflatex
+
+%%%% EOF

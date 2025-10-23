@@ -42,7 +42,7 @@ SciTex/
 │   │   ├── sh/              # Shell scripts
 │   │   │   └── modules/     # Modular components
 │   │   └── py/              # Python utilities
-│   └── src/                 # Source content
+│   └── contents/                 # Source content
 │       ├── figures/         # Figure directory
 │       └── tables/          # Table directory
 ├── revision/                # Revision materials

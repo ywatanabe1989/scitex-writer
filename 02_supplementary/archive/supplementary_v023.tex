@@ -1,0 +1,435 @@
+%% -*- coding: utf-8 -*-
+%% Timestamp: "2025-09-27 17:21:29 (ywatanabe)"
+%% File: "/ssh:sp:/home/ywatanabe/proj/neurovista/paper/02_supplementary/base.tex"
+\UseRawInputEncoding
+
+%% ----------------------------------------
+%% SETTINGS
+%% ----------------------------------------
+
+%% ========================================
+%% ./02_supplementary/contents/latex_styles/columns.tex
+%% ========================================
+%% -*- coding: utf-8 -*-
+%% Timestamp: "2025-09-26 18:18:13 (ywatanabe)"
+%% File: "/ssh:sp:/home/ywatanabe/proj/neurovista/paper/01_manuscript/src/styles/columns.tex"
+
+%% Columns
+%% \documentclass[final,3p,times,twocolumn]{elsarticle} %% Use it for submission
+%% Use the options 1p,twocolumn; 3p; 3p,twocolumn; 5p; or 5p,twocolumn
+%% for a journal layout:
+%% \documentclass[final,1p,times]{elsarticle}
+%% \documentclass[final,1p,times,twocolumn]{elsarticle}
+%% \documentclass[final,3p,times]{elsarticle}
+%% \documentclass[final,3p,times,twocolumn]{elsarticle}
+%% \documentclass[final,5p,times]{elsarticle}
+%% \documentclass[final,5p,times,twocolumn]{elsarticle}
+\documentclass[preprint,review,12pt]{elsarticle}
+
+%%%% EOF
+
+
+%% ========================================
+%% ./02_supplementary/contents/latex_styles/packages.tex
+%% ========================================
+%% -*- coding: utf-8 -*-
+%% Timestamp: "2025-09-27 16:01:16 (ywatanabe)"
+%% File: "/ssh:sp:/home/ywatanabe/proj/neurovista/paper/shared/latex_styles/packages.tex"
+
+%% Language and encoding
+\usepackage[english]{babel}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+
+%% Mathematics
+\usepackage{amsmath, amssymb}
+\usepackage{amsthm}
+\usepackage{siunitx}
+\sisetup{round-mode=figures,round-precision=3}
+
+%% Graphics and figures
+\usepackage{graphicx}
+\usepackage{tikz}
+\usepackage{pgfplots}
+\usepackage{pgfplotstable}
+\usetikzlibrary{positioning,shapes,arrows,fit,calc,graphs,graphs.standard}
+
+%% Tables
+\usepackage[table]{xcolor}
+\usepackage{booktabs}
+\usepackage{colortbl}
+\usepackage{longtable}
+\usepackage{supertabular}
+\usepackage{tabularx}
+\usepackage{xltabular}
+\usepackage{csvsimple}
+\usepackage{makecell}
+
+%% Table formatting
+\renewcommand\theadfont{\bfseries}
+\renewcommand\theadalign{c}
+\newcolumntype{C}[1]{>{\centering\arraybackslash}m{#1}}
+\renewcommand{\arraystretch}{1.5}
+\definecolor{lightgray}{gray}{0.95}
+
+%% Layout and geometry
+\usepackage[pass]{geometry}
+\usepackage{pdflscape}
+\usepackage{indentfirst}
+\usepackage{calc}
+
+%% Captions and references
+\usepackage[margin=10pt,font=small,labelfont=bf,labelsep=endash]{caption}
+\usepackage{natbib}
+\usepackage{hyperref}
+
+%% Document features
+\usepackage{accsupp}
+\usepackage{lineno}
+\usepackage{bashful}
+\usepackage{lipsum}
+
+%% Visual enhancements
+\usepackage{xcolor}
+\usepackage[most]{tcolorbox}
+
+%% External references (commented)
+%% \usepackage{xr}
+\usepackage{xr-hyper}
+
+%%%% EOF
+
+
+%% ========================================
+%% ./02_supplementary/contents/latex_styles/formatting.tex
+%% ========================================
+%% -*- coding: utf-8 -*-
+%% Timestamp: "2025-09-26 18:18:18 (ywatanabe)"
+%% File: "/ssh:sp:/home/ywatanabe/proj/neurovista/paper/01_manuscript/src/styles/formatting.tex"
+
+%% Image width
+\newlength{\imagewidth}
+\newlength{\imagescale}
+
+%% Line numbers
+\linespread{1.2}
+\linenumbers
+
+% Define colors with transparency (opacity value)
+\definecolor{GreenBG}{rgb}{0,1,0}
+\definecolor{RedBG}{rgb}{1,0,0}
+% Define tcolorbox environments for highlighting
+\newtcbox{\greenhighlight}[1][]{%
+  on line,
+  colframe=GreenBG,
+  colback=GreenBG!50!white, % 50% transparent green
+  boxrule=0pt,
+  arc=0pt,
+  boxsep=0pt,
+  left=1pt,
+  right=1pt,
+  top=2pt,
+  bottom=2pt,
+  tcbox raise base
+}
+\newtcbox{\redhighlight}[1][]{%
+  on line,
+  colframe=RedBG,
+  colback=RedBG!50!white, % 50% transparent red
+  boxrule=0pt,
+  arc=0pt,
+  boxsep=0pt,
+  left=1pt,
+  right=1pt,
+  top=2pt,
+  bottom=2pt,
+  tcbox raise base
+}
+\newcommand{\REDSTARTS}{\color{red}}
+\newcommand{\REDENDS}{\color{black}}
+\newcommand{\GREENSTARTS}{\color{green}}
+\newcommand{\GREENENDS}{\color{black}}
+
+% New command to read word counts
+\newread\wordcount
+\newcommand\readwordcount[1]{%
+  \openin\wordcount=#1
+  \read\wordcount to \thewordcount
+  \closein\wordcount
+  \thewordcount
+}
+
+% Use soul package for better text highlighting with line breaks
+\usepackage{soul}
+\sethlcolor{yellow}
+% Now \hl from soul package will be used directly for text that needs wrapping
+
+%% Reference
+\usepackage{refcount}
+
+
+%% \let\oldref\ref
+%% \renewcommand{\ref}[1]{%
+%%   \ifnum\getrefnumber{#1}=0
+%%     \sethlcolor{yellow}\hl{??}%
+%%   \else
+%%     \oldref{#1}%
+%%   \fi
+%% }
+
+\let\oldref\ref
+\newcommand{\hlref}[1]{%
+  \ifnum\getrefnumber{#1}=0
+    \colorbox{yellow}{\ref*{#1}}%  % Use colorbox for references (no line break needed)
+  \else
+    \ref{#1}%
+  \fi
+}
+
+% To add an 'S' prefix to a reference
+\newcommand*\sref[1]{%
+    S\hlref{#1}}
+ 
+% For 'Supplementary Figure S1'
+\newcommand*\sfref[1]{%
+    Supplementary Figure S\hlref{#1}}
+ 
+% For 'Supplementary Table S1'
+\newcommand*\stref[1]{%
+    Supplementary Table S\hlref{#1}}
+ 
+% For 'Supplementary Materials S1'
+\newcommand*\smref[1]{%
+    Supplementary Materials S\hlref{#1}}
+
+%%%% EOF
+
+
+%% ----------------------------------------
+%% JOURNAL NAME
+%% ----------------------------------------
+
+%% ========================================
+%% ./02_supplementary/contents/journal_name.tex
+%% ========================================
+\journal{Journal Name Here}
+
+
+
+%% ----------------------------------------
+%% START of DOCUMENT
+%% ----------------------------------------
+\begin{document}
+
+%% ----------------------------------------
+%% Frontmatter
+%% ----------------------------------------
+\begin{frontmatter}
+    \title{Supplementary Material}
+
+%% ========================================
+%% ./02_supplementary/contents/authors.tex
+%% ========================================
+%% -*- coding: utf-8 -*-
+%% Timestamp: "2025-09-24 18:07:39 (ywatanabe)"
+%% File: "/ssh:sp:/home/ywatanabe/proj/neurovista/paper/manuscript/src/authors.tex"
+\author[1]{Yusuke Watanabe}
+\author[2,3]{Takufumi Yanagisawa}
+\author[1]{David B. Grayden\corref{cor1}}
+
+
+\address[1]{NeuroEngineering Research Laboratory, Department of Biomedical Engineering, The University of Melbourne, Parkville VIC 3010, Australia}
+\address[2]{Institute for Advanced Cocreation studies, Osaka University, 2-2 Yamadaoka, Suita, 565-0871, Osaka, Japan}
+\address[3]{Department of Neurosurgery, Osaka University Graduate School of Medicine, 2-2 Yamadaoka, Osaka, 565-0871, Japan}
+
+\cortext[cor1]{Corresponding author. Tel: +XX-X-XXXX-XXXX Email: grayden@unimelb.edu.au}
+
+%%%% EOF
+
+\end{frontmatter}
+
+%% ----------------------------------------
+%% Word Counter
+%% ----------------------------------------
+
+%% ========================================
+%% ./02_supplementary/contents/wordcount.tex
+%% ========================================
+%% -*- coding: utf-8 -*-
+%% Timestamp: "2025-09-27 16:14:12 (ywatanabe)"
+%% File: "/ssh:sp:/home/ywatanabe/proj/neurovista/paper/02_supplementary/contents/wordcount.tex"
+
+\begin{wordcount}
+\readwordcount{./02_supplementary/contents/wordcounts/figure_count.txt} supplementary figures, \readwordcount{./02_supplementary/contents/wordcounts/table_count.txt} supplementary tables, \readwordcount{./02_supplementary/contents/wordcounts/imrd_count.txt} words for supplementary text
+\end{wordcount}
+
+%% \begin{*wordcount}
+%% \readwordcount{./02_supplementary/contents/wordcounts/figure_count.txt} supplementary figures, \readwordcount{./02_supplementary/contents/wordcounts/table_count.txt} supplementary tables, \readwordcount{./02_supplementary/contents/wordcounts/imrd_count.txt} words for supplementary text
+%% \end{*wordcount}
+
+%%%% EOF
+
+
+%% ----------------------------------------
+%% SUPPLEMENTARY METHODS
+%% ----------------------------------------
+\section{Supplementary Methods}
+
+%% ========================================
+%% ./02_supplementary/contents/methods.tex
+%% ========================================
+% Supplementary Methods
+This section provides additional methodological details not included in the main manuscript. 
+These supplementary methods describe the extended analytical procedures and validation techniques used in our study.
+
+
+
+%% ----------------------------------------
+%% SUPPLEMENTARY RESULTS
+%% ----------------------------------------
+
+%% ========================================
+%% ./02_supplementary/contents/results.tex
+%% ========================================
+%% -*- coding: utf-8 -*-
+%% Timestamp: "2025-09-29 18:31:36 (ywatanabe)"
+%% File: "/ssh:sp:/home/ywatanabe/proj/neurovista/paper/02_supplementary/contents/results.tex"
+Supplementary Results
+
+\subsection{GPU-accelerated calculation of phase-amplitude coupling}
+The GPU-accelerated PAC computation framework achieved approximately 100-fold speed improvements compared to conventional CPU-based implementations, reducing total computation time for the complete dataset from an estimated 14.2 years to 1.8 months using the Spartan HPC system's distributed GPU architecture. Processing latency for real-time applications was 1.7±0.3 minutes for 1-minute PAC computation windows, demonstrating feasibility for near real-time seizure monitoring applications \hlref{Table3}.
+
+	Memory efficiency optimizations through adaptive chunking and fp16 precision enabled processing of the complete 4.1 TB dataset within available HPC resources (320 GB total VRAM across multiple GPU nodes). Database storage using zlib compression achieved 78\% size reduction, with final processed PAC features requiring 847 GB storage compared to 3.9 TB for uncompressed data. These computational achievements enable comprehensive PAC analysis of large-scale, long-term electrophysiological datasets that were previously computationally intractable \hlref{Figure6}.
+
+
+\subsection{Computational Performance and Implementation Efficiency}
+The gPAC implementation demonstrated substantial computational efficiency improvements, processing 1-minute ECoG segments in 20 seconds per unit (400 Hz sampling, 16 channels, 625 frequency pairs, 200 surrogates). Large-scale analysis utilizing distributed multi-GPU architecture achieved approximately 100-fold speed improvement over conventional CPU methods, enabling processing of the complete 4.1 TB dataset within [TIME DURATION].
+
+%%%% EOF
+
+
+%% ----------------------------------------
+%% TABLES
+%% ----------------------------------------
+\clearpage
+\section*{Tables}
+\label{tables}
+\pdfbookmark[1]{Tables}{tables}
+
+%% ========================================
+%% ./02_supplementary/contents/tables/compiled/FINAL.tex
+%% ========================================
+% Auto-generated file containing all table inputs
+% Generated by gather_table_tex_files()
+
+
+%% ========================================
+%% ./02_supplementary/contents/tables/compiled/00_Tables_Header.tex
+%% ========================================
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% TABLES
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% \clearpage
+\section*{Tables}
+\label{tables}
+\pdfbookmark[1]{Tables}{tables}
+
+% Template table when no actual tables are present
+\begin{table}[htbp]
+    \centering
+    \caption{\textbf{Table 0: Placeholder}\\
+    \smallskip
+    To add tables to your manuscript:\\
+    1. Place CSV files in \texttt{caption\_and\_media/} with format \texttt{XX\_description.csv}\\
+    2. Create matching caption files \texttt{XX\_description.tex}\\
+    3. Reference in text using \texttt{Table\textasciitilde\textbackslash ref\{tab:XX\_description\}}\\
+    \smallskip
+    Example: \texttt{01\_seizure\_count.csv} with \texttt{01\_seizure\_count.tex}
+    }
+    \label{tab:0_Tables_Header}
+    \begin{tabular}{p{0.3\textwidth}p{0.6\textwidth}}
+        \toprule
+        \textbf{Step} & \textbf{Instructions} \\
+        \midrule
+        1. Add CSV & Place file like \texttt{01\_data.csv} in \texttt{caption\_and\_media/} \\
+        2. Add Caption & Create \texttt{01\_data.tex} with table caption \\
+        3. Compile & Run \texttt{./compile -m} to process tables \\
+        4. Reference & Use \texttt{\textbackslash ref\{tab:01\_data\}} in manuscript \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+
+
+
+
+
+%% ----------------------------------------
+%% FIGURES
+%% ----------------------------------------
+\clearpage
+\section*{Figures}
+\label{figures}
+\pdfbookmark[1]{Figures}{figures}
+
+%% ========================================
+%% ./02_supplementary/contents/figures/compiled/FINAL.tex
+%% ========================================
+% Generated by compile_figure_tex_files()
+% This file includes all figure files in order
+
+% Figure 9
+\begin{figure*}[h!]
+    \pdfbookmark[2]{Figure 9}{.9}
+    \centering
+    \includegraphics[width=0.95\textwidth]{./02_supplementary/contents/figures/caption_and_media/jpg_for_compilation/99_pac_calc_progress_db.jpg}
+    \caption{\textbf{
+PAC calculation speed
+}
+\smallskip
+\
+Progress record of PAC calculation. Each database stores PAC data for each seizure event, with 127 timepoints each. For ECoG data with 16 channels, 400 Hz sampling rate, and 1 minute duration, calculation takes approximately 20 seconds using our implementation with 20 GB VRAM on GPU-A100.
+}
+    \label{fig:9_pac_calc_progress_db}
+\end{figure*}
+
+
+
+
+%% ----------------------------------------
+%% REFERENCE STYLES
+%% ----------------------------------------
+\pdfbookmark[1]{References}{references}
+\bibliography{./02_supplementary/contents/bibliography}
+
+%% ========================================
+%% ./02_supplementary/contents/latex_styles/bibliography.tex
+%% ========================================
+%% -*- coding: utf-8 -*-
+%% Timestamp: "2025-09-26 18:18:03 (ywatanabe)"
+%% File: "/ssh:sp:/home/ywatanabe/proj/neurovista/paper/01_manuscript/src/styles/bibliography.tex"
+
+% Note Re-compile is required
+
+% %% Numbering Style (sorted and listed)
+% [1, 2, 3, 4]
+
+%% Numbering Style (sorted)
+\bibliographystyle{elsarticle-num}
+
+% Author Style
+% \bibliographystyle{plainnat}
+% use \citet{}
+
+% Numbering Style (not-sorted) 
+% \bibliographystyle{plainnat}
+% use \cite{}
+
+%%%% EOF
+
+
+%% ----------------------------------------
+%% END of DOCUMENT
+%% ----------------------------------------
+\end{document}
+

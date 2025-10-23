@@ -1,0 +1,212 @@
+#!/bin/bash
+# -*- coding: utf-8 -*-
+# Timestamp: "2025-09-27 00:14:01 (ywatanabe)"
+# File: /ssh:sp:/home/ywatanabe/proj/neurovista/paper/scripts/shell/modules/validate_tex.src
+
+THIS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# ---------------------------------------
+
+source ./config/load_config.sh $STXW_DOC_TYPE
+
+# Make sure echo_error_soft is defined if not already defined
+echo_error_soft() { echo -e "${RED}Error: $1${NC}"; }
+
+display_latex_error_advice() {
+    local error_log="$1"
+    local input_file="$2"
+    local message=""
+
+    echo "File: ${input_file}"
+
+    if grep -q "Missing \$ inserted" "$error_log"; then
+        message="${message}- Math mode error: Check for unescaped special characters like '_', '^', or missing '$' delimiters\n"
+        # Find potential problematic lines in the input file
+        grep -n "[_^]" "$input_file" | head -5 | while read -r line; do
+            message="${message}  Line ${line}\n"
+        done
+    fi
+
+    if grep -q "Misplaced alignment tab character" "$error_log"; then
+        message="${message}- Table formatting error: Check for unescaped '&' characters or mismatched table columns\n"
+        grep -n "&" "$input_file" | head -5 | while read -r line; do
+            message="${message}  Line ${line}\n"
+        done
+    fi
+
+    if grep -q "Runaway argument" "$error_log"; then
+        message="${message}- Missing brace error: Check for unbalanced '{' and '}' characters\n"
+        local brackets=$(grep -n -o "[{}]" "$input_file" | sort -n)
+        local count=0
+        echo "$brackets" | while read -r line; do
+            char=$(echo "$line" | cut -d: -f2)
+            if [ "$char" = "{" ]; then
+                ((count++))
+            else
+                ((count--))
+            fi
+            if [ $count -ne 0 ]; then
+                line_num=$(echo "$line" | cut -d: -f1)
+                message="${message}  Possible mismatch at line $line_num (balance: $count)\n"
+                break
+            fi
+        done
+    fi
+
+    if grep -q "Undefined control sequence" "$error_log"; then
+        # Extract the specific undefined command
+        cmd=$(grep -o "\\\\[a-zA-Z]*" "$error_log" | grep -v "^\\\\input" | head -1)
+        message="${message}- Undefined command: '$cmd' - Check spelling or add required package\n"
+        # Find the line in the input file with this command
+        grep -n "$cmd" "$input_file" | head -3 | while read -r line; do
+            message="${message}  Line ${line}\n"
+        done
+    fi
+
+    if [ -n "$message" ]; then
+        echo -e "\033[1;33mCommon LaTeX Issues Detected:\033[0m"
+        echo -e "$message"
+    fi
+}
+
+# Validate a LaTeX file with detailed error reporting
+validate_tex_file() {
+    local tex_file="$1"
+    local show_content="${2:-false}"
+    local temp_dir=$(mktemp -d)
+    local base_name=$(basename "$tex_file" .tex)
+    local log_file="$temp_dir/${base_name}_complete.log"
+    local preamble_file="$temp_dir/preamble.tex"
+
+    # Create minimal preamble with all potentially needed packages
+    cat > "$preamble_file" <<EOF
+\\documentclass{article}
+\\usepackage{booktabs}
+\\usepackage{makecell}
+\\usepackage{xcolor}
+\\usepackage{caption}
+\\usepackage{graphicx}
+\\usepackage{gensymb}
+\\usepackage{textcomp}
+\\usepackage{hyperref}
+\\usepackage{geometry}
+\\usepackage{colortbl}
+\\providecommand{\\restoregeometry}{}
+\\providecommand{\\pdfbookmark}[3][]{}
+\\providecommand{\\rowcolor}[1]{}
+\\begin{document}
+EOF
+
+    # Create a temporary complete file
+    cat "$preamble_file" "$tex_file" > "$temp_dir/${base_name}_complete.tex"
+    echo "\\end{document}" >> "$temp_dir/${base_name}_complete.tex"
+
+    # Show content if requested
+    if [ "$show_content" = "true" ]; then
+        echo "Content of $tex_file:"
+        echo "----------------------------------------"
+        nl -ba "$tex_file"
+        echo "----------------------------------------"
+    fi
+
+    # Attempt to compile
+    (cd "$temp_dir" && pdflatex -interaction=nonstopmode "${base_name}_complete.tex" >/dev/null 2>&1)
+    local result=$?
+
+    # Check log for errors
+    if [ $result -ne 0 ] || grep -q "^!" "$log_file" 2>/dev/null; then
+        echo_error_soft "LaTeX validation failed for $tex_file"
+        grep -A 2 -B 2 "^!" "$log_file" 2>/dev/null
+        display_latex_error_advice "$log_file" "$tex_file"
+        rm -rf "$temp_dir"
+        return 1  # Return non-zero to indicate failure
+    fi
+
+    rm -rf "$temp_dir"
+    return 0  # Return zero to indicate success
+}
+
+# Exit immediately on fatal LaTeX errors
+validate_tex_file_and_exit() {
+    local tex_file="$1"
+
+    if ! validate_tex_file "$tex_file" "true"; then
+        echo_error_soft "Fatal error in table compilation of $tex_file. Exiting."
+        echo_error_soft "Fix the issues before continuing."
+        show_latex_escape_reference
+        exit 1
+    fi
+    return 0
+}
+
+# Common LaTeX special characters that need escaping
+latex_escape_reference() {
+    cat << 'EOF'
++----------------+---------------+-------------------------------------------+
+| Character      | LaTeX Escape  | Common Issues                             |
++----------------+---------------+-------------------------------------------+
+| %              | \%            | Starts a comment in LaTeX                 |
+| $              | \$            | Math mode delimiter                       |
+| #              | \#            | Macro parameter reference                 |
+| &              | \&            | Table column separator                    |
+| _              | \_            | Subscript in math mode                    |
+| {              | \{            | Begin group                               |
+| }              | \}            | End group                                 |
+| ~              | \~{}          | Non-breaking space                        |
+| ^              | \^{}          | Superscript in math mode                  |
+| \              | \textbackslash| Escape character                          |
+| <              | \textless     | Less than symbol                          |
+| >              | \textgreater  | Greater than symbol                       |
+| |              | \textbar      | Vertical bar                              |
+| "              | ``text''      | Use proper quotes                         |
+| £              | \pounds       | Pound symbol                              |
+| €              | \euro (needs  | Euro symbol                               |
+|                | textcomp pkg) |                                           |
+| ±              | \pm           | Plus-minus sign (math mode)               |
+| ×              | \times        | Multiplication sign (math mode)           |
+| ÷              | \div          | Division sign (math mode)                 |
+| °              | \degree       | Degree symbol (needs gensymb)             |
+| µ              | \mu           | Micro symbol (math mode)                  |
++----------------+---------------+-------------------------------------------+
+EOF
+}
+
+# Check if pdflatex is available for validation
+check_latex_available() {
+    if ! command -v pdflatex >/dev/null 2>&1; then
+        echo_warn "pdflatex not found. LaTeX validation will be skipped."
+        return 1
+    fi
+    return 0
+}
+
+
+# Function to show LaTeX escape reference
+show_latex_escape_reference() {
+    echo -e "\033[1;36mLaTeX Special Characters Escape Reference:\033[0m"
+    latex_escape_reference
+}
+
+# Check for special characters that might need LaTeX escaping
+check_for_special_chars() {
+    local input_file="$1"
+    local problem_chars="[&%$#_{}^~\\|<>]"
+
+    if grep -q "$problem_chars" "$input_file"; then
+        echo_warn "Potential LaTeX special characters found in $input_file:"
+        grep -n "$problem_chars" "$input_file" | head -5
+        echo "These may need proper LaTeX escaping."
+        return 1
+    fi
+    return 0
+}
+
+# Export functions to be used in other scripts
+export -f latex_escape_reference
+export -f check_latex_available
+export -f display_latex_error_advice
+export -f show_latex_escape_reference
+export -f validate_tex_file
+export -f check_for_special_chars
+export -f validate_tex_file_and_exit
+
+# EOF
