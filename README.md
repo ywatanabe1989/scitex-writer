@@ -1,12 +1,12 @@
 <!-- ---
-!-- Timestamp: 2025-10-29 13:41:01
+!-- Timestamp: 2025-10-29 13:41:22
 !-- Author: ywatanabe
 !-- File: /home/ywatanabe/proj/scitex-writer/README.md
 !-- --- -->
 
 # SciTeX Writer
 
-LaTeX compilation system for scientific manuscript writing.
+LaTeX compilation system for scientific manuscripts.
 
 ## Quick Start
 
