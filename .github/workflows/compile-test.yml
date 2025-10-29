@@ -4,14 +4,18 @@ on:
   push:
     branches: [ main, develop ]
     paths:
-      - 'manuscript/**'
-      - '!manuscript/scripts/py/**'
+      - '01_manuscript/**'
+      - 'scripts/shell/**'
+      - 'config/**'
+      - 'shared/**'
       - '.github/workflows/compile-test.yml'
   pull_request:
     branches: [ main, develop ]
     paths:
-      - 'manuscript/**'
-      - '!manuscript/scripts/py/**'
+      - '01_manuscript/**'
+      - 'scripts/shell/**'
+      - 'config/**'
+      - 'shared/**'
       - '.github/workflows/compile-test.yml'
 
 jobs:
@@ -19,21 +23,41 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
-    
+    - uses: actions/checkout@v4
+
+    - name: Cache LaTeX dependencies
+      uses: actions/cache@v4
+      with:
+        path: /usr/share/texmf
+        key: texlive-${{ runner.os }}-${{ hashFiles('**/requirements*.txt') }}
+        restore-keys: |
+          texlive-${{ runner.os }}-
+
     - name: Install LaTeX and dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y texlive-full latexdiff
-        
-    - name: Compile manuscript without figures
+        sudo apt-get install -y texlive-full latexdiff ghostscript imagemagick perl parallel
+
+    - name: Install Python dependencies
       run: |
-        cd manuscript
-        ./compile -nf
-        
+        python3 -m pip install --upgrade pip
+        pip install xlsx2csv csv2latex
+
+    - name: Compile manuscript
+      run: ./compile.sh manuscript
+
     - name: Upload compiled PDF
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
+      if: success()
       with:
         name: manuscript-pdf
-        path: manuscript/main/manuscript.pdf
-        if-no-files-found: error
+        path: 01_manuscript/manuscript.pdf
+        retention-days: 30
+
+    - name: Upload diff PDF
+      uses: actions/upload-artifact@v4
+      if: success()
+      with:
+        name: manuscript-diff
+        path: 01_manuscript/manuscript_diff.pdf
+        retention-days: 30
