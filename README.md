@@ -1,5 +1,5 @@
 <!-- ---
-!-- Timestamp: 2025-10-29 12:39:42
+!-- Timestamp: 2025-10-29 12:49:05
 !-- Author: ywatanabe
 !-- File: /home/ywatanabe/proj/scitex-writer/README.md
 !-- --- -->
@@ -141,29 +141,12 @@ Optionally download containers upfront (~3.2GB):
 ./scripts/installation/download_containers.sh
 ```
 
-## Troubleshooting
-
-| Issue | Solution |
-|-------|----------|
-| "command not found" | Containers handle missing dependencies automatically |
-| Chrome/Puppeteer errors | Mermaid container includes Chromium |
-| First compilation slow | Initial container download (~3GB one-time) |
-| Compilation fails | Check `01_manuscript/logs/` for error messages |
-
 ## Configuration
 
 YAML configuration files in `config/`:
 - `config_manuscript.yaml` - Manuscript settings
 - `config_supplementary.yaml` - Supplementary settings
 - `config_revision.yaml` - Revision settings
-
-## Tips
-
-1. **Start simple**: Begin with placeholder text and compile to verify setup
-2. **Incremental writing**: Compile frequently to catch errors early
-3. **Use watch mode**: `./compile -m -w` for continuous compilation during writing
-4. **Reference management**: Use tools like Zotero or Mendeley to manage bibliography
-5. **Figure quality**: Use high-resolution images (300+ DPI) for publication
 
 ## License
 
