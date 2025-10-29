@@ -12,7 +12,7 @@ Procedural documentation for common tasks and workflows:
 
 ### Architecture (02_ARCHITECTURE_*)
 Technical design and implementation details:
-- **02_ARCHITECTURE_IMPLEMENTATION.md** - System architecture, technical implementation, and troubleshooting guide
+- **02_ARCHITECTURE.md** - System architecture, technical implementation, and troubleshooting guide
 
 ### Research (03_RESEARCH_*)
 Lookup resources and standards for scientific writing:
@@ -57,7 +57,7 @@ Step-by-step instructions for Claude Code tasks:
 2. **For figure/table creation**: See `01_GUIDE_CONTENT_CREATION.md`
 3. **For AI agent and LLM setup**: Consult `01_GUIDE_AGENTS.md`
 4. **For terminology guidance**: Check `03_RESEARCH_TERMINOLOGY.md`
-5. **For technical architecture**: Review `02_ARCHITECTURE_IMPLEMENTATION.md`
+5. **For technical architecture**: Review `02_ARCHITECTURE.md`
 6. **For external resources**: See `04_EXTERNAL_RESOURCES.md`
 7. **For Python development**: Check `to_claude/guidelines/python/` directory
 8. **For project management**: Look in `to_claude/guidelines/project/`
@@ -73,7 +73,7 @@ Root-level documentation files use explicit descriptive prefixes for semantic me
   - `01_GUIDE_AGENTS.md` - AI and LLM integration
 
 - **02_ARCHITECTURE_*** = Architecture (technical design and implementation)
-  - `02_ARCHITECTURE_IMPLEMENTATION.md` - System design and technical details
+  - `02_ARCHITECTURE.md` - System design and technical details
 
 - **03_RESEARCH_*** = Research (lookup materials, standards, terminology)
   - `03_RESEARCH_TERMINOLOGY.md` - Scientific writing conventions
