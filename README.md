@@ -1,5 +1,5 @@
 <!-- ---
-!-- Timestamp: 2025-10-29 13:04:01
+!-- Timestamp: 2025-10-29 13:05:29
 !-- Author: ywatanabe
 !-- File: /home/ywatanabe/proj/scitex-writer/README.md
 !-- --- -->
@@ -11,16 +11,7 @@ A LaTeX compilation system with predefined project structure for scientific manu
 ## Quick Start
 
 ```bash
-# Compile manuscript (default)
 ./compile
-
-# # Or specify document type explicitly
-# ./compile -m                    # manuscript
-# ./compile -s                    # supplementary materials
-# ./compile -r                    # revision responses
-#  
-# # Watch mode (auto-recompile on changes)
-# ./compile -m -w
 ```
 
 That's it! PDF is produced as [`01_manuscript/manuscript.pdf`](01_manuscript/manuscript.pdf)
@@ -148,6 +139,24 @@ Edit `shared/bib_files/bibliography.bib`:
 ```
 
 Cite in text: `\cite{your_reference_2024}`
+
+</details>
+
+<details>
+<summary>Manuscript, Supplementary Materials, and Revision Letter</summary>
+
+```bash
+# Compile manuscript (default)
+./compile
+
+# # Or specify document type explicitly
+# ./compile -m                    # manuscript
+# ./compile -s                    # supplementary materials
+# ./compile -r                    # revision responses
+#  
+# # Watch mode (auto-recompile on changes)
+# ./compile -m -w
+```
 
 </details>
 
