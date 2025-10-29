@@ -1,5 +1,5 @@
 <!-- ---
-!-- Timestamp: 2025-10-29 12:49:05
+!-- Timestamp: 2025-10-29 12:53:07
 !-- Author: ywatanabe
 !-- File: /home/ywatanabe/proj/scitex-writer/README.md
 !-- --- -->
@@ -30,35 +30,6 @@ A LaTeX compilation system with predefined project structure for scientific manu
 
    Output: `01_manuscript/manuscript.pdf`
 
-## Adding Figures and Tables
-
-### Figures
-Place figure caption files in `01_manuscript/contents/figures/caption_and_media/`:
-
-```tex
-%% Example: 01_my_figure.tex
-\caption{Description of your figure. Explain what is shown, define abbreviations, and provide sufficient detail for standalone understanding.}
-\label{fig:my_figure}
-```
-
-Add corresponding image files (`.jpg`, `.png`, `.tif`) with the same base name:
-- `01_my_figure.jpg` or `01_my_figure.png`
-
-Reference in text: `Figure~\ref{fig:my_figure}`
-
-### Tables
-Place table caption files in `01_manuscript/contents/tables/caption_and_media/`:
-
-```tex
-%% Example: 01_my_table.tex
-\caption{Description of your table. Explain what data is shown and define any abbreviations.}
-\label{tab:my_table}
-```
-
-Add corresponding data files (`.xlsx` or `.csv`) with the same base name:
-- `01_my_table.xlsx` or `01_my_table.csv`
-
-Reference in text: `Table~\ref{tab:my_table}`
 
 ## Project Structure
 
@@ -85,6 +56,47 @@ scitex-writer/
 └── 03_revision/               # Revision responses
 ```
 
+<details>
+<summary>Figures</summary>
+
+## Figures
+Place figure caption files in `01_manuscript/contents/figures/caption_and_media/`:
+
+```tex
+%% Example: 01_my_figure.tex
+\caption{Description of your figure. Explain what is shown, define abbreviations, and provide sufficient detail for standalone understanding.}
+\label{fig:my_figure}
+```
+
+Add corresponding image files (`.jpg`, `.png`, `.tif`) with the same base name:
+- `01_my_figure.jpg` or `01_my_figure.png`
+
+Reference in text: `Figure~\ref{fig:my_figure}`
+
+</details>
+
+<details>
+<summary>Tabless</summary>
+
+## Tables
+Place table caption files in `01_manuscript/contents/tables/caption_and_media/`:
+
+```tex
+%% Example: 01_my_table.tex
+\caption{Description of your table. Explain what data is shown and define any abbreviations.}
+\label{tab:my_table}
+```
+
+Add corresponding data files (`.xlsx` or `.csv`) with the same base name:
+- `01_my_table.xlsx` or `01_my_table.csv`
+
+Reference in text: `Table~\ref{tab:my_table}`
+
+</details>
+
+<details>
+<summary>Citations</summary>
+
 ## Compilation Options
 
 ```bash
@@ -100,7 +112,12 @@ scitex-writer/
 ./compile -m -w
 ```
 
-## Adding References
+</details>
+
+<details>
+<summary>Citations</summary>
+
+## Citations
 
 Edit `shared/bib_files/bibliography.bib`:
 
@@ -118,6 +135,8 @@ Edit `shared/bib_files/bibliography.bib`:
 
 Cite in text: `\cite{your_reference_2024}`
 
+</details>
+
 ## Features
 
 - **Container-based compilation**: Consistent builds across systems
@@ -128,6 +147,9 @@ Cite in text: `\cite{your_reference_2024}`
 - **Version tracking**: Automatic diff generation
 - **Watch mode**: Auto-recompile on file changes
 - **HPC-ready**: Works on compute clusters
+
+<details>
+<summary>Installation</summary>
 
 ## Installation
 
@@ -148,6 +170,7 @@ YAML configuration files in `config/`:
 - `config_supplementary.yaml` - Supplementary settings
 - `config_revision.yaml` - Revision settings
 
+</details>
 ## License
 
 MIT License - See LICENSE file for details
