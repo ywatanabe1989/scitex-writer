@@ -1,0 +1,39 @@
+name: Compilation Demo
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  workflow_dispatch:
+
+jobs:
+  compile:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install Apptainer
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y apptainer
+
+    - name: Run manuscript compilation
+      run: ./compile.sh manuscript
+
+    - name: Upload compiled PDF
+      uses: actions/upload-artifact@v4
+      if: success()
+      with:
+        name: compiled-manuscript
+        path: 01_manuscript/manuscript.pdf
+        retention-days: 30
+
+    - name: Upload diff PDF
+      uses: actions/upload-artifact@v4
+      if: success()
+      with:
+        name: compiled-diff
+        path: 01_manuscript/manuscript_diff.pdf
+        retention-days: 30

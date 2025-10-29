@@ -1,5 +1,5 @@
 <!-- ---
-!-- Timestamp: 2025-10-29 13:19:13
+!-- Timestamp: 2025-10-29 13:22:08
 !-- Author: ywatanabe
 !-- File: /home/ywatanabe/proj/scitex-writer/README.md
 !-- --- -->
@@ -18,6 +18,9 @@ cd scitex-writer
 
 🎉 That's it! PDF is produced at [`01_manuscript/manuscript.pdf`](01_manuscript/manuscript.pdf)
 
+(Compilation Log: [`./docs/compilation_log.txt`])(./docs/compilation_log.txt))
+
+
 ## How to write your paper
 
 <details>
@@ -25,15 +28,56 @@ cd scitex-writer
 
 ## Installation
 
+### Requirements
+
+This project uses **Singularity/Apptainer containers** for LaTeX compilation, ensuring consistent results across different systems (local machines, HPC clusters, CI/CD platforms).
+
+**Container system options:**
+- **Apptainer** (recommended, actively maintained) - Install via package manager
+- **Singularity** (legacy) - Still supported as fallback
+
+#### System-specific installation:
+
+**Ubuntu/Debian:**
+```bash
+sudo apt-get update
+sudo apt-get install -y apptainer
+```
+
+**Fedora/RHEL:**
+```bash
+sudo dnf install -y apptainer
+```
+
+**macOS (via Homebrew):**
+```bash
+brew install apptainer
+```
+
+**HPC Clusters:**
+Most clusters have Singularity/Apptainer available via module system:
+```bash
+module load singularity  # or: module load apptainer
+```
+
+### Verify Installation
+
 Check requirements:
 ```bash
 ./scripts/installation/check_requirements.sh
 ```
 
-Optionally download containers upfront (~3.2GB):
+### Optional: Pre-download Containers
+
+Containers are automatically downloaded on first run (~3.2GB total). Optionally download upfront:
 ```bash
 ./scripts/installation/download_containers.sh
 ```
+
+This downloads:
+- **texlive/texlive:latest** - LaTeX compilation (~2GB)
+- **minlag/mermaid-cli:latest** - Diagram rendering
+- **dpokidov/imagemagick:latest** - Image processing
 
 ## Configuration
 
