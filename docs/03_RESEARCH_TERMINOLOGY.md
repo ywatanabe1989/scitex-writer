@@ -307,6 +307,6 @@ Different journals may have specific requirements:
 
 ## References
 
-- See `G_QUICK_START.md` for basic workflow
-- See `G_CONTENT_CREATION.md` for figure/table standards
+- See `01_GUIDE_QUICK_START.md` for basic workflow
+- See `01_GUIDE_CONTENT_CREATION.md` for figure/table standards
 - Check `to_claude/guidelines/science/` for detailed scientific writing guides

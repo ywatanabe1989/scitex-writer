@@ -191,9 +191,9 @@ Check your target journal's:
 If you encounter issues:
 
 1. **Check documentation first**
-   - Review `G_QUICK_START.md`
-   - Check `G_CONTENT_CREATION.md`
-   - See `A_IMPLEMENTATION.md` for technical details
+   - Review `01_GUIDE_QUICK_START.md`
+   - Check `01_GUIDE_CONTENT_CREATION.md`
+   - See `02_ARCHITECTURE.md` for technical details
 
 2. **Search existing solutions**
    - Tex Stack Exchange for LaTeX issues

@@ -352,6 +352,6 @@ Create additional documents in `02_supplementary/`:
 
 ## Resources
 
-- See `G_CONTENT_CREATION.md` for detailed figure/table guide
+- See `01_GUIDE_CONTENT_CREATION.md` for detailed figure/table guide
 - Check `to_claude/guidelines/` for language-specific standards
 - Review `structure/` directory for repository organization

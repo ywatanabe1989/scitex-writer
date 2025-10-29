@@ -82,12 +82,12 @@ project/
 │   └── styling.tex
 │
 └── docs/                   # Documentation
-    ├── G_QUICK_START.md
-    ├── G_CONTENT_CREATION.md
+    ├── 01_GUIDE_QUICK_START.md
+    ├── 01_GUIDE_CONTENT_CREATION.md
     ├── G_AGENTS.md
-    ├── R_TERMINOLOGY.md
-    ├── A_IMPLEMENTATION.md
-    ├── X_EXTERNAL_RESOURCES.md
+    ├── 03_RESEARCH_TERMINOLOGY.md
+    ├── 02_ARCHITECTURE.md
+    ├── 04_EXTERNAL_RESOURCES.md
     └── to_claude/          # Claude Code guidelines
 ```
 
@@ -269,7 +269,7 @@ To add figure format support:
 To add table formatting option:
 1. Add pattern match in `process_tables.sh`
 2. Implement LaTeX generation
-3. Document in `G_CONTENT_CREATION.md`
+3. Document in `01_GUIDE_CONTENT_CREATION.md`
 4. Test with examples
 
 ### Integration with External Tools

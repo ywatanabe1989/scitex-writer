@@ -165,6 +165,6 @@ After compilation:
 
 ## More Information
 
-- Full content guide: `G_CONTENT_CREATION.md`
+- Full content guide: `01_GUIDE_CONTENT_CREATION.md`
 - AI agent guide: `G_AGENTS.md`
 - For language-specific standards: `to_claude/guidelines/`
