@@ -1,0 +1,123 @@
+(wsl) scitex-writer $ ./compile.sh 
+==========================================
+Compilation Interface
+  Document type: manuscript
+  Delegating to: ./scripts/shell/compile_manuscript.sh
+==========================================
+INFO: Running ./scripts/shell/compile_manuscript.sh...
+SUCC:     Configuration Loaded for manuscript
+
+INFO: Running ./scripts/shell/compile_manuscript.sh...
+
+INFO: Running ./scripts/shell/modules/check_dependancy_commands.sh...
+SUCC:     All required tools available (using container for LaTeX)
+    Missing optional tools:
+- opencv-python (optional, for --crop_tif)
+    - pip install opencv-python
+- bibtexparser (for bibliography analysis tools)
+    - pip install bibtexparser
+
+
+INFO: Running ./scripts/shell/modules/process_figures.sh ...
+INFO:     Cleaning jpg_for_compilation directory...
+INFO:     Starting figure conversion cascade...
+INFO:     Step 3: Converting TIF/TIFF to PNG...
+INFO:     Step 4: Converting MMD to PNG...
+INFO:     Converting Mermaid diagrams to PNG...
+
+INFO: Running /home/ywatanabe/proj/scitex-writer/scripts/shell/modules/mmd2png_all.sh...
+INFO:     No .mmd files found in ./01_manuscript/contents/figures/caption_and_media
+INFO:     Step 5: Converting PNG to JPG...
+INFO:     Step 6: Processing existing JPG/JPEG files...
+INFO:     Creating composed figures from panels...
+INFO:     Copying composed figure JPGs to jpg_for_compilation...
+INFO:     All figures already up-to-date in jpg_for_compilation
+SUCC:     Figure conversion cascade completed
+INFO:     Checking for missing figures...
+    Missing source for: 01_example_figure
+convert-im6.q16: unable to read font `Arial-Bold' @ warning/annotate.c/RenderType/949.
+    Created guided placeholder: 01_example_figure.jpg
+    Missing source for: 02_another_example
+convert-im6.q16: unable to read font `Arial-Bold' @ warning/annotate.c/RenderType/949.
+    Created guided placeholder: 02_another_example.jpg
+INFO:     Checking for panel figures to tile...
+INFO:     Optimizing figures with Python script...
+
+INFO: Running ./scripts/shell/modules/process_tables.sh ...
+INFO:     Using csv2latex for table processing
+INFO:     Created table header template with instructions
+SUCC:     1 tables compiled
+
+INFO: Running ./scripts/shell/modules/count_words.sh ...
+SUCC:     Word counts updated:
+SUCC:       Figures: 2
+SUCC:       Tables: 0
+SUCC:       Abstract: 67 words
+SUCC:       Main text (IMRD): 602 words
+
+INFO: Running ./scripts/shell/modules/compilation_structure_tex_to_compiled_tex.sh ...
+INFO:     Processing ./01_manuscript/contents/latex_styles/columns.tex
+INFO:     Processing ./01_manuscript/contents/latex_styles/packages.tex
+INFO:     Processing ./01_manuscript/contents/latex_styles/linker.tex
+INFO:     Processing ./01_manuscript/contents/latex_styles/formatting.tex
+INFO:     Processing ./01_manuscript/contents/journal_name.tex
+INFO:     Processing ./01_manuscript/contents/highlights.tex
+INFO:     Processing ./01_manuscript/contents/title.tex
+INFO:     Processing ./01_manuscript/contents/authors.tex
+INFO:     Processing ./01_manuscript/contents/graphical_abstract.tex
+INFO:     Processing ./01_manuscript/contents/abstract.tex
+INFO:     Processing ./01_manuscript/contents/keywords.tex
+INFO:     Processing ./01_manuscript/contents/wordcount.tex
+INFO:     Processing ./01_manuscript/contents/introduction.tex
+INFO:     Processing ./01_manuscript/contents/methods.tex
+INFO:     Processing ./01_manuscript/contents/results.tex
+INFO:     Processing ./01_manuscript/contents/discussion.tex
+INFO:     Processing ./01_manuscript/contents/latex_styles/bibliography.tex
+INFO:     Processing ./01_manuscript/contents/data_availability.tex
+INFO:     Processing ./01_manuscript/contents/additional_info.tex
+INFO:     Processing ./01_manuscript/contents/tables/compiled/FINAL.tex
+INFO:     Processing ./01_manuscript/contents/figures/compiled/FINAL.tex
+INFO:     Processing ./01_manuscript/contents/tables/compiled/00_Tables_Header.tex
+SUCC:     ./01_manuscript/manuscript.tex compiled
+
+INFO: Running ./scripts/shell/modules/compilation_compiled_tex_to_compiled_pdf.sh ...
+INFO:     Converting ./01_manuscript/manuscript.tex to PDF...
+INFO:     Pass 1/3: Initial
+INFO:       (3s)
+INFO:     Processing bibliography
+INFO:       (0s)
+INFO:     Pass 2/3: Bibliography
+INFO:       (2s)
+INFO:     Pass 3/3: Final
+INFO:       (3s)
+SUCC:     Total compilation: 8s
+SUCC:     ./01_manuscript/manuscript.pdf ready (400K)
+SUCC:     Symlink updated: ./01_manuscript/manuscript-latest.pdf -> manuscript.pdf (no archive yet)
+
+INFO: Running ./scripts/shell/modules/process_diff.sh ...
+INFO:     Creating diff between archive...
+SUCC:     ./01_manuscript/manuscript_diff.tex created
+INFO:     Compiling diff document...
+INFO:     Pass 1/3: Initial
+INFO:       (2s)
+INFO:     Processing bibliography
+INFO:       (1s)
+INFO:     Pass 2/3: Bibliography
+INFO:       (2s)
+INFO:     Pass 3/3: Final
+INFO:       (3s)
+SUCC:     ./01_manuscript/manuscript_diff.pdf ready (400K)
+INFO:     Total time: 10s
+
+INFO: Running ./scripts/shell/modules/process_archive.sh...
+SUCC:     Initialized version counter: 000
+SUCC:     Version allocated as: v001
+
+INFO: Running ./scripts/shell/modules/cleanup.sh...
+INFO:     Removing versioned files from current directory...
+
+INFO: ./scripts/shell/modules/custom_tree.sh...
+SUCC:     ./01_manuscript/docs/tree.txt created
+
+SUCC: See ./01_manuscript/logs/global.log
+(wsl) scitex-writer $ 

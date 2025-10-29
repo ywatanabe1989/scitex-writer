@@ -21,15 +21,15 @@ all: manuscript supplementary revision
 # Document compilation targets
 manuscript:
 	@echo "Compiling manuscript..."
-	./compile manuscript --quiet
+	./compile.sh manuscript --quiet
 
 supplementary:
 	@echo "Compiling supplementary materials..."
-	./compile supplementary --quiet
+	./compile.sh supplementary --quiet
 
 revision:
 	@echo "Compiling revision responses..."
-	./compile revision --quiet
+	./compile.sh revision --quiet
 
 # Cleaning targets
 clean:
