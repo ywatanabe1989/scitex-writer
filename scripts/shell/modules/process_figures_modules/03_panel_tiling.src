@@ -1,0 +1,171 @@
+#!/bin/bash
+# -*- coding: utf-8 -*-
+# File: process_figures_modules/03_panel_tiling.sh
+# Panel tiling functions for multi-panel figures
+
+# Tile panels into a single figure
+tile_panels() {
+    local base_name="$1"
+    local panel_files=("${@:2}")
+    
+    if [ ${#panel_files[@]} -eq 0 ]; then
+        return 1
+    fi
+    
+    local output_file="$STXW_FIGURE_JPG_DIR/${base_name%.jpg}.jpg"
+    
+    # Use Python script if available
+    if command -v python3 >/dev/null 2>&1; then
+        local python_script="$THIS_DIR/../python/tile_panels.py"
+        if [ -f "$python_script" ]; then
+            python3 "$python_script" \
+                --output "$output_file" \
+                --panels "${panel_files[@]}" \
+                --layout "auto"
+            return $?
+        fi
+    fi
+    
+    # Fallback to ImageMagick montage
+    if command -v montage >/dev/null 2>&1; then
+        montage "${panel_files[@]}" \
+            -tile "${#panel_files[@]}x1" \
+            -geometry "+10+10" \
+            -background white \
+            "$output_file"
+        return $?
+    fi
+    
+    return 1
+}
+
+# Automatically tile panel figures
+auto_tile_panels() {
+    local no_figs="$1"
+    [ "$no_figs" = true ] && return 0
+    
+    echo_info "Checking for panel figures to tile..."
+    
+    # Find all base figure names that have panels
+    local base_names=()
+    for panel_file in "$STXW_FIGURE_JPG_DIR"/[0-9]*[a-z]_*.jpg; do
+        [ -e "$panel_file" ] || continue
+        local base_name=$(basename "$panel_file" | sed 's/[a-z]_.*//')
+        
+        # Add to array if not already present
+        if [[ ! " ${base_names[@]} " =~ " ${base_name} " ]]; then
+            base_names+=("$base_name")
+        fi
+    done
+    
+    # Process each base figure
+    for base_name in "${base_names[@]}"; do
+        # Find all panels for this figure
+        local panels=($(ls "$STXW_FIGURE_JPG_DIR"/${base_name}[a-z]_*.jpg 2>/dev/null | sort))
+        
+        if [ ${#panels[@]} -gt 1 ]; then
+            echo_info "Found ${#panels[@]} panels for ${base_name}.jpg - creating tiled figure..."
+            
+            local output_file="$STXW_FIGURE_JPG_DIR/${base_name}.jpg"
+            
+            # Check if Python tiling script exists
+            local python_script="$THIS_DIR/../python/tile_panels.py"
+            if [ -f "$python_script" ] && command -v python3 >/dev/null 2>&1; then
+                python3 "$python_script" \
+                    --panels "${panels[@]}" \
+                    --output "$output_file" \
+                    --padding 20 \
+                    --background white
+                
+                if [ $? -eq 0 ]; then
+                    echo_success "Created tiled figure: ${base_name}.jpg"
+                else
+                    echo_warning "Failed to tile with Python, trying ImageMagick..."
+                    tile_with_imagemagick "${panels[@]}" "$output_file"
+                fi
+            else
+                tile_with_imagemagick "${panels[@]}" "$output_file"
+            fi
+        elif [ ${#panels[@]} -eq 1 ]; then
+            # Single panel - just copy as main figure
+            local output_file="$STXW_FIGURE_JPG_DIR/${base_name}.jpg"
+            if [ ! -f "$output_file" ]; then
+                cp "${panels[0]}" "$output_file"
+                echo_success "Copied single panel as main figure: ${base_name}.jpg"
+            fi
+        fi
+    done
+}
+
+# Fallback tiling with ImageMagick
+tile_with_imagemagick() {
+    local panels=("${@:1:$#-1}")
+    local output_file="${!#}"
+    
+    if command -v montage >/dev/null 2>&1; then
+        # Determine layout based on number of panels
+        local num_panels=${#panels[@]}
+        local tile_layout="x1"  # Default horizontal layout
+        
+        if [ $num_panels -eq 2 ]; then
+            tile_layout="2x1"
+        elif [ $num_panels -eq 3 ]; then
+            tile_layout="3x1"
+        elif [ $num_panels -eq 4 ]; then
+            tile_layout="2x2"
+        elif [ $num_panels -le 6 ]; then
+            tile_layout="3x2"
+        else
+            tile_layout="x1"
+        fi
+        
+        montage "${panels[@]}" \
+            -tile "$tile_layout" \
+            -geometry "+20+20" \
+            -background white \
+            -gravity center \
+            "$output_file"
+        
+        if [ $? -eq 0 ]; then
+            echo_success "Created tiled figure: $(basename "$output_file")"
+        else
+            echo_error "Failed to create tiled figure: $(basename "$output_file")"
+        fi
+    else
+        echo_error "ImageMagick montage not available for tiling"
+        # As last resort, just copy the first panel
+        cp "${panels[0]}" "$output_file"
+    fi
+}
+
+# Check and tile panels that need tiling
+check_panels_for_tiling() {
+    echo_info "Checking for figures that need panel tiling..."
+    
+    # Check each main figure for missing composed version
+    for caption_file in "$STXW_FIGURE_CAPTION_MEDIA_DIR"/[0-9]*_*.tex; do
+        [ -e "$caption_file" ] || continue
+        local base_name=$(basename "$caption_file" .tex)
+        
+        # Skip if this is a panel caption (shouldn't exist, but check anyway)
+        if [[ "$base_name" =~ ^[0-9]+[a-z]_ ]]; then
+            continue
+        fi
+        
+        # Check if panels exist for this figure
+        local panels=($(ls "$STXW_FIGURE_CAPTION_MEDIA_DIR"/${base_name%_*}[a-z]_*.jpg 2>/dev/null))
+        
+        if [ ${#panels[@]} -gt 0 ]; then
+            local main_jpg="$STXW_FIGURE_JPG_DIR/${base_name}.jpg"
+            
+            if [ ! -f "$main_jpg" ]; then
+                echo_warning "Main figure missing for panels: ${base_name}.jpg"
+                # Trigger panel tiling
+                auto_tile_panels false
+                break
+            fi
+        fi
+    done
+}
+
+# EOF

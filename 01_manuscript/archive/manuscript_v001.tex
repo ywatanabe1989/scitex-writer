@@ -1,0 +1,794 @@
+%% -*- coding: utf-8 -*-
+%% Timestamp: "2025-09-27 22:21:42 (ywatanabe)"
+%% File: "/ssh:sp:/home/ywatanabe/proj/neurovista/paper/01_manuscript/base.tex"
+\UseRawInputEncoding
+
+%% ----------------------------------------
+%% SETTINGS
+%% ----------------------------------------
+
+%% ========================================
+%% ./01_manuscript/contents/latex_styles/columns.tex
+%% ========================================
+%% -*- coding: utf-8 -*-
+%% Timestamp: "2025-09-30 18:04:38 (ywatanabe)"
+%% File: "/ssh:sp:/home/ywatanabe/proj/neurovista/paper/shared/latex_styles/columns.tex"
+
+%% --- Columns ---
+%% \documentclass[final,3p,times,twocolumn]{elsarticle} %% Use it for submission
+%% Use the options 1p,twocolumn; 3p; 3p,twocolumn; 5p; or 5p,twocolumn
+%% for a journal layout:
+%% \documentclass[final,1p,times]{elsarticle}
+%% \documentclass[final,1p,times,twocolumn]{elsarticle}
+%% \documentclass[final,3p,times]{elsarticle}
+%% \documentclass[final,3p,times,twocolumn]{elsarticle}
+%% \documentclass[final,5p,times]{elsarticle}
+%% \documentclass[final,5p,times,twocolumn]{elsarticle}
+\documentclass[preprint,review,12pt]{elsarticle}
+
+%%%% EOF
+
+
+%% ========================================
+%% ./01_manuscript/contents/latex_styles/packages.tex
+%% ========================================
+%% -*- coding: utf-8 -*-
+%% Timestamp: "2025-09-30 17:57:49 (ywatanabe)"
+%% File: "/ssh:sp:/home/ywatanabe/proj/neurovista/paper/shared/latex_styles/packages.tex"
+%% -*- coding: utf-8 -*-
+%% Timestamp: "2025-09-27 16:01:16 (ywatanabe)"
+
+%% Language and encoding
+\usepackage[english]{babel}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+
+%% Mathematics
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{siunitx}
+\sisetup{round-mode=figures,round-precision=3}
+
+%% Graphics and figures
+\usepackage{graphicx}
+\usepackage{tikz}
+\usepackage{pgfplots, pgfplotstable}
+\usetikzlibrary{positioning,shapes,arrows,fit,calc,graphs,graphs.standard}
+
+%% Tables
+\usepackage[table]{xcolor}
+\usepackage{booktabs, colortbl, longtable, supertabular, tabularx, xltabular}
+\usepackage{csvsimple, makecell}
+
+%% Table formatting
+\renewcommand\theadfont{\bfseries}
+\renewcommand\theadalign{c}
+\newcolumntype{C}[1]{>{\centering\arraybackslash}m{#1}}
+\renewcommand{\arraystretch}{1.5}
+\definecolor{lightgray}{gray}{0.95}
+
+%% Layout and geometry
+\usepackage[pass]{geometry}
+\usepackage{pdflscape, indentfirst, calc}
+
+%% Captions and references
+\usepackage[margin=10pt,font=small,labelfont=bf,labelsep=endash]{caption}
+\usepackage[numbers]{natbib}  % numbers: numeric citations [1], [2]
+\setcitestyle{sort=false}     % Preserve citation order as written
+\usepackage{hyperref}
+
+%% Document features
+\usepackage{accsupp, lineno, bashful, lipsum}
+
+%% Visual enhancements
+\usepackage[most]{tcolorbox}
+
+%% External references
+\usepackage{xr-hyper}
+
+%% EOF
+
+%%%% EOF
+
+
+%% ========================================
+%% ./01_manuscript/contents/latex_styles/linker.tex
+%% ========================================
+%% -*- coding: utf-8 -*-
+%% Timestamp: "2025-09-30 18:04:19 (ywatanabe)"
+%% File: "/ssh:sp:/home/ywatanabe/proj/neurovista/paper/shared/latex_styles/linker.tex"
+
+%% --- Linker for supplemtal material ---
+\usepackage{xr}
+\makeatletter
+\newcommand*{\addFileDependency}[1]{% argument=file name and extension
+  \typeout{(#1)}
+  \@addtofilelist{#1}
+  \IfFileExists{#1}{}{\typeout{No file #1.}}
+}
+\makeatother
+
+\newcommand*{\link}[2][]{%
+    \externaldocument[#1]{#2}%
+    \addFileDependency{#2.tex}%
+    \addFileDependency{#2.aux}%
+}
+
+%%%% EOF
+
+
+%% ========================================
+%% ./01_manuscript/contents/latex_styles/formatting.tex
+%% ========================================
+%% -*- coding: utf-8 -*-
+%% Timestamp: "2025-09-30 18:03:32 (ywatanabe)"
+%% File: "/ssh:sp:/home/ywatanabe/proj/neurovista/paper/shared/latex_styles/formatting.tex"
+
+%% --- Image width ---
+\newlength{\imagewidth}
+\newlength{\imagescale}
+
+%% --- Line numbers ---
+\linespread{1.2}
+\linenumbers
+
+%% --- Colors ---
+\definecolor{GreenBG}{rgb}{0,1,0}
+\definecolor{RedBG}{rgb}{1,0,0}
+
+%% --- Highlight boxes ---
+\newtcbox{\greenhighlight}[1][]{on line,colframe=GreenBG,colback=GreenBG!50!white,boxrule=0pt,arc=0pt,boxsep=0pt,left=1pt,right=1pt,top=2pt,bottom=2pt,tcbox raise base}
+\newtcbox{\redhighlight}[1][]{on line,colframe=RedBG,colback=RedBG!50!white,boxrule=0pt,arc=0pt,boxsep=0pt,left=1pt,right=1pt,top=2pt,bottom=2pt,tcbox raise base}
+
+\newcommand{\REDSTARTS}{\color{red}}
+\newcommand{\REDENDS}{\color{black}}
+\newcommand{\GREENSTARTS}{\color{green}}
+\newcommand{\GREENENDS}{\color{black}}
+
+%% --- Word count ---
+\newread\wordcount
+\newcommand\readwordcount[1]{%
+\openin\wordcount=#1
+\read\wordcount to \thewordcount
+\closein\wordcount
+\thewordcount
+}
+
+%% --- Text highlighting ---
+\usepackage{soul}
+\sethlcolor{yellow}
+
+%% --- Reference handling ---
+\usepackage{refcount}
+
+\let\oldref\ref
+\newcommand{\hlref}[1]{%
+  \ifnum\getrefnumber{#1}=0
+    \colorbox{yellow}{\ref*{#1}}%  % Use colorbox for references (no line break needed)
+  \else
+    \ref{#1}%
+  \fi
+}
+
+% To add an 'S' prefixes to a reference
+\newcommand*\sref[1]{S\hlref{#1}}
+\newcommand*\sfref[1]{Supplementary Figure S\hlref{#1}}
+\newcommand*\stref[1]{Supplementary Table S\hlref{#1}}
+\newcommand*\smref[1]{Supplementary Materials S\hlref{#1}}
+
+%%%% EOF
+
+\link[supple-]{./02_supplementary/supplementary}
+
+%% ----------------------------------------
+%% JOURNAL NAME
+%% ----------------------------------------
+
+%% ========================================
+%% ./01_manuscript/contents/journal_name.tex
+%% ========================================
+\journal{Journal Name Here}
+
+
+
+%% ----------------------------------------
+%% START of DOCUMENT
+%% ----------------------------------------
+\begin{document}
+
+%% ----------------------------------------
+%% Frontmatter
+%% ----------------------------------------
+\begin{frontmatter}
+
+%% ========================================
+%% ./01_manuscript/contents/highlights.tex
+%% ========================================
+%% -*- coding: utf-8 -*-
+%% Timestamp: "2025-09-28 20:27:49 (ywatanabe)"
+%% File: "/ssh:sp:/home/ywatanabe/proj/neurovista/paper/01_manuscript/contents/highlights.tex"
+%% %% -*- coding: utf-8 -*-
+%% %% Timestamp: "2025-09-27 20:23:18 (ywatanabe)"
+%% %% File: "/ssh:sp:/home/ywatanabe/proj/neurovista/paper/01_manuscript/contents/highlights.tex"
+%% \begin{highlights}
+%% \pdfbookmark[1]{Highlights}{highlights}
+
+%% \item Highlight \#1
+
+%% \item Highlight \#2
+
+%% \item Highlight \#3
+
+%% \item Highlight \#4
+
+%% \end{highlights}
+
+%% %%%% EOF
+%%%% EOF
+
+
+%% ========================================
+%% ./01_manuscript/contents/title.tex
+%% ========================================
+\title{
+Your Manuscript Title Here: A Template for Scientific Writing
+}
+
+
+
+%% ========================================
+%% ./01_manuscript/contents/authors.tex
+%% ========================================
+%% -*- coding: utf-8 -*-
+\author[1]{First Author}
+\author[2]{Second Author}
+\author[1]{Corresponding Author\corref{cor1}}
+
+
+\address[1]{First Institution, Department, City, Country}
+\address[2]{Second Institution, Department, City, Country}
+
+\cortext[cor1]{Corresponding author. Email: corresponding.author@institution.edu}
+
+%%%% EOF
+
+
+%% ========================================
+%% ./01_manuscript/contents/graphical_abstract.tex
+%% ========================================
+%%Graphical abstract
+%\pdfbookmark[1]{Graphical Abstract}{graphicalabstract}        
+%\begin{graphicalabstract}
+%\includegraphics{grabs}
+%\end{graphicalabstract}
+
+
+
+%% ========================================
+%% ./01_manuscript/contents/abstract.tex
+%% ========================================
+%% -*- coding: utf-8 -*-
+\begin{abstract}
+  \pdfbookmark[1]{Abstract}{abstract}
+
+This is a template abstract. Replace this text with your manuscript abstract. The abstract should concisely summarize your research objectives, methods, key findings, and conclusions. Typically 150-250 words, it should provide readers with a complete overview of your work without requiring them to read the full manuscript. Include your most important results and their broader implications. Avoid citations and undefined abbreviations in the abstract.
+
+\end{abstract}
+
+%%%% EOF
+
+
+
+%% ========================================
+%% ./01_manuscript/contents/keywords.tex
+%% ========================================
+% \pdfbookmark[1]{Keywords}{keywords}
+\begin{keyword}
+keyword one \sep keyword two \sep keyword three \sep keyword four \sep keyword five
+\end{keyword}
+
+
+\end{frontmatter}
+
+%% ----------------------------------------
+%% Word Counter
+%% ----------------------------------------
+
+%% ========================================
+%% ./01_manuscript/contents/wordcount.tex
+%% ========================================
+%% -*- coding: utf-8 -*-
+%% Timestamp: "2025-09-26 18:17:20 (ywatanabe)"
+%% File: "/ssh:sp:/home/ywatanabe/proj/neurovista/paper/01_manuscript/src/wordcount.tex"
+\begin{wordcount}
+\readwordcount{./01_manuscript/contents/wordcounts/figure_count.txt} figures, \readwordcount{./01_manuscript/contents/wordcounts/table_count.txt} tables, \readwordcount{./01_manuscript/contents/wordcounts/abstract_count.txt} words for abstract, and \readwordcount{./01_manuscript/contents/wordcounts/imrd_count.txt} words for main text
+\end{wordcount}
+
+%% \begin{*wordcount}
+%% \readwordcount{./01_manuscript/contents/wordcounts/figure_count.txt} figures, \readwordcount{./01_manuscript/contents/wordcounts/table_count.txt} tables, \readwordcount{./01_manuscript/contents/wordcounts/abstract_count.txt} words for abstract, and \readwordcount{./01_manuscript/contents/wordcounts/imrd_count.txt} words for main text
+%% \end{*wordcount}
+
+%%%% EOF
+
+
+%% ----------------------------------------
+%% INTRODUCTION
+%% ----------------------------------------
+
+%% ========================================
+%% ./01_manuscript/contents/introduction.tex
+%% ========================================
+%% -*- coding: utf-8 -*-
+
+\section{Introduction}
+
+This is the introduction section of your manuscript. Replace this placeholder text with your actual introduction content.
+
+The introduction should provide context for your research by:
+\begin{itemize}
+    \item Establishing the broader scientific context and importance of your research area
+    \item Reviewing relevant previous work \cite{example_reference_2020}
+    \item Identifying gaps or limitations in existing knowledge
+    \item Clearly stating your research objectives and hypotheses
+    \item Briefly outlining your approach and key contributions
+\end{itemize}
+
+Your introduction should flow logically from general background to specific research questions. Each paragraph should connect smoothly to the next, building a compelling case for why your research is needed and what it contributes to the field.
+
+Consider the following structure:
+\begin{enumerate}
+    \item Background and significance (1-2 paragraphs)
+    \item Review of related work (2-3 paragraphs)
+    \item Identification of research gaps (1 paragraph)
+    \item Research objectives and hypotheses (1 paragraph)
+    \item Overview of approach (1 paragraph)
+\end{enumerate}
+
+Replace this template text with your actual introduction content, maintaining clear logical flow and appropriate citations throughout.
+
+%%%% EOF
+
+
+
+%% ----------------------------------------
+%% METHODS
+%% ----------------------------------------
+
+%% ========================================
+%% ./01_manuscript/contents/methods.tex
+%% ========================================
+%% -*- coding: utf-8 -*-
+
+\section{Methods}
+
+This section describes your research methodology. Replace this placeholder text with detailed descriptions of your experimental design, data collection, and analysis procedures.
+
+\subsection{Study Design}
+
+Describe your overall experimental or computational design. Include information about:
+\begin{itemize}
+    \item Study type (experimental, observational, computational, etc.)
+    \item Sample selection criteria
+    \item Ethical approvals and informed consent procedures
+    \item Timeline and study phases
+\end{itemize}
+
+\subsection{Data Collection}
+
+Detail how you collected your data:
+\begin{itemize}
+    \item Data sources and acquisition methods
+    \item Instruments or tools used
+    \item Sampling procedures
+    \item Quality control measures
+\end{itemize}
+
+\subsection{Data Analysis}
+
+Explain your analytical approach:
+\begin{itemize}
+    \item Statistical methods employed
+    \item Software and computational tools used
+    \item Processing pipelines
+    \item Significance thresholds and corrections for multiple comparisons
+\end{itemize}
+
+Provide enough detail that other researchers could reproduce your work. Reference any novel methods or modifications to existing protocols \cite{example_method_2019}.
+
+%%%% EOF
+
+
+
+%% ----------------------------------------
+%% RESULTS
+%% ----------------------------------------
+
+%% ========================================
+%% ./01_manuscript/contents/results.tex
+%% ========================================
+%% -*- coding: utf-8 -*-
+
+\section{Results}
+
+Present your findings in a clear, logical sequence. Replace this placeholder text with your actual results.
+
+\subsection{Overview of Dataset}
+
+Begin with descriptive statistics about your dataset or study population. For example:
+\begin{itemize}
+    \item Sample size and characteristics
+    \item Data quality metrics
+    \item Descriptive statistics
+\end{itemize}
+
+\subsection{Primary Findings}
+
+Present your main results, organized by research question or hypothesis. Use figures and tables to illustrate key findings. For example, Figure~\ref{fig:example_figure_01} shows an example result.
+
+Describe statistical comparisons and their significance. Report effect sizes along with p-values. For instance: ``The treatment group showed significantly higher performance (mean = XX.X ± SD) compared to control (mean = YY.Y ± SD), t(df) = ZZ.Z, p < 0.001, Cohen's d = W.WW.''
+
+\subsection{Secondary Analyses}
+
+Present additional analyses that support or extend your primary findings. Include:
+\begin{itemize}
+    \item Subgroup analyses
+    \item Sensitivity analyses
+    \item Additional statistical tests
+    \item Exploratory findings
+\end{itemize}
+
+Reference your figures (Figure~\ref{fig:example_figure_02}) and tables (Table~\ref{tab:example_table_01}) appropriately throughout the results section. Let the data speak for itself - save interpretation for the Discussion section.
+
+%%%% EOF
+
+
+
+%% ----------------------------------------
+%% DISCUSSION
+%% ----------------------------------------
+
+%% ========================================
+%% ./01_manuscript/contents/discussion.tex
+%% ========================================
+%% -*- coding: utf-8 -*-
+
+\section{Discussion}
+
+Interpret your findings and place them in the broader scientific context. Replace this placeholder text with your discussion.
+
+\subsection{Principal Findings}
+
+Begin by restating your main findings without simply repeating the Results section. Explain what your results mean and how they address your research questions or hypotheses. For example: ``Our study demonstrates that [main finding], which supports the hypothesis that [interpretation].''
+
+\subsection{Comparison with Previous Work}
+
+Compare your findings with existing literature:
+\begin{itemize}
+    \item How do your results confirm or contradict previous studies \cite{example_study_2021}?
+    \item What novel contributions does your work provide?
+    \item How do you reconcile any discrepancies with prior research?
+\end{itemize}
+
+\subsection{Mechanisms and Implications}
+
+Discuss the underlying mechanisms or theoretical implications of your findings. Consider:
+\begin{itemize}
+    \item Biological, physical, or theoretical mechanisms
+    \item Broader implications for the field
+    \item Potential applications of your findings
+    \item Future research directions
+\end{itemize}
+
+\subsection{Limitations}
+
+Acknowledge the limitations of your study honestly:
+\begin{itemize}
+    \item Sample size or selection limitations
+    \item Methodological constraints
+    \item Alternative explanations for your findings
+    \item Generalizability considerations
+\end{itemize}
+
+\subsection{Conclusions}
+
+Conclude with a concise summary of your key findings and their significance. Avoid introducing new information or overstating your conclusions. End with a forward-looking statement about future research directions or practical implications.
+
+%%%% EOF
+
+
+
+%% ----------------------------------------
+%% REFERENCE STYLES
+%% ----------------------------------------
+\pdfbookmark[1]{References}{references}
+\bibliography{./01_manuscript/contents/bibliography}
+
+%% ========================================
+%% ./01_manuscript/contents/latex_styles/bibliography.tex
+%% ========================================
+%% -*- coding: utf-8 -*-
+%% Timestamp: "2025-09-30 17:40:26 (ywatanabe)"
+%% File: "/ssh:sp:/home/ywatanabe/proj/neurovista/paper/shared/latex_styles/bibliography.tex"
+
+%% ============================================================================
+%% BIBLIOGRAPHY STYLE CONFIGURATION
+%% ============================================================================
+
+%% ----------------------------------------------------------------------------
+%% OPTION 1: NUMBERED CITATIONS (Order of Appearance) - CURRENTLY ACTIVE
+%% ----------------------------------------------------------------------------
+%% Description: Citations numbered [1], [2], [3]... in the order they first
+%%              appear in the manuscript
+%% Sorting: By first citation order (NOT alphabetical)
+%% Example: \cite{Tort2010,Canolty2010} → [1, 2] (if these are first citations)
+%% Commands: \cite{key} → [1]
+%%           \cite{key1,key2} → [1, 2]
+%% Best for: Most scientific journals, clear citation tracking
+%% Compatible with: natbib package
+\bibliographystyle{unsrtnat}
+
+%% ----------------------------------------------------------------------------
+%% OPTION 2: NUMBERED CITATIONS (Alphabetical by Author)
+%% ----------------------------------------------------------------------------
+%% Description: Citations numbered [1], [2], [3]... sorted alphabetically by
+%%              first author's last name
+%% Sorting: Alphabetical by author (Canolty before Tort)
+%% Example: \cite{Tort2010,Canolty2010} → [2, 1] (C before T alphabetically)
+%% Commands: \cite{key} → [1]
+%% Best for: When you want bibliography sorted alphabetically
+%% Compatible with: elsarticle class
+% \bibliographystyle{elsarticle-num}
+
+%% Alternative alphabetical styles:
+% \bibliographystyle{plain}      % Basic alphabetical, no natbib features
+% \bibliographystyle{ieeetr}     % IEEE style, order of appearance
+% \bibliographystyle{siam}       % SIAM style, alphabetical
+
+%% ----------------------------------------------------------------------------
+%% OPTION 3: AUTHOR-YEAR CITATIONS
+%% ----------------------------------------------------------------------------
+%% Description: Citations show author name and year (Smith, 2020) or (Smith 2020)
+%% Format: (Author, Year) or Author (Year) depending on command
+%% Example: \cite{Tort2010} → (Tort et al., 2010)
+%%          \citet{Tort2010} → Tort et al. (2010) [textual]
+%%          \citep{Tort2010} → (Tort et al., 2010) [parenthetical]
+%% Commands:
+%%   - \citet{key}  → Author (Year)  [for text: "As shown by Author (2020)..."]
+%%   - \citep{key}  → (Author, Year) [for parentheses: "...as shown (Author, 2020)"]
+%%   - \cite{key}   → Same as \citep{key}
+%% Best for: Review papers, humanities, some social sciences
+%% Requires: natbib package (already loaded)
+% \bibliographystyle{plainnat}   % Author-year, alphabetical
+% \bibliographystyle{abbrvnat}   % Author-year, abbreviated names
+% \bibliographystyle{apalike}    % APA-like author-year style
+
+%% ----------------------------------------------------------------------------
+%% OPTION 4: JOURNAL-SPECIFIC STYLES
+%% ----------------------------------------------------------------------------
+%% Elsevier journals:
+% \bibliographystyle{elsarticle-num}        % Numbered, alphabetical
+% \bibliographystyle{elsarticle-num-names}  % Numbered, alphabetical, full names
+% \bibliographystyle{elsarticle-harv}       % Author-year (Harvard style)
+
+%% Nature family:
+% \bibliographystyle{naturemag}             % Nature magazine style
+
+%% IEEE:
+% \bibliographystyle{IEEEtran}              % IEEE Transactions style
+
+%% APA:
+% \bibliographystyle{apalike}               % APA-like style
+
+%% ----------------------------------------------------------------------------
+%% CITATION COMMAND REFERENCE (with natbib)
+%% ----------------------------------------------------------------------------
+%% Basic commands:
+%%   \cite{key}              → [1] or (Author, Year) depending on style
+%%   \cite{key1,key2}        → [1, 2] or (Author1, Year1; Author2, Year2)
+%%
+%% Advanced natbib commands (only work with natbib-compatible styles):
+%%   \citet{key}             → Author (Year)  [textual citation]
+%%   \citep{key}             → (Author, Year) [parenthetical citation]
+%%   \citet*{key}            → Full author list (Year)
+%%   \citep*{key}            → (Full author list, Year)
+%%   \citealt{key}           → Author Year [no parentheses]
+%%   \citealp{key}           → Author, Year [no parentheses]
+%%   \citeauthor{key}        → Author [name only]
+%%   \citeyear{key}          → Year [year only]
+%%   \citeyearpar{key}       → (Year) [year in parentheses]
+%%
+%% Pre/post notes:
+%%   \citep[see][p.~10]{key} → (see Author, Year, p. 10)
+%%   \citep[p.~10]{key}      → (Author, Year, p. 10)
+%%
+%% Multiple citations:
+%%   \citep{key1,key2,key3}  → (Author1, Year1; Author2, Year2; Author3, Year3)
+%%
+%% Suppressing parts:
+%%   \citep[e.g.,][]{key}    → (e.g., Author, Year)
+%%   \citep[][see p.~10]{key}→ (Author, Year, see p. 10)
+%%
+%% ----------------------------------------------------------------------------
+%% TROUBLESHOOTING
+%% ----------------------------------------------------------------------------
+%% Problem: Citations appear as [?] or undefined
+%% Solution: Run compilation 3-4 times to resolve all references
+%%
+%% Problem: Citation numbers out of order [3, 1] instead of [1, 3]
+%% Solution: Use unsrtnat (order of appearance) instead of elsarticle-num
+%%
+%% Problem: "Undefined control sequence \citet"
+%% Solution: \citet only works with natbib-compatible styles (unsrtnat, plainnat)
+%%           Use \cite{} with non-natbib styles
+%%
+%% Problem: Bibliography not appearing
+%% Solution: Ensure \bibliography{path/to/bibfile} command exists in main file
+%%           Run: pdflatex → bibtex → pdflatex → pdflatex
+
+%%%% EOF
+
+
+%% ----------------------------------------
+%% DATA AVAILABILITY
+%% ----------------------------------------
+
+%% ========================================
+%% ./01_manuscript/contents/data_availability.tex
+%% ========================================
+%% -*- coding: utf-8 -*-
+%% Timestamp: "2025-09-27 20:21:43 (ywatanabe)"
+%% File: "/ssh:sp:/home/ywatanabe/proj/neurovista/paper/01_manuscript/contents/data_availability.tex"
+\pdfbookmark[1]{Data Availability Statement}{data_availability}
+
+\section*{Data Availability Statement}
+
+The NeuroVista dataset used in this study is publicly available through the International Epilepsy Electrophysiology Portal (IEEG.org) at \url{https://www.ieeg.org}. Access requires registration and approval for research purposes. 
+
+The processed PAC databases and analysis code are available at \url{https://github.com/ywatanabe1989/neurovista}. GPU-accerelated PAC calculation code is available as a standalone Python package `gpac` at \url{https://github.com/ywatanabe1989/gPAC}. The SciTeX Python utilities used for reproducible computing is available at \url{https://github.com/ywatanabe1989/SciTeX}.
+
+For questions regarding data access or analysis procedures, please contact the corresponding author.
+
+\label{data and code availability}
+
+%%%% EOF
+
+
+%% ----------------------------------------
+%% ADDITIONAL INFORMATION
+%% ----------------------------------------
+
+%% ========================================
+%% ./01_manuscript/contents/additional_info.tex
+%% ========================================
+%% -*- coding: utf-8 -*-
+%% Timestamp: "2025-09-27 20:17:53 (ywatanabe)"
+%% File: "/ssh:sp:/home/ywatanabe/proj/neurovista/paper/01_manuscript/contents/additional_info.tex"
+
+\pdfbookmark[1]{Additional Information}{additional_information}
+
+\pdfbookmark[2]{Ethics Declarations}{ethics_declarations}                    
+\section*{Ethics Declarations}
+All study participants provided their written informed consent ...
+\label{ethics declarations}
+
+\pdfbookmark[2]{Contributors}{author_contributions}                    
+\section*{Author Contributions}
+Y.W., T.Y., and D.G. conceptualized the study ...
+\label{author contributions}
+
+\pdfbookmark[2]{Acknowledgments}{acknowledgments}                    
+\section*{Acknowledgments}
+This research was funded by \hl{funding bodies here}
+\label{acknowledgments}
+
+\pdfbookmark[2]{Declaration of Interests}{declaration_of_interest}           \section*{Declaration of Interests}
+The authors declare that they have no competing interests.
+\label{declaration of interests}
+
+\pdfbookmark[2]{Declaration of Generative AI in Scientific Writing}{declaration_of_generative_ai}
+\section*{Declaration of Generative AI in Scientific Writing}
+The authors employed large language models such as Claude (Anthropic Inc.) for code development and complementing manuscript's English language quality. After incorporating suggested improvements, the authors meticulously revised the content. Ultimate responsibility for the final content of this publication rests entirely with the authors.
+\label{declaration of generative ai in scientific writing}
+
+%%%% EOF
+
+
+%% ----------------------------------------
+%% TABLES
+%% ----------------------------------------
+\clearpage
+\section*{Tables}
+\label{tables}
+\pdfbookmark[1]{Tables}{tables}
+\vspace{1cm}
+
+%% ========================================
+%% ./01_manuscript/contents/tables/compiled/FINAL.tex
+%% ========================================
+% Auto-generated file containing all table inputs
+% Generated by gather_table_tex_files()
+
+
+%% ========================================
+%% ./01_manuscript/contents/tables/compiled/00_Tables_Header.tex
+%% ========================================
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% TABLES
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% \clearpage
+\section*{Tables}
+\label{tables}
+\pdfbookmark[1]{Tables}{tables}
+
+% Template table when no actual tables are present
+\begin{table}[htbp]
+    \centering
+    \caption{\textbf{Table 0: Placeholder}\\
+    \smallskip
+    To add tables to your manuscript:\\
+    1. Place CSV files in \texttt{caption\_and\_media/} with format \texttt{XX\_description.csv}\\
+    2. Create matching caption files \texttt{XX\_description.tex}\\
+    3. Reference in text using \texttt{Table\textasciitilde\textbackslash ref\{tab:XX\_description\}}\\
+    \smallskip
+    Example: \texttt{01\_seizure\_count.csv} with \texttt{01\_seizure\_count.tex}
+    }
+    \label{tab:0_Tables_Header}
+    \begin{tabular}{p{0.3\textwidth}p{0.6\textwidth}}
+        \toprule
+        \textbf{Step} & \textbf{Instructions} \\
+        \midrule
+        1. Add CSV & Place file like \texttt{01\_data.csv} in \texttt{caption\_and\_media/} \\
+        2. Add Caption & Create \texttt{01\_data.tex} with table caption \\
+        3. Compile & Run \texttt{./compile -m} to process tables \\
+        4. Reference & Use \texttt{\textbackslash ref\{tab:01\_data\}} in manuscript \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+
+
+
+
+
+%% ----------------------------------------
+%% FIGURES
+%% ----------------------------------------
+\clearpage
+\section*{Figures}
+\label{figures}
+\pdfbookmark[1]{Figures}{figures}
+\vspace{1cm}
+
+%% ========================================
+%% ./01_manuscript/contents/figures/compiled/FINAL.tex
+%% ========================================
+% Generated by compile_figure_tex_files()
+% This file includes all figure files in order
+
+% Figure 1
+\begin{figure*}[h!]
+    \pdfbookmark[2]{Figure 1}{.1}
+    \centering
+    \includegraphics[width=1\textwidth]{./01_manuscript/contents/figures/caption_and_media/jpg_for_compilation/01_example_figure.jpg}
+    \caption{Example figure caption. This is a template showing how to include figures in your manuscript. Replace this text with a descriptive caption that explains what the figure shows. Include panel labels (A, B, C) if using multipanel figures. Explain abbreviations and symbols used in the figure. Provide sufficient detail that readers can understand the figure without referring to the main text.}
+\label{fig:example_figure_01}
+    \label{fig:1_example_figure}
+\end{figure*}
+
+% Figure 2
+\begin{figure*}[htbp]
+    \pdfbookmark[2]{Figure 2}{.2}
+    \centering
+    \includegraphics[width=1\textwidth]{./01_manuscript/contents/figures/caption_and_media/jpg_for_compilation/02_another_example.jpg}
+    \caption{Another example figure. Use this template to add additional figures to your manuscript. Each figure should be placed in a separate .tex file in this directory. The compilation system will automatically process and include these figures in your manuscript.}
+\label{fig:example_figure_02}
+    \label{fig:2_another_example}
+\end{figure*}
+
+
+
+
+%% ----------------------------------------
+%% END of DOCUMENT
+%% ----------------------------------------
+\end{document}
+

@@ -1,0 +1,32 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% TABLES
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% \clearpage
+\section*{Tables}
+\label{tables}
+\pdfbookmark[1]{Tables}{tables}
+
+% Template table when no actual tables are present
+\begin{table}[htbp]
+    \centering
+    \caption{\textbf{Table 0: Placeholder}\\
+    \smallskip
+    To add tables to your manuscript:\\
+    1. Place CSV files in \texttt{caption\_and\_media/} with format \texttt{XX\_description.csv}\\
+    2. Create matching caption files \texttt{XX\_description.tex}\\
+    3. Reference in text using \texttt{Table\textasciitilde\textbackslash ref\{tab:XX\_description\}}\\
+    \smallskip
+    Example: \texttt{01\_seizure\_count.csv} with \texttt{01\_seizure\_count.tex}
+    }
+    \label{tab:0_Tables_Header}
+    \begin{tabular}{p{0.3\textwidth}p{0.6\textwidth}}
+        \toprule
+        \textbf{Step} & \textbf{Instructions} \\
+        \midrule
+        1. Add CSV & Place file like \texttt{01\_data.csv} in \texttt{caption\_and\_media/} \\
+        2. Add Caption & Create \texttt{01\_data.tex} with table caption \\
+        3. Compile & Run \texttt{./compile -m} to process tables \\
+        4. Reference & Use \texttt{\textbackslash ref\{tab:01\_data\}} in manuscript \\
+        \bottomrule
+    \end{tabular}
+\end{table}

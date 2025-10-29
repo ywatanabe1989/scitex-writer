@@ -1,0 +1,77 @@
+%% -*- coding: utf-8 -*-
+%% Timestamp: "2025-09-27 17:21:29 (ywatanabe)"
+%% File: "/ssh:sp:/home/ywatanabe/proj/neurovista/paper/02_supplementary/base.tex"
+\UseRawInputEncoding
+
+%% ----------------------------------------
+%% SETTINGS
+%% ----------------------------------------
+\input{./02_supplementary/contents/latex_styles/columns}
+\input{./02_supplementary/contents/latex_styles/packages}
+\input{./02_supplementary/contents/latex_styles/formatting}
+
+%% ----------------------------------------
+%% JOURNAL NAME
+%% ----------------------------------------
+\input{./02_supplementary/contents/journal_name}
+
+%% ----------------------------------------
+%% START of DOCUMENT
+%% ----------------------------------------
+\begin{document}
+
+%% ----------------------------------------
+%% Frontmatter
+%% ----------------------------------------
+\begin{frontmatter}
+    \title{Supplementary Material}
+	\input{./02_supplementary/contents/authors}
+\end{frontmatter}
+
+%% ----------------------------------------
+%% Word Counter
+%% ----------------------------------------
+\input{./02_supplementary/contents/wordcount}
+
+%% ----------------------------------------
+%% SUPPLEMENTARY METHODS
+%% ----------------------------------------
+\section{Supplementary Methods}
+\input{./02_supplementary/contents/methods}
+
+%% ----------------------------------------
+%% SUPPLEMENTARY RESULTS
+%% ----------------------------------------
+\input{./02_supplementary/contents/results}
+
+%% ----------------------------------------
+%% TABLES
+%% ----------------------------------------
+\clearpage
+\section*{Tables}
+\label{tables}
+\pdfbookmark[1]{Tables}{tables}
+\input{./02_supplementary/contents/tables/compiled/FINAL}
+
+%% ----------------------------------------
+%% FIGURES
+%% ----------------------------------------
+\clearpage
+\section*{Figures}
+\label{figures}
+\pdfbookmark[1]{Figures}{figures}
+\input{./02_supplementary/contents/figures/compiled/FINAL}
+
+%% ----------------------------------------
+%% REFERENCE STYLES
+%% ----------------------------------------
+\pdfbookmark[1]{References}{references}
+\bibliography{./02_supplementary/contents/bibliography}
+\input{./02_supplementary/contents/latex_styles/bibliography}
+
+%% ----------------------------------------
+%% END of DOCUMENT
+%% ----------------------------------------
+\end{document}
+
+%%%% EOF

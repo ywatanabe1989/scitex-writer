@@ -1,0 +1,68 @@
+name: Python Tests
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths:
+      - 'scripts/python/**'
+      - 'requirements.txt'
+      - '.github/workflows/python-tests.yml'
+  pull_request:
+    branches: [ main, develop ]
+    paths:
+      - 'scripts/python/**'
+      - 'requirements.txt'
+      - '.github/workflows/python-tests.yml'
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ['3.8', '3.9', '3.10', '3.11']
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Cache pip dependencies
+      uses: actions/cache@v4
+      with:
+        path: ~/.cache/pip
+        key: pip-test-${{ runner.os }}-${{ matrix.python-version }}-${{ hashFiles('**/requirements*.txt') }}
+        restore-keys: |
+          pip-test-${{ runner.os }}-${{ matrix.python-version }}-
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+        pip install pytest pytest-cov
+
+    - name: Check if tests directory exists
+      id: check_tests
+      run: |
+        if [ -d "scripts/python/tests" ]; then
+          echo "has_tests=true" >> $GITHUB_OUTPUT
+        else
+          echo "has_tests=false" >> $GITHUB_OUTPUT
+        fi
+
+    - name: Run unit tests
+      if: steps.check_tests.outputs.has_tests == 'true'
+      run: |
+        pytest scripts/python/tests -v --cov=scripts/python --cov-report=xml
+      continue-on-error: true
+
+    - name: Upload coverage reports
+      if: steps.check_tests.outputs.has_tests == 'true'
+      uses: codecov/codecov-action@v4
+      with:
+        files: ./coverage.xml
+        fail_ci_if_error: false
+      continue-on-error: true
