@@ -5,6 +5,7 @@
 **archive/*.tex
 
 ### Source: /home/ywatanabe/.git-templates/.gitignore-templates/Custom/Claude.gitignore ###
+CLAUDE.md
 docs/to_claude
 docs/from_agents
 docs/from_user
