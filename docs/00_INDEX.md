@@ -1,24 +1,26 @@
 # Documentation Index
 
-This directory contains comprehensive documentation for the SciTeX Writer template system. Files are organized with numerical prefixes for easy navigation.
+This directory contains comprehensive documentation for the SciTeX Writer template system. Files are organized with class-based prefixes for semantic clarity and easy navigation.
 
 ## Main Documentation (Root Level)
 
-### Getting Started
-- **01_AI_AGENT_GUIDE.md** - Guide for using AI agents with the template system
-- **02_QUICK_REFERENCE.md** - Quick lookup reference for common tasks
-- **08_USAGE_FOR_LLM.md** - Best practices for using with LLMs
+### Guides (G_)
+Procedural documentation for common tasks and workflows:
+- **G_QUICK_START.md** - Quick reference for common tasks and basic workflows
+- **G_CONTENT_CREATION.md** - Comprehensive guide for creating and managing figures and tables
+- **G_AGENTS.md** - Guide for using AI agents and LLMs with the system
 
-### Content Creation
-- **03_FIGURE_TABLE_GUIDE.md** - Comprehensive guide for figures and tables
-- **04_MULTIPANEL_FIGURE_GUIDE.md** - Specialized guide for multipanel figures
-- **05_CROSS_REFERENCING.md** - How to properly cross-reference figures and tables
-- **06_TABLE_FORMAT_OPTIONS.md** - Available table formatting options
+### Reference (R_)
+Lookup resources and standards for scientific writing:
+- **R_TERMINOLOGY.md** - Terminology guidelines and language conventions for scientific manuscripts
 
-### Reference
-- **07_IMPLEMENTATION_SUMMARY.md** - Technical implementation overview
-- **09_NON_SCIENTIFIC_TERMS.md** - Guidance on terminology usage
-- **10_FROM_OPENAI.md** - Information from OpenAI resources
+### Architecture (A_)
+Technical design and implementation details:
+- **A_IMPLEMENTATION.md** - System architecture, technical implementation, and troubleshooting guide
+
+### External (X_)
+External resources and third-party references:
+- **X_EXTERNAL_RESOURCES.md** - Comprehensive links to LaTeX, scientific writing, and research tools
 
 ## Subdirectories
 
@@ -51,16 +53,29 @@ Step-by-step instructions for Claude Code tasks:
 
 ## Navigation Tips
 
-1. **For quick answers**: Start with `02_QUICK_REFERENCE.md`
-2. **For figure/table work**: See `03_FIGURE_TABLE_GUIDE.md` or `04_MULTIPANEL_FIGURE_GUIDE.md`
-3. **For AI agent setup**: Consult `01_AI_AGENT_GUIDE.md`
-4. **For Python development**: Check `to_claude/guidelines/python/` directory
-5. **For project management**: Look in `to_claude/guidelines/project/`
-6. **For scientific writing**: See `to_claude/guidelines/science/` directory
+1. **For quick answers**: Start with `G_QUICK_START.md`
+2. **For figure/table creation**: See `G_CONTENT_CREATION.md`
+3. **For AI agent and LLM setup**: Consult `G_AGENTS.md`
+4. **For terminology guidance**: Check `R_TERMINOLOGY.md`
+5. **For technical architecture**: Review `A_IMPLEMENTATION.md`
+6. **For external resources**: See `X_EXTERNAL_RESOURCES.md`
+7. **For Python development**: Check `to_claude/guidelines/python/` directory
+8. **For project management**: Look in `to_claude/guidelines/project/`
+9. **For scientific writing standards**: See `to_claude/guidelines/science/` directory
 
 ## File Naming Convention
 
-Root-level documentation files use two-digit numerical prefixes (`01_`, `02_`, etc.) to maintain alphabetical ordering and clarity when viewing directory listings.
+Root-level documentation files use class-based prefixes for semantic meaning:
+
+- **G_** = Guide (procedural, how-to documentation)
+- **R_** = Reference (lookup materials, standards, terminology)
+- **A_** = Architecture (technical design and implementation)
+- **I_** = Important (critical core information)
+- **T_** = Tutorial (learning materials with detailed steps)
+- **E_** = Example (demonstrations and sample workflows)
+- **X_** = External (third-party resources and references)
+
+This prefix system provides immediate visual context about document purpose when viewing directory listings.
 
 Subdirectory files within `to_claude/guidelines/` use numbered prefixes when they represent sequential steps or priority levels (e.g., `01_DEVELOPMENT_CYCLE.md`, `02_NAMING_CONVENSIONS.md`).
 
