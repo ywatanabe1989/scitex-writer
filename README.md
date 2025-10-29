@@ -1,5 +1,5 @@
 <!-- ---
-!-- Timestamp: 2025-10-29 13:05:29
+!-- Timestamp: 2025-10-29 13:06:32
 !-- Author: ywatanabe
 !-- File: /home/ywatanabe/proj/scitex-writer/README.md
 !-- --- -->
@@ -16,6 +16,9 @@ A LaTeX compilation system with predefined project structure for scientific manu
 
 That's it! PDF is produced as [`01_manuscript/manuscript.pdf`](01_manuscript/manuscript.pdf)
 
+<details>
+<summary>Which files to edit?</summary>
+
 ### Which files to edit?
 
 1. **Manuscript contents**
@@ -30,6 +33,11 @@ That's it! PDF is produced as [`01_manuscript/manuscript.pdf`](01_manuscript/man
    - [`shared/authors.tex`](shared/authors.tex) - Author list and affiliations
    - [`shared/keywords.tex`](shared/keywords.tex) - Keywords
    - [`shared/bib_files/bibliography.bib`](shared/bib_files/bibliography.bib) - References
+
+</details>
+
+<details>
+<summary>Project Structure</summary>
 
 ### Project Structure
 
@@ -55,6 +63,8 @@ scitex-writer/
 ├── 02_supplementary/           # Supplementary materials
 └── 03_revision/                # Revision responses
 ```
+
+</details>
 
 <details>
 <summary>Installation</summary>
