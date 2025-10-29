@@ -19,7 +19,7 @@ cd scitex-writer
 🎉 That's it! PDF is produced at [`01_manuscript/manuscript.pdf`](01_manuscript/manuscript.pdf)
 
 <details>
-<summary>⚙️ Installation</summary>
+<summary>Installation</summary>
 
 ## Installation
 
@@ -44,7 +44,7 @@ YAML configuration files in `config/`:
 
 
 <details>
-<summary>📝 Which files to edit?</summary>
+<summary>Which files to edit?</summary>
 
 ### Which files to edit?
 
@@ -64,7 +64,7 @@ YAML configuration files in `config/`:
 </details>
 
 <details>
-<summary>📂 Project Structure</summary>
+<summary>How are files organized?</summary>
 
 ### Project Structure
 
@@ -94,7 +94,7 @@ scitex-writer/
 </details>
 
 <details>
-<summary>📈 Figures</summary>
+<summary>Working with Figures</summary>
 
 ## Figures
 Place figure caption files in `01_manuscript/contents/figures/caption_and_media/`:
@@ -113,7 +113,7 @@ Reference in text: `Figure~\ref{fig:my_figure}`
 </details>
 
 <details>
-<summary>📋 Tables</summary>
+<summary>Working with Tables</summary>
 
 ## Tables
 Place table caption files in `01_manuscript/contents/tables/caption_and_media/`:
@@ -132,7 +132,7 @@ Reference in text: `Table~\ref{tab:my_table}`
 </details>
 
 <details>
-<summary>📚 Citations</summary>
+<summary>Working with Citations</summary>
 
 ## Citations
 
@@ -155,7 +155,7 @@ Cite in text: `\cite{your_reference_2024}`
 </details>
 
 <details>
-<summary>🔨 LaTeX to PDF</summary>
+<summary>Working with Manuscript, Supplementary Materials, and Revision Letter</summary>
 
 ```bash
 # Compile manuscript (default)
@@ -173,7 +173,7 @@ Cite in text: `\cite{your_reference_2024}`
 </details>
 
 <details>
-<summary>✨ Features</summary>
+<summary>Features</summary>
 
 ## Features
 
