@@ -1,5 +1,5 @@
 <!-- ---
-!-- Timestamp: 2025-10-29 13:06:32
+!-- Timestamp: 2025-10-29 13:07:57
 !-- Author: ywatanabe
 !-- File: /home/ywatanabe/proj/scitex-writer/README.md
 !-- --- -->
@@ -11,10 +11,13 @@ A LaTeX compilation system with predefined project structure for scientific manu
 ## Quick Start
 
 ```bash
-./compile
+git clone https://github.com/ywatanabe1989/scitex-writer.git
+cd scitex-writer
+./compile.sh
 ```
 
-That's it! PDF is produced as [`01_manuscript/manuscript.pdf`](01_manuscript/manuscript.pdf)
+# That's it! PDF is produced at [`01_manuscript/manuscript.pdf`](01_manuscript/manuscript.pdf)
+
 
 <details>
 <summary>Which files to edit?</summary>
