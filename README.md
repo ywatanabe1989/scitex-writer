@@ -1,5 +1,5 @@
 <!-- ---
-!-- Timestamp: 2025-10-29 13:10:55
+!-- Timestamp: 2025-10-29 13:12:13
 !-- Author: ywatanabe
 !-- File: /home/ywatanabe/proj/scitex-writer/README.md
 !-- --- -->
@@ -95,7 +95,7 @@ YAML configuration files in `config/`:
 
 
 <details>
-<summary>How to work with **Figures**?</summary>
+<summary>Working with **Figures**</summary>
 
 ## Figures
 Place figure caption files in `01_manuscript/contents/figures/caption_and_media/`:
@@ -114,7 +114,7 @@ Reference in text: `Figure~\ref{fig:my_figure}`
 </details>
 
 <details>
-<summary>How to work with **Tables**?</summary>
+<summary>Working with **Tables**</summary>
 
 ## Tables
 Place table caption files in `01_manuscript/contents/tables/caption_and_media/`:
@@ -133,7 +133,7 @@ Reference in text: `Table~\ref{tab:my_table}`
 </details>
 
 <details>
-<summary>How to work with **Citations**?</summary>
+<summary>Working with **Citations**</summary>
 
 ## Citations
 
@@ -156,7 +156,7 @@ Cite in text: `\cite{your_reference_2024}`
 </details>
 
 <details>
-<summary>How to work with **Manuscript**, **Supplementary Materials**, and **Revision Letter**?</summary>
+<summary>Working with **Manuscript**, **Supplementary Materials**, and **Revision Letter**</summary>
 
 ```bash
 # Compile manuscript (default)
