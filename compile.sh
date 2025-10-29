@@ -1,7 +1,28 @@
 #!/bin/bash
 # -*- coding: utf-8 -*-
+# Timestamp: "2025-10-29 12:59:32 (ywatanabe)"
+# File: ./compile.sh
+
+ORIG_DIR="$(pwd)"
+THIS_DIR="$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)"
+LOG_PATH="$THIS_DIR/.$(basename $0).log"
+echo > "$LOG_PATH"
+
+GIT_ROOT="$(git rev-parse --show-toplevel 2>/dev/null)"
+
+GRAY='\033[0;90m'
+GREEN='\033[0;32m'
+YELLOW='\033[0;33m'
+RED='\033[0;31m'
+NC='\033[0m' # No Color
+
+echo_info() { echo -e "${GRAY}INFO: $1${NC}"; }
+echo_success() { echo -e "${GREEN}SUCC: $1${NC}"; }
+echo_warning() { echo -e "${YELLOW}WARN: $1${NC}"; }
+echo_error() { echo -e "${RED}ERRO: $1${NC}"; }
+echo_header() { echo_info "=== $1 ==="; }
+# ---------------------------------------
 # Time-stamp: "2025-09-27 15:00:00 (ywatanabe)"
-# File: ./compile
 
 ################################################################################
 # Unified compilation interface
@@ -17,7 +38,7 @@ WATCH_ARGS=""
 # Function to display usage
 show_usage() {
     cat << EOF
-Usage: ./compile [TYPE] [OPTIONS]
+Usage: ./compile.sh [TYPE] [OPTIONS]
 
 Unified compilation interface for scientific documents.
 
@@ -36,19 +57,19 @@ TYPE-SPECIFIC OPTIONS:
     These will be forwarded to the specific compilation script.
 
 EXAMPLES:
-    ./compile                           # Compile manuscript (default)
-    ./compile manuscript                # Explicitly compile manuscript
-    ./compile supplementary             # Compile supplementary materials
-    ./compile revision --track-changes  # Compile revision with track changes
+    ./compile.sh                           # Compile manuscript (default)
+    ./compile.sh manuscript                # Explicitly compile manuscript
+    ./compile.sh supplementary             # Compile supplementary materials
+    ./compile.sh revision --track-changes  # Compile revision with track changes
 
     Short forms:
-    ./compile -m                        # Compile manuscript
-    ./compile -s                        # Compile supplementary
-    ./compile -r --track-changes        # Compile revision with options
-    
+    ./compile.sh -m                        # Compile manuscript
+    ./compile.sh -s                        # Compile supplementary
+    ./compile.sh -r --track-changes        # Compile revision with options
+
     Watch mode:
-    ./compile -m -w                     # Watch and recompile manuscript
-    ./compile -m --watch                # Watch mode with long option
+    ./compile.sh -m -w                     # Watch and recompile manuscript
+    ./compile.sh -m --watch                # Watch mode with long option
 
 DELEGATION:
     This script delegates to:
@@ -156,3 +177,5 @@ esac
 
 # Exit with the same status as the delegated script
 exit $?
+
+# EOF

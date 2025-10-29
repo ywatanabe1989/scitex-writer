@@ -1,5 +1,5 @@
 <!-- ---
-!-- Timestamp: 2025-10-29 13:04:01
+!-- Timestamp: 2025-10-29 12:55:23
 !-- Author: ywatanabe
 !-- File: /home/ywatanabe/proj/scitex-writer/README.md
 !-- --- -->
@@ -10,45 +10,15 @@ A LaTeX compilation system with predefined project structure for scientific manu
 
 ## Quick Start
 
-```bash
-# Compile manuscript (default)
-./compile
-
-# # Or specify document type explicitly
-# ./compile -m                    # manuscript
-# ./compile -s                    # supplementary materials
-# ./compile -r                    # revision responses
-#  
-# # Watch mode (auto-recompile on changes)
-# ./compile -m -w
-```
-
-That's it! PDF is produced as [`01_manuscript/manuscript.pdf`](01_manuscript/manuscript.pdf)
-
-### Which files to edit?
-
-1. **Manuscript contents**
-   - [`01_manuscript/contents/abstract.tex`](01_manuscript/contents/abstract.tex)
-   - [`01_manuscript/contents/introduction.tex`](01_manuscript/contents/introduction.tex)
-   - [`01_manuscript/contents/methods.tex`](01_manuscript/contents/methods.tex)
-   - [`01_manuscript/contents/results.tex`](01_manuscript/contents/results.tex)
-   - [`01_manuscript/contents/discussion.tex`](01_manuscript/contents/discussion.tex)
-
-2. **Metadata**
-   - [`shared/title.tex`](shared/title.tex) - Manuscript title
-   - [`shared/authors.tex`](shared/authors.tex) - Author list and affiliations
-   - [`shared/keywords.tex`](shared/keywords.tex) - Keywords
-   - [`shared/bib_files/bibliography.bib`](shared/bib_files/bibliography.bib) - References
-
 ### Project Structure
 
 ```
 scitex-writer/
-├── compile.sh                  # Main
-├── shared/
-│   ├── title.tex
-│   ├── authors.tex
-│   ├── keywords.tex
+├── compile                      # Main compilation script
+├── shared/                      # Common files (shared across all documents)
+│   ├── title.tex               # Paper title
+│   ├── authors.tex             # Author list
+│   ├── keywords.tex            # Keywords
 │   └── bib_files/
 │       └── bibliography.bib    # References
 ├── 01_manuscript/              # Main manuscript
@@ -60,34 +30,33 @@ scitex-writer/
 │   │   ├── discussion.tex
 │   │   ├── figures/caption_and_media/
 │   │   └── tables/caption_and_media/
-│   └── manuscript.pdf          # Compiled PDF
+│   └── manuscript.pdf          # Output
 ├── 02_supplementary/           # Supplementary materials
-└── 03_revision/                # Revision responses
+└── 03_revision/               # Revision responses
 ```
 
-<details>
-<summary>Installation</summary>
+### Manuscript Compilation
 
-## Installation
+1. **Edit your manuscript content** in [`01_manuscript/contents/`](01_manuscript/contents/):
+   - `abstract.tex`
+   - `introduction.tex`
+   - `methods.tex`
+   - `results.tex`
+   - `discussion.tex`
 
-Check requirements:
-```bash
-./scripts/installation/check_requirements.sh
-```
+2. **Add metadata** in `shared/`:
+   - `title.tex` - Manuscript title
+   - `authors.tex` - Author list and affiliations
+   - `keywords.tex` - Keywords
+   - `bib_files/bibliography.bib` - References
 
-Optionally download containers upfront (~3.2GB):
-```bash
-./scripts/installation/download_containers.sh
-```
+3. **Compile your manuscript**:
+   ```bash
+   ./compile
+   ```
 
-## Configuration
+   Output: `01_manuscript/manuscript.pdf`
 
-YAML configuration files in `config/`:
-- `config_manuscript.yaml` - Manuscript settings
-- `config_supplementary.yaml` - Supplementary settings
-- `config_revision.yaml` - Revision settings
-
-</details>
 
 
 <details>
@@ -110,7 +79,7 @@ Reference in text: `Figure~\ref{fig:my_figure}`
 </details>
 
 <details>
-<summary>Tables</summary>
+<summary>Tabless</summary>
 
 ## Tables
 Place table caption files in `01_manuscript/contents/tables/caption_and_media/`:
@@ -125,6 +94,26 @@ Add corresponding data files (`.xlsx` or `.csv`) with the same base name:
 - `01_my_table.xlsx` or `01_my_table.csv`
 
 Reference in text: `Table~\ref{tab:my_table}`
+
+</details>
+
+<details>
+<summary>Citations</summary>
+
+## Compilation Options
+
+```bash
+# Compile manuscript (default)
+./compile
+
+# Or specify document type explicitly
+./compile -m                    # manuscript
+./compile -s                    # supplementary materials
+./compile -r                    # revision responses
+
+# Watch mode (auto-recompile on changes)
+./compile -m -w
+```
 
 </details>
 
@@ -151,9 +140,6 @@ Cite in text: `\cite{your_reference_2024}`
 
 </details>
 
-<details>
-<summary>Features</summary>
-
 ## Features
 
 - **Container-based compilation**: Consistent builds across systems
@@ -165,8 +151,29 @@ Cite in text: `\cite{your_reference_2024}`
 - **Watch mode**: Auto-recompile on file changes
 - **HPC-ready**: Works on compute clusters
 
-</details>
+<details>
+<summary>Installation</summary>
 
+## Installation
+
+Check requirements:
+```bash
+./scripts/installation/check_requirements.sh
+```
+
+Optionally download containers upfront (~3.2GB):
+```bash
+./scripts/installation/download_containers.sh
+```
+
+## Configuration
+
+YAML configuration files in `config/`:
+- `config_manuscript.yaml` - Manuscript settings
+- `config_supplementary.yaml` - Supplementary settings
+- `config_revision.yaml` - Revision settings
+
+</details>
 ## License
 
 MIT License - See LICENSE file for details
