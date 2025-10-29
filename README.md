@@ -1,5 +1,5 @@
 <!-- ---
-!-- Timestamp: 2025-10-29 13:18:49
+!-- Timestamp: 2025-10-29 13:19:13
 !-- Author: ywatanabe
 !-- File: /home/ywatanabe/proj/scitex-writer/README.md
 !-- --- -->
@@ -18,7 +18,7 @@ cd scitex-writer
 
 🎉 That's it! PDF is produced at [`01_manuscript/manuscript.pdf`](01_manuscript/manuscript.pdf)
 
-## How to write YOUR paper
+## How to write your paper
 
 <details>
 <summary>⚙️ Installation</summary>
