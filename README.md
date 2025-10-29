@@ -1,5 +1,5 @@
 <!-- ---
-!-- Timestamp: 2025-10-29 13:12:13
+!-- Timestamp: 2025-10-29 13:13:52
 !-- Author: ywatanabe
 !-- File: /home/ywatanabe/proj/scitex-writer/README.md
 !-- --- -->
@@ -17,6 +17,30 @@ cd scitex-writer
 ```
 
 🎉 That's it! PDF is produced at [`01_manuscript/manuscript.pdf`](01_manuscript/manuscript.pdf)
+
+<details>
+<summary>Installation</summary>
+
+## Installation
+
+Check requirements:
+```bash
+./scripts/installation/check_requirements.sh
+```
+
+Optionally download containers upfront (~3.2GB):
+```bash
+./scripts/installation/download_containers.sh
+```
+
+## Configuration
+
+YAML configuration files in `config/`:
+- `config_manuscript.yaml` - Manuscript settings
+- `config_supplementary.yaml` - Supplementary settings
+- `config_revision.yaml` - Revision settings
+
+</details>
 
 
 <details>
@@ -70,32 +94,7 @@ scitex-writer/
 </details>
 
 <details>
-<summary>Installation</summary>
-
-## Installation
-
-Check requirements:
-```bash
-./scripts/installation/check_requirements.sh
-```
-
-Optionally download containers upfront (~3.2GB):
-```bash
-./scripts/installation/download_containers.sh
-```
-
-## Configuration
-
-YAML configuration files in `config/`:
-- `config_manuscript.yaml` - Manuscript settings
-- `config_supplementary.yaml` - Supplementary settings
-- `config_revision.yaml` - Revision settings
-
-</details>
-
-
-<details>
-<summary>Working with **Figures**</summary>
+<summary>Working with Figures</summary>
 
 ## Figures
 Place figure caption files in `01_manuscript/contents/figures/caption_and_media/`:
@@ -114,7 +113,7 @@ Reference in text: `Figure~\ref{fig:my_figure}`
 </details>
 
 <details>
-<summary>Working with **Tables**</summary>
+<summary>Working with Tables</summary>
 
 ## Tables
 Place table caption files in `01_manuscript/contents/tables/caption_and_media/`:
@@ -133,7 +132,7 @@ Reference in text: `Table~\ref{tab:my_table}`
 </details>
 
 <details>
-<summary>Working with **Citations**</summary>
+<summary>Working with Citations</summary>
 
 ## Citations
 
@@ -156,19 +155,19 @@ Cite in text: `\cite{your_reference_2024}`
 </details>
 
 <details>
-<summary>Working with **Manuscript**, **Supplementary Materials**, and **Revision Letter**</summary>
+<summary>Working with Manuscript, Supplementary Materials, and Revision Letter</summary>
 
 ```bash
 # Compile manuscript (default)
 ./compile
 
-# # Or specify document type explicitly
-# ./compile -m                    # manuscript
-# ./compile -s                    # supplementary materials
-# ./compile -r                    # revision responses
-#  
-# # Watch mode (auto-recompile on changes)
-# ./compile -m -w
+# Or specify document type explicitly
+./compile -m                    # manuscript
+./compile -s                    # supplementary materials
+./compile -r                    # revision responses
+ 
+# Watch mode (auto-recompile on changes)
+./compile -m -w
 ```
 
 </details>
