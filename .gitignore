@@ -650,3 +650,5 @@ flycheck_*.el
 ### Source: /home/ywatanabe/.git-templates/.gitignore-templates/Custom/GitKeep.gitignore ###
 !.gitkeep
 !**/.gitkeep
+.claude
+.dev
