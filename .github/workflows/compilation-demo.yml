@@ -23,10 +23,15 @@ jobs:
         sudo apt-get update 2>/dev/null || true
         sudo apt-get install -y apptainer 2>/dev/null || true
 
-        # Always install TeXLive for native compilation fallback
-        echo "Installing TeXLive for manuscript compilation..."
-        sudo apt-get install -y texlive-full latexdiff ghostscript imagemagick 2>/dev/null || \
+        # Always install TeXLive and required tools for native compilation
+        echo "Installing TeXLive and dependencies for manuscript compilation..."
+        sudo apt-get install -y texlive-full latexdiff ghostscript imagemagick perl parallel 2>/dev/null || \
         echo "Warning: Some dependencies may not be available"
+
+    - name: Install Python dependencies
+      run: |
+        python3 -m pip install --upgrade pip
+        pip install xlsx2csv csv2latex || echo "Warning: Some Python dependencies may not be available"
 
     - name: Run manuscript compilation
       run: ./compile.sh manuscript
