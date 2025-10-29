@@ -1,0 +1,51 @@
+# Timestamp: "2025-09-27 14:55:00 (ywatanabe)"
+# File: ./paper/config/config_revision.yaml
+
+verbosity:
+  pdflatex: true
+  bibtex: false  # Usually not needed for revision responses
+
+paths:
+  doc_root_dir: "./03_revision"
+  doc_log_dir: "./03_revision/logs"
+  global_log_file: "./03_revision/logs/global.log"
+  base_tex: "./03_revision/base.tex"
+  compiled_tex: "./03_revision/revision.tex"
+  compiled_pdf: "./03_revision/revision.pdf"
+  diff_tex: "./03_revision/revision_diff.tex"
+  diff_pdf: "./03_revision/revision_diff.pdf"
+  archive_dir: "./03_revision/archive"
+  version_counter_txt: "./03_revision/archive/.version_counter.txt"
+  texlive_apptainer_sif: "./.cache/containers/texlive_container.sif"
+  mermaid_apptainer_sif: "./.cache/containers/mermaid_container.sif"
+
+# Revision-specific paths
+revision:
+  editor_dir: "./03_revision/contents/editor"
+  reviewer1_dir: "./03_revision/contents/reviewer1"
+  reviewer2_dir: "./03_revision/contents/reviewer2"
+  latex_styles_dir: "./03_revision/contents/latex_styles"
+  
+figures:
+  dir: "./03_revision/contents/figures"
+  caption_media_dir: "./03_revision/contents/figures/caption_and_media"
+  jpg_dir: "./03_revision/contents/figures/caption_and_media/jpg_for_compilation"
+  compiled_dir: "./03_revision/contents/figures/compiled"
+  compiled_file: "./03_revision/contents/figures/compiled/FINAL.tex"
+  templates_dir: "./shared/templates/figures"
+  template_pptx: "./shared/templates/figures/.00_TEMPLATE.pptx"
+  template_tif: "./shared/templates/figures/.00_TEMPLATE.tif"
+  template_jpg: "./shared/templates/figures/.00_TEMPLATE.jpg"
+  template_jnb: "./shared/templates/figures/.00_TEMPLATE.JNB"
+
+tables:
+  dir: "./03_revision/contents/tables"
+  caption_media_dir: "./03_revision/contents/tables/caption_and_media"
+  compiled_dir: "./03_revision/contents/tables/compiled"
+  compiled_file: "./03_revision/contents/tables/compiled/FINAL.tex"
+
+misc:
+  wordcount_dir: "./03_revision/contents/wordcounts"
+  tree_txt: "./03_revision/docs/tree.txt"
+
+# EOF

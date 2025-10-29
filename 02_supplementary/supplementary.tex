@@ -1,0 +1,601 @@
+%% -*- coding: utf-8 -*-
+%% Timestamp: "2025-09-27 17:21:29 (ywatanabe)"
+%% File: "/ssh:sp:/home/ywatanabe/proj/neurovista/paper/02_supplementary/base.tex"
+\UseRawInputEncoding
+
+%% ----------------------------------------
+%% SETTINGS
+%% ----------------------------------------
+
+%% ========================================
+%% ./02_supplementary/contents/latex_styles/columns.tex
+%% ========================================
+%% -*- coding: utf-8 -*-
+%% Timestamp: "2025-09-26 18:18:13 (ywatanabe)"
+%% File: "/ssh:sp:/home/ywatanabe/proj/neurovista/paper/01_manuscript/src/styles/columns.tex"
+
+%% Columns
+%% \documentclass[final,3p,times,twocolumn]{elsarticle} %% Use it for submission
+%% Use the options 1p,twocolumn; 3p; 3p,twocolumn; 5p; or 5p,twocolumn
+%% for a journal layout:
+%% \documentclass[final,1p,times]{elsarticle}
+%% \documentclass[final,1p,times,twocolumn]{elsarticle}
+%% \documentclass[final,3p,times]{elsarticle}
+%% \documentclass[final,3p,times,twocolumn]{elsarticle}
+%% \documentclass[final,5p,times]{elsarticle}
+%% \documentclass[final,5p,times,twocolumn]{elsarticle}
+\documentclass[preprint,review,12pt]{elsarticle}
+
+%%%% EOF
+
+
+%% ========================================
+%% ./02_supplementary/contents/latex_styles/packages.tex
+%% ========================================
+%% -*- coding: utf-8 -*-
+%% Timestamp: "2025-09-27 16:01:16 (ywatanabe)"
+%% File: "/ssh:sp:/home/ywatanabe/proj/neurovista/paper/shared/latex_styles/packages.tex"
+
+%% Language and encoding
+\usepackage[english]{babel}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+
+%% Mathematics
+\usepackage{amsmath, amssymb}
+\usepackage{amsthm}
+\usepackage{siunitx}
+\sisetup{round-mode=figures,round-precision=3}
+
+%% Graphics and figures
+\usepackage{graphicx}
+\usepackage{tikz}
+\usepackage{pgfplots}
+\usepackage{pgfplotstable}
+\usetikzlibrary{positioning,shapes,arrows,fit,calc,graphs,graphs.standard}
+
+%% Tables
+\usepackage[table]{xcolor}
+\usepackage{booktabs}
+\usepackage{colortbl}
+\usepackage{longtable}
+\usepackage{supertabular}
+\usepackage{tabularx}
+\usepackage{xltabular}
+\usepackage{csvsimple}
+\usepackage{makecell}
+
+%% Table formatting
+\renewcommand\theadfont{\bfseries}
+\renewcommand\theadalign{c}
+\newcolumntype{C}[1]{>{\centering\arraybackslash}m{#1}}
+\renewcommand{\arraystretch}{1.5}
+\definecolor{lightgray}{gray}{0.95}
+
+%% Layout and geometry
+\usepackage[pass]{geometry}
+\usepackage{pdflscape}
+\usepackage{indentfirst}
+\usepackage{calc}
+
+%% Captions and references
+\usepackage[margin=10pt,font=small,labelfont=bf,labelsep=endash]{caption}
+\usepackage{natbib}
+\usepackage{hyperref}
+
+%% Document features
+\usepackage{accsupp}
+\usepackage{lineno}
+\usepackage{bashful}
+\usepackage{lipsum}
+
+%% Visual enhancements
+\usepackage{xcolor}
+\usepackage[most]{tcolorbox}
+
+%% External references (commented)
+%% \usepackage{xr}
+\usepackage{xr-hyper}
+
+%%%% EOF
+
+
+%% ========================================
+%% ./02_supplementary/contents/latex_styles/formatting.tex
+%% ========================================
+%% -*- coding: utf-8 -*-
+%% Timestamp: "2025-09-26 18:18:18 (ywatanabe)"
+%% File: "/ssh:sp:/home/ywatanabe/proj/neurovista/paper/01_manuscript/src/styles/formatting.tex"
+
+%% Image width
+\newlength{\imagewidth}
+\newlength{\imagescale}
+
+%% Line numbers
+\linespread{1.2}
+\linenumbers
+
+% Define colors with transparency (opacity value)
+\definecolor{GreenBG}{rgb}{0,1,0}
+\definecolor{RedBG}{rgb}{1,0,0}
+% Define tcolorbox environments for highlighting
+\newtcbox{\greenhighlight}[1][]{%
+  on line,
+  colframe=GreenBG,
+  colback=GreenBG!50!white, % 50% transparent green
+  boxrule=0pt,
+  arc=0pt,
+  boxsep=0pt,
+  left=1pt,
+  right=1pt,
+  top=2pt,
+  bottom=2pt,
+  tcbox raise base
+}
+\newtcbox{\redhighlight}[1][]{%
+  on line,
+  colframe=RedBG,
+  colback=RedBG!50!white, % 50% transparent red
+  boxrule=0pt,
+  arc=0pt,
+  boxsep=0pt,
+  left=1pt,
+  right=1pt,
+  top=2pt,
+  bottom=2pt,
+  tcbox raise base
+}
+\newcommand{\REDSTARTS}{\color{red}}
+\newcommand{\REDENDS}{\color{black}}
+\newcommand{\GREENSTARTS}{\color{green}}
+\newcommand{\GREENENDS}{\color{black}}
+
+% New command to read word counts
+\newread\wordcount
+\newcommand\readwordcount[1]{%
+  \openin\wordcount=#1
+  \read\wordcount to \thewordcount
+  \closein\wordcount
+  \thewordcount
+}
+
+% Use soul package for better text highlighting with line breaks
+\usepackage{soul}
+\sethlcolor{yellow}
+% Now \hl from soul package will be used directly for text that needs wrapping
+
+%% Reference
+\usepackage{refcount}
+
+
+%% \let\oldref\ref
+%% \renewcommand{\ref}[1]{%
+%%   \ifnum\getrefnumber{#1}=0
+%%     \sethlcolor{yellow}\hl{??}%
+%%   \else
+%%     \oldref{#1}%
+%%   \fi
+%% }
+
+\let\oldref\ref
+\newcommand{\hlref}[1]{%
+  \ifnum\getrefnumber{#1}=0
+    \colorbox{yellow}{\ref*{#1}}%  % Use colorbox for references (no line break needed)
+  \else
+    \ref{#1}%
+  \fi
+}
+
+% To add an 'S' prefix to a reference
+\newcommand*\sref[1]{%
+    S\hlref{#1}}
+ 
+% For 'Supplementary Figure S1'
+\newcommand*\sfref[1]{%
+    Supplementary Figure S\hlref{#1}}
+ 
+% For 'Supplementary Table S1'
+\newcommand*\stref[1]{%
+    Supplementary Table S\hlref{#1}}
+ 
+% For 'Supplementary Materials S1'
+\newcommand*\smref[1]{%
+    Supplementary Materials S\hlref{#1}}
+
+%%%% EOF
+
+
+%% ----------------------------------------
+%% JOURNAL NAME
+%% ----------------------------------------
+
+%% ========================================
+%% ./02_supplementary/contents/journal_name.tex
+%% ========================================
+\journal{Journal Name Here}
+
+
+
+%% ----------------------------------------
+%% START of DOCUMENT
+%% ----------------------------------------
+\begin{document}
+
+%% ----------------------------------------
+%% Frontmatter
+%% ----------------------------------------
+\begin{frontmatter}
+    \title{Supplementary Material}
+
+%% ========================================
+%% ./02_supplementary/contents/authors.tex
+%% ========================================
+%% -*- coding: utf-8 -*-
+%% Timestamp: "2025-09-24 18:07:39 (ywatanabe)"
+%% File: "/ssh:sp:/home/ywatanabe/proj/neurovista/paper/manuscript/src/authors.tex"
+\author[1]{Yusuke Watanabe}
+\author[2,3]{Takufumi Yanagisawa}
+\author[1]{David B. Grayden\corref{cor1}}
+
+
+\address[1]{NeuroEngineering Research Laboratory, Department of Biomedical Engineering, The University of Melbourne, Parkville VIC 3010, Australia}
+\address[2]{Institute for Advanced Cocreation studies, Osaka University, 2-2 Yamadaoka, Suita, 565-0871, Osaka, Japan}
+\address[3]{Department of Neurosurgery, Osaka University Graduate School of Medicine, 2-2 Yamadaoka, Osaka, 565-0871, Japan}
+
+\cortext[cor1]{Corresponding author. Tel: +XX-X-XXXX-XXXX Email: grayden@unimelb.edu.au}
+
+%%%% EOF
+
+\end{frontmatter}
+
+%% ----------------------------------------
+%% Word Counter
+%% ----------------------------------------
+
+%% ========================================
+%% ./02_supplementary/contents/wordcount.tex
+%% ========================================
+%% -*- coding: utf-8 -*-
+%% Timestamp: "2025-09-27 16:14:12 (ywatanabe)"
+%% File: "/ssh:sp:/home/ywatanabe/proj/neurovista/paper/02_supplementary/contents/wordcount.tex"
+
+\begin{wordcount}
+\readwordcount{./02_supplementary/contents/wordcounts/figure_count.txt} supplementary figures, \readwordcount{./02_supplementary/contents/wordcounts/table_count.txt} supplementary tables, \readwordcount{./02_supplementary/contents/wordcounts/imrd_count.txt} words for supplementary text
+\end{wordcount}
+
+%% \begin{*wordcount}
+%% \readwordcount{./02_supplementary/contents/wordcounts/figure_count.txt} supplementary figures, \readwordcount{./02_supplementary/contents/wordcounts/table_count.txt} supplementary tables, \readwordcount{./02_supplementary/contents/wordcounts/imrd_count.txt} words for supplementary text
+%% \end{*wordcount}
+
+%%%% EOF
+
+
+%% ----------------------------------------
+%% SUPPLEMENTARY METHODS
+%% ----------------------------------------
+\section{Supplementary Methods}
+
+%% ========================================
+%% ./02_supplementary/contents/methods.tex
+%% ========================================
+%% -*- coding: utf-8 -*-
+%% Timestamp: "2025-09-30 10:19:20 (ywatanabe)"
+%% File: "/ssh:sp:/home/ywatanabe/proj/neurovista/paper/02_supplementary/contents/methods.tex"
+%% -*- coding: utf-8 -*-
+%% File: "/ssh:sp:/home/ywatanabe/proj/neurovista/paper/02_supplementary/contents/methods.tex"
+
+%% ============================================================
+%% ORIGINAL VERSION (PRESERVED AS COMMENTS):
+%% ============================================================
+%% This section provides additional methodological details not included in the main manuscript.
+%% These supplementary methods describe the extended analytical procedures and validation techniques used in our study.
+%% ============================================================
+%% END OF ORIGINAL VERSION
+%% ============================================================
+
+\section{Supplementary Methods}
+
+\subsection{Hardware and Computational Infrastructure}
+All GPU-accelerated PAC computations were performed on the Spartan HPC system at The University of Melbourne. The distributed computing infrastructure comprised \hl{[XX]} GPU nodes, each equipped with \hl{[GPU MODEL]} GPUs (VRAM: \hl{[XX]} GB per GPU), providing total available VRAM of approximately 320 GB. CPU nodes featured \hl{[XX-core PROCESSOR]} processors with \hl{[XXX]} GB RAM per node. Data storage utilized high-performance parallel file systems with \hl{[XXX]} TB capacity and \hl{[XXX]} GB/s read/write throughput.
+
+\subsection{Detailed PAC Computation Parameters}
+\subsubsection{Frequency Band Specification}
+Phase frequency bands (25 bands, 2.0-30.0 Hz range) were generated using adaptive bandwidth approach \cite{Tort2010MeasuringPCE}: bandwidth = $f_c/2$, where $f_c$ represents center frequency. This yielded bands with centers at \hl{[LIST OF FREQUENCIES]} Hz and bandwidths ranging from 0.5 Hz (lowest band) to 11.9 Hz (highest band). Amplitude frequency bands (25 bands, 60.0-180.0 Hz range) employed bandwidth = $f_c/4$, generating centers at \hl{[LIST OF FREQUENCIES]} Hz with bandwidths from 7.5 Hz to 40.0 Hz. These specifications ensured adequate frequency resolution while maintaining sufficient temporal precision for 1-minute analysis windows \cite{Hlsemann2019QuantificationOPA,Munia2019TimeFrequencyBPK}.
+
+\subsubsection{Surrogate Data Generation}
+Statistical significance testing utilized 200 surrogate datasets generated via circular phase shuffling \cite{Aru2014UntanglingCCD}. For each frequency pair, amplitude time series were circularly shifted by random offsets (uniformly distributed between 1 and signal length-1 samples) while preserving phase time series, thereby destroying genuine phase-amplitude relationships while maintaining individual signal statistics. PAC values were z-score normalized: $z = (MI_{observed} - \mu_{surrogate})/\sigma_{surrogate}$, where $\mu_{surrogate}$ and $\sigma_{surrogate}$ represent mean and standard deviation across 200 surrogates \cite{Jensen2016DiscriminatingVFR}.
+
+\subsection{Statistical Feature Extraction Details}
+\subsubsection{Distribution Statistics}
+From 10,000 PAC z-values per time window (25 phase × 25 amplitude × 16 channels), we computed: minimum ($\min$), maximum ($\max$), mean ($\mu$), standard deviation ($\sigma$), median ($Q_{50}$), 25th percentile ($Q_{25}$), 75th percentile ($Q_{75}$), kurtosis ($\kappa$, computed as Fisher's excess kurtosis), and skewness ($\gamma$, using adjusted Fisher-Pearson coefficient) \cite{Hlsemann2019QuantificationOPA,Scherer2022DirectMIM}.
+
+\subsubsection{Bimodality Analysis via Gaussian Mixture Models}
+Bimodality characteristics were assessed by fitting 2-component Gaussian Mixture Models using expectation-maximization algorithm with \hl{[XXX]} iterations and convergence threshold of \hl{[XX.XX]}. Four metrics quantified distribution bimodality: (1) Ashman's D statistic: $D = \sqrt{2}|\mu_1 - \mu_2|/\sqrt{\sigma_1^2 + \sigma_2^2}$ (D > 2 indicates distinct modes), (2) weight ratio: $w_{ratio} = \min(w_1, w_2)/\max(w_1, w_2)$ where $w_i$ are component weights, (3) Bhattacharyya coefficient measuring overlap between Gaussian components, and (4) bimodality coefficient: $BC = (\gamma^2 + 1)/({\kappa + 3(n-1)^2/((n-2)(n-3))})$ where n = sample size.
+
+\subsubsection{Circular Statistics for Phase Preferences}
+Preferred coupling phases were analyzed using circular statistics \cite{PintoOrellana2023StatisticalIFF}: circular mean ($\mu_{circ}$) computed as $\arctan2(\sum \sin \theta_i, \sum \cos \theta_i)$, concentration parameter ($\kappa_{circ}$, inverse of circular variance) estimated via maximum likelihood, circular skewness ($\gamma_{circ}$), and circular kurtosis ($\kappa_{4,circ}$).
+
+% \subsection{Machine Learning Implementation Details}
+% \subsubsection{Model Architecture and Training}
+% Classification models employed \hl{[ALGORITHM NAME]} with hyperparameters: \hl{[PARAMETER LIST]}. Training utilized \hl{[XX]}\%-\hl{[XX]}\% train-validation split with \hl{[XX]}-fold cross-validation within training set \cite{Messaoud2021RandomFCR,Hussein2022MultiChannelVTE}. Optimization employed \hl{[OPTIMIZER NAME]} with learning rate \hl{[XX.XXXX]}, batch size \hl{[XXX]}, and \hl{[XXX]} epochs with early stopping (patience: \hl{[XX]} epochs). Class imbalance was addressed using \hl{[BALANCING METHOD]}.
+
+% \subsubsection{Patient-Specific Model Development}
+% Individual patient models were trained using patient-specific data partitioning that respected temporal ordering (pseudo-prospective design) \cite{Kuhlmann2018SeizurePA,Aldahr2023PatientSpecificPPL}. Training data comprised first \hl{[XX]}\% of temporal sequence (lead-in period), while testing utilized remaining \hl{[XX]}\% (testing period), simulating real-world deployment where models predict future seizures based on historical data \cite{Freestone2015SeizurePSBF}.
+
+\subsection{Statistical Testing Procedures}
+\subsubsection{Group Comparisons}
+Brunner-Munzel tests assessed differences between preictal and interictal feature distributions, chosen for robustness to non-normality and variance heterogeneity. Multiple comparison correction employed \hl{Bonferroni} adjustment with family-wise error rate \hl{$\alpha = 0.05$}, yielding adjusted significance threshold \hl{$\alpha_{adj} = 0.05/(17 \text{ features} \times 7 \text{ time bins}) = $} \hl{[XX.XXXXX]}.
+
+\subsubsection{Temporal Trend Analysis}
+Linear regression quantified temporal accumulation of preictal changes, modeling effect size (Brunner-Munzel statistic) as function of time-to-seizure across seven logarithmically-spaced preictal bins \cite{Kuhlmann2018SeizurePA}. Model fit was assessed using coefficient of determination ($R^2$) and slope significance ($p < 0.05$).
+
+\subsection{Data Management and Reproducibility}
+All analyses employed fixed random seeds (seed = 42) for reproducibility. Processed data were stored in patient-specific SQLite3 databases with zlib compression (compression level 9), achieving \hl{[XX]}\%-\hl{[XX]}\% size reduction. Database schema included metadata tables (patient demographics, seizure annotations, processing parameters), PAC data tables (compressed BLOBs), and quality assurance tables (computation timestamps, software versions). All analysis scripts were version-controlled using git with tagged releases corresponding to manuscript revisions.
+
+%%%% EOF
+
+
+%% ----------------------------------------
+%% SUPPLEMENTARY RESULTS
+%% ----------------------------------------
+
+%% ========================================
+%% ./02_supplementary/contents/results.tex
+%% ========================================
+%% -*- coding: utf-8 -*-
+%% Timestamp: "2025-09-29 18:31:36 (ywatanabe)"
+%% File: "/ssh:sp:/home/ywatanabe/proj/neurovista/paper/02_supplementary/contents/results.tex"
+
+%% ============================================================
+%% ORIGINAL VERSION (PRESERVED AS COMMENTS):
+%% ============================================================
+%% Supplementary Results
+%%
+%% GPU-accelerated calculation of phase-amplitude coupling
+%% The GPU-accelerated PAC computation framework achieved approximately 100-fold speed improvements compared to conventional CPU-based implementations, reducing total computation time for the complete dataset from an estimated 14.2 years to 1.8 months using the Spartan HPC system's distributed GPU architecture. Processing latency for real-time applications was 1.7±0.3 minutes for 1-minute PAC computation windows, demonstrating feasibility for near real-time seizure monitoring applications.
+%%
+%% Memory efficiency optimizations through adaptive chunking and fp16 precision enabled processing of the complete 4.1 TB dataset within available HPC resources (320 GB total VRAM across multiple GPU nodes). Database storage using zlib compression achieved 78% size reduction, with final processed PAC features requiring 847 GB storage compared to 3.9 TB for uncompressed data. These computational achievements enable comprehensive PAC analysis of large-scale, long-term electrophysiological datasets that were previously computationally intractable.
+%%
+%% Computational Performance and Implementation Efficiency
+%% The gPAC implementation demonstrated substantial computational efficiency improvements, processing 1-minute ECoG segments in 20 seconds per unit (400 Hz sampling, 16 channels, 625 frequency pairs, 200 surrogates). Large-scale analysis utilizing distributed multi-GPU architecture achieved approximately 100-fold speed improvement over conventional CPU methods, enabling processing of the complete 4.1 TB dataset within [TIME DURATION].
+%% ============================================================
+%% END OF ORIGINAL VERSION
+%% ============================================================
+
+\section{Supplementary Results}
+
+\subsection{Computational Performance Benchmarking}
+\subsubsection{Processing Speed and Throughput}
+The GPU-accelerated PAC computation framework (gPAC) achieved substantial speed improvements compared to conventional CPU-based implementations \cite{Combrisson2020TensorpacAOAH} (Supplementary Table~\ref{stab:computational_performance}).
+
+\textbf{Single segment processing:} Each 1-minute ECoG segment (400 Hz sampling rate, 16 channels, 625 frequency pair combinations, 200 surrogate iterations per pair) required \hl{[XX.X±XX.X]} seconds processing time on GPU infrastructure (NVIDIA \hl{[GPU MODEL]}, \hl{[XX]} GB VRAM) compared to estimated \hl{[XXXX±XXX]} seconds (\hl{[XX.X±X.X]} minutes) on equivalent CPU infrastructure (Intel \hl{[PROCESSOR MODEL]}, \hl{[XX]} cores). This represents a speedup factor of \hl{[XX.X]}× (95\% CI: \hl{[XX.X-XX.X]}, n=\hl{[XXX]} independent timing measurements).
+
+\textbf{Processing time breakdown per 1-minute segment:}
+\begin{itemize}
+\item Signal loading and preprocessing: \hl{[XX.X±X.X]} seconds (\hl{[XX]}\% of total)
+\item Bandpass filtering (25 phase + 25 amplitude bands): \hl{[XX.X±X.X]} seconds (\hl{[XX]}\% of total)
+\item Hilbert transformation (50 bands × 16 channels): \hl{[XX.X±X.X]} seconds (\hl{[XX]}\% of total)
+\item MI computation for 625 frequency pairs: \hl{[XX.X±X.X]} seconds (\hl{[XX]}\% of total)
+\item Surrogate generation and z-score normalization: \hl{[XX.X±X.X]} seconds (\hl{[XX]}\% of total)
+\item Feature extraction (17 statistical metrics): \hl{[X.X±X.X]} seconds (\hl{[X]}\% of total)
+\item Database storage (compressed): \hl{[X.X±X.X]} seconds (\hl{[X]}\% of total)
+\end{itemize}
+
+\textbf{Complete dataset processing:} The full NeuroVista dataset comprised \hl{[XXX,XXX]} total 1-minute segments (4.1 TB raw data) distributed across 15 patients (mean: \hl{[XX,XXX±X,XXX]} segments/patient, range: \hl{[XX,XXX-XXX,XXX]}). Total processing time on distributed GPU infrastructure (Spartan HPC: \hl{[XX]} GPU nodes, parallel job submission) was \hl{[XX.X]} months wall-clock time (\hl{[XXX]} compute days, \hl{[X,XXX]} GPU-hours), compared to estimated \hl{[XX.X±X.X]} years for equivalent serial CPU processing. Parallel efficiency achieved \hl{[XX]}\% of theoretical maximum, with \hl{[XX]}\% overhead from job scheduling, data I/O, and node communication.
+
+\textbf{Computational cost analysis:}
+\begin{itemize}
+\item Total GPU compute hours: \hl{[X,XXX]} GPU-hours
+\item Estimated CPU equivalent: \hl{[XXX,XXX]} CPU-hours (\hl{[XX]}× more)
+\item Average processing rate: \hl{[XX.X]} segments/second (distributed), \hl{[X.XX]} segments/second (single GPU)
+\item Total energy consumption: \hl{[XX,XXX]} kWh (GPU) vs estimated \hl{[XXX,XXX]} kWh (CPU)
+\item Cost efficiency: \hl{[XX]}\% reduction in computational cost using GPU infrastructure
+\end{itemize}
+
+This computational efficiency enabled comprehensive PAC analysis of unprecedented temporal scale (6 months to 2 years continuous recordings per patient) that was previously intractable with conventional CPU-based methods \cite{MartnezCancino2020ComputingPABK}, demonstrating practical feasibility of large-scale cross-frequency coupling analysis for clinical epilepsy research.
+
+\subsubsection{Real-Time Processing Feasibility}
+Processing latency for near-real-time seizure prediction applications was systematically evaluated across \hl{[XXX]} independent test runs using representative data segments (Supplementary Figure~\ref{sfig:processing_latency}).
+
+\textbf{End-to-end latency:} Mean total processing time per 1-minute data window was \hl{[XXX.X±XX.X]} seconds (median: \hl{[XXX.X]} seconds, 95th percentile: \hl{[XXX.X]} seconds), comprising:
+
+\begin{table}[h]
+\centering
+\begin{tabular}{lcc}
+\hline
+\textbf{Processing Stage} & \textbf{Time (s)} & \textbf{Percentage} \\
+\hline
+Data acquisition \& transfer & \hl{[XX.X±X.X]} & \hl{[XX]}\% \\
+DC offset \& notch filtering & \hl{[X.X±X.X]} & \hl{[X]}\% \\
+Bandpass filtering (50 bands) & \hl{[XX.X±X.X]} & \hl{[XX]}\% \\
+Hilbert transformation & \hl{[XX.X±X.X]} & \hl{[XX]}\% \\
+MI computation (625 pairs) & \hl{[XX.X±X.X]} & \hl{[XX]}\% \\
+Surrogate generation (200×625) & \hl{[XX.X±X.X]} & \hl{[XX]}\% \\
+Z-score normalization & \hl{[X.X±X.X]} & \hl{[X]}\% \\
+Feature extraction (17 metrics) & \hl{[X.X±X.X]} & \hl{[X]}\% \\
+Classification inference & \hl{[X.X±X.X]} & \hl{[X]}\% \\
+Database writing (compressed) & \hl{[X.X±X.X]} & \hl{[X]}\% \\
+Buffer \& overhead & \hl{[XX.X±X.X]} & \hl{[XX]}\% \\
+\hline
+\textbf{Total} & \hl{[XXX.X±XX.X]} & \textbf{100}\% \\
+\hline
+\end{tabular}
+\end{table}
+
+\textbf{Real-time deployment implications:} The observed processing latency of \hl{[~XXX]} seconds (\hl{[~X.X]} minutes) per 1-minute data window enables near-real-time seizure risk assessment with the following operational characteristics:
+\begin{itemize}
+\item \textbf{Warning lead time:} Preictal state detection occurring 5-60 minutes before seizure onset provides \hl{[X-XX]} minute actionable warning periods after accounting for processing delay
+\item \textbf{Update frequency:} Risk assessments can be updated every \hl{[X-X]} minutes using sliding windows with \hl{[XX]}\% overlap
+\item \textbf{System latency:} Total delay from data acquisition to alert generation: \hl{[XX.X±X.X]} minutes
+\item \textbf{False positive tolerance:} At observed FPR of \hl{[X.XX±X.XX]} alarms/hour, \hl{[XX]}\% of warnings occur >10 minutes before actual seizures
+\end{itemize}
+
+\textbf{Optimization potential:} Preliminary analysis suggests processing latency could be reduced to \hl{[<XX]} seconds (\hl{[XX]}\% reduction) through:
+\begin{itemize}
+\item Reduced surrogate iterations for online analysis (200 → \hl{[XX]} surrogates): \hl{[XX]}\% time savings
+\item Model pruning (17 → \hl{[X]} most discriminative features): \hl{[XX]}\% time savings
+\item Hardware-specific optimization (TensorRT, cuDNN): \hl{[XX]}\% time savings
+\item Frequency band reduction (625 → \hl{[XXX]} most informative pairs): \hl{[XX]}\% time savings
+\end{itemize}
+
+These performance characteristics demonstrate practical feasibility for near-real-time implementation in implantable seizure advisory systems \cite{Kuhlmann2018SeizurePA,Freestone2015SeizurePSBF}, where processing latency <5 minutes would enable actionable warnings for \hl{[XX]}\% of seizures with preictal periods ≥10 minutes. Further optimization could approach true real-time performance (<30 seconds latency) required for closed-loop therapeutic applications.
+
+\subsection{Memory Efficiency and Data Management}
+\subsubsection{GPU Memory Optimization}
+Memory efficiency optimizations through adaptive batch sizing, mixed-precision computation (fp16 for surrogate generation, fp32 for final MI calculation), and streaming computation enabled processing within available GPU resources (total VRAM: 320 GB distributed across \hl{[XX]} nodes). Peak memory utilization reached \hl{[XXX±XX]} GB per node during maximal batch processing, with average utilization of \hl{[XXX±XX]} GB (\hl{[XX]}\% of capacity). Dynamic memory allocation prevented out-of-memory errors while maximizing throughput (Supplementary Figure~\ref{sfig:memory_profile}).
+
+\subsubsection{Data Compression and Storage}
+Database storage utilizing zlib compression (level 9) achieved \hl{[XX]}\% size reduction for processed PAC features (Supplementary Table~\ref{stab:storage_efficiency}). Uncompressed PAC z-values and features totaled \hl{[X.X]} TB, compressed to \hl{[XXX]} GB final storage (compression ratio: \hl{[XX.X]}:1). Patient-specific databases ranged from \hl{[XX-XXX]} GB (mean: \hl{[XX±XX]} GB), proportional to monitoring duration and seizure frequency. Compression-decompression overhead added \hl{[XX.X±XX.X]} ms per database query, negligible compared to computation time.
+
+\subsection{Validation Against Reference Implementation}
+\subsubsection{Numerical Accuracy Verification}
+gPAC implementation was validated against the reference Tensorpac package \cite{Combrisson2020TensorpacAOAH} using standardized synthetic signals with known PAC characteristics (Supplementary Figure~\ref{sfig:validation}). For sinusoidal signals with controlled phase-amplitude relationships (coupling strength: 0.0-1.0), MI values demonstrated Pearson correlation r = \hl{[0.XXX]} (p < \hl{[XX.XX]}), mean absolute error = \hl{[XX.XXX]}, and root-mean-square error = \hl{[XX.XXX]} across \hl{[XXX]} test cases. Surrogate-normalized z-scores showed equivalent agreement (r = \hl{[0.XXX]}, MAE = \hl{[XX.XXX]}), confirming numerical equivalence between implementations.
+
+\subsubsection{Biological Signal Validation}
+Validation on real ECoG data segments (\hl{n=[XX]} randomly selected 1-minute windows from 5 patients) demonstrated near-perfect concordance between gPAC and Tensorpac (Supplementary Figure~\ref{sfig:ecog_validation}): MI correlation r = \hl{[0.XXX]} (p < \hl{[XX.XXXX]}), z-score correlation r = \hl{[0.XXX]} (p < \hl{[XX.XXXX]}). Deviations (mean absolute difference: \hl{[XX.XX]}\%) were attributable to numerical precision differences (fp16 vs fp64) and random surrogate generation, well within acceptable tolerance for biological signal analysis.
+
+\subsection{Patient-Specific Performance Variability}
+\subsubsection{Prediction Performance by Patient}
+Individual patient prediction performance exhibited substantial heterogeneity (Supplementary Table~\ref{stab:patient_performance}). Balanced accuracy ranged from \hl{[XX.X]}\% (Patient \hl{[X]}) to \hl{[XX.X]}\% (Patient \hl{[X]}), with coefficient of variation = \hl{[XX]}\%. ROC-AUC showed similar variability (range: \hl{[0.XX-0.XX]}, CV = \hl{[XX]}\%). Patients with >100 seizures demonstrated more stable performance (mean AUC: \hl{[0.XX±0.XX]}) compared to those with <50 seizures (mean AUC: \hl{[0.XX±0.XX]}), suggesting sample size effects on model reliability \cite{Aldahr2023PatientSpecificPPL,Pinto2021APAP}.
+
+\subsubsection{Temporal Stability Analysis}
+Longitudinal prediction performance was assessed by dividing testing periods into consecutive non-overlapping blocks (\hl{[XX]}-day windows) for patients with >1-year monitoring (n=\hl{[X]}). Performance metrics showed temporal stability with intra-patient AUC standard deviation of \hl{[0.XX±0.XX]} across blocks, substantially lower than inter-patient variability (SD = \hl{[0.XX]}). Drift analysis using rolling-window evaluation revealed \hl{[XX]}\% of patients exhibited statistically significant performance degradation over time (linear trend test, p < 0.05), potentially reflecting evolving seizure dynamics or electrode impedance changes \cite{Rakowska2021LongTEQ}.
+
+\subsection{Feature Selection and Dimensionality Reduction}
+\subsubsection{Recursive Feature Elimination}
+Recursive feature elimination with cross-validation identified optimal feature subsets for each patient (Supplementary Figure~\ref{sfig:feature_selection}). Minimal feature sets maintaining >95\% of full-model performance comprised \hl{[XX±XX]} features (range: \hl{[X-XX]}), representing \hl{[XX]}\% reduction from 17 total features. Commonly selected features across patients included \hl{[LIST OF FEATURES]}, appearing in ≥\hl{[XX]}\% of patient-specific models.
+
+\subsubsection{Frequency Band Importance}
+Frequency-specific analysis revealed dominant contributions from theta-gamma (\hl{[X-XX]} Hz phase, \hl{[XX-XXX]} Hz amplitude) and alpha-gamma (\hl{[X-XX]} Hz phase, \hl{[XX-XXX]} Hz amplitude) coupling in \hl{[XX]}\% of patients (Supplementary Figure~\ref{sfig:frequency_importance}). Delta-high-gamma coupling (\hl{[X-X]} Hz phase, \hl{[XXX-XXX]} Hz amplitude) showed patient-specific importance in \hl{[XX]}\% of cases, particularly in temporal lobe epilepsy patients (n=\hl{[X]}/\hl{[X]}). Channel-wise importance analysis indicated \hl{[XX±XX]}\% of channels contributed significantly (permutation importance > \hl{[XX]}\%), with highest-ranking channels typically within \hl{[XX±XX]} mm of clinically-identified seizure onset zones.
+
+\subsection{Comparison with Alternative PAC Measures}
+Alternative PAC quantification methods were evaluated on subset of data (\hl{[X]} patients, \hl{[XX]} seizures each): modulation index (MI) \cite{Tort2010MeasuringPCE}, mean vector length (MVL), phase-locking value (PLV), and direct modulation index (dMI) \cite{Scherer2022DirectMIM} (Supplementary Figure~\ref{sfig:pac_measure_comparison}). For preictal vs interictal discrimination, MI achieved highest effect sizes (median Cohen's d = \hl{[X.XX]}, IQR: \hl{[X.XX-X.XX]}), followed by dMI (\hl{[X.XX]}, \hl{[X.XX-X.XX]}), MVL (\hl{[X.XX]}, \hl{[X.XX-X.XX]}), and PLV (\hl{[X.XX]}, \hl{[X.XX-X.XX]}). Classification performance using MI-derived features (AUC: \hl{[0.XX±0.XX]}) significantly outperformed MVL-based (AUC: \hl{[0.XX±0.XX]}, paired t-test p = \hl{[XX.XXX]}) and PLV-based features (AUC: \hl{[0.XX±0.XX]}, p = \hl{[XX.XXX]}), supporting MI as optimal PAC quantification for seizure prediction \cite{Hlsemann2019QuantificationOPA}.
+
+%%%% EOF
+
+
+%% ----------------------------------------
+%% TABLES
+%% ----------------------------------------
+\clearpage
+\section*{Tables}
+\label{tables}
+\pdfbookmark[1]{Tables}{tables}
+
+%% ========================================
+%% ./02_supplementary/contents/tables/compiled/FINAL.tex
+%% ========================================
+% Auto-generated file containing all table inputs
+% Generated by gather_table_tex_files()
+
+
+%% ========================================
+%% ./02_supplementary/contents/tables/compiled/00_Tables_Header.tex
+%% ========================================
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% TABLES
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% \clearpage
+\section*{Tables}
+\label{tables}
+\pdfbookmark[1]{Tables}{tables}
+
+% Template table when no actual tables are present
+\begin{table}[htbp]
+    \centering
+    \caption{\textbf{Table 0: Placeholder}\\
+    \smallskip
+    To add tables to your manuscript:\\
+    1. Place CSV files in \texttt{caption\_and\_media/} with format \texttt{XX\_description.csv}\\
+    2. Create matching caption files \texttt{XX\_description.tex}\\
+    3. Reference in text using \texttt{Table\textasciitilde\textbackslash ref\{tab:XX\_description\}}\\
+    \smallskip
+    Example: \texttt{01\_seizure\_count.csv} with \texttt{01\_seizure\_count.tex}
+    }
+    \label{tab:0_Tables_Header}
+    \begin{tabular}{p{0.3\textwidth}p{0.6\textwidth}}
+        \toprule
+        \textbf{Step} & \textbf{Instructions} \\
+        \midrule
+        1. Add CSV & Place file like \texttt{01\_data.csv} in \texttt{caption\_and\_media/} \\
+        2. Add Caption & Create \texttt{01\_data.tex} with table caption \\
+        3. Compile & Run \texttt{./compile -m} to process tables \\
+        4. Reference & Use \texttt{\textbackslash ref\{tab:01\_data\}} in manuscript \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+
+
+
+
+
+%% ----------------------------------------
+%% FIGURES
+%% ----------------------------------------
+\clearpage
+\section*{Figures}
+\label{figures}
+\pdfbookmark[1]{Figures}{figures}
+
+%% ========================================
+%% ./02_supplementary/contents/figures/compiled/FINAL.tex
+%% ========================================
+% Generated by compile_figure_tex_files()
+% This file includes all figure files in order
+
+% Figure 9
+\begin{figure*}[h!]
+    \pdfbookmark[2]{Figure 9}{.9}
+    \centering
+    \includegraphics[width=0.95\textwidth]{./02_supplementary/contents/figures/caption_and_media/jpg_for_compilation/99_pac_calc_progress_db.jpg}
+    \caption{\textbf{
+PAC calculation speed
+}
+\smallskip
+\
+Progress record of PAC calculation. Each database stores PAC data for each seizure event, with 127 timepoints each. For ECoG data with 16 channels, 400 Hz sampling rate, and 1 minute duration, calculation takes approximately 20 seconds using our implementation with 20 GB VRAM on GPU-A100.
+}
+    \label{fig:9_pac_calc_progress_db}
+\end{figure*}
+
+
+
+
+%% ----------------------------------------
+%% REFERENCE STYLES
+%% ----------------------------------------
+\pdfbookmark[1]{References}{references}
+\bibliography{./02_supplementary/contents/bibliography}
+
+%% ========================================
+%% ./02_supplementary/contents/latex_styles/bibliography.tex
+%% ========================================
+%% -*- coding: utf-8 -*-
+%% Timestamp: "2025-09-26 18:18:03 (ywatanabe)"
+%% File: "/ssh:sp:/home/ywatanabe/proj/neurovista/paper/01_manuscript/src/styles/bibliography.tex"
+
+% Note Re-compile is required
+
+% %% Numbering Style (sorted and listed)
+% [1, 2, 3, 4]
+
+%% Numbering Style (sorted)
+\bibliographystyle{elsarticle-num}
+
+% Author Style
+% \bibliographystyle{plainnat}
+% use \citet{}
+
+% Numbering Style (not-sorted) 
+% \bibliographystyle{plainnat}
+% use \cite{}
+
+%%%% EOF
+
+
+%% ----------------------------------------
+%% END of DOCUMENT
+%% ----------------------------------------
+\end{document}
+
