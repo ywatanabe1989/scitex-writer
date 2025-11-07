@@ -1,0 +1,99 @@
+Bootstrap: docker
+From: ubuntu:24.04
+
+%labels
+    Author SciTeX Writer Project
+    Version 1.0.0
+    Description Complete LaTeX environment for scientific manuscript writing
+
+%help
+    SciTeX Writer - Apptainer/Singularity Container
+
+    Complete LaTeX environment for reproducible manuscript compilation.
+
+    Usage:
+        apptainer build scitex-writer.sif scitex-writer.def
+        apptainer run scitex-writer.sif ./compile.sh manuscript
+
+    Or with bind mount:
+        apptainer run --bind $(pwd):/workspace scitex-writer.sif ./compile.sh manuscript
+
+%environment
+    export LANG=C.UTF-8
+    export LC_ALL=C.UTF-8
+    export PATH=/usr/local/bin:$PATH
+
+%post
+    # Prevent interactive prompts
+    export DEBIAN_FRONTEND=noninteractive
+
+    # Update and install system dependencies
+    apt-get update
+    apt-get install -y --no-install-recommends \
+        texlive-latex-base \
+        texlive-latex-extra \
+        texlive-fonts-recommended \
+        texlive-fonts-extra \
+        texlive-science \
+        texlive-bibtex-extra \
+        texlive-publishers \
+        texlive-luatex \
+        texlive-xetex \
+        texlive-lang-european \
+        texlive-lang-english \
+        latexdiff \
+        chktex \
+        ghostscript \
+        imagemagick \
+        perl \
+        parallel \
+        make \
+        wget \
+        curl \
+        git \
+        python3 \
+        python3-pip \
+        python3-venv
+
+    # Install yq (Go version)
+    wget -qO /usr/local/bin/yq \
+        https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
+    chmod +x /usr/local/bin/yq
+
+    # Upgrade pip
+    python3 -m pip install --upgrade pip
+
+    # Install Python packages
+    pip3 install --no-cache-dir \
+        xlsx2csv>=0.8.0 \
+        csv2latex>=0.1.0 \
+        pyyaml>=6.0
+
+    # Clean up
+    apt-get clean
+    rm -rf /var/lib/apt/lists/*
+
+%runscript
+    # Default: Run bash or execute provided command
+    if [ $# -eq 0 ]; then
+        exec /bin/bash
+    else
+        exec "$@"
+    fi
+
+%test
+    # Test that required commands are available
+    command -v pdflatex || exit 1
+    command -v latexdiff || exit 1
+    command -v yq || exit 1
+    command -v python3 || exit 1
+    echo "All required commands are available"
+
+    # Test LaTeX
+    pdflatex --version
+
+    # Test yq
+    yq --version
+
+    # Test Python packages
+    python3 -c "import yaml; print('PyYAML available')"

@@ -6,7 +6,7 @@
 # ============================================================================
 # Apply Citation Style from Config to LaTeX Bibliography File
 # ============================================================================
-# This script reads the citation style from STXW_CITATION_STYLE environment
+# This script reads the citation style from SCITEX_WRITER_CITATION_STYLE environment
 # variable and updates the bibliography.tex file to use that style.
 #
 # Usage:
@@ -28,9 +28,9 @@ echo_success() { echo -e "${GREEN}SUCC: $1${NC}"; }
 echo_warning() { echo -e "${YELLOW}WARN: $1${NC}"; }
 echo_error() { echo -e "${RED}ERRO: $1${NC}"; exit 1; }
 
-# Check if STXW_CITATION_STYLE is set
-if [ -z "${STXW_CITATION_STYLE:-}" ]; then
-    echo_warning "STXW_CITATION_STYLE not set, skipping citation style update"
+# Check if SCITEX_WRITER_CITATION_STYLE is set
+if [ -z "${SCITEX_WRITER_CITATION_STYLE:-}" ]; then
+    echo_warning "SCITEX_WRITER_CITATION_STYLE not set, skipping citation style update"
     echo_warning "Using default style in shared/latex_styles/bibliography.tex"
     exit 0
 fi
@@ -45,8 +45,8 @@ fi
 # Current style
 CURRENT_STYLE=$(grep '^\\bibliographystyle' "$BIBLIOGRAPHY_FILE" | sed 's/\\bibliographystyle{\(.*\)}/\1/')
 
-if [ "$CURRENT_STYLE" = "$STXW_CITATION_STYLE" ]; then
-    echo_success "Citation style already set to: $STXW_CITATION_STYLE"
+if [ "$CURRENT_STYLE" = "$SCITEX_WRITER_CITATION_STYLE" ]; then
+    echo_success "Citation style already set to: $SCITEX_WRITER_CITATION_STYLE"
     exit 0
 fi
 
@@ -62,17 +62,17 @@ cp "$BIBLIOGRAPHY_FILE" "$BACKUP_FILE"
 sed -i '/^\\bibliographystyle/s/^/% /' "$BIBLIOGRAPHY_FILE"
 
 # Check if the target style exists as a commented line
-if grep -q "^% \\\\bibliographystyle{${STXW_CITATION_STYLE}}" "$BIBLIOGRAPHY_FILE"; then
+if grep -q "^% \\\\bibliographystyle{${SCITEX_WRITER_CITATION_STYLE}}" "$BIBLIOGRAPHY_FILE"; then
     # Uncomment the first occurrence of the target style
-    sed -i "0,/^% \\\\bibliographystyle{${STXW_CITATION_STYLE}}/{s/^% /;/}" "$BIBLIOGRAPHY_FILE"
-    echo_success "Updated citation style to: $STXW_CITATION_STYLE (from commented line)"
+    sed -i "0,/^% \\\\bibliographystyle{${SCITEX_WRITER_CITATION_STYLE}}/{s/^% //}" "$BIBLIOGRAPHY_FILE"
+    echo_success "Updated citation style to: $SCITEX_WRITER_CITATION_STYLE (from commented line)"
 else
     # Add the new style after line 20 (after OPTION 1 header)
-    sed -i "20a\\\\bibliographystyle{${STXW_CITATION_STYLE}}" "$BIBLIOGRAPHY_FILE"
-    echo_success "Updated citation style to: $STXW_CITATION_STYLE (added new)"
+    sed -i "20a\\\\bibliographystyle{${SCITEX_WRITER_CITATION_STYLE}}" "$BIBLIOGRAPHY_FILE"
+    echo_success "Updated citation style to: $SCITEX_WRITER_CITATION_STYLE (added new)"
 fi
 
-echo_success "Citation style changed: $CURRENT_STYLE → $STXW_CITATION_STYLE"
+echo_success "Citation style changed: $CURRENT_STYLE → $SCITEX_WRITER_CITATION_STYLE"
 echo_success "Backup saved to: $BACKUP_FILE"
 
 # EOF
