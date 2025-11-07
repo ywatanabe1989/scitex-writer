@@ -8,6 +8,7 @@ on:
       - 'scripts/shell/**'
       - 'config/**'
       - 'shared/**'
+      - 'requirements/**'
       - '.github/workflows/citation-style-test.yml'
   pull_request:
     branches: [ main, develop ]
@@ -16,7 +17,13 @@ on:
       - 'scripts/shell/**'
       - 'config/**'
       - 'shared/**'
+      - 'requirements/**'
       - '.github/workflows/citation-style-test.yml'
+
+# Cancel in-progress runs when a new workflow with the same group name is triggered
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   test-citation-styles:
@@ -37,32 +44,37 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    - name: Cache LaTeX dependencies
+    - name: Cache pip dependencies
       uses: actions/cache@v4
       with:
-        path: /usr/share/texmf
-        key: texlive-${{ runner.os }}-${{ hashFiles('**/requirements*.txt') }}
+        path: ~/.cache/pip
+        key: pip-${{ runner.os }}-${{ hashFiles('requirements/python.txt') }}
         restore-keys: |
-          texlive-${{ runner.os }}-
+          pip-${{ runner.os }}-
 
-    - name: Install LaTeX and dependencies
+    - name: Install dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y texlive-full latexdiff ghostscript imagemagick perl parallel yq
+        # Install core LaTeX packages (not full to save time)
+        xargs sudo apt-get install -y < requirements/system-debian.txt
 
-    - name: Install Python dependencies
-      run: |
+        # Install yq (Go version)
+        sudo wget -qO /usr/local/bin/yq \
+          https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
+        sudo chmod +x /usr/local/bin/yq
+
+        # Install Python dependencies
         python3 -m pip install --upgrade pip
-        pip install xlsx2csv csv2latex
+        pip install -r requirements/python.txt
 
     - name: Set citation style - ${{ matrix.style.name }}
       run: |
         echo "Testing citation style: ${{ matrix.style.name }} (${{ matrix.style.value }})"
-        # Update config file with new citation style
-        yq -i '.citation.style = "${{ matrix.style.value }}"' config/config_manuscript.yaml
+        # Update config file with new citation style using yq wrapper
+        ./scripts/shell/modules/yq_wrapper.sh set config/config_manuscript.yaml '.citation.style' "${{ matrix.style.value }}"
         # Verify the change
         echo "Current style in config:"
-        yq '.citation.style' config/config_manuscript.yaml
+        ./scripts/shell/modules/yq_wrapper.sh get config/config_manuscript.yaml '.citation.style'
 
     - name: Compile manuscript with ${{ matrix.style.name }} style
       run: ./compile.sh manuscript
