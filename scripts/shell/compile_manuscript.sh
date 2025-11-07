@@ -94,6 +94,9 @@ main() {
     # Check dependencies
     ./scripts/shell/modules/check_dependancy_commands.sh
 
+    # Apply citation style from config
+    ./scripts/shell/modules/apply_citation_style.sh
+
     # Process figures, tables, and count
     ./scripts/shell/modules/process_figures.sh \
         "$no_figs" \

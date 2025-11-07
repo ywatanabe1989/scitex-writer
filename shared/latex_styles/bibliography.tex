@@ -72,6 +72,156 @@
 % \bibliographystyle{apalike}               % APA-like style
 
 %% ----------------------------------------------------------------------------
+%% OPTION 5: ADDITIONAL CITATION STYLES
+%% ----------------------------------------------------------------------------
+%% Note: Many of these styles require biblatex instead of natbib.
+%% To use biblatex, you need to modify the preamble and use biber instead of bibtex.
+%% Basic conversion: Replace natbib package with biblatex, and use \printbibliography
+%% instead of \bibliographystyle + \bibliography commands.
+
+%% ----------------------------------------
+%% CHEMISTRY
+%% ----------------------------------------
+%% American Chemical Society (ACS):
+%% Installation: Download achemso.bst or use biblatex with style=chem-acs
+%% Format: Numbered, order of appearance, (1) Author, A. B. Title. Journal Year, Volume, Pages.
+%% BibTeX method:
+% \bibliographystyle{achemso}              % ACS style (requires achemso package)
+%% Biblatex method (recommended):
+% \usepackage[style=chem-acs]{biblatex}
+
+%% ----------------------------------------
+%% MEDICAL & HEALTH SCIENCES
+%% ----------------------------------------
+%% American Medical Association (AMA) 11th edition:
+%% Format: Numbered, order of appearance, superscript numbers
+%% Installation: Requires biblatex with biblatex-ama style
+%% Method:
+% \usepackage[style=ama]{biblatex}         % AMA 11th ed (requires biblatex-ama package)
+
+%% Vancouver style (ICMJE):
+%% Format: Numbered [1], order of appearance, commonly used in medical journals
+%% Note: unsrtnat (currently active) is very similar to Vancouver
+% \bibliographystyle{vancouver}            % Vancouver/ICMJE style (if .bst available)
+% \bibliographystyle{unsrtnat}             % Similar to Vancouver (currently active)
+
+%% ----------------------------------------
+%% SOCIAL SCIENCES
+%% ----------------------------------------
+%% American Psychological Association (APA) 7th edition:
+%% Format: Author-year, (Author, Year), alphabetical by author
+%% BibTeX method (APA-like, not full APA 7th):
+% \bibliographystyle{apalike}              % APA-like style (simplified)
+% \bibliographystyle{apacite}              % APA 6th/7th (requires apacite package)
+%% Biblatex method (recommended for full APA 7th compliance):
+% \usepackage[style=apa]{biblatex}         % Full APA 7th edition (requires biblatex-apa)
+
+%% American Sociological Association (ASA) 6th/7th edition:
+%% Format: Author-year, (Author Year), alphabetical, similar to Chicago author-date
+%% Method:
+% \bibliographystyle{asaetr}               % ASA-like style (if .bst available)
+%% Biblatex method:
+% \usepackage[style=authoryear]{biblatex} % Generic author-year (customizable to ASA)
+
+%% American Political Science Association (APSA):
+%% Format: Author-year, similar to Chicago author-date
+%% Method:
+% \usepackage[style=authoryear-comp]{biblatex}  % Compressed author-year for APSA
+
+%% ----------------------------------------
+%% HUMANITIES
+%% ----------------------------------------
+%% Chicago Manual of Style 18th edition (author-date):
+%% Format: Author-year, (Author Year), commonly used in social sciences and humanities
+% \bibliographystyle{chicago}              % Chicago author-date (if .bst available)
+%% Biblatex method (recommended):
+% \usepackage[style=chicago-authordate]{biblatex}  % Chicago 18th ed author-date
+
+%% Chicago Manual of Style 18th edition (notes and bibliography):
+%% Format: Footnote/endnote citations with full bibliography
+%% Method:
+% \usepackage[style=chicago-notes]{biblatex}  % Chicago 18th ed notes style
+
+%% Chicago Manual of Style 18th edition (shortened notes and bibliography):
+%% Format: Shortened footnote citations after first full citation
+%% Method:
+% \usepackage[style=chicago-notes]{biblatex}  % Use with ibidtracker option
+
+%% Modern Language Association (MLA) 9th edition:
+%% Format: Author-page, (Author Page), works cited list
+%% Method:
+% \usepackage[style=mla]{biblatex}         % MLA 9th edition (requires biblatex-mla)
+
+%% Modern Humanities Research Association (MHRA) 4th edition:
+%% Format: Footnote citations with bibliography
+%% Method:
+% \usepackage[style=mhra]{biblatex}        % MHRA 4th edition (requires biblatex-mhra)
+
+%% ----------------------------------------
+%% HARVARD STYLES
+%% ----------------------------------------
+%% Cite Them Right 12th edition - Harvard:
+%% Format: Author-year, (Author, Year), widely used in UK universities
+% \bibliographystyle{agsm}                 % Harvard style (Australian)
+% \bibliographystyle{dcu}                  % Harvard style (Dublin City University)
+%% Biblatex method:
+% \usepackage[style=authoryear]{biblatex} % Generic Harvard-style (author-year)
+
+%% Elsevier - Harvard (with titles):
+%% Format: Author-year with article titles included
+% \bibliographystyle{elsarticle-harv}      % Elsevier Harvard style (already listed above)
+
+%% ----------------------------------------
+%% ENGINEERING & COMPUTER SCIENCE
+%% ----------------------------------------
+%% IEEE (Institute of Electrical and Electronics Engineers):
+%% Format: Numbered [1], order of appearance, widely used in engineering
+% \bibliographystyle{IEEEtran}             % IEEE Transactions style (already listed above)
+
+%% ----------------------------------------
+%% NATURAL SCIENCES
+%% ----------------------------------------
+%% Nature:
+%% Format: Numbered, superscript, order of appearance
+% \bibliographystyle{naturemag}            % Nature magazine style (already listed above)
+% \bibliographystyle{naturemag-doi}        % Nature with DOIs
+
+%% ----------------------------------------------------------------------------
+%% BIBLATEX SETUP INSTRUCTIONS
+%% ----------------------------------------------------------------------------
+%% To switch from natbib to biblatex:
+%%
+%% 1. In packages.tex, replace:
+%%    \usepackage[numbers]{natbib}
+%%    with:
+%%    \usepackage[style=STYLENAME,backend=biber]{biblatex}
+%%    \addbibresource{path/to/bibliography.bib}
+%%
+%% 2. In this file (bibliography.tex), replace:
+%%    \bibliographystyle{...}
+%%    with:
+%%    % No \bibliographystyle needed with biblatex
+%%
+%% 3. In your main .tex file, replace:
+%%    \bibliography{path/to/bibliography}
+%%    with:
+%%    \printbibliography
+%%
+%% 4. Change compilation command:
+%%    pdflatex → biber → pdflatex → pdflatex
+%%    (instead of pdflatex → bibtex → pdflatex → pdflatex)
+%%
+%% Example biblatex styles:
+%%   style=numeric-comp     → Compressed numeric [1-3,5]
+%%   style=authoryear       → (Author, Year)
+%%   style=authoryear-comp  → (Author1, 2020; Author2, 2021)
+%%   style=apa              → APA 7th edition
+%%   style=chicago-authordate → Chicago author-date
+%%   style=ieee             → IEEE style
+%%   style=nature           → Nature style
+%%   style=mla              → MLA 9th edition
+
+%% ----------------------------------------------------------------------------
 %% CITATION COMMAND REFERENCE (with natbib)
 %% ----------------------------------------------------------------------------
 %% Basic commands:
