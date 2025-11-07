@@ -1,23 +1,8 @@
-# System dependencies for macOS (Homebrew)
-# Used by: requirements/install.sh
-
-# LaTeX distribution
 basictex
-# Note: After installing basictex, run:
-# sudo tlmgr update --self
-# sudo tlmgr install collection-latexextra collection-fontsrecommended collection-fontsextra
-
-# LaTeX utilities
 latexdiff
-
-# Document processing
 ghostscript
 imagemagick
-
-# Scripting
 perl
 parallel
-
-# Build tools
 make
 gnu-sed
