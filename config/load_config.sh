@@ -54,6 +54,8 @@ fi
 export STXW_VERBOSE_PDFLATEX="${STXW_VERBOSE_PDFLATEX:-$(yq -r '.verbosity.pdflatex' $CONFIG_FILE)}"
 export STXW_VERBOSE_BIBTEX="${STXW_VERBOSE_BIBTEX:-$(yq -r '.verbosity.bibtex' $CONFIG_FILE)}"
 
+export STXW_CITATION_STYLE="${STXW_CITATION_STYLE:-$(yq -r '.citation.style' $CONFIG_FILE)}"
+
 export STWX_ROOT_DIR="$(yq -r '.paths.doc_root_dir' $CONFIG_FILE)"
 export LOG_DIR="$(yq -r '.paths.doc_log_dir' $CONFIG_FILE)"
 export STXW_GLOBAL_LOG_FILE="$(yq -r '.paths.global_log_file' $CONFIG_FILE)"
