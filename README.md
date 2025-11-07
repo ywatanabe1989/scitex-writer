@@ -177,9 +177,11 @@ Reference in text: `Table~\ref{tab:my_table}`
 </details>
 
 <details>
-<summary>📚 Citations</summary>
+<summary>📚 Citations & Bibliography Styles</summary>
 
 ## Citations
+
+### Adding References
 
 Edit `shared/bib_files/bibliography.bib`:
 
@@ -196,6 +198,42 @@ Edit `shared/bib_files/bibliography.bib`:
 ```
 
 Cite in text: `\cite{your_reference_2024}`
+
+### Changing Citation Style
+
+Simply edit the `citation.style` field in your config file:
+
+**config/config_manuscript.yaml:**
+```yaml
+citation:
+  style: "unsrtnat"  # Change to any supported style
+```
+
+**Available styles (ready to use):**
+- `unsrtnat` - Numbered [1], order of appearance (Vancouver-like) - **default**
+- `plainnat` - Numbered [1], alphabetical by author
+- `abbrvnat` - Numbered, abbreviated author names
+- `apalike` - Author-year, APA-like style
+- `IEEEtran` - IEEE Transactions style
+- `naturemag` - Nature magazine style
+- `elsarticle-num` - Elsevier numbered, alphabetical
+- `elsarticle-harv` - Elsevier Harvard (author-year)
+
+**Advanced styles** (APA 7th, Chicago, MLA, MHRA, etc.):
+
+See `shared/latex_styles/bibliography.tex` for 15+ additional citation formats including:
+- American Chemical Society (ACS)
+- American Medical Association (AMA) 11th edition
+- American Psychological Association (APA) 7th edition
+- American Sociological Association (ASA)
+- Chicago Manual of Style (author-date, notes, shortened notes)
+- Modern Language Association (MLA) 9th edition
+- Modern Humanities Research Association (MHRA)
+- Harvard variations (Cite Them Right, etc.)
+
+For these advanced styles, see instructions in `bibliography.tex` for switching from natbib to biblatex.
+
+The citation style is automatically applied during compilation - no manual LaTeX editing needed!
 
 </details>
 
@@ -227,6 +265,9 @@ Cite in text: `\cite{your_reference_2024}`
   - Images: `.jpg`, `.png`, `.tif` automatically processed
   - Tables: `.xlsx` and `.csv` converted to LaTeX
   - Mermaid diagrams: `.mmd` files rendered to images
+- **Flexible citation styles**: 15+ citation formats via simple config change
+  - IEEE, Nature, APA, Chicago, MLA, Harvard, Vancouver, and more
+  - Automatic style switching without manual LaTeX editing
 - **Version tracking**: Automatic diff generation
 - **Watch mode**: Auto-recompile on file changes
 - **HPC-ready**: Works on compute clusters
@@ -235,7 +276,7 @@ Cite in text: `\cite{your_reference_2024}`
 
 ## License
 
-MIT License - See LICENSE file for details
+GNU Affero General Public License v3.0 (AGPL-3.0) - See LICENSE file for details
 
 ## Support
 
