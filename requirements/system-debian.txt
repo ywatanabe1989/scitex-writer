@@ -9,6 +9,7 @@ texlive-luatex
 texlive-xetex
 texlive-lang-european
 texlive-lang-english
+texlive-extra-utils
 latexdiff
 chktex
 ghostscript
