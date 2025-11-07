@@ -48,7 +48,10 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-# 2. Check revision structure
+# 2. Apply citation style from config
+./scripts/shell/modules/apply_citation_style.sh
+
+# 3. Check revision structure
 echo ""
 echo -e "${BLUE}INFO: Checking revision response structure...${NC}"
 

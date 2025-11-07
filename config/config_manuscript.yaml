@@ -5,6 +5,23 @@ verbosity:
   pdflatex: true
   bibtex: true
 
+citation:
+  # Citation style configuration
+  # For natbib-based styles (simple, works out of the box):
+  #   - unsrtnat         : Numbered [1], order of appearance (Vancouver-like)
+  #   - plainnat         : Numbered [1], alphabetical by author
+  #   - abbrvnat         : Numbered, abbreviated names
+  #   - apalike          : Author-year, APA-like style
+  #   - IEEEtran         : IEEE Transactions style
+  #   - naturemag        : Nature magazine style
+  #   - elsarticle-num   : Elsevier numbered, alphabetical
+  #   - elsarticle-harv  : Elsevier Harvard (author-year)
+  #
+  # For biblatex-based styles (requires switching from natbib to biblatex):
+  #   See shared/latex_styles/bibliography.tex for instructions on:
+  #   - apa, chicago-authordate, mla, mhra, ieee, nature, etc.
+  style: "unsrtnat"  # Default: numbered citations, order of appearance
+
 paths:
   doc_root_dir: "./01_manuscript"
   doc_log_dir: "./01_manuscript/logs"
