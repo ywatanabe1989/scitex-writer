@@ -1,0 +1,16 @@
+# Python dependencies
+# Install with: pip install -r requirements/python.txt
+
+# Document conversion
+xlsx2csv>=0.8.0
+csv2latex>=0.1.0
+
+# Configuration
+pyyaml>=6.0
+tomli>=2.0.0; python_version < '3.11'
+
+# Development tools (optional)
+# Uncomment if needed:
+# pytest>=7.0.0
+# black>=22.0.0
+# flake8>=4.0.0

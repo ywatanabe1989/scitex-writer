@@ -1,0 +1,30 @@
+# System dependencies for Debian/Ubuntu
+# Used by: requirements/install.sh
+
+# Core LaTeX distribution
+texlive-latex-base
+texlive-latex-extra
+texlive-fonts-recommended
+texlive-fonts-extra
+texlive-science
+texlive-bibtex-extra
+texlive-publishers
+texlive-luatex
+texlive-xetex
+texlive-lang-european
+texlive-lang-english
+
+# LaTeX utilities
+latexdiff
+chktex
+
+# Document processing
+ghostscript
+imagemagick
+
+# Scripting
+perl
+parallel
+
+# Build tools
+make
