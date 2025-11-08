@@ -5,12 +5,18 @@ on:
     branches: [ main, develop ]
     paths:
       - 'scripts/python/**'
+      - 'requirements/python.txt'
       - '.github/workflows/lint.yml'
   pull_request:
     branches: [ main, develop ]
     paths:
       - 'scripts/python/**'
+      - 'requirements/python.txt'
       - '.github/workflows/lint.yml'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   lint:
