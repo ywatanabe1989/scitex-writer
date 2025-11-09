@@ -72,6 +72,10 @@ update:
 version:
 	@echo "SciTeX Writer $(shell grep '^version = ' pyproject.toml | sed 's/version = "\(.*\)"/\1/' | head -1 | tr -d '\"')"
 
+demo-previews:
+	@echo "Generating demo preview images for README..."
+	./scripts/generate_demo_previews.sh
+
 # Cleaning targets
 clean:
 	@echo "Cleaning temporary files..."
@@ -140,6 +144,7 @@ help:
 	@echo "  upload-test      - Upload to Test PyPI"
 	@echo "  update           - Update to latest version"
 	@echo "  version          - Show version"
+	@echo "  demo-previews    - Generate demo preview images for README"
 	@echo ""
 	@echo "Cleaning:"
 	@echo "  clean            - Remove temporary LaTeX files"
