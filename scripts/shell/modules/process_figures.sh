@@ -55,29 +55,39 @@ log_figure_stage_end() {
 # All panel files (e.g., .01a_*, .01b_*) are processed
 # and then automatically tiled together into the main figure.
 
-# Configurations
-source ./config/load_config.sh $SCITEX_WRITER_DOC_TYPE
-source ./scripts/shell/modules/validate_tex.src
+# Quick check for --no_figs BEFORE expensive config loading
+NO_FIGS_ARG="${1:-false}"
+if [ "$NO_FIGS_ARG" = true ]; then
+    # Minimal setup for --no_figs mode
+    source ./config/load_config.sh $SCITEX_WRITER_DOC_TYPE
+    echo
+    echo_info "Running $0 ..."
+    FIGURE_SRC_COUNT=0
+else
+    # Full configuration loading for normal mode
+    source ./config/load_config.sh $SCITEX_WRITER_DOC_TYPE
+    source ./scripts/shell/modules/validate_tex.src
 
-# Source the 00_shared command module
-source "$(dirname ${BASH_SOURCE[0]})/command_switching.src"
+    # Source the 00_shared command module
+    source "$(dirname ${BASH_SOURCE[0]})/command_switching.src"
 
-# Override echo_xxx functions
-source ./config/load_config.sh $SCITEX_WRITER_DOC_TYPE
+    # Override echo_xxx functions
+    source ./config/load_config.sh $SCITEX_WRITER_DOC_TYPE
 
-# Logging
-touch "$LOG_PATH" >/dev/null 2>&1
-echo
-echo_info "Running $0 ..."
+    # Logging
+    touch "$LOG_PATH" >/dev/null 2>&1
+    echo
+    echo_info "Running $0 ..."
 
-# Early exit if no figure source files exist (saves ~50s)
-FIGURE_SRC_COUNT=$(find "$SCITEX_WRITER_FIGURE_CAPTION_MEDIA_DIR" -maxdepth 1 -type f \( -name '*.pptx' -o -name '*.tif' -o -name '*.tiff' -o -name '*.png' -o -name '*.jpg' -o -name '*.jpeg' -o -name '*.mmd' \) 2>/dev/null | wc -l)
+    # Early exit if no figure source files exist (saves ~50s)
+    FIGURE_SRC_COUNT=$(find "$SCITEX_WRITER_FIGURE_CAPTION_MEDIA_DIR" -maxdepth 1 -type f \( -name '*.pptx' -o -name '*.tif' -o -name '*.tiff' -o -name '*.png' -o -name '*.jpg' -o -name '*.jpeg' -o -name '*.mmd' \) 2>/dev/null | wc -l)
 
-if [ "$FIGURE_SRC_COUNT" -eq 0 ]; then
-    echo_info "    No figure source files found, creating placeholders only..."
-    mkdir -p "$SCITEX_WRITER_FIGURE_JPG_DIR"
-    # Will create placeholders for figures referenced in captions
-    # Skip expensive conversion pipeline
+    if [ "$FIGURE_SRC_COUNT" -eq 0 ]; then
+        echo_info "    No figure source files found, creating placeholders only..."
+        mkdir -p "$SCITEX_WRITER_FIGURE_JPG_DIR"
+        # Will create placeholders for figures referenced in captions
+        # Skip expensive conversion pipeline
+    fi
 fi
 
 # In process_figures.sh, add the validate_image_file function:
@@ -1072,18 +1082,31 @@ main() {
         echo_info "    no_figs=$no_figs, p2t=$p2t, crop=$do_crop"
     fi
 
+    # Early exit when --no_figs is specified
+    if [ "$no_figs" = true ]; then
+        echo_info "    Skipping all figure processing (--no_figs specified)"
+        # Quick disable without expensive operations
+        mkdir -p "$SCITEX_WRITER_FIGURE_COMPILED_DIR" 2>/dev/null || true
+        return 0
+    fi
+
     # Initialize environment
     init_figures
     ensure_lower_letter_id
     ensure_caption
 
-    if [ "$no_figs" = false ]; then
+    # Skip expensive conversion if no source files exist
+    if [ "$FIGURE_SRC_COUNT" -gt 0 ]; then
         # Run the figure conversion cascade
         convert_figure_formats_in_cascade "$p2t" "$do_crop"
 
         # Post-processing
         check_and_create_placeholders
         auto_tile_panels "$no_figs"
+    else
+        # Only create placeholders, skip conversion pipeline
+        echo_info "    Skipping conversion pipeline (no source files)"
+        check_and_create_placeholders
     fi
 
     # Final compilation steps
@@ -1091,7 +1114,7 @@ main() {
     handle_figure_visibility "$no_figs"
     compile_figure_tex_files
     local compiled_count=$(find "$SCITEX_WRITER_FIGURE_COMPILED_DIR" -name ".*.tex" | wc -l)
-    if [ "$no_figs" = false ] && [ $compiled_count -gt 0 ]; then
+    if [ $compiled_count -gt 0 ]; then
         echo_success "    $compiled_count figures compiled"
     fi
 }
