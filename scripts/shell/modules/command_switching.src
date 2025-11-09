@@ -85,30 +85,29 @@ load_texlive_module() {
 }
 
 # Get pdflatex command with fallbacks
+# Priority: 1. Native → 2. Singularity → 3. Docker
 get_cmd_pdflatex() {
     local working_dir="${1:-$(pwd)}"
     local abs_dir=$(realpath "$working_dir")
 
-    # In HPC, prioritize container for consistency
-    # First choice: Container (Apptainer/Singularity)
-    local runtime=$(get_container_runtime)
-    if [ -n "$runtime" ] && setup_latex_container; then
-        echo "$runtime exec --bind ${abs_dir}:${abs_dir} --pwd ${abs_dir} $SCITEX_WRITER_TEXLIVE_APPTAINER_SIF pdflatex"
-        return 0
-    fi
-
-    # Second choice: Native pdflatex (rare in HPC)
+    # First choice: Native pdflatex (fastest)
     if command -v pdflatex &> /dev/null; then
-        # Verify it's actually executable
-        if pdflatex --version &> /dev/null; then
+        if pdflatex --version &> /dev/null 2>&1; then
             echo "pdflatex"
             return 0
         fi
     fi
 
-    # Third choice: Module system
+    # Second choice: Module system (HPC)
     if load_texlive_module && command -v pdflatex &> /dev/null; then
         echo "pdflatex"
+        return 0
+    fi
+
+    # Third choice: Singularity/Apptainer (reproducible)
+    local runtime=$(get_container_runtime)
+    if [ -n "$runtime" ] && setup_latex_container; then
+        echo "$runtime exec --bind ${abs_dir}:${abs_dir} --pwd ${abs_dir} $SCITEX_WRITER_TEXLIVE_APPTAINER_SIF pdflatex"
         return 0
     fi
 
@@ -116,30 +115,29 @@ get_cmd_pdflatex() {
 }
 
 # Get bibtex command with fallbacks
+# Priority: 1. Native → 2. Module → 3. Singularity
 get_cmd_bibtex() {
     local working_dir="${1:-$(pwd)}"
     local abs_dir=$(realpath "$working_dir")
 
-    # In HPC, prioritize container for consistency
-    # First choice: Container (Apptainer/Singularity)
-    local runtime=$(get_container_runtime)
-    if [ -n "$runtime" ] && setup_latex_container; then
-        echo "$runtime exec --bind ${abs_dir}:${abs_dir} --pwd ${abs_dir} $SCITEX_WRITER_TEXLIVE_APPTAINER_SIF bibtex"
-        return 0
-    fi
-
-    # Second choice: Native bibtex (rare in HPC)
+    # First choice: Native bibtex (fastest)
     if command -v bibtex &> /dev/null; then
-        # Verify it's actually executable
-        if bibtex --version &> /dev/null; then
+        if bibtex --version &> /dev/null 2>&1; then
             echo "bibtex"
             return 0
         fi
     fi
 
-    # Third choice: Module system
+    # Second choice: Module system (HPC)
     if load_texlive_module && command -v bibtex &> /dev/null; then
         echo "bibtex"
+        return 0
+    fi
+
+    # Third choice: Singularity/Apptainer (reproducible)
+    local runtime=$(get_container_runtime)
+    if [ -n "$runtime" ] && setup_latex_container; then
+        echo "$runtime exec --bind ${abs_dir}:${abs_dir} --pwd ${abs_dir} $SCITEX_WRITER_TEXLIVE_APPTAINER_SIF bibtex"
         return 0
     fi
 
@@ -147,27 +145,31 @@ get_cmd_bibtex() {
 }
 
 # Get latexdiff command with fallbacks
+# Priority: 1. Native → 2. Module → 3. Singularity
 get_cmd_latexdiff() {
     local working_dir="${1:-$(pwd)}"
     local abs_dir=$(realpath "$working_dir")
 
-    # In HPC environments, prefer container for consistency
-    # Check for container runtime first
-    local runtime=$(get_container_runtime)
-    if [ -n "$runtime" ] && setup_latex_container; then
-        echo "$runtime exec --bind ${abs_dir}:${abs_dir} --pwd ${abs_dir} $SCITEX_WRITER_TEXLIVE_APPTAINER_SIF latexdiff"
-        return 0
-    fi
-
-    # Fallback 1: Native latexdiff (check for actual executable file)
+    # First choice: Native latexdiff (fastest)
     if [ -x "/usr/bin/latexdiff" ] || [ -x "/usr/local/bin/latexdiff" ]; then
         echo "latexdiff"
         return 0
     fi
+    if command -v latexdiff &> /dev/null; then
+        echo "latexdiff"
+        return 0
+    fi
 
-    # Fallback 2: Module system
+    # Second choice: Module system (HPC)
     if load_texlive_module && command -v latexdiff &> /dev/null; then
         echo "latexdiff"
+        return 0
+    fi
+
+    # Third choice: Singularity/Apptainer (reproducible)
+    local runtime=$(get_container_runtime)
+    if [ -n "$runtime" ] && setup_latex_container; then
+        echo "$runtime exec --bind ${abs_dir}:${abs_dir} --pwd ${abs_dir} $SCITEX_WRITER_TEXLIVE_APPTAINER_SIF latexdiff"
         return 0
     fi
 
@@ -175,26 +177,27 @@ get_cmd_latexdiff() {
 }
 
 # Get texcount command with fallbacks
+# Priority: 1. Native → 2. Module → 3. Singularity
 get_cmd_texcount() {
     local working_dir="${1:-$(pwd)}"
     local abs_dir=$(realpath "$working_dir")
 
-    # First choice: Container (Apptainer/Singularity) - prioritize for HPC
-    local runtime=$(get_container_runtime)
-    if [ -n "$runtime" ] && setup_latex_container; then
-        echo "$runtime exec --bind ${abs_dir}:${abs_dir} --pwd ${abs_dir} $SCITEX_WRITER_TEXLIVE_APPTAINER_SIF texcount"
-        return 0
-    fi
-
-    # Second choice: Native texcount (only if it actually works)
+    # First choice: Native texcount (fastest)
     if command -v texcount &> /dev/null && texcount --version &> /dev/null 2>&1; then
         echo "texcount"
         return 0
     fi
 
-    # Third choice: Module system
+    # Second choice: Module system (HPC)
     if load_texlive_module && command -v texcount &> /dev/null; then
         echo "texcount"
+        return 0
+    fi
+
+    # Third choice: Singularity/Apptainer (reproducible)
+    local runtime=$(get_container_runtime)
+    if [ -n "$runtime" ] && setup_latex_container; then
+        echo "$runtime exec --bind ${abs_dir}:${abs_dir} --pwd ${abs_dir} $SCITEX_WRITER_TEXLIVE_APPTAINER_SIF texcount"
         return 0
     fi
 
@@ -323,6 +326,7 @@ setup_imagemagick_container() {
 }
 
 # Get convert command with fallbacks
+# Priority: 1. Native → 2. Singularity → 3. Module
 get_cmd_convert() {
     local working_dir="${1:-$(pwd)}"
     local abs_dir=$(realpath "$working_dir")
