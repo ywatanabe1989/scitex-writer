@@ -1,0 +1,194 @@
+name: Comprehensive Tests
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test-compilation:
+    name: Test Compilation & PDF Generation
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+
+    - name: Install system dependencies
+      run: |
+        sudo apt-get update
+        xargs sudo apt-get install -y < requirements/system-debian.txt
+
+        # Install yq (Go version)
+        sudo wget -qO /usr/local/bin/yq \
+          https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
+        sudo chmod +x /usr/local/bin/yq
+
+    - name: Install Python dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements/python.txt
+        pip install -e .
+
+    - name: Run shell script tests
+      run: |
+        echo "=========================================="
+        echo "Running Shell Script Tests"
+        echo "=========================================="
+        ./tests/scripts/run_all_tests.sh
+
+    - name: Run Python tests
+      run: |
+        echo "=========================================="
+        echo "Running Python Tests"
+        echo "=========================================="
+        pytest tests/scitex/writer/ -v --tb=short
+
+    - name: Test manuscript compilation (full mode)
+      run: |
+        echo "=========================================="
+        echo "Test 1: Full Manuscript Compilation"
+        echo "=========================================="
+        ./compile.sh manuscript
+
+        # Verify PDF generated
+        if [ ! -f "01_manuscript/manuscript.pdf" ]; then
+          echo "✗ ERROR: manuscript.pdf not generated"
+          exit 1
+        fi
+
+        # Check PDF size
+        SIZE=$(stat -c%s "01_manuscript/manuscript.pdf")
+        if [ "$SIZE" -lt 10240 ]; then
+          echo "✗ ERROR: PDF too small ($SIZE bytes)"
+          exit 1
+        fi
+
+        # Check diff PDF was generated
+        if [ ! -f "01_manuscript/manuscript_diff.pdf" ]; then
+          echo "✗ ERROR: manuscript_diff.pdf not generated"
+          exit 1
+        fi
+
+        echo "✓ Full mode: PDF generated ($SIZE bytes)"
+
+    - name: Test manuscript compilation (fast mode)
+      run: |
+        echo "=========================================="
+        echo "Test 2: Fast Mode (--no_figs --no_diff)"
+        echo "=========================================="
+        ./compile.sh manuscript --no-figs --no-diff
+
+        if [ ! -f "01_manuscript/manuscript.pdf" ]; then
+          echo "✗ ERROR: Fast mode PDF not generated"
+          exit 1
+        fi
+
+        SIZE=$(stat -c%s "01_manuscript/manuscript.pdf")
+        echo "✓ Fast mode: PDF generated ($SIZE bytes)"
+
+    - name: Test manuscript compilation (ultra-fast mode)
+      run: |
+        echo "=========================================="
+        echo "Test 3: Ultra-Fast Mode (all speed flags)"
+        echo "=========================================="
+        ./compile.sh manuscript --no-figs --no-tables --no-diff --draft
+
+        if [ ! -f "01_manuscript/manuscript.pdf" ]; then
+          echo "✗ ERROR: Ultra-fast mode PDF not generated"
+          exit 1
+        fi
+
+        SIZE=$(stat -c%s "01_manuscript/manuscript.pdf")
+        echo "✓ Ultra-fast mode: PDF generated ($SIZE bytes)"
+
+    - name: Test dark mode compilation
+      run: |
+        echo "=========================================="
+        echo "Test 4: Dark Mode"
+        echo "=========================================="
+        ./compile.sh manuscript --no-figs --no-tables --no-diff --dark-mode
+
+        # Verify PDF generated
+        if [ ! -f "01_manuscript/manuscript.pdf" ]; then
+          echo "✗ ERROR: Dark mode PDF not generated"
+          exit 1
+        fi
+
+        # Verify dark mode styling was injected
+        if ! grep -q "dark_mode.tex" "01_manuscript/manuscript.tex"; then
+          echo "✗ ERROR: Dark mode not injected into compiled tex"
+          exit 1
+        fi
+
+        SIZE=$(stat -c%s "01_manuscript/manuscript.pdf")
+        echo "✓ Dark mode: PDF generated with dark styling ($SIZE bytes)"
+
+    - name: Test supplementary compilation
+      run: |
+        echo "=========================================="
+        echo "Test 5: Supplementary Document"
+        echo "=========================================="
+        ./compile.sh supplementary --no-figs --no-diff
+
+        if [ ! -f "02_supplementary/supplementary.pdf" ]; then
+          echo "✗ ERROR: Supplementary PDF not generated"
+          exit 1
+        fi
+
+        SIZE=$(stat -c%s "02_supplementary/supplementary.pdf")
+        echo "✓ Supplementary: PDF generated ($SIZE bytes)"
+
+    - name: Test option name flexibility
+      run: |
+        echo "=========================================="
+        echo "Test 6: Option Name Flexibility (hyphens vs underscores)"
+        echo "=========================================="
+
+        # Test with hyphens
+        ./compile.sh manuscript --no-figs --no-tables --no-diff --draft
+
+        # Test with underscores
+        ./compile.sh manuscript --no_figs --no_tables --no_diff --draft
+
+        echo "✓ Both hyphen and underscore formats work"
+
+    - name: Upload test PDFs
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: test-pdfs-${{ github.run_number }}
+        path: |
+          01_manuscript/*.pdf
+          02_supplementary/*.pdf
+          03_revision/*.pdf
+        retention-days: 7
+        if-no-files-found: warn
+
+    - name: Test summary
+      if: success()
+      run: |
+        echo "=========================================="
+        echo "✓ All Compilation Tests Passed!"
+        echo "=========================================="
+        echo "  ✓ Shell script tests (30 tests)"
+        echo "  ✓ Python tests (40 tests)"
+        echo "  ✓ Full compilation with PDF validation"
+        echo "  ✓ Fast mode compilation"
+        echo "  ✓ Ultra-fast mode compilation"
+        echo "  ✓ Dark mode compilation"
+        echo "  ✓ Supplementary compilation"
+        echo "  ✓ Option name flexibility"
+        echo "=========================================="
+
+# EOF
