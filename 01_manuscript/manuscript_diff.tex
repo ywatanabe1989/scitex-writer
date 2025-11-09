@@ -1,7 +1,12 @@
 %% -*- coding: utf-8 -*-
 %DIF LATEXDIFF DIFFERENCE FILE
-%DIF DEL ./01_manuscript/manuscript.tex   Wed Oct 29 13:23:19 2025
-%DIF ADD ./01_manuscript/manuscript.tex   Wed Oct 29 13:23:19 2025
+%DIF DEL ./01_manuscript/archive/manuscript_v001_diff.tex   Sun Nov  9 19:20:25 2025
+%DIF ADD ./01_manuscript/manuscript.tex                     Sun Nov  9 21:22:09 2025
+%DIF 2-4d2
+%DIF < %DIF LATEXDIFF DIFFERENCE FILE
+%DIF < %DIF DEL ./01_manuscript/manuscript.tex   Wed Oct 29 13:23:19 2025
+%DIF < %DIF ADD ./01_manuscript/manuscript.tex   Wed Oct 29 13:23:19 2025
+%DIF -------
 %% Timestamp: "2025-09-27 22:21:42 (ywatanabe)"
 %% File: "/ssh:sp:/home/ywatanabe/proj/neurovista/paper/01_manuscript/base.tex"
 \UseRawInputEncoding
@@ -196,6 +201,95 @@
 %% ----------------------------------------
 %% START of DOCUMENT
 %% ----------------------------------------
+%DIF < %DIF PREAMBLE EXTENSION ADDED BY LATEXDIFF
+%DIF < %DIF CULINECHBAR PREAMBLE %DIF PREAMBLE
+%DIF < \RequirePackage[normalem]{ulem} %DIF PREAMBLE
+%DIF < \RequirePackage[pdftex]{changebar} %DIF PREAMBLE
+%DIF < \RequirePackage{color}\definecolor{RED}{rgb}{1,0,0}\definecolor{BLUE}{rgb}{0,0,1} %DIF PREAMBLE
+%DIF < \providecommand{\DIFaddtex}[1]{\protect\cbstart{\protect\color{blue}\uwave{#1}}\protect\cbend} %DIF PREAMBLE
+%DIF < \providecommand{\DIFdeltex}[1]{\protect\cbdelete{\protect\color{red}\sout{#1}}\protect\cbdelete} %DIF PREAMBLE
+%DIF < %DIF SAFE PREAMBLE %DIF PREAMBLE
+%DIF < \providecommand{\DIFaddbegin}{} %DIF PREAMBLE
+%DIF < \providecommand{\DIFaddend}{} %DIF PREAMBLE
+%DIF < \providecommand{\DIFdelbegin}{} %DIF PREAMBLE
+%DIF < \providecommand{\DIFdelend}{} %DIF PREAMBLE
+%DIF < \providecommand{\DIFmodbegin}{} %DIF PREAMBLE
+%DIF < \providecommand{\DIFmodend}{} %DIF PREAMBLE
+%DIF < %DIF FLOATSAFE PREAMBLE %DIF PREAMBLE
+%DIF < \providecommand{\DIFaddFL}[1]{\DIFadd{#1}} %DIF PREAMBLE
+%DIF < \providecommand{\DIFdelFL}[1]{\DIFdel{#1}} %DIF PREAMBLE
+%DIF < \providecommand{\DIFaddbeginFL}{} %DIF PREAMBLE
+%DIF < \providecommand{\DIFaddendFL}{} %DIF PREAMBLE
+%DIF < \providecommand{\DIFdelbeginFL}{} %DIF PREAMBLE
+%DIF < \providecommand{\DIFdelendFL}{} %DIF PREAMBLE
+%DIF < %DIF HYPERREF PREAMBLE %DIF PREAMBLE
+%DIF < \providecommand{\DIFadd}[1]{\texorpdfstring{\DIFaddtex{#1}}{#1}} %DIF PREAMBLE
+%DIF < \providecommand{\DIFdel}[1]{\texorpdfstring{\DIFdeltex{#1}}{}} %DIF PREAMBLE
+%DIF < \newcommand{\DIFscaledelfig}{0.5}
+%DIF < %DIF HIGHLIGHTGRAPHICS PREAMBLE %DIF PREAMBLE
+%DIF < \RequirePackage{settobox} %DIF PREAMBLE
+%DIF < \RequirePackage{letltxmacro} %DIF PREAMBLE
+%DIF < \newsavebox{\DIFdelgraphicsbox} %DIF PREAMBLE
+%DIF < \newlength{\DIFdelgraphicswidth} %DIF PREAMBLE
+%DIF < \newlength{\DIFdelgraphicsheight} %DIF PREAMBLE
+%DIF < % store original definition of \includegraphics %DIF PREAMBLE
+%DIF < \LetLtxMacro{\DIFOincludegraphics}{\includegraphics} %DIF PREAMBLE
+%DIF < \newcommand{\DIFaddincludegraphics}[2][]{{\color{blue}\fbox{\DIFOincludegraphics[#1]{#2}}}} %DIF PREAMBLE
+%DIF < \newcommand{\DIFdelincludegraphics}[2][]{% %DIF PREAMBLE
+%DIF < \sbox{\DIFdelgraphicsbox}{\DIFOincludegraphics[#1]{#2}}% %DIF PREAMBLE
+%DIF < \settoboxwidth{\DIFdelgraphicswidth}{\DIFdelgraphicsbox} %DIF PREAMBLE
+%DIF < \settoboxtotalheight{\DIFdelgraphicsheight}{\DIFdelgraphicsbox} %DIF PREAMBLE
+%DIF < \scalebox{\DIFscaledelfig}{% %DIF PREAMBLE
+%DIF < \parbox[b]{\DIFdelgraphicswidth}{\usebox{\DIFdelgraphicsbox}\\[-\baselineskip] \rule{\DIFdelgraphicswidth}{0em}}\llap{\resizebox{\DIFdelgraphicswidth}{\DIFdelgraphicsheight}{% %DIF PREAMBLE
+%DIF < \setlength{\unitlength}{\DIFdelgraphicswidth}% %DIF PREAMBLE
+%DIF < \begin{picture}(1,1)% %DIF PREAMBLE
+%DIF < \thicklines\linethickness{2pt} %DIF PREAMBLE
+%DIF < {\color[rgb]{1,0,0}\put(0,0){\framebox(1,1){}}}% %DIF PREAMBLE
+%DIF < {\color[rgb]{1,0,0}\put(0,0){\line( 1,1){1}}}% %DIF PREAMBLE
+%DIF < {\color[rgb]{1,0,0}\put(0,1){\line(1,-1){1}}}% %DIF PREAMBLE
+%DIF < \end{picture}% %DIF PREAMBLE
+%DIF < }\hspace*{3pt}}} %DIF PREAMBLE
+%DIF < } %DIF PREAMBLE
+%DIF < \LetLtxMacro{\DIFOaddbegin}{\DIFaddbegin} %DIF PREAMBLE
+%DIF < \LetLtxMacro{\DIFOaddend}{\DIFaddend} %DIF PREAMBLE
+%DIF < \LetLtxMacro{\DIFOdelbegin}{\DIFdelbegin} %DIF PREAMBLE
+%DIF < \LetLtxMacro{\DIFOdelend}{\DIFdelend} %DIF PREAMBLE
+%DIF < \DeclareRobustCommand{\DIFaddbegin}{\DIFOaddbegin \let\includegraphics\DIFaddincludegraphics} %DIF PREAMBLE
+%DIF < \DeclareRobustCommand{\DIFaddend}{\DIFOaddend \let\includegraphics\DIFOincludegraphics} %DIF PREAMBLE
+%DIF < \DeclareRobustCommand{\DIFdelbegin}{\DIFOdelbegin \let\includegraphics\DIFdelincludegraphics} %DIF PREAMBLE
+%DIF < \DeclareRobustCommand{\DIFdelend}{\DIFOaddend \let\includegraphics\DIFOincludegraphics} %DIF PREAMBLE
+%DIF < \LetLtxMacro{\DIFOaddbeginFL}{\DIFaddbeginFL} %DIF PREAMBLE
+%DIF < \LetLtxMacro{\DIFOaddendFL}{\DIFaddendFL} %DIF PREAMBLE
+%DIF < \LetLtxMacro{\DIFOdelbeginFL}{\DIFdelbeginFL} %DIF PREAMBLE
+%DIF < \LetLtxMacro{\DIFOdelendFL}{\DIFdelendFL} %DIF PREAMBLE
+%DIF < \DeclareRobustCommand{\DIFaddbeginFL}{\DIFOaddbeginFL \let\includegraphics\DIFaddincludegraphics} %DIF PREAMBLE
+%DIF < \DeclareRobustCommand{\DIFaddendFL}{\DIFOaddendFL \let\includegraphics\DIFOincludegraphics} %DIF PREAMBLE
+%DIF < \DeclareRobustCommand{\DIFdelbeginFL}{\DIFOdelbeginFL \let\includegraphics\DIFdelincludegraphics} %DIF PREAMBLE
+%DIF < \DeclareRobustCommand{\DIFdelendFL}{\DIFOaddendFL \let\includegraphics\DIFOincludegraphics} %DIF PREAMBLE
+%DIF < %DIF AMSMATHULEM PREAMBLE %DIF PREAMBLE
+%DIF < \makeatletter %DIF PREAMBLE
+%DIF < \let\sout@orig\sout %DIF PREAMBLE
+%DIF < \renewcommand{\sout}[1]{\ifmmode\text{\sout@orig{\ensuremath{#1}}}\else\sout@orig{#1}\fi} %DIF PREAMBLE
+%DIF < \makeatother %DIF PREAMBLE
+%DIF < %DIF COLORLISTINGS PREAMBLE %DIF PREAMBLE
+%DIF < \RequirePackage{listings} %DIF PREAMBLE
+%DIF < \RequirePackage{color} %DIF PREAMBLE
+%DIF < \lstdefinelanguage{DIFcode}{ %DIF PREAMBLE
+%DIF < %DIF DIFCODE_CULINECHBAR %DIF PREAMBLE
+%DIF <   moredelim=[il][\color{red}\sout]{\%DIF\ <\ }, %DIF PREAMBLE
+%DIF <   moredelim=[il][\color{blue}\uwave]{\%DIF\ >\ } %DIF PREAMBLE
+%DIF < } %DIF PREAMBLE
+%DIF < \lstdefinestyle{DIFverbatimstyle}{ %DIF PREAMBLE
+%DIF < 	language=DIFcode, %DIF PREAMBLE
+%DIF < 	basicstyle=\ttfamily, %DIF PREAMBLE
+%DIF < 	columns=fullflexible, %DIF PREAMBLE
+%DIF < 	keepspaces=true %DIF PREAMBLE
+%DIF < } %DIF PREAMBLE
+%DIF < \lstnewenvironment{DIFverbatim}{\lstset{style=DIFverbatimstyle}}{} %DIF PREAMBLE
+%DIF < \lstnewenvironment{DIFverbatim*}{\lstset{style=DIFverbatimstyle,showspaces=true}}{} %DIF PREAMBLE
+%DIF < \lstset{extendedchars=\true,inputencoding=utf8}
+%DIF < 
+%DIF < %DIF END PREAMBLE EXTENSION ADDED BY LATEXDIFF
 %DIF PREAMBLE EXTENSION ADDED BY LATEXDIFF
 %DIF CULINECHBAR PREAMBLE %DIF PREAMBLE
 \RequirePackage[normalem]{ulem} %DIF PREAMBLE
@@ -322,13 +416,19 @@
 %% ========================================
 %% ./01_manuscript/contents/title.tex
 %% ========================================
+%DIF > % -*- coding: utf-8 -*-
+%DIF > % Timestamp: "2025-11-09 20:11:01 (ywatanabe)"
+%DIF > % File: "/home/ywatanabe/proj/scitex-writer/00_shared/title.tex"
 \title{
-Your Manuscript Title Here: A Template for Scientific Writing
-}
+\DIFdelbegin \DIFdel{Your Manuscript Title Here}\DIFdelend \DIFaddbegin \DIFadd{SciTeX Writer}\DIFaddend : A \DIFdelbegin \DIFdel{Template }\DIFdelend \DIFaddbegin \DIFadd{Container-Based Framework }\DIFaddend for \DIFaddbegin \DIFadd{Reproducible }\DIFaddend Scientific \DIFdelbegin \DIFdel{Writing
+}\DIFdelend \DIFaddbegin \DIFadd{Manuscript Preparation
+}\DIFaddend }
+
+%DIF > %%% EOF
+\DIFaddbegin 
 
 
-
-%% ========================================
+\DIFaddend %% ========================================
 %% ./01_manuscript/contents/authors.tex
 %% ========================================
 %% -*- coding: utf-8 -*-
@@ -363,7 +463,8 @@ Your Manuscript Title Here: A Template for Scientific Writing
 \begin{abstract}
   \pdfbookmark[1]{Abstract}{abstract}
 
-This is a template abstract. Replace this text with your manuscript abstract. The abstract should concisely summarize your research objectives, methods, key findings, and conclusions. Typically 150-250 words, it should provide readers with a complete overview of your work without requiring them to read the full manuscript. Include your most important results and their broader implications. Avoid citations and undefined abbreviations in the abstract.
+\DIFdelbegin \DIFdel{This is a template abstract. Replace this text with your manuscript abstract. The abstract should concisely summarize your research objectives, methods, key findings, and conclusions. Typically 150-250 words, it should provide readers with a complete overview of your work without requiring them to read the full manuscript. Include your most important results and their broader implications. Avoid citations and undefined abbreviations in the abstract. }\DIFdelend \DIFaddbegin \DIFadd{Scientific manuscript preparation requires careful management of document structure, version control, and reproducible compilation across diverse computing environments. We present SciTeX Writer, a comprehensive LaTeX-based framework designed to streamline the academic writing workflow while maintaining consistency and reproducibility. The system employs container-based compilation to ensure identical output regardless of the host environment, eliminating the common "it works on my machine" problem. Through a modular architecture that separates content from formatting, SciTeX Writer enables researchers to focus on scientific writing while the system handles document structure, figure format conversion, and version tracking. The framework supports parallel development of main manuscripts, supplementary materials, and revision documents, all sharing common metadata from a single source of truth. Automatic handling of diverse image formats and systematic organization of tables and figures reduces technical overhead. This self-documenting template demonstrates its own capabilities, providing researchers with a production-ready system for manuscript preparation that scales from initial draft to final submission.
+}\DIFaddend 
 
 \end{abstract}
 
@@ -414,29 +515,64 @@ keyword one \sep keyword two \sep keyword three \sep keyword four \sep keyword f
 
 \section{Introduction}
 
-This is the introduction section of your manuscript. Replace this placeholder text with your actual introduction content.
+\DIFdelbegin \DIFdel{This is the introduction section of your manuscript. Replace this placeholder text with your actual introduction content. }\DIFdelend \DIFaddbegin \DIFadd{The preparation of scientific manuscripts involves numerous technical challenges that extend beyond the intellectual task of communicating research findings. Researchers must navigate complex typesetting systems, manage multiple document versions, coordinate figures and tables across formats, and ensure reproducible compilation environments. These technical burdens can distract from the primary goal of clear scientific communication and often lead to inconsistencies, formatting errors, and wasted time troubleshooting environment-specific compilation issues.
+}\DIFaddend 
 
-The introduction should provide context for your research by:
-\begin{itemize}
-    \item Establishing the broader scientific context and importance of your research area
-    \item Reviewing relevant previous work \cite{example_reference_2020}
-    \item Identifying gaps or limitations in existing knowledge
-    \item Clearly stating your research objectives and hypotheses
-    \item Briefly outlining your approach and key contributions
-\end{itemize}
+\DIFdelbegin \DIFdel{The introduction should provide context for your research by:
+}%DIFDELCMD < \begin{itemize}
+\begin{itemize}%DIFAUXCMD
+%DIFDELCMD <     \item %%%
+\item%DIFAUXCMD
+\DIFdel{Establishing the broader scientific context and importance of your research area
+    }%DIFDELCMD < \item %%%
+\item%DIFAUXCMD
+\DIFdel{Reviewing relevant previous work \cite{example_reference_2020}
+    }%DIFDELCMD < \item %%%
+\item%DIFAUXCMD
+\DIFdel{Identifying gaps or limitations in existing knowledge
+    }%DIFDELCMD < \item %%%
+\item%DIFAUXCMD
+\DIFdel{Clearly stating your research objectives and hypotheses
+    }%DIFDELCMD < \item %%%
+\item%DIFAUXCMD
+\DIFdel{Briefly outlining your approach and key contributions
+}
+\end{itemize}%DIFAUXCMD
+%DIFDELCMD < \end{itemize}
+%DIFDELCMD < %%%
+\DIFdelend \DIFaddbegin \DIFadd{Traditional approaches to manuscript preparation typically rely on local LaTeX installations, where the specific versions of packages and compilation tools can vary significantly across different machines and over time. This variability creates reproducibility challenges, particularly in collaborative environments where multiple authors work on different systems. Furthermore, the proliferation of image formats and the need to convert between them for different submission requirements adds another layer of complexity. Researchers often resort to ad-hoc scripts or manual processes to handle these conversions, leading to potential errors and inconsistent results.
+}\DIFaddend 
 
-Your introduction should flow logically from general background to specific research questions. Each paragraph should connect smoothly to the next, building a compelling case for why your research is needed and what it contributes to the field.
+\DIFdelbegin \DIFdel{Your introduction should flow logically from general background to specific research questions. Each paragraph should connect smoothly to the next, building a compelling case for why your research is needed and what it contributes to the field}\DIFdelend \DIFaddbegin \DIFadd{Existing solutions have addressed some aspects of this problem. Overleaf and similar cloud-based platforms provide consistent compilation environments but require continuous internet connectivity and may not suit all research workflows. Version control systems like Git effectively track changes but require researchers to understand both LaTeX and version control simultaneously. Template repositories exist for various journals, but they typically focus on formatting requirements rather than workflow automation and often duplicate common elements across documents.
+}
 
-Consider the following structure:
-\begin{enumerate}
-    \item Background and significance (1-2 paragraphs)
-    \item Review of related work (2-3 paragraphs)
-    \item Identification of research gaps (1 paragraph)
-    \item Research objectives and hypotheses (1 paragraph)
-    \item Overview of approach (1 paragraph)
-\end{enumerate}
+\DIFadd{The fundamental challenge lies in balancing flexibility with consistency. Researchers need systems that accommodate diverse content types, multiple output documents, and varying journal requirements while maintaining a single source of truth for shared elements like author lists and bibliographies. The system must be sufficiently automated to reduce technical overhead yet transparent enough that researchers retain full control over their content. Additionally, the solution must work reliably across different computing environments without imposing steep learning curves or workflow disruptions}\DIFaddend .
 
-Replace this template text with your actual introduction content, maintaining clear logical flow and appropriate citations throughout.
+\DIFdelbegin \DIFdel{Consider the following structure:
+}%DIFDELCMD < \begin{enumerate}
+\begin{enumerate}%DIFAUXCMD
+%DIFDELCMD <     \item %%%
+\item%DIFAUXCMD
+\DIFdel{Background and significance (1-2 paragraphs)
+    }%DIFDELCMD < \item %%%
+\item%DIFAUXCMD
+\DIFdel{Review of related work (2-3 paragraphs)
+    }%DIFDELCMD < \item %%%
+\item%DIFAUXCMD
+\DIFdel{Identification of research gaps (1 paragraph)
+    }%DIFDELCMD < \item %%%
+\item%DIFAUXCMD
+\DIFdel{Research objectives and hypotheses (1 paragraph)
+    }%DIFDELCMD < \item %%%
+\item%DIFAUXCMD
+\DIFdel{Overview of approach (1 paragraph)
+}
+\end{enumerate}%DIFAUXCMD
+%DIFDELCMD < \end{enumerate}
+%DIFDELCMD < 
+
+%DIFDELCMD < %%%
+\DIFdel{Replace this template text with your actual introduction content, maintaining clear logical flow and appropriate citations throughout}\DIFdelend \DIFaddbegin \DIFadd{SciTeX Writer addresses these challenges through a container-based, modular architecture that separates content management from document compilation. The framework organizes manuscripts into distinct directories for main text, supplementary materials, and revision responses, while maintaining shared metadata in a common location. By leveraging containerization technology, the system guarantees identical compilation results regardless of the host operating system or local software versions. Automatic format conversion for figures and tables eliminates manual preprocessing steps, and built-in version tracking with difference generation facilitates collaborative writing and revision processes. This manuscript serves as a self-documenting example, demonstrating the system's capabilities through its own structure and compilation}\DIFaddend .
 
 %%%% EOF
 
@@ -453,41 +589,88 @@ Replace this template text with your actual introduction content, maintaining cl
 
 \section{Methods}
 
-This section describes your research methodology. Replace this placeholder text with detailed descriptions of your experimental design, data collection, and analysis procedures.
+\DIFdelbegin \DIFdel{This section describes your research methodology. Replace this placeholder text with detailed descriptions of your experimental design, data collection, and analysis procedures. }\DIFdelend \DIFaddbegin \DIFadd{The SciTeX Writer framework implements a modular architecture designed around three core principles: reproducible compilation, content-structure separation, and automated asset management. The system organizes documents into three primary directories, each serving distinct purposes in the manuscript lifecycle while sharing common resources to maintain consistency.
+}\DIFaddend 
 
-\subsection{Study Design}
+\subsection{\DIFdelbegin \DIFdel{Study Design}\DIFdelend \DIFaddbegin \DIFadd{Repository Structure and Organization}\DIFaddend }
 
-Describe your overall experimental or computational design. Include information about:
-\begin{itemize}
-    \item Study type (experimental, observational, computational, etc.)
-    \item Sample selection criteria
-    \item Ethical approvals and informed consent procedures
-    \item Timeline and study phases
-\end{itemize}
+\DIFdelbegin \DIFdel{Describe your overall experimental or computational design. Include informationabout:
+}%DIFDELCMD < \begin{itemize}
+\begin{itemize}%DIFAUXCMD
+%DIFDELCMD <     \item %%%
+\item%DIFAUXCMD
+\DIFdel{Study type (experimental, observational, computational, etc. )
+    }%DIFDELCMD < \item %%%
+\item%DIFAUXCMD
+\DIFdel{Sample selection criteria
+    }%DIFDELCMD < \item %%%
+\item%DIFAUXCMD
+\DIFdel{Ethical approvals and informed consent procedures
+    }%DIFDELCMD < \item %%%
+\item%DIFAUXCMD
+\DIFdel{Timeline and study phases
+}
+\end{itemize}%DIFAUXCMD
+%DIFDELCMD < \end{itemize}
+%DIFDELCMD < %%%
+\DIFdelend \DIFaddbegin \DIFadd{The framework employs a hierarchical directory structure where the }\texttt{\DIFadd{00\_shared/}} \DIFadd{directory serves as the single source of truth for metadata including title, author information, keywords, and bibliographic references. This centralized approach eliminates duplication and ensures consistency across all output documents. The }\texttt{\DIFadd{01\_manuscript/}} \DIFadd{directory contains the main manuscript with subdirectories for content sections, figures, and tables. Similarly, }\texttt{\DIFadd{02\_supplementary/}} \DIFadd{follows an identical structure for supplementary materials, while }\texttt{\DIFadd{03\_revision/}} \DIFadd{organizes revision letters by reviewer. Each content section exists as an independent LaTeX file, facilitating modular development and enabling multiple authors to work on different sections simultaneously without merge conflicts.
+}\DIFaddend 
 
-\subsection{Data Collection}
+\subsection{\DIFdelbegin \DIFdel{Data Collection}\DIFdelend \DIFaddbegin \DIFadd{Container-Based Compilation System}\DIFaddend }
 
-Detail how you collected your data:
-\begin{itemize}
-    \item Data sources and acquisition methods
-    \item Instruments or tools used
-    \item Sampling procedures
-    \item Quality control measures
-\end{itemize}
+\DIFdelbegin \DIFdel{Detail how you collected your data:
+}%DIFDELCMD < \begin{itemize}
+\begin{itemize}%DIFAUXCMD
+%DIFDELCMD <     \item %%%
+\item%DIFAUXCMD
+\DIFdel{Data sources and acquisition methods
+    }%DIFDELCMD < \item %%%
+\item%DIFAUXCMD
+\DIFdel{Instruments or tools used
+    }%DIFDELCMD < \item %%%
+\item%DIFAUXCMD
+\DIFdel{Sampling procedures
+    }%DIFDELCMD < \item %%%
+\item%DIFAUXCMD
+\DIFdel{Quality control measures
+}
+\end{itemize}%DIFAUXCMD
+%DIFDELCMD < \end{itemize}
+%DIFDELCMD < %%%
+\DIFdelend \DIFaddbegin \DIFadd{To ensure reproducible builds across diverse computing environments, the framework leverages both Docker and Singularity containerization technologies. The compilation environment encapsulates specific versions of TeX Live and all required packages, eliminating dependency on the host system's LaTeX installation. Users invoke compilation through a simple Makefile interface that abstracts the container complexity. The command }\texttt{\DIFadd{make manuscript}} \DIFadd{compiles the main document, while }\texttt{\DIFadd{make all}} \DIFadd{processes all three document types in parallel. This containerized approach guarantees that the same source files produce identical PDFs regardless of the underlying operating system, making the system equally functional on Linux, macOS, Windows, and high-performance computing clusters.
+}\DIFaddend 
 
-\subsection{Data Analysis}
+\subsection{\DIFdelbegin \DIFdel{Data Analysis}\DIFdelend \DIFaddbegin \DIFadd{Automated Asset Processing}\DIFaddend }
 
-Explain your analytical approach:
-\begin{itemize}
-    \item Statistical methods employed
-    \item Software and computational tools used
-    \item Processing pipelines
-    \item Significance thresholds and corrections for multiple comparisons
-\end{itemize}
+\DIFdelbegin \DIFdel{Explain your analytical approach:
+}%DIFDELCMD < \begin{itemize}
+\begin{itemize}%DIFAUXCMD
+%DIFDELCMD <     \item %%%
+\item%DIFAUXCMD
+\DIFdel{Statistical methods employed
+    }%DIFDELCMD < \item %%%
+\item%DIFAUXCMD
+\DIFdel{Software and computational tools used
+    }%DIFDELCMD < \item %%%
+\item%DIFAUXCMD
+\DIFdel{Processing pipelines
+    }%DIFDELCMD < \item %%%
+\item%DIFAUXCMD
+\DIFdel{Significance thresholds and corrections for multiple comparisons
+}
+\end{itemize}%DIFAUXCMD
+%DIFDELCMD < \end{itemize}
+%DIFDELCMD < %%%
+\DIFdelend \DIFaddbegin \DIFadd{The system implements automatic format conversion for both figures and tables through preprocessing scripts that execute during compilation. For figures, the framework accepts common image formats including PNG, JPEG, SVG, and PDF, automatically converting them to formats optimized for LaTeX inclusion. Each figure resides in its own subdirectory within }\texttt{\DIFadd{01\_manuscript/contents/figures/caption\_and\_media/}}\DIFadd{, with the caption defined in a corresponding }\texttt{\DIFadd{.tex}} \DIFadd{file. During compilation, a preprocessing script scans these directories, generates figure inclusion code, and compiles all figures into }\texttt{\DIFadd{FINAL.tex}} \DIFadd{for inclusion in the main document. Tables follow an analogous structure, allowing authors to define complex table layouts separately from their incorporation into the document flow.
+}\DIFaddend 
 
-Provide enough detail that other researchers could reproduce your work. Reference any novel methods or modifications to existing protocols \cite{example_method_2019}.
+\DIFdelbegin \DIFdel{Provide enough detail that other researchers could reproduce your work. Reference any novel methods or modificationsto existing protocols \cite{example_method_2019}. }\DIFdelend \DIFaddbegin \subsection{\DIFadd{Version Control and Difference Tracking}}
+\DIFaddend 
 
-%%%% EOF
+\DIFaddbegin \DIFadd{The framework integrates with Git to provide systematic version tracking and automatic generation of difference documents. When authors create a new version through }\texttt{\DIFadd{make archive}}\DIFadd{, the system archives the current manuscript with a timestamp and version number. Subsequently, invoking }\texttt{\DIFadd{make diff}} \DIFadd{generates a PDF highlighting changes between versions using the latexdiff utility. This functionality proves particularly valuable during revision processes, where journals often require marked-up versions showing modifications. The revision directory structure accommodates multiple rounds of review, with separate subdirectories for editor and reviewer responses, each containing both the original comments and author responses in a structured format that ensures complete documentation of the revision process.
+}
+
+\DIFaddend %%%% EOF
 
 
 
@@ -502,36 +685,75 @@ Provide enough detail that other researchers could reproduce your work. Referenc
 
 \section{Results}
 
-Present your findings in a clear, logical sequence. Replace this placeholder text with your actual results.
+\DIFdelbegin \DIFdel{Present your findings in a clear, logical sequence. Replace this placeholder text with your actual results}\DIFdelend \DIFaddbegin \DIFadd{The SciTeX Writer framework successfully demonstrates comprehensive manuscript preparation capabilities through its modular design and automated workflows. This section presents the key features and functionalities that the system provides to researchers}\DIFaddend .
 
-\subsection{Overview of Dataset}
+\subsection{\DIFdelbegin \DIFdel{Overview of Dataset}\DIFdelend \DIFaddbegin \DIFadd{Cross-Platform Reproducibility}\DIFaddend }
 
-Begin with descriptive statistics about your dataset or study population. For example:
-\begin{itemize}
-    \item Sample size and characteristics
-    \item Data quality metrics
-    \item Descriptive statistics
-\end{itemize}
+\DIFdelbegin \DIFdel{Begin with descriptive statistics about your dataset or study population. For example:
+}%DIFDELCMD < \begin{itemize}
+\begin{itemize}%DIFAUXCMD
+%DIFDELCMD <     \item %%%
+\item%DIFAUXCMD
+\DIFdel{Sample size and characteristics
+    }%DIFDELCMD < \item %%%
+\item%DIFAUXCMD
+\DIFdel{Data quality metrics
+    }%DIFDELCMD < \item %%%
+\item%DIFAUXCMD
+\DIFdel{Descriptive statistics
+}
+\end{itemize}%DIFAUXCMD
+%DIFDELCMD < \end{itemize}
+%DIFDELCMD < %%%
+\DIFdelend \DIFaddbegin \DIFadd{The containerized compilation system achieves complete reproducibility across different operating systems and computing environments. Testing across Linux distributions, macOS, and Windows Subsystem for Linux confirmed that identical source files produce byte-for-byte identical PDF outputs when compiled using the same container image. This reproducibility extends to high-performance computing environments where Singularity containers enable compilation on systems without Docker support. The elimination of environment-dependent compilation issues represents a significant improvement over traditional local LaTeX installations, where package version mismatches frequently cause inconsistent outputs or compilation failures.
+}\DIFaddend 
 
-\subsection{Primary Findings}
+\DIFdelbegin \subsection{\DIFdel{Primary Findings}}
+%DIFAUXCMD
+\addtocounter{subsection}{-1}%DIFAUXCMD
+\DIFdelend \DIFaddbegin \subsection{\DIFadd{Automated Figure and Table Management}}
+\DIFaddend 
 
-Present your main results, organized by research question or hypothesis. Use figures and tables to illustrate key findings. For example, Figure~\ref{fig:example_figure_01} shows an example result.
+\DIFdelbegin \DIFdel{Present your main results, organized by research question or hypothesis.
+Use figures and tables to illustrate key findings. For example, }\DIFdelend \DIFaddbegin \DIFadd{The automatic asset processing system effectively handles diverse input formats and streamlines figure incorporation. }\DIFaddend Figure~\ref{fig:example_figure_01} \DIFdelbegin \DIFdel{shows an example result. }\DIFdelend \DIFaddbegin \DIFadd{demonstrates the framework's capability to include images with properly formatted captions, while Figure~\ref{fig:example_figure_02} shows how multiple figures can be managed systematically. The preprocessing pipeline converts source images to optimal formats, maintaining quality while ensuring compatibility with LaTeX compilation requirements. For tables, the system provides structured organization as shown in Table~\ref{tab:example_table_01}, where complex tabular data can be defined independently and automatically integrated into the document flow. This separation of content from presentation enables authors to focus on data rather than formatting syntax.
+}\DIFaddend 
 
-Describe statistical comparisons and their significance. Report effect sizes along with p-values. For instance: ``The treatment group showed significantly higher performance (mean = XX.X ± SD) compared to control (mean = YY.Y ± SD), t(df) = ZZ.Z, p < 0.001, Cohen's d = W.WW.''
+\DIFdelbegin \DIFdel{Describe statistical comparisons and their significance. Report effect sizes along with p-values. For instance: ``The treatment group showed significantly higher performance (mean = XX.X ± SD) compared to control (mean = YY.Y ± SD), t(df) = ZZ. Z, p < 0.001, Cohen's d = W. WW.
+''
+}%DIFDELCMD < 
 
-\subsection{Secondary Analyses}
+%DIFDELCMD < %%%
+\DIFdelend \subsection{\DIFdelbegin \DIFdel{Secondary Analyses}\DIFdelend \DIFaddbegin \DIFadd{Modular Content Organization}\DIFaddend }
 
-Present additional analyses that support or extend your primary findings. Include:
-\begin{itemize}
-    \item Subgroup analyses
-    \item Sensitivity analyses
-    \item Additional statistical tests
-    \item Exploratory findings
-\end{itemize}
+\DIFdelbegin \DIFdel{Present additional analyses that support or extend your primary findings. Include:
+}%DIFDELCMD < \begin{itemize}
+\begin{itemize}%DIFAUXCMD
+%DIFDELCMD <     \item %%%
+\item%DIFAUXCMD
+\DIFdel{Subgroup analyses
+    }%DIFDELCMD < \item %%%
+\item%DIFAUXCMD
+\DIFdel{Sensitivity analyses
+    }%DIFDELCMD < \item %%%
+\item%DIFAUXCMD
+\DIFdel{Additional statistical tests
+    }%DIFDELCMD < \item %%%
+\item%DIFAUXCMD
+\DIFdel{Exploratory findings
+}
+\end{itemize}%DIFAUXCMD
+%DIFDELCMD < \end{itemize}
+%DIFDELCMD < %%%
+\DIFdelend \DIFaddbegin \DIFadd{The framework's modular structure facilitates collaborative writing by isolating different manuscript components into separate files. Each section, from the introduction through the discussion, exists as an independent LaTeX file that can be edited without affecting other sections. This organization minimizes merge conflicts in version control systems and allows multiple authors to work simultaneously on different parts of the manuscript. The shared metadata system ensures that changes to author lists, affiliations, or keywords propagate automatically across the main manuscript, supplementary materials, and revision documents without requiring manual updates in multiple locations.
+}\DIFaddend 
 
-Reference your figures (Figure~\ref{fig:example_figure_02}) and tables (Table~\ref{tab:example_table_01}) appropriately throughout the results section. Let the data speak for itself - save interpretation for the Discussion section.
+\DIFdelbegin \DIFdel{Reference your figures (Figure~\ref{fig:example_figure_02}) and tables (Table~\ref{tab:example_table_01}) appropriately throughout the results section. Let the data speak for itself - save interpretation for the Discussion section. }\DIFdelend \DIFaddbegin \subsection{\DIFadd{Version Tracking and Difference Generation}}
+\DIFaddend 
 
-%%%% EOF
+\DIFaddbegin \DIFadd{The integrated version control system maintains a complete history of manuscript evolution through the archive mechanism. Each archived version receives a timestamp and sequential version number, creating a clear audit trail of document development. The automatic difference generation produces professionally formatted PDFs highlighting textual changes between versions, using color coding to indicate additions and deletions. This functionality proves particularly valuable during peer review, where revision letters must clearly document modifications made in response to reviewer comments. The system handles this process automatically, requiring only simple Makefile commands rather than manual execution of latexdiff with complex parameters.
+}
+
+\DIFaddend %%%% EOF
 
 
 
@@ -546,44 +768,102 @@ Reference your figures (Figure~\ref{fig:example_figure_02}) and tables (Table~\r
 
 \section{Discussion}
 
-Interpret your findings and place them in the broader scientific context. Replace this placeholder text with your discussion.
+\DIFdelbegin \DIFdel{Interpret your findings and place them in the broader scientific context.
+Replace this placeholder text with your discussion.
+}\DIFdelend \DIFaddbegin \DIFadd{The SciTeX Writer framework addresses fundamental challenges in scientific manuscript preparation by combining containerized compilation, modular organization, and automated asset management into a cohesive workflow. The system demonstrates that technical infrastructure for manuscript writing can be both powerful and accessible, reducing friction in the research communication process while maintaining the flexibility and control that LaTeX provides.
+}\DIFaddend 
 
-\subsection{Principal Findings}
+\subsection{\DIFdelbegin \DIFdel{Principal Findings}\DIFdelend \DIFaddbegin \DIFadd{Advantages of the Containerized Approach}\DIFaddend }
 
-Begin by restating your main findings without simply repeating the Results section. Explain what your results mean and how they address your research questions or hypotheses. For example: ``Our study demonstrates that [main finding], which supports the hypothesis that [interpretation].''
+\DIFdelbegin \DIFdel{Begin by restating your main findings without simply repeating the Results section. Explain what your results mean and how they address your research questions or hypotheses. For example: ``Our study demonstrates that }%DIFDELCMD < [%%%
+\DIFdel{main finding}%DIFDELCMD < ]%%%
+\DIFdel{, which supports the hypothesis that }%DIFDELCMD < [%%%
+\DIFdel{interpretation}%DIFDELCMD < ]%%%
+\DIFdel{. ''
+}\DIFdelend \DIFaddbegin \DIFadd{The container-based compilation system represents a significant departure from traditional LaTeX workflows and offers substantial practical benefits. By encapsulating the entire compilation environment, the framework eliminates the common scenario where manuscripts compile successfully on one author's machine but fail on collaborators' systems due to package version differences. This reproducibility becomes increasingly important as research teams become more distributed and as long-term document maintenance requires compilation environments to remain stable over years. The approach also reduces the barrier to entry for researchers new to LaTeX, as they need not navigate the complexities of installing and configuring a local TeX distribution. The dual support for Docker and Singularity ensures compatibility across institutional computing environments, from personal workstations to high-performance computing clusters where Docker may be unavailable for security reasons.
+}\DIFaddend 
 
-\subsection{Comparison with Previous Work}
+\DIFdelbegin \subsection{\DIFdel{Comparison with Previous Work}}
+%DIFAUXCMD
+\addtocounter{subsection}{-1}%DIFAUXCMD
+\DIFdelend \DIFaddbegin \subsection{\DIFadd{Implications for Collaborative Writing}}
+\DIFaddend 
 
-Compare your findings with existing literature:
-\begin{itemize}
-    \item How do your results confirm or contradict previous studies \cite{example_study_2021}?
-    \item What novel contributions does your work provide?
-    \item How do you reconcile any discrepancies with prior research?
-\end{itemize}
+\DIFdelbegin \DIFdel{Compare your findings with existing literature:
+}%DIFDELCMD < \begin{itemize}
+\begin{itemize}%DIFAUXCMD
+%DIFDELCMD <     \item %%%
+\item%DIFAUXCMD
+\DIFdel{How do your results confirm or contradict previous studies \cite{example_study_2021}?
+    }%DIFDELCMD < \item %%%
+\item%DIFAUXCMD
+\DIFdel{What novel contributions does your work provide?
+    }%DIFDELCMD < \item %%%
+\item%DIFAUXCMD
+\DIFdel{How do you reconcile any discrepancies with prior research?
+}
+\end{itemize}%DIFAUXCMD
+%DIFDELCMD < \end{itemize}
+%DIFDELCMD < %%%
+\DIFdelend \DIFaddbegin \DIFadd{The modular architecture facilitates collaborative workflows in ways that traditional monolithic LaTeX documents cannot. By separating content into individual files for each section and maintaining shared metadata in a central location, the system minimizes merge conflicts that plague collaborative document editing. Multiple authors can simultaneously work on different sections, commit their changes independently, and merge updates without the conflicts that arise when editing a single large file. The automatic propagation of metadata changes across multiple output documents ensures consistency without requiring authors to remember to update information in multiple locations. This design aligns well with modern software development practices adapted for scientific writing, where version control and modular design have become essential for managing complexity.
+}\DIFaddend 
 
-\subsection{Mechanisms and Implications}
+\subsection{\DIFdelbegin \DIFdel{Mechanisms and Implications}\DIFdelend \DIFaddbegin \DIFadd{Comparison with Existing Solutions}\DIFaddend }
 
-Discuss the underlying mechanisms or theoretical implications of your findings. Consider:
-\begin{itemize}
-    \item Biological, physical, or theoretical mechanisms
-    \item Broader implications for the field
-    \item Potential applications of your findings
-    \item Future research directions
-\end{itemize}
+\DIFdelbegin \DIFdel{Discuss the underlying mechanisms or theoretical implications of your findings. Consider:
+}%DIFDELCMD < \begin{itemize}
+\begin{itemize}%DIFAUXCMD
+%DIFDELCMD <     \item %%%
+\item%DIFAUXCMD
+\DIFdel{Biological, physical, or theoretical mechanisms
+    }%DIFDELCMD < \item %%%
+\item%DIFAUXCMD
+\DIFdel{Broader implications for the field
+    }%DIFDELCMD < \item %%%
+\item%DIFAUXCMD
+\DIFdel{Potential applications of your findings
+    }%DIFDELCMD < \item %%%
+\item%DIFAUXCMD
+\DIFdel{Future research directions
+}
+\end{itemize}%DIFAUXCMD
+%DIFDELCMD < \end{itemize}
+%DIFDELCMD < %%%
+\DIFdelend \DIFaddbegin \DIFadd{Compared to cloud-based platforms like Overleaf, SciTeX Writer offers greater control over the compilation environment and eliminates dependency on internet connectivity, which can be crucial for researchers working in bandwidth-limited environments or on sensitive projects requiring air-gapped systems. Unlike simple template repositories, the framework provides active workflow automation through Makefiles and preprocessing scripts rather than merely offering formatting guidelines. The system complements rather than replaces Git-based workflows, adding a layer of manuscript-specific tooling while maintaining compatibility with standard version control practices. Where other solutions address individual aspects of the manuscript preparation challenge, SciTeX Writer integrates multiple components into a unified system.
+}\DIFaddend 
 
-\subsection{Limitations}
+\DIFaddbegin \subsection{\DIFadd{Limitations and Considerations}}
 
-Acknowledge the limitations of your study honestly:
-\begin{itemize}
-    \item Sample size or selection limitations
-    \item Methodological constraints
-    \item Alternative explanations for your findings
-    \item Generalizability considerations
-\end{itemize}
+\DIFadd{The framework requires users to have basic familiarity with command-line interfaces and Makefiles, which may present a learning curve for researchers accustomed to graphical editing environments. While the system automates many aspects of document preparation, it remains a LaTeX-based solution and therefore inherits both the power and complexity of the underlying typesetting system. The containerization approach requires Docker or Singularity installation, adding a dependency that, while increasingly common in research computing environments, may not be universally available. The framework is optimized for scientific articles following conventional IMRAD structure and may require adaptation for other document types such as books or technical reports. Future development could address these limitations through optional graphical interfaces, expanded documentation for LaTeX newcomers, and templates adapted for diverse document formats.
+}
+
+\DIFaddend \subsection{\DIFdelbegin \DIFdel{Limitations}\DIFdelend \DIFaddbegin \DIFadd{Future Directions and Extensibility}\DIFaddend }
+
+\DIFdelbegin \DIFdel{Acknowledge the limitations of your study honestly:
+}%DIFDELCMD < \begin{itemize}
+\begin{itemize}%DIFAUXCMD
+%DIFDELCMD <     \item %%%
+\item%DIFAUXCMD
+\DIFdel{Sample size or selection limitations
+    }%DIFDELCMD < \item %%%
+\item%DIFAUXCMD
+\DIFdel{Methodological constraints
+    }%DIFDELCMD < \item %%%
+\item%DIFAUXCMD
+\DIFdel{Alternative explanations for your findings
+    }%DIFDELCMD < \item %%%
+\item%DIFAUXCMD
+\DIFdel{Generalizability considerations
+}
+\end{itemize}%DIFAUXCMD
+%DIFDELCMD < \end{itemize}
+%DIFDELCMD < %%%
+\DIFdelend \DIFaddbegin \DIFadd{The modular design of SciTeX Writer enables natural extension points for additional functionality. Integration with continuous integration systems could enable automatic compilation and validation of manuscripts upon each commit, catching formatting errors early in the writing process. Support for additional output formats beyond PDF, such as HTML for web-based preprint servers, could be achieved through integration with tools like pandoc. The preprocessing scripts could be extended to handle additional asset types or to perform automated quality checks on figures and tables. The system could also incorporate automated journal formatting through integration with journal-specific style files, reducing the effort required to adapt manuscripts for different submission targets. As the research community continues to develop tools for reproducible research, SciTeX Writer provides a foundation that can incorporate emerging best practices while maintaining backward compatibility with existing manuscripts.
+}\DIFaddend 
 
 \subsection{Conclusions}
 
-Conclude with a concise summary of your key findings and their significance. Avoid introducing new information or overstating your conclusions. End with a forward-looking statement about future research directions or practical implications.
+\DIFdelbegin \DIFdel{Conclude with a concise summary of your key findings and their significance. Avoid introducing new information or overstating your conclusions. End with a forward-looking statement about future research directions or practical implications}\DIFdelend \DIFaddbegin \DIFadd{SciTeX Writer demonstrates that scientific manuscript preparation can be systematized without sacrificing flexibility or imposing rigid constraints on content. By addressing reproducibility, modularity, and automation through a unified framework, the system reduces technical overhead and allows researchers to focus on the intellectual work of communicating their findings. The self-documenting nature of this template provides both an example of the system's capabilities and a starting point for new manuscripts. As research communication continues to evolve, frameworks like SciTeX Writer that prioritize reproducibility and collaborative workflows will become increasingly valuable for maintaining the quality and accessibility of scientific literature}\DIFaddend .
 
 %%%% EOF
 
@@ -670,6 +950,158 @@ Conclude with a concise summary of your key findings and their significance. Avo
 
 %% APA:
 % \bibliographystyle{apalike}               % APA-like style
+\DIFaddbegin 
+
+%DIF > % ----------------------------------------------------------------------------
+%DIF > % OPTION 5: ADDITIONAL CITATION STYLES
+%DIF > % ----------------------------------------------------------------------------
+%DIF > % Note: Many of these styles require biblatex instead of natbib.
+%DIF > % To use biblatex, you need to modify the preamble and use biber instead of bibtex.
+%DIF > % Basic conversion: Replace natbib package with biblatex, and use \printbibliography
+%DIF > % instead of \bibliographystyle + \bibliography commands.
+
+%DIF > % ----------------------------------------
+%DIF > % CHEMISTRY
+%DIF > % ----------------------------------------
+%DIF > % American Chemical Society (ACS):
+%DIF > % Installation: Download achemso.bst or use biblatex with style=chem-acs
+%DIF > % Format: Numbered, order of appearance, (1) Author, A. B. Title. Journal Year, Volume, Pages.
+%DIF > % BibTeX method:
+%DIF >  \bibliographystyle{achemso}              % ACS style (requires achemso package)
+%DIF > % Biblatex method (recommended):
+%DIF >  \usepackage[style=chem-acs]{biblatex}
+
+%DIF > % ----------------------------------------
+%DIF > % MEDICAL & HEALTH SCIENCES
+%DIF > % ----------------------------------------
+%DIF > % American Medical Association (AMA) 11th edition:
+%DIF > % Format: Numbered, order of appearance, superscript numbers
+%DIF > % Installation: Requires biblatex with biblatex-ama style
+%DIF > % Method:
+%DIF >  \usepackage[style=ama]{biblatex}         % AMA 11th ed (requires biblatex-ama package)
+
+%DIF > % Vancouver style (ICMJE):
+%DIF > % Format: Numbered [1], order of appearance, commonly used in medical journals
+%DIF > % Note: unsrtnat (currently active) is very similar to Vancouver
+%DIF >  \bibliographystyle{vancouver}            % Vancouver/ICMJE style (if .bst available)
+%DIF >  \bibliographystyle{unsrtnat}             % Similar to Vancouver (currently active)
+
+%DIF > % ----------------------------------------
+%DIF > % SOCIAL SCIENCES
+%DIF > % ----------------------------------------
+%DIF > % American Psychological Association (APA) 7th edition:
+%DIF > % Format: Author-year, (Author, Year), alphabetical by author
+%DIF > % BibTeX method (APA-like, not full APA 7th):
+%DIF >  \bibliographystyle{apalike}              % APA-like style (simplified)
+%DIF >  \bibliographystyle{apacite}              % APA 6th/7th (requires apacite package)
+%DIF > % Biblatex method (recommended for full APA 7th compliance):
+%DIF >  \usepackage[style=apa]{biblatex}         % Full APA 7th edition (requires biblatex-apa)
+
+%DIF > % American Sociological Association (ASA) 6th/7th edition:
+%DIF > % Format: Author-year, (Author Year), alphabetical, similar to Chicago author-date
+%DIF > % Method:
+%DIF >  \bibliographystyle{asaetr}               % ASA-like style (if .bst available)
+%DIF > % Biblatex method:
+%DIF >  \usepackage[style=authoryear]{biblatex} % Generic author-year (customizable to ASA)
+
+%DIF > % American Political Science Association (APSA):
+%DIF > % Format: Author-year, similar to Chicago author-date
+%DIF > % Method:
+%DIF >  \usepackage[style=authoryear-comp]{biblatex}  % Compressed author-year for APSA
+
+%DIF > % ----------------------------------------
+%DIF > % HUMANITIES
+%DIF > % ----------------------------------------
+%DIF > % Chicago Manual of Style 18th edition (author-date):
+%DIF > % Format: Author-year, (Author Year), commonly used in social sciences and humanities
+%DIF >  \bibliographystyle{chicago}              % Chicago author-date (if .bst available)
+%DIF > % Biblatex method (recommended):
+%DIF >  \usepackage[style=chicago-authordate]{biblatex}  % Chicago 18th ed author-date
+
+%DIF > % Chicago Manual of Style 18th edition (notes and bibliography):
+%DIF > % Format: Footnote/endnote citations with full bibliography
+%DIF > % Method:
+%DIF >  \usepackage[style=chicago-notes]{biblatex}  % Chicago 18th ed notes style
+
+%DIF > % Chicago Manual of Style 18th edition (shortened notes and bibliography):
+%DIF > % Format: Shortened footnote citations after first full citation
+%DIF > % Method:
+%DIF >  \usepackage[style=chicago-notes]{biblatex}  % Use with ibidtracker option
+
+%DIF > % Modern Language Association (MLA) 9th edition:
+%DIF > % Format: Author-page, (Author Page), works cited list
+%DIF > % Method:
+%DIF >  \usepackage[style=mla]{biblatex}         % MLA 9th edition (requires biblatex-mla)
+
+%DIF > % Modern Humanities Research Association (MHRA) 4th edition:
+%DIF > % Format: Footnote citations with bibliography
+%DIF > % Method:
+%DIF >  \usepackage[style=mhra]{biblatex}        % MHRA 4th edition (requires biblatex-mhra)
+
+%DIF > % ----------------------------------------
+%DIF > % HARVARD STYLES
+%DIF > % ----------------------------------------
+%DIF > % Cite Them Right 12th edition - Harvard:
+%DIF > % Format: Author-year, (Author, Year), widely used in UK universities
+%DIF >  \bibliographystyle{agsm}                 % Harvard style (Australian)
+%DIF >  \bibliographystyle{dcu}                  % Harvard style (Dublin City University)
+%DIF > % Biblatex method:
+%DIF >  \usepackage[style=authoryear]{biblatex} % Generic Harvard-style (author-year)
+
+%DIF > % Elsevier - Harvard (with titles):
+%DIF > % Format: Author-year with article titles included
+%DIF >  \bibliographystyle{elsarticle-harv}      % Elsevier Harvard style (already listed above)
+
+%DIF > % ----------------------------------------
+%DIF > % ENGINEERING & COMPUTER SCIENCE
+%DIF > % ----------------------------------------
+%DIF > % IEEE (Institute of Electrical and Electronics Engineers):
+%DIF > % Format: Numbered [1], order of appearance, widely used in engineering
+%DIF >  \bibliographystyle{IEEEtran}             % IEEE Transactions style (already listed above)
+
+%DIF > % ----------------------------------------
+%DIF > % NATURAL SCIENCES
+%DIF > % ----------------------------------------
+%DIF > % Nature:
+%DIF > % Format: Numbered, superscript, order of appearance
+%DIF >  \bibliographystyle{naturemag}            % Nature magazine style (already listed above)
+%DIF >  \bibliographystyle{naturemag-doi}        % Nature with DOIs
+
+%DIF > % ----------------------------------------------------------------------------
+%DIF > % BIBLATEX SETUP INSTRUCTIONS
+%DIF > % ----------------------------------------------------------------------------
+%DIF > % To switch from natbib to biblatex:
+%DIF > %
+%DIF > % 1. In packages.tex, replace:
+%DIF > %    \usepackage[numbers]{natbib}
+%DIF > %    with:
+%DIF > %    \usepackage[style=STYLENAME,backend=biber]{biblatex}
+%DIF > %    \addbibresource{path/to/bibliography.bib}
+%DIF > %
+%DIF > % 2. In this file (bibliography.tex), replace:
+%DIF > %    \bibliographystyle{...}
+%DIF > %    with:
+%DIF > %    % No \bibliographystyle needed with biblatex
+%DIF > %
+%DIF > % 3. In your main .tex file, replace:
+%DIF > %    \bibliography{path/to/bibliography}
+%DIF > %    with:
+%DIF > %    \printbibliography
+%DIF > %
+%DIF > % 4. Change compilation command:
+%DIF > %    pdflatex → biber → pdflatex → pdflatex
+%DIF > %    (instead of pdflatex → bibtex → pdflatex → pdflatex)
+%DIF > %
+%DIF > % Example biblatex styles:
+%DIF > %   style=numeric-comp     → Compressed numeric [1-3,5]
+%DIF > %   style=authoryear       → (Author, Year)
+%DIF > %   style=authoryear-comp  → (Author1, 2020; Author2, 2021)
+%DIF > %   style=apa              → APA 7th edition
+%DIF > %   style=chicago-authordate → Chicago author-date
+%DIF > %   style=ieee             → IEEE style
+%DIF > %   style=nature           → Nature style
+%DIF > %   style=mla              → MLA 9th edition
+\DIFaddend 
 
 %% ----------------------------------------------------------------------------
 %% CITATION COMMAND REFERENCE (with natbib)
