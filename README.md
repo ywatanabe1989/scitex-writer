@@ -1,5 +1,5 @@
 <!-- ---
-!-- Timestamp: 2025-11-09 20:45:00
+!-- Timestamp: 2025-11-10 02:23:00
 !-- Author: ywatanabe
 !-- File: /home/ywatanabe/proj/scitex-writer/README.md
 !-- --- -->
@@ -63,6 +63,8 @@ cd scitex-writer
   </a>
   <br/>
   <sub><a href="01_manuscript/manuscript.pdf">📄 Manuscript</a></sub>
+  <br/>
+  <sub><a href="scripts/shell/.compile_manuscript.sh.log">📄 Compilation Log</a></sub>
 </td>
 <td width="33%" align="center">
   <a href="02_supplementary/supplementary.pdf">
@@ -70,6 +72,8 @@ cd scitex-writer
   </a>
   <br/>
   <sub><a href="02_supplementary/supplementary.pdf">📄 Supplementary</a></sub>
+  <br/>
+  <sub><a href="scripts/shell/.compile_supplementary.sh.log">📄 Compilation Log</a></sub>  
 </td>
 <td width="33%" align="center">
   <a href="03_revision/revision.pdf">
@@ -77,6 +81,8 @@ cd scitex-writer
   </a>
   <br/>
   <sub><a href="03_revision/revision.pdf">📄 Revision</a></sub>
+  <br/>
+  <sub><a href="scripts/shell/.compile_revision.sh.log">📄 Compilation Log</a></sub>
 </td>
 </tr>
 </table>
