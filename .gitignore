@@ -1,8 +1,30 @@
 
 ### Source: /home/ywatanabe/.git-templates/.gitignore-templates/Custom/Specific.gitignore ###
 # Please add files here
-**archive/*.pdf
-**archive/*.tex
+
+# Archive version files (auto-generated during compilation)
+**/archive/manuscript_v*.tex
+**/archive/manuscript_v*.pdf
+**/archive/*_diff.tex
+**/archive/*_diff.pdf
+**/archive/supplementary_v*.tex
+**/archive/supplementary_v*.pdf
+**/archive/revision_v*.tex
+**/archive/revision_v*.pdf
+
+# Compiled figure/table directories (auto-generated)
+**/contents/figures/compiled/
+**/contents/tables/compiled/
+
+# Auto-generated symlinks and merged files
+00_shared/bibliography.bib
+
+# Revision working files
+**/contents/editor/*_revision.tex
+**/contents/reviewer*/*_revision.tex
+
+# Compilation logs
+docs/compilation_log.txt
 
 ### Source: /home/ywatanabe/.git-templates/.gitignore-templates/Custom/Claude.gitignore ###
 CLAUDE.md
