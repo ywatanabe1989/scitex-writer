@@ -1,14 +1,14 @@
-# Table Management in SciTex
+# Table Management
 
-This directory contains all table-related files for the manuscript. SciTex uses a structured approach to manage tables efficiently.
+Table-related files for the manuscript.
 
 ## Directory Structure
 
-- `compiled/`: Contains compiled LaTeX files for each table, automatically generated during compilation.
-- `contents/`: Source directory for table files.
-  - Place your `.csv` data files here.
-  - For each data file, create a matching `.tex` caption file with the same name.
-  - `_.XX.tex`: Template file for table captions.
+- `compiled/`: Compiled LaTeX files for each table (auto-generated)
+- `contents/`: Source directory for table files
+  - Place `.csv` data files here
+  - Create matching `.tex` caption file with same name
+  - `_.XX.tex`: Template file for table captions
 
 ## Naming Conventions
 
@@ -26,7 +26,7 @@ Where:
 
 **Important**: The table number (`XX`) is used to generate LaTeX reference labels in the format `\label{tab:XX}`.
 
-## Quick Start Guide
+## Usage
 
 ### Creating a Table
 

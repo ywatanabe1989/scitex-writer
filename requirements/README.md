@@ -1,10 +1,10 @@
-# SciTeX Writer - Dependency Management
+# Dependency Management
 
-This directory contains all dependency specifications for the SciTeX Writer project.
+Dependency specifications for SciTeX Writer.
 
-## Quick Start
+## Installation
 
-### Automated Installation (Recommended)
+### Automated Installation
 
 Install all dependencies automatically:
 
@@ -67,9 +67,9 @@ Universal installer script that handles all dependencies.
 - Colored output and error handling
 - Selective installation modes
 
-## Container-Based Approach (Alternative)
+## Container-Based Installation
 
-If you prefer complete isolation and reproducibility, use containers:
+For isolation and reproducibility:
 
 ### Docker
 

@@ -12,9 +12,11 @@ Deduplication strategy:
 """
 
 import argparse
+import hashlib
+import json
 import re
 from pathlib import Path
-from typing import Dict, List, Set
+from typing import Dict, List, Set, Optional
 
 try:
     import bibtexparser
@@ -134,10 +136,93 @@ def deduplicate_entries(entries: List[dict]) -> tuple[List[dict], dict]:
     return unique, stats
 
 
+def calculate_files_hash(bib_files: List[Path]) -> str:
+    """
+    Calculate MD5 hash of all input .bib files.
+
+    Args:
+        bib_files: List of .bib file paths
+
+    Returns:
+        Hex digest of combined file hashes
+    """
+    hasher = hashlib.md5()
+
+    # Sort files for consistent hashing
+    for bib_file in sorted(bib_files, key=lambda x: x.name):
+        # Include filename in hash
+        hasher.update(bib_file.name.encode('utf-8'))
+
+        # Include file content hash
+        with open(bib_file, 'rb') as f:
+            file_hash = hashlib.md5(f.read()).hexdigest()
+            hasher.update(file_hash.encode('utf-8'))
+
+    return hasher.hexdigest()
+
+
+def load_cache(cache_file: Path) -> Optional[dict]:
+    """Load cache from file."""
+    if not cache_file.exists():
+        return None
+
+    try:
+        with open(cache_file, 'r', encoding='utf-8') as f:
+            return json.load(f)
+    except (json.JSONDecodeError, IOError):
+        return None
+
+
+def save_cache(cache_file: Path, data: dict) -> None:
+    """Save cache to file."""
+    try:
+        with open(cache_file, 'w', encoding='utf-8') as f:
+            json.dump(data, f, indent=2)
+    except IOError as e:
+        print(f"WARNING: Could not save cache: {e}")
+
+
+def is_cache_valid(
+    cache_file: Path,
+    bib_files: List[Path],
+    output_file: Path
+) -> bool:
+    """
+    Check if cached merge is still valid.
+
+    Args:
+        cache_file: Path to cache file
+        bib_files: List of input .bib files
+        output_file: Path to output file
+
+    Returns:
+        True if cache is valid and merge can be skipped
+    """
+    # No cache file
+    if not cache_file.exists():
+        return False
+
+    # No output file
+    if not output_file.exists():
+        return False
+
+    # Load cache
+    cache = load_cache(cache_file)
+    if not cache:
+        return False
+
+    # Calculate current hash
+    current_hash = calculate_files_hash(bib_files)
+
+    # Compare with cached hash
+    return cache.get('input_hash') == current_hash
+
+
 def merge_bibtex_files(
     bib_dir: Path,
     output_file: str = "bibliography.bib",
-    verbose: bool = True
+    verbose: bool = True,
+    force: bool = False
 ) -> bool:
     """
     Merge all .bib files in directory with smart deduplication.
@@ -146,11 +231,14 @@ def merge_bibtex_files(
         bib_dir: Directory containing .bib files
         output_file: Output filename (saved in bib_dir)
         verbose: Print progress messages
+        force: Force merge even if cache is valid
 
     Returns:
         True if successful
     """
     bib_dir = Path(bib_dir)
+    output_path = bib_dir / output_file
+    cache_file = bib_dir / ".bibliography_cache.json"
 
     # Find all .bib files except the output file
     bib_files = [
@@ -162,6 +250,13 @@ def merge_bibtex_files(
         if verbose:
             print(f"No .bib files found in {bib_dir}")
         return False
+
+    # Check cache (skip if force=True)
+    if not force and is_cache_valid(cache_file, bib_files, output_path):
+        if verbose:
+            print(f"✓ Bibliography cache valid (no changes detected)")
+            print(f"  Use --force to rebuild")
+        return True
 
     if verbose:
         print(f"Merging {len(bib_files)} bibliography files...")
@@ -193,13 +288,22 @@ def merge_bibtex_files(
     output_db.entries = unique_entries
 
     # Write output
-    output_path = bib_dir / output_file
     writer = BibTexWriter()
     writer.indent = '  '  # 2-space indentation
     writer.order_entries_by = 'ID'  # Sort by citation key
 
     with open(output_path, 'w', encoding='utf-8') as f:
         f.write(writer.write(output_db))
+
+    # Save cache
+    input_hash = calculate_files_hash(bib_files)
+    cache_data = {
+        'input_hash': input_hash,
+        'input_files': [f.name for f in sorted(bib_files, key=lambda x: x.name)],
+        'output_file': output_file,
+        'stats': stats
+    }
+    save_cache(cache_file, cache_data)
 
     if verbose:
         print(f"\n✓ Merged bibliography saved: {output_path}")
@@ -231,13 +335,19 @@ def main():
         action="store_true",
         help="Quiet mode (no output)"
     )
+    parser.add_argument(
+        "-f", "--force",
+        action="store_true",
+        help="Force merge (ignore cache)"
+    )
 
     args = parser.parse_args()
 
     success = merge_bibtex_files(
         bib_dir=Path(args.bib_dir),
         output_file=args.output,
-        verbose=not args.quiet
+        verbose=not args.quiet,
+        force=args.force
     )
 
     exit(0 if success else 1)
