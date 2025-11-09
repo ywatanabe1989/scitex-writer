@@ -7,7 +7,6 @@ ORIG_DIR="$(pwd)"
 THIS_DIR="$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)"
 LOG_PATH="$THIS_DIR/.$(basename $0).log"
 
-# Setup logging to both local and global files (deferred until after config load)
 GIT_ROOT="$(git rev-parse --show-toplevel 2>/dev/null)"
 
 GRAY='\033[0;90m'
@@ -102,10 +101,7 @@ parse_arguments() {
     done
 }
 
-# Setup logging to both local and global files (after config load)
-exec 1> >(tee -a "$LOG_PATH" "$SCITEX_WRITER_GLOBAL_LOG_FILE" 2>/dev/null)
-exec 2>&1
-
+{
 parse_arguments "$@"
 
 # Log command options
@@ -291,5 +287,6 @@ echo_success "===================================================="
 echo_success "TOTAL COMPILATION TIME: ${total_compilation_time}s"
 echo_success "===================================================="
 echo_success "PDF: $SCITEX_WRITER_COMPILED_PDF"
+} 2>&1 | tee -a "$LOG_PATH" "$SCITEX_WRITER_GLOBAL_LOG_FILE"
 
 # EOF

@@ -7,10 +7,6 @@ ORIG_DIR="$(pwd)"
 THIS_DIR="$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)"
 LOG_PATH="$THIS_DIR/.$(basename $0).log"
 
-# Setup logging to both local and global files
-exec 1> >(tee -a "$LOG_PATH" "$SCITEX_WRITER_GLOBAL_LOG_FILE" 2>/dev/null)
-exec 2>&1
-
 GIT_ROOT="$(git rev-parse --show-toplevel 2>/dev/null)"
 
 GRAY='\033[0;90m'
@@ -249,6 +245,6 @@ main() {
     echo_success "See $SCITEX_WRITER_GLOBAL_LOG_FILE"
 }
 
-main "$@"
+main "$@" 2>&1 | tee -a "$LOG_PATH" "$SCITEX_WRITER_GLOBAL_LOG_FILE"
 
 # EOF
