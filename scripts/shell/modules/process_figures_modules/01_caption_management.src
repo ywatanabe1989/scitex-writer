@@ -5,7 +5,7 @@
 
 ensure_caption() {
     # Create caption files only for main figures, NOT for panels
-    for img_file in "$STXW_FIGURE_CAPTION_MEDIA_DIR"/[0-9]*.{tif,tiff,jpg,jpeg,png,svg,mmd,pptx}; do
+    for img_file in "$SCITEX_WRITER_FIGURE_CAPTION_MEDIA_DIR"/[0-9]*.{tif,tiff,jpg,jpeg,png,svg,mmd,pptx}; do
         [ -e "$img_file" ] || continue
         local ext="${img_file##*.}"
         local filename=$(basename "$img_file")
@@ -17,8 +17,8 @@ ensure_caption() {
             continue
         fi
         
-        local caption_tex_file="$STXW_FIGURE_CAPTION_MEDIA_DIR/${filename%.$ext}.tex"
-        local template_tex_file="$STXW_FIGURE_CAPTION_MEDIA_DIR/templates/.00_template.tex"
+        local caption_tex_file="$SCITEX_WRITER_FIGURE_CAPTION_MEDIA_DIR/${filename%.$ext}.tex"
+        local template_tex_file="$SCITEX_WRITER_FIGURE_CAPTION_MEDIA_DIR/templates/.00_template.tex"
         
         if [ ! -f "$caption_tex_file" ] && [ ! -L "$caption_tex_file" ]; then
             if [ -f "$template_tex_file" ]; then
@@ -48,7 +48,7 @@ cleanup_panel_captions() {
     echo_info "Cleaning up panel caption files..."
     local count=0
     
-    for tex_file in "$STXW_FIGURE_CAPTION_MEDIA_DIR"/[0-9]*[a-zA-Z]_*.tex; do
+    for tex_file in "$SCITEX_WRITER_FIGURE_CAPTION_MEDIA_DIR"/[0-9]*[a-zA-Z]_*.tex; do
         [ -e "$tex_file" ] || continue
         local filename=$(basename "$tex_file")
         
@@ -68,7 +68,7 @@ cleanup_panel_captions() {
 # Compile figure legends/captions
 compile_legends() {
     # Process captions for compiled directory
-    for tex_file in "$STXW_FIGURE_CAPTION_MEDIA_DIR"/[0-9]*.tex; do
+    for tex_file in "$SCITEX_WRITER_FIGURE_CAPTION_MEDIA_DIR"/[0-9]*.tex; do
         [ -e "$tex_file" ] || continue
         local filename=$(basename "$tex_file")
         
@@ -82,7 +82,7 @@ compile_legends() {
         local figure_id="${base_name}"
         
         # Create compiled caption
-        local compiled_file="$STXW_FIGURE_COMPILED_DIR/${figure_id}.tex"
+        local compiled_file="$SCITEX_WRITER_FIGURE_COMPILED_DIR/${figure_id}.tex"
         
         # Copy the caption content with metadata
         {

@@ -22,7 +22,7 @@ echo_error() { echo -e "${RED}$1${NC}"; }
 # ---------------------------------------
 
 # Configurations
-source ./config/load_config.sh $STXW_DOC_TYPE
+source ./config/load_config.sh $SCITEX_WRITER_DOC_TYPE
 
 # Logging
 touch "$LOG_PATH" >/dev/null 2>&1
@@ -32,30 +32,30 @@ echo_info "Running $0..."
 
 function process_archive() {
     # echo_info "    Starting versioning process..."
-    mkdir -p $STXW_VERSIONS_DIR
-    # echo_info "    Created backup directory: $STXW_VERSIONS_DIR"
+    mkdir -p $SCITEX_WRITER_VERSIONS_DIR
+    # echo_info "    Created backup directory: $SCITEX_WRITER_VERSIONS_DIR"
 
     count_version
 
-    # echo_info "    Processing v$(cat $STXW_VERSION_COUNTER_TXT) files..."
-    store_files $STXW_COMPILED_PDF "pdf"
-    store_files $STXW_COMPILED_TEX "tex"
-    store_files $STXW_DIFF_PDF "pdf"
-    store_files $STXW_DIFF_TEX "tex"
+    # echo_info "    Processing v$(cat $SCITEX_WRITER_VERSION_COUNTER_TXT) files..."
+    store_files $SCITEX_WRITER_COMPILED_PDF "pdf"
+    store_files $SCITEX_WRITER_COMPILED_TEX "tex"
+    store_files $SCITEX_WRITER_DIFF_PDF "pdf"
+    store_files $SCITEX_WRITER_DIFF_TEX "tex"
 }
 
 function count_version() {
     # echo_info "    Updating version counter..."
-    if [ ! -f $STXW_VERSION_COUNTER_TXT ]; then
-        echo "000" > $STXW_VERSION_COUNTER_TXT
-        # echo_info "    $STXW_VERSION_COUNTER_TXT Not Found"
+    if [ ! -f $SCITEX_WRITER_VERSION_COUNTER_TXT ]; then
+        echo "000" > $SCITEX_WRITER_VERSION_COUNTER_TXT
+        # echo_info "    $SCITEX_WRITER_VERSION_COUNTER_TXT Not Found"
         echo_success "    Initialized version counter: 000"
     fi
 
-    if [ -f $STXW_VERSION_COUNTER_TXT ]; then
-        version=$(<$STXW_VERSION_COUNTER_TXT)
+    if [ -f $SCITEX_WRITER_VERSION_COUNTER_TXT ]; then
+        version=$(<$SCITEX_WRITER_VERSION_COUNTER_TXT)
         next_version=$(printf "%03d" $((10#$version + 1)))
-        echo $next_version > $STXW_VERSION_COUNTER_TXT
+        echo $next_version > $SCITEX_WRITER_VERSION_COUNTER_TXT
         echo_success "    Version allocated as: v$next_version"
     fi
 }
@@ -68,7 +68,7 @@ function store_files() {
     # echo_info "    Processing file: $file"
 
     if [ -f $file ]; then
-        version=$(<"$STXW_VERSION_COUNTER_TXT")
+        version=$(<"$SCITEX_WRITER_VERSION_COUNTER_TXT")
 
         # Special handling for diff files: change manuscript_diff to manuscript_vXXX_diff
         if [[ "$filename" == "manuscript_diff" ]]; then
@@ -77,9 +77,9 @@ function store_files() {
             local versioned_name="${filename}_v${version}"
         fi
 
-        local hidden_link="${STXW_VERSIONS_DIR}/.${filename}.${extension}"
+        local hidden_link="${SCITEX_WRITER_VERSIONS_DIR}/.${filename}.${extension}"
         local tgt_path_current="./${versioned_name}.${extension}"
-        local tgt_path_old="${STXW_VERSIONS_DIR}/${versioned_name}.${extension}"
+        local tgt_path_old="${SCITEX_WRITER_VERSIONS_DIR}/${versioned_name}.${extension}"
 
         # echo_info "    Copying to: $tgt_path_old"
         cp $file $tgt_path_old

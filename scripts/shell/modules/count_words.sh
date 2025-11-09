@@ -22,7 +22,7 @@ echo_error() { echo -e "${RED}$1${NC}"; }
 # ---------------------------------------
 
 # Configurations
-source ./config/load_config.sh $STXW_DOC_TYPE
+source ./config/load_config.sh $SCITEX_WRITER_DOC_TYPE
 
 # Source the shared command switching module
 source "$(dirname ${BASH_SOURCE[0]})/command_switching.src"
@@ -33,8 +33,8 @@ echo
 echo_info "Running $0 ..."
 
 init() {
-    rm -f $STXW_WORDCOUNT_DIR/*.txt
-    mkdir -p $STXW_WORDCOUNT_DIR
+    rm -f $SCITEX_WRITER_WORDCOUNT_DIR/*.txt
+    mkdir -p $SCITEX_WRITER_WORDCOUNT_DIR
 }
 
 _count_elements() {
@@ -67,46 +67,46 @@ _count_words() {
 }
 
 count_tables() {
-    _count_elements "$STXW_TABLE_COMPILED_DIR" "[0-9]*.tex" "$STXW_WORDCOUNT_DIR/table_count.txt"
+    _count_elements "$SCITEX_WRITER_TABLE_COMPILED_DIR" "[0-9]*.tex" "$SCITEX_WRITER_WORDCOUNT_DIR/table_count.txt"
 }
 
 count_figures() {
-    _count_elements "$STXW_FIGURE_COMPILED_DIR" "[0-9]*.tex" "$STXW_WORDCOUNT_DIR/figure_count.txt"
+    _count_elements "$SCITEX_WRITER_FIGURE_COMPILED_DIR" "[0-9]*.tex" "$SCITEX_WRITER_WORDCOUNT_DIR/figure_count.txt"
 }
 
 count_IMRaD() {
     for section in abstract introduction methods results discussion; do
         local section_tex="$STWX_ROOT_DIR/contents/$section.tex"
         if [ -e "$section_tex" ]; then
-            _count_words "$section_tex" "$STXW_WORDCOUNT_DIR/${section}_count.txt"
+            _count_words "$section_tex" "$SCITEX_WRITER_WORDCOUNT_DIR/${section}_count.txt"
         else
-            echo 0 > "$STXW_WORDCOUNT_DIR/${section}_count.txt"
+            echo 0 > "$SCITEX_WRITER_WORDCOUNT_DIR/${section}_count.txt"
         fi
     done
     
     # Calculate IMRD total (only count sections that exist)
     local imrd_total=0
     for section in introduction methods results discussion; do
-        if [ -f "$STXW_WORDCOUNT_DIR/${section}_count.txt" ]; then
-            local count=$(cat "$STXW_WORDCOUNT_DIR/${section}_count.txt" 2>/dev/null || echo 0)
+        if [ -f "$SCITEX_WRITER_WORDCOUNT_DIR/${section}_count.txt" ]; then
+            local count=$(cat "$SCITEX_WRITER_WORDCOUNT_DIR/${section}_count.txt" 2>/dev/null || echo 0)
             imrd_total=$((imrd_total + count))
         fi
     done
-    echo "$imrd_total" > "$STXW_WORDCOUNT_DIR/imrd_count.txt"
+    echo "$imrd_total" > "$SCITEX_WRITER_WORDCOUNT_DIR/imrd_count.txt"
 }
 
 display_counts() {
-    local fig_count=$(cat "$STXW_WORDCOUNT_DIR/figure_count.txt" 2>/dev/null || echo 0)
-    local tab_count=$(cat "$STXW_WORDCOUNT_DIR/table_count.txt" 2>/dev/null || echo 0)
-    local abs_count=$(cat "$STXW_WORDCOUNT_DIR/abstract_count.txt" 2>/dev/null || echo 0)
-    local imrd_count=$(cat "$STXW_WORDCOUNT_DIR/imrd_count.txt" 2>/dev/null || echo 0)
+    local fig_count=$(cat "$SCITEX_WRITER_WORDCOUNT_DIR/figure_count.txt" 2>/dev/null || echo 0)
+    local tab_count=$(cat "$SCITEX_WRITER_WORDCOUNT_DIR/table_count.txt" 2>/dev/null || echo 0)
+    local abs_count=$(cat "$SCITEX_WRITER_WORDCOUNT_DIR/abstract_count.txt" 2>/dev/null || echo 0)
+    local imrd_count=$(cat "$SCITEX_WRITER_WORDCOUNT_DIR/imrd_count.txt" 2>/dev/null || echo 0)
     
     echo_success "    Word counts updated:"
     echo_success "      Figures: $fig_count"
     echo_success "      Tables: $tab_count"
     
     # For supplementary, don't show abstract if it doesn't exist
-    if [ "$STXW_DOC_TYPE" = "supplementary" ]; then
+    if [ "$SCITEX_WRITER_DOC_TYPE" = "supplementary" ]; then
         if [ "$abs_count" -gt 0 ]; then
             echo_success "      Abstract: $abs_count words"
         fi

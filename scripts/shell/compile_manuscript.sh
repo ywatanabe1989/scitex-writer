@@ -1,19 +1,27 @@
 #!/bin/bash
 # -*- coding: utf-8 -*-
-# Timestamp: "2025-09-28 17:50:40 (ywatanabe)"
-# File: ./paper/scripts/shell/compile_manuscript.sh
+# Timestamp: "2025-11-09 18:11:05 (ywatanabe)"
+# File: ./scripts/shell/compile_manuscript.sh
 
 ORIG_DIR="$(pwd)"
 THIS_DIR="$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)"
 LOG_PATH="$THIS_DIR/.$(basename $0).log"
 echo > "$LOG_PATH"
 
-BLACK='\033[0;30m'
-LIGHT_GRAY='\033[0;37m'
+GIT_ROOT="$(git rev-parse --show-toplevel 2>/dev/null)"
+
+GRAY='\033[0;90m'
 GREEN='\033[0;32m'
 YELLOW='\033[0;33m'
 RED='\033[0;31m'
 NC='\033[0m' # No Color
+
+echo_info() { echo -e "${GRAY}INFO: $1${NC}"; }
+echo_success() { echo -e "${GREEN}SUCC: $1${NC}"; }
+echo_warning() { echo -e "${YELLOW}WARN: $1${NC}"; }
+echo_error() { echo -e "${RED}ERRO: $1${NC}"; }
+echo_header() { echo_info "=== $1 ==="; }
+# ---------------------------------------
 
 echo_info() { echo -e "${LIGHT_GRAY}$1${NC}"; }
 echo_success() { echo -e "${GREEN}$1${NC}"; }
@@ -39,16 +47,15 @@ log_stage_end() {
     local timestamp=$(date '+%H:%M:%S')
     echo_success "[$timestamp] Completed: $stage_name (${elapsed}s elapsed, ${total_elapsed}s total)"
 }
-# ---------------------------------------
 
 # Configurations
-export STXW_DOC_TYPE="manuscript"
-source ./config/load_config.sh "$STXW_DOC_TYPE"
+export SCITEX_WRITER_DOC_TYPE="manuscript"
+source ./config/load_config.sh "$SCITEX_WRITER_DOC_TYPE"
 echo
 
 # Log
 touch $LOG_PATH >/dev/null 2>&1
-mkdir -p "$LOG_DIR" && touch "$STXW_GLOBAL_LOG_FILE"
+mkdir -p "$LOG_DIR" && touch "$SCITEX_WRITER_GLOBAL_LOG_FILE"
 
 # Shell options
 set -e
@@ -101,14 +108,14 @@ main() {
     echo_info "Running $0${options_display}..."
 
     # Verbosity
-    export STXW_VERBOSE_PDFLATEX=$do_verbose
-    export STXW_VERBOSE_BIBTEX=$do_verbose
+    export SCITEX_WRITER_VERBOSE_PDFLATEX=$do_verbose
+    export SCITEX_WRITER_VERBOSE_BIBTEX=$do_verbose
     # if [ "$do_verbose" == "true" ]; then
-    #     export STXW_VERBOSE_PDFLATEX="true"
-    #     export STXW_VERBOSE_BIBTEX="true"
+    #     export SCITEX_WRITER_VERBOSE_PDFLATEX="true"
+    #     export SCITEX_WRITER_VERBOSE_BIBTEX="true"
     # else
-    #     export STXW_VERBOSE_PDFLATEX="false"
-    #     export STXW_VERBOSE_BIBTEX="false"
+    #     export SCITEX_WRITER_VERBOSE_PDFLATEX="false"
+    #     export SCITEX_WRITER_VERBOSE_BIBTEX="false"
     # fi
 
     # Check dependencies
@@ -172,14 +179,15 @@ main() {
 
     # Logging
     echo
+
     local final_time=$(date +%s)
     local total_compilation_time=$((final_time - COMPILATION_START_TIME))
     echo_success "===================================================="
     echo_success "TOTAL COMPILATION TIME: ${total_compilation_time}s"
     echo_success "===================================================="
-    echo_success "See $STXW_GLOBAL_LOG_FILE"
+    echo_success "See $SCITEX_WRITER_GLOBAL_LOG_FILE"
 }
 
-main "$@" 2>&1 | tee "$STXW_GLOBAL_LOG_FILE"
+main "$@" 2>&1 | tee "$SCITEX_WRITER_GLOBAL_LOG_FILE"
 
 # EOF

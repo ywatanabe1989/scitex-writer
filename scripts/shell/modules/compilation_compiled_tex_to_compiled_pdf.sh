@@ -22,7 +22,7 @@ echo_error() { echo -e "${RED}$1${NC}"; }
 # ---------------------------------------
 
 # Configurations
-source ./config/load_config.sh $STXW_DOC_TYPE
+source ./config/load_config.sh $SCITEX_WRITER_DOC_TYPE
 
 # Source the shared LaTeX commands module
 source "$(dirname ${BASH_SOURCE[0]})/command_switching.src"
@@ -33,12 +33,12 @@ echo
 echo_info "Running $0 ..."
 
 compiled_tex_to_pdf() {
-    echo_info "    Converting $STXW_COMPILED_TEX to PDF..."
+    echo_info "    Converting $SCITEX_WRITER_COMPILED_TEX to PDF..."
 
     # Setup paths
     local abs_dir=$(realpath "$ORIG_DIR")
-    local tex_file="$STXW_COMPILED_TEX"
-    local tex_base="${STXW_COMPILED_TEX%.tex}"
+    local tex_file="$SCITEX_WRITER_COMPILED_TEX"
+    local tex_base="${SCITEX_WRITER_COMPILED_TEX%.tex}"
     local aux_file="${tex_base}.aux"
 
     # Get commands from shared module
@@ -80,28 +80,28 @@ compiled_tex_to_pdf() {
     local total_start=$(date +%s)
 
     # Pass 1: Generate aux files
-    run_command "$pdf_cmd $tex_file" "$STXW_VERBOSE_PDFLATEX" "Pass 1/3: Initial"
+    run_command "$pdf_cmd $tex_file" "$SCITEX_WRITER_VERBOSE_PDFLATEX" "Pass 1/3: Initial"
 
     # Process bibliography if needed
     if [ -f "$aux_file" ]; then
         if grep -q "\\citation\|\\bibdata\|\\bibstyle" "$aux_file" 2>/dev/null; then
-            run_command "$bib_cmd $tex_base" "$STXW_VERBOSE_BIBTEX" "Processing bibliography"
+            run_command "$bib_cmd $tex_base" "$SCITEX_WRITER_VERBOSE_BIBTEX" "Processing bibliography"
         fi
     fi
 
     # Pass 2: Include bibliography
-    run_command "$pdf_cmd $tex_file" "$STXW_VERBOSE_PDFLATEX" "Pass 2/3: Bibliography"
+    run_command "$pdf_cmd $tex_file" "$SCITEX_WRITER_VERBOSE_PDFLATEX" "Pass 2/3: Bibliography"
 
     # Pass 3: Resolve all references
-    run_command "$pdf_cmd $tex_file" "$STXW_VERBOSE_PDFLATEX" "Pass 3/3: Final"
+    run_command "$pdf_cmd $tex_file" "$SCITEX_WRITER_VERBOSE_PDFLATEX" "Pass 3/3: Final"
 
     local total_end=$(date +%s)
     echo_success "    Total compilation: $(($total_end - $total_start))s"
 }
 
 cleanup() {
-    # Use fallback if STXW_COMPILED_PDF is not set or empty
-    local pdf_file="${STXW_COMPILED_PDF}"
+    # Use fallback if SCITEX_WRITER_COMPILED_PDF is not set or empty
+    local pdf_file="${SCITEX_WRITER_COMPILED_PDF}"
     if [ -z "$pdf_file" ]; then
         pdf_file="./01_manuscript/manuscript.pdf"
     fi
@@ -113,7 +113,7 @@ cleanup() {
         local latest_path="${STWX_ROOT_DIR}/manuscript-latest.pdf"
         
         # Find the latest archived version (highest version number)
-        local archive_dir="${STXW_VERSIONS_DIR}"
+        local archive_dir="${SCITEX_WRITER_VERSIONS_DIR}"
         local latest_archive=$(ls -1 "$archive_dir"/manuscript_v[0-9]*.pdf 2>/dev/null | grep -v "_diff.pdf" | sort -V | tail -1)
         
         if [ -n "$latest_archive" ]; then

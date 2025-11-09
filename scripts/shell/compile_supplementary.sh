@@ -22,13 +22,13 @@ echo_error() { echo -e "${RED}$1${NC}"; }
 # ---------------------------------------
 
 # Configurations
-export STXW_DOC_TYPE="supplementary"
-source ./config/load_config.sh "$STXW_DOC_TYPE"
+export SCITEX_WRITER_DOC_TYPE="supplementary"
+source ./config/load_config.sh "$SCITEX_WRITER_DOC_TYPE"
 echo
 
 # Log
 touch $LOG_PATH >/dev/null 2>&1
-mkdir -p "$LOG_DIR" && touch "$STXW_GLOBAL_LOG_FILE"
+mkdir -p "$LOG_DIR" && touch "$SCITEX_WRITER_GLOBAL_LOG_FILE"
 
 # Shell options
 set -e
@@ -78,11 +78,11 @@ main() {
 
     # Verbosity
     if [ "$do_quiet" == "true" ]; then
-        export STXW_VERBOSE_PDFLATEX="false"
-        export STXW_VERBOSE_BIBTEX="false"
+        export SCITEX_WRITER_VERBOSE_PDFLATEX="false"
+        export SCITEX_WRITER_VERBOSE_BIBTEX="false"
     else
-        export STXW_VERBOSE_PDFLATEX=${true:-"$STXW_VERBOSE_PDFLATEX"}
-        export STXW_VERBOSE_BIBTEX=${true:-"$STXW_VERBOSE_BIBTEX"}
+        export SCITEX_WRITER_VERBOSE_PDFLATEX=${true:-"$SCITEX_WRITER_VERBOSE_PDFLATEX"}
+        export SCITEX_WRITER_VERBOSE_BIBTEX=${true:-"$SCITEX_WRITER_VERBOSE_BIBTEX"}
     fi
 
     # Check dependencies
@@ -124,9 +124,9 @@ main() {
 
     # Logging
     echo
-    echo_success "See $STXW_GLOBAL_LOG_FILE"
+    echo_success "See $SCITEX_WRITER_GLOBAL_LOG_FILE"
 }
 
-main "$@" 2>&1 | tee "$STXW_GLOBAL_LOG_FILE"
+main "$@" 2>&1 | tee "$SCITEX_WRITER_GLOBAL_LOG_FILE"
 
 # EOF

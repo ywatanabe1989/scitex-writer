@@ -24,7 +24,7 @@ echo_error() { echo -e "${RED}$1${NC}"; }
 NC='\033[0m'
 
 # Configurations
-source ./config/load_config.sh $STXW_DOC_TYPE
+source ./config/load_config.sh $SCITEX_WRITER_DOC_TYPE
 
 # Logging
 touch "$LOG_PATH" >/dev/null 2>&1
@@ -33,7 +33,7 @@ echo_info "Running $0 ..."
 
 gather_tex_contents() {
     # First, create initial compiled.tex from base.tex
-    cp "$STXW_BASE_TEX" "$STXW_COMPILED_TEX"
+    cp "$SCITEX_WRITER_BASE_TEX" "$SCITEX_WRITER_COMPILED_TEX"
 
     process_input() {
         local file_path="$1"
@@ -62,15 +62,15 @@ gather_tex_contents() {
             fi
         done < "$file_path"
 
-        mv "$temp_file" "$STXW_COMPILED_TEX"
+        mv "$temp_file" "$SCITEX_WRITER_COMPILED_TEX"
     }
 
     # Process until no more \input commands remain
-    while grep -q '\\input{' "$STXW_COMPILED_TEX"; do
-        process_input "$STXW_COMPILED_TEX"
+    while grep -q '\\input{' "$SCITEX_WRITER_COMPILED_TEX"; do
+        process_input "$SCITEX_WRITER_COMPILED_TEX"
     done
 
-    echo_success "    $STXW_COMPILED_TEX compiled"
+    echo_success "    $SCITEX_WRITER_COMPILED_TEX compiled"
 }
 
 gather_tex_contents

@@ -22,13 +22,13 @@ echo_error() { echo -e "${RED}$1${NC}"; }
 # ---------------------------------------
 
 # Configurations
-source ./config/load_config.sh $STXW_DOC_TYPE
+source ./config/load_config.sh $SCITEX_WRITER_DOC_TYPE
 
 # Source the shared commands module for mmdc
 source "$(dirname ${BASH_SOURCE[0]})/command_switching.src"
 
 # Override echo_xxx functions
-source ./config/load_config.sh $STXW_DOC_TYPE
+source ./config/load_config.sh $SCITEX_WRITER_DOC_TYPE
 
 # Logging
 touch "$LOG_PATH" >/dev/null 2>&1
@@ -46,11 +46,11 @@ mmd2png(){
 
     # echo_info "    Using mmdc command: $mmdc_cmd"
 
-    n_mmd_files="$(ls $STXW_FIGURE_CAPTION_MEDIA_DIR/.*.mmd 2>/dev/null | wc -l)"
+    n_mmd_files="$(ls $SCITEX_WRITER_FIGURE_CAPTION_MEDIA_DIR/.*.mmd 2>/dev/null | wc -l)"
     if [[ $n_mmd_files -gt 0 ]]; then
-        for mmd_file in "$STXW_FIGURE_CAPTION_MEDIA_DIR"/.*.mmd; do
+        for mmd_file in "$SCITEX_WRITER_FIGURE_CAPTION_MEDIA_DIR"/.*.mmd; do
             png_file="${mmd_file%.mmd}.png"
-            jpg_file="$STXW_FIGURE_JPG_DIR/$(basename "${mmd_file%.mmd}.jpg")"
+            jpg_file="$SCITEX_WRITER_FIGURE_JPG_DIR/$(basename "${mmd_file%.mmd}.jpg")"
 
             echo_info "    Converting $(basename "$mmd_file") to PNG..."
             eval "$mmdc_cmd -i \"$mmd_file\" -o \"$png_file\"" > /dev/null 2>&1
@@ -77,7 +77,7 @@ mmd2png(){
             fi
         done 2>&1 | tee -a "$LOG_PATH"
     else
-        echo_info "    No .mmd files found in $STXW_FIGURE_CAPTION_MEDIA_DIR" | tee -a "$LOG_PATH"
+        echo_info "    No .mmd files found in $SCITEX_WRITER_FIGURE_CAPTION_MEDIA_DIR" | tee -a "$LOG_PATH"
     fi
 }
 

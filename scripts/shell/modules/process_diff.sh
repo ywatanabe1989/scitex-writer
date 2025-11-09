@@ -22,7 +22,7 @@ echo_error() { echo -e "${RED}$1${NC}"; }
 # ---------------------------------------
 
 # Configuration
-source ./config/load_config.sh $STXW_DOC_TYPE
+source ./config/load_config.sh $SCITEX_WRITER_DOC_TYPE
 
 # Source the shared LaTeX commands module
 source "$(dirname ${BASH_SOURCE[0]})/command_switching.src"
@@ -34,9 +34,9 @@ echo_info "Running $0 ..."
 
 
 function determine_previous() {
-    local base_tex=$(ls -v "$STXW_VERSIONS_DIR"/*_v*base.tex 2>/dev/null | tail -n 1)
-    local latest_tex=$(ls -v "$STXW_VERSIONS_DIR"/*_v[0-9]*.tex 2>/dev/null | tail -n 1)
-    local current_tex="$STXW_COMPILED_TEX"
+    local base_tex=$(ls -v "$SCITEX_WRITER_VERSIONS_DIR"/*_v*base.tex 2>/dev/null | tail -n 1)
+    local latest_tex=$(ls -v "$SCITEX_WRITER_VERSIONS_DIR"/*_v[0-9]*.tex 2>/dev/null | tail -n 1)
+    local current_tex="$SCITEX_WRITER_COMPILED_TEX"
 
     if [[ -n "$base_tex" ]]; then
         echo "$base_tex"
@@ -52,8 +52,8 @@ function take_diff_tex() {
 
     echo_info "    Creating diff between archive..."
 
-    if [ ! -f "$STXW_COMPILED_TEX" ]; then
-        echo_warning "    $STXW_COMPILED_TEX not found."
+    if [ ! -f "$SCITEX_WRITER_COMPILED_TEX" ]; then
+        echo_warning "    $SCITEX_WRITER_COMPILED_TEX not found."
         return 1
     fi
 
@@ -72,13 +72,13 @@ function take_diff_tex() {
         --type=CULINECHBAR \
         --disable-citation-markup \
         --append-safecmd="cite,citep,citet" \
-        "$previous" "$STXW_COMPILED_TEX" 2> >(grep -v 'gocryptfs not found' >&2) > "$STXW_DIFF_TEX"
+        "$previous" "$SCITEX_WRITER_COMPILED_TEX" 2> >(grep -v 'gocryptfs not found' >&2) > "$SCITEX_WRITER_DIFF_TEX"
 
-    if [ -f "$STXW_DIFF_TEX" ] && [ -s "$STXW_DIFF_TEX" ]; then
-        echo_success "    $STXW_DIFF_TEX created"
+    if [ -f "$SCITEX_WRITER_DIFF_TEX" ] && [ -s "$SCITEX_WRITER_DIFF_TEX" ]; then
+        echo_success "    $SCITEX_WRITER_DIFF_TEX created"
         return 0
     else
-        echo_warn "    $STXW_DIFF_TEX not created or is empty"
+        echo_warn "    $SCITEX_WRITER_DIFF_TEX not created or is empty"
         return 1
     fi
 }
@@ -87,8 +87,8 @@ compile_diff_tex() {
     echo_info "    Compiling diff document..."
 
     local abs_dir=$(realpath "$ORIG_DIR")
-    local tex_file="$STXW_DIFF_TEX"
-    local tex_base="${STXW_DIFF_TEX%.tex}"
+    local tex_file="$SCITEX_WRITER_DIFF_TEX"
+    local tex_base="${SCITEX_WRITER_DIFF_TEX%.tex}"
 
     # Get commands from shared module
     local pdf_cmd=$(get_cmd_pdflatex "$ORIG_DIR")
@@ -112,7 +112,7 @@ compile_diff_tex() {
         echo_info "    $desc"
         local start=$(date +%s)
 
-        if [ "$STXW_VERBOSE_PDFLATEX" == "true" ]; then
+        if [ "$SCITEX_WRITER_VERBOSE_PDFLATEX" == "true" ]; then
             eval "$cmd" 2>&1 | grep -v "gocryptfs not found"
         else
             eval "$cmd" >/dev/null 2>&1
@@ -134,12 +134,12 @@ compile_diff_tex() {
 }
 
 cleanup() {
-    if [ -f "$STXW_DIFF_PDF" ]; then
-        local size=$(du -h "$STXW_DIFF_PDF" | cut -f1)
-        echo_success "    $STXW_DIFF_PDF ready (${size})"
+    if [ -f "$SCITEX_WRITER_DIFF_PDF" ]; then
+        local size=$(du -h "$SCITEX_WRITER_DIFF_PDF" | cut -f1)
+        echo_success "    $SCITEX_WRITER_DIFF_PDF ready (${size})"
         sleep 1
     else
-        echo_warn "    $STXW_DIFF_PDF not created"
+        echo_warn "    $SCITEX_WRITER_DIFF_PDF not created"
     fi
 }
 

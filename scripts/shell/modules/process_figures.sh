@@ -1,19 +1,27 @@
 #!/bin/bash
 # -*- coding: utf-8 -*-
-# Timestamp: "2025-09-29 18:45:47 (ywatanabe)"
-# File: ./paper/scripts/shell/modules/process_figures.sh
+# Timestamp: "2025-11-09 18:12:17 (ywatanabe)"
+# File: ./scripts/shell/modules/process_figures.sh
 
 ORIG_DIR="$(pwd)"
 THIS_DIR="$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)"
 LOG_PATH="$THIS_DIR/.$(basename $0).log"
 echo > "$LOG_PATH"
 
-BLACK='\033[0;30m'
-LIGHT_GRAY='\033[0;37m'
+GIT_ROOT="$(git rev-parse --show-toplevel 2>/dev/null)"
+
+GRAY='\033[0;90m'
 GREEN='\033[0;32m'
 YELLOW='\033[0;33m'
 RED='\033[0;31m'
 NC='\033[0m' # No Color
+
+echo_info() { echo -e "${GRAY}INFO: $1${NC}"; }
+echo_success() { echo -e "${GREEN}SUCC: $1${NC}"; }
+echo_warning() { echo -e "${YELLOW}WARN: $1${NC}"; }
+echo_error() { echo -e "${RED}ERRO: $1${NC}"; }
+echo_header() { echo_info "=== $1 ==="; }
+# ---------------------------------------
 
 echo_info() { echo -e "${LIGHT_GRAY}$1${NC}"; }
 echo_success() { echo -e "${GREEN}$1${NC}"; }
@@ -34,7 +42,6 @@ log_figure_stage_end() {
     local timestamp=$(date '+%H:%M:%S')
     echo_success "  [$timestamp] $1 (${elapsed}s)"
 }
-# ---------------------------------------
 
 #
 # Figure Processing Pipeline
@@ -54,14 +61,14 @@ log_figure_stage_end() {
 # and then automatically tiled together into the main figure.
 
 # Configurations
-source ./config/load_config.sh $STXW_DOC_TYPE
+source ./config/load_config.sh $SCITEX_WRITER_DOC_TYPE
 source ./scripts/shell/modules/validate_tex.src
 
 # Source the shared command module
 source "$(dirname ${BASH_SOURCE[0]})/command_switching.src"
 
 # Override echo_xxx functions
-source ./config/load_config.sh $STXW_DOC_TYPE
+source ./config/load_config.sh $SCITEX_WRITER_DOC_TYPE
 
 # Logging
 touch "$LOG_PATH" >/dev/null 2>&1
@@ -83,7 +90,7 @@ validate_image_file() {
 
 create_placeholder_jpg() {
     local figure_id="$1"  # e.g., ".01_missing"
-    local jpg_path="$STXW_FIGURE_JPG_DIR/$figure_id.jpg"
+    local jpg_path="$SCITEX_WRITER_FIGURE_JPG_DIR/$figure_id.jpg"
 
     # Primary: Use template TIF file from shared directory
     local template_tif="./shared/templates/figures/.00_TEMPLATE.tif"
@@ -102,7 +109,7 @@ create_placeholder_jpg() {
     local convert_cmd=$(get_cmd_convert "$ORIG_DIR")
     if [ -n "$convert_cmd" ]; then
         # Create guidance text with specific path information
-        local source_path="$STXW_FIGURE_CAPTION_MEDIA_DIR/$figure_id"
+        local source_path="$SCITEX_WRITER_FIGURE_CAPTION_MEDIA_DIR/$figure_id"
         local rel_source_path=$(realpath --relative-to="$(pwd)" "$source_path")
 
         # Extract figure number and description for citation reference
@@ -138,7 +145,7 @@ check_and_create_placeholders() {
     echo_info "    Checking for missing figures..."
 
     # Look for .tex caption files without corresponding source images
-    for tex_file in "$STXW_FIGURE_CAPTION_MEDIA_DIR"/[0-9]*.tex; do
+    for tex_file in "$SCITEX_WRITER_FIGURE_CAPTION_MEDIA_DIR"/[0-9]*.tex; do
         [ -e "$tex_file" ] || continue
 
         local base_name=$(basename "$tex_file" .tex)
@@ -151,7 +158,7 @@ check_and_create_placeholders() {
 
         # Check if any source file exists for this figure
         for ext in tif tiff jpg jpeg png svg mmd pptx; do
-            if [ -f "$STXW_FIGURE_CAPTION_MEDIA_DIR/$base_name.$ext" ]; then
+            if [ -f "$SCITEX_WRITER_FIGURE_CAPTION_MEDIA_DIR/$base_name.$ext" ]; then
                 has_source=true
                 break
             fi
@@ -159,7 +166,7 @@ check_and_create_placeholders() {
 
         # Check if JPG already exists in compilation directory
         local jpg_exists=false
-        if [ -f "$STXW_FIGURE_JPG_DIR/$base_name.jpg" ]; then
+        if [ -f "$SCITEX_WRITER_FIGURE_JPG_DIR/$base_name.jpg" ]; then
             jpg_exists=true
         fi
 
@@ -174,31 +181,31 @@ check_and_create_placeholders() {
 init_figures() {
     local timestamp=$(date +"%Y%m%d_%H%M%S")
     mkdir -p \
-          "$STXW_FIGURE_CAPTION_MEDIA_DIR" \
-	      "$STXW_FIGURE_COMPILED_DIR" \
-	      "$STXW_FIGURE_JPG_DIR"
+          "$SCITEX_WRITER_FIGURE_CAPTION_MEDIA_DIR" \
+	      "$SCITEX_WRITER_FIGURE_COMPILED_DIR" \
+	      "$SCITEX_WRITER_FIGURE_JPG_DIR"
 
     # Clean up jpg_for_compilation directory before processing
     echo_info "    Cleaning jpg_for_compilation directory..."
-    rm -rf "$STXW_FIGURE_JPG_DIR"/*
+    rm -rf "$SCITEX_WRITER_FIGURE_JPG_DIR"/*
 
     rm -f \
-       "$STXW_FIGURE_COMPILED_DIR"/.*.tex
-    echo > $STXW_FIGURE_COMPILED_FILE
+       "$SCITEX_WRITER_FIGURE_COMPILED_DIR"/.*.tex
+    echo > $SCITEX_WRITER_FIGURE_COMPILED_FILE
 }
 
 ensure_caption() {
     # First, ensure caption files exist for all figure files
-    for img_file in "$STXW_FIGURE_CAPTION_MEDIA_DIR"/[0-9]*.{tif,tiff,jpg,jpeg,png,svg,mmd,pptx}; do
+    for img_file in "$SCITEX_WRITER_FIGURE_CAPTION_MEDIA_DIR"/[0-9]*.{tif,tiff,jpg,jpeg,png,svg,mmd,pptx}; do
         [ -e "$img_file" ] || continue
         local ext="${img_file##*.}"
         local filename=$(basename "$img_file")
 
         # Process ALL files including panel files - they need captions and conversion too
 
-        local caption_tex_file="$STXW_FIGURE_CAPTION_MEDIA_DIR/${filename%.$ext}.tex"
-        local template_tex_file="$STXW_FIGURE_CAPTION_MEDIA_DIR/templates/.00_template.tex"
-        # local template_tex_file="$STXW_FIGURE_CAPTION_MEDIA_DIR/templates/_.XX.tex"
+        local caption_tex_file="$SCITEX_WRITER_FIGURE_CAPTION_MEDIA_DIR/${filename%.$ext}.tex"
+        local template_tex_file="$SCITEX_WRITER_FIGURE_CAPTION_MEDIA_DIR/templates/.00_template.tex"
+        # local template_tex_file="$SCITEX_WRITER_FIGURE_CAPTION_MEDIA_DIR/templates/_.XX.tex"
         if [ ! -f "$caption_tex_file" ] && [ ! -L "$caption_tex_file" ]; then
             # Skip creating caption files for panel files
             if [[ "$filename" =~ [0-9]+[A-Za-z]_ ]]; then
@@ -254,7 +261,7 @@ convert_figure_formats_in_cascade() {
     # Step 2: Crop TIF files (when cropping option enabled)
     if [ "$do_crop" = true ]; then
         log_figure_stage_start "Step 2: Cropping TIF files"
-        for tif_file in "$STXW_FIGURE_CAPTION_MEDIA_DIR"/[0-9]*.{tif,tiff}; do
+        for tif_file in "$SCITEX_WRITER_FIGURE_CAPTION_MEDIA_DIR"/[0-9]*.{tif,tiff}; do
             [ -e "$tif_file" ] || continue
             crop_image "$tif_file" true false
         done
@@ -263,10 +270,10 @@ convert_figure_formats_in_cascade() {
 
     # Step 3: TIF/TIFF -> PNG (when tif/tiff located, convert to png)
     log_figure_stage_start "Step 3: TIF/TIFF -> PNG"
-    for tif_file in "$STXW_FIGURE_CAPTION_MEDIA_DIR"/[0-9]*.{tif,tiff}; do
+    for tif_file in "$SCITEX_WRITER_FIGURE_CAPTION_MEDIA_DIR"/[0-9]*.{tif,tiff}; do
         [ -e "$tif_file" ] || continue
         local base_name="$(basename "$tif_file" | sed 's/\.tiff\?$//')"
-        local png_path="$STXW_FIGURE_CAPTION_MEDIA_DIR/${base_name}.png"
+        local png_path="$SCITEX_WRITER_FIGURE_CAPTION_MEDIA_DIR/${base_name}.png"
 
         if [ ! -f "$png_path" ]; then
             tif2png "$tif_file" "$png_path"
@@ -281,10 +288,10 @@ convert_figure_formats_in_cascade() {
 
     # Step 5: PNG -> JPG (convert png to jpg directly in caption_and_media)
     log_figure_stage_start "Step 5: PNG -> JPG"
-    for png_file in "$STXW_FIGURE_CAPTION_MEDIA_DIR"/[0-9]*.png; do
+    for png_file in "$SCITEX_WRITER_FIGURE_CAPTION_MEDIA_DIR"/[0-9]*.png; do
         [ -e "$png_file" ] || continue
         local base_name="$(basename "$png_file" .png)"
-        local jpg_path="$STXW_FIGURE_CAPTION_MEDIA_DIR/${base_name}.jpg"
+        local jpg_path="$SCITEX_WRITER_FIGURE_CAPTION_MEDIA_DIR/${base_name}.jpg"
 
         # Skip if JPG already exists
         if [ -f "$jpg_path" ]; then
@@ -302,10 +309,10 @@ convert_figure_formats_in_cascade() {
 
     # Step 6: Process existing JPG/JPEG files (normalize extension)
     log_figure_stage_start "Step 6: Processing JPG/JPEG files"
-    for jpeg_file in "$STXW_FIGURE_CAPTION_MEDIA_DIR"/[0-9]*.jpeg; do
+    for jpeg_file in "$SCITEX_WRITER_FIGURE_CAPTION_MEDIA_DIR"/[0-9]*.jpeg; do
         [ -e "$jpeg_file" ] || continue
         local base_name="$(basename "$jpeg_file" .jpeg)"
-        local jpg_path="$STXW_FIGURE_CAPTION_MEDIA_DIR/${base_name}.jpg"
+        local jpg_path="$SCITEX_WRITER_FIGURE_CAPTION_MEDIA_DIR/${base_name}.jpg"
 
         # Rename .jpeg to .jpg for consistency
         if [ ! -f "$jpg_path" ]; then
@@ -315,10 +322,10 @@ convert_figure_formats_in_cascade() {
     done
 
     # Optional: SVG -> JPG directly in caption_and_media
-    for svg_file in "$STXW_FIGURE_CAPTION_MEDIA_DIR"/[0-9]*.svg; do
+    for svg_file in "$SCITEX_WRITER_FIGURE_CAPTION_MEDIA_DIR"/[0-9]*.svg; do
         [ -e "$svg_file" ] || continue
         local base_name="$(basename "$svg_file" .svg)"
-        local jpg_path="$STXW_FIGURE_CAPTION_MEDIA_DIR/${base_name}.jpg"
+        local jpg_path="$SCITEX_WRITER_FIGURE_CAPTION_MEDIA_DIR/${base_name}.jpg"
 
         if [ ! -f "$jpg_path" ]; then
             svg2jpg "$svg_file" "$jpg_path"
@@ -328,12 +335,12 @@ convert_figure_formats_in_cascade() {
 
     # Step 7: Tile panel figures into composed figures
     log_figure_stage_start "Step 7: Tiling panel figures"
-    tile_panels "$STXW_FIGURE_CAPTION_MEDIA_DIR"
+    tile_panels "$SCITEX_WRITER_FIGURE_CAPTION_MEDIA_DIR"
     log_figure_stage_end "Step 7: Tiling panel figures"
 
     # Step 8: Copy ONLY composed/main figure JPGs to jpg_for_compilation
     log_figure_stage_start "Step 8: Copying to compilation dir"
-    copy_composed_jpg_files "$STXW_FIGURE_CAPTION_MEDIA_DIR" "$STXW_FIGURE_JPG_DIR"
+    copy_composed_jpg_files "$SCITEX_WRITER_FIGURE_CAPTION_MEDIA_DIR" "$SCITEX_WRITER_FIGURE_JPG_DIR"
     log_figure_stage_end "Step 8: Copying to compilation dir"
 
     echo_success "    Figure conversion cascade completed"
@@ -341,7 +348,7 @@ convert_figure_formats_in_cascade() {
 
 ensure_lower_letter_id() {
     local ORIG_DIR="$(pwd)"
-    cd "$STXW_FIGURE_CAPTION_MEDIA_DIR"
+    cd "$SCITEX_WRITER_FIGURE_CAPTION_MEDIA_DIR"
     for file in .*; do
         if [[ -f "$file" || -L "$file" ]]; then
             new_name=$(echo "$file" | sed -E 's/(.)(.*)/\1\L\2/')
@@ -651,7 +658,7 @@ crop_all_images() {
 
     # Crop all supported image formats (TIF, PNG, JPG)
     local count=0
-    for img_file in "$STXW_FIGURE_CAPTION_MEDIA_DIR"/.*.{tif,tiff,png,jpg,jpeg}; do
+    for img_file in "$SCITEX_WRITER_FIGURE_CAPTION_MEDIA_DIR"/.*.{tif,tiff,png,jpg,jpeg}; do
         [ -e "$img_file" ] || continue
 
         # Track which files we've cropped to avoid re-cropping
@@ -671,7 +678,7 @@ crop_all_images() {
     fi
 
     # Clean up crop markers after processing
-    rm -f "$STXW_FIGURE_CAPTION_MEDIA_DIR"/*.cropped 2>/dev/null
+    rm -f "$SCITEX_WRITER_FIGURE_CAPTION_MEDIA_DIR"/*.cropped 2>/dev/null
 }
 
 # Legacy function kept for compatibility - now uses new conversion system
@@ -681,7 +688,7 @@ optimize_figures_with_python() {
         echo_info "    Optimizing figures with Python script..."
 
         # Optimize any JPG files that were created
-        find "$STXW_FIGURE_JPG_DIR" -name ".*.jpg" -newer "$STXW_FIGURE_JPG_DIR" 2>/dev/null | \
+        find "$SCITEX_WRITER_FIGURE_JPG_DIR" -name ".*.jpg" -newer "$SCITEX_WRITER_FIGURE_JPG_DIR" 2>/dev/null | \
             parallel -j+0 --no-notice --silent "
                 python3 ./scripts/python/optimize_figure.py --input {} --output {}.tmp --dpi 300 --quality 95 && mv {}.tmp {}
             "
@@ -689,9 +696,9 @@ optimize_figures_with_python() {
 }
 
 compile_legends() {
-    mkdir -p "$STXW_FIGURE_COMPILED_DIR"
-    rm -f "$STXW_FIGURE_COMPILED_DIR"/[0-9]*.tex
-    local figures_header_file="$STXW_FIGURE_COMPILED_DIR/00_Figures_Header.tex"
+    mkdir -p "$SCITEX_WRITER_FIGURE_COMPILED_DIR"
+    rm -f "$SCITEX_WRITER_FIGURE_COMPILED_DIR"/[0-9]*.tex
+    local figures_header_file="$SCITEX_WRITER_FIGURE_COMPILED_DIR/00_Figures_Header.tex"
     cat > "$figures_header_file" << "EOF"
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% FIGURES
@@ -702,7 +709,7 @@ compile_legends() {
 \pdfbookmark[1]{Figures}{figures}
 EOF
     # Process all numeric-prefixed caption files
-    for caption_file in "$STXW_FIGURE_CAPTION_MEDIA_DIR"/[0-9]*.tex; do
+    for caption_file in "$SCITEX_WRITER_FIGURE_CAPTION_MEDIA_DIR"/[0-9]*.tex; do
         [ -f "$caption_file" ] || continue
         local fname=$(basename "$caption_file")
 
@@ -726,7 +733,7 @@ EOF
         else
             figure_number="$clean"
         fi
-        local tgt_file="$STXW_FIGURE_COMPILED_DIR/$fname"
+        local tgt_file="$SCITEX_WRITER_FIGURE_COMPILED_DIR/$fname"
         local is_tikz=false
         if grep -q "\\\\begin{tikzpicture}" "$caption_file"; then
             is_tikz=true
@@ -780,7 +787,7 @@ EOF
     "number": "${figure_number}",
     "type": "image",
     "width": "$width",
-    "path": "$STXW_FIGURE_JPG_DIR/$jpg_file"
+    "path": "$SCITEX_WRITER_FIGURE_JPG_DIR/$jpg_file"
 }
 $caption_content
 EOF
@@ -795,20 +802,20 @@ EOF
     "number": "${figure_number}",
     "type": "image",
     "width": "$width",
-    "path": "$STXW_FIGURE_JPG_DIR/$jpg_file"
+    "path": "$SCITEX_WRITER_FIGURE_JPG_DIR/$jpg_file"
 }
 $caption_content
 EOF
         fi
 
         # Validate the figure-related files
-        if [ -f "$STXW_FIGURE_JPG_DIR/$jpg_file" ]; then
-            if file "$STXW_FIGURE_JPG_DIR/$jpg_file" | grep -qv "JPEG image data"; then
+        if [ -f "$SCITEX_WRITER_FIGURE_JPG_DIR/$jpg_file" ]; then
+            if file "$SCITEX_WRITER_FIGURE_JPG_DIR/$jpg_file" | grep -qv "JPEG image data"; then
                 echo_warn "   File $jpg_file exists but may not be a valid JPEG image."
             fi
         else
             if [ "$is_tikz" = false ]; then
-                echo_warn "    Image file not found: $STXW_FIGURE_JPG_DIR/$jpg_file"
+                echo_warn "    Image file not found: $SCITEX_WRITER_FIGURE_JPG_DIR/$jpg_file"
             fi
         fi
 
@@ -817,24 +824,24 @@ EOF
 
 _toggle_figures() {
     local action=$1
-    if [ ! -d "$STXW_FIGURE_COMPILED_DIR" ]; then
-        mkdir -p "$STXW_FIGURE_COMPILED_DIR"
+    if [ ! -d "$SCITEX_WRITER_FIGURE_COMPILED_DIR" ]; then
+        mkdir -p "$SCITEX_WRITER_FIGURE_COMPILED_DIR"
         return 0
     fi
-    if [[ ! -n $(find "$STXW_FIGURE_COMPILED_DIR" -name ".*.tex" 2>/dev/null) ]]; then
+    if [[ ! -n $(find "$SCITEX_WRITER_FIGURE_COMPILED_DIR" -name ".*.tex" 2>/dev/null) ]]; then
         return 0
     fi
     if [[ $action == "disable" ]]; then
-        sed -i 's/^\(\s*\)\\includegraphics/%\1\\includegraphics/g' "$STXW_FIGURE_COMPILED_DIR"/.*.tex
+        sed -i 's/^\(\s*\)\\includegraphics/%\1\\includegraphics/g' "$SCITEX_WRITER_FIGURE_COMPILED_DIR"/.*.tex
     else
-        mkdir -p "$STXW_FIGURE_JPG_DIR"
-        find "$STXW_FIGURE_CAPTION_MEDIA_DIR" -name "*.jpg" | while read contents_jpg; do
+        mkdir -p "$SCITEX_WRITER_FIGURE_JPG_DIR"
+        find "$SCITEX_WRITER_FIGURE_CAPTION_MEDIA_DIR" -name "*.jpg" | while read contents_jpg; do
             base_jpg=$(basename "$contents_jpg")
-            if [ ! -f "$STXW_FIGURE_JPG_DIR/$base_jpg" ]; then
-                cp "$contents_jpg" "$STXW_FIGURE_JPG_DIR/"
+            if [ ! -f "$SCITEX_WRITER_FIGURE_JPG_DIR/$base_jpg" ]; then
+                cp "$contents_jpg" "$SCITEX_WRITER_FIGURE_JPG_DIR/"
             fi
         done
-        for fig_tex in "$STXW_FIGURE_COMPILED_DIR"/.*.tex; do
+        for fig_tex in "$SCITEX_WRITER_FIGURE_COMPILED_DIR"/.*.tex; do
             [ -e "$fig_tex" ] || continue
             local fname=$(basename "$fig_tex")
             local jpg_file=""
@@ -843,7 +850,7 @@ _toggle_figures() {
             else
                 jpg_file="${fname%.tex}.jpg"
             fi
-            if [ -f "$STXW_FIGURE_JPG_DIR/$jpg_file" ]; then
+            if [ -f "$SCITEX_WRITER_FIGURE_JPG_DIR/$jpg_file" ]; then
                 local width_spec=$(grep -o "width=.*\\\\textwidth" "$fig_tex" | head -1 | sed 's/width=//')
                 if [[ -z "$width_spec" ]]; then
                     width_spec="1\\\\textwidth"
@@ -854,7 +861,7 @@ _toggle_figures() {
                     fi
                 fi
                 sed -i 's/^%\(\s*\\includegraphics\)/\1/g' "$fig_tex"
-                sed -i "s|\\\\includegraphics\[width=[^]]*\]{[^}]*}|\\\\includegraphics[width=$width_spec]{$STXW_FIGURE_JPG_DIR/$jpg_file}|g" "$fig_tex"
+                sed -i "s|\\\\includegraphics\[width=[^]]*\]{[^}]*}|\\\\includegraphics[width=$width_spec]{$SCITEX_WRITER_FIGURE_JPG_DIR/$jpg_file}|g" "$fig_tex"
                 sed -i "s|\\\\includegraphics\[width=\]{|\\\\includegraphics[width=$width_spec]{|g" "$fig_tex"
                 sed -i "s|\\\\includegraphics\[width=.*extwidth\]{|\\\\includegraphics[width=$width_spec]{|g" "$fig_tex"
                 sed -i 's/\\begin{figure\*}\[[^\]]*\]/\\begin{figure\*}[ht]/g' "$fig_tex"
@@ -873,14 +880,14 @@ auto_tile_panels() {
 
     # Find all base figure names (only numeric-prefixed patterns)
     # Format: XXa or XXA format (e.g., 01a_demographic_data.jpg)
-    local figure_bases=($(find "$STXW_FIGURE_CAPTION_MEDIA_DIR" -maxdepth 1 -name "[0-9]*[A-Za-z]_*.jpg" | \
+    local figure_bases=($(find "$SCITEX_WRITER_FIGURE_CAPTION_MEDIA_DIR" -maxdepth 1 -name "[0-9]*[A-Za-z]_*.jpg" | \
         sed 's/\([0-9]\+\)[A-Za-z]_/\1_/' | sort -u))
 
     for base in "${figure_bases[@]}"; do
         local base_name=$(basename "$base")
         # Extract the ID part (e.g., "01" from "01_demographic_data")
         local figure_id=$(echo "$base_name" | sed 's/\([0-9]\+\)_.*/\1/')
-        local panels=($(find "$STXW_FIGURE_CAPTION_MEDIA_DIR" -maxdepth 1 -name "${figure_id}[A-Za-z]_*.jpg" | sort))
+        local panels=($(find "$SCITEX_WRITER_FIGURE_CAPTION_MEDIA_DIR" -maxdepth 1 -name "${figure_id}[A-Za-z]_*.jpg" | sort))
 
         if [ ${#panels[@]} -gt 1 ]; then
             echo "INFO:     Found ${#panels[@]} panels for $base_name - creating tiled figure..."
@@ -890,8 +897,8 @@ auto_tile_panels() {
                 local output_name="${base_name%.jpg}.jpg"
                 python3 ./scripts/python/tile_panels.py \
                     --figure-base "$base_name" \
-                    --search-dir "$STXW_FIGURE_CAPTION_MEDIA_DIR" \
-                    --output "$STXW_FIGURE_JPG_DIR/${output_name}" \
+                    --search-dir "$SCITEX_WRITER_FIGURE_CAPTION_MEDIA_DIR" \
+                    --output "$SCITEX_WRITER_FIGURE_JPG_DIR/${output_name}" \
                     --spacing 30
 
                 if [ $? -eq 0 ]; then
@@ -913,17 +920,17 @@ handle_figure_visibility() {
     else
         # Optional: Run Python optimizer on generated JPGs
         optimize_figures_with_python "$no_figs"
-        [[ -n $(find "$STXW_FIGURE_JPG_DIR" -name "*.jpg") ]] && _toggle_figures enable || _toggle_figures disable
+        [[ -n $(find "$SCITEX_WRITER_FIGURE_JPG_DIR" -name "*.jpg") ]] && _toggle_figures enable || _toggle_figures disable
     fi
 }
 
 compile_figure_tex_files() {
-    echo "% Generated by compile_figure_tex_files()" > "$STXW_FIGURE_COMPILED_FILE"
-    echo "% This file includes all figure files in order" >> "$STXW_FIGURE_COMPILED_FILE"
-    echo "" >> "$STXW_FIGURE_COMPILED_FILE"
+    echo "% Generated by compile_figure_tex_files()" > "$SCITEX_WRITER_FIGURE_COMPILED_FILE"
+    echo "% This file includes all figure files in order" >> "$SCITEX_WRITER_FIGURE_COMPILED_FILE"
+    echo "" >> "$SCITEX_WRITER_FIGURE_COMPILED_FILE"
 
     # First, check if there are any real figure files (not just the header)
-    local figure_files=($(find "$STXW_FIGURE_COMPILED_DIR" -maxdepth 1 \( -name "[0-9]*.tex" \) ! -name "00_Figures_Header.tex" | sort))
+    local figure_files=($(find "$SCITEX_WRITER_FIGURE_COMPILED_DIR" -maxdepth 1 \( -name "[0-9]*.tex" \) ! -name "00_Figures_Header.tex" | sort))
     local has_real_figures=false
     if [ ${#figure_files[@]} -gt 0 ]; then
         has_real_figures=true
@@ -933,7 +940,7 @@ compile_figure_tex_files() {
     # Variable to track if we're on the first figure
     local first_figure=true
     # Handle ([0-9]*) naming patterns
-    for fig_tex in $(find "$STXW_FIGURE_COMPILED_DIR" -maxdepth 1 \( -name ".*.tex" -o -name "[0-9]*.tex" \) | sort); do
+    for fig_tex in $(find "$SCITEX_WRITER_FIGURE_COMPILED_DIR" -maxdepth 1 \( -name ".*.tex" -o -name "[0-9]*.tex" \) | sort); do
         [ -e "$fig_tex" ] || continue
         local basename=$(basename "$fig_tex")
 
@@ -943,7 +950,7 @@ compile_figure_tex_files() {
                 continue
             else
                 # Only use the header template if no real figures exist
-                cat "$fig_tex" >> "$STXW_FIGURE_COMPILED_FILE"
+                cat "$fig_tex" >> "$SCITEX_WRITER_FIGURE_COMPILED_FILE"
                 continue
             fi
         fi
@@ -996,7 +1003,7 @@ compile_figure_tex_files() {
             fi
         fi
         # Simply use the original caption file as-is
-        local original_caption_file="$STXW_FIGURE_CAPTION_MEDIA_DIR/${basename}"
+        local original_caption_file="$SCITEX_WRITER_FIGURE_CAPTION_MEDIA_DIR/${basename}"
         if [ -f "$original_caption_file" ]; then
             # Read the entire caption content from the original file
             caption_content=$(cat "$original_caption_file" | grep -v "^%" | grep -v "^$")
@@ -1010,30 +1017,30 @@ compile_figure_tex_files() {
         if [ -z "$caption_content" ]; then
             caption_content="\\caption{\\textbf{Figure $figure_number}\\\\Description for figure $figure_number.}"
         fi
-        echo "% Figure $figure_number" >> "$STXW_FIGURE_COMPILED_FILE"
+        echo "% Figure $figure_number" >> "$SCITEX_WRITER_FIGURE_COMPILED_FILE"
         # Use [htbp] for all figures to allow flexible placement
         if [ "$first_figure" = true ]; then
             first_figure=false
             # First figure right after header
-            echo "\\begin{figure*}[h!]" >> "$STXW_FIGURE_COMPILED_FILE"
+            echo "\\begin{figure*}[h!]" >> "$SCITEX_WRITER_FIGURE_COMPILED_FILE"
         else
             # Allow consecutive figures without forced page breaks
-            echo "\\begin{figure*}[htbp]" >> "$STXW_FIGURE_COMPILED_FILE"
+            echo "\\begin{figure*}[htbp]" >> "$SCITEX_WRITER_FIGURE_COMPILED_FILE"
         fi
-        echo "    \\pdfbookmark[2]{Figure $figure_number}{.$figure_number}" >> "$STXW_FIGURE_COMPILED_FILE"
-        echo "    \\centering" >> "$STXW_FIGURE_COMPILED_FILE"
+        echo "    \\pdfbookmark[2]{Figure $figure_number}{.$figure_number}" >> "$SCITEX_WRITER_FIGURE_COMPILED_FILE"
+        echo "    \\centering" >> "$SCITEX_WRITER_FIGURE_COMPILED_FILE"
         if [ "$figure_type" = "tikz" ]; then
             local tikz_code=$(grep -A100 "\\\\begin{tikzpicture}" "$fig_tex" | sed -n '/\\begin{tikzpicture}/,/\\end{tikzpicture}/p')
             if [ -n "$tikz_code" ]; then
-                echo "$tikz_code" >> "$STXW_FIGURE_COMPILED_FILE"
+                echo "$tikz_code" >> "$SCITEX_WRITER_FIGURE_COMPILED_FILE"
             else
                 if [ -n "$image_path" ]; then
-                    echo "    \\includegraphics[width=$width]{$image_path}" >> "$STXW_FIGURE_COMPILED_FILE"
+                    echo "    \\includegraphics[width=$width]{$image_path}" >> "$SCITEX_WRITER_FIGURE_COMPILED_FILE"
                 fi
             fi
         else
             if [ -n "$image_path" ]; then
-                echo "    \\includegraphics[width=$width]{$image_path}" >> "$STXW_FIGURE_COMPILED_FILE"
+                echo "    \\includegraphics[width=$width]{$image_path}" >> "$SCITEX_WRITER_FIGURE_COMPILED_FILE"
                 # Validate image path
                 if ! validate_image_file "$image_path"; then
                     echo_warn "    Image file not found: $image_path"
@@ -1041,10 +1048,10 @@ compile_figure_tex_files() {
             fi
         fi
         # Use the complete caption content from the original file
-        echo "    $caption_content" >> "$STXW_FIGURE_COMPILED_FILE"
-        echo "    \\label{fig:${figure_id}}" >> "$STXW_FIGURE_COMPILED_FILE"
-        echo "\\end{figure*}" >> "$STXW_FIGURE_COMPILED_FILE"
-        echo "" >> "$STXW_FIGURE_COMPILED_FILE"
+        echo "    $caption_content" >> "$SCITEX_WRITER_FIGURE_COMPILED_FILE"
+        echo "    \\label{fig:${figure_id}}" >> "$SCITEX_WRITER_FIGURE_COMPILED_FILE"
+        echo "\\end{figure*}" >> "$SCITEX_WRITER_FIGURE_COMPILED_FILE"
+        echo "" >> "$SCITEX_WRITER_FIGURE_COMPILED_FILE"
     done
 }
 
@@ -1078,7 +1085,7 @@ main() {
     compile_legends
     handle_figure_visibility "$no_figs"
     compile_figure_tex_files
-    local compiled_count=$(find "$STXW_FIGURE_COMPILED_DIR" -name ".*.tex" | wc -l)
+    local compiled_count=$(find "$SCITEX_WRITER_FIGURE_COMPILED_DIR" -name ".*.tex" | wc -l)
     if [ "$no_figs" = false ] && [ $compiled_count -gt 0 ]; then
         echo_success "    $compiled_count figures compiled"
     fi

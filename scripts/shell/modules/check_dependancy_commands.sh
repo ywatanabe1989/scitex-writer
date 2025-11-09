@@ -22,13 +22,13 @@ echo_error() { echo -e "${RED}$1${NC}"; }
 # ---------------------------------------
 
 # Configurations
-source ./config/load_config.sh $STXW_DOC_TYPE
+source ./config/load_config.sh $SCITEX_WRITER_DOC_TYPE
 
 # Source the shared LaTeX commands module
 source "$(dirname ${BASH_SOURCE[0]})/command_switching.src"
 
 # To override echo_xxx functions
-source ./config/load_config.sh $STXW_DOC_TYPE
+source ./config/load_config.sh $SCITEX_WRITER_DOC_TYPE
 
 # Logging
 touch "$LOG_PATH" >/dev/null 2>&1
@@ -242,7 +242,7 @@ check_all_dependencies() {
         echo -e "$required_output"
         return 1
     else
-        if [ -n "$STXW_TEXLIVE_APPTAINER_SIF" ] && [ -f "$STXW_TEXLIVE_APPTAINER_SIF" ]; then
+        if [ -n "$SCITEX_WRITER_TEXLIVE_APPTAINER_SIF" ] && [ -f "$SCITEX_WRITER_TEXLIVE_APPTAINER_SIF" ]; then
             echo_success "    All required tools available (using container for LaTeX)"
         else
             echo_success "    All required tools available (native installation)"

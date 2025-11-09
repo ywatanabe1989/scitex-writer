@@ -31,14 +31,14 @@ validate_image_file() {
 # Initialize figure processing environment
 init_figures() {
     # Create necessary directories
-    mkdir -p "$STXW_FIGURE_CAPTION_MEDIA_DIR" 2>/dev/null
-    mkdir -p "$STXW_FIGURE_JPG_DIR" 2>/dev/null
-    mkdir -p "$STXW_FIGURE_COMPILED_DIR" 2>/dev/null
+    mkdir -p "$SCITEX_WRITER_FIGURE_CAPTION_MEDIA_DIR" 2>/dev/null
+    mkdir -p "$SCITEX_WRITER_FIGURE_JPG_DIR" 2>/dev/null
+    mkdir -p "$SCITEX_WRITER_FIGURE_COMPILED_DIR" 2>/dev/null
     
     # Clean jpg_for_compilation directory
-    if [ -d "$STXW_FIGURE_JPG_DIR" ]; then
+    if [ -d "$SCITEX_WRITER_FIGURE_JPG_DIR" ]; then
         echo_info "Cleaning jpg_for_compilation directory..."
-        rm -rf "$STXW_FIGURE_JPG_DIR"/*
+        rm -rf "$SCITEX_WRITER_FIGURE_JPG_DIR"/*
     fi
 }
 

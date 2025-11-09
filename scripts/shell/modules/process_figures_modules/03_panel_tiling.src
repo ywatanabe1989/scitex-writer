@@ -12,7 +12,7 @@ tile_panels() {
         return 1
     fi
     
-    local output_file="$STXW_FIGURE_JPG_DIR/${base_name%.jpg}.jpg"
+    local output_file="$SCITEX_WRITER_FIGURE_JPG_DIR/${base_name%.jpg}.jpg"
     
     # Use Python script if available
     if command -v python3 >/dev/null 2>&1; then
@@ -48,7 +48,7 @@ auto_tile_panels() {
     
     # Find all base figure names that have panels
     local base_names=()
-    for panel_file in "$STXW_FIGURE_JPG_DIR"/[0-9]*[a-z]_*.jpg; do
+    for panel_file in "$SCITEX_WRITER_FIGURE_JPG_DIR"/[0-9]*[a-z]_*.jpg; do
         [ -e "$panel_file" ] || continue
         local base_name=$(basename "$panel_file" | sed 's/[a-z]_.*//')
         
@@ -61,12 +61,12 @@ auto_tile_panels() {
     # Process each base figure
     for base_name in "${base_names[@]}"; do
         # Find all panels for this figure
-        local panels=($(ls "$STXW_FIGURE_JPG_DIR"/${base_name}[a-z]_*.jpg 2>/dev/null | sort))
+        local panels=($(ls "$SCITEX_WRITER_FIGURE_JPG_DIR"/${base_name}[a-z]_*.jpg 2>/dev/null | sort))
         
         if [ ${#panels[@]} -gt 1 ]; then
             echo_info "Found ${#panels[@]} panels for ${base_name}.jpg - creating tiled figure..."
             
-            local output_file="$STXW_FIGURE_JPG_DIR/${base_name}.jpg"
+            local output_file="$SCITEX_WRITER_FIGURE_JPG_DIR/${base_name}.jpg"
             
             # Check if Python tiling script exists
             local python_script="$THIS_DIR/../python/tile_panels.py"
@@ -88,7 +88,7 @@ auto_tile_panels() {
             fi
         elif [ ${#panels[@]} -eq 1 ]; then
             # Single panel - just copy as main figure
-            local output_file="$STXW_FIGURE_JPG_DIR/${base_name}.jpg"
+            local output_file="$SCITEX_WRITER_FIGURE_JPG_DIR/${base_name}.jpg"
             if [ ! -f "$output_file" ]; then
                 cp "${panels[0]}" "$output_file"
                 echo_success "Copied single panel as main figure: ${base_name}.jpg"
@@ -143,7 +143,7 @@ check_panels_for_tiling() {
     echo_info "Checking for figures that need panel tiling..."
     
     # Check each main figure for missing composed version
-    for caption_file in "$STXW_FIGURE_CAPTION_MEDIA_DIR"/[0-9]*_*.tex; do
+    for caption_file in "$SCITEX_WRITER_FIGURE_CAPTION_MEDIA_DIR"/[0-9]*_*.tex; do
         [ -e "$caption_file" ] || continue
         local base_name=$(basename "$caption_file" .tex)
         
@@ -153,10 +153,10 @@ check_panels_for_tiling() {
         fi
         
         # Check if panels exist for this figure
-        local panels=($(ls "$STXW_FIGURE_CAPTION_MEDIA_DIR"/${base_name%_*}[a-z]_*.jpg 2>/dev/null))
+        local panels=($(ls "$SCITEX_WRITER_FIGURE_CAPTION_MEDIA_DIR"/${base_name%_*}[a-z]_*.jpg 2>/dev/null))
         
         if [ ${#panels[@]} -gt 0 ]; then
-            local main_jpg="$STXW_FIGURE_JPG_DIR/${base_name}.jpg"
+            local main_jpg="$SCITEX_WRITER_FIGURE_JPG_DIR/${base_name}.jpg"
             
             if [ ! -f "$main_jpg" ]; then
                 echo_warning "Main figure missing for panels: ${base_name}.jpg"

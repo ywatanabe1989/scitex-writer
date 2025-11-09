@@ -22,7 +22,7 @@ echo_error() { echo -e "${RED}$1${NC}"; }
 # ---------------------------------------
 
 # Configurations
-source ./config/load_config.sh $STXW_DOC_TYPE
+source ./config/load_config.sh $SCITEX_WRITER_DOC_TYPE
 
 # Logging
 touch "$LOG_PATH" >/dev/null 2>&1
@@ -30,8 +30,8 @@ echo
 echo_info "$0..."
 
 # Main
-mkdir -p "$(dirname $STXW_TREE_TXT)"
-tree -I "compiled_*|diff_*|*.pyc|*.cpython-38.pyc|*.so|*.pdf|*.tif|*.csv|*.ipynb|env|__pycache__|*.dist-info|*.whl|*.exe|*.tmpl|*.sh|cache|*.txt|*.md|manually_edited|old|*.xml|*.1" config/ > $STXW_TREE_TXT
-echo_success "    $STXW_TREE_TXT created"
+mkdir -p "$(dirname $SCITEX_WRITER_TREE_TXT)"
+tree -I "compiled_*|diff_*|*.pyc|*.cpython-38.pyc|*.so|*.pdf|*.tif|*.csv|*.ipynb|env|__pycache__|*.dist-info|*.whl|*.exe|*.tmpl|*.sh|cache|*.txt|*.md|manually_edited|old|*.xml|*.1" config/ > $SCITEX_WRITER_TREE_TXT
+echo_success "    $SCITEX_WRITER_TREE_TXT created"
 
 # EOF

@@ -22,7 +22,7 @@ echo_error() { echo -e "${RED}$1${NC}"; }
 # ---------------------------------------
 
 # Configurations
-source ./config/load_config.sh $STXW_DOC_TYPE
+source ./config/load_config.sh $SCITEX_WRITER_DOC_TYPE
 
 # Logging
 touch "$LOG_PATH" >/dev/null 2>&1
@@ -30,8 +30,8 @@ echo
 echo_info "Running $0..."
 
 # PowerPoint to TIF
-total=$(ls "$STXW_FIGURE_CAPTION_MEDIA_DIR"/.*.pptx | wc -l)
-ls "$STXW_FIGURE_CAPTION_MEDIA_DIR"/.*.pptx | \
+total=$(ls "$SCITEX_WRITER_FIGURE_CAPTION_MEDIA_DIR"/.*.pptx | wc -l)
+ls "$SCITEX_WRITER_FIGURE_CAPTION_MEDIA_DIR"/.*.pptx | \
 parallel --no-notice --silent \
     './scripts/shell/modules/pptx2tif_single.sh -i "$(realpath {})" -o "$(realpath {.}.tif)"; \
     echo "Processed: {#}/$total"'
