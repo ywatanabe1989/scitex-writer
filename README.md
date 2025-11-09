@@ -83,56 +83,110 @@ make update             # Via Makefile
 
 ## Detailed Installation
 
-### Requirements
+SciTeX Writer supports **three deployment options** for LaTeX dependencies. Choose the one that fits your environment:
 
-This project uses **Singularity/Apptainer containers** for LaTeX compilation, ensuring consistent results across different systems (local machines, HPC clusters, CI/CD platforms).
+---
 
-**Container system options:**
-- **Apptainer** (recommended, actively maintained) - Install via package manager
-- **Singularity** (legacy) - Still supported as fallback
+### **Option 1: Native Installation** (Fastest - If You Have LaTeX)
 
-#### System-specific installation:
+**Best for:** Users with existing LaTeX installation, fastest compilation
 
 **Ubuntu/Debian:**
 ```bash
-sudo apt-get update
-sudo apt-get install -y apptainer
+sudo apt-get install -y \
+    texlive-latex-base \
+    texlive-latex-extra \
+    texlive-bibtex-extra \
+    texlive-extra-utils \
+    latexdiff \
+    parallel
 ```
 
 **Fedora/RHEL:**
 ```bash
-sudo dnf install -y apptainer
+sudo dnf install -y \
+    texlive-scheme-medium \
+    latexdiff \
+    parallel
 ```
 
 **macOS (via Homebrew):**
 ```bash
-brew install apptainer
+brew install --cask mactex
+brew install parallel
+```
+
+✅ **Pros:** Fast, lightweight, no containers needed
+⚠️ **Cons:** Version differences across systems
+
+---
+
+### **Option 2: Containers** (Reproducible - Zero Configuration)
+
+**Best for:** Reproducible builds, HPC clusters, CI/CD
+
+Containers are **automatically downloaded** on first compilation. No manual setup needed!
+
+#### **2A. Apptainer/Singularity** (Recommended for HPC)
+
+**Ubuntu/Debian:**
+```bash
+sudo apt-get install -y apptainer
 ```
 
 **HPC Clusters:**
-Most clusters have Singularity/Apptainer available via module system:
 ```bash
 module load singularity  # or: module load apptainer
 ```
 
+**Optional - Pre-download:**
+```bash
+./scripts/installation/download_containers.sh
+# Downloads: texlive (~2GB), mermaid (~750MB), imagemagick (~200MB)
+```
+
+#### **2B. Docker**
+
+```bash
+# Install Docker
+curl -fsSL https://get.docker.com | sh
+
+# Done! Containers auto-download on first use
+./compile.sh
+```
+
+✅ **Pros:** Reproducible, consistent across systems, auto-downloads
+⚠️ **Cons:** Initial download size (~3.2GB), slower than native
+
+---
+
+### **Option 3: HPC Module System** (HPC Only)
+
+**Best for:** HPC clusters with pre-installed modules
+
+```bash
+module load texlive parallel
+./compile.sh
+```
+
+SciTeX Writer automatically detects and uses loaded modules.
+
+✅ **Pros:** Already available on HPC, no installation
+⚠️ **Cons:** Only available on HPC systems
+
+---
+
 ### Verify Installation
 
-Check requirements:
+Check which option you have:
 ```bash
 ./scripts/installation/check_requirements.sh
 ```
 
-### Optional: Pre-download Containers
-
-Containers are automatically downloaded on first run (~3.2GB total). Optionally download upfront:
-```bash
-./scripts/installation/download_containers.sh
-```
-
-This downloads:
-- **texlive/texlive:latest** - LaTeX compilation (~2GB)
-- **minlag/mermaid-cli:latest** - Diagram rendering
-- **dpokidov/imagemagick:latest** - Image processing
+Output shows:
+- ✓ Native tools found (if installed)
+- ✓ Container runtime available
+- ✓ Module system detected
 
 ## Configuration
 
