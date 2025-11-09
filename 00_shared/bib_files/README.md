@@ -12,7 +12,7 @@ This directory contains your bibliography files for the manuscript.
 
 Edit `bibliography.bib` directly.
 
-## Multiple Files (Optional - Organized by Topic)
+## Multiple Files
 
 **Organize references by topic:**
 ```
@@ -27,16 +27,21 @@ Edit `bibliography.bib` directly.
 **To merge:**
 ```bash
 python scripts/python/merge_bibliographies.py
-# Creates bibliography.bib with smart deduplication
 ```
 
-**Smart deduplication:**
+**Deduplication:**
 - By DOI (most reliable)
 - By title + year
 - Merges metadata from duplicates
 
 **Auto-merge during compilation:**
-The merge happens automatically if multiple .bib files exist.
+The merge happens automatically during all compilation steps (manuscript, supplementary, revision).
+
+**Hash-based caching:**
+- Tracks file changes using MD5 hashes
+- Skips merge if no files changed
+- Cache stored in `.bibliography_cache.json`
+- Use `--force` flag to rebuild: `python scripts/python/merge_bibliographies.py --force`
 
 ## Usage
 
@@ -48,5 +53,21 @@ The merge happens automatically if multiple .bib files exist.
 **Single file workflow:**
 - Just edit `bibliography.bib` directly
 - No merging needed
+
+## Demo Files
+
+Three demo .bib files are included:
+- `methods_refs.bib` - Methods and techniques (4 entries)
+- `field_background.bib` - Field overview papers (5 entries)
+- `my_papers.bib` - Your own publications (4 entries, including duplicate)
+
+**To use demo files:**
+1. Run: `./scripts/shell/compile_manuscript.sh`
+2. Result: Merges 13 entries → 12 unique (1 duplicate removed)
+
+**To use your own references:**
+1. Replace demo files with your own .bib files
+2. Or delete demo files and use single `bibliography.bib`
+3. Organize by topic as needed
 
 <!-- EOF -->

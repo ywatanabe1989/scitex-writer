@@ -25,55 +25,100 @@
 ## Quick Start
 
 ```bash
-pip install scitex-writer
-scitex-writer new my-paper
-scitex-writer compile
+# Clone or use template
+git clone https://github.com/ywatanabe1989/scitex-writer.git
+cd scitex-writer
+
+# Try compiling (checks dependencies automatically)
+./scripts/shell/compile_manuscript.sh
+
+# If dependencies missing, install suggested packages and retry
 ```
 
 ## Demo
 
-<p align="center">
+<table>
+<tr>
+<td width="33%" align="center">
   <a href="01_manuscript/manuscript.pdf">
-    <img src="docs/demo-manuscript-preview.png" width="600" alt="Manuscript Preview"/>
+    <img src="docs/demo-manuscript-preview.png" width="100%" alt="Manuscript"/>
   </a>
   <br/>
-  <sub><a href="01_manuscript/manuscript.pdf">📄 Full PDF</a></sub>
-</p>
+  <sub><a href="01_manuscript/manuscript.pdf">📄 Manuscript</a></sub>
+</td>
+<td width="33%" align="center">
+  <a href="02_supplementary/supplementary.pdf">
+    <img src="docs/demo-supplementary-preview.png" width="100%" alt="Supplementary"/>
+  </a>
+  <br/>
+  <sub><a href="02_supplementary/supplementary.pdf">📄 Supplementary</a></sub>
+</td>
+<td width="33%" align="center">
+  <a href="03_revision/revision.pdf">
+    <img src="docs/demo-revision-preview.png" width="100%" alt="Revision"/>
+  </a>
+  <br/>
+  <sub><a href="03_revision/revision.pdf">📄 Revision</a></sub>
+</td>
+</tr>
+</table>
 
 ## Installation
 
-**Option 1: Native LaTeX** (fastest)
+Dependencies are checked automatically during compilation. If missing, install as suggested:
+
+**Native LaTeX (Debian/Ubuntu):**
 ```bash
 sudo apt-get install texlive-latex-extra latexdiff parallel
 ```
 
-**Option 2: Singularity** (HPC, reproducible)
+**HPC Environments:**
 ```bash
-sudo apt-get install apptainer  # or: module load singularity
+module load texlive  # or use Singularity container
 ```
 
-**Option 3: Docker** (cross-platform)
+**Container (Docker/Singularity):**
 ```bash
-curl -fsSL https://get.docker.com | sh
+# No manual installation needed
+# Container includes all dependencies
 ```
+
+See [Installation Guide](docs/INSTALLATION.md) for details.
+
+## Features
+
+- Multi-file bibliography with deduplication (DOI or title+year matching)
+- Hash-based caching for incremental compilation
+- Automatic diff generation with latexdiff
+- Container support (Docker, Singularity, Native)
+- Parallel processing for figures, tables, and word count
+- Citation style configuration via YAML
 
 ## Usage
 
 ```bash
-scitex-writer compile manuscript
-scitex-writer compile supplementary
-scitex-writer compile revision
+./scripts/shell/compile_manuscript.sh
+./scripts/shell/compile_supplementary.sh
+./scripts/shell/compile_revision.sh
 ```
 
-```python
-from scitex.writer import Writer
-Writer("/path/to/project").compile()
+**Bibliography Management:**
+```bash
+# Organize references by topic
+cd 00_shared/bib_files/
+vim methods_refs.bib
+vim field_background.bib
+vim my_papers.bib
+
+# Auto-merge during compilation
+./scripts/shell/compile_manuscript.sh
 ```
 
 ## Documentation
 
 - [Installation Guide](docs/INSTALLATION.md)
 - [Quick Start](docs/01_GUIDE_QUICK_START.md)
+- [Bibliography Management](docs/01_GUIDE_BIBLIOGRAPHY.md)
 - [Architecture](docs/02_ARCHITECTURE_IMPLEMENTATION.md)
 - [Full Documentation](docs/)
 

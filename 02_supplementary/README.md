@@ -2,18 +2,21 @@
 
 This directory contains supplementary materials and supporting information.
 
-## Quick Start
+## Usage
 
-From the paper root directory:
+From project root:
 ```bash
-# Basic compilation with figures (supplementary typically includes figures)
-./compile_supplementary
+# Basic compilation
+./scripts/shell/compile_supplementary.sh
+
+# Skip figures
+./scripts/shell/compile_supplementary.sh --no_figs
 
 # Quiet mode
-./compile_supplementary -q
+./scripts/shell/compile_supplementary.sh --quiet
 
-# Without figures (if needed)
-./compile_supplementary --no-figs
+# Draft mode
+./scripts/shell/compile_supplementary.sh --draft
 ```
 
 ## Directory Structure
@@ -59,15 +62,20 @@ Example: `Supplementary_.01_additional_analysis.png`
 
 ## Compilation Options
 
-Same as manuscript:
-- `-f, --figs` - Include figures (default for supplementary)
+- `-nf, --no_figs` - Skip figure processing
+- `-nt, --no_tables` - Skip table processing
+- `-nd, --no_diff` - Skip diff generation
+- `-d, --draft` - Single-pass compilation
+- `-dm, --dark_mode` - Black background, white text
+- `-p2t, --ppt2tif` - Convert PowerPoint to TIF (WSL)
+- `-c, --crop_tif` - Auto-crop TIF images
 - `-q, --quiet` - Suppress detailed output
+- `--force` - Force full recompilation
 - `-h, --help` - Show help
 
 ## Notes
 
-- Supplementary materials share bibliography and styles with main manuscript
-- Figures are included by default (unlike manuscript)
-- Word counting and diff generation are enabled
+- Shares bibliography and LaTeX styles with main manuscript
+- Word counting and diff generation enabled
 
 <!-- EOF -->

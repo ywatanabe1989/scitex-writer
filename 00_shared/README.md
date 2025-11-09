@@ -29,12 +29,12 @@ Each document type maintains its own:
 - Figures and tables (though some may be symlinked)
 - Word count requirements
 
-## Benefits
+## Design
 
-1. **Consistency**: Metadata identical across documents
-2. **Efficiency**: Update once, applies everywhere
-3. **Maintainability**: Clear separation of 00_shared vs specific
-4. **Version control**: Single source reduces merge conflicts
+- Metadata identical across documents
+- Update once, applies everywhere
+- Clear separation of shared vs specific content
+- Single source reduces merge conflicts
 
 ## Usage
 

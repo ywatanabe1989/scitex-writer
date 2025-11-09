@@ -7,6 +7,7 @@ This directory contains comprehensive documentation for the SciTeX Writer templa
 ### Guides (01_GUIDE_*)
 Procedural documentation for common tasks and workflows:
 - **01_GUIDE_QUICK_START.md** - Quick reference for common tasks and basic workflows
+- **01_GUIDE_BIBLIOGRAPHY.md** - Complete guide to bibliography management with multi-file support and caching
 - **01_GUIDE_CONTENT_CREATION.md** - Comprehensive guide for creating and managing figures and tables
 - **01_GUIDE_AGENTS.md** - Guide for using AI agents and LLMs with the system
 
@@ -54,14 +55,15 @@ Step-by-step instructions for Claude Code tasks:
 ## Navigation Tips
 
 1. **For quick answers**: Start with `01_GUIDE_QUICK_START.md`
-2. **For figure/table creation**: See `01_GUIDE_CONTENT_CREATION.md`
-3. **For AI agent and LLM setup**: Consult `01_GUIDE_AGENTS.md`
-4. **For terminology guidance**: Check `03_RESEARCH_TERMINOLOGY.md`
-5. **For technical architecture**: Review `02_ARCHITECTURE.md`
-6. **For external resources**: See `04_EXTERNAL_RESOURCES.md`
-7. **For Python development**: Check `to_claude/guidelines/python/` directory
-8. **For project management**: Look in `to_claude/guidelines/project/`
-9. **For scientific writing standards**: See `to_claude/guidelines/science/` directory
+2. **For bibliography management**: See `01_GUIDE_BIBLIOGRAPHY.md`
+3. **For figure/table creation**: See `01_GUIDE_CONTENT_CREATION.md`
+4. **For AI agent and LLM setup**: Consult `01_GUIDE_AGENTS.md`
+5. **For terminology guidance**: Check `03_RESEARCH_TERMINOLOGY.md`
+6. **For technical architecture**: Review `02_ARCHITECTURE.md`
+7. **For external resources**: See `04_EXTERNAL_RESOURCES.md`
+8. **For Python development**: Check `to_claude/guidelines/python/` directory
+9. **For project management**: Look in `to_claude/guidelines/project/`
+10. **For scientific writing standards**: See `to_claude/guidelines/science/` directory
 
 ## File Naming Convention
 
@@ -69,6 +71,7 @@ Root-level documentation files use explicit descriptive prefixes for semantic me
 
 - **01_GUIDE_*** = Guide (procedural, how-to documentation)
   - `01_GUIDE_QUICK_START.md` - Quick reference for immediate needs
+  - `01_GUIDE_BIBLIOGRAPHY.md` - Bibliography management and organization
   - `01_GUIDE_CONTENT_CREATION.md` - Detailed creation processes
   - `01_GUIDE_AGENTS.md` - AI and LLM integration
 

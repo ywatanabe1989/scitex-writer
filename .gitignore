@@ -652,3 +652,4 @@ flycheck_*.el
 !**/.gitkeep
 .claude
 .dev
+.bibliography_cache.json

@@ -1,8 +1,8 @@
 # Figure Management System
 
-This directory implements an automated figure processing pipeline for scientific manuscripts, handling multi-panel figures, format conversions, and LaTeX integration seamlessly.
+Automated figure processing pipeline for multi-panel figures, format conversions, and LaTeX integration.
 
-## Quick Start
+## Usage
 
 ### Adding a Figure
 
@@ -124,23 +124,19 @@ Multi-Panel Figure Title
 
 ```bash
 # Default: includes figures
-./compile -m
+./scripts/shell/compile_manuscript.sh
 
-# Quick compilation without figures
-./compile -m -nf
-./compile -m --no_figs
+# Skip figures
+./scripts/shell/compile_manuscript.sh --no_figs
 
-# With PowerPoint conversion (WSL required)
-./compile -m -p2t
-./compile -m --ppt2tif
+# With PowerPoint conversion (WSL)
+./scripts/shell/compile_manuscript.sh --ppt2tif
 
 # With automatic cropping
-./compile -m -c
-./compile -m --crop_tif
+./scripts/shell/compile_manuscript.sh --crop_tif
 
-# Quiet mode (reduced output)
-./compile -m -q
-./compile -m --quiet
+# Quiet mode
+./scripts/shell/compile_manuscript.sh --quiet
 ```
 
 ## Advanced Features
@@ -204,7 +200,7 @@ Data showing primary outcomes from the experiment.
 }' > caption_and_media/01_results.tex
 
 # 3. Compile
-./compile -m
+./scripts/shell/compile_manuscript.sh
 ```
 
 ### Multi-Panel Figure
@@ -229,7 +225,7 @@ Comparative Analysis
 EOF
 
 # 3. Compile (auto-tiles panels)
-./compile -m
+./scripts/shell/compile_manuscript.sh
 ```
 
 ## Technical Details
@@ -258,6 +254,4 @@ Paths configured in `config/load_config.sh`:
 - `SCITEX_WRITER_FIGURE_COMPILED_DIR`: LaTeX directory
 - `SCITEX_WRITER_FIGURE_COMPILED_FILE`: Final output (FINAL.tex)
 
----
-
-*System automatically handles all conversions, tiling, and compilation. Simply add figures and run compile!*
+<!-- EOF -->
