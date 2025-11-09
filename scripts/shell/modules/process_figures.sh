@@ -70,6 +70,16 @@ touch "$LOG_PATH" >/dev/null 2>&1
 echo
 echo_info "Running $0 ..."
 
+# Early exit if no figure source files exist (saves ~50s)
+FIGURE_SRC_COUNT=$(find "$SCITEX_WRITER_FIGURE_CAPTION_MEDIA_DIR" -maxdepth 1 -type f \( -name '*.pptx' -o -name '*.tif' -o -name '*.tiff' -o -name '*.png' -o -name '*.jpg' -o -name '*.jpeg' -o -name '*.mmd' \) 2>/dev/null | wc -l)
+
+if [ "$FIGURE_SRC_COUNT" -eq 0 ]; then
+    echo_info "    No figure source files found, creating placeholders only..."
+    mkdir -p "$SCITEX_WRITER_FIGURE_JPG_DIR"
+    # Will create placeholders for figures referenced in captions
+    # Skip expensive conversion pipeline
+fi
+
 # In process_figures.sh, add the validate_image_file function:
 validate_image_file() {
     local image_path="$1"

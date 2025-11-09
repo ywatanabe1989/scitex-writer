@@ -12,6 +12,10 @@ THIS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 source ./config/load_config.sh $SCITEX_WRITER_DOC_TYPE
 
+# Cache frequently-used checks to avoid redundant calls
+_CACHED_CONTAINER_RUNTIME=""
+_CACHE_CHECKED=false
+
 # Setup container path (Singularity/Apptainer)
 setup_latex_container() {
     # Check if container path is already set
@@ -50,15 +54,25 @@ setup_latex_container() {
     return 0
 }
 
-# Get container runtime command if available
+# Get container runtime command if available (cached)
 get_container_runtime() {
-    if command -v apptainer &> /dev/null; then
-        echo "apptainer"
-    elif command -v singularity &> /dev/null; then
-        echo "singularity"
-    else
-        echo ""
+    # Use cache if available
+    if [ "$_CACHE_CHECKED" = true ]; then
+        echo "$_CACHED_CONTAINER_RUNTIME"
+        return
     fi
+
+    # Check once and cache
+    if command -v apptainer &> /dev/null; then
+        _CACHED_CONTAINER_RUNTIME="apptainer"
+    elif command -v singularity &> /dev/null; then
+        _CACHED_CONTAINER_RUNTIME="singularity"
+    else
+        _CACHED_CONTAINER_RUNTIME=""
+    fi
+
+    _CACHE_CHECKED=true
+    echo "$_CACHED_CONTAINER_RUNTIME"
 }
 
 # Load texlive module if available
