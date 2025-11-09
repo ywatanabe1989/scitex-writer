@@ -47,24 +47,35 @@ jobs:
         python -m pip install --upgrade pip
         if [ -f requirements/python.txt ]; then pip install -r requirements/python.txt; fi
         pip install pytest pytest-cov
+        pip install -e .
 
-    - name: Check if tests directory exists
-      id: check_tests
+    - name: Run Python API tests
       run: |
-        if [ -d "scripts/python/tests" ]; then
-          echo "has_tests=true" >> $GITHUB_OUTPUT
+        echo "Running Python API tests..."
+        pytest tests/scitex/writer/test_compile.py -v --cov=src/scitex/writer --cov-report=xml
+
+        # Verify all tests passed
+        if [ $? -eq 0 ]; then
+          echo "✓ All Python tests passed"
         else
-          echo "has_tests=false" >> $GITHUB_OUTPUT
+          echo "✗ Python tests failed"
+          exit 1
         fi
 
-    - name: Run unit tests
-      if: steps.check_tests.outputs.has_tests == 'true'
+    - name: Run shell script tests
       run: |
-        pytest scripts/python/tests -v --cov=scripts/python --cov-report=xml
-      continue-on-error: true
+        echo "Running shell script tests..."
+        ./tests/scripts/run_all_tests.sh
+
+        # Verify all tests passed
+        if [ $? -eq 0 ]; then
+          echo "✓ All shell script tests passed"
+        else
+          echo "✗ Shell script tests failed"
+          exit 1
+        fi
 
     - name: Upload coverage reports
-      if: steps.check_tests.outputs.has_tests == 'true'
       uses: codecov/codecov-action@v4
       with:
         files: ./coverage.xml
