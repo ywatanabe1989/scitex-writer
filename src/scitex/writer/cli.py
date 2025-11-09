@@ -44,7 +44,27 @@ def main():
     compile_parser.add_argument(
         "--no-figs",
         action="store_true",
-        help="Skip figure processing",
+        help="Skip figure processing (~4s faster)",
+    )
+    compile_parser.add_argument(
+        "--no-tables",
+        action="store_true",
+        help="Skip table processing (~4s faster)",
+    )
+    compile_parser.add_argument(
+        "--no-diff",
+        action="store_true",
+        help="Skip diff generation (~17s faster)",
+    )
+    compile_parser.add_argument(
+        "--draft",
+        action="store_true",
+        help="Single-pass compilation (~5s faster)",
+    )
+    compile_parser.add_argument(
+        "--dark-mode",
+        action="store_true",
+        help="Dark mode: black background, white text (figures unchanged)",
     )
     compile_parser.add_argument(
         "--do-p2t",
@@ -60,6 +80,11 @@ def main():
         "--verbose",
         action="store_true",
         help="Show verbose output",
+    )
+    compile_parser.add_argument(
+        "--force",
+        action="store_true",
+        help="Force full recompilation",
     )
     compile_parser.add_argument(
         "--project-dir",
@@ -141,9 +166,14 @@ def _compile_cmd(args):
     writer = Writer(args.project_dir, doc_type=args.doc_type)
     result = writer.compile(
         no_figs=args.no_figs,
+        no_tables=args.no_tables,
+        no_diff=args.no_diff,
+        draft=args.draft,
+        dark_mode=args.dark_mode,
         do_p2t=args.do_p2t,
         crop_tif=args.crop_tif,
         verbose=args.verbose,
+        force=args.force,
     )
 
     if result.success:

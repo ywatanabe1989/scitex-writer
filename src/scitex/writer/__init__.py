@@ -50,7 +50,7 @@ except Exception:
             __version__ = "unknown"
 
 # Import main interfaces
-from .writer import Writer
+from .writer import Writer, CompilationResult
 from .template import clone_writer_project
 from .compile import (
     compile_manuscript,
@@ -61,6 +61,7 @@ from .compile import (
 __all__ = [
     "__version__",
     "Writer",
+    "CompilationResult",
     "clone_writer_project",
     "compile_manuscript",
     "compile_supplementary",
