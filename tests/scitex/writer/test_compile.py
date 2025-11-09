@@ -43,13 +43,13 @@ class TestCompilationResult:
 
     def test_compilation_result_import(self):
         """Test that CompilationResult can be imported."""
-        from scitex.writer.writer import CompilationResult
+        from scitex.writer import CompilationResult
 
         assert CompilationResult is not None
 
     def test_compilation_result_success(self):
         """Test CompilationResult for successful compilation."""
-        from scitex.writer.writer import CompilationResult
+        from scitex.writer import CompilationResult
 
         result = CompilationResult(
             success=True,
@@ -64,7 +64,7 @@ class TestCompilationResult:
 
     def test_compilation_result_failure(self):
         """Test CompilationResult for failed compilation."""
-        from scitex.writer.writer import CompilationResult
+        from scitex.writer import CompilationResult
 
         result = CompilationResult(
             success=False,
@@ -77,7 +77,7 @@ class TestCompilationResult:
 
     def test_compilation_result_repr(self):
         """Test CompilationResult string representation."""
-        from scitex.writer.writer import CompilationResult
+        from scitex.writer import CompilationResult
 
         result = CompilationResult(
             success=True,
@@ -133,6 +133,69 @@ exit 0
         )
 
         assert isinstance(result, object)  # Should return CompilationResult
+        assert hasattr(result, 'success')
+
+    def test_compile_manuscript_with_speed_options(self, mock_project):
+        """Test compile_manuscript with all speed options."""
+        from scitex.writer import compile_manuscript
+
+        result = compile_manuscript(
+            project_dir=mock_project,
+            no_figs=True,
+            no_tables=True,
+            no_diff=True,
+            draft=True,
+            verbose=False,
+        )
+
+        assert isinstance(result, object)
+        assert hasattr(result, 'success')
+
+    def test_compile_manuscript_with_dark_mode(self, mock_project):
+        """Test compile_manuscript with dark mode."""
+        from scitex.writer import compile_manuscript
+
+        result = compile_manuscript(
+            project_dir=mock_project,
+            dark_mode=True,
+            verbose=False,
+        )
+
+        assert isinstance(result, object)
+        assert hasattr(result, 'success')
+
+    def test_compile_supplementary_with_all_options(self, mock_project):
+        """Test compile_supplementary with all options."""
+        from scitex.writer import compile_supplementary
+
+        result = compile_supplementary(
+            project_dir=mock_project,
+            no_figs=True,
+            no_tables=True,
+            no_diff=True,
+            draft=True,
+            dark_mode=True,
+            force=True,
+            verbose=False,
+        )
+
+        assert isinstance(result, object)
+        assert hasattr(result, 'success')
+
+    def test_compile_revision_with_speed_options(self, mock_project):
+        """Test compile_revision with speed options."""
+        from scitex.writer import compile_revision
+
+        result = compile_revision(
+            project_dir=mock_project,
+            no_figs=True,
+            no_tables=True,
+            draft=True,
+            dark_mode=True,
+            verbose=False,
+        )
+
+        assert isinstance(result, object)
         assert hasattr(result, 'success')
 
     def test_compile_with_missing_script_returns_error(self):

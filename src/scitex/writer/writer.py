@@ -45,18 +45,28 @@ class Writer:
     def compile(
         self,
         no_figs: bool = False,
+        no_tables: bool = False,
+        no_diff: bool = False,
+        draft: bool = False,
+        dark_mode: bool = False,
         do_p2t: bool = False,
         crop_tif: bool = False,
         verbose: bool = False,
+        force: bool = False,
     ) -> "CompilationResult":
         """
         Compile the manuscript.
 
         Args:
-            no_figs: Skip figure processing
+            no_figs: Skip figure processing (~4s faster)
+            no_tables: Skip table processing (~4s faster)
+            no_diff: Skip diff generation (~17s faster)
+            draft: Single-pass compilation (~5s faster)
+            dark_mode: Dark mode (black background, white text, figures unchanged)
             do_p2t: Convert PPTX to TIF
             crop_tif: Crop TIF files
             verbose: Show verbose output
+            force: Force full recompilation
 
         Returns:
             CompilationResult with compilation status and paths
@@ -76,9 +86,14 @@ class Writer:
         return compile_func(
             project_dir=self.project_dir,
             no_figs=no_figs,
+            no_tables=no_tables,
+            no_diff=no_diff,
+            draft=draft,
+            dark_mode=dark_mode,
             do_p2t=do_p2t,
             crop_tif=crop_tif,
             verbose=verbose,
+            force=force,
         )
 
     def watch(self, callback: Optional[callable] = None):
