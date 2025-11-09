@@ -20,6 +20,24 @@
   <a href="https://github.com/ywatanabe1989/scitex-writer/issues">Issues</a>
 </p>
 
+<p align="center">
+  <a href="https://github.com/ywatanabe1989/scitex-writer/actions/workflows/comprehensive-tests.yml">
+    <img src="https://github.com/ywatanabe1989/scitex-writer/actions/workflows/comprehensive-tests.yml/badge.svg" alt="Comprehensive Tests"/>
+  </a>
+  <a href="https://github.com/ywatanabe1989/scitex-writer/actions/workflows/python-tests.yml">
+    <img src="https://github.com/ywatanabe1989/scitex-writer/actions/workflows/python-tests.yml/badge.svg" alt="Python Tests"/>
+  </a>
+  <a href="https://github.com/ywatanabe1989/scitex-writer/actions/workflows/compile-test.yml">
+    <img src="https://github.com/ywatanabe1989/scitex-writer/actions/workflows/compile-test.yml/badge.svg" alt="Compilation Test"/>
+  </a>
+  <a href="https://codecov.io/gh/ywatanabe1989/scitex-writer">
+    <img src="https://codecov.io/gh/ywatanabe1989/scitex-writer/branch/main/graph/badge.svg" alt="Code Coverage"/>
+  </a>
+  <a href="https://github.com/ywatanabe1989/scitex-writer/actions/workflows/lint.yml">
+    <img src="https://github.com/ywatanabe1989/scitex-writer/actions/workflows/lint.yml/badge.svg" alt="Lint"/>
+  </a>
+</p>
+
 ---
 
 ## Quick Start
@@ -121,6 +139,51 @@ vim my_papers.bib
 - [Bibliography Management](docs/01_GUIDE_BIBLIOGRAPHY.md)
 - [Architecture](docs/02_ARCHITECTURE_IMPLEMENTATION.md)
 - [Full Documentation](docs/)
+
+## Testing
+
+### Running Tests
+
+```bash
+# Run all tests (Shell + Python)
+./tests/run_all_tests.sh
+
+# Run shell script tests only
+./tests/scripts/run_all_tests.sh
+
+# Run Python tests only
+pytest tests/scitex/writer/ -v
+
+# Run specific test suites
+./tests/scripts/test_compile_options.sh  # Compilation options
+./tests/scripts/test_dark_mode.sh        # Dark mode features
+./tests/scripts/test_performance.sh      # Performance optimizations
+pytest tests/scitex/writer/test_compile.py -v  # Python compilation API
+```
+
+### Test Coverage
+
+- **70+ tests** covering all features
+- **Shell Script Tests**: 30 tests
+  - Compilation options (10 tests)
+  - Dark mode functionality (10 tests)
+  - Performance optimizations (10 tests)
+- **Python Tests**: 40 tests
+  - API functions (13 tests)
+  - Integration tests (6 tests)
+  - Template creation (6 tests)
+  - Version management (6 tests)
+  - Writer class (9 tests)
+
+### Continuous Integration
+
+All tests run automatically on GitHub Actions:
+- ✅ Full compilation with PDF validation
+- ✅ Fast mode (`--no_figs --no_diff`)
+- ✅ Ultra-fast mode (`--draft --no_tables`)
+- ✅ Dark mode (`--dark-mode`)
+- ✅ All document types (manuscript, supplementary, revision)
+- ✅ Option name flexibility (hyphens/underscores)
 
 ## License
 
