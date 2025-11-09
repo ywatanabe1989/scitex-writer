@@ -1,0 +1,46 @@
+# Codecov configuration for scitex-writer
+# See: https://docs.codecov.com/docs/codecov-yaml
+
+coverage:
+  precision: 2
+  round: down
+  range: 70...100
+
+  status:
+    project:
+      default:
+        target: auto
+        threshold: 5%
+        informational: true
+    patch:
+      default:
+        target: auto
+        threshold: 5%
+        informational: true
+
+comment:
+  layout: "reach,diff,flags,tree"
+  behavior: default
+  require_changes: false
+
+ignore:
+  - "tests/**"
+  - "docs/**"
+  - "examples/**"
+  - "**/__pycache__/**"
+  - "**/*.pyc"
+  - "**/__init__.py"
+
+# Coverage for different components
+flags:
+  python:
+    paths:
+      - src/scitex/
+    carryforward: true
+
+  shell:
+    paths:
+      - scripts/shell/
+    carryforward: true
+
+# EOF
