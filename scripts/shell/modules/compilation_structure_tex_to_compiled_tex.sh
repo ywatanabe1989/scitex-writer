@@ -32,45 +32,16 @@ echo
 echo_info "Running $0 ..."
 
 gather_tex_contents() {
-    # First, create initial compiled.tex from base.tex
-    cp "$SCITEX_WRITER_BASE_TEX" "$SCITEX_WRITER_COMPILED_TEX"
-
-    process_input() {
-        local file_path="$1"
-        local temp_file=$(mktemp)
-
-        while IFS= read -r line; do
-            if [[ "$line" =~ \\input\{(.+)\} ]]; then
-                local input_path="${BASH_REMATCH[1]}"
-                # Add .tex extension if not present
-                [[ "$input_path" != *.tex ]] && input_path="${input_path}.tex"
-
-                if [[ -f "$input_path" ]]; then
-                    echo_info "    Processing $input_path"
-                    echo -e "\n%% ========================================" >> "$temp_file"
-                    echo -e "%% $input_path" >> "$temp_file"
-                    echo -e "%% ========================================" >> "$temp_file"
-                    cat "$input_path" >> "$temp_file"
-                    # echo "    \n" >> "$temp_file"
-                    echo -e "\n" >> "$temp_file"
-                else
-                    echo_warn "$input_path not found."
-                    echo "$line" >> "$temp_file"
-                fi
-            else
-                echo "$line" >> "$temp_file"
-            fi
-        done < "$file_path"
-
-        mv "$temp_file" "$SCITEX_WRITER_COMPILED_TEX"
-    }
-
-    # Process until no more \input commands remain
-    while grep -q '\\input{' "$SCITEX_WRITER_COMPILED_TEX"; do
-        process_input "$SCITEX_WRITER_COMPILED_TEX"
-    done
-
-    echo_success "    $SCITEX_WRITER_COMPILED_TEX compiled"
+    # Use fast Python-based recursive expansion (O(n) instead of O(n²))
+    if python3 ./scripts/python/compile_tex_structure.py \
+        "$SCITEX_WRITER_BASE_TEX" \
+        "$SCITEX_WRITER_COMPILED_TEX" \
+        --quiet; then
+        echo_success "    $SCITEX_WRITER_COMPILED_TEX compiled"
+    else
+        echo_error "    Failed to compile TeX structure"
+        return 1
+    fi
 }
 
 gather_tex_contents
