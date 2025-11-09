@@ -38,7 +38,15 @@ echo
 echo_info "Running $0..."
 
 mmd2png(){
-    # Get mmdc command
+    # Early exit if no .mmd files (saves ~30s container setup time)
+    n_mmd_files="$(ls $SCITEX_WRITER_FIGURE_CAPTION_MEDIA_DIR/.*.mmd 2>/dev/null | wc -l)"
+
+    if [[ $n_mmd_files -eq 0 ]]; then
+        echo_info "    No .mmd files found in $SCITEX_WRITER_FIGURE_CAPTION_MEDIA_DIR"
+        return 0
+    fi
+
+    # Get mmdc command only if we have files to process
     local mmdc_cmd=$(get_cmd_mmdc "$ORIG_DIR")
 
     if [ -z "$mmdc_cmd" ]; then
@@ -46,11 +54,8 @@ mmd2png(){
         return 1
     fi
 
-    # echo_info "    Using mmdc command: $mmdc_cmd"
-
-    n_mmd_files="$(ls $SCITEX_WRITER_FIGURE_CAPTION_MEDIA_DIR/.*.mmd 2>/dev/null | wc -l)"
-    if [[ $n_mmd_files -gt 0 ]]; then
-        for mmd_file in "$SCITEX_WRITER_FIGURE_CAPTION_MEDIA_DIR"/.*.mmd; do
+    # Process .mmd files (we know n_mmd_files > 0 from early exit check)
+    for mmd_file in "$SCITEX_WRITER_FIGURE_CAPTION_MEDIA_DIR"/.*.mmd; do
             png_file="${mmd_file%.mmd}.png"
             jpg_file="$SCITEX_WRITER_FIGURE_JPG_DIR/$(basename "${mmd_file%.mmd}.jpg")"
 

@@ -15,6 +15,8 @@ source ./config/load_config.sh $SCITEX_WRITER_DOC_TYPE
 # Cache frequently-used checks to avoid redundant calls
 _CACHED_CONTAINER_RUNTIME=""
 _CACHE_CHECKED=false
+_CACHED_MODULE_AVAILABLE=""
+_MODULE_CACHE_CHECKED=false
 
 # Setup container path (Singularity/Apptainer)
 setup_latex_container() {
@@ -75,13 +77,29 @@ get_container_runtime() {
     echo "$_CACHED_CONTAINER_RUNTIME"
 }
 
-# Load texlive module if available
+# Load texlive module if available (cached)
 load_texlive_module() {
+    # Use cache if available
+    if [ "$_MODULE_CACHE_CHECKED" = true ]; then
+        if [ "$_CACHED_MODULE_AVAILABLE" = "true" ]; then
+            module load texlive &> /dev/null
+            return 0
+        else
+            return 1
+        fi
+    fi
+
+    # Check once and cache
     if command -v module &> /dev/null && module avail texlive &> /dev/null 2>&1; then
+        _CACHED_MODULE_AVAILABLE="true"
+        _MODULE_CACHE_CHECKED=true
         module load texlive &> /dev/null
         return 0
+    else
+        _CACHED_MODULE_AVAILABLE="false"
+        _MODULE_CACHE_CHECKED=true
+        return 1
     fi
-    return 1
 }
 
 # Get pdflatex command with fallbacks
@@ -363,7 +381,7 @@ get_cmd_convert() {
     return 1
 }
 
-# Export functions for use in other scripts
+# Export functions and cache variables for use in other scripts
 export -f setup_latex_container
 export -f setup_mermaid_container
 export -f setup_imagemagick_container
@@ -376,5 +394,11 @@ export -f get_cmd_texcount
 export -f get_cmd_mmdc
 export -f get_cmd_convert
 export -f check_latex_commands_available
+
+# Export cache variables so subprocesses can use cached values
+export _CACHED_CONTAINER_RUNTIME
+export _CACHE_CHECKED
+export _CACHED_MODULE_AVAILABLE
+export _MODULE_CACHE_CHECKED
 
 # EOF

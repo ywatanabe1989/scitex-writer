@@ -3,6 +3,11 @@
 # Timestamp: "2025-11-08 06:34:13 (ywatanabe)"
 # File: ./config/load_config.sh
 
+# Skip if already loaded (prevents redundant 4s overhead per load)
+if [ "$CONFIG_LOADED" = "true" ]; then
+    return 0
+fi
+
 ORIG_DIR="$(pwd)"
 THIS_DIR="$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)"
 LOG_PATH="$THIS_DIR/.$(basename $0).log"
@@ -21,13 +26,20 @@ elif [ -f "./pyproject.toml" ]; then
 fi
 
 if [ -n "$PYPROJECT_FILE" ] && [ -f "$PYPROJECT_FILE" ]; then
-    # Try yq first (faster), fallback to grep
+    # Try yq v4 (Go-based) which supports TOML
     if command -v yq &> /dev/null; then
-        SCITEX_WRITER_VERSION=$(yq -r '.project.version' "$PYPROJECT_FILE" 2>/dev/null || echo "unknown")
-    else
-        # Fallback: extract version with grep and sed
+        YQ_VERSION=$(yq --version 2>&1 | grep -oP '^yq\s+v?\K[0-9]+' | head -1)
+        if [ -n "$YQ_VERSION" ] && [ "$YQ_VERSION" -ge 4 ]; then
+            # yq v4+ supports TOML natively
+            SCITEX_WRITER_VERSION=$(yq eval '.project.version' "$PYPROJECT_FILE" 2>/dev/null || echo "")
+        fi
+    fi
+
+    # Fallback to grep if yq failed, is v3, or returned empty/unknown/null
+    if [ -z "$SCITEX_WRITER_VERSION" ] || [ "$SCITEX_WRITER_VERSION" = "unknown" ] || [ "$SCITEX_WRITER_VERSION" = "null" ]; then
         SCITEX_WRITER_VERSION=$(grep '^version = ' "$PYPROJECT_FILE" | sed 's/version = "\(.*\)"/\1/' | head -1)
     fi
+
     # Remove quotes and whitespace if present
     SCITEX_WRITER_VERSION=$(echo "$SCITEX_WRITER_VERSION" | tr -d '"' | tr -d '[:space:]')
 else
