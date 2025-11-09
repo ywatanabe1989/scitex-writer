@@ -26,7 +26,7 @@ echo_header() { echo_info "=== $1 ==="; }
 # Configurations
 source ./config/load_config.sh $SCITEX_WRITER_DOC_TYPE
 
-# Source the shared command switching module
+# Source the 00_shared command switching module
 source "$(dirname ${BASH_SOURCE[0]})/command_switching.src"
 
 # Logging
@@ -57,7 +57,7 @@ _count_words() {
     local input_file="$1"
     local output_file="$2"
     
-    # Get texcount command from shared module
+    # Get texcount command from 00_shared module
     local texcount_cmd=$(get_cmd_texcount "$ORIG_DIR")
     
     if [ -z "$texcount_cmd" ]; then

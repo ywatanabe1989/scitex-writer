@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "scitex-writer"
-version = "1.2.1"
-description = "Scientific manuscript writing system with LaTeX, Python interface, and version control"
+version = "2.0.0a0"
+description = "LaTeX compilation system for scientific documents with Python API, version tracking, and automated manuscript management"
 readme = "README.md"
 requires-python = ">=3.8"
 license = {text = "Apache-2.0"}
@@ -68,7 +68,7 @@ package-dir = {"" = "src"}
     "../../01_manuscript/**/*",
     "../../02_supplementary/**/*",
     "../../03_revision/**/*",
-    "../../shared/**/*",
+    "../../00_shared/**/*",
     "../../Makefile",
     "../../compile.sh",
     "../../VERSION",

@@ -26,7 +26,7 @@ echo_header() { echo_info "=== $1 ==="; }
 # Configurations
 source ./config/load_config.sh $SCITEX_WRITER_DOC_TYPE
 
-# Source the shared LaTeX commands module
+# Source the 00_shared LaTeX commands module
 source "$(dirname ${BASH_SOURCE[0]})/command_switching.src"
 
 # Logging
@@ -43,7 +43,7 @@ compiled_tex_to_pdf() {
     local tex_base="${SCITEX_WRITER_COMPILED_TEX%.tex}"
     local aux_file="${tex_base}.aux"
 
-    # Get commands from shared module
+    # Get commands from 00_shared module
     local pdf_cmd=$(get_cmd_pdflatex "$ORIG_DIR")
     local bib_cmd=$(get_cmd_bibtex "$ORIG_DIR")
 

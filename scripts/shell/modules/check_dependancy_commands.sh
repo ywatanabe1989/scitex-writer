@@ -26,7 +26,7 @@ echo_header() { echo_info "=== $1 ==="; }
 # Configurations
 source ./config/load_config.sh $SCITEX_WRITER_DOC_TYPE
 
-# Source the shared LaTeX commands module
+# Source the 00_shared LaTeX commands module
 source "$(dirname ${BASH_SOURCE[0]})/command_switching.src"
 
 # To override echo_xxx functions

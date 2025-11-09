@@ -28,7 +28,7 @@ From the paper root directory:
 │   ├── tables/
 │   │   ├── caption_and_media/   # Supplementary tables
 │   │   └── captions/            # Table captions
-│   ├── latex_styles/            # LaTeX formatting (shared)
+│   ├── latex_styles/            # LaTeX formatting (00_shared)
 │   └── supplementary_*.tex     # Supplementary sections
 ├── archive/                    # Version history
 ├── logs/                       # Compilation logs

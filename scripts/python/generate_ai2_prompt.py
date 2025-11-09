@@ -28,9 +28,9 @@ Dependencies:
 
 IO:
   - input-files:
-    - shared/title.tex
-    - shared/keywords.tex
-    - shared/authors.tex
+    - 00_shared/title.tex
+    - 00_shared/keywords.tex
+    - 00_shared/authors.tex
     - 01_manuscript/contents/abstract.tex
 
   - output-files:
@@ -186,9 +186,9 @@ Examples:
 
     # Extract information from manuscript files
     # Use paths relative to project root
-    title_path = project_root / "shared" / "title.tex"
-    keywords_path = project_root / "shared" / "keywords.tex"
-    authors_path = project_root / "shared" / "authors.tex"
+    title_path = project_root / "00_shared" / "title.tex"
+    keywords_path = project_root / "00_shared" / "keywords.tex"
+    authors_path = project_root / "00_shared" / "authors.tex"
     abstract_path = (
         project_root / "01_manuscript" / "contents" / "abstract.tex"
     )

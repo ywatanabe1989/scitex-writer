@@ -25,10 +25,14 @@ echo_error() { echo -e "${RED}ERRO: $1${NC}"; }
 echo_header() { echo_info "=== $1 ==="; }
 # ---------------------------------------
 
-# Read current and remote versions
-VERSION_FILE="${PROJECT_ROOT}/VERSION"
-if [ -f "$VERSION_FILE" ]; then
-    CURRENT_VERSION=$(cat "$VERSION_FILE" | tr -d '[:space:]')
+# Read current version from pyproject.toml (single source of truth)
+PYPROJECT_FILE="${PROJECT_ROOT}/pyproject.toml"
+if [ -f "$PYPROJECT_FILE" ]; then
+    if command -v yq &> /dev/null; then
+        CURRENT_VERSION=$(yq -r '.project.version' "$PYPROJECT_FILE" 2>/dev/null || echo "unknown")
+    else
+        CURRENT_VERSION=$(grep '^version = ' "$PYPROJECT_FILE" | sed 's/version = "\(.*\)"/\1/' | head -1 | tr -d '"' | tr -d '[:space:]')
+    fi
 else
     CURRENT_VERSION="unknown"
 fi
@@ -52,8 +56,8 @@ git fetch origin main 2>/dev/null || {
     exit 1
 }
 
-# Get remote version
-REMOTE_VERSION=$(git show origin/main:VERSION 2>/dev/null | tr -d '[:space:]' || echo "unknown")
+# Get remote version from pyproject.toml
+REMOTE_VERSION=$(git show origin/main:pyproject.toml 2>/dev/null | grep '^version = ' | sed 's/version = "\(.*\)"/\1/' | head -1 | tr -d '"' | tr -d '[:space:]' || echo "unknown")
 echo_info "Latest version: v${REMOTE_VERSION}"
 echo
 
@@ -77,7 +81,7 @@ echo_info "What will be preserved:"
 echo_info "  ✓ 01_manuscript/contents/    (your manuscript)"
 echo_info "  ✓ 02_supplementary/contents/ (your supplementary)"
 echo_info "  ✓ 03_revision/contents/      (your revision)"
-echo_info "  ✓ shared/bib_files/          (your bibliography)"
+echo_info "  ✓ 00_shared/bib_files/          (your bibliography)"
 echo_info "  ✓ archive/                   (your archived versions)"
 echo
 
@@ -96,7 +100,7 @@ mkdir -p "$BACKUP_DIR"
 
 # Backup critical user files
 echo_info "Backing up user content..."
-for dir in 01_manuscript/contents 02_supplementary/contents 03_revision/contents shared/bib_files archive; do
+for dir in 01_manuscript/contents 02_supplementary/contents 03_revision/contents 00_shared/bib_files archive; do
     if [ -d "${PROJECT_ROOT}/$dir" ]; then
         mkdir -p "$BACKUP_DIR/$(dirname $dir)"
         cp -r "${PROJECT_ROOT}/$dir" "$BACKUP_DIR/$dir" 2>/dev/null || true
@@ -115,7 +119,7 @@ fi
 
 # Update system files
 echo_info "Updating system files..."
-git checkout origin/main -- scripts/ config/ docs/ Makefile VERSION 2>/dev/null || {
+git checkout origin/main -- scripts/ config/ docs/ Makefile pyproject.toml src/ 2>/dev/null || {
     echo_error "Failed to update files."
     if [ "$STASHED" = true ]; then
         git stash pop
@@ -146,8 +150,16 @@ if [ "$STASHED" = true ]; then
     fi
 fi
 
-# Verify update
-NEW_VERSION=$(cat "$VERSION_FILE" | tr -d '[:space:]')
+# Verify update by reading from pyproject.toml
+if [ -f "$PYPROJECT_FILE" ]; then
+    if command -v yq &> /dev/null; then
+        NEW_VERSION=$(yq -r '.project.version' "$PYPROJECT_FILE" 2>/dev/null || echo "unknown")
+    else
+        NEW_VERSION=$(grep '^version = ' "$PYPROJECT_FILE" | sed 's/version = "\(.*\)"/\1/' | head -1 | tr -d '"' | tr -d '[:space:]')
+    fi
+else
+    NEW_VERSION="unknown"
+fi
 echo
 if [ "$NEW_VERSION" == "$REMOTE_VERSION" ]; then
     echo_success "Successfully updated to v${NEW_VERSION}!"

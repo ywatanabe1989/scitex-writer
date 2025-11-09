@@ -26,7 +26,7 @@ echo_header() { echo_info "=== $1 ==="; }
 # Configurations
 source ./config/load_config.sh $SCITEX_WRITER_DOC_TYPE
 
-# Source the shared command module
+# Source the 00_shared command module
 source "$(dirname ${BASH_SOURCE[0]})/command_switching.src"
 
 # Logging
@@ -35,7 +35,7 @@ echo
 echo_info "Running $0..."
 
 png2tif_all(){
-    # Get convert command from shared module
+    # Get convert command from 00_shared module
     local convert_cmd=$(get_cmd_convert "$ORIG_DIR")
 
     if [ -z "$convert_cmd" ]; then

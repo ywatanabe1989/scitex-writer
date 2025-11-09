@@ -1,6 +1,6 @@
 # Shared Resources
 
-This directory contains files that are shared across all document types (manuscript, supplementary, revision) via symlinks.
+This directory contains files that are 00_shared across all document types (manuscript, supplementary, revision) via symlinks.
 
 ## What's Shared
 
@@ -33,7 +33,7 @@ Each document type maintains its own:
 
 1. **Consistency**: Metadata identical across documents
 2. **Efficiency**: Update once, applies everywhere
-3. **Maintainability**: Clear separation of shared vs specific
+3. **Maintainability**: Clear separation of 00_shared vs specific
 4. **Version control**: Single source reduces merge conflicts
 
 ## Usage
