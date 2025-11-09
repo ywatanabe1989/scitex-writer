@@ -78,9 +78,15 @@ def expand_inputs(
 
             input_path = Path(input_file)
 
-            # If relative path, resolve relative to current file's directory
+            # If relative path starting with ./, resolve from git root (current working directory)
+            # Otherwise resolve relative to current file's directory
             if not input_path.is_absolute():
-                input_path = file_path.parent / input_path
+                if input_file.startswith('./'):
+                    # Path like ./03_revision/... should be from git root
+                    input_path = Path(input_file)
+                else:
+                    # Path like contents/... is relative to current file
+                    input_path = file_path.parent / input_path
 
             # Add header comment
             result_lines.append('')
@@ -109,7 +115,8 @@ def expand_inputs(
 def compile_tex_structure(
     base_tex: Path,
     output_tex: Path,
-    verbose: bool = True
+    verbose: bool = True,
+    dark_mode: bool = False
 ) -> bool:
     """
     Compile TeX structure by expanding all \input{} commands.
@@ -118,6 +125,7 @@ def compile_tex_structure(
         base_tex: Base TeX file with \input commands
         output_tex: Output compiled TeX file
         verbose: Print progress
+        dark_mode: Enable dark mode (black background, white text)
 
     Returns:
         True if successful
@@ -129,9 +137,24 @@ def compile_tex_structure(
     if verbose:
         print(f"Compiling TeX structure: {base_tex}")
         print(f"Output: {output_tex}")
+        if dark_mode:
+            print(f"Dark mode: enabled")
 
     # Expand all inputs recursively
     expanded_content = expand_inputs(base_tex)
+
+    # Inject dark mode styling if enabled
+    if dark_mode:
+        # Find \begin{document} and insert dark mode style before it
+        dark_mode_injection = (
+            "\n% Dark mode styling (injected at compile time)\n"
+            "\\input{../00_shared/latex_styles/dark_mode.tex}\n"
+        )
+
+        expanded_content = expanded_content.replace(
+            r'\begin{document}',
+            dark_mode_injection + r'\begin{document}'
+        )
 
     # Write output
     try:
@@ -153,6 +176,8 @@ def compile_tex_structure(
 
 def main():
     """Command-line interface."""
+    import os
+
     parser = argparse.ArgumentParser(
         description="Compile TeX structure by expanding \\input{} commands"
     )
@@ -171,13 +196,22 @@ def main():
         action="store_true",
         help="Quiet mode"
     )
+    parser.add_argument(
+        "--dark-mode",
+        action="store_true",
+        help="Enable dark mode (black background, white text)"
+    )
 
     args = parser.parse_args()
+
+    # Check environment variable if argument not provided
+    dark_mode = args.dark_mode or os.getenv('SCITEX_WRITER_DARK_MODE', 'false').lower() == 'true'
 
     success = compile_tex_structure(
         base_tex=args.base_tex,
         output_tex=args.output_tex,
-        verbose=not args.quiet
+        verbose=not args.quiet,
+        dark_mode=dark_mode
     )
 
     exit(0 if success else 1)

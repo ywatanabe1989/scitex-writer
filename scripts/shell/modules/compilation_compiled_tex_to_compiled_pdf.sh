@@ -40,65 +40,123 @@ compiled_tex_to_pdf() {
     # Setup paths
     local abs_dir=$(realpath "$ORIG_DIR")
     local tex_file="$SCITEX_WRITER_COMPILED_TEX"
-    local tex_base="${SCITEX_WRITER_COMPILED_TEX%.tex}"
-    local aux_file="${tex_base}.aux"
+    local tex_dir=$(dirname "$tex_file")
 
-    # Get commands from 00_shared module
-    local pdf_cmd=$(get_cmd_pdflatex "$ORIG_DIR")
-    local bib_cmd=$(get_cmd_bibtex "$ORIG_DIR")
+    # Check if latexmk is available
+    if command -v latexmk &> /dev/null; then
+        # Use latexmk for smart compilation (only reruns when needed)
+        local total_start=$(date +%s)
 
-    if [ -z "$pdf_cmd" ] || [ -z "$bib_cmd" ]; then
-        echo_error "    No LaTeX installation found (native, module, or container)"
-        return 1
-    fi
+        echo_info "    Using latexmk (intelligent compilation)"
 
-    # Add compilation options to commands
-    pdf_cmd="$pdf_cmd -output-directory=$(dirname $tex_file) -shell-escape -interaction=nonstopmode -file-line-error"
+        # Build latexmk options
+        local quiet_flag=""
+        if [ "$SCITEX_WRITER_VERBOSE_PDFLATEX" != "true" ]; then
+            quiet_flag="-quiet"
+        fi
 
-    # Function to run command with timing
-    run_command() {
-        local cmd="$1"
-        local verbose="$2"
-        local desc="$3"
+        local draft_flags=""
+        if [ "$SCITEX_WRITER_DRAFT_MODE" = "true" ]; then
+            echo_info "    Draft mode: single pass only"
+            draft_flags="-dvi- -ps-"
+        fi
 
-        echo_info "    $desc"
-        local start=$(date +%s)
+        # Run latexmk with bibtex support and shell-escape
+        # -bibtex: Ensure bibtex runs to resolve citations
+        # -pdf: Generate PDF output
+        # Use eval to properly handle the -pdflatex option
+        local latexmk_cmd="latexmk -pdf -bibtex -interaction=nonstopmode -file-line-error"
+        latexmk_cmd="$latexmk_cmd -output-directory='$tex_dir'"
+        latexmk_cmd="$latexmk_cmd -pdflatex='pdflatex -shell-escape %O %S'"
+        latexmk_cmd="$latexmk_cmd $quiet_flag $draft_flags '$tex_file'"
 
-        if [ "$verbose" == "true" ]; then
-            eval "$cmd" 2>&1 | grep -v "gocryptfs not found"
-            local ret=${PIPESTATUS[0]}
+        # Capture output and check for errors
+        local output=$(eval "$latexmk_cmd" 2>&1 | grep -v "gocryptfs not found")
+        local exit_code=$?
+
+        # Display output if verbose or if there were errors
+        if [ "$SCITEX_WRITER_VERBOSE_PDFLATEX" = "true" ] || [ $exit_code -ne 0 ]; then
+            echo "$output"
+        fi
+
+        # Check for critical errors (missing .bbl, unresolved references, etc.)
+        if echo "$output" | grep -q "Missing bbl file\|failed to resolve\|gave return code"; then
+            echo_warning "    Compilation completed with warnings (check citations/references)"
+        fi
+
+        if [ $exit_code -eq 0 ]; then
+            local total_end=$(date +%s)
+            echo_success "    Total compilation: $(($total_end - $total_start))s"
         else
-            eval "$cmd" >/dev/null 2>&1
-            local ret=$?
+            echo_error "    latexmk compilation failed (exit code: $exit_code)"
+            return 1
+        fi
+    else
+        # Fallback to manual 3-pass compilation
+        echo_info "    latexmk not found, using 3-pass compilation"
+
+        # Get commands from 00_shared module
+        local pdf_cmd=$(get_cmd_pdflatex "$ORIG_DIR")
+        local bib_cmd=$(get_cmd_bibtex "$ORIG_DIR")
+
+        if [ -z "$pdf_cmd" ] || [ -z "$bib_cmd" ]; then
+            echo_error "    No LaTeX installation found (native, module, or container)"
+            return 1
         fi
 
-        local end=$(date +%s)
-        echo_info "      ($(($end - $start))s)"
+        # Add compilation options to commands
+        pdf_cmd="$pdf_cmd -output-directory=$tex_dir -shell-escape -interaction=nonstopmode -file-line-error"
 
-        return $ret
-    }
+        # Function to run command with timing
+        run_command() {
+            local cmd="$1"
+            local verbose="$2"
+            local desc="$3"
 
-    # Main compilation sequence
-    local total_start=$(date +%s)
+            echo_info "    $desc"
+            local start=$(date +%s)
 
-    # Pass 1: Generate aux files
-    run_command "$pdf_cmd $tex_file" "$SCITEX_WRITER_VERBOSE_PDFLATEX" "Pass 1/3: Initial"
+            if [ "$verbose" == "true" ]; then
+                eval "$cmd" 2>&1 | grep -v "gocryptfs not found"
+                local ret=${PIPESTATUS[0]}
+            else
+                eval "$cmd" >/dev/null 2>&1
+                local ret=$?
+            fi
 
-    # Process bibliography if needed
-    if [ -f "$aux_file" ]; then
-        if grep -q "\\citation\|\\bibdata\|\\bibstyle" "$aux_file" 2>/dev/null; then
-            run_command "$bib_cmd $tex_base" "$SCITEX_WRITER_VERBOSE_BIBTEX" "Processing bibliography"
+            local end=$(date +%s)
+            echo_info "      ($(($end - $start))s)"
+
+            return $ret
+        }
+
+        # Main compilation sequence
+        local total_start=$(date +%s)
+        local tex_base="${tex_file%.tex}"
+        local aux_file="${tex_base}.aux"
+
+        # Check if draft mode is enabled
+        if [ "$SCITEX_WRITER_DRAFT_MODE" = "true" ]; then
+            # Draft mode: single pass only
+            run_command "$pdf_cmd $tex_file" "$SCITEX_WRITER_VERBOSE_PDFLATEX" "Single pass (draft mode)"
+        else
+            # Full mode: 3-pass compilation
+            run_command "$pdf_cmd $tex_file" "$SCITEX_WRITER_VERBOSE_PDFLATEX" "Pass 1/3: Initial"
+
+            # Process bibliography if needed
+            if [ -f "$aux_file" ]; then
+                if grep -q "\\citation\|\\bibdata\|\\bibstyle" "$aux_file" 2>/dev/null; then
+                    run_command "$bib_cmd $tex_base" "$SCITEX_WRITER_VERBOSE_BIBTEX" "Processing bibliography"
+                fi
+            fi
+
+            run_command "$pdf_cmd $tex_file" "$SCITEX_WRITER_VERBOSE_PDFLATEX" "Pass 2/3: Bibliography"
+            run_command "$pdf_cmd $tex_file" "$SCITEX_WRITER_VERBOSE_PDFLATEX" "Pass 3/3: Final"
         fi
+
+        local total_end=$(date +%s)
+        echo_success "    Total compilation: $(($total_end - $total_start))s"
     fi
-
-    # Pass 2: Include bibliography
-    run_command "$pdf_cmd $tex_file" "$SCITEX_WRITER_VERBOSE_PDFLATEX" "Pass 2/3: Bibliography"
-
-    # Pass 3: Resolve all references
-    run_command "$pdf_cmd $tex_file" "$SCITEX_WRITER_VERBOSE_PDFLATEX" "Pass 3/3: Final"
-
-    local total_end=$(date +%s)
-    echo_success "    Total compilation: $(($total_end - $total_start))s"
 }
 
 cleanup() {

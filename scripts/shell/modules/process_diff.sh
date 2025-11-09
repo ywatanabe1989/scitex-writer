@@ -74,7 +74,7 @@ function take_diff_tex() {
         --type=CULINECHBAR \
         --disable-citation-markup \
         --append-safecmd="cite,citep,citet" \
-        "$previous" "$SCITEX_WRITER_COMPILED_TEX" 2> >(grep -v 'gocryptfs not found' >&2) > "$SCITEX_WRITER_DIFF_TEX"
+        "$previous" "$SCITEX_WRITER_COMPILED_TEX" 2> >(grep -v 'gocryptfs not found' | grep -v 'Wide character in print' >&2) > "$SCITEX_WRITER_DIFF_TEX"
 
     if [ -f "$SCITEX_WRITER_DIFF_TEX" ] && [ -s "$SCITEX_WRITER_DIFF_TEX" ]; then
         echo_success "    $SCITEX_WRITER_DIFF_TEX created"
@@ -88,51 +88,68 @@ function take_diff_tex() {
 compile_diff_tex() {
     echo_info "    Compiling diff document..."
 
-    local abs_dir=$(realpath "$ORIG_DIR")
     local tex_file="$SCITEX_WRITER_DIFF_TEX"
-    local tex_base="${SCITEX_WRITER_DIFF_TEX%.tex}"
+    local tex_dir=$(dirname "$tex_file")
 
-    # Get commands from 00_shared module
-    local pdf_cmd=$(get_cmd_pdflatex "$ORIG_DIR")
-    local bib_cmd=$(get_cmd_bibtex "$ORIG_DIR")
+    # Use latexmk if available, fallback to 3-pass
+    if command -v latexmk &> /dev/null; then
+        echo_info "    Using latexmk (intelligent compilation)"
 
-    if [ -z "$pdf_cmd" ] || [ -z "$bib_cmd" ]; then
-        echo_error "    No LaTeX installation found (native, module, or container)"
-        return 1
-    fi
-
-    # echo_info "    Using pdflatex command: $pdf_cmd"
-
-    # Add compilation options
-    pdf_cmd="$pdf_cmd -output-directory=$(dirname $tex_file) -shell-escape -interaction=nonstopmode -file-line-error"
-
-    # Compilation function
-    run_pass() {
-        local cmd="$1"
-        local desc="$2"
-
-        echo_info "    $desc"
-        local start=$(date +%s)
-
-        if [ "$SCITEX_WRITER_VERBOSE_PDFLATEX" == "true" ]; then
-            eval "$cmd" 2>&1 | grep -v "gocryptfs not found"
-        else
-            eval "$cmd" >/dev/null 2>&1
+        local quiet_flag=""
+        if [ "$SCITEX_WRITER_VERBOSE_PDFLATEX" != "true" ]; then
+            quiet_flag="-quiet"
         fi
 
-        echo_info "      ($(($(date +%s) - $start))s)"
-    }
+        # Build and run latexmk command with proper quoting
+        local latexmk_cmd="latexmk -pdf -interaction=nonstopmode -file-line-error"
+        latexmk_cmd="$latexmk_cmd -output-directory='$tex_dir'"
+        latexmk_cmd="$latexmk_cmd -pdflatex='pdflatex -shell-escape %O %S'"
+        latexmk_cmd="$latexmk_cmd $quiet_flag '$tex_file'"
 
-    # Compile
-    run_pass "$pdf_cmd $tex_file" "Pass 1/3: Initial"
+        eval "$latexmk_cmd" 2>&1 | grep -v "gocryptfs not found"
+    else
+        # Fallback to 3-pass compilation
+        local tex_base="${tex_file%.tex}"
 
-    if [ -f "${tex_base}.aux" ] && grep -q "\\citation" "${tex_base}.aux" \
-                                        2>/dev/null; then
-        run_pass "$bib_cmd $tex_base" "Processing bibliography"
+        # Get commands from 00_shared module
+        local pdf_cmd=$(get_cmd_pdflatex "$ORIG_DIR")
+        local bib_cmd=$(get_cmd_bibtex "$ORIG_DIR")
+
+        if [ -z "$pdf_cmd" ] || [ -z "$bib_cmd" ]; then
+            echo_error "    No LaTeX installation found (native, module, or container)"
+            return 1
+        fi
+
+        # Add compilation options
+        pdf_cmd="$pdf_cmd -output-directory=$tex_dir -shell-escape -interaction=nonstopmode -file-line-error"
+
+        # Compilation function
+        run_pass() {
+            local cmd="$1"
+            local desc="$2"
+
+            echo_info "    $desc"
+            local start=$(date +%s)
+
+            if [ "$SCITEX_WRITER_VERBOSE_PDFLATEX" == "true" ]; then
+                eval "$cmd" 2>&1 | grep -v "gocryptfs not found"
+            else
+                eval "$cmd" >/dev/null 2>&1
+            fi
+
+            echo_info "      ($(($(date +%s) - $start))s)"
+        }
+
+        # Compile
+        run_pass "$pdf_cmd $tex_file" "Pass 1/3: Initial"
+
+        if [ -f "${tex_base}.aux" ] && grep -q "\\citation" "${tex_base}.aux" 2>/dev/null; then
+            run_pass "$bib_cmd $tex_base" "Processing bibliography"
+        fi
+
+        run_pass "$pdf_cmd $tex_file" "Pass 2/3: Bibliography"
+        run_pass "$pdf_cmd $tex_file" "Pass 3/3: Final"
     fi
-
-    run_pass "$pdf_cmd $tex_file" "Pass 2/3: Bibliography"
-    run_pass "$pdf_cmd $tex_file" "Pass 3/3: Final"
 }
 
 cleanup() {

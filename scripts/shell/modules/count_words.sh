@@ -53,19 +53,20 @@ _count_elements() {
     fi
 }
 
+# Cache texcount command (resolved once, used multiple times)
+TEXCOUNT_CMD=""
+
 _count_words() {
     local input_file="$1"
     local output_file="$2"
-    
-    # Get texcount command from 00_shared module
-    local texcount_cmd=$(get_cmd_texcount "$ORIG_DIR")
-    
-    if [ -z "$texcount_cmd" ]; then
+
+    # Use cached command if available
+    if [ -z "$TEXCOUNT_CMD" ]; then
         echo_error "    texcount not found"
         return 1
     fi
 
-    eval "$texcount_cmd \"$input_file\" -inc -1 -sum 2> >(grep -v 'gocryptfs not found' >&2)" > "$output_file"
+    eval "$TEXCOUNT_CMD \"$input_file\" -inc -1 -sum 2> >(grep -v 'gocryptfs not found' >&2)" > "$output_file"
 }
 
 count_tables() {
@@ -85,7 +86,7 @@ count_IMRaD() {
             echo 0 > "$SCITEX_WRITER_WORDCOUNT_DIR/${section}_count.txt"
         fi
     done
-    
+
     # Calculate IMRD total (only count sections that exist)
     local imrd_total=0
     for section in introduction methods results discussion; do
@@ -122,6 +123,14 @@ display_counts() {
 }
 
 main() {
+    # Resolve texcount command once at startup
+    TEXCOUNT_CMD=$(get_cmd_texcount "$ORIG_DIR")
+
+    if [ -z "$TEXCOUNT_CMD" ]; then
+        echo_error "    texcount not found"
+        return 1
+    fi
+
     init
     count_tables
     count_figures
