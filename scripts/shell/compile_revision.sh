@@ -27,13 +27,13 @@ echo_error() { echo -e "${RED}$1${NC}"; }
 ################################################################################
 
 # Configurations
-export STXW_DOC_TYPE="revision"
-source ./config/load_config.sh "$STXW_DOC_TYPE"
+export SCITEX_WRITER_DOC_TYPE="revision"
+source ./config/load_config.sh "$SCITEX_WRITER_DOC_TYPE"
 echo
 
 # Log
 touch $LOG_PATH >/dev/null 2>&1
-mkdir -p "$LOG_DIR" && touch "$STXW_GLOBAL_LOG_FILE"
+mkdir -p "$LOG_DIR" && touch "$SCITEX_WRITER_GLOBAL_LOG_FILE"
 
 # Shell options
 set -e
@@ -155,5 +155,5 @@ echo -e "${BLUE}INFO: Cleaning up...${NC}"
 echo ""
 echo -e "${GREEN}SUCC: ==========================================${NC}"
 echo -e "${GREEN}SUCC: Revision compilation completed${NC}"
-echo -e "${GREEN}SUCC: PDF: $STXW_COMPILED_PDF${NC}"
+echo -e "${GREEN}SUCC: PDF: $SCITEX_WRITER_COMPILED_PDF${NC}"
 echo -e "${GREEN}SUCC: ==========================================${NC}"

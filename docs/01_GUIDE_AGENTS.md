@@ -5,7 +5,7 @@ Complete guide for AI agents to create scientific manuscripts using SciTeX Write
 ## Quick Start
 
 ```bash
-export STXW_DOC_TYPE=manuscript
+export SCITEX_WRITER_DOC_TYPE=manuscript
 ./compile_manuscript
 
 # Output

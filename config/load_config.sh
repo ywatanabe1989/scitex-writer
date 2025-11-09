@@ -41,57 +41,57 @@ if [ "$CONFIG_LOADED" != "true" ]; then
 fi
 
 # Manuscript Type
-STXW_DOC_TYPE="${1:-$STXW_DOC_TYPE}"
-CONFIG_FILE="$THIS_DIR/config_${STXW_DOC_TYPE}.yaml"
+SCITEX_WRITER_DOC_TYPE="${1:-$SCITEX_WRITER_DOC_TYPE}"
+CONFIG_FILE="$THIS_DIR/config_${SCITEX_WRITER_DOC_TYPE}.yaml"
 if [ ! -f "$CONFIG_FILE" ]; then
     echo "ERROR: Config file $CONFIG_FILE not found"
-    echo "ERROR: Please check STXW_DOC_TYPE is set correctly"
-    echo "ERROR: (e.g., export STXW_DOC_TYPE=manuscript # (manuscript, supplementary, or revision))"
+    echo "ERROR: Please check SCITEX_WRITER_DOC_TYPE is set correctly"
+    echo "ERROR: (e.g., export SCITEX_WRITER_DOC_TYPE=manuscript # (manuscript, supplementary, or revision))"
     exit
 fi
 
 # Main
-export STXW_VERBOSE_PDFLATEX="${STXW_VERBOSE_PDFLATEX:-$(yq -r '.verbosity.pdflatex' $CONFIG_FILE)}"
-export STXW_VERBOSE_BIBTEX="${STXW_VERBOSE_BIBTEX:-$(yq -r '.verbosity.bibtex' $CONFIG_FILE)}"
+export SCITEX_WRITER_VERBOSE_PDFLATEX="${SCITEX_WRITER_VERBOSE_PDFLATEX:-$(yq -r '.verbosity.pdflatex' $CONFIG_FILE)}"
+export SCITEX_WRITER_VERBOSE_BIBTEX="${SCITEX_WRITER_VERBOSE_BIBTEX:-$(yq -r '.verbosity.bibtex' $CONFIG_FILE)}"
 
-export STXW_CITATION_STYLE="${STXW_CITATION_STYLE:-$(yq -r '.citation.style' $CONFIG_FILE)}"
+export SCITEX_WRITER_CITATION_STYLE="${SCITEX_WRITER_CITATION_STYLE:-$(yq -r '.citation.style' $CONFIG_FILE)}"
 
 export STWX_ROOT_DIR="$(yq -r '.paths.doc_root_dir' $CONFIG_FILE)"
 export LOG_DIR="$(yq -r '.paths.doc_log_dir' $CONFIG_FILE)"
-export STXW_GLOBAL_LOG_FILE="$(yq -r '.paths.global_log_file' $CONFIG_FILE)"
-export STXW_BASE_TEX="$(yq -r '.paths.base_tex' $CONFIG_FILE)"
-export STXW_COMPILED_TEX="$(yq -r '.paths.compiled_tex' $CONFIG_FILE)"
-export STXW_COMPILED_PDF="$(yq -r '.paths.compiled_pdf' $CONFIG_FILE)"
-export STXW_DIFF_TEX="$(yq -r '.paths.diff_tex' $CONFIG_FILE)"
-export STXW_DIFF_PDF="$(yq -r '.paths.diff_pdf' $CONFIG_FILE)"
-export STXW_VERSIONS_DIR="$(yq -r '.paths.archive_dir' $CONFIG_FILE)"
-export STXW_VERSION_COUNTER_TXT="$(yq -r '.paths.version_counter_txt' $CONFIG_FILE)"
-export STXW_TEXLIVE_APPTAINER_SIF="$(yq -r '.paths.texlive_apptainer_sif' $CONFIG_FILE)"
-export STXW_MERMAID_APPTAINER_SIF="$(yq -r '.paths.mermaid_apptainer_sif' $CONFIG_FILE)"
+export SCITEX_WRITER_GLOBAL_LOG_FILE="$(yq -r '.paths.global_log_file' $CONFIG_FILE)"
+export SCITEX_WRITER_BASE_TEX="$(yq -r '.paths.base_tex' $CONFIG_FILE)"
+export SCITEX_WRITER_COMPILED_TEX="$(yq -r '.paths.compiled_tex' $CONFIG_FILE)"
+export SCITEX_WRITER_COMPILED_PDF="$(yq -r '.paths.compiled_pdf' $CONFIG_FILE)"
+export SCITEX_WRITER_DIFF_TEX="$(yq -r '.paths.diff_tex' $CONFIG_FILE)"
+export SCITEX_WRITER_DIFF_PDF="$(yq -r '.paths.diff_pdf' $CONFIG_FILE)"
+export SCITEX_WRITER_VERSIONS_DIR="$(yq -r '.paths.archive_dir' $CONFIG_FILE)"
+export SCITEX_WRITER_VERSION_COUNTER_TXT="$(yq -r '.paths.version_counter_txt' $CONFIG_FILE)"
+export SCITEX_WRITER_TEXLIVE_APPTAINER_SIF="$(yq -r '.paths.texlive_apptainer_sif' $CONFIG_FILE)"
+export SCITEX_WRITER_MERMAID_APPTAINER_SIF="$(yq -r '.paths.mermaid_apptainer_sif' $CONFIG_FILE)"
 
 
-export STXW_FIGURE_DIR="$(yq -r '.figures.dir' $CONFIG_FILE)"
-export STXW_FIGURE_CAPTION_MEDIA_DIR="$(yq -r '.figures.caption_media_dir' $CONFIG_FILE)"
-export STXW_FIGURE_JPG_DIR="$(yq -r '.figures.jpg_dir' $CONFIG_FILE)"
-export STXW_FIGURE_COMPILED_DIR="$(yq -r '.figures.compiled_dir' $CONFIG_FILE)"
-export STXW_FIGURE_COMPILED_FILE="$(yq -r '.figures.compiled_file' $CONFIG_FILE)"
-export STXW_FIGURE_TEMPLATES_DIR="$(yq -r '.figures.templates_dir' $CONFIG_FILE)"
-export STXW_FIGURE_TEMPLATE_TEX="$(yq -r '.figures.template_tex' $CONFIG_FILE)"
-export STXW_FIGURE_TEMPLATE_JPG="$(yq -r '.figures.template_jpg' $CONFIG_FILE)"
-export STXW_FIGURE_TEMPLATE_PPTX="$(yq -r '.figures.template_pptx' $CONFIG_FILE)"
-export STXW_FIGURE_TEMPLATE_JNT="$(yq -r '.figures.template_jnt' $CONFIG_FILE)"
+export SCITEX_WRITER_FIGURE_DIR="$(yq -r '.figures.dir' $CONFIG_FILE)"
+export SCITEX_WRITER_FIGURE_CAPTION_MEDIA_DIR="$(yq -r '.figures.caption_media_dir' $CONFIG_FILE)"
+export SCITEX_WRITER_FIGURE_JPG_DIR="$(yq -r '.figures.jpg_dir' $CONFIG_FILE)"
+export SCITEX_WRITER_FIGURE_COMPILED_DIR="$(yq -r '.figures.compiled_dir' $CONFIG_FILE)"
+export SCITEX_WRITER_FIGURE_COMPILED_FILE="$(yq -r '.figures.compiled_file' $CONFIG_FILE)"
+export SCITEX_WRITER_FIGURE_TEMPLATES_DIR="$(yq -r '.figures.templates_dir' $CONFIG_FILE)"
+export SCITEX_WRITER_FIGURE_TEMPLATE_TEX="$(yq -r '.figures.template_tex' $CONFIG_FILE)"
+export SCITEX_WRITER_FIGURE_TEMPLATE_JPG="$(yq -r '.figures.template_jpg' $CONFIG_FILE)"
+export SCITEX_WRITER_FIGURE_TEMPLATE_PPTX="$(yq -r '.figures.template_pptx' $CONFIG_FILE)"
+export SCITEX_WRITER_FIGURE_TEMPLATE_JNT="$(yq -r '.figures.template_jnt' $CONFIG_FILE)"
 
-export STXW_TABLE_DIR="$(yq -r '.tables.dir' $CONFIG_FILE)"
-export STXW_TABLE_CAPTION_MEDIA_DIR="$(yq -r '.tables.caption_media_dir' $CONFIG_FILE)"
-export STXW_TABLE_COMPILED_DIR="$(yq -r '.tables.compiled_dir' $CONFIG_FILE)"
-export STXW_TABLE_COMPILED_FILE="$(yq -r '.tables.compiled_file' $CONFIG_FILE)"
+export SCITEX_WRITER_TABLE_DIR="$(yq -r '.tables.dir' $CONFIG_FILE)"
+export SCITEX_WRITER_TABLE_CAPTION_MEDIA_DIR="$(yq -r '.tables.caption_media_dir' $CONFIG_FILE)"
+export SCITEX_WRITER_TABLE_COMPILED_DIR="$(yq -r '.tables.compiled_dir' $CONFIG_FILE)"
+export SCITEX_WRITER_TABLE_COMPILED_FILE="$(yq -r '.tables.compiled_file' $CONFIG_FILE)"
 
-export STXW_WORDCOUNT_DIR="$(yq -r '.misc.wordcount_dir' $CONFIG_FILE)"
-export STXW_TREE_TXT="$(yq -r '.misc.tree_txt' $CONFIG_FILE)"
+export SCITEX_WRITER_WORDCOUNT_DIR="$(yq -r '.misc.wordcount_dir' $CONFIG_FILE)"
+export SCITEX_WRITER_TREE_TXT="$(yq -r '.misc.tree_txt' $CONFIG_FILE)"
 
 
 if [ "$CONFIG_LOADED" != "true" ]; then
-    echo_success "    Configuration Loaded for $STXW_DOC_TYPE"
+    echo_success "    Configuration Loaded for $SCITEX_WRITER_DOC_TYPE"
     export CONFIG_LOADED=true
 fi
 

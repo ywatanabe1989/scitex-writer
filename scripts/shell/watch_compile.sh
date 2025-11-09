@@ -165,7 +165,7 @@ compile_with_lock() {
             source ./config/load_config.sh manuscript >/dev/null 2>&1
             
             # Update symlink to latest archive version (prevents viewing corrupted PDFs during compilation)
-            local archive_dir="${STXW_VERSIONS_DIR}"
+            local archive_dir="${SCITEX_WRITER_VERSIONS_DIR}"
             local latest_archive=$(ls -1 "$archive_dir"/manuscript_v[0-9]*.pdf 2>/dev/null | grep -v "_diff.pdf" | sort -V | tail -1)
             
             if [ -n "$latest_archive" ]; then

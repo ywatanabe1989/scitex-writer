@@ -34,38 +34,38 @@ THIS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # Provides functions to get commands for pdflatex, bibtex, latexdiff, etc.
 # with automatic fallback to module loading or container usage
 
-source ./config/load_config.sh $STXW_DOC_TYPE
+source ./config/load_config.sh $SCITEX_WRITER_DOC_TYPE
 
 # Setup container path (Singularity/Apptainer)
 setup_latex_container() {
     # Check if container path is already set
-    if [ -n "$STXW_TEXLIVE_APPTAINER_SIF" ] && [ -f "$STXW_TEXLIVE_APPTAINER_SIF" ]; then
+    if [ -n "$SCITEX_WRITER_TEXLIVE_APPTAINER_SIF" ] && [ -f "$SCITEX_WRITER_TEXLIVE_APPTAINER_SIF" ]; then
         return 0
     fi
 
     # Use config value if set, otherwise use project directory default
-    if [ -z "$STXW_TEXLIVE_APPTAINER_SIF" ]; then
+    if [ -z "$SCITEX_WRITER_TEXLIVE_APPTAINER_SIF" ]; then
         # Use project directory to ensure availability across HPC nodes
         local project_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../../" && pwd)"
-        STXW_TEXLIVE_APPTAINER_SIF="${project_root}/.cache/containers/texlive_container.sif"
+        SCITEX_WRITER_TEXLIVE_APPTAINER_SIF="${project_root}/.cache/containers/texlive_container.sif"
     fi
 
-    if [ ! -f "$STXW_TEXLIVE_APPTAINER_SIF" ]; then
+    if [ ! -f "$SCITEX_WRITER_TEXLIVE_APPTAINER_SIF" ]; then
         echo_info "    Downloading TeXLive container (one-time setup)..."
-        mkdir -p "$(dirname $STXW_TEXLIVE_APPTAINER_SIF)"
+        mkdir -p "$(dirname $SCITEX_WRITER_TEXLIVE_APPTAINER_SIF)"
 
         # Try Apptainer first, then Singularity
         if command -v apptainer &> /dev/null; then
-            apptainer pull "$STXW_TEXLIVE_APPTAINER_SIF" docker://texlive/texlive:latest >/dev/null 2>&1
+            apptainer pull "$SCITEX_WRITER_TEXLIVE_APPTAINER_SIF" docker://texlive/texlive:latest >/dev/null 2>&1
         elif command -v singularity &> /dev/null; then
-            singularity pull "$STXW_TEXLIVE_APPTAINER_SIF" docker://texlive/texlive:latest >/dev/null 2>&1
+            singularity pull "$SCITEX_WRITER_TEXLIVE_APPTAINER_SIF" docker://texlive/texlive:latest >/dev/null 2>&1
         else
             return 1
         fi
 
-        if [ -f "$STXW_TEXLIVE_APPTAINER_SIF" ]; then
-            echo_success "    Container downloaded to $STXW_TEXLIVE_APPTAINER_SIF"
-            export STXW_TEXLIVE_APPTAINER_SIF="$STXW_TEXLIVE_APPTAINER_SIF"
+        if [ -f "$SCITEX_WRITER_TEXLIVE_APPTAINER_SIF" ]; then
+            echo_success "    Container downloaded to $SCITEX_WRITER_TEXLIVE_APPTAINER_SIF"
+            export SCITEX_WRITER_TEXLIVE_APPTAINER_SIF="$SCITEX_WRITER_TEXLIVE_APPTAINER_SIF"
         else
             return 1
         fi
@@ -103,7 +103,7 @@ get_cmd_pdflatex() {
     # First choice: Container (Apptainer/Singularity)
     local runtime=$(get_container_runtime)
     if [ -n "$runtime" ] && setup_latex_container; then
-        echo "$runtime exec --bind ${abs_dir}:${abs_dir} --pwd ${abs_dir} $STXW_TEXLIVE_APPTAINER_SIF pdflatex"
+        echo "$runtime exec --bind ${abs_dir}:${abs_dir} --pwd ${abs_dir} $SCITEX_WRITER_TEXLIVE_APPTAINER_SIF pdflatex"
         return 0
     fi
 
@@ -134,7 +134,7 @@ get_cmd_bibtex() {
     # First choice: Container (Apptainer/Singularity)
     local runtime=$(get_container_runtime)
     if [ -n "$runtime" ] && setup_latex_container; then
-        echo "$runtime exec --bind ${abs_dir}:${abs_dir} --pwd ${abs_dir} $STXW_TEXLIVE_APPTAINER_SIF bibtex"
+        echo "$runtime exec --bind ${abs_dir}:${abs_dir} --pwd ${abs_dir} $SCITEX_WRITER_TEXLIVE_APPTAINER_SIF bibtex"
         return 0
     fi
 
@@ -165,7 +165,7 @@ get_cmd_latexdiff() {
     # Check for container runtime first
     local runtime=$(get_container_runtime)
     if [ -n "$runtime" ] && setup_latex_container; then
-        echo "$runtime exec --bind ${abs_dir}:${abs_dir} --pwd ${abs_dir} $STXW_TEXLIVE_APPTAINER_SIF latexdiff"
+        echo "$runtime exec --bind ${abs_dir}:${abs_dir} --pwd ${abs_dir} $SCITEX_WRITER_TEXLIVE_APPTAINER_SIF latexdiff"
         return 0
     fi
 
@@ -192,7 +192,7 @@ get_cmd_texcount() {
     # First choice: Container (Apptainer/Singularity) - prioritize for HPC
     local runtime=$(get_container_runtime)
     if [ -n "$runtime" ] && setup_latex_container; then
-        echo "$runtime exec --bind ${abs_dir}:${abs_dir} --pwd ${abs_dir} $STXW_TEXLIVE_APPTAINER_SIF texcount"
+        echo "$runtime exec --bind ${abs_dir}:${abs_dir} --pwd ${abs_dir} $SCITEX_WRITER_TEXLIVE_APPTAINER_SIF texcount"
         return 0
     fi
 
@@ -214,33 +214,33 @@ get_cmd_texcount() {
 # Setup Mermaid container (for mmdc)
 setup_mermaid_container() {
     # Check if container path is already set
-    if [ -n "$STXW_MERMAID_APPTAINER_SIF" ] && [ -f "$STXW_MERMAID_APPTAINER_SIF" ]; then
+    if [ -n "$SCITEX_WRITER_MERMAID_APPTAINER_SIF" ] && [ -f "$SCITEX_WRITER_MERMAID_APPTAINER_SIF" ]; then
         return 0
     fi
 
     # Use config value if set, otherwise use project directory default
-    if [ -z "$STXW_MERMAID_APPTAINER_SIF" ]; then
+    if [ -z "$SCITEX_WRITER_MERMAID_APPTAINER_SIF" ]; then
         # Use project directory to ensure availability across HPC nodes
         local project_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../../" && pwd)"
-        STXW_MERMAID_APPTAINER_SIF="${project_root}/.cache/containers/mermaid_container.sif"
+        SCITEX_WRITER_MERMAID_APPTAINER_SIF="${project_root}/.cache/containers/mermaid_container.sif"
     fi
 
-    if [ ! -f "$STXW_MERMAID_APPTAINER_SIF" ]; then
+    if [ ! -f "$SCITEX_WRITER_MERMAID_APPTAINER_SIF" ]; then
         echo_info "    Downloading Mermaid container (one-time setup)..."
-        mkdir -p "$(dirname $STXW_MERMAID_APPTAINER_SIF)"
+        mkdir -p "$(dirname $SCITEX_WRITER_MERMAID_APPTAINER_SIF)"
 
         # Try Apptainer first, then Singularity
         if command -v apptainer &> /dev/null; then
-            apptainer pull "$STXW_MERMAID_APPTAINER_SIF" docker://minlag/mermaid-cli:latest >/dev/null 2>&1
+            apptainer pull "$SCITEX_WRITER_MERMAID_APPTAINER_SIF" docker://minlag/mermaid-cli:latest >/dev/null 2>&1
         elif command -v singularity &> /dev/null; then
-            singularity pull "$STXW_MERMAID_APPTAINER_SIF" docker://minlag/mermaid-cli:latest >/dev/null 2>&1
+            singularity pull "$SCITEX_WRITER_MERMAID_APPTAINER_SIF" docker://minlag/mermaid-cli:latest >/dev/null 2>&1
         else
             return 1
         fi
 
-        if [ -f "$STXW_MERMAID_APPTAINER_SIF" ]; then
-            echo_success "    Container downloaded to $STXW_MERMAID_APPTAINER_SIF"
-            export STXW_MERMAID_APPTAINER_SIF="$STXW_MERMAID_APPTAINER_SIF"
+        if [ -f "$SCITEX_WRITER_MERMAID_APPTAINER_SIF" ]; then
+            echo_success "    Container downloaded to $SCITEX_WRITER_MERMAID_APPTAINER_SIF"
+            export SCITEX_WRITER_MERMAID_APPTAINER_SIF="$SCITEX_WRITER_MERMAID_APPTAINER_SIF"
         else
             return 1
         fi
@@ -261,7 +261,7 @@ get_cmd_mmdc() {
         # Use puppeteer config to point to installed chromium
         local project_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../../" && pwd)"
         local puppeteer_config="${project_root}/.cache/puppeteer-config.json"
-        echo "$runtime exec --bind ${abs_dir}:${abs_dir} --bind ${puppeteer_config}:${puppeteer_config}:ro --pwd ${abs_dir} $STXW_MERMAID_APPTAINER_SIF /home/mermaidcli/node_modules/.bin/mmdc -p ${puppeteer_config}"
+        echo "$runtime exec --bind ${abs_dir}:${abs_dir} --bind ${puppeteer_config}:${puppeteer_config}:ro --pwd ${abs_dir} $SCITEX_WRITER_MERMAID_APPTAINER_SIF /home/mermaidcli/node_modules/.bin/mmdc -p ${puppeteer_config}"
         return 0
     fi
 
@@ -297,33 +297,33 @@ check_latex_commands_available() {
 # Setup ImageMagick container
 setup_imagemagick_container() {
     # Check if container path is already set
-    if [ -n "$STXW_IMAGEMAGICK_APPTAINER_SIF" ] && [ -f "$STXW_IMAGEMAGICK_APPTAINER_SIF" ]; then
+    if [ -n "$SCITEX_WRITER_IMAGEMAGICK_APPTAINER_SIF" ] && [ -f "$SCITEX_WRITER_IMAGEMAGICK_APPTAINER_SIF" ]; then
         return 0
     fi
 
     # Use config value if set, otherwise use project directory default
-    if [ -z "$STXW_IMAGEMAGICK_APPTAINER_SIF" ]; then
+    if [ -z "$SCITEX_WRITER_IMAGEMAGICK_APPTAINER_SIF" ]; then
         # Use project directory to ensure availability across HPC nodes
         local project_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../../" && pwd)"
-        STXW_IMAGEMAGICK_APPTAINER_SIF="${project_root}/.cache/containers/imagemagick_container.sif"
+        SCITEX_WRITER_IMAGEMAGICK_APPTAINER_SIF="${project_root}/.cache/containers/imagemagick_container.sif"
     fi
 
-    if [ ! -f "$STXW_IMAGEMAGICK_APPTAINER_SIF" ]; then
+    if [ ! -f "$SCITEX_WRITER_IMAGEMAGICK_APPTAINER_SIF" ]; then
         echo_info "    Downloading ImageMagick container (one-time setup)..."
-        mkdir -p "$(dirname $STXW_IMAGEMAGICK_APPTAINER_SIF)"
+        mkdir -p "$(dirname $SCITEX_WRITER_IMAGEMAGICK_APPTAINER_SIF)"
 
         # Try Apptainer first, then Singularity
         if command -v apptainer &> /dev/null; then
-            apptainer pull "$STXW_IMAGEMAGICK_APPTAINER_SIF" docker://dpokidov/imagemagick:latest >/dev/null 2>&1
+            apptainer pull "$SCITEX_WRITER_IMAGEMAGICK_APPTAINER_SIF" docker://dpokidov/imagemagick:latest >/dev/null 2>&1
         elif command -v singularity &> /dev/null; then
-            singularity pull "$STXW_IMAGEMAGICK_APPTAINER_SIF" docker://dpokidov/imagemagick:latest >/dev/null 2>&1
+            singularity pull "$SCITEX_WRITER_IMAGEMAGICK_APPTAINER_SIF" docker://dpokidov/imagemagick:latest >/dev/null 2>&1
         else
             return 1
         fi
 
-        if [ -f "$STXW_IMAGEMAGICK_APPTAINER_SIF" ]; then
-            echo_success "    Container downloaded to $STXW_IMAGEMAGICK_APPTAINER_SIF"
-            export STXW_IMAGEMAGICK_APPTAINER_SIF="$STXW_IMAGEMAGICK_APPTAINER_SIF"
+        if [ -f "$SCITEX_WRITER_IMAGEMAGICK_APPTAINER_SIF" ]; then
+            echo_success "    Container downloaded to $SCITEX_WRITER_IMAGEMAGICK_APPTAINER_SIF"
+            export SCITEX_WRITER_IMAGEMAGICK_APPTAINER_SIF="$SCITEX_WRITER_IMAGEMAGICK_APPTAINER_SIF"
         else
             return 1
         fi
@@ -350,7 +350,7 @@ get_cmd_convert() {
     local runtime=$(get_container_runtime)
     if [ -n "$runtime" ] && setup_imagemagick_container; then
         # Container likely has v7, so use magick to avoid deprecation warning
-        echo "$runtime exec --bind ${abs_dir}:${abs_dir} --pwd ${abs_dir} $STXW_IMAGEMAGICK_APPTAINER_SIF magick 2>/dev/null"
+        echo "$runtime exec --bind ${abs_dir}:${abs_dir} --pwd ${abs_dir} $SCITEX_WRITER_IMAGEMAGICK_APPTAINER_SIF magick 2>/dev/null"
         return 0
     fi
 

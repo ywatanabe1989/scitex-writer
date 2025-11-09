@@ -20,7 +20,7 @@ echo_warning() { echo -e "${YELLOW}$1${NC}"; }
 echo_error() { echo -e "${RED}$1${NC}"; }
 
 # Configuration
-source ./config/load_config.sh $STXW_DOC_TYPE
+source ./config/load_config.sh $SCITEX_WRITER_DOC_TYPE
 
 echo
 echo_info "Renaming archive diff files to new naming convention..."
@@ -29,7 +29,7 @@ echo_info "To:   manuscript_vXXX_diff.ext"
 echo
 
 # Process all diff files in archive
-cd "$STXW_VERSIONS_DIR" || exit 1
+cd "$SCITEX_WRITER_VERSIONS_DIR" || exit 1
 
 # Count files to rename
 count=0

@@ -22,7 +22,7 @@ source "$MODULES_DIR/04_compilation.src"
 # Additional utility functions not yet modularized
 ensure_lower_letter_id() {
     # Convert uppercase panel IDs to lowercase (01A_ -> 01a_)
-    for file in "$STXW_FIGURE_CAPTION_MEDIA_DIR"/[0-9]*[A-Z]_*; do
+    for file in "$SCITEX_WRITER_FIGURE_CAPTION_MEDIA_DIR"/[0-9]*[A-Z]_*; do
         [ -e "$file" ] || continue
         local dir=$(dirname "$file")
         local basename=$(basename "$file")
@@ -48,7 +48,7 @@ crop_image() {
 
 crop_all_images() {
     echo_info "Cropping all images..."
-    for jpg_file in "$STXW_FIGURE_JPG_DIR"/*.jpg; do
+    for jpg_file in "$SCITEX_WRITER_FIGURE_JPG_DIR"/*.jpg; do
         [ -e "$jpg_file" ] || continue
         crop_image "$jpg_file"
     done
@@ -91,7 +91,7 @@ main() {
     compile_figure_tex_files
     
     # Report results
-    local compiled_count=$(find "$STXW_FIGURE_COMPILED_DIR" -name "[0-9]*.tex" 2>/dev/null | wc -l)
+    local compiled_count=$(find "$SCITEX_WRITER_FIGURE_COMPILED_DIR" -name "[0-9]*.tex" 2>/dev/null | wc -l)
     if [ "$no_figs" = false ] && [ $compiled_count -gt 0 ]; then
         echo_success "$compiled_count figures compiled"
     fi

@@ -253,10 +253,10 @@ EOF
 ### Configuration
 
 Paths configured in `config/load_config.sh`:
-- `STXW_FIGURE_CAPTION_MEDIA_DIR`: Source directory
-- `STXW_FIGURE_JPG_DIR`: Output directory
-- `STXW_FIGURE_COMPILED_DIR`: LaTeX directory
-- `STXW_FIGURE_COMPILED_FILE`: Final output (FINAL.tex)
+- `SCITEX_WRITER_FIGURE_CAPTION_MEDIA_DIR`: Source directory
+- `SCITEX_WRITER_FIGURE_JPG_DIR`: Output directory
+- `SCITEX_WRITER_FIGURE_COMPILED_DIR`: LaTeX directory
+- `SCITEX_WRITER_FIGURE_COMPILED_FILE`: Final output (FINAL.tex)
 
 ---
 

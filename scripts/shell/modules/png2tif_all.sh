@@ -22,7 +22,7 @@ echo_error() { echo -e "${RED}$1${NC}"; }
 # ---------------------------------------
 
 # Configurations
-source ./config/load_config.sh $STXW_DOC_TYPE
+source ./config/load_config.sh $SCITEX_WRITER_DOC_TYPE
 
 # Source the shared command module
 source "$(dirname ${BASH_SOURCE[0]})/command_switching.src"
@@ -41,12 +41,12 @@ png2tif_all(){
         return 1
     fi
 
-    find "$STXW_FIGURE_CAPTION_MEDIA_DIR" -maxdepth 1 \
+    find "$SCITEX_WRITER_FIGURE_CAPTION_MEDIA_DIR" -maxdepth 1 \
          -name '.*.png' | \
     parallel --no-notice --silent \
         'in={}; out={.}.tif
          '"$convert_cmd"' -density 300 -units PixelsPerInch "$in" "$out"
-         echo "    TIFF {#}/'"$(wc -l <<< "$(find "$STXW_FIGURE_CAPTION_MEDIA_DIR" -maxdepth 1 -name '.*.png')")"' -> $out"'
+         echo "    TIFF {#}/'"$(wc -l <<< "$(find "$SCITEX_WRITER_FIGURE_CAPTION_MEDIA_DIR" -maxdepth 1 -name '.*.png')")"' -> $out"'
 }
 
 png2tif_all 2>&1 | tee -a "$LOG_PATH"
