@@ -6,7 +6,7 @@
 ORIG_DIR="$(pwd)"
 THIS_DIR="$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)"
 LOG_PATH="$THIS_DIR/.$(basename $0).log"
-echo > "$LOG_PATH"
+# Don't clear log at start - timing info will be appended
 
 GIT_ROOT="$(git rev-parse --show-toplevel 2>/dev/null)"
 
@@ -217,42 +217,71 @@ check_all_dependencies() {
     local required_output=""
     local optional_output=""
 
+    # Log run timestamp
+    echo "=== $(date '+%Y-%m-%d %H:%M:%S') ===" >> "$LOG_PATH"
+
+    # Pre-warmup: do expensive shared setup once before parallelizing
+    # This prevents each parallel job from doing redundant work
+    local start_warmup=$(date +%s%N)
+    get_container_runtime &> /dev/null
+    load_texlive_module &> /dev/null
+    setup_latex_container &> /dev/null
+    setup_mermaid_container &> /dev/null
+    local end_warmup=$(date +%s%N)
+    local warmup_ms=$(( (end_warmup - start_warmup) / 1000000 ))
+    echo "Warmup: ${warmup_ms}ms" >> "$LOG_PATH"
+    echo_info "    Warmup: ${warmup_ms}ms"
+
     # Temp directory for parallel results
     local temp_dir=$(mktemp -d)
 
-    # Run all required checks in parallel
-    check_pdflatex > "$temp_dir/req_pdflatex" 2>&1 &
-    check_bibtex > "$temp_dir/req_bibtex" 2>&1 &
-    check_latexdiff > "$temp_dir/req_latexdiff" 2>&1 &
-    check_texcount > "$temp_dir/req_texcount" 2>&1 &
-    check_xlsx2csv > "$temp_dir/req_xlsx2csv" 2>&1 &
-    check_csv2latex > "$temp_dir/req_csv2latex" 2>&1 &
-    check_parallel > "$temp_dir/req_parallel" 2>&1 &
+    # Run all required checks in parallel, capturing exit codes
+    local start_checks=$(date +%s%N)
+    (check_pdflatex > "$temp_dir/req_pdflatex" 2>&1; echo $? > "$temp_dir/req_pdflatex.exit") &
+    (check_bibtex > "$temp_dir/req_bibtex" 2>&1; echo $? > "$temp_dir/req_bibtex.exit") &
+    (check_latexdiff > "$temp_dir/req_latexdiff" 2>&1; echo $? > "$temp_dir/req_latexdiff.exit") &
+    (check_texcount > "$temp_dir/req_texcount" 2>&1; echo $? > "$temp_dir/req_texcount.exit") &
+    (check_xlsx2csv > "$temp_dir/req_xlsx2csv" 2>&1; echo $? > "$temp_dir/req_xlsx2csv.exit") &
+    (check_csv2latex > "$temp_dir/req_csv2latex" 2>&1; echo $? > "$temp_dir/req_csv2latex.exit") &
+    (check_parallel > "$temp_dir/req_parallel" 2>&1; echo $? > "$temp_dir/req_parallel.exit") &
 
     # Run all optional checks in parallel
-    check_opencv > "$temp_dir/opt_opencv" 2>&1 &
-    check_numpy > "$temp_dir/opt_numpy" 2>&1 &
-    check_mmdc > "$temp_dir/opt_mmdc" 2>&1 &
-    check_bibtexparser > "$temp_dir/opt_bibtexparser" 2>&1 &
+    (check_opencv > "$temp_dir/opt_opencv" 2>&1; echo $? > "$temp_dir/opt_opencv.exit") &
+    (check_numpy > "$temp_dir/opt_numpy" 2>&1; echo $? > "$temp_dir/opt_numpy.exit") &
+    (check_mmdc > "$temp_dir/opt_mmdc" 2>&1; echo $? > "$temp_dir/opt_mmdc.exit") &
+    (check_bibtexparser > "$temp_dir/opt_bibtexparser" 2>&1; echo $? > "$temp_dir/opt_bibtexparser.exit") &
 
     # Wait for all background jobs
     wait
+    local end_checks=$(date +%s%N)
+    local checks_ms=$(( (end_checks - start_checks) / 1000000 ))
+    echo "Parallel checks: ${checks_ms}ms" >> "$LOG_PATH"
+    echo_info "    Parallel checks: ${checks_ms}ms"
 
-    # Collect required results
-    for result_file in "$temp_dir"/req_*; do
-        if [ -s "$result_file" ]; then
-            output=$(cat "$result_file")
+    # Collect required results with exit codes
+    declare -A tool_status
+    for tool in pdflatex bibtex latexdiff texcount xlsx2csv csv2latex parallel; do
+        local exit_code=$(cat "$temp_dir/req_${tool}.exit" 2>/dev/null || echo 1)
+        if [ "$exit_code" -eq 0 ]; then
+            tool_status[$tool]="✓"
+        else
             has_missing_required=true
-            required_output="${required_output}${output}\n"
+            tool_status[$tool]="✗"
+            if [ -s "$temp_dir/req_${tool}" ]; then
+                required_output="${required_output}$(cat "$temp_dir/req_${tool}")\n"
+            fi
         fi
     done
 
     # Collect optional results
-    for result_file in "$temp_dir"/opt_*; do
-        if [ -s "$result_file" ]; then
-            output=$(cat "$result_file")
+    for result_file in "$temp_dir"/opt_*.exit; do
+        local tool=$(basename "$result_file" .exit | sed 's/opt_//')
+        local exit_code=$(cat "$result_file" 2>/dev/null || echo 1)
+        if [ "$exit_code" -ne 0 ]; then
             has_missing_optional=true
-            optional_output="${optional_output}${output}\n"
+            if [ -s "${result_file%.exit}" ]; then
+                optional_output="${optional_output}$(cat "${result_file%.exit}")\n"
+            fi
         fi
     done
 
@@ -265,11 +294,15 @@ check_all_dependencies() {
         echo -e "$required_output"
         return 1
     else
-        if [ -n "$SCITEX_WRITER_TEXLIVE_APPTAINER_SIF" ] && [ -f "$SCITEX_WRITER_TEXLIVE_APPTAINER_SIF" ]; then
-            echo_success "    All required tools available (using container for LaTeX)"
-        else
-            echo_success "    All required tools available (native installation)"
-        fi
+        # Show summary table using cached results (no additional checks!)
+        echo_success "    Required tools:"
+        printf "      %-20s %s\n" "pdflatex" "${tool_status[pdflatex]}"
+        printf "      %-20s %s\n" "bibtex" "${tool_status[bibtex]}"
+        printf "      %-20s %s\n" "latexdiff" "${tool_status[latexdiff]}"
+        printf "      %-20s %s\n" "texcount" "${tool_status[texcount]}"
+        printf "      %-20s %s\n" "xlsx2csv" "${tool_status[xlsx2csv]}"
+        printf "      %-20s %s\n" "csv2latex" "${tool_status[csv2latex]}"
+        printf "      %-20s %s\n" "parallel" "${tool_status[parallel]}"
     fi
 
     if [ "$has_missing_optional" = true ]; then

@@ -3,6 +3,14 @@
 # Timestamp: "2025-09-28 19:49:15 (ywatanabe)"
 # File: ./paper/scripts/shell/modules/process_tables.sh
 
+# Quick check for --no_tables BEFORE expensive config loading
+NO_TABLES_ARG="${1:-false}"
+if [ "$NO_TABLES_ARG" = true ]; then
+    echo -e "\033[0;90mINFO: Running $0 ...\033[0m"
+    echo -e "\033[0;90mINFO:     Skipping all table processing (--no_tables specified)\033[0m"
+    exit 0
+fi
+
 ORIG_DIR="$(pwd)"
 THIS_DIR="$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)"
 LOG_PATH="$THIS_DIR/.$(basename $0).log"
