@@ -21,16 +21,9 @@ echo_success() { echo -e "${GREEN}SUCC: $1${NC}"; }
 echo_warning() { echo -e "${YELLOW}WARN: $1${NC}"; }
 echo_error() { echo -e "${RED}ERRO: $1${NC}"; }
 echo_header() { echo_info "=== $1 ==="; }
-# ---------------------------------------
-
-echo_info() { echo -e "${LIGHT_GRAY}$1${NC}"; }
-echo_success() { echo -e "${GREEN}$1${NC}"; }
-echo_warning() { echo -e "${YELLOW}$1${NC}"; }
-echo_error() { echo -e "${RED}$1${NC}"; }
-
 echo_warn() { echo -e "${YELLOW}WARN: $1${NC}"; }
 echo_error_soft() { echo -e "${RED}ERRO: $1${NC}"; }
-echo_error() { echo -e "${RED}ERRO: $1${NC}"; exit 1; }
+# ---------------------------------------
 
 THIS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
