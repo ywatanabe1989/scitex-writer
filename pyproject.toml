@@ -1,0 +1,84 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "scitex-writer"
+version = "1.2.1"
+description = "Scientific manuscript writing system with LaTeX, Python interface, and version control"
+readme = "README.md"
+requires-python = ">=3.8"
+license = {text = "Apache-2.0"}
+authors = [
+    {name = "Yusuke Watanabe", email = "ywata047@gmail.com"}
+]
+keywords = [
+    "latex",
+    "scientific-writing",
+    "manuscript",
+    "academic",
+    "paper",
+    "scitex",
+    "scientific-computing"
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Text Processing :: Markup :: LaTeX",
+]
+
+dependencies = [
+    "pyyaml>=5.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0",
+    "black>=22.0",
+    "flake8>=4.0",
+    "mypy>=0.950",
+]
+
+[project.urls]
+Homepage = "https://github.com/ywatanabe1989/scitex-writer"
+Documentation = "https://github.com/ywatanabe1989/scitex-writer/blob/main/README.md"
+Repository = "https://github.com/ywatanabe1989/scitex-writer"
+Issues = "https://github.com/ywatanabe1989/scitex-writer/issues"
+
+[project.scripts]
+scitex-writer = "scitex.writer.cli:main"
+scitex-writer-update = "scitex.writer.cli:update"
+
+[tool.setuptools]
+packages = ["scitex", "scitex.writer"]
+package-dir = {"" = "src"}
+
+[tool.setuptools.package-data]
+"scitex.writer" = [
+    "../../scripts/**/*",
+    "../../config/**/*",
+    "../../01_manuscript/**/*",
+    "../../02_supplementary/**/*",
+    "../../03_revision/**/*",
+    "../../shared/**/*",
+    "../../Makefile",
+    "../../compile.sh",
+    "../../VERSION",
+]
+
+[tool.black]
+line-length = 88
+target-version = ['py38', 'py39', 'py310', 'py311']
+
+[tool.mypy]
+python_version = "3.8"
+warn_return_any = true
+warn_unused_configs = true

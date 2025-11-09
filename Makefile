@@ -1,17 +1,24 @@
-# Makefile for NeuroVista Paper Compilation System
+# Makefile for SciTeX Writer
 # Usage: make [target]
 # Author: ywatanabe
-# Dependencies: compile script, Apptainer containers
+# Dependencies: Python 3.8+, compile scripts, Apptainer containers
 
 .PHONY: \
 	all \
 	manuscript \
 	supplementary \
 	revision \
+	install \
+	develop \
+	test \
+	build \
+	upload \
+	update \
 	clean \
 	clean-logs \
 	clean-cache \
 	clean-compiled \
+	clean-python \
 	clean-all \
 	help
 
@@ -30,6 +37,38 @@ supplementary:
 revision:
 	@echo "Compiling revision responses..."
 	./compile.sh revision --quiet
+
+# Python package targets
+install:
+	@echo "Installing scitex-writer..."
+	pip install .
+
+develop:
+	@echo "Installing scitex-writer in development mode..."
+	pip install -e .
+
+test:
+	@echo "Running tests..."
+	pytest tests/ -v
+
+build:
+	@echo "Building distribution packages..."
+	python -m build
+
+upload:
+	@echo "Uploading to PyPI..."
+	python -m twine upload dist/*
+
+upload-test:
+	@echo "Uploading to Test PyPI..."
+	python -m twine upload --repository testpypi dist/*
+
+update:
+	@echo "Updating scitex-writer..."
+	./scripts/update.sh
+
+version:
+	@echo "SciTeX Writer $(shell cat VERSION)"
 
 # Cleaning targets
 clean:
@@ -57,7 +96,16 @@ clean-compiled:
 	rm -f ./02_supplementary/{supplementary.pdf,supplementary.tex,supplementary_diff.pdf,supplementary_diff.tex}
 	rm -f ./03_revision/{revision.pdf,revision.tex,revision_diff.pdf,revision_diff.tex}
 
-clean-all: clean clean-logs clean-archive clean-compiled
+clean-python:
+	@echo "Cleaning Python build artifacts..."
+	rm -rf build/
+	rm -rf dist/
+	rm -rf *.egg-info
+	rm -rf src/*.egg-info
+	find . -type d -name __pycache__ -exec rm -rf {} + 2>/dev/null || true
+	find . -type f -name "*.pyc" -delete
+
+clean-all: clean clean-logs clean-archive clean-compiled clean-python
 	@echo "Deep cleaning all generated files..."
 
 # Status and information
@@ -72,20 +120,31 @@ status:
 
 # Help target
 help:
-	@echo "NeuroVista Paper Compilation System"
+	@echo "SciTeX Writer - Scientific Manuscript Writing System"
+	@echo "Version: $(shell cat VERSION)"
 	@echo ""
-	@echo "Available targets:"
-	@echo "  all              - Compile manuscript (default)"
+	@echo "Document Compilation:"
+	@echo "  all              - Compile all documents (default)"
 	@echo "  manuscript       - Compile manuscript"
 	@echo "  supplementary    - Compile supplementary materials"
 	@echo "  revision         - Compile revision responses"
+	@echo ""
+	@echo "Python Package:"
+	@echo "  install          - Install scitex-writer package"
+	@echo "  develop          - Install in development mode"
+	@echo "  test             - Run tests"
+	@echo "  build            - Build distribution packages"
+	@echo "  upload           - Upload to PyPI"
+	@echo "  upload-test      - Upload to Test PyPI"
+	@echo "  update           - Update to latest version"
+	@echo "  version          - Show version"
 	@echo ""
 	@echo "Cleaning:"
 	@echo "  clean            - Remove temporary LaTeX files"
 	@echo "  clean-logs       - Remove log files"
 	@echo "  clean-archive    - Remove archived versions"
-	@echo "  clean-cache      - Remove container cache"
-	@echo "  clean-compiled      - Remove compiled tex/pdf files"
+	@echo "  clean-compiled   - Remove compiled tex/pdf files"
+	@echo "  clean-python     - Remove Python build artifacts"
 	@echo "  clean-all        - Remove all generated files"
 	@echo ""
 	@echo "Information:"
@@ -93,7 +152,8 @@ help:
 	@echo "  help             - Show this help message"
 	@echo ""
 	@echo "Examples:"
-	@echo "  make manuscript"
-	@echo "  make supplementary-quiet"
-	@echo "  make revision-force"
-	@echo "  make clean-all"
+	@echo "  make manuscript         # Compile manuscript"
+	@echo "  make develop            # Install for development"
+	@echo "  make test               # Run tests"
+	@echo "  make update             # Update to latest version"
+	@echo "  make clean-all          # Clean everything"
