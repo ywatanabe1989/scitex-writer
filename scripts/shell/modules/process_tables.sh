@@ -19,6 +19,21 @@ echo_info() { echo -e "${LIGHT_GRAY}$1${NC}"; }
 echo_success() { echo -e "${GREEN}$1${NC}"; }
 echo_warning() { echo -e "${YELLOW}$1${NC}"; }
 echo_error() { echo -e "${RED}$1${NC}"; }
+
+# Timestamp tracking for table processing
+TABLE_STAGE_START=0
+log_table_stage_start() {
+    TABLE_STAGE_START=$(date +%s)
+    local timestamp=$(date '+%H:%M:%S')
+    echo_info "  [$timestamp] $1"
+}
+
+log_table_stage_end() {
+    local end=$(date +%s)
+    local elapsed=$((end - TABLE_STAGE_START))
+    local timestamp=$(date '+%H:%M:%S')
+    echo_success "  [$timestamp] $1 (${elapsed}s)"
+}
 # ---------------------------------------
 
 # Configurations
@@ -422,10 +437,24 @@ function gather_table_tex_files() {
 }
 
 # Main execution
+log_table_stage_start "Initializing tables"
 init_tables
+log_table_stage_end "Initializing tables"
+
+log_table_stage_start "Converting XLSX to CSV"
 xlsx2csv_convert  # Convert Excel files to CSV first
+log_table_stage_end "Converting XLSX to CSV"
+
+log_table_stage_start "Ensuring captions exist"
 ensure_caption
+log_table_stage_end "Ensuring captions exist"
+
+log_table_stage_start "Converting CSV to LaTeX"
 csv2tex
+log_table_stage_end "Converting CSV to LaTeX"
+
+log_table_stage_start "Gathering table files"
 gather_table_tex_files
+log_table_stage_end "Gathering table files"
 
 # EOF
