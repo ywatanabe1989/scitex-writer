@@ -23,11 +23,6 @@ echo_error() { echo -e "${RED}ERRO: $1${NC}"; }
 echo_header() { echo_info "=== $1 ==="; }
 # ---------------------------------------
 
-echo_info() { echo -e "${LIGHT_GRAY}$1${NC}"; }
-echo_success() { echo -e "${GREEN}$1${NC}"; }
-echo_warning() { echo -e "${YELLOW}$1${NC}"; }
-echo_error() { echo -e "${RED}$1${NC}"; }
-
 # Timestamp tracking functions
 STAGE_START_TIME=0
 COMPILATION_START_TIME=$(date +%s)
