@@ -89,25 +89,38 @@ cd scitex-writer
 
 ## Installation
 
-Dependencies are checked automatically during compilation. If missing, install as suggested:
+Dependencies are checked automatically during compilation. Quick install options:
 
-**Native LaTeX (Debian/Ubuntu):**
+**Native LaTeX (Ubuntu/Debian):**
 ```bash
-sudo apt-get install texlive-latex-extra latexdiff parallel
+sudo apt-get install texlive-latex-extra latexdiff parallel imagemagick ghostscript
+git clone https://github.com/ywatanabe1989/scitex-writer.git
+cd scitex-writer
+./scripts/shell/compile_manuscript.sh
 ```
 
-**HPC Environments:**
+**macOS:**
 ```bash
-module load texlive  # or use Singularity container
+brew install texlive latexdiff parallel imagemagick ghostscript
+git clone https://github.com/ywatanabe1989/scitex-writer.git
+cd scitex-writer
+./scripts/shell/compile_manuscript.sh
 ```
 
-**Container (Docker/Singularity):**
+**Python Package:**
 ```bash
-# No manual installation needed
-# Container includes all dependencies
+pip install scitex-writer
+scitex create my_paper
+cd my_paper
+./scripts/shell/compile_manuscript.sh
 ```
 
-See [Installation Guide](docs/INSTALLATION.md) for details.
+**HPC/Containers:**
+- Module system: `module load texlive latexdiff parallel`
+- Docker: `docker run -v $(pwd):/work scitex-writer`
+- Singularity: `singularity run scitex-writer.sif`
+
+**👉 See [Full Installation Guide](docs/01_GUIDE_INSTALLATION.md) for detailed instructions by environment.**
 
 ## Features
 
@@ -140,11 +153,12 @@ vim my_papers.bib
 
 ## Documentation
 
-- [Installation Guide](docs/INSTALLATION.md)
-- [Quick Start](docs/01_GUIDE_QUICK_START.md)
-- [Bibliography Management](docs/01_GUIDE_BIBLIOGRAPHY.md)
-- [Architecture](docs/02_ARCHITECTURE_IMPLEMENTATION.md)
-- [Full Documentation](docs/)
+- [Installation Guide](docs/01_GUIDE_INSTALLATION.md) - Complete setup instructions for all environments
+- [Quick Start](docs/01_GUIDE_QUICK_START.md) - Common tasks and workflows
+- [Content Creation](docs/01_GUIDE_CONTENT_CREATION.md) - Writing manuscripts, figures, tables
+- [Bibliography Management](docs/01_GUIDE_BIBLIOGRAPHY.md) - Managing references and citations
+- [Architecture](docs/02_ARCHITECTURE_IMPLEMENTATION.md) - Technical implementation details
+- [Full Documentation](docs/00_INDEX.md) - All guides and resources
 
 ## Testing
 
