@@ -210,33 +210,54 @@ check_bibtexparser() {
     return 0
 }
 
-# Check all required commands
+# Check all required commands (parallelized for speed)
 check_all_dependencies() {
     local has_missing_required=false
     local has_missing_optional=false
     local required_output=""
     local optional_output=""
 
-    # Try to setup container first if needed
-    # Container setup is now handled by individual command functions via command_switching.sh
+    # Temp directory for parallel results
+    local temp_dir=$(mktemp -d)
 
-    # Required tools
-    for checker in check_pdflatex check_bibtex check_latexdiff check_texcount check_xlsx2csv check_csv2latex check_parallel; do
-        output=$($checker)
-        if [ -n "$output" ]; then
+    # Run all required checks in parallel
+    check_pdflatex > "$temp_dir/req_pdflatex" 2>&1 &
+    check_bibtex > "$temp_dir/req_bibtex" 2>&1 &
+    check_latexdiff > "$temp_dir/req_latexdiff" 2>&1 &
+    check_texcount > "$temp_dir/req_texcount" 2>&1 &
+    check_xlsx2csv > "$temp_dir/req_xlsx2csv" 2>&1 &
+    check_csv2latex > "$temp_dir/req_csv2latex" 2>&1 &
+    check_parallel > "$temp_dir/req_parallel" 2>&1 &
+
+    # Run all optional checks in parallel
+    check_opencv > "$temp_dir/opt_opencv" 2>&1 &
+    check_numpy > "$temp_dir/opt_numpy" 2>&1 &
+    check_mmdc > "$temp_dir/opt_mmdc" 2>&1 &
+    check_bibtexparser > "$temp_dir/opt_bibtexparser" 2>&1 &
+
+    # Wait for all background jobs
+    wait
+
+    # Collect required results
+    for result_file in "$temp_dir"/req_*; do
+        if [ -s "$result_file" ]; then
+            output=$(cat "$result_file")
             has_missing_required=true
             required_output="${required_output}${output}\n"
         fi
     done
 
-    # Optional tools
-    for checker in check_opencv check_numpy check_mmdc check_bibtexparser; do
-        output=$($checker)
-        if [ -n "$output" ]; then
+    # Collect optional results
+    for result_file in "$temp_dir"/opt_*; do
+        if [ -s "$result_file" ]; then
+            output=$(cat "$result_file")
             has_missing_optional=true
             optional_output="${optional_output}${output}\n"
         fi
     done
+
+    # Cleanup
+    rm -rf "$temp_dir"
 
     # Display results
     if [ "$has_missing_required" = true ]; then
