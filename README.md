@@ -87,9 +87,9 @@ SciTeX Writer supports **three deployment options** for LaTeX dependencies. Choo
 
 ---
 
-### **Option 1: Native Installation** (Fastest - If You Have LaTeX)
+### **Option 1: Native Installation** (Fastest)
 
-**Best for:** Users with existing LaTeX installation, fastest compilation
+**Best for:** Users with existing LaTeX, fastest compilation
 
 **Ubuntu/Debian:**
 ```bash
@@ -121,31 +121,38 @@ brew install parallel
 
 ---
 
-### **Option 2: Containers** (Reproducible - Zero Configuration)
+### **Option 2: Singularity/Apptainer** (Reproducible)
 
-**Best for:** Reproducible builds, HPC clusters, CI/CD
+**Best for:** HPC clusters, reproducible builds, CI/CD
 
-Containers are **automatically downloaded** on first compilation. No manual setup needed!
-
-#### **2A. Apptainer/Singularity** (Recommended for HPC)
+Containers **auto-download** on first compilation (~3.2GB). No manual setup!
 
 **Ubuntu/Debian:**
 ```bash
 sudo apt-get install -y apptainer
+./compile.sh  # Auto-downloads containers
 ```
 
 **HPC Clusters:**
 ```bash
 module load singularity  # or: module load apptainer
+./compile.sh
 ```
 
-**Optional - Pre-download:**
+**Optional - Pre-download containers:**
 ```bash
 ./scripts/installation/download_containers.sh
 # Downloads: texlive (~2GB), mermaid (~750MB), imagemagick (~200MB)
 ```
 
-#### **2B. Docker**
+✅ **Pros:** Reproducible, HPC-friendly, auto-downloads
+⚠️ **Cons:** Initial 3.2GB download
+
+---
+
+### **Option 3: Docker** (Cross-Platform)
+
+**Best for:** Local machines, macOS, Windows (WSL)
 
 ```bash
 # Install Docker
@@ -155,24 +162,25 @@ curl -fsSL https://get.docker.com | sh
 ./compile.sh
 ```
 
-✅ **Pros:** Reproducible, consistent across systems, auto-downloads
-⚠️ **Cons:** Initial download size (~3.2GB), slower than native
-
----
-
-### **Option 3: HPC Module System** (HPC Only)
-
-**Best for:** HPC clusters with pre-installed modules
-
+**Windows (WSL2):**
 ```bash
-module load texlive parallel
+# Install Docker Desktop for Windows with WSL2 backend
+# Then run in WSL:
 ./compile.sh
 ```
 
-SciTeX Writer automatically detects and uses loaded modules.
+✅ **Pros:** Cross-platform, familiar tool, auto-downloads
+⚠️ **Cons:** Slower on HPC (use Singularity instead)
 
-✅ **Pros:** Already available on HPC, no installation
-⚠️ **Cons:** Only available on HPC systems
+---
+
+### **Alternative: HPC Module System**
+
+If on HPC with pre-installed modules:
+```bash
+module load texlive parallel
+./compile.sh  # Auto-detects loaded modules
+```
 
 ---
 
