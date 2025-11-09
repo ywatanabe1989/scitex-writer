@@ -74,7 +74,7 @@ version:
 
 demo-previews:
 	@echo "Generating demo preview images for README..."
-	./scripts/generate_demo_previews.sh
+	./scripts/repository_maintenance/generate_demo_previews.sh
 
 # Cleaning targets
 clean:
