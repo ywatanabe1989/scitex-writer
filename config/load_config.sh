@@ -10,6 +10,23 @@ echo > "$LOG_PATH"
 
 GIT_ROOT="$(git rev-parse --show-toplevel 2>/dev/null)"
 
+# Load version - try multiple methods to find VERSION file
+VERSION_FILE=""
+if [ -n "$GIT_ROOT" ] && [ -f "${GIT_ROOT}/VERSION" ]; then
+    VERSION_FILE="${GIT_ROOT}/VERSION"
+elif [ -f "${THIS_DIR}/../VERSION" ]; then
+    VERSION_FILE="${THIS_DIR}/../VERSION"
+elif [ -f "./VERSION" ]; then
+    VERSION_FILE="./VERSION"
+fi
+
+if [ -n "$VERSION_FILE" ] && [ -f "$VERSION_FILE" ]; then
+    SCITEX_WRITER_VERSION=$(cat "$VERSION_FILE" | tr -d '[:space:]')
+else
+    SCITEX_WRITER_VERSION="unknown"
+fi
+export SCITEX_WRITER_VERSION
+
 GRAY='\033[0;90m'
 GREEN='\033[0;32m'
 YELLOW='\033[0;33m'
@@ -30,6 +47,7 @@ THIS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # Logging
 CONFIG_LOADED=${CONFIG_LOADED:-false}
 if [ "$CONFIG_LOADED" != "true" ]; then
+    echo_header "SciTeX Writer v${SCITEX_WRITER_VERSION}"
     echo_info "Running $0..."
 fi
 
@@ -84,7 +102,7 @@ export SCITEX_WRITER_TREE_TXT="$(yq -r '.misc.tree_txt' $CONFIG_FILE)"
 
 
 if [ "$CONFIG_LOADED" != "true" ]; then
-    echo_success "    Configuration Loaded for $SCITEX_WRITER_DOC_TYPE"
+    echo_success "    Configuration Loaded for $SCITEX_WRITER_DOC_TYPE (v${SCITEX_WRITER_VERSION})"
     export CONFIG_LOADED=true
 fi
 
