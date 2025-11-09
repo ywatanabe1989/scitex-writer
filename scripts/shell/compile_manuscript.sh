@@ -19,6 +19,26 @@ echo_info() { echo -e "${LIGHT_GRAY}$1${NC}"; }
 echo_success() { echo -e "${GREEN}$1${NC}"; }
 echo_warning() { echo -e "${YELLOW}$1${NC}"; }
 echo_error() { echo -e "${RED}$1${NC}"; }
+
+# Timestamp tracking functions
+STAGE_START_TIME=0
+COMPILATION_START_TIME=$(date +%s)
+
+log_stage_start() {
+    local stage_name="$1"
+    STAGE_START_TIME=$(date +%s)
+    local timestamp=$(date '+%H:%M:%S')
+    echo_info "[$timestamp] Starting: $stage_name"
+}
+
+log_stage_end() {
+    local stage_name="$1"
+    local end_time=$(date +%s)
+    local elapsed=$((end_time - STAGE_START_TIME))
+    local total_elapsed=$((end_time - COMPILATION_START_TIME))
+    local timestamp=$(date '+%H:%M:%S')
+    echo_success "[$timestamp] Completed: $stage_name (${elapsed}s elapsed, ${total_elapsed}s total)"
+}
 # ---------------------------------------
 
 # Configurations
@@ -92,44 +112,71 @@ main() {
     # fi
 
     # Check dependencies
+    log_stage_start "Dependency Check"
     ./scripts/shell/modules/check_dependancy_commands.sh
+    log_stage_end "Dependency Check"
 
     # Apply citation style from config
+    log_stage_start "Citation Style"
     ./scripts/shell/modules/apply_citation_style.sh
+    log_stage_end "Citation Style"
 
     # Process figures, tables, and count
+    log_stage_start "Figure Processing"
     ./scripts/shell/modules/process_figures.sh \
         "$no_figs" \
         "$do_p2t" \
         "$do_verbose" \
         "$do_crop_tif"
+    log_stage_end "Figure Processing"
 
     # Process tables
+    log_stage_start "Table Processing"
     ./scripts/shell/modules/process_tables.sh
+    log_stage_end "Table Processing"
 
     # Count words
+    log_stage_start "Word Count"
     ./scripts/shell/modules/count_words.sh
+    log_stage_end "Word Count"
 
     # Compile documents
+    log_stage_start "TeX Compilation (Structure)"
     ./scripts/shell/modules/compilation_structure_tex_to_compiled_tex.sh
+    log_stage_end "TeX Compilation (Structure)"
 
     # TeX to PDF
+    log_stage_start "PDF Generation"
     ./scripts/shell/modules/compilation_compiled_tex_to_compiled_pdf.sh
+    log_stage_end "PDF Generation"
 
     # Diff
+    log_stage_start "Diff Generation"
     ./scripts/shell/modules/process_diff.sh
+    log_stage_end "Diff Generation"
 
     # Versioning
+    log_stage_start "Archive/Versioning"
     ./scripts/shell/modules/process_archive.sh
+    log_stage_end "Archive/Versioning"
 
     # Cleanup
+    log_stage_start "Cleanup"
     ./scripts/shell/modules/cleanup.sh
+    log_stage_end "Cleanup"
 
     # Final steps
+    log_stage_start "Directory Tree"
     ./scripts/shell/modules/custom_tree.sh
+    log_stage_end "Directory Tree"
 
     # Logging
     echo
+    local final_time=$(date +%s)
+    local total_compilation_time=$((final_time - COMPILATION_START_TIME))
+    echo_success "===================================================="
+    echo_success "TOTAL COMPILATION TIME: ${total_compilation_time}s"
+    echo_success "===================================================="
     echo_success "See $STXW_GLOBAL_LOG_FILE"
 }
 

@@ -19,6 +19,21 @@ echo_info() { echo -e "${LIGHT_GRAY}$1${NC}"; }
 echo_success() { echo -e "${GREEN}$1${NC}"; }
 echo_warning() { echo -e "${YELLOW}$1${NC}"; }
 echo_error() { echo -e "${RED}$1${NC}"; }
+
+# Timestamp tracking for figure processing
+FIGURE_STAGE_START=0
+log_figure_stage_start() {
+    FIGURE_STAGE_START=$(date +%s)
+    local timestamp=$(date '+%H:%M:%S')
+    echo_info "  [$timestamp] $1"
+}
+
+log_figure_stage_end() {
+    local end=$(date +%s)
+    local elapsed=$((end - FIGURE_STAGE_START))
+    local timestamp=$(date '+%H:%M:%S')
+    echo_success "  [$timestamp] $1 (${elapsed}s)"
+}
 # ---------------------------------------
 
 #
@@ -231,21 +246,23 @@ convert_figure_formats_in_cascade() {
 
     # Step 1: PPTX -> TIF (when pptx located, convert to tif)
     if [ "$p2t" = true ]; then
-        echo_info "    Step 1: Converting PPTX to TIF..."
+        log_figure_stage_start "Step 1: PPTX -> TIF"
         pptx2tif true
+        log_figure_stage_end "Step 1: PPTX -> TIF"
     fi
 
     # Step 2: Crop TIF files (when cropping option enabled)
     if [ "$do_crop" = true ]; then
-        echo_info "    Step 2: Cropping TIF files..."
+        log_figure_stage_start "Step 2: Cropping TIF files"
         for tif_file in "$STXW_FIGURE_CAPTION_MEDIA_DIR"/[0-9]*.{tif,tiff}; do
             [ -e "$tif_file" ] || continue
             crop_image "$tif_file" true false
         done
+        log_figure_stage_end "Step 2: Cropping TIF files"
     fi
 
     # Step 3: TIF/TIFF -> PNG (when tif/tiff located, convert to png)
-    echo_info "    Step 3: Converting TIF/TIFF to PNG..."
+    log_figure_stage_start "Step 3: TIF/TIFF -> PNG"
     for tif_file in "$STXW_FIGURE_CAPTION_MEDIA_DIR"/[0-9]*.{tif,tiff}; do
         [ -e "$tif_file" ] || continue
         local base_name="$(basename "$tif_file" | sed 's/\.tiff\?$//')"
@@ -255,13 +272,15 @@ convert_figure_formats_in_cascade() {
             tif2png "$tif_file" "$png_path"
         fi
     done
+    log_figure_stage_end "Step 3: TIF/TIFF -> PNG"
 
     # Step 4: MMD -> PNG (when mmd located, convert to png)
-    echo_info "    Step 4: Converting MMD to PNG..."
+    log_figure_stage_start "Step 4: MMD -> PNG"
     mmd2png
+    log_figure_stage_end "Step 4: MMD -> PNG"
 
     # Step 5: PNG -> JPG (convert png to jpg directly in caption_and_media)
-    echo_info "    Step 5: Converting PNG to JPG..."
+    log_figure_stage_start "Step 5: PNG -> JPG"
     for png_file in "$STXW_FIGURE_CAPTION_MEDIA_DIR"/[0-9]*.png; do
         [ -e "$png_file" ] || continue
         local base_name="$(basename "$png_file" .png)"
@@ -279,9 +298,10 @@ convert_figure_formats_in_cascade() {
             echo_warning "    Failed to convert: $(basename "$png_file")"
         fi
     done
+    log_figure_stage_end "Step 5: PNG -> JPG"
 
     # Step 6: Process existing JPG/JPEG files (normalize extension)
-    echo_info "    Step 6: Processing existing JPG/JPEG files..."
+    log_figure_stage_start "Step 6: Processing JPG/JPEG files"
     for jpeg_file in "$STXW_FIGURE_CAPTION_MEDIA_DIR"/[0-9]*.jpeg; do
         [ -e "$jpeg_file" ] || continue
         local base_name="$(basename "$jpeg_file" .jpeg)"
@@ -304,12 +324,17 @@ convert_figure_formats_in_cascade() {
             svg2jpg "$svg_file" "$jpg_path"
         fi
     done
+    log_figure_stage_end "Step 6: Processing JPG/JPEG files"
 
     # Step 7: Tile panel figures into composed figures
+    log_figure_stage_start "Step 7: Tiling panel figures"
     tile_panels "$STXW_FIGURE_CAPTION_MEDIA_DIR"
+    log_figure_stage_end "Step 7: Tiling panel figures"
 
     # Step 8: Copy ONLY composed/main figure JPGs to jpg_for_compilation
+    log_figure_stage_start "Step 8: Copying to compilation dir"
     copy_composed_jpg_files "$STXW_FIGURE_CAPTION_MEDIA_DIR" "$STXW_FIGURE_JPG_DIR"
+    log_figure_stage_end "Step 8: Copying to compilation dir"
 
     echo_success "    Figure conversion cascade completed"
 }
