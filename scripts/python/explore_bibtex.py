@@ -559,13 +559,13 @@ Examples:
     parser.add_argument(
         "--co-authors",
         action="store_true",
-        help="Filter papers by manuscript co-authors from shared/authors.tex",
+        help="Filter papers by manuscript co-authors from 00_shared/authors.tex",
     )
     parser.add_argument(
         "--authors-tex",
         type=Path,
-        default=Path("./shared/authors.tex"),
-        help="Path to authors.tex file (default: ./shared/authors.tex)",
+        default=Path("./00_shared/authors.tex"),
+        help="Path to authors.tex file (default: ./00_shared/authors.tex)",
     )
 
     # Comparison arguments

@@ -22,7 +22,9 @@
 	clean-all \
 	help
 
-# Default target
+# Default target - show help instead of compiling
+.DEFAULT_GOAL := help
+
 all: manuscript supplementary revision
 
 # Document compilation targets
@@ -68,7 +70,7 @@ update:
 	./scripts/update.sh
 
 version:
-	@echo "SciTeX Writer $(shell cat VERSION)"
+	@echo "SciTeX Writer $(shell grep '^version = ' pyproject.toml | sed 's/version = "\(.*\)"/\1/' | head -1 | tr -d '\"')"
 
 # Cleaning targets
 clean:
@@ -120,8 +122,8 @@ status:
 
 # Help target
 help:
-	@echo "SciTeX Writer - Scientific Manuscript Writing System"
-	@echo "Version: $(shell cat VERSION)"
+	@echo "SciTeX Writer - LaTeX Compilation System for Scientific Documents"
+	@echo "Version: $(shell grep '^version = ' pyproject.toml | sed 's/version = "\(.*\)"/\1/' | head -1 | tr -d '\"')"
 	@echo ""
 	@echo "Document Compilation:"
 	@echo "  all              - Compile all documents (default)"

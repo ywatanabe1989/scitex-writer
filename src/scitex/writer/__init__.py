@@ -14,12 +14,40 @@ Example:
 
 from pathlib import Path
 
-# Read version from VERSION file at repository root
-__version_file__ = Path(__file__).parent.parent.parent.parent / "VERSION"
+# Read version from pyproject.toml (single source of truth)
 try:
-    __version__ = __version_file__.read_text().strip()
-except FileNotFoundError:
-    __version__ = "unknown"
+    # Try using importlib.metadata first (works for installed packages)
+    from importlib.metadata import version
+    __version__ = version("scitex-writer")
+except Exception:
+    # Fallback: read directly from pyproject.toml
+    try:
+        import tomllib  # Python 3.11+
+    except ImportError:
+        try:
+            import tomli as tomllib  # Fallback for older Python
+        except ImportError:
+            # Last resort: manual parsing
+            pyproject_file = Path(__file__).parent.parent.parent.parent / "pyproject.toml"
+            try:
+                content = pyproject_file.read_text()
+                for line in content.split('\n'):
+                    if line.strip().startswith('version ='):
+                        __version__ = line.split('=')[1].strip().strip('"').strip("'")
+                        break
+                else:
+                    __version__ = "unknown"
+            except FileNotFoundError:
+                __version__ = "unknown"
+    else:
+        # Use tomllib to parse properly
+        pyproject_file = Path(__file__).parent.parent.parent.parent / "pyproject.toml"
+        try:
+            with open(pyproject_file, 'rb') as f:
+                data = tomllib.load(f)
+                __version__ = data.get('project', {}).get('version', 'unknown')
+        except FileNotFoundError:
+            __version__ = "unknown"
 
 # Import main interfaces
 from .writer import Writer

@@ -1,6 +1,6 @@
 #!/bin/bash
 # -*- coding: utf-8 -*-
-# Timestamp: "2025-11-09 18:12:17 (ywatanabe)"
+# Timestamp: "2025-11-09 19:20:50 (ywatanabe)"
 # File: ./scripts/shell/modules/process_figures.sh
 
 ORIG_DIR="$(pwd)"
@@ -59,7 +59,7 @@ log_figure_stage_end() {
 source ./config/load_config.sh $SCITEX_WRITER_DOC_TYPE
 source ./scripts/shell/modules/validate_tex.src
 
-# Source the shared command module
+# Source the 00_shared command module
 source "$(dirname ${BASH_SOURCE[0]})/command_switching.src"
 
 # Override echo_xxx functions
@@ -87,8 +87,8 @@ create_placeholder_jpg() {
     local figure_id="$1"  # e.g., ".01_missing"
     local jpg_path="$SCITEX_WRITER_FIGURE_JPG_DIR/$figure_id.jpg"
 
-    # Primary: Use template TIF file from shared directory
-    local template_tif="./shared/templates/figures/.00_TEMPLATE.tif"
+    # Primary: Use template TIF file from 00_shared directory
+    local template_tif="./00_shared/templates/figures/.00_TEMPLATE.tif"
 
     if [ -f "$template_tif" ]; then
         # Copy and convert template TIF to JPG

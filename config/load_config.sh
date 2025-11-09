@@ -10,18 +10,26 @@ echo > "$LOG_PATH"
 
 GIT_ROOT="$(git rev-parse --show-toplevel 2>/dev/null)"
 
-# Load version - try multiple methods to find VERSION file
-VERSION_FILE=""
-if [ -n "$GIT_ROOT" ] && [ -f "${GIT_ROOT}/VERSION" ]; then
-    VERSION_FILE="${GIT_ROOT}/VERSION"
-elif [ -f "${THIS_DIR}/../VERSION" ]; then
-    VERSION_FILE="${THIS_DIR}/../VERSION"
-elif [ -f "./VERSION" ]; then
-    VERSION_FILE="./VERSION"
+# Load version from pyproject.toml (single source of truth)
+PYPROJECT_FILE=""
+if [ -n "$GIT_ROOT" ] && [ -f "${GIT_ROOT}/pyproject.toml" ]; then
+    PYPROJECT_FILE="${GIT_ROOT}/pyproject.toml"
+elif [ -f "${THIS_DIR}/../pyproject.toml" ]; then
+    PYPROJECT_FILE="${THIS_DIR}/../pyproject.toml"
+elif [ -f "./pyproject.toml" ]; then
+    PYPROJECT_FILE="./pyproject.toml"
 fi
 
-if [ -n "$VERSION_FILE" ] && [ -f "$VERSION_FILE" ]; then
-    SCITEX_WRITER_VERSION=$(cat "$VERSION_FILE" | tr -d '[:space:]')
+if [ -n "$PYPROJECT_FILE" ] && [ -f "$PYPROJECT_FILE" ]; then
+    # Try yq first (faster), fallback to grep
+    if command -v yq &> /dev/null; then
+        SCITEX_WRITER_VERSION=$(yq -r '.project.version' "$PYPROJECT_FILE" 2>/dev/null || echo "unknown")
+    else
+        # Fallback: extract version with grep and sed
+        SCITEX_WRITER_VERSION=$(grep '^version = ' "$PYPROJECT_FILE" | sed 's/version = "\(.*\)"/\1/' | head -1)
+    fi
+    # Remove quotes and whitespace if present
+    SCITEX_WRITER_VERSION=$(echo "$SCITEX_WRITER_VERSION" | tr -d '"' | tr -d '[:space:]')
 else
     SCITEX_WRITER_VERSION="unknown"
 fi

@@ -1,12 +1,30 @@
 <!-- ---
-!-- Timestamp: 2025-10-29 13:41:22
+!-- Timestamp: 2025-11-09 19:20:50
 !-- Author: ywatanabe
 !-- File: /home/ywatanabe/proj/scitex-writer/README.md
 !-- --- -->
 
-# SciTeX Writer
+<p align="center">
+  <img src="docs/scitex-logo-banner.png" alt="SciTeX Logo" width="800"/>
+</p>
 
-LaTeX compilation system for scientific manuscripts.
+<h1 align="center">SciTeX Writer</h1>
+
+<p align="center">
+  LaTeX compilation system for scientific documents with Python API and version control
+</p>
+
+<p align="center">
+  <a href="https://scitex.ai">🌐 SciTeX Ecosystem</a> •
+  <a href="https://github.com/ywatanabe1989/scitex-writer">📖 Documentation</a> •
+  <a href="https://github.com/ywatanabe1989/scitex-writer/issues">🐛 Issues</a>
+</p>
+
+<p align="center">
+  Part of the <a href="https://scitex.ai"><strong>SciTeX</strong></a> family of scientific computing tools
+</p>
+
+---
 
 ## Quick Start
 
@@ -20,12 +38,50 @@ cd scitex-writer
 
 PDF is produced at [`01_manuscript/manuscript.pdf`](01_manuscript/manuscript.pdf) ([Log Available](./docs/compilation_log.txt))
 
+## Installation
+
+### Method 1: Python Package (Recommended)
+
+```bash
+pip install scitex-writer
+```
+
+**Usage:**
+```python
+from scitex.writer import Writer
+
+# Compile manuscript
+writer = Writer("/path/to/manuscript")
+writer.compile()
+
+# Or use CLI
+scitex-writer compile manuscript
+scitex-writer new my_paper
+scitex-writer update
+```
+
+### Method 2: Git Clone
+
+```bash
+git clone https://github.com/ywatanabe1989/scitex-writer.git
+cd scitex-writer
+make develop  # Install in development mode
+```
+
+### Update to Latest Version
+
+```bash
+scitex-writer update    # If installed via pip
+./scripts/update.sh     # If cloned from git
+make update             # Via Makefile
+```
+
 ## How to write your paper
 
 <details>
-<summary>⚙️ Installation</summary>
+<summary>⚙️ Detailed Installation</summary>
 
-## Installation
+## Detailed Installation
 
 ### Requirements
 
@@ -101,10 +157,10 @@ YAML configuration files in `config/`:
    - [`01_manuscript/contents/discussion.tex`](01_manuscript/contents/discussion.tex)
 
 2. **Metadata**
-   - [`shared/title.tex`](shared/title.tex) - Manuscript title
-   - [`shared/authors.tex`](shared/authors.tex) - Author list and affiliations
-   - [`shared/keywords.tex`](shared/keywords.tex) - Keywords
-   - [`shared/bib_files/bibliography.bib`](shared/bib_files/bibliography.bib) - References
+   - [`00_shared/title.tex`](00_shared/title.tex) - Manuscript title
+   - [`00_shared/authors.tex`](00_shared/authors.tex) - Author list and affiliations
+   - [`00_shared/keywords.tex`](00_shared/keywords.tex) - Keywords
+   - [`00_shared/bib_files/bibliography.bib`](00_shared/bib_files/bibliography.bib) - References
 
 </details>
 
@@ -116,7 +172,7 @@ YAML configuration files in `config/`:
 ```
 scitex-writer/
 ├── compile.sh                  # Main
-├── shared/
+├── 00_shared/
 │   ├── title.tex
 │   ├── authors.tex
 │   ├── keywords.tex
@@ -183,7 +239,7 @@ Reference in text: `Table~\ref{tab:my_table}`
 
 ### Adding References
 
-Edit `shared/bib_files/bibliography.bib`:
+Edit `00_shared/bib_files/bibliography.bib`:
 
 ```bibtex
 @article{your_reference_2024,
@@ -221,7 +277,7 @@ citation:
 
 **Advanced styles** (APA 7th, Chicago, MLA, MHRA, etc.):
 
-See `shared/latex_styles/bibliography.tex` for 15+ additional citation formats including:
+See `00_shared/latex_styles/bibliography.tex` for 15+ additional citation formats including:
 - American Chemical Society (ACS)
 - American Medical Association (AMA) 11th edition
 - American Psychological Association (APA) 7th edition

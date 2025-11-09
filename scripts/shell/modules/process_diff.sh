@@ -26,7 +26,7 @@ echo_header() { echo_info "=== $1 ==="; }
 # Configuration
 source ./config/load_config.sh $SCITEX_WRITER_DOC_TYPE
 
-# Source the shared LaTeX commands module
+# Source the 00_shared LaTeX commands module
 source "$(dirname ${BASH_SOURCE[0]})/command_switching.src"
 
 # Logging
@@ -59,7 +59,7 @@ function take_diff_tex() {
         return 1
     fi
 
-    # Get latexdiff command from shared module
+    # Get latexdiff command from 00_shared module
     local latexdiff_cmd=$(get_cmd_latexdiff "$ORIG_DIR")
 
     if [ -z "$latexdiff_cmd" ]; then
@@ -92,7 +92,7 @@ compile_diff_tex() {
     local tex_file="$SCITEX_WRITER_DIFF_TEX"
     local tex_base="${SCITEX_WRITER_DIFF_TEX%.tex}"
 
-    # Get commands from shared module
+    # Get commands from 00_shared module
     local pdf_cmd=$(get_cmd_pdflatex "$ORIG_DIR")
     local bib_cmd=$(get_cmd_bibtex "$ORIG_DIR")
 

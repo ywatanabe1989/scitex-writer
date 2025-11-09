@@ -7,7 +7,7 @@ Fast reference for common tasks and workflows in SciTeX.
 1. Edit content files in `manuscript/contents/`
 2. Add figures to `manuscript/contents/figures/contents/`
 3. Add tables to `manuscript/contents/tables/contents/`
-4. Update bibliography in `shared/bibliography.bib`
+4. Update bibliography in `00_shared/bibliography.bib`
 5. Compile with `./compile`
 6. View PDF at `manuscript/main/manuscript.pdf`
 
@@ -22,7 +22,7 @@ SciTeX/
 │   │   └── *.tex       # Content (intro, methods, etc.)
 ├── 02_supplementary/   # Supplementary materials
 ├── 03_revision/        # Revision responses
-├── shared/             # Shared metadata
+├── 00_shared/             # Shared metadata
 ├── docs/               # Documentation
 └── scripts/            # Compilation scripts
 ```
@@ -52,7 +52,7 @@ SciTeX/
 - `results.tex` - Results
 - `discussion.tex` - Discussion
 
-**Shared metadata** in `shared/`:
+**Shared metadata** in `00_shared/`:
 - `authors.tex` - Author list
 - `title.tex` - Title
 - `keywords.tex` - Keywords
@@ -78,7 +78,7 @@ SciTeX/
 
 ### Add a Citation
 
-1. Add to `shared/bibliography.bib`:
+1. Add to `00_shared/bibliography.bib`:
 ```bibtex
 @article{Smith2023,
   author = {Smith, John},
@@ -92,7 +92,7 @@ SciTeX/
 
 ### Update Authors
 
-Edit `shared/authors.tex`:
+Edit `00_shared/authors.tex`:
 ```latex
 John Smith\textsuperscript{1,*},
 Jane Doe\textsuperscript{1,2}
@@ -103,8 +103,8 @@ Jane Doe\textsuperscript{1,2}
 
 ### Update Title/Keywords
 
-- Title: `shared/title.tex`
-- Keywords: `shared/keywords.tex`
+- Title: `00_shared/title.tex`
+- Keywords: `00_shared/keywords.tex`
 
 ## File Naming
 

@@ -26,7 +26,7 @@ echo_header() { echo_info "=== $1 ==="; }
 # Configurations
 source ./config/load_config.sh $SCITEX_WRITER_DOC_TYPE
 
-# Source the shared commands module for mmdc
+# Source the 00_shared commands module for mmdc
 source "$(dirname ${BASH_SOURCE[0]})/command_switching.src"
 
 # Override echo_xxx functions
