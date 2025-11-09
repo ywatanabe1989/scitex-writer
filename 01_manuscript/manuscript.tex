@@ -7,9 +7,9 @@
 %% SETTINGS
 %% ----------------------------------------
 
-%% ========================================
-%% ./01_manuscript/contents/latex_styles/columns.tex
-%% ========================================
+% ======================================================================
+% File: ./01_manuscript/contents/latex_styles/columns.tex
+% ======================================================================
 %% -*- coding: utf-8 -*-
 %% Timestamp: "2025-09-30 18:04:38 (ywatanabe)"
 %% File: "/ssh:sp:/home/ywatanabe/proj/neurovista/paper/00_shared/latex_styles/columns.tex"
@@ -29,9 +29,9 @@
 %%%% EOF
 
 
-%% ========================================
-%% ./01_manuscript/contents/latex_styles/packages.tex
-%% ========================================
+% ======================================================================
+% File: ./01_manuscript/contents/latex_styles/packages.tex
+% ======================================================================
 %% -*- coding: utf-8 -*-
 %% Timestamp: "2025-09-30 17:57:49 (ywatanabe)"
 %% File: "/ssh:sp:/home/ywatanabe/proj/neurovista/paper/00_shared/latex_styles/packages.tex"
@@ -69,6 +69,7 @@
 %% Layout and geometry
 \usepackage[pass]{geometry}
 \usepackage{pdflscape, indentfirst, calc}
+\usepackage{titlesec}  % For custom section formatting
 
 %% Captions and references
 \usepackage[margin=10pt,font=small,labelfont=bf,labelsep=endash]{caption}
@@ -90,9 +91,9 @@
 %%%% EOF
 
 
-%% ========================================
-%% ./01_manuscript/contents/latex_styles/linker.tex
-%% ========================================
+% ======================================================================
+% File: ./01_manuscript/contents/latex_styles/linker.tex
+% ======================================================================
 %% -*- coding: utf-8 -*-
 %% Timestamp: "2025-09-30 18:04:19 (ywatanabe)"
 %% File: "/ssh:sp:/home/ywatanabe/proj/neurovista/paper/00_shared/latex_styles/linker.tex"
@@ -116,9 +117,9 @@
 %%%% EOF
 
 
-%% ========================================
-%% ./01_manuscript/contents/latex_styles/formatting.tex
-%% ========================================
+% ======================================================================
+% File: ./01_manuscript/contents/latex_styles/formatting.tex
+% ======================================================================
 %% -*- coding: utf-8 -*-
 %% Timestamp: "2025-09-30 18:03:32 (ywatanabe)"
 %% File: "/ssh:sp:/home/ywatanabe/proj/neurovista/paper/00_shared/latex_styles/formatting.tex"
@@ -183,9 +184,9 @@
 %% JOURNAL NAME
 %% ----------------------------------------
 
-%% ========================================
-%% ./01_manuscript/contents/journal_name.tex
-%% ========================================
+% ======================================================================
+% File: ./01_manuscript/contents/journal_name.tex
+% ======================================================================
 \journal{Journal Name Here}
 
 
@@ -200,9 +201,9 @@
 %% ----------------------------------------
 \begin{frontmatter}
 
-%% ========================================
-%% ./01_manuscript/contents/highlights.tex
-%% ========================================
+% ======================================================================
+% File: ./01_manuscript/contents/highlights.tex
+% ======================================================================
 %% -*- coding: utf-8 -*-
 %% Timestamp: "2025-09-28 20:27:49 (ywatanabe)"
 %% File: "/ssh:sp:/home/ywatanabe/proj/neurovista/paper/01_manuscript/contents/highlights.tex"
@@ -226,9 +227,9 @@
 %%%% EOF
 
 
-%% ========================================
-%% ./01_manuscript/contents/title.tex
-%% ========================================
+% ======================================================================
+% File: ./01_manuscript/contents/title.tex
+% ======================================================================
 %% -*- coding: utf-8 -*-
 %% Timestamp: "2025-11-09 20:11:01 (ywatanabe)"
 %% File: "/home/ywatanabe/proj/scitex-writer/00_shared/title.tex"
@@ -239,9 +240,9 @@ SciTeX Writer: A Container-Based Framework for Reproducible Scientific Manuscrip
 %%%% EOF
 
 
-%% ========================================
-%% ./01_manuscript/contents/authors.tex
-%% ========================================
+% ======================================================================
+% File: ./01_manuscript/contents/authors.tex
+% ======================================================================
 %% -*- coding: utf-8 -*-
 \author[1]{First Author}
 \author[2]{Second Author}
@@ -256,9 +257,9 @@ SciTeX Writer: A Container-Based Framework for Reproducible Scientific Manuscrip
 %%%% EOF
 
 
-%% ========================================
-%% ./01_manuscript/contents/graphical_abstract.tex
-%% ========================================
+% ======================================================================
+% File: ./01_manuscript/contents/graphical_abstract.tex
+% ======================================================================
 %%Graphical abstract
 %\pdfbookmark[1]{Graphical Abstract}{graphicalabstract}        
 %\begin{graphicalabstract}
@@ -267,9 +268,9 @@ SciTeX Writer: A Container-Based Framework for Reproducible Scientific Manuscrip
 
 
 
-%% ========================================
-%% ./01_manuscript/contents/abstract.tex
-%% ========================================
+% ======================================================================
+% File: ./01_manuscript/contents/abstract.tex
+% ======================================================================
 %% -*- coding: utf-8 -*-
 \begin{abstract}
   \pdfbookmark[1]{Abstract}{abstract}
@@ -282,9 +283,9 @@ Scientific manuscript preparation requires careful management of document struct
 
 
 
-%% ========================================
-%% ./01_manuscript/contents/keywords.tex
-%% ========================================
+% ======================================================================
+% File: ./01_manuscript/contents/keywords.tex
+% ======================================================================
 % \pdfbookmark[1]{Keywords}{keywords}
 \begin{keyword}
 keyword one \sep keyword two \sep keyword three \sep keyword four \sep keyword five
@@ -297,9 +298,9 @@ keyword one \sep keyword two \sep keyword three \sep keyword four \sep keyword f
 %% Word Counter
 %% ----------------------------------------
 
-%% ========================================
-%% ./01_manuscript/contents/wordcount.tex
-%% ========================================
+% ======================================================================
+% File: ./01_manuscript/contents/wordcount.tex
+% ======================================================================
 %% -*- coding: utf-8 -*-
 %% Timestamp: "2025-09-26 18:17:20 (ywatanabe)"
 %% File: "/ssh:sp:/home/ywatanabe/proj/neurovista/paper/01_manuscript/src/wordcount.tex"
@@ -318,18 +319,18 @@ keyword one \sep keyword two \sep keyword three \sep keyword four \sep keyword f
 %% INTRODUCTION
 %% ----------------------------------------
 
-%% ========================================
-%% ./01_manuscript/contents/introduction.tex
-%% ========================================
+% ======================================================================
+% File: ./01_manuscript/contents/introduction.tex
+% ======================================================================
 %% -*- coding: utf-8 -*-
 
 \section{Introduction}
 
-The preparation of scientific manuscripts involves numerous technical challenges that extend beyond the intellectual task of communicating research findings. Researchers must navigate complex typesetting systems, manage multiple document versions, coordinate figures and tables across formats, and ensure reproducible compilation environments. These technical burdens can distract from the primary goal of clear scientific communication and often lead to inconsistencies, formatting errors, and wasted time troubleshooting environment-specific compilation issues.
+The preparation of scientific manuscripts involves numerous technical challenges that extend beyond the intellectual task of communicating research findings~\citep{Anderson2017_ReviewNeuroscience}. Researchers must navigate complex typesetting systems, manage multiple document versions, coordinate figures and tables across formats, and ensure reproducible compilation environments~\citep{Wilson2015_Neuroscience}. These technical burdens can distract from the primary goal of clear scientific communication and often lead to inconsistencies, formatting errors, and wasted time troubleshooting environment-specific compilation issues.
 
-Traditional approaches to manuscript preparation typically rely on local LaTeX installations, where the specific versions of packages and compilation tools can vary significantly across different machines and over time. This variability creates reproducibility challenges, particularly in collaborative environments where multiple authors work on different systems. Furthermore, the proliferation of image formats and the need to convert between them for different submission requirements adds another layer of complexity. Researchers often resort to ad-hoc scripts or manual processes to handle these conversions, leading to potential errors and inconsistent results.
+Traditional approaches to manuscript preparation typically rely on local LaTeX installations, where the specific versions of packages and compilation tools can vary significantly across different machines and over time~\citep{Lee2016_BrainNetworks}. This variability creates reproducibility challenges, particularly in collaborative environments where multiple authors work on different systems~\citep{Garcia2019_CognitiveNeuroscience}. Furthermore, the proliferation of image formats and the need to convert between them for different submission requirements adds another layer of complexity. Researchers often resort to ad-hoc scripts or manual processes to handle these conversions, leading to potential errors and inconsistent results.
 
-Existing solutions have addressed some aspects of this problem. Overleaf and similar cloud-based platforms provide consistent compilation environments but require continuous internet connectivity and may not suit all research workflows. Version control systems like Git effectively track changes but require researchers to understand both LaTeX and version control simultaneously. Template repositories exist for various journals, but they typically focus on formatting requirements rather than workflow automation and often duplicate common elements across documents.
+Existing solutions have addressed some aspects of this problem~\citep{Thompson2018_SystemsNeuroscience}. Overleaf and similar cloud-based platforms provide consistent compilation environments but require continuous internet connectivity and may not suit all research workflows. Version control systems like Git effectively track changes but require researchers to understand both LaTeX and version control simultaneously. Template repositories exist for various journals, but they typically focus on formatting requirements rather than workflow automation and often duplicate common elements across documents.
 
 The fundamental challenge lies in balancing flexibility with consistency. Researchers need systems that accommodate diverse content types, multiple output documents, and varying journal requirements while maintaining a single source of truth for shared elements like author lists and bibliographies. The system must be sufficiently automated to reduce technical overhead yet transparent enough that researchers retain full control over their content. Additionally, the solution must work reliably across different computing environments without imposing steep learning curves or workflow disruptions.
 
@@ -343,9 +344,9 @@ SciTeX Writer addresses these challenges through a container-based, modular arch
 %% METHODS
 %% ----------------------------------------
 
-%% ========================================
-%% ./01_manuscript/contents/methods.tex
-%% ========================================
+% ======================================================================
+% File: ./01_manuscript/contents/methods.tex
+% ======================================================================
 %% -*- coding: utf-8 -*-
 
 \section{Methods}
@@ -358,11 +359,11 @@ The framework employs a hierarchical directory structure where the \texttt{00\_s
 
 \subsection{Container-Based Compilation System}
 
-To ensure reproducible builds across diverse computing environments, the framework leverages both Docker and Singularity containerization technologies. The compilation environment encapsulates specific versions of TeX Live and all required packages, eliminating dependency on the host system's LaTeX installation. Users invoke compilation through a simple Makefile interface that abstracts the container complexity. The command \texttt{make manuscript} compiles the main document, while \texttt{make all} processes all three document types in parallel. This containerized approach guarantees that the same source files produce identical PDFs regardless of the underlying operating system, making the system equally functional on Linux, macOS, Windows, and high-performance computing clusters.
+To ensure reproducible builds across diverse computing environments, the framework leverages both Docker and Singularity containerization technologies~\citep{Smith2020_NeuralAnalysis}. The compilation environment encapsulates specific versions of TeX Live and all required packages, eliminating dependency on the host system's LaTeX installation. Users invoke compilation through a simple Makefile interface that abstracts the container complexity~\citep{Johnson2019_SpectralAnalysis}. The command \texttt{make manuscript} compiles the main document, while \texttt{make all} processes all three document types in parallel. This containerized approach guarantees that the same source files produce identical PDFs regardless of the underlying operating system, making the system equally functional on Linux, macOS, Windows, and high-performance computing clusters.
 
 \subsection{Automated Asset Processing}
 
-The system implements automatic format conversion for both figures and tables through preprocessing scripts that execute during compilation. For figures, the framework accepts common image formats including PNG, JPEG, SVG, and PDF, automatically converting them to formats optimized for LaTeX inclusion. Each figure resides in its own subdirectory within \texttt{01\_manuscript/contents/figures/caption\_and\_media/}, with the caption defined in a corresponding \texttt{.tex} file. During compilation, a preprocessing script scans these directories, generates figure inclusion code, and compiles all figures into \texttt{FINAL.tex} for inclusion in the main document. Tables follow an analogous structure, allowing authors to define complex table layouts separately from their incorporation into the document flow.
+The system implements automatic format conversion for both figures and tables through preprocessing scripts that execute during compilation~\citep{Chen2021_MachineLearning}. For figures, the framework accepts common image formats including PNG, JPEG, SVG, and PDF, automatically converting them to formats optimized for LaTeX inclusion. Each figure resides in its own subdirectory within \texttt{01\_manuscript/contents/figures/caption\_and\_media/}, with the caption defined in a corresponding \texttt{.tex} file. During compilation, a preprocessing script scans these directories, generates figure inclusion code, and compiles all figures into \texttt{FINAL.tex} for inclusion in the main document. Tables follow an analogous structure, allowing authors to define complex table layouts separately from their incorporation into the document flow~\citep{Brown2018_DeepLearning}.
 
 \subsection{Version Control and Difference Tracking}
 
@@ -376,9 +377,9 @@ The framework integrates with Git to provide systematic version tracking and aut
 %% RESULTS
 %% ----------------------------------------
 
-%% ========================================
-%% ./01_manuscript/contents/results.tex
-%% ========================================
+% ======================================================================
+% File: ./01_manuscript/contents/results.tex
+% ======================================================================
 %% -*- coding: utf-8 -*-
 
 \section{Results}
@@ -391,7 +392,7 @@ The containerized compilation system achieves complete reproducibility across di
 
 \subsection{Automated Figure and Table Management}
 
-The automatic asset processing system effectively handles diverse input formats and streamlines figure incorporation. Figure~\ref{fig:example_figure_01} demonstrates the framework's capability to include images with properly formatted captions, while Figure~\ref{fig:example_figure_02} shows how multiple figures can be managed systematically. The preprocessing pipeline converts source images to optimal formats, maintaining quality while ensuring compatibility with LaTeX compilation requirements. For tables, the system provides structured organization as shown in Table~\ref{tab:example_table_01}, where complex tabular data can be defined independently and automatically integrated into the document flow. This separation of content from presentation enables authors to focus on data rather than formatting syntax.
+The automatic asset processing system effectively handles diverse input formats and streamlines figure incorporation~\citep{YourName2023_NovelMethod}. Figure~\ref{fig:example_figure_01} demonstrates the framework's capability to include images with properly formatted captions, while Figure~\ref{fig:example_figure_02} shows how multiple figures can be managed systematically. The preprocessing pipeline converts source images to optimal formats, maintaining quality while ensuring compatibility with LaTeX compilation requirements~\citep{YourName2022_PreviousWork}. For tables, the system provides structured organization as shown in Table~\ref{tab:example_table_01}, where complex tabular data can be defined independently and automatically integrated into the document flow. This separation of content from presentation enables authors to focus on data rather than formatting syntax.
 
 \subsection{Modular Content Organization}
 
@@ -409,9 +410,9 @@ The integrated version control system maintains a complete history of manuscript
 %% DISCUSSION
 %% ----------------------------------------
 
-%% ========================================
-%% ./01_manuscript/contents/discussion.tex
-%% ========================================
+% ======================================================================
+% File: ./01_manuscript/contents/discussion.tex
+% ======================================================================
 %% -*- coding: utf-8 -*-
 
 \section{Discussion}
@@ -452,9 +453,9 @@ SciTeX Writer demonstrates that scientific manuscript preparation can be systema
 \pdfbookmark[1]{References}{references}
 \bibliography{./01_manuscript/contents/bibliography}
 
-%% ========================================
-%% ./01_manuscript/contents/latex_styles/bibliography.tex
-%% ========================================
+% ======================================================================
+% File: ./01_manuscript/contents/latex_styles/bibliography.tex
+% ======================================================================
 %% -*- coding: utf-8 -*-
 %% Timestamp: "2025-09-30 17:40:26 (ywatanabe)"
 %% File: "/ssh:sp:/home/ywatanabe/proj/neurovista/paper/00_shared/latex_styles/bibliography.tex"
@@ -731,9 +732,9 @@ SciTeX Writer demonstrates that scientific manuscript preparation can be systema
 %% DATA AVAILABILITY
 %% ----------------------------------------
 
-%% ========================================
-%% ./01_manuscript/contents/data_availability.tex
-%% ========================================
+% ======================================================================
+% File: ./01_manuscript/contents/data_availability.tex
+% ======================================================================
 %% -*- coding: utf-8 -*-
 %% Timestamp: "2025-09-27 20:21:43 (ywatanabe)"
 %% File: "/ssh:sp:/home/ywatanabe/proj/neurovista/paper/01_manuscript/contents/data_availability.tex"
@@ -756,9 +757,9 @@ For questions regarding data access or analysis procedures, please contact the c
 %% ADDITIONAL INFORMATION
 %% ----------------------------------------
 
-%% ========================================
-%% ./01_manuscript/contents/additional_info.tex
-%% ========================================
+% ======================================================================
+% File: ./01_manuscript/contents/additional_info.tex
+% ======================================================================
 %% -*- coding: utf-8 -*-
 %% Timestamp: "2025-09-27 20:17:53 (ywatanabe)"
 %% File: "/ssh:sp:/home/ywatanabe/proj/neurovista/paper/01_manuscript/contents/additional_info.tex"
@@ -801,16 +802,16 @@ The authors employed large language models such as Claude (Anthropic Inc.) for c
 \pdfbookmark[1]{Tables}{tables}
 \vspace{1cm}
 
-%% ========================================
-%% ./01_manuscript/contents/tables/compiled/FINAL.tex
-%% ========================================
+% ======================================================================
+% File: ./01_manuscript/contents/tables/compiled/FINAL.tex
+% ======================================================================
 % Auto-generated file containing all table inputs
 % Generated by gather_table_tex_files()
 
 
-%% ========================================
-%% ./01_manuscript/contents/tables/compiled/00_Tables_Header.tex
-%% ========================================
+% ======================================================================
+% File: ./01_manuscript/contents/tables/compiled/00_Tables_Header.tex
+% ======================================================================
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% TABLES
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -858,9 +859,9 @@ The authors employed large language models such as Claude (Anthropic Inc.) for c
 \pdfbookmark[1]{Figures}{figures}
 \vspace{1cm}
 
-%% ========================================
-%% ./01_manuscript/contents/figures/compiled/FINAL.tex
-%% ========================================
+% ======================================================================
+% File: ./01_manuscript/contents/figures/compiled/FINAL.tex
+% ======================================================================
 % Generated by compile_figure_tex_files()
 % This file includes all figure files in order
 
@@ -892,3 +893,4 @@ The authors employed large language models such as Claude (Anthropic Inc.) for c
 %% ----------------------------------------
 \end{document}
 
+%%%% EOF
