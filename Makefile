@@ -67,7 +67,7 @@ upload-test:
 
 update:
 	@echo "Updating scitex-writer..."
-	./scripts/update.sh
+	./scripts/repository_maintenance/update.sh
 
 version:
 	@echo "SciTeX Writer $(shell grep '^version = ' pyproject.toml | sed 's/version = "\(.*\)"/\1/' | head -1 | tr -d '\"')"

@@ -222,7 +222,7 @@ def update():
     # Try to run update script if in git repository
     try:
         project_root = Path(__file__).parent.parent.parent.parent
-        update_script = project_root / "scripts" / "update.sh"
+        update_script = project_root / "scripts" / "repository_maintenance" / "update.sh"
 
         if update_script.exists():
             subprocess.run([str(update_script)], check=True)

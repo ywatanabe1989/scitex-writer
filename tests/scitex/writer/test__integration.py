@@ -146,7 +146,7 @@ class TestProjectStructureValidation:
             "README.md",
             "compile.sh",
             "config/load_config.sh",
-            "scripts/update.sh",
+            "scripts/repository_maintenance/update.sh",
         ]
 
         for file_path in required_files:
