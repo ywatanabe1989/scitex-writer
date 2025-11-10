@@ -1,5 +1,5 @@
-# Timestamp: "2025-09-28 20:19:34 (ywatanabe)"
-# File: ./paper/config/config_manuscript.yaml
+# Timestamp: "2025-11-11 07:37:36 (ywatanabe)"
+# File: ./config/config_manuscript.yaml
 
 verbosity:
   pdflatex: true
