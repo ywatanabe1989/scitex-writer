@@ -8,7 +8,6 @@ Complete installation instructions for SciTeX Writer for different environments 
 - [System Requirements](#system-requirements)
 - [Installation Methods](#installation-methods)
   - [Native Installation (Recommended)](#native-installation-recommended)
-  - [Python Package Installation](#python-package-installation)
   - [Container-Based](#container-based)
   - [HPC/Cluster Environments](#hpccluster-environments)
 - [Verification](#verification)
@@ -36,7 +35,6 @@ cd scitex-writer
 ### Minimum Requirements
 - **OS**: Linux, macOS, or Windows (WSL2)
 - **Bash**: 4.0+
-- **Python**: 3.8+ (optional, for Python API)
 - **LaTeX**: TeX Live 2020+ or equivalent
 
 ### Core Dependencies
@@ -123,66 +121,6 @@ sudo apt-get install texlive-latex-extra latexdiff parallel imagemagick ghostscr
 git clone https://github.com/ywatanabe1989/scitex-writer.git
 cd scitex-writer
 ./scripts/shell/compile_manuscript.sh
-```
-
----
-
-### Python Package Installation
-
-**Best for**: Python-based workflows, CI/CD pipelines, reproducible environments
-
-#### Via pip (PyPI)
-
-```bash
-# 1. Install the package
-pip install scitex-writer
-
-# 2. Verify installation
-scitex --version
-scitex --help
-
-# 3. Create new project from template
-scitex create my_paper
-cd my_paper
-
-# 4. Compile
-./scripts/shell/compile_manuscript.sh
-```
-
-#### Via pip (Development)
-
-```bash
-# 1. Clone repository
-git clone https://github.com/ywatanabe1989/scitex-writer.git
-cd scitex-writer
-
-# 2. Install in development mode
-pip install -e .
-
-# 3. Run tests
-pytest tests/ -v
-
-# 4. Use as library
-python -c "from scitex_writer import SciTeXWriter; w = SciTeXWriter()"
-```
-
-#### Via Conda
-
-```bash
-# 1. Create environment
-conda create -n scitex python=3.10
-
-# 2. Activate environment
-conda activate scitex
-
-# 3. Install dependencies
-conda install -c conda-forge texlive latexdiff parallel imagemagick ghostscript
-
-# 4. Install package
-pip install scitex-writer
-
-# 5. Verify
-scitex --version
 ```
 
 ---
@@ -319,13 +257,7 @@ After successful installation:
 ### Run Test Suite
 
 ```bash
-# Shell script tests
-./tests/scripts/run_all_tests.sh
-
-# Python tests
-pytest tests/scitex/writer/ -v
-
-# All tests
+# Run all tests
 ./tests/run_all_tests.sh
 ```
 
@@ -399,23 +331,6 @@ docker pull ywatanabe1989/scitex-writer:latest
 
 # Singularity
 singularity pull scitex-writer.sif docker://ywatanabe1989/scitex-writer:latest
-```
-
-#### Issue: "Python package installation fails"
-
-**Solution**: Ensure proper Python version and dependencies
-```bash
-# Check Python version
-python --version  # Should be 3.8+
-
-# Upgrade pip
-pip install --upgrade pip
-
-# Install with verbose output
-pip install -v scitex-writer
-
-# Check for conflicting packages
-pip list | grep -i scitex
 ```
 
 ### Getting Help

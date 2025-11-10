@@ -1,8 +1,28 @@
 #!/bin/bash
 # -*- coding: utf-8 -*-
-# Timestamp: "2025-11-10 01:40:00 (ywatanabe)"
+# Timestamp: "2025-11-11 06:33:49 (ywatanabe)"
 # File: ./tests/run_all_tests.sh
-# Description: Master test runner for all tests (Python + Shell)
+
+ORIG_DIR="$(pwd)"
+THIS_DIR="$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)"
+LOG_PATH="$THIS_DIR/.$(basename $0).log"
+echo > "$LOG_PATH"
+
+GIT_ROOT="$(git rev-parse --show-toplevel 2>/dev/null)"
+
+GRAY='\033[0;90m'
+GREEN='\033[0;32m'
+YELLOW='\033[0;33m'
+RED='\033[0;31m'
+NC='\033[0m' # No Color
+
+echo_info() { echo -e "${GRAY}INFO: $1${NC}"; }
+echo_success() { echo -e "${GREEN}SUCC: $1${NC}"; }
+echo_warning() { echo -e "${YELLOW}WARN: $1${NC}"; }
+echo_error() { echo -e "${RED}ERRO: $1${NC}"; }
+echo_header() { echo_info "=== $1 ==="; }
+# ---------------------------------------
+# Description: Master test runner for all tests
 
 set -e
 
@@ -11,10 +31,7 @@ PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 cd "$PROJECT_ROOT"
 
 # Colors
-GREEN='\033[0;32m'
-RED='\033[0;31m'
 BLUE='\033[0;34m'
-YELLOW='\033[0;33m'
 NC='\033[0m'
 
 echo -e "${BLUE}=========================================="
@@ -25,23 +42,12 @@ echo
 TOTAL_FAILED=0
 
 # Run Shell Script Tests
-echo -e "${BLUE}[1/2] Running Shell Script Tests${NC}"
+echo -e "${BLUE} Running Shell Script Tests${NC}"
 echo "--------------------------------------"
 if ./tests/scripts/run_all_tests.sh; then
     echo -e "${GREEN}✓ All shell script tests passed${NC}"
 else
     echo -e "${RED}✗ Some shell script tests failed${NC}"
-    TOTAL_FAILED=$((TOTAL_FAILED + 1))
-fi
-echo
-
-# Run Python Tests
-echo -e "${BLUE}[2/2] Running Python Tests${NC}"
-echo "--------------------------------------"
-if python -m pytest tests/scitex/writer/ -v --tb=short; then
-    echo -e "${GREEN}✓ All Python tests passed${NC}"
-else
-    echo -e "${RED}✗ Some Python tests failed${NC}"
     TOTAL_FAILED=$((TOTAL_FAILED + 1))
 fi
 echo

@@ -24,9 +24,6 @@
   <a href="https://github.com/ywatanabe1989/scitex-writer/actions/workflows/comprehensive-tests.yml">
     <img src="https://github.com/ywatanabe1989/scitex-writer/actions/workflows/comprehensive-tests.yml/badge.svg" alt="Comprehensive Tests"/>
   </a>
-  <a href="https://github.com/ywatanabe1989/scitex-writer/actions/workflows/python-tests.yml">
-    <img src="https://github.com/ywatanabe1989/scitex-writer/actions/workflows/python-tests.yml/badge.svg" alt="Python Tests"/>
-  </a>
   <a href="https://github.com/ywatanabe1989/scitex-writer/actions/workflows/compile-test.yml">
     <img src="https://github.com/ywatanabe1989/scitex-writer/actions/workflows/compile-test.yml/badge.svg" alt="Compilation Test"/>
   </a>
@@ -107,14 +104,6 @@ cd scitex-writer
 ./scripts/shell/compile_manuscript.sh
 ```
 
-**Python Package:**
-```bash
-pip install scitex-writer
-scitex create my_paper
-cd my_paper
-./scripts/shell/compile_manuscript.sh
-```
-
 **HPC/Containers:**
 - Module system: `module load texlive latexdiff parallel`
 - Docker: `docker run -v $(pwd):/work scitex-writer`
@@ -165,35 +154,22 @@ vim my_papers.bib
 ### Running Tests
 
 ```bash
-# Run all tests (Shell + Python)
+# Run all tests
 ./tests/run_all_tests.sh
-
-# Run shell script tests only
-./tests/scripts/run_all_tests.sh
-
-# Run Python tests only
-pytest tests/scitex/writer/ -v
 
 # Run specific test suites
 ./tests/scripts/test_compile_options.sh  # Compilation options
 ./tests/scripts/test_dark_mode.sh        # Dark mode features
 ./tests/scripts/test_performance.sh      # Performance optimizations
-pytest tests/scitex/writer/test_compile.py -v  # Python compilation API
 ```
 
 ### Test Coverage
 
-- **70+ tests** covering all features
+- **30+ tests** covering all features
 - **Shell Script Tests**: 30 tests
   - Compilation options (10 tests)
   - Dark mode functionality (10 tests)
   - Performance optimizations (10 tests)
-- **Python Tests**: 40 tests
-  - API functions (13 tests)
-  - Integration tests (6 tests)
-  - Template creation (6 tests)
-  - Version management (6 tests)
-  - Writer class (9 tests)
 
 ### Continuous Integration
 
