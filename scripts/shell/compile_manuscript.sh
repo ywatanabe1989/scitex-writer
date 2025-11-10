@@ -1,11 +1,12 @@
 #!/bin/bash
 # -*- coding: utf-8 -*-
-# Timestamp: "2025-11-09 18:11:05 (ywatanabe)"
+# Timestamp: "2025-11-11 06:58:09 (ywatanabe)"
 # File: ./scripts/shell/compile_manuscript.sh
 
 ORIG_DIR="$(pwd)"
 THIS_DIR="$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)"
 LOG_PATH="$THIS_DIR/.$(basename $0).log"
+echo > "$LOG_PATH"
 
 GIT_ROOT="$(git rev-parse --show-toplevel 2>/dev/null)"
 
@@ -131,13 +132,6 @@ main() {
 
     # Dark mode (black background, white text)
     export SCITEX_WRITER_DARK_MODE=$dark_mode
-    # if [ "$do_verbose" == "true" ]; then
-    #     export SCITEX_WRITER_VERBOSE_PDFLATEX="true"
-    #     export SCITEX_WRITER_VERBOSE_BIBTEX="true"
-    # else
-    #     export SCITEX_WRITER_VERBOSE_PDFLATEX="false"
-    #     export SCITEX_WRITER_VERBOSE_BIBTEX="false"
-    # fi
 
     # Check dependencies
     log_stage_start "Dependency Check"

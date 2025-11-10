@@ -35,7 +35,7 @@ source ./config/load_config.sh $SCITEX_WRITER_DOC_TYPE
 # Logging
 touch "$LOG_PATH" >/dev/null 2>&1
 echo
-echo_info "Running $0..."
+echo_info "Running ${BASH_SOURCE[0]}..."
 
 mmd2png(){
     # Early exit if no .mmd files (saves ~30s container setup time)
