@@ -1,12 +1,12 @@
 #!/bin/bash
 # -*- coding: utf-8 -*-
-# Timestamp: "2025-09-27 00:05:04 (ywatanabe)"
-# File: ./paper/scripts/shell/modules/check_dependancy_commands.sh
+# Timestamp: "2025-11-11 07:23:33 (ywatanabe)"
+# File: ./scripts/shell/modules/check_dependancy_commands.sh
 
 ORIG_DIR="$(pwd)"
 THIS_DIR="$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)"
 LOG_PATH="$THIS_DIR/.$(basename $0).log"
-# Don't clear log at start - timing info will be appended
+echo > "$LOG_PATH"
 
 GIT_ROOT="$(git rev-parse --show-toplevel 2>/dev/null)"
 
@@ -23,19 +23,14 @@ echo_error() { echo -e "${RED}ERRO: $1${NC}"; }
 echo_header() { echo_info "=== $1 ==="; }
 # ---------------------------------------
 
+# Don't clear log at start - timing info will be appended
+
 # Configurations
 source ./config/load_config.sh $SCITEX_WRITER_DOC_TYPE
 
 # Source the 00_shared LaTeX commands module
 source "$(dirname ${BASH_SOURCE[0]})/command_switching.src"
-
-# To override echo_xxx functions
-source ./config/load_config.sh $SCITEX_WRITER_DOC_TYPE
-
-# Logging
-touch "$LOG_PATH" >/dev/null 2>&1
-echo
-echo_info "Running $0..."
+echo_info "Running ${BASH_SOURCE[0]}..."
 
 
 # Detect package manager
@@ -220,17 +215,43 @@ check_all_dependencies() {
     # Log run timestamp
     echo "=== $(date '+%Y-%m-%d %H:%M:%S') ===" >> "$LOG_PATH"
 
-    # Pre-warmup: do expensive shared setup once before parallelizing
-    # This prevents each parallel job from doing redundant work
-    local start_warmup=$(date +%s%N)
-    get_container_runtime &> /dev/null
-    load_texlive_module &> /dev/null
-    setup_latex_container &> /dev/null
-    setup_mermaid_container &> /dev/null
-    local end_warmup=$(date +%s%N)
-    local warmup_ms=$(( (end_warmup - start_warmup) / 1000000 ))
-    echo "Warmup: ${warmup_ms}ms" >> "$LOG_PATH"
-    echo_info "    Warmup: ${warmup_ms}ms"
+    # Quick native-only check to avoid expensive container warmup
+    local all_native_available=true
+    local start_native_check=$(date +%s%N)
+
+    # Check if all required native commands exist (fast check only)
+    if ! command -v pdflatex &> /dev/null || ! pdflatex --version &> /dev/null 2>&1; then
+        all_native_available=false
+    elif ! command -v bibtex &> /dev/null || ! bibtex --version &> /dev/null 2>&1; then
+        all_native_available=false
+    elif ! command -v latexdiff &> /dev/null; then
+        all_native_available=false
+    elif ! command -v texcount &> /dev/null || ! texcount --version &> /dev/null 2>&1; then
+        all_native_available=false
+    fi
+
+    local end_native_check=$(date +%s%N)
+    local native_check_ms=$(( (end_native_check - start_native_check) / 1000000 ))
+    echo "Native check: ${native_check_ms}ms" >> "$LOG_PATH"
+    echo_info "    Native check: ${native_check_ms}ms"
+
+    # Only do expensive warmup if native commands are missing
+    if [ "$all_native_available" = false ]; then
+        echo_info "    Native commands incomplete, checking alternatives..."
+        # Pre-warmup: do expensive shared setup once before parallelizing
+        # This prevents each parallel job from doing redundant work
+        local start_warmup=$(date +%s%N)
+        get_container_runtime &> /dev/null
+        load_texlive_module &> /dev/null
+        setup_latex_container &> /dev/null
+        setup_mermaid_container &> /dev/null
+        local end_warmup=$(date +%s%N)
+        local warmup_ms=$(( (end_warmup - start_warmup) / 1000000 ))
+        echo "Warmup: ${warmup_ms}ms" >> "$LOG_PATH"
+        echo_info "    Warmup: ${warmup_ms}ms"
+    else
+        echo_info "    All native LaTeX commands available (skipping container warmup)"
+    fi
 
     # Temp directory for parallel results
     local temp_dir=$(mktemp -d)

@@ -173,13 +173,13 @@ compile_with_lock() {
             
             if [ -n "$latest_archive" ]; then
                 # Create relative symlink to archive
-                cd "${STWX_ROOT_DIR}"
+                cd "${SCITEX_WRITER_ROOT_DIR}"
                 ln -sf "archive/$(basename "$latest_archive")" "manuscript-latest.pdf"
                 cd - > /dev/null
                 echo_info "    Symlink updated: manuscript-latest.pdf -> archive/$(basename "$latest_archive")"
             else
                 # Fallback if no archive exists
-                cd "${STWX_ROOT_DIR}"
+                cd "${SCITEX_WRITER_ROOT_DIR}"
                 ln -sf "manuscript.pdf" "manuscript-latest.pdf"
                 cd - > /dev/null
                 echo_info "    Symlink updated: manuscript-latest.pdf -> manuscript.pdf (no archive yet)"

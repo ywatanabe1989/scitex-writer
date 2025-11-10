@@ -1,10 +1,15 @@
 #!/bin/bash
 # -*- coding: utf-8 -*-
-# Timestamp: "2025-09-27 00:06:56 (ywatanabe)"
-# File: /ssh:sp:/home/ywatanabe/proj/neurovista/paper/scripts/shell/modules/command_switching.src
+# Timestamp: "2025-11-11 07:18:17 (ywatanabe)"
+# File: /home/ywatanabe/proj/scitex-writer/scripts/shell/modules/command_switching.src
 
 THIS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # ---------------------------------------
+
+# 1. Native Commands - If available do not build containers at all
+# 2. Singularity
+# 3. Docker
+
 
 # Shared module for resolving LaTeX-related commands
 # Provides functions to get commands for pdflatex, bibtex, latexdiff, etc.

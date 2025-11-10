@@ -29,7 +29,7 @@ source ./config/load_config.sh $SCITEX_WRITER_DOC_TYPE
 # Logging
 touch "$LOG_PATH" >/dev/null 2>&1
 echo
-echo_info "Running $0..."
+echo_info "Running ${BASH_SOURCE[0]}..."
 
 # PowerPoint to TIF
 total=$(ls "$SCITEX_WRITER_FIGURE_CAPTION_MEDIA_DIR"/.*.pptx | wc -l)

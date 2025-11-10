@@ -79,7 +79,7 @@ count_figures() {
 
 count_IMRaD() {
     for section in abstract introduction methods results discussion; do
-        local section_tex="$STWX_ROOT_DIR/contents/$section.tex"
+        local section_tex="$SCITEX_WRITER_ROOT_DIR/contents/$section.tex"
         if [ -e "$section_tex" ]; then
             _count_words "$section_tex" "$SCITEX_WRITER_WORDCOUNT_DIR/${section}_count.txt"
         else

@@ -170,7 +170,7 @@ cleanup() {
         echo_success "    $pdf_file ready (${size})"
         
         # Create/update stable symlink to latest archive version (prevents corruption during compilation)
-        local latest_path="${STWX_ROOT_DIR}/manuscript-latest.pdf"
+        local latest_path="${SCITEX_WRITER_ROOT_DIR}/manuscript-latest.pdf"
         
         # Find the latest archived version (highest version number)
         local archive_dir="${SCITEX_WRITER_VERSIONS_DIR}"

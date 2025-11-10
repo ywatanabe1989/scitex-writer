@@ -138,7 +138,7 @@ else
 fi
 
 if [ "$CONFIG_LOADED" != "true" ]; then
-    echo_success "    Configuration Loaded for $SCITEX_WRITER_DOC_TYPE (v${SCITEX_WRITER_VERSION})"
+    echo_success "    Configuration Loaded for $SCITEX_WRITER_DOC_TYPE (${SCITEX_WRITER_VERSION})"
     export CONFIG_LOADED=true
 fi
 

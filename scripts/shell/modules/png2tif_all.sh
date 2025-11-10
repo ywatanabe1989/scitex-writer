@@ -32,7 +32,7 @@ source "$(dirname ${BASH_SOURCE[0]})/command_switching.src"
 # Logging
 touch "$LOG_PATH" >/dev/null 2>&1
 echo
-echo_info "Running $0..."
+echo_info "Running ${BASH_SOURCE[0]}..."
 
 png2tif_all(){
     # Get convert command from 00_shared module
