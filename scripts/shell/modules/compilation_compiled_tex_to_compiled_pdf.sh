@@ -6,6 +6,7 @@
 
 ORIG_DIR="$(pwd)"
 THIS_DIR="$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)"
+ENGINES_DIR="${THIS_DIR}/engines"
 LOG_PATH="$THIS_DIR/.$(basename $0).log"
 echo > "$LOG_PATH"
 
@@ -27,10 +28,10 @@ echo_header() { echo_info "=== $1 ==="; }
 # Configurations
 source ./config/load_config.sh $SCITEX_WRITER_DOC_TYPE
 
-# Source engine implementations
-source "${THIS_DIR}/engines/compile_tectonic.sh"
-source "${THIS_DIR}/engines/compile_latexmk.sh"
-source "${THIS_DIR}/engines/compile_3pass.sh"
+# Source engine implementations (use absolute paths to avoid directory confusion)
+source "${ENGINES_DIR}/compile_tectonic.sh"
+source "${ENGINES_DIR}/compile_latexmk.sh"
+source "${ENGINES_DIR}/compile_3pass.sh"
 
 # Logging
 touch "$LOG_PATH" >/dev/null 2>&1

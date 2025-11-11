@@ -33,38 +33,39 @@ compile_with_latexmk() {
         echo_info "    Set BIBINPUTS=${BIBINPUTS}"
     fi
 
-    # Build latexmk options
-    local opts="-pdf -bibtex -interaction=nonstopmode -file-line-error"
-
-    # Output directory
-    opts="$opts -output-directory='$tex_dir'"
-
-    # Shell escape for minted, etc.
-    opts="$opts -pdflatex='pdflatex -shell-escape %O %S'"
+    # Build latexmk options as array for proper quoting
+    local -a opts=(
+        -pdf
+        -bibtex
+        -interaction=nonstopmode
+        -file-line-error
+        "-output-directory=$tex_dir"
+        "-pdflatex=pdflatex -shell-escape %O %S"
+    )
 
     # Quiet mode
     if [ "${SCITEX_WRITER_VERBOSE_LATEXMK:-false}" != "true" ]; then
-        opts="$opts -quiet"
+        opts+=(-quiet)
     fi
 
     # Draft mode (single pass)
     if [ "$SCITEX_WRITER_DRAFT_MODE" = "true" ]; then
-        opts="$opts -dvi- -ps-"
+        opts+=(-dvi- -ps-)
         echo_info "    Draft mode: single pass only"
     fi
 
     # Max passes
     if [ -n "$SCITEX_WRITER_LATEXMK_MAX_PASSES" ]; then
-        opts="$opts -latexoption=-interaction=nonstopmode"
+        opts+=("-latexoption=-interaction=nonstopmode")
     fi
 
     # Run compilation
     local start=$(date +%s)
-    local cmd="$latexmk_cmd $opts '$tex_file'"
 
-    echo_info "    Running: latexmk $(echo $opts | sed 's/-[^ ]*directory[^ ]* [^ ]*//') $(basename $tex_file)"
+    echo_info "    Running: latexmk [${#opts[@]} options] $(basename $tex_file)"
 
-    local output=$(eval "$cmd" 2>&1 | grep -v "gocryptfs not found")
+    # Run latexmk with properly quoted array expansion
+    local output=$($latexmk_cmd "${opts[@]}" "$tex_file" 2>&1 | grep -v "gocryptfs not found")
     local exit_code=$?
 
     local end=$(date +%s)
