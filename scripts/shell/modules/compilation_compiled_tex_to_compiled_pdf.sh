@@ -43,7 +43,8 @@ compiled_tex_to_pdf() {
     local tex_dir=$(dirname "$tex_file")
 
     # Check if latexmk is available
-    if command -v latexmk &> /dev/null; then
+    # Temporarily disabled to use 3-pass compilation for debugging
+    if false && command -v latexmk &> /dev/null; then
         # Use latexmk for smart compilation (only reruns when needed)
         local total_start=$(date +%s)
 
