@@ -1,7 +1,8 @@
 #!/bin/bash
 # -*- coding: utf-8 -*-
-# Timestamp: "2025-09-27 00:28:29 (ywatanabe)"
-# File: ./paper/scripts/shell/modules/compilation_compiled_tex_to_compiled_pdf.sh
+# Timestamp: "2025-11-11 23:18:00 (ywatanabe)"
+# File: ./scripts/shell/modules/compilation_compiled_tex_to_compiled_pdf.sh
+# Main compilation orchestrator - delegates to engine-specific modules
 
 ORIG_DIR="$(pwd)"
 THIS_DIR="$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)"
@@ -26,8 +27,10 @@ echo_header() { echo_info "=== $1 ==="; }
 # Configurations
 source ./config/load_config.sh $SCITEX_WRITER_DOC_TYPE
 
-# Source the 00_shared LaTeX commands module
-source "$(dirname ${BASH_SOURCE[0]})/command_switching.src"
+# Source engine implementations
+source "${THIS_DIR}/engines/compile_tectonic.sh"
+source "${THIS_DIR}/engines/compile_latexmk.sh"
+source "${THIS_DIR}/engines/compile_3pass.sh"
 
 # Logging
 touch "$LOG_PATH" >/dev/null 2>&1
@@ -37,127 +40,39 @@ echo_info "Running $0 ..."
 compiled_tex_to_pdf() {
     echo_info "    Converting $SCITEX_WRITER_COMPILED_TEX to PDF..."
 
-    # Setup paths
-    local abs_dir=$(realpath "$ORIG_DIR")
     local tex_file="$SCITEX_WRITER_COMPILED_TEX"
-    local tex_dir=$(dirname "$tex_file")
+    local engine="${SCITEX_WRITER_SELECTED_ENGINE:-3pass}"
 
-    # Check if latexmk is available
-    # Temporarily disabled to use 3-pass compilation for debugging
-    if false && command -v latexmk &> /dev/null; then
-        # Use latexmk for smart compilation (only reruns when needed)
-        local total_start=$(date +%s)
+    echo_info "    Selected engine: $engine"
 
-        echo_info "    Using latexmk (intelligent compilation)"
+    # Dispatch to engine-specific implementation
+    case "$engine" in
+        tectonic)
+            compile_with_tectonic "$tex_file"
+            ;;
+        latexmk)
+            compile_with_latexmk "$tex_file"
+            ;;
+        3pass)
+            compile_with_3pass "$tex_file"
+            ;;
+        *)
+            echo_error "    Unknown compilation engine: $engine"
+            echo_info "    Falling back to 3-pass compilation"
+            compile_with_3pass "$tex_file"
+            ;;
+    esac
 
-        # Build latexmk options
-        local quiet_flag=""
-        if [ "$SCITEX_WRITER_VERBOSE_PDFLATEX" != "true" ]; then
-            quiet_flag="-quiet"
-        fi
+    local ret=$?
 
-        local draft_flags=""
-        if [ "$SCITEX_WRITER_DRAFT_MODE" = "true" ]; then
-            echo_info "    Draft mode: single pass only"
-            draft_flags="-dvi- -ps-"
-        fi
-
-        # Run latexmk with bibtex support and shell-escape
-        # -bibtex: Ensure bibtex runs to resolve citations
-        # -pdf: Generate PDF output
-        # Use eval to properly handle the -pdflatex option
-        local latexmk_cmd="latexmk -pdf -bibtex -interaction=nonstopmode -file-line-error"
-        latexmk_cmd="$latexmk_cmd -output-directory='$tex_dir'"
-        latexmk_cmd="$latexmk_cmd -pdflatex='pdflatex -shell-escape %O %S'"
-        latexmk_cmd="$latexmk_cmd $quiet_flag $draft_flags '$tex_file'"
-
-        # Capture output and check for errors
-        local output=$(eval "$latexmk_cmd" 2>&1 | grep -v "gocryptfs not found")
-        local exit_code=$?
-
-        # Display output if verbose or if there were errors
-        if [ "$SCITEX_WRITER_VERBOSE_PDFLATEX" = "true" ] || [ $exit_code -ne 0 ]; then
-            echo "$output"
-        fi
-
-        # Check for critical errors (missing .bbl, unresolved references, etc.)
-        if echo "$output" | grep -q "Missing bbl file\|failed to resolve\|gave return code"; then
-            echo_warning "    Compilation completed with warnings (check citations/references)"
-        fi
-
-        if [ $exit_code -eq 0 ]; then
-            local total_end=$(date +%s)
-            echo_success "    Total compilation: $(($total_end - $total_start))s"
-        else
-            echo_error "    latexmk compilation failed (exit code: $exit_code)"
-            return 1
-        fi
-    else
-        # Fallback to manual 3-pass compilation
-        echo_info "    latexmk not found, using 3-pass compilation"
-
-        # Get commands from 00_shared module
-        local pdf_cmd=$(get_cmd_pdflatex "$ORIG_DIR")
-        local bib_cmd=$(get_cmd_bibtex "$ORIG_DIR")
-
-        if [ -z "$pdf_cmd" ] || [ -z "$bib_cmd" ]; then
-            echo_error "    No LaTeX installation found (native, module, or container)"
-            return 1
-        fi
-
-        # Add compilation options to commands
-        pdf_cmd="$pdf_cmd -output-directory=$tex_dir -shell-escape -interaction=nonstopmode -file-line-error"
-
-        # Function to run command with timing
-        run_command() {
-            local cmd="$1"
-            local verbose="$2"
-            local desc="$3"
-
-            echo_info "    $desc"
-            local start=$(date +%s)
-
-            if [ "$verbose" == "true" ]; then
-                eval "$cmd" 2>&1 | grep -v "gocryptfs not found"
-                local ret=${PIPESTATUS[0]}
-            else
-                eval "$cmd" >/dev/null 2>&1
-                local ret=$?
-            fi
-
-            local end=$(date +%s)
-            echo_info "      ($(($end - $start))s)"
-
-            return $ret
-        }
-
-        # Main compilation sequence
-        local total_start=$(date +%s)
-        local tex_base="${tex_file%.tex}"
-        local aux_file="${tex_base}.aux"
-
-        # Check if draft mode is enabled
-        if [ "$SCITEX_WRITER_DRAFT_MODE" = "true" ]; then
-            # Draft mode: single pass only
-            run_command "$pdf_cmd $tex_file" "$SCITEX_WRITER_VERBOSE_PDFLATEX" "Single pass (draft mode)"
-        else
-            # Full mode: 3-pass compilation
-            run_command "$pdf_cmd $tex_file" "$SCITEX_WRITER_VERBOSE_PDFLATEX" "Pass 1/3: Initial"
-
-            # Process bibliography if needed
-            if [ -f "$aux_file" ]; then
-                if grep -q "\\citation\|\\bibdata\|\\bibstyle" "$aux_file" 2>/dev/null; then
-                    run_command "$bib_cmd $tex_base" "$SCITEX_WRITER_VERBOSE_BIBTEX" "Processing bibliography"
-                fi
-            fi
-
-            run_command "$pdf_cmd $tex_file" "$SCITEX_WRITER_VERBOSE_PDFLATEX" "Pass 2/3: Bibliography"
-            run_command "$pdf_cmd $tex_file" "$SCITEX_WRITER_VERBOSE_PDFLATEX" "Pass 3/3: Final"
-        fi
-
-        local total_end=$(date +%s)
-        echo_success "    Total compilation: $(($total_end - $total_start))s"
+    # If compilation failed in auto mode, try next engine
+    if [ $ret -eq 2 ] && [ "$SCITEX_WRITER_ENGINE" = "auto" ]; then
+        echo_warning "    Engine '$engine' failed, trying fallback..."
+        # Note: Fallback logic handled by compile_manuscript.sh
+        # This is just a placeholder for future enhancement
     fi
+
+    return $ret
 }
 
 cleanup() {

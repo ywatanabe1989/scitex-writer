@@ -206,6 +206,34 @@ main() {
     ./scripts/shell/modules/compilation_structure_tex_to_compiled_tex.sh
     log_stage_end "TeX Compilation (Structure)"
 
+    # Engine Selection
+    log_stage_start "Engine Selection"
+    source ./scripts/shell/modules/select_compilation_engine.sh
+
+    # Get engine from config or default to auto
+    SELECTED_ENGINE="${SCITEX_WRITER_ENGINE:-auto}"
+
+    if [ "$SELECTED_ENGINE" = "auto" ]; then
+        # Auto-detection: try engines in order
+        SELECTED_ENGINE=$(auto_detect_engine)
+        echo_info "Auto-detected engine: $SELECTED_ENGINE"
+    else
+        # Explicit selection: verify availability
+        if ! verify_engine "$SELECTED_ENGINE" >/dev/null 2>&1; then
+            echo_warning "Requested engine '$SELECTED_ENGINE' not available"
+            echo_info "Falling back to auto-detection..."
+            SELECTED_ENGINE=$(auto_detect_engine)
+            echo_info "Selected engine: $SELECTED_ENGINE"
+        else
+            echo_info "Using requested engine: $SELECTED_ENGINE"
+        fi
+    fi
+
+    # Export for downstream modules
+    export SCITEX_WRITER_SELECTED_ENGINE="$SELECTED_ENGINE"
+    echo_info "$(get_engine_info $SELECTED_ENGINE)"
+    log_stage_end "Engine Selection"
+
     # TeX to PDF
     log_stage_start "PDF Generation"
     ./scripts/shell/modules/compilation_compiled_tex_to_compiled_pdf.sh

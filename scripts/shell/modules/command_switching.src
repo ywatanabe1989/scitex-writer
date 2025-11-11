@@ -227,6 +227,96 @@ get_cmd_texcount() {
     return 1
 }
 
+# Get latexmk command with fallbacks
+# Priority: 1. Native → 2. Module → 3. Singularity
+get_cmd_latexmk() {
+    local working_dir="${1:-$(pwd)}"
+    local abs_dir=$(realpath "$working_dir")
+
+    # First choice: Native latexmk (fastest)
+    if command -v latexmk &> /dev/null && latexmk -version &> /dev/null 2>&1; then
+        echo "latexmk"
+        return 0
+    fi
+
+    # Second choice: Module system (HPC)
+    if load_texlive_module && command -v latexmk &> /dev/null; then
+        echo "latexmk"
+        return 0
+    fi
+
+    # Third choice: Singularity/Apptainer (reproducible)
+    local runtime=$(get_container_runtime)
+    if [ -n "$runtime" ] && setup_latex_container; then
+        echo "$runtime exec --bind ${abs_dir}:${abs_dir} --pwd ${abs_dir} $SCITEX_WRITER_TEXLIVE_APPTAINER_SIF latexmk"
+        return 0
+    fi
+
+    return 1
+}
+
+# Get tectonic command with fallbacks
+# Priority: 1. Native → 2. Container (Tectonic has its own Docker image)
+get_cmd_tectonic() {
+    local working_dir="${1:-$(pwd)}"
+    local abs_dir=$(realpath "$working_dir")
+
+    # First choice: Native tectonic (fastest)
+    if command -v tectonic &> /dev/null && tectonic --version &> /dev/null 2>&1; then
+        echo "tectonic"
+        return 0
+    fi
+
+    # Second choice: Container (Apptainer/Singularity with official Tectonic image)
+    local runtime=$(get_container_runtime)
+    if [ -n "$runtime" ] && setup_tectonic_container; then
+        echo "$runtime exec --bind ${abs_dir}:${abs_dir} --pwd ${abs_dir} $SCITEX_WRITER_TECTONIC_APPTAINER_SIF tectonic"
+        return 0
+    fi
+
+    # Note: No module system support for Tectonic (not typically available in HPC)
+    return 1
+}
+
+# Setup Tectonic container (for tectonic)
+setup_tectonic_container() {
+    # Check if container path is already set
+    if [ -n "$SCITEX_WRITER_TECTONIC_APPTAINER_SIF" ] && [ -f "$SCITEX_WRITER_TECTONIC_APPTAINER_SIF" ]; then
+        return 0
+    fi
+
+    # Use config value if set, otherwise use project directory default
+    if [ -z "$SCITEX_WRITER_TECTONIC_APPTAINER_SIF" ]; then
+        # Use project directory to ensure availability across HPC nodes
+        local project_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../../" && pwd)"
+        SCITEX_WRITER_TECTONIC_APPTAINER_SIF="${project_root}/.cache/containers/tectonic_container.sif"
+    fi
+
+    if [ ! -f "$SCITEX_WRITER_TECTONIC_APPTAINER_SIF" ]; then
+        echo_info "    Downloading Tectonic container (one-time setup)..."
+        mkdir -p "$(dirname $SCITEX_WRITER_TECTONIC_APPTAINER_SIF)"
+
+        # Try Apptainer first, then Singularity
+        # Using official Tectonic Docker image
+        if command -v apptainer &> /dev/null; then
+            apptainer pull "$SCITEX_WRITER_TECTONIC_APPTAINER_SIF" docker://tectonic/tectonic:latest >/dev/null 2>&1
+        elif command -v singularity &> /dev/null; then
+            singularity pull "$SCITEX_WRITER_TECTONIC_APPTAINER_SIF" docker://tectonic/tectonic:latest >/dev/null 2>&1
+        else
+            return 1
+        fi
+
+        if [ -f "$SCITEX_WRITER_TECTONIC_APPTAINER_SIF" ]; then
+            echo_success "    Container downloaded to $SCITEX_WRITER_TECTONIC_APPTAINER_SIF"
+            export SCITEX_WRITER_TECTONIC_APPTAINER_SIF="$SCITEX_WRITER_TECTONIC_APPTAINER_SIF"
+        else
+            return 1
+        fi
+    fi
+
+    return 0
+}
+
 # Setup Mermaid container (for mmdc)
 setup_mermaid_container() {
     # Check if container path is already set
@@ -388,6 +478,7 @@ get_cmd_convert() {
 
 # Export functions and cache variables for use in other scripts
 export -f setup_latex_container
+export -f setup_tectonic_container
 export -f setup_mermaid_container
 export -f setup_imagemagick_container
 export -f get_container_runtime
@@ -395,6 +486,8 @@ export -f load_texlive_module
 export -f get_cmd_pdflatex
 export -f get_cmd_bibtex
 export -f get_cmd_latexdiff
+export -f get_cmd_latexmk
+export -f get_cmd_tectonic
 export -f get_cmd_texcount
 export -f get_cmd_mmdc
 export -f get_cmd_convert
