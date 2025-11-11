@@ -1,7 +1,7 @@
 % ==============================================================================
 % SciTeX Writer v2.0.0-rc2 (https://scitex.ai)
-% LaTeX compilation engine: 3pass
-% Compiled: 2025-11-12 10:57:26
+% LaTeX compilation engine: tectonic
+% Compiled: 2025-11-12 10:57:56
 % ==============================================================================
 
 %% -*- coding: utf-8 -*-
@@ -87,7 +87,7 @@
 \usepackage{hyperref}
 
 %% Document features
-\usepackage{accsupp, lineno, bashful, lipsum}
+% % \usepackage{accsupp, lineno, bashful, lipsum}  % Disabled for tectonic  % Disabled for tectonic
 
 %% Visual enhancements
 \usepackage[most]{tcolorbox}
@@ -139,7 +139,7 @@
 
 %% --- Line numbers ---
 \linespread{1.2}
-\linenumbers
+% \linenumbers  % Disabled for tectonic
 
 %% --- Colors ---
 \definecolor{GreenBG}{rgb}{0,1,0}
@@ -314,11 +314,11 @@ keyword one \sep keyword two \sep keyword three \sep keyword four \sep keyword f
 %% Timestamp: "2025-09-26 18:17:20 (ywatanabe)"
 %% File: "/ssh:sp:/home/ywatanabe/proj/neurovista/paper/01_manuscript/src/wordcount.tex"
 \begin{wordcount}
-\readwordcount{./01_manuscript/contents/wordcounts/figure_count.txt} figures, \readwordcount{./01_manuscript/contents/wordcounts/table_count.txt} tables, \readwordcount{./01_manuscript/contents/wordcounts/abstract_count.txt} words for abstract, and \readwordcount{./01_manuscript/contents/wordcounts/imrd_count.txt} words for main text
+2 figures, 0 tables, 157 words for abstract, and 2072 words for main text
 \end{wordcount}
 
 %% \begin{*wordcount}
-%% \readwordcount{./01_manuscript/contents/wordcounts/figure_count.txt} figures, \readwordcount{./01_manuscript/contents/wordcounts/table_count.txt} tables, \readwordcount{./01_manuscript/contents/wordcounts/abstract_count.txt} words for abstract, and \readwordcount{./01_manuscript/contents/wordcounts/imrd_count.txt} words for main text
+%% 2 figures, 0 tables, 157 words for abstract, and 2072 words for main text
 %% \end{*wordcount}
 
 %%%% EOF
@@ -879,7 +879,7 @@ The authors employed large language models such as Claude (Anthropic Inc.) for c
 \begin{figure*}[h!]
     \pdfbookmark[2]{Figure 01}{.01}
     \centering
-    \includegraphics[width=0.9\textwidth]{./01_manuscript/contents/figures/caption_and_media/jpg_for_compilation/01_example_figure.jpg}
+    \includegraphics[width=0.9\textwidth]{/home/ywatanabe/proj/scitex-writer/01_manuscript/contents/figures/caption_and_media/jpg_for_compilation/01_example_figure.jpg}
     \caption{Example figure caption. This is a template showing how to include figures in your manuscript. Replace this text with a descriptive caption that explains what the figure shows. Include panel labels (A, B, C) if using multipanel figures. Explain abbreviations and symbols used in the figure. Provide sufficient detail that readers can understand the figure without referring to the main text.}
 \label{fig:example_figure_01}
     \label{fig:01_example_figure}
@@ -889,7 +889,7 @@ The authors employed large language models such as Claude (Anthropic Inc.) for c
 \begin{figure*}[htbp]
     \pdfbookmark[2]{Figure 02}{.02}
     \centering
-    \includegraphics[width=0.9\textwidth]{./01_manuscript/contents/figures/caption_and_media/jpg_for_compilation/02_another_example.jpg}
+    \includegraphics[width=0.9\textwidth]{/home/ywatanabe/proj/scitex-writer/01_manuscript/contents/figures/caption_and_media/jpg_for_compilation/02_another_example.jpg}
     \caption{Another example figure. Use this template to add additional figures to your manuscript. Each figure should be placed in a separate .tex file in this directory. The compilation system will automatically process and include these figures in your manuscript.}
 \label{fig:example_figure_02}
     \label{fig:02_another_example}
