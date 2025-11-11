@@ -22,6 +22,49 @@ citation:
   #   - apa, chicago-authordate, mla, mhra, ieee, nature, etc.
   style: "unsrtnat"  # Default: numbered citations, order of appearance
 
+compilation:
+  # Compilation engine selection
+  # Options: auto, tectonic, latexmk, 3pass
+  #   - auto      : Auto-detect best available engine (recommended)
+  #   - tectonic  : Fast mode (1-3s incremental, 10× faster)
+  #   - latexmk   : Standard mode (3-6s incremental, industry standard)
+  #   - 3pass     : Guaranteed mode (12-18s, maximum compatibility)
+  engine: "auto"
+
+  # Auto-detection fallback order (used when engine: auto)
+  auto_order: "tectonic latexmk 3pass"
+
+  # Draft mode (single pass, skip bibliography)
+  draft_mode: false
+
+  # Per-engine settings
+  engines:
+    tectonic:
+      # Use incremental compilation cache
+      incremental: true
+      # Cache directory (relative to project root)
+      cache_dir: "./.tectonic-cache"
+      # Bundle directory for offline packages
+      bundle_dir: "./.tectonic-bundle"
+      # Verbosity
+      verbose: false
+
+    latexmk:
+      # Use latexmk's smart recompilation
+      incremental: true
+      # Maximum passes before giving up
+      max_passes: 10
+      # Fix bibliography path resolution (recommended: true)
+      set_bibinputs: true
+      # Verbosity
+      verbose: false
+
+    3pass:
+      # Always do full 3 passes (no incremental)
+      incremental: false
+      # Verbose output for each pass
+      verbose_passes: false
+
 paths:
   doc_root_dir: "./01_manuscript"
   doc_log_dir: "./01_manuscript/logs"
@@ -34,6 +77,7 @@ paths:
   archive_dir: "./01_manuscript/archive"
   version_counter_txt: "./01_manuscript/archive/.version_counter.txt"
   texlive_apptainer_sif: "./.cache/containers/texlive_container.sif"
+  tectonic_apptainer_sif: "./.cache/containers/tectonic_container.sif"
   mermaid_apptainer_sif: "./.cache/containers/mermaid_container.sif"
   imagemagick_apptainer_sif: "./.cache/containers/imagemagick_container.sif"
   
