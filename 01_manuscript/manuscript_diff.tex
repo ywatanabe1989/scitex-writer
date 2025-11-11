@@ -1,7 +1,7 @@
 %DIF 1-11c1-6
 %DIF LATEXDIFF DIFFERENCE FILE
 %DIF DEL ./01_manuscript/archive/manuscript_v113_diff.tex   Wed Nov 12 10:56:28 2025
-%DIF ADD ./01_manuscript/manuscript.tex                     Wed Nov 12 10:57:26 2025
+%DIF ADD ./01_manuscript/manuscript.tex                     Wed Nov 12 10:57:56 2025
 %DIF < %DIF 1a1-6
 %DIF < %DIF LATEXDIFF DIFFERENCE FILE
 %DIF < %DIF DEL ./01_manuscript/archive/manuscript_v112_diff.tex   Wed Nov 12 10:32:11 2025
@@ -16,8 +16,8 @@
 %DIF -------
 % ============================================================================== %DIF > 
 % SciTeX Writer v2.0.0-rc2 (https://scitex.ai) %DIF > 
-% LaTeX compilation engine: 3pass %DIF > 
-% Compiled: 2025-11-12 10:57:26 %DIF > 
+% LaTeX compilation engine: tectonic %DIF > 
+% Compiled: 2025-11-12 10:57:56 %DIF > 
 % ============================================================================== %DIF > 
  %DIF > 
 %DIF -------
@@ -1097,7 +1097,7 @@
 %DIF < \usepackage{accsupp, lineno, bashful, lipsum} %DIF > 
 %DIF < %DIF -------
 %DIF -------
-\usepackage{accsupp, lineno, bashful, lipsum} %DIF > 
+% % \usepackage{accsupp, lineno, bashful, lipsum}  % Disabled for tectonic  % Disabled for tectonic %DIF > 
 %DIF -------
 
 %% Visual enhancements
@@ -1345,7 +1345,7 @@
 %DIF < \linenumbers %DIF > 
 %DIF < %DIF -------
 %DIF -------
-\linenumbers %DIF > 
+% \linenumbers  % Disabled for tectonic %DIF > 
 %DIF -------
 
 %% --- Colors ---
@@ -7074,17 +7074,14 @@ keyword one \sep keyword two \sep keyword three \sep keyword four \sep keyword f
 %DIF < DIF < DIF < DIFDELCMD < \DIFdelend %%%
 %DIF < DIF < DIFDELCMD < \DIFdelend \DIFaddbegin \DIFadd{2 figures, 0 tables, 157 }\DIFaddend %%%
 %DIF < DIFDELCMD < \DIFdelend \DIFaddbegin %%%
-%DIFDELCMD < \DIFdelend %%%
-\DIFdelend \readwordcount{./01_manuscript/contents/wordcounts/figure_count.txt} \DIFdelbegin %DIFDELCMD < \DIFdelbegin %%%
+%DIFDELCMD < \DIFdelend \readwordcount{./01_manuscript/contents/wordcounts/figure_count.txt} \DIFdelbegin %%%
 %DIF < DIFDELCMD < \DIFadd{figures, }%%%
-%DIFDELCMD < \DIFdelend \DIFaddbegin \DIFadd{figures, }\DIFaddend %%%
-\DIFdelend \DIFaddbegin \DIFadd{figures, }\DIFaddend \readwordcount{./01_manuscript/contents/wordcounts/table_count.txt} \DIFdelbegin %DIFDELCMD < \DIFdelbegin %%%
+%DIFDELCMD < \DIFdelend \DIFaddbegin \DIFadd{figures, }\DIFaddend \readwordcount{./01_manuscript/contents/wordcounts/table_count.txt} \DIFdelbegin %%%
 %DIF < DIFDELCMD < \DIFadd{tables, }%%%
-%DIFDELCMD < \DIFdelend \DIFaddbegin \DIFadd{tables, }\DIFaddend %%%
-\DIFdelend \DIFaddbegin \DIFadd{tables, }\DIFaddend \readwordcount{./01_manuscript/contents/wordcounts/abstract_count.txt} \DIFdelbegin %DIFDELCMD < \DIFdelbegin %%%
+%DIFDELCMD < \DIFdelend \DIFaddbegin \DIFadd{tables, }\DIFaddend \readwordcount{./01_manuscript/contents/wordcounts/abstract_count.txt} \DIFdelbegin %%%
 %DIF < DIFDELCMD < \DIFaddend %%%
 %DIFDELCMD < \DIFdelend %%%
-\DIFdelend words for abstract, and \DIFdelbegin %DIFDELCMD < \DIFdelbegin %%%
+\DIFdelend \DIFaddbegin \DIFadd{2 figures, 0 tables, 157 }\DIFaddend words for abstract, and \DIFdelbegin %DIFDELCMD < \DIFdelbegin %%%
 %DIF < DIFDELCMD < \DIFdelbegin %%%
 %DIF < DIF < DIFDELCMD < \DIFdelbegin %%%
 %DIF < DIF < DIF < DIFDELCMD < \DIFdelbegin %%%
@@ -7206,11 +7203,10 @@ keyword one \sep keyword two \sep keyword three \sep keyword four \sep keyword f
 %DIF < DIF < DIF < DIFDELCMD < \DIFdelend %%%
 %DIF < DIF < DIFDELCMD < \DIFdelend \DIFaddbegin \DIFadd{2072 }\DIFaddend %%%
 %DIF < DIFDELCMD < \DIFdelend \DIFaddbegin %%%
-%DIFDELCMD < \DIFdelend %%%
-\DIFdelend \readwordcount{./01_manuscript/contents/wordcounts/imrd_count.txt} \DIFdelbegin %DIFDELCMD < \DIFdelbegin %%%
+%DIFDELCMD < \DIFdelend \readwordcount{./01_manuscript/contents/wordcounts/imrd_count.txt} \DIFdelbegin %%%
 %DIF < DIFDELCMD < \DIFaddend %%%
 %DIFDELCMD < \DIFdelend %%%
-\DIFdelend words for main text
+\DIFdelend \DIFaddbegin \DIFadd{2072 }\DIFaddend words for main text
 \end{wordcount}
 
 %% \begin{*wordcount}
@@ -7246,7 +7242,7 @@ keyword one \sep keyword two \sep keyword three \sep keyword four \sep keyword f
 %DIF < DIF < DIF < DIF > % 2 figures, 0 tables, 157 words for abstract, and 2072 words for main text
 %DIF < DIF < DIF > % \readwordcount{./01_manuscript/contents/wordcounts/figure_count.txt} figures, \readwordcount{./01_manuscript/contents/wordcounts/table_count.txt} tables, \readwordcount{./01_manuscript/contents/wordcounts/abstract_count.txt} words for abstract, and \readwordcount{./01_manuscript/contents/wordcounts/imrd_count.txt} words for main text
 %DIF < DIF > % \readwordcount{./01_manuscript/contents/wordcounts/figure_count.txt} figures, \readwordcount{./01_manuscript/contents/wordcounts/table_count.txt} tables, \readwordcount{./01_manuscript/contents/wordcounts/abstract_count.txt} words for abstract, and \readwordcount{./01_manuscript/contents/wordcounts/imrd_count.txt} words for main text
-%DIF > % \readwordcount{./01_manuscript/contents/wordcounts/figure_count.txt} figures, \readwordcount{./01_manuscript/contents/wordcounts/table_count.txt} tables, \readwordcount{./01_manuscript/contents/wordcounts/abstract_count.txt} words for abstract, and \readwordcount{./01_manuscript/contents/wordcounts/imrd_count.txt} words for main text
+%DIF > % 2 figures, 0 tables, 157 words for abstract, and 2072 words for main text
 %% \end{*wordcount}
 
 %%%% EOF
@@ -8399,12 +8395,12 @@ The authors employed large language models such as Claude (Anthropic Inc.) for c
 %DIF < DIF < DIFDELCMD < \DIFdelendFL \DIFaddbeginFL \includegraphics[width=0.9\textwidth]{/home/ywatanabe/proj/scitex-writer/01_manuscript/contents/figures/caption_and_media/jpg_for_compilation/01_example_figure.jpg}
 %DIF < DIF < DIFDELCMD <     \DIFaddendFL %%%
 %DIF < DIFDELCMD < \DIFdelendFL \DIFaddbeginFL %%%
-%DIFDELCMD < \DIFdelendFL %%%
-\DIFdelendFL \includegraphics[width=0.9\textwidth]{./01_manuscript/contents/figures/caption_and_media/jpg_for_compilation/01_example_figure.jpg}
-    \DIFdelbeginFL %DIFDELCMD < \DIFdelbeginFL %%%
+%DIFDELCMD < \DIFdelendFL \includegraphics[width=0.9\textwidth]{./01_manuscript/contents/figures/caption_and_media/jpg_for_compilation/01_example_figure.jpg}
+%DIFDELCMD <     \DIFdelbeginFL %%%
 %DIF < DIFDELCMD < \DIFaddendFL %%%
 %DIFDELCMD < \DIFdelendFL %%%
-\DIFdelendFL \caption{Example figure caption. This is a template showing how to include figures in your manuscript. Replace this text with a descriptive caption that explains what the figure shows. Include panel labels (A, B, C) if using multipanel figures. Explain abbreviations and symbols used in the figure. Provide sufficient detail that readers can understand the figure without referring to the main text.}
+\DIFdelendFL \DIFaddbeginFL \includegraphics[width=0.9\textwidth]{/home/ywatanabe/proj/scitex-writer/01_manuscript/contents/figures/caption_and_media/jpg_for_compilation/01_example_figure.jpg}
+    \DIFaddendFL \caption{Example figure caption. This is a template showing how to include figures in your manuscript. Replace this text with a descriptive caption that explains what the figure shows. Include panel labels (A, B, C) if using multipanel figures. Explain abbreviations and symbols used in the figure. Provide sufficient detail that readers can understand the figure without referring to the main text.}
 \label{fig:example_figure_01}
     \DIFdelbeginFL %DIFDELCMD < \DIFdelbeginFL %%%
 %DIF < DIFDELCMD < \DIFdelbeginFL %%%
@@ -8784,12 +8780,12 @@ The authors employed large language models such as Claude (Anthropic Inc.) for c
 %DIF < DIF < DIFDELCMD < \DIFdelendFL \DIFaddbeginFL \includegraphics[width=0.9\textwidth]{/home/ywatanabe/proj/scitex-writer/01_manuscript/contents/figures/caption_and_media/jpg_for_compilation/02_another_example.jpg}
 %DIF < DIF < DIFDELCMD <     \DIFaddendFL %%%
 %DIF < DIFDELCMD < \DIFdelendFL \DIFaddbeginFL %%%
-%DIFDELCMD < \DIFdelendFL %%%
-\DIFdelendFL \includegraphics[width=0.9\textwidth]{./01_manuscript/contents/figures/caption_and_media/jpg_for_compilation/02_another_example.jpg}
-    \DIFdelbeginFL %DIFDELCMD < \DIFdelbeginFL %%%
+%DIFDELCMD < \DIFdelendFL \includegraphics[width=0.9\textwidth]{./01_manuscript/contents/figures/caption_and_media/jpg_for_compilation/02_another_example.jpg}
+%DIFDELCMD <     \DIFdelbeginFL %%%
 %DIF < DIFDELCMD < \DIFaddendFL %%%
 %DIFDELCMD < \DIFdelendFL %%%
-\DIFdelendFL \caption{Another example figure. Use this template to add additional figures to your manuscript. Each figure should be placed in a separate .tex file in this directory. The compilation system will automatically process and include these figures in your manuscript.}
+\DIFdelendFL \DIFaddbeginFL \includegraphics[width=0.9\textwidth]{/home/ywatanabe/proj/scitex-writer/01_manuscript/contents/figures/caption_and_media/jpg_for_compilation/02_another_example.jpg}
+    \DIFaddendFL \caption{Another example figure. Use this template to add additional figures to your manuscript. Each figure should be placed in a separate .tex file in this directory. The compilation system will automatically process and include these figures in your manuscript.}
 \label{fig:example_figure_02}
     \DIFdelbeginFL %DIFDELCMD < \DIFdelbeginFL %%%
 %DIF < DIFDELCMD < \DIFdelbeginFL %%%
