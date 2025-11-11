@@ -24,9 +24,8 @@ compile_with_3pass() {
         return 1
     fi
 
-    # Add compilation options
-    local tex_dir=$(dirname "$tex_file")
-    pdf_cmd="$pdf_cmd -output-directory=$tex_dir -shell-escape -interaction=nonstopmode -file-line-error"
+    # Add compilation options (use configured LOG_DIR for clean separation)
+    pdf_cmd="$pdf_cmd -output-directory=$LOG_DIR -shell-escape -interaction=nonstopmode -file-line-error"
 
     # Helper function for timed execution
     run_pass() {
@@ -53,8 +52,9 @@ compile_with_3pass() {
 
     # Main compilation sequence
     local total_start=$(date +%s)
-    local tex_base="${tex_file%.tex}"
-    local aux_file="${tex_base}.aux"
+    local tex_basename=$(basename "${tex_file%.tex}")
+    local aux_file="${LOG_DIR}/${tex_basename}.aux"
+    local bib_base="${LOG_DIR}/${tex_basename}"
 
     # Check draft mode
     if [ "$SCITEX_WRITER_DRAFT_MODE" = "true" ]; then
@@ -67,7 +67,7 @@ compile_with_3pass() {
         # Process bibliography if needed
         if [ -f "$aux_file" ]; then
             if grep -q "\\citation\|\\bibdata\|\\bibstyle" "$aux_file" 2>/dev/null; then
-                run_pass "$bib_cmd $tex_base" "${SCITEX_WRITER_VERBOSE_BIBTEX:-false}" "Processing bibliography"
+                run_pass "$bib_cmd $bib_base" "${SCITEX_WRITER_VERBOSE_BIBTEX:-false}" "Processing bibliography"
             fi
         fi
 

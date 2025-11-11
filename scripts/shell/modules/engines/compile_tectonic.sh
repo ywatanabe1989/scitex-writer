@@ -25,9 +25,10 @@ compile_with_tectonic() {
     # Build tectonic options
     local opts=""
 
-    # Output directory
-    local tex_dir=$(dirname "$tex_file")
-    opts="$opts --outdir=$tex_dir"
+    # Output directory (use configured LOG_DIR for clean separation)
+    # Tectonic requires absolute paths for --outdir
+    local abs_log_dir="$(cd "$(dirname "$LOG_DIR")" && pwd)/$(basename "$LOG_DIR")"
+    opts="$opts --outdir=$abs_log_dir"
 
     # Incremental mode (use cache)
     if [ "$SCITEX_WRITER_TECTONIC_INCREMENTAL" = "true" ]; then

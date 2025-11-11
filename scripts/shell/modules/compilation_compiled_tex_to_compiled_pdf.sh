@@ -82,6 +82,17 @@ cleanup() {
     if [ -z "$pdf_file" ]; then
         pdf_file="./01_manuscript/manuscript.pdf"
     fi
+
+    # PDF is generated in LOG_DIR, move to final location
+    local pdf_basename=$(basename "$pdf_file")
+    local pdf_in_logs="${LOG_DIR}/${pdf_basename}"
+
+    if [ -f "$pdf_in_logs" ]; then
+        # Move PDF from logs/ to final location
+        mv "$pdf_in_logs" "$pdf_file"
+        echo_info "    Moved PDF: $pdf_in_logs -> $pdf_file"
+    fi
+
     if [ -f "$pdf_file" ]; then
         local size=$(du -h "$pdf_file" | cut -f1)
         echo_success "    $pdf_file ready (${size})"

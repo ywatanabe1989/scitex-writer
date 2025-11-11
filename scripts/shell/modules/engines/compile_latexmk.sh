@@ -22,8 +22,7 @@ compile_with_latexmk() {
         return 1
     fi
 
-    # Setup paths
-    local tex_dir=$(dirname "$tex_file")
+    # Setup paths (use configured LOG_DIR for clean separation)
     local project_root=$(git rev-parse --show-toplevel 2>/dev/null || pwd)
 
     # FIX: Set BIBINPUTS to find bibliography files
@@ -39,7 +38,7 @@ compile_with_latexmk() {
         -bibtex
         -interaction=nonstopmode
         -file-line-error
-        "-output-directory=$tex_dir"
+        "-output-directory=$LOG_DIR"
         "-pdflatex=pdflatex -shell-escape %O %S"
     )
 

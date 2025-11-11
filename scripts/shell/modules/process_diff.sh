@@ -121,6 +121,16 @@ compile_diff_tex() {
 }
 
 cleanup() {
+    # PDF is generated in LOG_DIR, move to final location
+    local pdf_basename=$(basename "$SCITEX_WRITER_DIFF_PDF")
+    local pdf_in_logs="${LOG_DIR}/${pdf_basename}"
+
+    if [ -f "$pdf_in_logs" ]; then
+        # Move PDF from logs/ to final location
+        mv "$pdf_in_logs" "$SCITEX_WRITER_DIFF_PDF"
+        echo_info "    Moved PDF: $pdf_in_logs -> $SCITEX_WRITER_DIFF_PDF"
+    fi
+
     if [ -f "$SCITEX_WRITER_DIFF_PDF" ]; then
         local size=$(du -h "$SCITEX_WRITER_DIFF_PDF" | cut -f1)
         echo_success "    $SCITEX_WRITER_DIFF_PDF ready (${size})"
