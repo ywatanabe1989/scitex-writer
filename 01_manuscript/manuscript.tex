@@ -1,3 +1,9 @@
+% ==============================================================================
+% SciTeX Writer v2.0.0-rc2 (https://scitex.ai)
+% LaTeX compilation engine: latexmk
+% Compiled: 2025-11-12 10:56:19
+% ==============================================================================
+
 %% -*- coding: utf-8 -*-
 %% Timestamp: "2025-09-27 22:21:42 (ywatanabe)"
 %% File: "/ssh:sp:/home/ywatanabe/proj/neurovista/paper/01_manuscript/base.tex"
@@ -43,6 +49,10 @@
 \usepackage[T1]{fontenc}
 \usepackage[utf8]{inputenc}
 
+%% Colors (load early to avoid option clashes with tikz, pgfplots, tcolorbox)
+% Include all common color options: table (for colortbl), svgnames (for tcolorbox)
+\usepackage[table,svgnames]{xcolor}
+
 %% Mathematics
 \usepackage{amsmath, amssymb, amsthm}
 \usepackage{siunitx}
@@ -55,7 +65,6 @@
 \usetikzlibrary{positioning,shapes,arrows,fit,calc,graphs,graphs.standard}
 
 %% Tables
-\usepackage[table]{xcolor}
 \usepackage{booktabs, colortbl, longtable, supertabular, tabularx, xltabular}
 \usepackage{csvsimple, makecell}
 
@@ -326,11 +335,11 @@ keyword one \sep keyword two \sep keyword three \sep keyword four \sep keyword f
 
 \section{Introduction}
 
-The preparation of scientific manuscripts involves numerous technical challenges that extend beyond the intellectual task of communicating research findings~\citep{Anderson2017_ReviewNeuroscience}. Researchers must navigate complex typesetting systems, manage multiple document versions, coordinate figures and tables across formats, and ensure reproducible compilation environments~\citep{Wilson2015_Neuroscience}. These technical burdens can distract from the primary goal of clear scientific communication and often lead to inconsistencies, formatting errors, and wasted time troubleshooting environment-specific compilation issues.
+The preparation of scientific manuscripts involves numerous technical challenges that extend beyond the intellectual task of communicating research findings~\cite{Anderson2017_ReviewNeuroscience}. Researchers must navigate complex typesetting systems, manage multiple document versions, coordinate figures and tables across formats, and ensure reproducible compilation environments~\cite{Wilson2015_Neuroscience}. These technical burdens can distract from the primary goal of clear scientific communication and often lead to inconsistencies, formatting errors, and wasted time troubleshooting environment-specific compilation issues.
 
-Traditional approaches to manuscript preparation typically rely on local LaTeX installations, where the specific versions of packages and compilation tools can vary significantly across different machines and over time~\citep{Lee2016_BrainNetworks}. This variability creates reproducibility challenges, particularly in collaborative environments where multiple authors work on different systems~\citep{Garcia2019_CognitiveNeuroscience}. Furthermore, the proliferation of image formats and the need to convert between them for different submission requirements adds another layer of complexity. Researchers often resort to ad-hoc scripts or manual processes to handle these conversions, leading to potential errors and inconsistent results.
+Traditional approaches to manuscript preparation typically rely on local LaTeX installations, where the specific versions of packages and compilation tools can vary significantly across different machines and over time~\cite{Lee2016_BrainNetworks}. This variability creates reproducibility challenges, particularly in collaborative environments where multiple authors work on different systems~\cite{Garcia2019_CognitiveNeuroscience}. Furthermore, the proliferation of image formats and the need to convert between them for different submission requirements adds another layer of complexity. Researchers often resort to ad-hoc scripts or manual processes to handle these conversions, leading to potential errors and inconsistent results.
 
-Existing solutions have addressed some aspects of this problem~\citep{Thompson2018_SystemsNeuroscience}. Overleaf and similar cloud-based platforms provide consistent compilation environments but require continuous internet connectivity and may not suit all research workflows. Version control systems like Git effectively track changes but require researchers to understand both LaTeX and version control simultaneously. Template repositories exist for various journals, but they typically focus on formatting requirements rather than workflow automation and often duplicate common elements across documents.
+Existing solutions have addressed some aspects of this problem~\cite{Thompson2018_SystemsNeuroscience}. Overleaf and similar cloud-based platforms provide consistent compilation environments but require continuous internet connectivity and may not suit all research workflows. Version control systems like Git effectively track changes but require researchers to understand both LaTeX and version control simultaneously. Template repositories exist for various journals, but they typically focus on formatting requirements rather than workflow automation and often duplicate common elements across documents.
 
 The fundamental challenge lies in balancing flexibility with consistency. Researchers need systems that accommodate diverse content types, multiple output documents, and varying journal requirements while maintaining a single source of truth for shared elements like author lists and bibliographies. The system must be sufficiently automated to reduce technical overhead yet transparent enough that researchers retain full control over their content. Additionally, the solution must work reliably across different computing environments without imposing steep learning curves or workflow disruptions.
 
@@ -359,11 +368,11 @@ The framework employs a hierarchical directory structure where the \texttt{00\_s
 
 \subsection{Container-Based Compilation System}
 
-To ensure reproducible builds across diverse computing environments, the framework leverages both Docker and Singularity containerization technologies~\citep{Smith2020_NeuralAnalysis}. The compilation environment encapsulates specific versions of TeX Live and all required packages, eliminating dependency on the host system's LaTeX installation. Users invoke compilation through a simple Makefile interface that abstracts the container complexity~\citep{Johnson2019_SpectralAnalysis}. The command \texttt{make manuscript} compiles the main document, while \texttt{make all} processes all three document types in parallel. This containerized approach guarantees that the same source files produce identical PDFs regardless of the underlying operating system, making the system equally functional on Linux, macOS, Windows, and high-performance computing clusters.
+To ensure reproducible builds across diverse computing environments, the framework leverages both Docker and Singularity containerization technologies~\cite{Smith2020_NeuralAnalysis}. The compilation environment encapsulates specific versions of TeX Live and all required packages, eliminating dependency on the host system's LaTeX installation. Users invoke compilation through a simple Makefile interface that abstracts the container complexity~\cite{Johnson2019_SpectralAnalysis}. The command \texttt{make manuscript} compiles the main document, while \texttt{make all} processes all three document types in parallel. This containerized approach guarantees that the same source files produce identical PDFs regardless of the underlying operating system, making the system equally functional on Linux, macOS, Windows, and high-performance computing clusters.
 
 \subsection{Automated Asset Processing}
 
-The system implements automatic format conversion for both figures and tables through preprocessing scripts that execute during compilation~\citep{Chen2021_MachineLearning}. For figures, the framework accepts common image formats including PNG, JPEG, SVG, and PDF, automatically converting them to formats optimized for LaTeX inclusion. Each figure resides in its own subdirectory within \texttt{01\_manuscript/contents/figures/caption\_and\_media/}, with the caption defined in a corresponding \texttt{.tex} file. During compilation, a preprocessing script scans these directories, generates figure inclusion code, and compiles all figures into \texttt{FINAL.tex} for inclusion in the main document. Tables follow an analogous structure, allowing authors to define complex table layouts separately from their incorporation into the document flow~\citep{Brown2018_DeepLearning}.
+The system implements automatic format conversion for both figures and tables through preprocessing scripts that execute during compilation~\cite{Chen2021_MachineLearning}. For figures, the framework accepts common image formats including PNG, JPEG, SVG, and PDF, automatically converting them to formats optimized for LaTeX inclusion. Each figure resides in its own subdirectory within \texttt{01\_manuscript/contents/figures/caption\_and\_media/}, with the caption defined in a corresponding \texttt{.tex} file. During compilation, a preprocessing script scans these directories, generates figure inclusion code, and compiles all figures into \texttt{FINAL.tex} for inclusion in the main document. Tables follow an analogous structure, allowing authors to define complex table layouts separately from their incorporation into the document flow~\cite{Brown2018_DeepLearning}.
 
 \subsection{Version Control and Difference Tracking}
 
@@ -392,7 +401,7 @@ The containerized compilation system achieves complete reproducibility across di
 
 \subsection{Automated Figure and Table Management}
 
-The automatic asset processing system effectively handles diverse input formats and streamlines figure incorporation~\citep{YourName2023_NovelMethod}. Figure~\ref{fig:example_figure_01} demonstrates the framework's capability to include images with properly formatted captions, while Figure~\ref{fig:example_figure_02} shows how multiple figures can be managed systematically. The preprocessing pipeline converts source images to optimal formats, maintaining quality while ensuring compatibility with LaTeX compilation requirements~\citep{YourName2022_PreviousWork}. For tables, the system provides structured organization as shown in Table~\ref{tab:example_table_01}, where complex tabular data can be defined independently and automatically integrated into the document flow. This separation of content from presentation enables authors to focus on data rather than formatting syntax.
+The automatic asset processing system effectively handles diverse input formats and streamlines figure incorporation~\cite{YourName2023_NovelMethod}. Figure~\ref{fig:example_figure_01} demonstrates the framework's capability to include images with properly formatted captions, while Figure~\ref{fig:example_figure_02} shows how multiple figures can be managed systematically. The preprocessing pipeline converts source images to optimal formats, maintaining quality while ensuring compatibility with LaTeX compilation requirements~\cite{YourName2022_PreviousWork}. For tables, the system provides structured organization as shown in Table~\ref{tab:example_table_01}, where complex tabular data can be defined independently and automatically integrated into the document flow. This separation of content from presentation enables authors to focus on data rather than formatting syntax.
 
 \subsection{Modular Content Organization}
 
@@ -451,7 +460,8 @@ SciTeX Writer demonstrates that scientific manuscript preparation can be systema
 %% REFERENCE STYLES
 %% ----------------------------------------
 \pdfbookmark[1]{References}{references}
-\bibliography{./01_manuscript/contents/bibliography}
+% Note: Path without ./ prefix allows bibtex to use BIBINPUTS search path
+\bibliography{01_manuscript/contents/bibliography}
 
 % ======================================================================
 % File: ./01_manuscript/contents/latex_styles/bibliography.tex
@@ -501,11 +511,11 @@ SciTeX Writer demonstrates that scientific manuscript preparation can be systema
 %% Format: (Author, Year) or Author (Year) depending on command
 %% Example: \cite{Tort2010} → (Tort et al., 2010)
 %%          \citet{Tort2010} → Tort et al. (2010) [textual]
-%%          \citep{Tort2010} → (Tort et al., 2010) [parenthetical]
+%%          \cite{Tort2010} → (Tort et al., 2010) [parenthetical]
 %% Commands:
 %%   - \citet{key}  → Author (Year)  [for text: "As shown by Author (2020)..."]
-%%   - \citep{key}  → (Author, Year) [for parentheses: "...as shown (Author, 2020)"]
-%%   - \cite{key}   → Same as \citep{key}
+%%   - \cite{key}  → (Author, Year) [for parentheses: "...as shown (Author, 2020)"]
+%%   - \cite{key}   → Same as \cite{key}
 %% Best for: Review papers, humanities, some social sciences
 %% Requires: natbib package (already loaded)
 % \bibliographystyle{plainnat}   % Author-year, alphabetical
@@ -688,9 +698,9 @@ SciTeX Writer demonstrates that scientific manuscript preparation can be systema
 %%
 %% Advanced natbib commands (only work with natbib-compatible styles):
 %%   \citet{key}             → Author (Year)  [textual citation]
-%%   \citep{key}             → (Author, Year) [parenthetical citation]
+%%   \cite{key}             → (Author, Year) [parenthetical citation]
 %%   \citet*{key}            → Full author list (Year)
-%%   \citep*{key}            → (Full author list, Year)
+%%   \cite*{key}            → (Full author list, Year)
 %%   \citealt{key}           → Author Year [no parentheses]
 %%   \citealp{key}           → Author, Year [no parentheses]
 %%   \citeauthor{key}        → Author [name only]
@@ -698,15 +708,15 @@ SciTeX Writer demonstrates that scientific manuscript preparation can be systema
 %%   \citeyearpar{key}       → (Year) [year in parentheses]
 %%
 %% Pre/post notes:
-%%   \citep[see][p.~10]{key} → (see Author, Year, p. 10)
-%%   \citep[p.~10]{key}      → (Author, Year, p. 10)
+%%   \cite[see][p.~10]{key} → (see Author, Year, p. 10)
+%%   \cite[p.~10]{key}      → (Author, Year, p. 10)
 %%
 %% Multiple citations:
-%%   \citep{key1,key2,key3}  → (Author1, Year1; Author2, Year2; Author3, Year3)
+%%   \cite{key1,key2,key3}  → (Author1, Year1; Author2, Year2; Author3, Year3)
 %%
 %% Suppressing parts:
-%%   \citep[e.g.,][]{key}    → (e.g., Author, Year)
-%%   \citep[][see p.~10]{key}→ (Author, Year, see p. 10)
+%%   \cite[e.g.,][]{key}    → (e.g., Author, Year)
+%%   \cite[][see p.~10]{key}→ (Author, Year, see p. 10)
 %%
 %% ----------------------------------------------------------------------------
 %% TROUBLESHOOTING
@@ -865,24 +875,24 @@ The authors employed large language models such as Claude (Anthropic Inc.) for c
 % Generated by compile_figure_tex_files()
 % This file includes all figure files in order
 
-% Figure 1
+% Figure 01
 \begin{figure*}[h!]
-    \pdfbookmark[2]{Figure 1}{.1}
+    \pdfbookmark[2]{Figure 01}{.01}
     \centering
-    \includegraphics[width=1\textwidth]{./01_manuscript/contents/figures/caption_and_media/jpg_for_compilation/01_example_figure.jpg}
+    \includegraphics[width=0.9\textwidth]{./01_manuscript/contents/figures/caption_and_media/jpg_for_compilation/01_example_figure.jpg}
     \caption{Example figure caption. This is a template showing how to include figures in your manuscript. Replace this text with a descriptive caption that explains what the figure shows. Include panel labels (A, B, C) if using multipanel figures. Explain abbreviations and symbols used in the figure. Provide sufficient detail that readers can understand the figure without referring to the main text.}
 \label{fig:example_figure_01}
-    \label{fig:1_example_figure}
+    \label{fig:01_example_figure}
 \end{figure*}
 
-% Figure 2
+% Figure 02
 \begin{figure*}[htbp]
-    \pdfbookmark[2]{Figure 2}{.2}
+    \pdfbookmark[2]{Figure 02}{.02}
     \centering
-    \includegraphics[width=1\textwidth]{./01_manuscript/contents/figures/caption_and_media/jpg_for_compilation/02_another_example.jpg}
+    \includegraphics[width=0.9\textwidth]{./01_manuscript/contents/figures/caption_and_media/jpg_for_compilation/02_another_example.jpg}
     \caption{Another example figure. Use this template to add additional figures to your manuscript. Each figure should be placed in a separate .tex file in this directory. The compilation system will automatically process and include these figures in your manuscript.}
 \label{fig:example_figure_02}
-    \label{fig:2_another_example}
+    \label{fig:02_another_example}
 \end{figure*}
 
 
