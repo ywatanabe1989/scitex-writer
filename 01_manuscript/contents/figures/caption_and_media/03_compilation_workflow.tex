@@ -1,0 +1,8 @@
+%% Compilation Workflow Diagram
+\caption{\textbf{SciTeX Writer Compilation Workflow.}
+This flowchart illustrates the complete compilation pipeline from initial dependency checking through final PDF generation.
+The system automatically detects and uses the best available compilation engine (Tectonic for speed, latexmk for reliability, or 3-pass for maximum compatibility).
+Parallel processing of figures and tables significantly reduces compilation time.
+Optional features include automatic diff generation for revision tracking and file watching for hot-recompile mode.
+Color coding: green (start/end), orange (engine selection), blue (preprocessing), purple (parallel processing), gray (decision points).}
+\label{fig:compilation_workflow}

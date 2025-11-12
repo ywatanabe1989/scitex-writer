@@ -1,0 +1,10 @@
+%% Directory Structure Diagram
+\caption{\textbf{SciTeX Writer Directory Organization.}
+This diagram shows the hierarchical organization of the repository structure.
+The \texttt{00\_shared/} directory (green) contains resources used across all document types, including bibliography files and LaTeX styles, ensuring consistency without duplication.
+The three document directories (blue/purple) follow identical internal structures, facilitating familiarity and code reuse.
+Each document has its own \texttt{contents/} subdirectory with \texttt{figures/} and \texttt{tables/} organized into \texttt{caption\_and\_media/} (source files) and \texttt{compiled/} (generated LaTeX code).
+The modular structure minimizes merge conflicts during collaborative editing by isolating frequently-modified content files.
+Compilation scripts (orange) and configuration files (red) reside in dedicated directories for easy discovery and maintenance.
+Dotted lines indicate that supplementary materials follow the same organizational pattern as the main manuscript.}
+\label{fig:directory_structure}

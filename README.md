@@ -1,288 +1,273 @@
 <!-- ---
-!-- Timestamp: 2025-10-29 13:41:22
+!-- Timestamp: 2025-11-10 02:24:18
 !-- Author: ywatanabe
 !-- File: /home/ywatanabe/proj/scitex-writer/README.md
 !-- --- -->
 
-# SciTeX Writer
+<p align="center">
+  <img src="docs/scitex-logo-banner.png" alt="SciTeX Logo" width="800"/>
+</p>
 
-LaTeX compilation system for scientific manuscripts.
+<h1 align="center">SciTeX Writer</h1>
+
+<p align="center">
+  LaTeX compilation system for academic manuscripts
+</p>
+
+<p align="center">
+  <a href="https://scitex.ai">scitex.ai</a> •
+  <a href="docs/">Documentation</a> •
+  <a href="https://github.com/ywatanabe1989/scitex-writer/issues">Issues</a>
+</p>
+
+<p align="center">
+  <a href="https://github.com/ywatanabe1989/scitex-writer/actions/workflows/comprehensive-tests.yml">
+    <img src="https://github.com/ywatanabe1989/scitex-writer/actions/workflows/comprehensive-tests.yml/badge.svg" alt="Comprehensive Tests"/>
+  </a>
+  <a href="https://github.com/ywatanabe1989/scitex-writer/actions/workflows/compile-test.yml">
+    <img src="https://github.com/ywatanabe1989/scitex-writer/actions/workflows/compile-test.yml/badge.svg" alt="Compilation Test"/>
+  </a>
+  <a href="https://codecov.io/gh/ywatanabe1989/scitex-writer">
+    <img src="https://codecov.io/gh/ywatanabe1989/scitex-writer/branch/main/graph/badge.svg" alt="Code Coverage"/>
+  </a>
+  <a href="https://github.com/ywatanabe1989/scitex-writer/actions/workflows/lint.yml">
+    <img src="https://github.com/ywatanabe1989/scitex-writer/actions/workflows/lint.yml/badge.svg" alt="Lint"/>
+  </a>
+</p>
+
+---
 
 ## Quick Start
 
 ```bash
+# Clone or use template
 git clone https://github.com/ywatanabe1989/scitex-writer.git
 cd scitex-writer
-./compile.sh
+
+# Try compiling (checks dependencies automatically)
+./scripts/shell/compile_manuscript.sh
+
+# If dependencies missing, install suggested packages and retry
 ```
 
-🎉 That's it! 🎉   
+## Demo
 
-PDF is produced at [`01_manuscript/manuscript.pdf`](01_manuscript/manuscript.pdf) ([Log Available](./docs/compilation_log.txt))
-
-## How to write your paper
-
-<details>
-<summary>⚙️ Installation</summary>
+<table>
+<tr>
+<td width="33%" align="center">
+  <a href="01_manuscript/manuscript.pdf">
+    <img src="docs/demo-manuscript-preview.png" width="100%" alt="Manuscript"/>
+  </a>
+  <br/>
+  <sub><a href="01_manuscript/manuscript.pdf">📄 Manuscript</a></sub>
+  <br/>
+  <sub><a href="scripts/shell/.compile_manuscript.sh.log">📄 Compilation Log</a></sub>
+</td>
+<td width="33%" align="center">
+  <a href="02_supplementary/supplementary.pdf">
+    <img src="docs/demo-supplementary-preview.png" width="100%" alt="Supplementary"/>
+  </a>
+  <br/>
+  <sub><a href="02_supplementary/supplementary.pdf">📄 Supplementary</a></sub>
+  <br/>
+  <sub><a href="scripts/shell/.compile_supplementary.sh.log">📄 Compilation Log</a></sub>  
+</td>
+<td width="33%" align="center">
+  <a href="03_revision/revision.pdf">
+    <img src="docs/demo-revision-preview.png" width="100%" alt="Revision"/>
+  </a>
+  <br/>
+  <sub><a href="03_revision/revision.pdf">📄 Revision</a></sub>
+  <br/>
+  <sub><a href="scripts/shell/.compile_revision.sh.log">📄 Compilation Log</a></sub>
+</td>
+</tr>
+</table>
 
 ## Installation
 
-### Requirements
+Dependencies are checked automatically during compilation. Quick install options:
 
-This project uses **Singularity/Apptainer containers** for LaTeX compilation, ensuring consistent results across different systems (local machines, HPC clusters, CI/CD platforms).
-
-**Container system options:**
-- **Apptainer** (recommended, actively maintained) - Install via package manager
-- **Singularity** (legacy) - Still supported as fallback
-
-#### System-specific installation:
-
-**Ubuntu/Debian:**
+**Native LaTeX (Ubuntu/Debian):**
 ```bash
-sudo apt-get update
-sudo apt-get install -y apptainer
+sudo apt-get install texlive-latex-extra latexdiff parallel imagemagick ghostscript
+git clone https://github.com/ywatanabe1989/scitex-writer.git
+cd scitex-writer
+./scripts/shell/compile_manuscript.sh
 ```
 
-**Fedora/RHEL:**
+**macOS:**
 ```bash
-sudo dnf install -y apptainer
+brew install texlive latexdiff parallel imagemagick ghostscript
+git clone https://github.com/ywatanabe1989/scitex-writer.git
+cd scitex-writer
+./scripts/shell/compile_manuscript.sh
 ```
 
-**macOS (via Homebrew):**
-```bash
-brew install apptainer
-```
+**HPC/Containers:**
+- Module system: `module load texlive latexdiff parallel`
+- Docker: `docker run -v $(pwd):/work scitex-writer`
+- Singularity: `singularity run scitex-writer.sif`
 
-**HPC Clusters:**
-Most clusters have Singularity/Apptainer available via module system:
-```bash
-module load singularity  # or: module load apptainer
-```
-
-### Verify Installation
-
-Check requirements:
-```bash
-./scripts/installation/check_requirements.sh
-```
-
-### Optional: Pre-download Containers
-
-Containers are automatically downloaded on first run (~3.2GB total). Optionally download upfront:
-```bash
-./scripts/installation/download_containers.sh
-```
-
-This downloads:
-- **texlive/texlive:latest** - LaTeX compilation (~2GB)
-- **minlag/mermaid-cli:latest** - Diagram rendering
-- **dpokidov/imagemagick:latest** - Image processing
-
-## Configuration
-
-YAML configuration files in `config/`:
-- `config_manuscript.yaml` - Manuscript settings
-- `config_supplementary.yaml` - Supplementary settings
-- `config_revision.yaml` - Revision settings
-
-</details>
-
-
-<details>
-<summary>📝 Which files to edit?</summary>
-
-### Which files to edit?
-
-1. **Manuscript contents**
-   - [`01_manuscript/contents/abstract.tex`](01_manuscript/contents/abstract.tex)
-   - [`01_manuscript/contents/introduction.tex`](01_manuscript/contents/introduction.tex)
-   - [`01_manuscript/contents/methods.tex`](01_manuscript/contents/methods.tex)
-   - [`01_manuscript/contents/results.tex`](01_manuscript/contents/results.tex)
-   - [`01_manuscript/contents/discussion.tex`](01_manuscript/contents/discussion.tex)
-
-2. **Metadata**
-   - [`shared/title.tex`](shared/title.tex) - Manuscript title
-   - [`shared/authors.tex`](shared/authors.tex) - Author list and affiliations
-   - [`shared/keywords.tex`](shared/keywords.tex) - Keywords
-   - [`shared/bib_files/bibliography.bib`](shared/bib_files/bibliography.bib) - References
-
-</details>
-
-<details>
-<summary>📂 Project Structure</summary>
-
-### Project Structure
-
-```
-scitex-writer/
-├── compile.sh                  # Main
-├── shared/
-│   ├── title.tex
-│   ├── authors.tex
-│   ├── keywords.tex
-│   └── bib_files/
-│       └── bibliography.bib    # References
-├── 01_manuscript/              # Main manuscript
-│   ├── contents/
-│   │   ├── abstract.tex
-│   │   ├── introduction.tex
-│   │   ├── methods.tex
-│   │   ├── results.tex
-│   │   ├── discussion.tex
-│   │   ├── figures/caption_and_media/
-│   │   └── tables/caption_and_media/
-│   └── manuscript.pdf          # Compiled PDF
-├── 02_supplementary/           # Supplementary materials
-└── 03_revision/                # Revision responses
-```
-
-</details>
-
-<details>
-<summary>📈 Figures</summary>
-
-## Figures
-Place figure caption files in `01_manuscript/contents/figures/caption_and_media/`:
-
-```tex
-%% Example: 01_my_figure.tex
-\caption{Description of your figure. Explain what is shown, define abbreviations, and provide sufficient detail for standalone understanding.}
-\label{fig:my_figure}
-```
-
-Add corresponding image files (`.jpg`, `.png`, `.tif`) with the same base name:
-- `01_my_figure.jpg` or `01_my_figure.png`
-
-Reference in text: `Figure~\ref{fig:my_figure}`
-
-</details>
-
-<details>
-<summary>📋 Tables</summary>
-
-## Tables
-Place table caption files in `01_manuscript/contents/tables/caption_and_media/`:
-
-```tex
-%% Example: 01_my_table.tex
-\caption{Description of your table. Explain what data is shown and define any abbreviations.}
-\label{tab:my_table}
-```
-
-Add corresponding data files (`.xlsx` or `.csv`) with the same base name:
-- `01_my_table.xlsx` or `01_my_table.csv`
-
-Reference in text: `Table~\ref{tab:my_table}`
-
-</details>
-
-<details>
-<summary>📚 Citations & Bibliography Styles</summary>
-
-## Citations
-
-### Adding References
-
-Edit `shared/bib_files/bibliography.bib`:
-
-```bibtex
-@article{your_reference_2024,
-  author  = {LastName, FirstName and Another, Author},
-  title   = {Your Article Title},
-  journal = {Journal Name},
-  year    = {2024},
-  volume  = {42},
-  pages   = {123--145},
-  doi     = {10.1234/example.2024.001}
-}
-```
-
-Cite in text: `\cite{your_reference_2024}`
-
-### Changing Citation Style
-
-Simply edit the `citation.style` field in your config file:
-
-**config/config_manuscript.yaml:**
-```yaml
-citation:
-  style: "unsrtnat"  # Change to any supported style
-```
-
-**Available styles (ready to use):**
-- `unsrtnat` - Numbered [1], order of appearance (Vancouver-like) - **default**
-- `plainnat` - Numbered [1], alphabetical by author
-- `abbrvnat` - Numbered, abbreviated author names
-- `apalike` - Author-year, APA-like style
-- `IEEEtran` - IEEE Transactions style
-- `naturemag` - Nature magazine style
-- `elsarticle-num` - Elsevier numbered, alphabetical
-- `elsarticle-harv` - Elsevier Harvard (author-year)
-
-**Advanced styles** (APA 7th, Chicago, MLA, MHRA, etc.):
-
-See `shared/latex_styles/bibliography.tex` for 15+ additional citation formats including:
-- American Chemical Society (ACS)
-- American Medical Association (AMA) 11th edition
-- American Psychological Association (APA) 7th edition
-- American Sociological Association (ASA)
-- Chicago Manual of Style (author-date, notes, shortened notes)
-- Modern Language Association (MLA) 9th edition
-- Modern Humanities Research Association (MHRA)
-- Harvard variations (Cite Them Right, etc.)
-
-For these advanced styles, see instructions in `bibliography.tex` for switching from natbib to biblatex.
-
-The citation style is automatically applied during compilation - no manual LaTeX editing needed!
-
-</details>
-
-<details>
-<summary>🔨 LaTeX to PDF</summary>
-
-```bash
-# Compile manuscript (default)
-./compile
-
-# Or specify document type explicitly
-./compile -m                    # manuscript
-./compile -s                    # supplementary materials
-./compile -r                    # revision responses
- 
-# Watch mode (auto-recompile on changes)
-./compile -m -w
-```
-
-</details>
-
-<details>
-<summary>✨ Features</summary>
+**👉 See [Full Installation Guide](docs/01_GUIDE_INSTALLATION.md) for detailed instructions by environment.**
 
 ## Features
 
-- **Container-based compilation**: Consistent builds across systems
-- **Auto-format conversion**:
-  - Images: `.jpg`, `.png`, `.tif` automatically processed
-  - Tables: `.xlsx` and `.csv` converted to LaTeX
-  - Mermaid diagrams: `.mmd` files rendered to images
-- **Flexible citation styles**: 15+ citation formats via simple config change
-  - IEEE, Nature, APA, Chicago, MLA, Harvard, Vancouver, and more
-  - Automatic style switching without manual LaTeX editing
-- **Version tracking**: Automatic diff generation
-- **Watch mode**: Auto-recompile on file changes
-- **HPC-ready**: Works on compute clusters
+### Core Capabilities
 
-</details>
+- **Multi-Engine Compilation System**
+  - Auto-detection of best available engine (Tectonic, latexmk, 3-pass)
+  - Tectonic: Ultra-fast mode (1-3s incremental, 10× faster)
+  - latexmk: Standard mode (3-6s incremental, industry standard)
+  - 3-pass: Guaranteed mode (12-18s, maximum compatibility)
+  - Hot-recompile mode with file watching for rapid iteration
+
+- **Smart Bibliography Management**
+  - Multi-file bibliography with automatic deduplication
+  - DOI-based and title+year matching
+  - 20+ citation styles (APA, Chicago, IEEE, Nature, MLA, etc.)
+  - Easy style switching via YAML configuration
+
+- **Version Control Integration**
+  - Automatic archiving with version numbering
+  - Built-in diff generation using latexdiff
+  - Git auto-commit with semantic versioning
+  - Complete revision history tracking
+
+- **Automated Asset Processing**
+  - Parallel figure processing (PNG, JPEG, SVG, PDF, TIFF, Mermaid)
+  - Automatic table compilation from CSV files
+  - Format conversion and optimization
+  - Template-based figure and table generation
+
+- **Cross-Platform Reproducibility**
+  - Container support (Docker, Apptainer/Singularity)
+  - Native execution on Linux, macOS, Windows (WSL2)
+  - HPC cluster compatibility
+  - Byte-for-byte identical outputs across platforms
+
+- **Performance Optimizations**
+  - Hash-based caching for incremental compilation
+  - Parallel processing for figures, tables, and word count
+  - Smart recompilation (only process changed files)
+  - Draft mode for rapid iteration
+
+## Usage
+
+### Basic Compilation
+
+```bash
+# Compile manuscript (auto-detects best engine)
+./scripts/shell/compile_manuscript.sh
+
+# Compile supplementary materials
+./scripts/shell/compile_supplementary.sh
+
+# Compile revision response letter
+./scripts/shell/compile_revision.sh
+```
+
+### Advanced Compilation Options
+
+```bash
+# Fast compilation (draft mode, skip figures/tables)
+./scripts/shell/compile_manuscript.sh --draft
+
+# Skip specific components
+./scripts/shell/compile_manuscript.sh --no-figs      # Skip figure processing
+./scripts/shell/compile_manuscript.sh --no-tables    # Skip table processing
+./scripts/shell/compile_manuscript.sh --no-diff      # Skip diff generation
+
+# Force specific compilation engine
+./scripts/shell/compile_manuscript.sh --engine tectonic
+./scripts/shell/compile_manuscript.sh --engine latexmk
+./scripts/shell/compile_manuscript.sh --engine 3pass
+
+# Enable hot-recompile mode (watches files for changes)
+./scripts/shell/compile_manuscript.sh --watch
+
+# Clean build (remove cache and temporary files)
+./scripts/shell/compile_manuscript.sh --clean
+```
+
+### Bibliography Management
+
+```bash
+# Organize references by topic in separate .bib files
+cd 00_shared/bib_files/
+vim methods_refs.bib
+vim field_background.bib
+vim my_papers.bib
+
+# References auto-merge and deduplicate during compilation
+./scripts/shell/compile_manuscript.sh
+
+# Change citation style (edit config/config_manuscript.yaml)
+# Options: unsrtnat, plainnat, apalike, IEEEtran, naturemag, etc.
+```
+
+### Version Control and Diff Generation
+
+```bash
+# Archive current version (auto-increments version number)
+git add .
+git commit -m "Revisions for reviewer comments"
+# Version archived automatically via git hooks
+
+# Generate diff from previous version
+./scripts/shell/compile_manuscript.sh --diff
+
+# View archived versions
+ls -lt 01_manuscript/archive/
+```
+
+## Documentation
+
+- [Installation Guide](docs/01_GUIDE_INSTALLATION.md) - Complete setup instructions for all environments
+- [Quick Start](docs/01_GUIDE_QUICK_START.md) - Common tasks and workflows
+- [Content Creation](docs/01_GUIDE_CONTENT_CREATION.md) - Writing manuscripts, figures, tables
+- [Bibliography Management](docs/01_GUIDE_BIBLIOGRAPHY.md) - Managing references and citations
+- [Architecture](docs/02_ARCHITECTURE_IMPLEMENTATION.md) - Technical implementation details
+- [Full Documentation](docs/00_INDEX.md) - All guides and resources
+
+## Testing
+
+### Running Tests
+
+```bash
+# Run all tests
+./tests/run_all_tests.sh
+
+# Run specific test suites
+./tests/scripts/test_compile_options.sh  # Compilation options
+./tests/scripts/test_dark_mode.sh        # Dark mode features
+./tests/scripts/test_performance.sh      # Performance optimizations
+```
+
+### Test Coverage
+
+- **30+ tests** covering all features
+- **Shell Script Tests**: 30 tests
+  - Compilation options (10 tests)
+  - Dark mode functionality (10 tests)
+  - Performance optimizations (10 tests)
+
+### Continuous Integration
+
+All tests run automatically on GitHub Actions:
+- ✅ Full compilation with PDF validation
+- ✅ Fast mode (`--no_figs --no_diff`)
+- ✅ Ultra-fast mode (`--draft --no_tables`)
+- ✅ Dark mode (`--dark-mode`)
+- ✅ All document types (manuscript, supplementary, revision)
+- ✅ Option name flexibility (hyphens/underscores)
 
 ## License
 
-GNU Affero General Public License v3.0 (AGPL-3.0) - See LICENSE file for details
-
-## Support
-
-For issues or questions, please open an issue on the GitHub repository.
+GNU Affero General Public License v3.0 (AGPL-3.0)
 
 ## Contact
-Yusuke Watanabe (ywatanabe@scitex.ai)
+
+ywatanabe@scitex.ai • [scitex.ai](https://scitex.ai)
 
 <!-- EOF -->

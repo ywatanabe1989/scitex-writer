@@ -2,18 +2,18 @@
 
 This directory contains reviewer comments and author responses for manuscript revision.
 
-## Quick Start
+## Usage
 
-From the paper root directory:
+From project root:
 ```bash
-# Compile revision response document
-./compile_revision
+# Compile revision response
+./scripts/shell/compile_revision.sh
 
 # Quiet mode
-./compile_revision -q
+./scripts/shell/compile_revision.sh --quiet
 
-# With figures
-./compile_revision -f
+# Draft mode
+./scripts/shell/compile_revision.sh --draft
 ```
 
 ## Directory Structure

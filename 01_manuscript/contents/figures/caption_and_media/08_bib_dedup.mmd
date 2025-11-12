@@ -1,0 +1,23 @@
+%%{init: {'theme':'base', 'themeVariables': { 'primaryColor':'#fce4ec','primaryTextColor':'#000','primaryBorderColor':'#c2185b','lineColor':'#424242'}}}%%
+graph LR
+    File1[📄 methods_refs.bib] --> Merger[Bibliography Merger]
+    File2[📄 field_background.bib] --> Merger
+    File3[📄 my_papers.bib] --> Merger
+
+    Merger --> Dedup{Deduplication<br/>Engine}
+
+    Dedup --> CheckDOI{Has DOI?}
+
+    CheckDOI -->|Yes| DOIMatch[🔍 DOI Matching<br/>Exact comparison]
+    CheckDOI -->|No| TitleYear[🔍 Title+Year Matching<br/>Fuzzy comparison]
+
+    DOIMatch --> RemoveDup[Remove Duplicates]
+    TitleYear --> RemoveDup
+
+    RemoveDup --> Sort[Sort by Citation<br/>Order or Alphabetical]
+
+    Sort --> Output[📚 Final bibliography.bib<br/>Deduplicated + Sorted]
+
+    style Merger fill:#2196f3,stroke:#1565c0,stroke-width:2px,color:#fff
+    style Dedup fill:#9c27b0,stroke:#6a1b9a,stroke-width:2px,color:#fff
+    style Output fill:#4caf50,stroke:#2e7d32,stroke-width:2px,color:#fff

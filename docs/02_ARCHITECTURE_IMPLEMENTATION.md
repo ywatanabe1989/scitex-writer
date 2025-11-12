@@ -10,7 +10,7 @@ Technical overview of SciTeX system architecture and implementation details.
 - Main entry point: `./compile_manuscript`
 - Handles figures, tables, bibliography
 - Generates PDF with change tracking
-- Processes metadata from shared directory
+- Processes metadata from 00_shared directory
 
 **Figure Processing**
 - Automatic PNG format conversion
@@ -25,7 +25,7 @@ Technical overview of SciTeX system architecture and implementation details.
 - Data type detection and formatting
 
 **Bibliography Management**
-- BibTeX source: `shared/bibliography.bib`
+- BibTeX source: `00_shared/bibliography.bib`
 - Shared across manuscript, supplementary, revision
 - Automatic citation resolution
 - Maintains single source of truth
@@ -74,7 +74,7 @@ project/
 │       │   └── R1_01_revision.tex
 │       └── (similar for other reviewers)
 │
-├── shared/                 # Shared metadata
+├── 00_shared/                 # Shared metadata
 │   ├── authors.tex
 │   ├── title.tex
 │   ├── keywords.tex
@@ -96,7 +96,7 @@ project/
 ### Single Source of Truth
 
 - Bibliography: All documents reference same `.bib` file
-- Metadata: Authors, title, keywords centralized in `shared/`
+- Metadata: Authors, title, keywords centralized in `00_shared/`
 - Figures/Tables: Use symlinks to maintain synchronization
 
 ### Automatic Processing
@@ -224,7 +224,7 @@ Modify script behavior:
 - Label naming scheme
 
 ### Metadata
-Centralized in `shared/`:
+Centralized in `00_shared/`:
 - Authors and affiliations
 - Title and subtitle
 - Keywords

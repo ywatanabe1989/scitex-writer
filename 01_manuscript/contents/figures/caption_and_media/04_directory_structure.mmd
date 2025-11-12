@@ -1,0 +1,64 @@
+%%{init: {'theme':'base', 'themeVariables': { 'primaryColor':'#e8f5e9','primaryTextColor':'#000','primaryBorderColor':'#2e7d32','lineColor':'#1976d2','secondaryColor':'#fff3e0','tertiaryColor':'#f3e5f5'}}}%%
+graph TD
+    Root[scitex-writer/] --> Shared[00_shared/<br/>📦 Shared Resources]
+    Root --> Manuscript[01_manuscript/<br/>📄 Main Document]
+    Root --> Supplementary[02_supplementary/<br/>📋 Supplementary]
+    Root --> Revision[03_revision/<br/>✏️ Revision Letters]
+    Root --> Scripts[scripts/<br/>⚙️ Compilation Scripts]
+    Root --> Config[config/<br/>🔧 Configuration]
+    Root --> Tests[tests/<br/>🧪 Test Suite]
+
+    Shared --> SharedBib[bib_files/<br/>Bibliography sources]
+    Shared --> SharedLatex[latex_styles/<br/>LaTeX formatting]
+    Shared --> SharedMeta[Metadata<br/>Title, authors, keywords]
+
+    Manuscript --> ManContents[contents/<br/>Text sections]
+    Manuscript --> ManFigs[contents/figures/<br/>Figure files]
+    Manuscript --> ManTabs[contents/tables/<br/>Table files]
+    Manuscript --> ManArchive[archive/<br/>Version history]
+    Manuscript --> ManPDF[manuscript.pdf<br/>Compiled output]
+
+    ManContents --> Intro[introduction.tex]
+    ManContents --> Methods[methods.tex]
+    ManContents --> Results[results.tex]
+    ManContents --> Discussion[discussion.tex]
+
+    ManFigs --> FigMedia[caption_and_media/<br/>Source files]
+    ManFigs --> FigCompiled[compiled/<br/>FINAL.tex]
+
+    FigMedia --> Fig01[01_example.tex<br/>01_example.png]
+    FigMedia --> Fig02[02_workflow.mmd<br/>Mermaid diagram]
+
+    ManTabs --> TabMedia[caption_and_media/<br/>Source files]
+    ManTabs --> TabCompiled[compiled/<br/>FINAL.tex]
+
+    TabMedia --> Tab01[01_options.csv<br/>01_options.tex]
+
+    Scripts --> ShellScripts[shell/<br/>Bash scripts]
+    Scripts --> PythonScripts[python/<br/>Python utilities]
+
+    ShellScripts --> CompileMain[compile_manuscript.sh<br/>Main compilation]
+    ShellScripts --> Modules[modules/<br/>Processing pipeline]
+
+    Config --> ConfigYAML[*.yaml<br/>Settings files]
+    ConfigYAML --> ConfigManuscript[config_manuscript.yaml<br/>Document settings]
+
+    Tests --> TestScripts[scripts/<br/>Test executables]
+    TestScripts --> TestCompile[test_compile_options.sh]
+    TestScripts --> TestPerf[test_performance.sh]
+
+    Supplementary -.-> ManContents
+    Supplementary -.-> ManFigs
+    Supplementary -.-> ManTabs
+
+    Revision --> RevEditor[contents/editor/<br/>Editor comments/responses]
+    Revision --> RevReviewers[contents/reviewer*/<br/>Reviewer comments/responses]
+
+    style Root fill:#1976d2,stroke:#0d47a1,stroke-width:3px,color:#fff
+    style Shared fill:#4caf50,stroke:#2e7d32,stroke-width:2px,color:#fff
+    style Manuscript fill:#2196f3,stroke:#1565c0,stroke-width:2px,color:#fff
+    style Supplementary fill:#2196f3,stroke:#1565c0,stroke-width:2px
+    style Revision fill:#9c27b0,stroke:#6a1b9a,stroke-width:2px,color:#fff
+    style Scripts fill:#ff9800,stroke:#e65100,stroke-width:2px,color:#fff
+    style Config fill:#f44336,stroke:#c62828,stroke-width:2px,color:#fff
+    style Tests fill:#00bcd4,stroke:#006064,stroke-width:2px,color:#fff

@@ -3,49 +3,80 @@
 # Timestamp: "2025-09-28 19:49:15 (ywatanabe)"
 # File: ./paper/scripts/shell/modules/process_tables.sh
 
+# Quick check for --no_tables BEFORE expensive config loading
+NO_TABLES_ARG="${1:-false}"
+if [ "$NO_TABLES_ARG" = true ]; then
+    echo -e "\033[0;90mINFO: Running $0 ...\033[0m"
+    echo -e "\033[0;90mINFO:     Skipping all table processing (--no_tables specified)\033[0m"
+    exit 0
+fi
+
 ORIG_DIR="$(pwd)"
 THIS_DIR="$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)"
 LOG_PATH="$THIS_DIR/.$(basename $0).log"
 echo > "$LOG_PATH"
 
-BLACK='\033[0;30m'
-LIGHT_GRAY='\033[0;37m'
+GIT_ROOT="$(git rev-parse --show-toplevel 2>/dev/null)"
+
+GRAY='\033[0;90m'
 GREEN='\033[0;32m'
 YELLOW='\033[0;33m'
 RED='\033[0;31m'
 NC='\033[0m' # No Color
 
-echo_info() { echo -e "${LIGHT_GRAY}$1${NC}"; }
-echo_success() { echo -e "${GREEN}$1${NC}"; }
-echo_warning() { echo -e "${YELLOW}$1${NC}"; }
-echo_error() { echo -e "${RED}$1${NC}"; }
+echo_info() { echo -e "${GRAY}INFO: $1${NC}"; }
+log_info() {
+    if [ "${SCITEX_LOG_LEVEL:-1}" -ge 2 ]; then
+        echo -e "  \033[0;90m→ $1\033[0m"
+    fi
+}
+echo_success() { echo -e "${GREEN}SUCC: $1${NC}"; }
+echo_warning() { echo -e "${YELLOW}WARN: $1${NC}"; }
+echo_error() { echo -e "${RED}ERRO: $1${NC}"; }
+echo_header() { echo_info "=== $1 ==="; }
+# ---------------------------------------
+
+# Timestamp tracking for table processing
+TABLE_STAGE_START=0
+log_table_stage_start() {
+    TABLE_STAGE_START=$(date +%s)
+    local timestamp=$(date '+%H:%M:%S')
+    echo_info "  [$timestamp] $1"
+}
+
+log_table_stage_end() {
+    local end=$(date +%s)
+    local elapsed=$((end - TABLE_STAGE_START))
+    local timestamp=$(date '+%H:%M:%S')
+    echo_success "  [$timestamp] $1 (${elapsed}s)"
+}
 # ---------------------------------------
 
 # Configurations
-source ./config/load_config.sh $STXW_DOC_TYPE
+source ./config/load_config.sh $SCITEX_WRITER_DOC_TYPE
 
 # Logging
 touch "$LOG_PATH" >/dev/null 2>&1
 echo
-echo_info "Running $0 ..."
+log_info "Running $0 ..."
 
 function init_tables() {
     # Cleanup and prepare directories
-    rm -f "$STXW_TABLE_COMPILED_DIR"/*.tex
-    mkdir -p "$STXW_TABLE_DIR" >/dev/null
-    mkdir -p "$STXW_TABLE_CAPTION_MEDIA_DIR" >/dev/null
-    mkdir -p "$STXW_TABLE_COMPILED_DIR" >/dev/null
-    echo > "$STXW_TABLE_COMPILED_FILE"
+    rm -f "$SCITEX_WRITER_TABLE_COMPILED_DIR"/*.tex
+    mkdir -p "$SCITEX_WRITER_TABLE_DIR" >/dev/null
+    mkdir -p "$SCITEX_WRITER_TABLE_CAPTION_MEDIA_DIR" >/dev/null
+    mkdir -p "$SCITEX_WRITER_TABLE_COMPILED_DIR" >/dev/null
+    echo > "$SCITEX_WRITER_TABLE_COMPILED_FILE"
 }
 
 function xlsx2csv_convert() {
     # Convert Excel files to CSV if xlsx2csv is available
     if command -v xlsx2csv >/dev/null 2>&1; then
-        for xlsx_file in "$STXW_TABLE_CAPTION_MEDIA_DIR"/[0-9]*.{xlsx,xls}; do
+        for xlsx_file in "$SCITEX_WRITER_TABLE_CAPTION_MEDIA_DIR"/[0-9]*.{xlsx,xls}; do
             [ -e "$xlsx_file" ] || continue
 
             base_name=$(basename "$xlsx_file" | sed 's/\.\(xlsx\|xls\)$//')
-            csv_file="${STXW_TABLE_CAPTION_MEDIA_DIR}/${base_name}.csv"
+            csv_file="${SCITEX_WRITER_TABLE_CAPTION_MEDIA_DIR}/${base_name}.csv"
 
             # Convert only if CSV doesn't exist or is older than Excel file
             if [ ! -f "$csv_file" ] || [ "$xlsx_file" -nt "$csv_file" ]; then
@@ -63,7 +94,7 @@ function xlsx2csv_convert() {
 
 function ensure_caption() {
     # Create default captions for any table without one
-    for csv_file in "$STXW_TABLE_CAPTION_MEDIA_DIR"/[0-9]*.csv; do
+    for csv_file in "$SCITEX_WRITER_TABLE_CAPTION_MEDIA_DIR"/[0-9]*.csv; do
         [ -e "$csv_file" ] || continue
         local base_name=$(basename "$csv_file" .csv)
         # Extract table number from filename like 01_seizure_count
@@ -73,7 +104,7 @@ function ensure_caption() {
         else
             table_number="$base_name"
         fi
-        local caption_file="${STXW_TABLE_CAPTION_MEDIA_DIR}/${base_name}.tex"
+        local caption_file="${SCITEX_WRITER_TABLE_CAPTION_MEDIA_DIR}/${base_name}.tex"
 
         if [ ! -f "$caption_file" ] && [ ! -L "$caption_file" ]; then
             echo_info "    Creating default caption for table $base_name"
@@ -129,19 +160,40 @@ function csv2tex() {
     fi
 
     # Process each CSV file
-    for csv_file in "$STXW_TABLE_CAPTION_MEDIA_DIR"/[0-9]*.csv; do
+    for csv_file in "$SCITEX_WRITER_TABLE_CAPTION_MEDIA_DIR"/[0-9]*.csv; do
         [ -e "$csv_file" ] || continue
 
         base_name=$(basename "$csv_file" .csv)
-        caption_file="${STXW_TABLE_CAPTION_MEDIA_DIR}/${base_name}.tex"
-        compiled_file="$STXW_TABLE_COMPILED_DIR/${base_name}.tex"
+        caption_file="${SCITEX_WRITER_TABLE_CAPTION_MEDIA_DIR}/${base_name}.tex"
+        compiled_file="$SCITEX_WRITER_TABLE_COMPILED_DIR/${base_name}.tex"
 
         case "$use_method" in
             csv2latex)
-                # Use csv2latex command (most robust)
-                csv2latex --separator comma --position htbp --caption-file "$caption_file" \
-                          --label "tab:${base_name}" "$csv_file" > "$compiled_file" 2>/dev/null
-                if [ $? -eq 0 ]; then
+                # Use csv2latex command - generate basic table structure
+                # Note: csv2latex doesn't support captions or labels directly
+                {
+                    echo "\\pdfbookmark[2]{Table ${base_name#0}}{table_${base_name}}"
+                    echo "\\begin{table}[htbp]"
+                    echo "\\centering"
+                    echo "\\footnotesize"
+
+                    # Generate the tabular environment using csv2latex
+                    csv2latex --nohead --separator comma "$csv_file" 2>/dev/null
+
+                    # Add caption if it exists
+                    if [ -f "$caption_file" ] || [ -L "$caption_file" ]; then
+                        cat "$caption_file"
+                    else
+                        echo "\\caption{Table ${base_name#0}: ${base_name#*_}}"
+                    fi
+
+                    # Add label
+                    echo "\\label{tab:${base_name}}"
+                    echo "\\end{table}"
+                } > "$compiled_file"
+
+                # Check if csv2latex succeeded (look for \begin{tabular} with single backslash)
+                if [ -s "$compiled_file" ] && grep -q "\\\\begin{tabular}" "$compiled_file" 2>/dev/null; then
                     echo_success "    $compiled_file compiled (using csv2latex)"
                 else
                     echo_warning "    csv2latex failed, trying fallback"
@@ -320,18 +372,18 @@ function csv2tex_single_fallback() {
 
 function csv2tex_fallback() {
     # Process all CSV files with fallback method
-    for csv_file in "$STXW_TABLE_CAPTION_MEDIA_DIR"/[0-9]*.csv; do
+    for csv_file in "$SCITEX_WRITER_TABLE_CAPTION_MEDIA_DIR"/[0-9]*.csv; do
         [ -e "$csv_file" ] || continue
         base_name=$(basename "$csv_file" .csv)
-        caption_file="${STXW_TABLE_CAPTION_MEDIA_DIR}/${base_name}.tex"
-        compiled_file="$STXW_TABLE_COMPILED_DIR/${base_name}.tex"
+        caption_file="${SCITEX_WRITER_TABLE_CAPTION_MEDIA_DIR}/${base_name}.tex"
+        compiled_file="$SCITEX_WRITER_TABLE_COMPILED_DIR/${base_name}.tex"
         csv2tex_single_fallback "$csv_file" "$compiled_file" "$caption_file"
     done
 }
 
 function create_table_header() {
     # Create a header/template table when no real tables exist
-    local header_file="$STXW_TABLE_COMPILED_DIR/00_Tables_Header.tex"
+    local header_file="$SCITEX_WRITER_TABLE_COMPILED_DIR/00_Tables_Header.tex"
 
     cat > "$header_file" << 'EOF'
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -372,14 +424,14 @@ EOF
 
 function gather_table_tex_files() {
     # Gather all table tex files into the final compiled file
-    output_file="${STXW_TABLE_COMPILED_FILE}"
+    output_file="${SCITEX_WRITER_TABLE_COMPILED_FILE}"
     rm -f "$output_file" > /dev/null 2>&1
     echo "% Auto-generated file containing all table inputs" > "$output_file"
     echo "% Generated by gather_table_tex_files()" >> "$output_file"
     echo "" >> "$output_file"
 
     # First check if there are any real table files
-    local table_files=($(find "$STXW_TABLE_COMPILED_DIR" -maxdepth 1 -name "[0-9]*.tex" 2>/dev/null | grep -v "00_Tables_Header.tex" | sort))
+    local table_files=($(find "$SCITEX_WRITER_TABLE_COMPILED_DIR" -maxdepth 1 -name "[0-9]*.tex" 2>/dev/null | grep -v "00_Tables_Header.tex" | sort))
     local has_real_tables=false
     if [ ${#table_files[@]} -gt 0 ]; then
         has_real_tables=true
@@ -393,7 +445,7 @@ function gather_table_tex_files() {
 
     # Count available tables
     table_count=0
-    for table_tex in $(find "$STXW_TABLE_COMPILED_DIR" -name "[0-9]*.tex" 2>/dev/null | sort); do
+    for table_tex in $(find "$SCITEX_WRITER_TABLE_COMPILED_DIR" -name "[0-9]*.tex" 2>/dev/null | sort); do
         if [ -f "$table_tex" ] || [ -L "$table_tex" ]; then
             # Skip header if we have real tables
             local basename=$(basename "$table_tex")
@@ -422,10 +474,24 @@ function gather_table_tex_files() {
 }
 
 # Main execution
+log_table_stage_start "Initializing tables"
 init_tables
+log_table_stage_end "Initializing tables"
+
+log_table_stage_start "Converting XLSX to CSV"
 xlsx2csv_convert  # Convert Excel files to CSV first
+log_table_stage_end "Converting XLSX to CSV"
+
+log_table_stage_start "Ensuring captions exist"
 ensure_caption
+log_table_stage_end "Ensuring captions exist"
+
+log_table_stage_start "Converting CSV to LaTeX"
 csv2tex
+log_table_stage_end "Converting CSV to LaTeX"
+
+log_table_stage_start "Gathering table files"
 gather_table_tex_files
+log_table_stage_end "Gathering table files"
 
 # EOF

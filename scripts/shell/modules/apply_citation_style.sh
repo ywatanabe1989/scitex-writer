@@ -31,12 +31,12 @@ echo_error() { echo -e "${RED}ERRO: $1${NC}"; exit 1; }
 # Check if SCITEX_WRITER_CITATION_STYLE is set
 if [ -z "${SCITEX_WRITER_CITATION_STYLE:-}" ]; then
     echo_warning "SCITEX_WRITER_CITATION_STYLE not set, skipping citation style update"
-    echo_warning "Using default style in shared/latex_styles/bibliography.tex"
+    echo_warning "Using default style in 00_shared/latex_styles/bibliography.tex"
     exit 0
 fi
 
 # Path to bibliography file
-BIBLIOGRAPHY_FILE="./shared/latex_styles/bibliography.tex"
+BIBLIOGRAPHY_FILE="./00_shared/latex_styles/bibliography.tex"
 
 if [ ! -f "$BIBLIOGRAPHY_FILE" ]; then
     echo_error "Bibliography file not found: $BIBLIOGRAPHY_FILE"

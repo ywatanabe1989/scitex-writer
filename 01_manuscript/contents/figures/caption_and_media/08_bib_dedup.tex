@@ -1,0 +1,9 @@
+%% Bibliography Deduplication Workflow
+\caption{\textbf{Multi-File Bibliography Processing and Deduplication.}
+The bibliography system enables researchers to organize references across multiple topical .bib files.
+All files in the \texttt{00\_shared/bib\_files/} directory are automatically merged during compilation.
+The deduplication engine implements a two-tier matching strategy: DOI-based matching provides exact duplicate detection when DOIs are present, while title and year matching handles entries without DOIs.
+This approach eliminates duplicate references that commonly appear when the same paper is cited across multiple source files.
+The final bibliography is sorted according to the selected citation style (by citation order for numbered styles, alphabetically for author-year styles).
+Color coding: blue (merging), purple (deduplication logic), green (output).}
+\label{fig:bibliography_deduplication}

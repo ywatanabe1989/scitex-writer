@@ -53,21 +53,113 @@ jobs:
         python3 -m pip install --upgrade pip
         pip install -r requirements/python.txt
 
-    - name: Compile manuscript
-      run: ./compile.sh manuscript
+    - name: Test compilation (full mode)
+      run: |
+        echo "Testing full compilation..."
+        ./compile.sh manuscript
 
-    - name: Upload compiled PDF
+        # Verify PDF was generated
+        if [ ! -f "01_manuscript/manuscript.pdf" ]; then
+          echo "ERROR: manuscript.pdf not generated"
+          exit 1
+        fi
+
+        # Verify PDF has reasonable size (> 10KB)
+        SIZE=$(stat -f%z "01_manuscript/manuscript.pdf" 2>/dev/null || stat -c%s "01_manuscript/manuscript.pdf")
+        if [ "$SIZE" -lt 10240 ]; then
+          echo "ERROR: PDF too small ($SIZE bytes), likely corrupted"
+          exit 1
+        fi
+
+        echo "✓ Full compilation successful: manuscript.pdf ($SIZE bytes)"
+
+    - name: Test compilation (fast mode with --no_diff)
+      run: |
+        echo "Testing fast compilation mode..."
+        ./compile.sh manuscript --no-figs --no-diff
+
+        # Verify PDF was generated
+        if [ ! -f "01_manuscript/manuscript.pdf" ]; then
+          echo "ERROR: Fast mode PDF not generated"
+          exit 1
+        fi
+
+        echo "✓ Fast mode compilation successful"
+
+    - name: Test compilation (draft mode)
+      run: |
+        echo "Testing draft mode..."
+        ./compile.sh manuscript --no-figs --no-tables --draft
+
+        # Verify PDF was generated
+        if [ ! -f "01_manuscript/manuscript.pdf" ]; then
+          echo "ERROR: Draft mode PDF not generated"
+          exit 1
+        fi
+
+        echo "✓ Draft mode compilation successful"
+
+    - name: Test compilation (dark mode)
+      run: |
+        echo "Testing dark mode..."
+        ./compile.sh manuscript --no-figs --no-tables --no-diff --dark-mode
+
+        # Verify PDF was generated
+        if [ ! -f "01_manuscript/manuscript.pdf" ]; then
+          echo "ERROR: Dark mode PDF not generated"
+          exit 1
+        fi
+
+        # Verify dark mode was injected
+        if ! grep -q "dark_mode.tex" "01_manuscript/manuscript.tex"; then
+          echo "ERROR: Dark mode styling not injected"
+          exit 1
+        fi
+
+        echo "✓ Dark mode compilation successful"
+
+    - name: Test supplementary compilation
+      run: |
+        echo "Testing supplementary compilation..."
+        ./compile.sh supplementary --no-figs --no-diff
+
+        # Verify PDF was generated
+        if [ ! -f "02_supplementary/supplementary.pdf" ]; then
+          echo "ERROR: Supplementary PDF not generated"
+          exit 1
+        fi
+
+        echo "✓ Supplementary compilation successful"
+
+    - name: Test revision compilation
+      run: |
+        echo "Testing revision compilation..."
+        ./compile.sh revision --no-figs --no-tables --draft
+
+        # Verify PDF was generated (or check expected location)
+        PDF_EXISTS=false
+        for pdf_path in "03_revision/revision.pdf" "03_revision/archive/"*.pdf; do
+          if [ -f "$pdf_path" ]; then
+            PDF_EXISTS=true
+            break
+          fi
+        done
+
+        if [ "$PDF_EXISTS" = false ]; then
+          echo "WARNING: Revision PDF not found (may not have revision content)"
+        else
+          echo "✓ Revision compilation successful"
+        fi
+
+    - name: Upload compiled PDFs
       uses: actions/upload-artifact@v4
       if: success()
       with:
-        name: manuscript-pdf
-        path: 01_manuscript/manuscript.pdf
+        name: compiled-pdfs
+        path: |
+          01_manuscript/manuscript.pdf
+          01_manuscript/manuscript_diff.pdf
+          02_supplementary/supplementary.pdf
+          03_revision/revision.pdf
         retention-days: 30
-
-    - name: Upload diff PDF
-      uses: actions/upload-artifact@v4
-      if: success()
-      with:
-        name: manuscript-diff
-        path: 01_manuscript/manuscript_diff.pdf
-        retention-days: 30
+        if-no-files-found: warn

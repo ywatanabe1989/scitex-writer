@@ -1,0 +1,35 @@
+%%{init: {'theme':'base', 'themeVariables': { 'primaryColor':'#e3f2fd','primaryTextColor':'#000','primaryBorderColor':'#1976d2','lineColor':'#424242','secondaryColor':'#f3e5f5','tertiaryColor':'#fff3e0'}}}%%
+graph TB
+    User[👤 User Interface<br/>Shell Scripts] --> Config[⚙️ Configuration Layer<br/>YAML Settings]
+
+    Config --> Pipeline[🔄 Preprocessing Pipeline]
+
+    Pipeline --> BibMerge[📚 Bibliography Merger<br/>Multi-file + Dedup]
+    Pipeline --> FigProc[🖼️ Figure Processor<br/>Format Conversion]
+    Pipeline --> TabProc[📊 Table Processor<br/>CSV to LaTeX]
+
+    BibMerge --> EngineSelect{🎯 Engine Selection<br/>Auto-detect}
+    FigProc --> EngineSelect
+    TabProc --> EngineSelect
+
+    EngineSelect -->|Fast| Tectonic[⚡ Tectonic<br/>1-3s]
+    EngineSelect -->|Standard| Latexmk[🔧 latexmk<br/>3-6s]
+    EngineSelect -->|Compatible| ThreePass[🔒 3-pass<br/>12-18s]
+
+    Tectonic --> PostProc[📝 Post-Processing]
+    Latexmk --> PostProc
+    ThreePass --> PostProc
+
+    PostProc --> DiffGen[📋 Diff Generator<br/>latexdiff]
+    PostProc --> WordCount[📈 Word Counter]
+    PostProc --> Archive[💾 Version Archive]
+
+    DiffGen --> Output[📄 Output PDFs<br/>Main + Diff]
+    WordCount --> Output
+    Archive --> Output
+
+    style User fill:#4caf50,stroke:#2e7d32,stroke-width:2px,color:#fff
+    style Config fill:#ff9800,stroke:#e65100,stroke-width:2px,color:#fff
+    style Pipeline fill:#2196f3,stroke:#1565c0,stroke-width:2px,color:#fff
+    style EngineSelect fill:#9c27b0,stroke:#6a1b9a,stroke-width:2px,color:#fff
+    style Output fill:#4caf50,stroke:#2e7d32,stroke-width:2px,color:#fff

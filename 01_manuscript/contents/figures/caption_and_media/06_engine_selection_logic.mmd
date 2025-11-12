@@ -1,0 +1,36 @@
+%%{init: {'theme':'base', 'themeVariables': { 'primaryColor':'#fff3e0','primaryTextColor':'#000','primaryBorderColor':'#f57c00','lineColor':'#424242'}}}%%
+graph TD
+    Start([Engine Selection]) --> CheckEnv{Environment<br/>Variable Set?}
+
+    CheckEnv -->|Yes| UseEnv[Use Specified Engine]
+    CheckEnv -->|No| CheckCLI{CLI Option<br/>--engine?}
+
+    CheckCLI -->|Yes| UseCLI[Use CLI Engine]
+    CheckCLI -->|No| CheckYAML{YAML Config<br/>engine:?}
+
+    CheckYAML -->|auto| AutoDetect[Auto-detection Mode]
+    CheckYAML -->|Specified| UseYAML[Use YAML Engine]
+
+    AutoDetect --> CheckTectonic{Tectonic<br/>Available?}
+    CheckTectonic -->|Yes| Tectonic[✅ Use Tectonic<br/>~1-3s]
+    CheckTectonic -->|No| CheckLatexmk{latexmk<br/>Available?}
+
+    CheckLatexmk -->|Yes| Latexmk[✅ Use latexmk<br/>~3-6s]
+    CheckLatexmk -->|No| Check3Pass{pdflatex +<br/>bibtex Available?}
+
+    Check3Pass -->|Yes| ThreePass[✅ Use 3-pass<br/>~12-18s]
+    Check3Pass -->|No| Error[❌ Error:<br/>No LaTeX Found]
+
+    UseEnv --> Compile[Compile Document]
+    UseCLI --> Compile
+    UseYAML --> Compile
+    Tectonic --> Compile
+    Latexmk --> Compile
+    ThreePass --> Compile
+
+    style Start fill:#4caf50,stroke:#2e7d32,stroke-width:2px,color:#fff
+    style Compile fill:#4caf50,stroke:#2e7d32,stroke-width:2px,color:#fff
+    style Error fill:#f44336,stroke:#c62828,stroke-width:2px,color:#fff
+    style Tectonic fill:#64b5f6,stroke:#1976d2,stroke-width:2px
+    style Latexmk fill:#81c784,stroke:#388e3c,stroke-width:2px
+    style ThreePass fill:#ffb74d,stroke:#f57c00,stroke-width:2px

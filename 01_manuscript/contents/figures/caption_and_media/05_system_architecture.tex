@@ -1,0 +1,9 @@
+%% System Architecture Diagram
+\caption{\textbf{SciTeX Writer System Architecture.}
+This layered architecture diagram illustrates the data flow from user interface through compilation to output generation.
+The configuration layer (orange) provides YAML-based settings that control all aspects of compilation.
+The preprocessing pipeline (blue) handles bibliography merging, figure format conversion, and CSV-to-LaTeX table generation in parallel.
+Engine selection (purple) automatically chooses the optimal compilation engine based on availability and performance requirements.
+Post-processing generates diff PDFs, counts words/figures/tables, and archives versions for reproducibility.
+Color coding: green (interface/output), orange (configuration), blue (preprocessing), purple (engine selection).}
+\label{fig:system_architecture}

@@ -1,0 +1,52 @@
+%% -*- coding: utf-8 -*-
+%% Timestamp: "2025-11-10 01:30:00 (ywatanabe)"
+%% File: ./00_shared/latex_styles/dark_mode.tex
+%% Description: Dark mode styling for scientific manuscripts
+
+%% Dark mode configuration
+%% Background: dark gray (softer than pure black)
+%% Text: white
+%% Figures: unchanged (preserve original colors)
+
+% Set page and text colors
+\pagecolor{black!95!white}  % Very dark gray background (softer on eyes)
+\color{white}               % White text
+
+% Adjust hyperlink colors for dark mode
+\hypersetup{
+    colorlinks=true,
+    linkcolor=cyan!80!white,      % Internal links: light cyan
+    citecolor=green!70!white,     % Citations: light green
+    filecolor=magenta!70!white,   % File links: light magenta
+    urlcolor=blue!60!white,       % URLs: light blue
+}
+
+% Adjust section title colors
+\titleformat{\section}
+  {\normalfont\Large\bfseries\color{cyan!80!white}}{\thesection}{1em}{}
+\titleformat{\subsection}
+  {\normalfont\large\bfseries\color{cyan!70!white}}{\thesubsection}{1em}{}
+\titleformat{\subsubsection}
+  {\normalfont\normalsize\bfseries\color{cyan!60!white}}{\thesubsubsection}{1em}{}
+
+% Adjust caption colors
+\captionsetup{
+  labelfont={bf,color=yellow!80!white},  % "Figure 1:" in yellow
+  textfont={color=white}                  % Caption text in white
+}
+
+% Adjust table colors for dark mode
+\definecolor{lightgray}{gray}{0.2}  % Darker "light" gray for table rows
+
+% Override color commands to work well in dark mode
+\renewcommand{\REDENDS}{\color{white}}    % Reset to white instead of black
+\renewcommand{\GREENENDS}{\color{white}}  % Reset to white instead of black
+
+% Adjust highlight boxes for dark mode
+\newtcbox{\darkgreenhighlight}[1][]{on line,colframe=green!70!white,colback=green!20!black,boxrule=0pt,arc=0pt,boxsep=0pt,left=1pt,right=1pt,top=2pt,bottom=2pt,tcbox raise base}
+\newtcbox{\darkredhighlight}[1][]{on line,colframe=red!70!white,colback=red!20!black,boxrule=0pt,arc=0pt,boxsep=0pt,left=1pt,right=1pt,top=2pt,bottom=2pt,tcbox raise base}
+
+% Adjust soul highlighting for dark mode
+\sethlcolor{yellow!30!black}  % Darker yellow highlight
+
+%%%% EOF
