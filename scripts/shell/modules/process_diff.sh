@@ -80,6 +80,23 @@ function take_diff_tex() {
 
     if [ -f "$SCITEX_WRITER_DIFF_TEX" ] && [ -s "$SCITEX_WRITER_DIFF_TEX" ]; then
         echo_success "    $SCITEX_WRITER_DIFF_TEX created"
+
+        # Add signature with version metadata
+        # Extract old version from previous file path (e.g., manuscript_v113.tex -> 113)
+        local old_version=$(echo "$previous" | grep -oP '_v\K[0-9]+' || echo "unknown")
+
+        # Get new version from version counter
+        local new_version="current"
+        if [ -f "$SCITEX_WRITER_VERSION_COUNTER_TXT" ]; then
+            new_version=$(head -n 1 "$SCITEX_WRITER_VERSION_COUNTER_TXT" | tr -d '[:space:]')
+        fi
+
+        # Load and apply signature
+        if [ -f "./scripts/shell/modules/add_diff_signature.sh" ]; then
+            source ./scripts/shell/modules/add_diff_signature.sh
+            add_diff_signature "$SCITEX_WRITER_DIFF_TEX" "$old_version" "$new_version"
+        fi
+
         return 0
     else
         echo_warn "    $SCITEX_WRITER_DIFF_TEX not created or is empty"

@@ -44,6 +44,18 @@ function process_archive() {
     store_files $SCITEX_WRITER_COMPILED_TEX "tex"
     store_files $SCITEX_WRITER_DIFF_PDF "pdf"
     store_files $SCITEX_WRITER_DIFF_TEX "tex"
+
+    # Git auto-commit (if enabled)
+    if [ -f "./scripts/shell/modules/git_auto_commit.sh" ]; then
+        source ./scripts/shell/modules/git_auto_commit.sh
+        git_auto_commit || echo_warning "    Git auto-commit failed"
+    fi
+
+    # Archive cleanup (if enabled)
+    if [ -f "./scripts/shell/modules/archive_cleanup.sh" ]; then
+        source ./scripts/shell/modules/archive_cleanup.sh
+        cleanup_old_archives || echo_warning "    Archive cleanup failed"
+    fi
 }
 
 function count_version() {
@@ -55,9 +67,33 @@ function count_version() {
     fi
 
     if [ -f $SCITEX_WRITER_VERSION_COUNTER_TXT ]; then
-        version=$(<$SCITEX_WRITER_VERSION_COUNTER_TXT)
-        next_version=$(printf "%03d" $((10#$version + 1)))
-        echo $next_version > $SCITEX_WRITER_VERSION_COUNTER_TXT
+        # Read ONLY the first line (version number)
+        # Later lines may contain cleanup history comments
+        version=$(head -n 1 "$SCITEX_WRITER_VERSION_COUNTER_TXT" | tr -d '[:space:]')
+
+        # Validate and provide default if empty
+        if [ -z "$version" ] || ! [[ "$version" =~ ^[0-9]+$ ]]; then
+            echo_warning "    Invalid version counter, resetting to 000"
+            version="000"
+        fi
+
+        # Increment version
+        next_version=$(printf "%03d" $((10#${version} + 1)))
+
+        # Preserve cleanup history if it exists
+        if [ -f "$SCITEX_WRITER_VERSION_COUNTER_TXT" ]; then
+            # Save cleanup history (all lines except first)
+            cleanup_history=$(tail -n +2 "$SCITEX_WRITER_VERSION_COUNTER_TXT" 2>/dev/null || echo "")
+
+            # Write new version and restore history
+            echo "$next_version" > "$SCITEX_WRITER_VERSION_COUNTER_TXT"
+            if [ -n "$cleanup_history" ]; then
+                echo "$cleanup_history" >> "$SCITEX_WRITER_VERSION_COUNTER_TXT"
+            fi
+        else
+            echo "$next_version" > "$SCITEX_WRITER_VERSION_COUNTER_TXT"
+        fi
+
         echo_success "    Version allocated as: v$next_version"
     fi
 }
@@ -70,11 +106,14 @@ function store_files() {
     # echo_info "    Processing file: $file"
 
     if [ -f $file ]; then
-        version=$(<"$SCITEX_WRITER_VERSION_COUNTER_TXT")
+        # Read ONLY the first line (version number)
+        version=$(head -n 1 "$SCITEX_WRITER_VERSION_COUNTER_TXT" | tr -d '[:space:]')
 
-        # Special handling for diff files: change manuscript_diff to manuscript_vXXX_diff
-        if [[ "$filename" == "manuscript_diff" ]]; then
-            local versioned_name="manuscript_v${version}_diff"
+        # Special handling for diff files: change {doc_type}_diff to {doc_type}_vXXX_diff
+        if [[ "$filename" =~ _diff$ ]]; then
+            # Extract doc type (manuscript, supplementary, revision)
+            local doc_base="${filename%_diff}"
+            local versioned_name="${doc_base}_v${version}_diff"
         else
             local versioned_name="${filename}_v${version}"
         fi
