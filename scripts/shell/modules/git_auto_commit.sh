@@ -156,8 +156,8 @@ Files committed (atomic):
     done
 
     # Perform the commit using the array
-    if git commit "${commit_args[@]}" -m "$msg" -m "$commit_body" $author_args 2>&1 | tee -a "$LOG_PATH"; then
-        echo_success "    Git commit created: ${doc_type} ${version_tag}"
+    if git commit "${commit_args[@]}" -m "$msg" -m "$commit_body" $author_args >> "$LOG_PATH" 2>&1; then
+        echo_success "    Git commit: ${doc_type} ${version_tag}"
 
         # Create git tag if enabled
         if [[ "$GIT_TAG_ENABLED" == "true" ]]; then
@@ -167,8 +167,8 @@ Files committed (atomic):
             if git rev-parse "$tag" >/dev/null 2>&1; then
                 echo_warning "    Tag already exists: $tag"
             else
-                if git tag -a "$tag" -m "Auto-tag: ${doc_type} ${version_tag}" 2>&1 | tee -a "$LOG_PATH"; then
-                    echo_success "    Git tag created: $tag"
+                if git tag -a "$tag" -m "Auto-tag: ${doc_type} ${version_tag}" >> "$LOG_PATH" 2>&1; then
+                    echo_success "    Git tag: $tag"
                 else
                     echo_warning "    Failed to create tag: $tag"
                 fi
