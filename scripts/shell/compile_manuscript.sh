@@ -10,38 +10,48 @@ echo > "$LOG_PATH"
 
 GIT_ROOT="$(git rev-parse --show-toplevel 2>/dev/null)"
 
-GRAY='\033[0;90m'
-GREEN='\033[0;32m'
-YELLOW='\033[0;33m'
-RED='\033[0;31m'
-NC='\033[0m' # No Color
-
-echo_info() { echo -e "${GRAY}INFO: $1${NC}"; }
-echo_success() { echo -e "${GREEN}SUCC: $1${NC}"; }
-echo_warning() { echo -e "${YELLOW}WARN: $1${NC}"; }
-echo_error() { echo -e "${RED}ERRO: $1${NC}"; }
-echo_header() { echo_info "=== $1 ==="; }
-# ---------------------------------------
-
-# Timestamp tracking functions
+# Timestamp tracking
 STAGE_START_TIME=0
 COMPILATION_START_TIME=$(date +%s)
 
+# New logging functions (clean format)
 log_stage_start() {
     local stage_name="$1"
     STAGE_START_TIME=$(date +%s)
-    local timestamp=$(date '+%H:%M:%S')
-    echo_info "[$timestamp] Starting: $stage_name"
+    echo -e "\033[0;34m▸\033[0m \033[1m${stage_name}\033[0m"
 }
 
 log_stage_end() {
     local stage_name="$1"
     local end_time=$(date +%s)
     local elapsed=$((end_time - STAGE_START_TIME))
-    local total_elapsed=$((end_time - COMPILATION_START_TIME))
-    local timestamp=$(date '+%H:%M:%S')
-    echo_success "[$timestamp] Completed: $stage_name (${elapsed}s elapsed, ${total_elapsed}s total)"
+    echo -e "\033[0;32m✓\033[0m ${stage_name} \033[0;90m(${elapsed}s)\033[0m"
 }
+
+log_success() {
+    echo -e "  \033[0;32m✓\033[0m $1"
+}
+
+log_warning() {
+    echo -e "  \033[0;33m⚠\033[0m $1"
+}
+
+log_error() {
+    echo -e "  \033[0;31m✗\033[0m $1"
+}
+
+log_info() {
+    if [ "${SCITEX_LOG_LEVEL:-1}" -ge 2 ]; then
+        echo -e "  \033[0;90m→ $1\033[0m"
+    fi
+}
+
+# Compatibility aliases
+echo_success() { log_success "$1"; }
+echo_warning() { log_warning "$1"; }
+echo_error() { log_error "$1"; }
+echo_info() { log_info "$1"; }
+echo_header() { log_stage_start "$1"; }
 
 # Configurations
 export SCITEX_WRITER_DOC_TYPE="manuscript"
@@ -121,7 +131,11 @@ main() {
     $dark_mode && options_display="${options_display} --dark_mode"
     $do_crop_tif && options_display="${options_display} --crop_tif"
     $do_verbose && options_display="${options_display} --verbose"
-    echo_info "Running $0${options_display}..."
+
+    # Show options only in verbose mode
+    if [ "${SCITEX_LOG_LEVEL:-1}" -ge 2 ] && [ -n "$options_display" ]; then
+        log_info "Options:$options_display"
+    fi
 
     # Verbosity
     export SCITEX_WRITER_VERBOSE_PDFLATEX=$do_verbose
@@ -149,9 +163,8 @@ main() {
     log_stage_end "Citation Style"
 
     # Run independent processing in parallel for speed
+    log_stage_start "Asset Processing"
     local parallel_start=$(date +%s)
-    local timestamp=$(date '+%H:%M:%S')
-    echo_info "[$timestamp] Starting: Parallel Processing (Figures, Tables, Word Count)"
 
     # Create temp files for parallel job outputs
     local temp_dir=$(mktemp -d)
@@ -172,34 +185,40 @@ main() {
     # Wait for all parallel jobs
     wait $fig_pid $tbl_pid $wrd_pid
 
-    # Display outputs in order
-    echo_info "  Figure Processing:"
-    cat "$fig_log" | sed 's/^/    /'
+    # Display outputs only in verbose mode
+    if [ "${SCITEX_LOG_LEVEL:-1}" -ge 2 ]; then
+        log_info "Figure Processing:"
+        cat "$fig_log" | sed 's/^/    /'
 
-    echo_info "  Table Processing:"
-    cat "$tbl_log" | sed 's/^/    /'
+        log_info "Table Processing:"
+        cat "$tbl_log" | sed 's/^/    /'
 
-    echo_info "  Word Count:"
-    cat "$wrd_log" | sed 's/^/    /'
+        log_info "Word Count:"
+        cat "$wrd_log" | sed 's/^/    /'
+    fi
 
     # Check exit codes
     local fig_exit=$(cat "$temp_dir/fig_exit")
     local tbl_exit=$(cat "$temp_dir/tbl_exit")
     local wrd_exit=$(cat "$temp_dir/wrd_exit")
 
+    # Extract summary lines for normal mode
+    if [ "${SCITEX_LOG_LEVEL:-1}" -lt 2 ]; then
+        # Show only key results (remove file paths from grep output)
+        grep -hE "(figures compiled|tables compiled|Word counts updated)" "$fig_log" "$tbl_log" "$wrd_log" 2>/dev/null | sed 's/^/  /' || true
+    fi
+
     rm -rf "$temp_dir"
 
     # Fail if any job failed
     if [ "$fig_exit" -ne 0 ] || [ "$tbl_exit" -ne 0 ] || [ "$wrd_exit" -ne 0 ]; then
-        echo_error "Parallel processing failed (fig=$fig_exit, tbl=$tbl_exit, wrd=$wrd_exit)"
+        log_error "Asset processing failed (fig=$fig_exit, tbl=$tbl_exit, wrd=$wrd_exit)"
         exit 1
     fi
 
     local parallel_end=$(date +%s)
     local parallel_elapsed=$((parallel_end - parallel_start))
-    local total_elapsed=$((parallel_end - COMPILATION_START_TIME))
-    timestamp=$(date '+%H:%M:%S')
-    echo_success "[$timestamp] Completed: Parallel Processing (${parallel_elapsed}s elapsed, ${total_elapsed}s total)"
+    log_stage_end "Asset Processing"
 
     # Compile documents
     log_stage_start "TeX Compilation (Structure)"
@@ -263,15 +282,17 @@ main() {
     ./scripts/shell/modules/custom_tree.sh
     log_stage_end "Directory Tree"
 
-    # Logging
-    echo
-
+    # Final summary
+    echo ""
     local final_time=$(date +%s)
     local total_compilation_time=$((final_time - COMPILATION_START_TIME))
-    echo_success "===================================================="
-    echo_success "TOTAL COMPILATION TIME: ${total_compilation_time}s"
-    echo_success "===================================================="
-    echo_success "See $SCITEX_WRITER_GLOBAL_LOG_FILE"
+    echo -e "\033[1;32m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\033[0m"
+    echo -e "\033[1;32m  Compilation Complete\033[0m"
+    echo -e "\033[0;32m  Total time: ${total_compilation_time}s\033[0m"
+    echo -e "\033[0;32m  Output: $SCITEX_WRITER_COMPILED_PDF\033[0m"
+    echo -e "\033[0;90m  Log: $SCITEX_WRITER_GLOBAL_LOG_FILE\033[0m"
+    echo -e "\033[1;32m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\033[0m"
+    echo ""
 }
 
 main "$@" 2>&1 | tee -a "$LOG_PATH" "$SCITEX_WRITER_GLOBAL_LOG_FILE"

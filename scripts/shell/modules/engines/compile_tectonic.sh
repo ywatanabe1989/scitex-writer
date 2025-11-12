@@ -46,15 +46,25 @@ compile_with_tectonic() {
         echo_info "    Using offline bundle: $SCITEX_WRITER_TECTONIC_BUNDLE_DIR"
     fi
 
+    # Reruns (limit compilation passes to avoid excessive reruns)
+    # Default to 1 rerun (2 total passes) which is sufficient for most documents
+    # Can be overridden with SCITEX_WRITER_TECTONIC_RERUNS environment variable
+    local reruns="${SCITEX_WRITER_TECTONIC_RERUNS:-1}"
+    opts="$opts --reruns=$reruns"
+
     # Verbosity
     if [ "$SCITEX_WRITER_VERBOSE_TECTONIC" != "true" ]; then
         opts="$opts --print=error"
     fi
 
+    # Use relative path for tex file to maintain proper working directory
+    # Tectonic will run from current directory (project root) to resolve relative image paths
+
     # Run compilation
     local start=$(date +%s)
-    echo_info "    Running: $tectonic_cmd $opts $(basename $tex_file)"
+    echo_info "    Running: $tectonic_cmd $opts $tex_file"
 
+    # Run tectonic with relative path (maintains project root as working directory)
     local output=$($tectonic_cmd $opts "$tex_file" 2>&1)
     local exit_code=$?
 

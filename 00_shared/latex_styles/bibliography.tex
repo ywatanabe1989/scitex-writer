@@ -43,11 +43,11 @@
 %% Format: (Author, Year) or Author (Year) depending on command
 %% Example: \cite{Tort2010} → (Tort et al., 2010)
 %%          \citet{Tort2010} → Tort et al. (2010) [textual]
-%%          \citep{Tort2010} → (Tort et al., 2010) [parenthetical]
+%%          \cite{Tort2010} → (Tort et al., 2010) [parenthetical]
 %% Commands:
 %%   - \citet{key}  → Author (Year)  [for text: "As shown by Author (2020)..."]
-%%   - \citep{key}  → (Author, Year) [for parentheses: "...as shown (Author, 2020)"]
-%%   - \cite{key}   → Same as \citep{key}
+%%   - \cite{key}  → (Author, Year) [for parentheses: "...as shown (Author, 2020)"]
+%%   - \cite{key}   → Same as \cite{key}
 %% Best for: Review papers, humanities, some social sciences
 %% Requires: natbib package (already loaded)
 % \bibliographystyle{plainnat}   % Author-year, alphabetical
@@ -230,9 +230,9 @@
 %%
 %% Advanced natbib commands (only work with natbib-compatible styles):
 %%   \citet{key}             → Author (Year)  [textual citation]
-%%   \citep{key}             → (Author, Year) [parenthetical citation]
+%%   \cite{key}             → (Author, Year) [parenthetical citation]
 %%   \citet*{key}            → Full author list (Year)
-%%   \citep*{key}            → (Full author list, Year)
+%%   \cite*{key}            → (Full author list, Year)
 %%   \citealt{key}           → Author Year [no parentheses]
 %%   \citealp{key}           → Author, Year [no parentheses]
 %%   \citeauthor{key}        → Author [name only]
@@ -240,15 +240,15 @@
 %%   \citeyearpar{key}       → (Year) [year in parentheses]
 %%
 %% Pre/post notes:
-%%   \citep[see][p.~10]{key} → (see Author, Year, p. 10)
-%%   \citep[p.~10]{key}      → (Author, Year, p. 10)
+%%   \cite[see][p.~10]{key} → (see Author, Year, p. 10)
+%%   \cite[p.~10]{key}      → (Author, Year, p. 10)
 %%
 %% Multiple citations:
-%%   \citep{key1,key2,key3}  → (Author1, Year1; Author2, Year2; Author3, Year3)
+%%   \cite{key1,key2,key3}  → (Author1, Year1; Author2, Year2; Author3, Year3)
 %%
 %% Suppressing parts:
-%%   \citep[e.g.,][]{key}    → (e.g., Author, Year)
-%%   \citep[][see p.~10]{key}→ (Author, Year, see p. 10)
+%%   \cite[e.g.,][]{key}    → (e.g., Author, Year)
+%%   \cite[][see p.~10]{key}→ (Author, Year, see p. 10)
 %%
 %% ----------------------------------------------------------------------------
 %% TROUBLESHOOTING

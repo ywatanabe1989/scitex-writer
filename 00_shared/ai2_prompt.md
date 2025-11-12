@@ -4,23 +4,37 @@ We are preparing a manuscript with the information provided below.
 1. Please identify related papers that may be relevant to our work.
 2. Comprehensive results are welcome, as we will evaluate all suggestions for relevance.
 3. Your contribution to advancing scientific research is greatly appreciated.
+4. If possible, please output as a BibTeX file (.bib).
 
 
 ## Title
-SciTeX Writer: A Container-Based Framework for Reproducible Scientific Manuscript Preparation
+SciTeX Writer: Modular Framework for Version-Controlled Manuscripts, Supplementary Materials, and Peer Review Responses
 
 ## Keywords
 keyword one keyword two keyword three keyword four keyword five
 
 ## Authors
-First Author
+Yusuke Watanabe
 Second Author
-Corresponding Author
+Third Author
 
 ## Abstract
 Scientific manuscript preparation requires careful management of document structure, version control, and reproducible compilation across diverse computing environments. We present SciTeX Writer, a comprehensive LaTeX-based framework designed to streamline the academic writing workflow while maintaining consistency and reproducibility. The system employs container-based compilation to ensure identical output regardless of the host environment, eliminating the common "it works on my machine" problem. Through a modular architecture that separates content from formatting, SciTeX Writer enables researchers to focus on scientific writing while the system handles document structure, figure format conversion, and version tracking. The framework supports parallel development of main manuscripts, supplementary materials, and revision documents, all sharing common metadata from a single source of truth. Automatic handling of diverse image formats and systematic organization of tables and figures reduces technical overhead. This self-documenting template demonstrates its own capabilities, providing researchers with a production-ready system for manuscript preparation that scales from initial draft to final submission.
 
 ---
+
+### Already Cited References (11)
+- `Anderson2017_ReviewNeuroscience`
+- `Brown2018_DeepLearning`
+- `Chen2021_MachineLearning`
+- `Garcia2019_CognitiveNeuroscience`
+- `Johnson2019_SpectralAnalysis`
+- `Lee2016_BrainNetworks`
+- `Smith2020_NeuralAnalysis`
+- `Thompson2018_SystemsNeuroscience`
+- `Wilson2015_Neuroscience`
+- `YourName2022_PreviousWork`
+- `YourName2023_NovelMethod`
 
 ### Uncited References in Our Bibliography (34)
 *These might be relevant to cite*

@@ -166,23 +166,23 @@ compile_with_lock() {
             echo_success "$(date '+%H:%M:%S') - Compilation successful"
             # Load configuration to get environment variables
             source ./config/load_config.sh manuscript >/dev/null 2>&1
-            
+
             # Update symlink to latest archive version (prevents viewing corrupted PDFs during compilation)
             local archive_dir="${SCITEX_WRITER_VERSIONS_DIR}"
-            local latest_archive=$(ls -1 "$archive_dir"/manuscript_v[0-9]*.pdf 2>/dev/null | grep -v "_diff.pdf" | sort -V | tail -1)
-            
+            local latest_archive=$(ls -1 "$archive_dir"/${SCITEX_WRITER_DOC_TYPE}_v[0-9]*.pdf 2>/dev/null | grep -v "_diff.pdf" | sort -V | tail -1)
+
             if [ -n "$latest_archive" ]; then
                 # Create relative symlink to archive
                 cd "${SCITEX_WRITER_ROOT_DIR}"
-                ln -sf "archive/$(basename "$latest_archive")" "manuscript-latest.pdf"
+                ln -sf "archive/$(basename "$latest_archive")" "${SCITEX_WRITER_DOC_TYPE}-latest.pdf"
                 cd - > /dev/null
-                echo_info "    Symlink updated: manuscript-latest.pdf -> archive/$(basename "$latest_archive")"
+                echo_info "    Symlink updated: ${SCITEX_WRITER_DOC_TYPE}-latest.pdf -> archive/$(basename "$latest_archive")"
             else
                 # Fallback if no archive exists
                 cd "${SCITEX_WRITER_ROOT_DIR}"
-                ln -sf "manuscript.pdf" "manuscript-latest.pdf"
+                ln -sf "${SCITEX_WRITER_DOC_TYPE}.pdf" "${SCITEX_WRITER_DOC_TYPE}-latest.pdf"
                 cd - > /dev/null
-                echo_info "    Symlink updated: manuscript-latest.pdf -> manuscript.pdf (no archive yet)"
+                echo_info "    Symlink updated: ${SCITEX_WRITER_DOC_TYPE}-latest.pdf -> ${SCITEX_WRITER_DOC_TYPE}.pdf (no archive yet)"
             fi
         else
             echo_error "$(date '+%H:%M:%S') - Compilation failed"

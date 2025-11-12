@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Timestamp: "2025-11-11 16:26:17 (ywatanabe)"
+# Timestamp: "2025-11-12 12:57:38 (ywatanabe)"
 
 
 """
@@ -53,6 +53,7 @@ We are preparing a manuscript with the information provided below.
 1. Please identify related papers that may be relevant to our work.
 2. Comprehensive results are welcome, as we will evaluate all suggestions for relevance.
 3. Your contribution to advancing scientific research is greatly appreciated.
+4. If possible, please output as a BibTeX file (.bib).
 """
 
 

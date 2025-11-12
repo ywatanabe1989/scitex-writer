@@ -9,6 +9,10 @@
 \usepackage[T1]{fontenc}
 \usepackage[utf8]{inputenc}
 
+%% Colors (load early to avoid option clashes with tikz, pgfplots, tcolorbox)
+% Include all common color options: table (for colortbl), svgnames (for tcolorbox)
+\usepackage[table,svgnames]{xcolor}
+
 %% Mathematics
 \usepackage{amsmath, amssymb, amsthm}
 \usepackage{siunitx}
@@ -21,7 +25,6 @@
 \usetikzlibrary{positioning,shapes,arrows,fit,calc,graphs,graphs.standard}
 
 %% Tables
-\usepackage[table]{xcolor}
 \usepackage{booktabs, colortbl, longtable, supertabular, tabularx, xltabular}
 \usepackage{csvsimple, makecell}
 

@@ -11,7 +11,8 @@ source "${THIS_DIR}/command_switching.src"
 
 # Auto-detect best available engine
 auto_detect_engine() {
-    local auto_order="${SCITEX_WRITER_AUTO_ORDER:-tectonic latexmk 3pass}"
+    # Default priority: latexmk (fastest for development) → tectonic (fallback) → 3pass (guaranteed)
+    local auto_order="${SCITEX_WRITER_AUTO_ORDER:-latexmk tectonic 3pass}"
 
     for engine in $auto_order; do
         if verify_engine "$engine" >/dev/null 2>&1; then
@@ -58,13 +59,13 @@ get_engine_info() {
 
     case "$engine" in
         tectonic)
-            echo "⚡ Tectonic (Fast mode, 1-3s incremental)"
+            echo "🔄 Tectonic (Reproducible, 4-5s per compile)"
             ;;
         latexmk)
-            echo "🔧 latexmk (Standard mode, 3-6s incremental)"
+            echo "⚡ latexmk (Smart incremental, 3s)"
             ;;
         3pass)
-            echo "🔒 3-pass (Guaranteed mode, 12-18s full)"
+            echo "🔒 3-pass (Guaranteed correctness, 6-7s)"
             ;;
     esac
 }

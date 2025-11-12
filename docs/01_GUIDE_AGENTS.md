@@ -96,7 +96,7 @@ Create `01_manuscript/contents/figures/caption_and_media/.01_seizure_prediction.
 \cite{key}           % (Author Year)
 \cite{key1,key2}     % (Author1 Year1; Author2 Year2)
 \citet{key}          % Author (Year)
-\citep{key}          % (Author Year)
+\cite{key}          % (Author Year)
 ```
 
 ## Manuscript Structure
