@@ -6,20 +6,41 @@
 ORIG_DIR="$(pwd)"
 THIS_DIR="$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)"
 LOG_PATH="$THIS_DIR/.$(basename $0).log"
-echo > "$LOG_PATH"
 
-BLACK='\033[0;30m'
-LIGHT_GRAY='\033[0;37m'
+GIT_ROOT="$(git rev-parse --show-toplevel 2>/dev/null)"
+
+GRAY='\033[0;90m'
 GREEN='\033[0;32m'
 YELLOW='\033[0;33m'
 RED='\033[0;31m'
 NC='\033[0m' # No Color
 
-echo_info() { echo -e "${LIGHT_GRAY}$1${NC}"; }
-echo_success() { echo -e "${GREEN}$1${NC}"; }
-echo_warning() { echo -e "${YELLOW}$1${NC}"; }
-echo_error() { echo -e "${RED}$1${NC}"; }
+echo_info() { echo -e "${GRAY}INFO: $1${NC}"; }
+echo_success() { echo -e "${GREEN}SUCC: $1${NC}"; }
+echo_warning() { echo -e "${YELLOW}WARN: $1${NC}"; }
+echo_error() { echo -e "${RED}ERRO: $1${NC}"; }
+echo_header() { echo_info "=== $1 ==="; }
 # ---------------------------------------
+
+# Timestamp tracking functions
+STAGE_START_TIME=0
+COMPILATION_START_TIME=$(date +%s)
+
+log_stage_start() {
+    local stage_name="$1"
+    STAGE_START_TIME=$(date +%s)
+    local timestamp=$(date '+%H:%M:%S')
+    echo_info "[$timestamp] Starting: $stage_name"
+}
+
+log_stage_end() {
+    local stage_name="$1"
+    local end_time=$(date +%s)
+    local elapsed=$((end_time - STAGE_START_TIME))
+    local total_elapsed=$((end_time - COMPILATION_START_TIME))
+    local timestamp=$(date '+%H:%M:%S')
+    echo_success "[$timestamp] Completed: $stage_name (${elapsed}s elapsed, ${total_elapsed}s total)"
+}
 
 ################################################################################
 # Description: Compiles revision response document
@@ -27,33 +48,103 @@ echo_error() { echo -e "${RED}$1${NC}"; }
 ################################################################################
 
 # Configurations
-export STXW_DOC_TYPE="revision"
-source ./config/load_config.sh "$STXW_DOC_TYPE"
+export SCITEX_WRITER_DOC_TYPE="revision"
+source ./config/load_config.sh "$SCITEX_WRITER_DOC_TYPE"
 echo
 
 # Log
 touch $LOG_PATH >/dev/null 2>&1
-mkdir -p "$LOG_DIR" && touch "$STXW_GLOBAL_LOG_FILE"
+mkdir -p "$LOG_DIR" && touch "$SCITEX_WRITER_GLOBAL_LOG_FILE"
 
 # Shell options
 set -e
 set -o pipefail
 
-echo -e "${BLUE}INFO: Running compile_revision.sh...${NC}"
+# Default values for arguments
+no_figs=false
+no_tables=false
+do_verbose=false
+draft_mode=false
+dark_mode=false
+
+usage() {
+    echo "Usage: $0 [options]"
+    echo "Options:"
+    echo "  -nf,  --no_figs       Exclude figures for quick compilation (default: false)"
+    echo "  -nt,  --no_tables     Exclude tables for quick compilation (default: false)"
+    echo "  -d,   --draft         Draft mode: single-pass compilation (saves ~5s) (default: false)"
+    echo "  -dm,  --dark_mode     Dark mode: black background, white text (default: false)"
+    echo "  -q,   --quiet         Do not shows detailed logs for latex compilation (default: $do_verbose)"
+    echo "  -h,   --help          Display this help message"
+    echo ""
+    echo "Note: All options accept both hyphens and underscores (e.g., --no-figs or --no_figs)"
+    echo "Note: Revision documents skip diff generation by default (changes shown inline)"
+    exit 0
+}
+
+parse_arguments() {
+    while [[ "$#" -gt 0 ]]; do
+        # Normalize option: replace underscores with hyphens for matching
+        local normalized_opt=$(echo "$1" | tr '_' '-')
+
+        case $normalized_opt in
+            -h|--help) usage ;;
+            -nf|--no-figs) no_figs=true ;;
+            -nt|--no-tables) no_tables=true ;;
+            -d|--draft) draft_mode=true ;;
+            -dm|--dark-mode) dark_mode=true ;;
+            -v|--verbose) do_verbose=true ;;
+            -q|--quiet) do_verbose=false ;;
+            *) echo "Unknown option: $1"; usage ;;
+        esac
+        shift
+    done
+}
+
+{
+parse_arguments "$@"
+
+# Log command options
+options_display=""
+$no_figs && options_display="${options_display} --no_figs"
+$no_tables && options_display="${options_display} --no_tables"
+$draft_mode && options_display="${options_display} --draft"
+$dark_mode && options_display="${options_display} --dark_mode"
+$do_verbose && options_display="${options_display} --verbose"
+echo_info "Running $0${options_display}..."
+
+# Verbosity
+export SCITEX_WRITER_VERBOSE_PDFLATEX=$do_verbose
+export SCITEX_WRITER_VERBOSE_BIBTEX=$do_verbose
+
+# Draft mode (single-pass compilation)
+export SCITEX_WRITER_DRAFT_MODE=$draft_mode
+
+# Dark mode (black background, white text)
+export SCITEX_WRITER_DARK_MODE=$dark_mode
 
 # 1. Check dependencies
+log_stage_start "Dependency Check"
 ./scripts/shell/modules/check_dependancy_commands.sh
 if [ $? -ne 0 ]; then
     echo -e "${RED}ERRO: Dependency check failed${NC}"
     exit 1
 fi
+log_stage_end "Dependency Check"
 
-# 2. Apply citation style from config
+# 2. Merge bibliography files if multiple exist
+log_stage_start "Bibliography Merge"
+./scripts/shell/modules/merge_bibliographies.sh
+log_stage_end "Bibliography Merge"
+
+# 3. Apply citation style from config
+log_stage_start "Citation Style"
 ./scripts/shell/modules/apply_citation_style.sh
+log_stage_end "Citation Style"
 
 # 3. Check revision structure
-echo ""
-echo -e "${BLUE}INFO: Checking revision response structure...${NC}"
+log_stage_start "Revision Structure Check"
+echo_info "Checking revision response structure..."
 
 # Expected structure with simplified naming (allowing optional descriptive suffixes):
 # Editor: E_01_comments[_description].tex, E_01_response[_description].tex, ...
@@ -112,48 +203,90 @@ check_revision_files() {
 check_revision_files "./03_revision/contents/editor" "E" "Editor"
 check_revision_files "./03_revision/contents/reviewer1" "R1" "Reviewer 1"
 check_revision_files "./03_revision/contents/reviewer2" "R2" "Reviewer 2"
+log_stage_end "Revision Structure Check"
 
-# 3. Process figures (minimal for revision)
-echo ""
-echo -e "${BLUE}INFO: Processing figures...${NC}"
-./scripts/shell/modules/process_figures.sh \
-    true \
-    false \
-    false \
-    false
+# Run independent processing in parallel for speed
+parallel_start=$(date +%s)
+timestamp=$(date '+%H:%M:%S')
+echo_info "[$timestamp] Starting: Parallel Processing (Figures, Tables)"
 
-# 4. Process tables
-echo ""
-echo -e "${BLUE}INFO: Processing tables...${NC}"
-./scripts/shell/modules/process_tables.sh
+# Create temp files for parallel job outputs
+temp_dir=$(mktemp -d)
+fig_log="$temp_dir/figures.log"
+tbl_log="$temp_dir/tables.log"
 
-# 5. Compile structure
-echo ""
-echo -e "${BLUE}INFO: Compiling document structure...${NC}"
+# Run both in parallel
+(./scripts/shell/modules/process_figures.sh "$no_figs" false false false > "$fig_log" 2>&1; echo $? > "$temp_dir/fig_exit") &
+fig_pid=$!
+
+(./scripts/shell/modules/process_tables.sh "$no_tables" > "$tbl_log" 2>&1; echo $? > "$temp_dir/tbl_exit") &
+tbl_pid=$!
+
+# Wait for all parallel jobs
+wait $fig_pid $tbl_pid
+
+# Display outputs in order
+echo_info "  Figure Processing:"
+cat "$fig_log" | sed 's/^/    /'
+
+echo_info "  Table Processing:"
+cat "$tbl_log" | sed 's/^/    /'
+
+# Check exit codes
+fig_exit=$(cat "$temp_dir/fig_exit")
+tbl_exit=$(cat "$temp_dir/tbl_exit")
+
+rm -rf "$temp_dir"
+
+# Fail if any job failed
+if [ "$fig_exit" -ne 0 ] || [ "$tbl_exit" -ne 0 ]; then
+    echo_error "Parallel processing failed (fig=$fig_exit, tbl=$tbl_exit)"
+    exit 1
+fi
+
+parallel_end=$(date +%s)
+parallel_elapsed=$((parallel_end - parallel_start))
+total_elapsed=$((parallel_end - COMPILATION_START_TIME))
+timestamp=$(date '+%H:%M:%S')
+echo_success "[$timestamp] Completed: Parallel Processing (${parallel_elapsed}s elapsed, ${total_elapsed}s total)"
+
+# Compile structure
+log_stage_start "TeX Compilation (Structure)"
 ./scripts/shell/modules/compilation_structure_tex_to_compiled_tex.sh
+log_stage_end "TeX Compilation (Structure)"
 
-# 6. Compile to PDF
-echo ""
-echo -e "${BLUE}INFO: Compiling to PDF...${NC}"
+# Compile to PDF
+log_stage_start "PDF Generation"
 ./scripts/shell/modules/compilation_compiled_tex_to_compiled_pdf.sh
+log_stage_end "PDF Generation"
 
-# 7. Skip diff generation for revision (revision document already shows changes)
-# The revision document itself contains track changes with \DIFadd and \DIFdel commands
-echo ""
-echo -e "${BLUE}INFO: Skipping diff generation (revision document shows changes inline)${NC}"
+# Skip diff generation for revision (revision document already shows changes inline)
+echo_info "Skipping diff generation (revision document shows changes inline)"
 
-# 8. Archive
-echo ""
-echo -e "${BLUE}INFO: Archiving...${NC}"
+# Archive
+log_stage_start "Archive/Versioning"
 ./scripts/shell/modules/process_archive.sh
+log_stage_end "Archive/Versioning"
 
-# 9. Cleanup
-echo ""
-echo -e "${BLUE}INFO: Cleaning up...${NC}"
+# Cleanup
+log_stage_start "Cleanup"
 ./scripts/shell/modules/cleanup.sh
+log_stage_end "Cleanup"
 
-echo ""
-echo -e "${GREEN}SUCC: ==========================================${NC}"
-echo -e "${GREEN}SUCC: Revision compilation completed${NC}"
-echo -e "${GREEN}SUCC: PDF: $STXW_COMPILED_PDF${NC}"
-echo -e "${GREEN}SUCC: ==========================================${NC}"
+# Final steps
+log_stage_start "Directory Tree"
+./scripts/shell/modules/custom_tree.sh
+log_stage_end "Directory Tree"
+
+# Logging
+echo
+
+final_time=$(date +%s)
+total_compilation_time=$((final_time - COMPILATION_START_TIME))
+echo_success "===================================================="
+echo_success "TOTAL COMPILATION TIME: ${total_compilation_time}s"
+echo_success "===================================================="
+echo_success "PDF: $SCITEX_WRITER_COMPILED_PDF"
+} 2>&1 | tee -a "$LOG_PATH" "$SCITEX_WRITER_GLOBAL_LOG_FILE"
+
+# EOF

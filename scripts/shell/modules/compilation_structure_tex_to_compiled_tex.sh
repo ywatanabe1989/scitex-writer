@@ -8,69 +8,45 @@ THIS_DIR="$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)"
 LOG_PATH="$THIS_DIR/.$(basename $0).log"
 echo > "$LOG_PATH"
 
-BLACK='\033[0;30m'
-LIGHT_GRAY='\033[0;37m'
+GIT_ROOT="$(git rev-parse --show-toplevel 2>/dev/null)"
+
+GRAY='\033[0;90m'
 GREEN='\033[0;32m'
 YELLOW='\033[0;33m'
 RED='\033[0;31m'
 NC='\033[0m' # No Color
 
-echo_info() { echo -e "${LIGHT_GRAY}$1${NC}"; }
-echo_success() { echo -e "${GREEN}$1${NC}"; }
-echo_warning() { echo -e "${YELLOW}$1${NC}"; }
-echo_error() { echo -e "${RED}$1${NC}"; }
+echo_info() { echo -e "${GRAY}INFO: $1${NC}"; }
+log_info() {
+    if [ "${SCITEX_LOG_LEVEL:-1}" -ge 2 ]; then
+        echo -e "  \033[0;90m→ $1\033[0m"
+    fi
+}
+echo_success() { echo -e "${GREEN}SUCC: $1${NC}"; }
+echo_warning() { echo -e "${YELLOW}WARN: $1${NC}"; }
+echo_error() { echo -e "${RED}ERRO: $1${NC}"; }
+echo_header() { echo_info "=== $1 ==="; }
 # ---------------------------------------
 
-NC='\033[0m'
-
 # Configurations
-source ./config/load_config.sh $STXW_DOC_TYPE
+source ./config/load_config.sh $SCITEX_WRITER_DOC_TYPE
 
 # Logging
 touch "$LOG_PATH" >/dev/null 2>&1
 echo
-echo_info "Running $0 ..."
+log_info "Running $0 ..."
 
 gather_tex_contents() {
-    # First, create initial compiled.tex from base.tex
-    cp "$STXW_BASE_TEX" "$STXW_COMPILED_TEX"
-
-    process_input() {
-        local file_path="$1"
-        local temp_file=$(mktemp)
-
-        while IFS= read -r line; do
-            if [[ "$line" =~ \\input\{(.+)\} ]]; then
-                local input_path="${BASH_REMATCH[1]}"
-                # Add .tex extension if not present
-                [[ "$input_path" != *.tex ]] && input_path="${input_path}.tex"
-
-                if [[ -f "$input_path" ]]; then
-                    echo_info "    Processing $input_path"
-                    echo -e "\n%% ========================================" >> "$temp_file"
-                    echo -e "%% $input_path" >> "$temp_file"
-                    echo -e "%% ========================================" >> "$temp_file"
-                    cat "$input_path" >> "$temp_file"
-                    # echo "    \n" >> "$temp_file"
-                    echo -e "\n" >> "$temp_file"
-                else
-                    echo_warn "$input_path not found."
-                    echo "$line" >> "$temp_file"
-                fi
-            else
-                echo "$line" >> "$temp_file"
-            fi
-        done < "$file_path"
-
-        mv "$temp_file" "$STXW_COMPILED_TEX"
-    }
-
-    # Process until no more \input commands remain
-    while grep -q '\\input{' "$STXW_COMPILED_TEX"; do
-        process_input "$STXW_COMPILED_TEX"
-    done
-
-    echo_success "    $STXW_COMPILED_TEX compiled"
+    # Use fast Python-based recursive expansion (O(n) instead of O(n²))
+    if python3 ./scripts/python/compile_tex_structure.py \
+        "$SCITEX_WRITER_BASE_TEX" \
+        "$SCITEX_WRITER_COMPILED_TEX" \
+        --quiet; then
+        echo_success "    $SCITEX_WRITER_COMPILED_TEX compiled"
+    else
+        echo_error "    Failed to compile TeX structure"
+        return 1
+    fi
 }
 
 gather_tex_contents

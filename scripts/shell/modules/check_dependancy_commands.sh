@@ -1,39 +1,41 @@
 #!/bin/bash
 # -*- coding: utf-8 -*-
-# Timestamp: "2025-09-27 00:05:04 (ywatanabe)"
-# File: ./paper/scripts/shell/modules/check_dependancy_commands.sh
+# Timestamp: "2025-11-11 07:23:33 (ywatanabe)"
+# File: ./scripts/shell/modules/check_dependancy_commands.sh
 
 ORIG_DIR="$(pwd)"
 THIS_DIR="$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)"
 LOG_PATH="$THIS_DIR/.$(basename $0).log"
 echo > "$LOG_PATH"
 
-BLACK='\033[0;30m'
-LIGHT_GRAY='\033[0;37m'
+GIT_ROOT="$(git rev-parse --show-toplevel 2>/dev/null)"
+
+GRAY='\033[0;90m'
 GREEN='\033[0;32m'
 YELLOW='\033[0;33m'
 RED='\033[0;31m'
 NC='\033[0m' # No Color
 
-echo_info() { echo -e "${LIGHT_GRAY}$1${NC}"; }
-echo_success() { echo -e "${GREEN}$1${NC}"; }
-echo_warning() { echo -e "${YELLOW}$1${NC}"; }
-echo_error() { echo -e "${RED}$1${NC}"; }
+echo_info() { echo -e "${GRAY}INFO: $1${NC}"; }
+log_info() {
+    if [ "${SCITEX_LOG_LEVEL:-1}" -ge 2 ]; then
+        echo -e "  \033[0;90m→ $1\033[0m"
+    fi
+}
+echo_success() { echo -e "${GREEN}SUCC: $1${NC}"; }
+echo_warning() { echo -e "${YELLOW}WARN: $1${NC}"; }
+echo_error() { echo -e "${RED}ERRO: $1${NC}"; }
+echo_header() { echo_info "=== $1 ==="; }
 # ---------------------------------------
 
+# Don't clear log at start - timing info will be appended
+
 # Configurations
-source ./config/load_config.sh $STXW_DOC_TYPE
+source ./config/load_config.sh $SCITEX_WRITER_DOC_TYPE
 
-# Source the shared LaTeX commands module
+# Source the 00_shared LaTeX commands module
 source "$(dirname ${BASH_SOURCE[0]})/command_switching.src"
-
-# To override echo_xxx functions
-source ./config/load_config.sh $STXW_DOC_TYPE
-
-# Logging
-touch "$LOG_PATH" >/dev/null 2>&1
-echo
-echo_info "Running $0..."
+log_info "Running ${BASH_SOURCE[0]}..."
 
 
 # Detect package manager
@@ -208,33 +210,109 @@ check_bibtexparser() {
     return 0
 }
 
-# Check all required commands
+# Check all required commands (parallelized for speed)
 check_all_dependencies() {
     local has_missing_required=false
     local has_missing_optional=false
     local required_output=""
     local optional_output=""
 
-    # Try to setup container first if needed
-    # Container setup is now handled by individual command functions via command_switching.sh
+    # Log run timestamp
+    echo "=== $(date '+%Y-%m-%d %H:%M:%S') ===" >> "$LOG_PATH"
 
-    # Required tools
-    for checker in check_pdflatex check_bibtex check_latexdiff check_texcount check_xlsx2csv check_csv2latex check_parallel; do
-        output=$($checker)
-        if [ -n "$output" ]; then
+    # Quick native-only check to avoid expensive container warmup
+    local all_native_available=true
+    local start_native_check=$(date +%s%N)
+
+    # Check if all required native commands exist (fast check only)
+    if ! command -v pdflatex &> /dev/null || ! pdflatex --version &> /dev/null 2>&1; then
+        all_native_available=false
+    elif ! command -v bibtex &> /dev/null || ! bibtex --version &> /dev/null 2>&1; then
+        all_native_available=false
+    elif ! command -v latexdiff &> /dev/null; then
+        all_native_available=false
+    elif ! command -v texcount &> /dev/null || ! texcount --version &> /dev/null 2>&1; then
+        all_native_available=false
+    fi
+
+    local end_native_check=$(date +%s%N)
+    local native_check_ms=$(( (end_native_check - start_native_check) / 1000000 ))
+    echo "Native check: ${native_check_ms}ms" >> "$LOG_PATH"
+    echo_info "    Native check: ${native_check_ms}ms"
+
+    # Only do expensive warmup if native commands are missing
+    if [ "$all_native_available" = false ]; then
+        echo_info "    Native commands incomplete, checking alternatives..."
+        # Pre-warmup: do expensive shared setup once before parallelizing
+        # This prevents each parallel job from doing redundant work
+        local start_warmup=$(date +%s%N)
+        get_container_runtime &> /dev/null
+        load_texlive_module &> /dev/null
+        setup_latex_container &> /dev/null
+        setup_mermaid_container &> /dev/null
+        local end_warmup=$(date +%s%N)
+        local warmup_ms=$(( (end_warmup - start_warmup) / 1000000 ))
+        echo "Warmup: ${warmup_ms}ms" >> "$LOG_PATH"
+        echo_info "    Warmup: ${warmup_ms}ms"
+    else
+        echo_info "    All native LaTeX commands available (skipping container warmup)"
+    fi
+
+    # Temp directory for parallel results
+    local temp_dir=$(mktemp -d)
+
+    # Run all required checks in parallel, capturing exit codes
+    local start_checks=$(date +%s%N)
+    (check_pdflatex > "$temp_dir/req_pdflatex" 2>&1; echo $? > "$temp_dir/req_pdflatex.exit") &
+    (check_bibtex > "$temp_dir/req_bibtex" 2>&1; echo $? > "$temp_dir/req_bibtex.exit") &
+    (check_latexdiff > "$temp_dir/req_latexdiff" 2>&1; echo $? > "$temp_dir/req_latexdiff.exit") &
+    (check_texcount > "$temp_dir/req_texcount" 2>&1; echo $? > "$temp_dir/req_texcount.exit") &
+    (check_xlsx2csv > "$temp_dir/req_xlsx2csv" 2>&1; echo $? > "$temp_dir/req_xlsx2csv.exit") &
+    (check_csv2latex > "$temp_dir/req_csv2latex" 2>&1; echo $? > "$temp_dir/req_csv2latex.exit") &
+    (check_parallel > "$temp_dir/req_parallel" 2>&1; echo $? > "$temp_dir/req_parallel.exit") &
+
+    # Run all optional checks in parallel
+    (check_opencv > "$temp_dir/opt_opencv" 2>&1; echo $? > "$temp_dir/opt_opencv.exit") &
+    (check_numpy > "$temp_dir/opt_numpy" 2>&1; echo $? > "$temp_dir/opt_numpy.exit") &
+    (check_mmdc > "$temp_dir/opt_mmdc" 2>&1; echo $? > "$temp_dir/opt_mmdc.exit") &
+    (check_bibtexparser > "$temp_dir/opt_bibtexparser" 2>&1; echo $? > "$temp_dir/opt_bibtexparser.exit") &
+
+    # Wait for all background jobs
+    wait
+    local end_checks=$(date +%s%N)
+    local checks_ms=$(( (end_checks - start_checks) / 1000000 ))
+    echo "Parallel checks: ${checks_ms}ms" >> "$LOG_PATH"
+    echo_info "    Parallel checks: ${checks_ms}ms"
+
+    # Collect required results with exit codes
+    declare -A tool_status
+    for tool in pdflatex bibtex latexdiff texcount xlsx2csv csv2latex parallel; do
+        local exit_code=$(cat "$temp_dir/req_${tool}.exit" 2>/dev/null || echo 1)
+        if [ "$exit_code" -eq 0 ]; then
+            tool_status[$tool]="✓"
+        else
             has_missing_required=true
-            required_output="${required_output}${output}\n"
+            tool_status[$tool]="✗"
+            if [ -s "$temp_dir/req_${tool}" ]; then
+                required_output="${required_output}$(cat "$temp_dir/req_${tool}")\n"
+            fi
         fi
     done
 
-    # Optional tools
-    for checker in check_opencv check_numpy check_mmdc check_bibtexparser; do
-        output=$($checker)
-        if [ -n "$output" ]; then
+    # Collect optional results
+    for result_file in "$temp_dir"/opt_*.exit; do
+        local tool=$(basename "$result_file" .exit | sed 's/opt_//')
+        local exit_code=$(cat "$result_file" 2>/dev/null || echo 1)
+        if [ "$exit_code" -ne 0 ]; then
             has_missing_optional=true
-            optional_output="${optional_output}${output}\n"
+            if [ -s "${result_file%.exit}" ]; then
+                optional_output="${optional_output}$(cat "${result_file%.exit}")\n"
+            fi
         fi
     done
+
+    # Cleanup
+    rm -rf "$temp_dir"
 
     # Display results
     if [ "$has_missing_required" = true ]; then
@@ -242,11 +320,15 @@ check_all_dependencies() {
         echo -e "$required_output"
         return 1
     else
-        if [ -n "$STXW_TEXLIVE_APPTAINER_SIF" ] && [ -f "$STXW_TEXLIVE_APPTAINER_SIF" ]; then
-            echo_success "    All required tools available (using container for LaTeX)"
-        else
-            echo_success "    All required tools available (native installation)"
-        fi
+        # Show summary table using cached results (no additional checks!)
+        echo_success "    Required tools:"
+        printf "      %-20s %s\n" "pdflatex" "${tool_status[pdflatex]}"
+        printf "      %-20s %s\n" "bibtex" "${tool_status[bibtex]}"
+        printf "      %-20s %s\n" "latexdiff" "${tool_status[latexdiff]}"
+        printf "      %-20s %s\n" "texcount" "${tool_status[texcount]}"
+        printf "      %-20s %s\n" "xlsx2csv" "${tool_status[xlsx2csv]}"
+        printf "      %-20s %s\n" "csv2latex" "${tool_status[csv2latex]}"
+        printf "      %-20s %s\n" "parallel" "${tool_status[parallel]}"
     fi
 
     if [ "$has_missing_optional" = true ]; then

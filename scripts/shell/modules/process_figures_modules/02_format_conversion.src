@@ -9,22 +9,22 @@ pptx2tif() {
     [ "$p2t" != true ] && return 0
     
     echo_info "Step 1: Converting PPTX to PDF..."
-    for pptx_file in "$STXW_FIGURE_CAPTION_MEDIA_DIR"/[0-9]*.pptx; do
+    for pptx_file in "$SCITEX_WRITER_FIGURE_CAPTION_MEDIA_DIR"/[0-9]*.pptx; do
         [ -e "$pptx_file" ] || continue
         local base_name=$(basename "$pptx_file" .pptx)
-        local pdf_file="$STXW_FIGURE_CAPTION_MEDIA_DIR/${base_name}.pdf"
+        local pdf_file="$SCITEX_WRITER_FIGURE_CAPTION_MEDIA_DIR/${base_name}.pdf"
         
         if [ ! -f "$pdf_file" ] || [ "$pptx_file" -nt "$pdf_file" ]; then
             echo_info "Converting $base_name.pptx to PDF..."
-            libreoffice --headless --convert-to pdf --outdir "$STXW_FIGURE_CAPTION_MEDIA_DIR" "$pptx_file" >/dev/null 2>&1
+            libreoffice --headless --convert-to pdf --outdir "$SCITEX_WRITER_FIGURE_CAPTION_MEDIA_DIR" "$pptx_file" >/dev/null 2>&1
         fi
     done
     
     echo_info "Step 2: Converting PDF to TIF..."
-    for pdf_file in "$STXW_FIGURE_CAPTION_MEDIA_DIR"/[0-9]*.pdf; do
+    for pdf_file in "$SCITEX_WRITER_FIGURE_CAPTION_MEDIA_DIR"/[0-9]*.pdf; do
         [ -e "$pdf_file" ] || continue
         local base_name=$(basename "$pdf_file" .pdf)
-        local tif_file="$STXW_FIGURE_CAPTION_MEDIA_DIR/${base_name}.tif"
+        local tif_file="$SCITEX_WRITER_FIGURE_CAPTION_MEDIA_DIR/${base_name}.tif"
         
         if [ ! -f "$tif_file" ] || [ "$pdf_file" -nt "$tif_file" ]; then
             echo_info "Converting $base_name.pdf to TIF..."
@@ -36,10 +36,10 @@ pptx2tif() {
 # Convert TIF/TIFF to PNG
 tif2png() {
     echo_info "Step 3: Converting TIF/TIFF to PNG..."
-    for tif_file in "$STXW_FIGURE_CAPTION_MEDIA_DIR"/[0-9]*.{tif,tiff}; do
+    for tif_file in "$SCITEX_WRITER_FIGURE_CAPTION_MEDIA_DIR"/[0-9]*.{tif,tiff}; do
         [ -e "$tif_file" ] || continue
         local base_name=$(basename "$tif_file" | sed 's/\.\(tif\|tiff\)$//')
-        local png_file="$STXW_FIGURE_CAPTION_MEDIA_DIR/${base_name}.png"
+        local png_file="$SCITEX_WRITER_FIGURE_CAPTION_MEDIA_DIR/${base_name}.png"
         
         if [ ! -f "$png_file" ] || [ "$tif_file" -nt "$png_file" ]; then
             echo_info "Converting ${base_name}.tif to PNG..."
@@ -64,10 +64,10 @@ mmd2png() {
 png2jpg() {
     echo_info "Step 5: Converting PNG to JPG..."
     
-    for png_file in "$STXW_FIGURE_CAPTION_MEDIA_DIR"/[0-9]*.png; do
+    for png_file in "$SCITEX_WRITER_FIGURE_CAPTION_MEDIA_DIR"/[0-9]*.png; do
         [ -e "$png_file" ] || continue
         local base_name=$(basename "$png_file" .png)
-        local jpg_file="$STXW_FIGURE_CAPTION_MEDIA_DIR/${base_name}.jpg"
+        local jpg_file="$SCITEX_WRITER_FIGURE_CAPTION_MEDIA_DIR/${base_name}.jpg"
         
         if [ ! -f "$jpg_file" ] || [ "$png_file" -nt "$jpg_file" ]; then
             echo_info "Converting ${base_name}.png to JPG..."
@@ -129,12 +129,12 @@ copy_composed_jpg_files() {
     echo_info "Creating composed figures from panels..."
     
     # First, create composed figures from panels
-    for base_pattern in $(ls "$STXW_FIGURE_CAPTION_MEDIA_DIR"/[0-9]*[a-z]_*.jpg 2>/dev/null | sed 's/[a-z]_.*//' | sort -u); do
+    for base_pattern in $(ls "$SCITEX_WRITER_FIGURE_CAPTION_MEDIA_DIR"/[0-9]*[a-z]_*.jpg 2>/dev/null | sed 's/[a-z]_.*//' | sort -u); do
         local base_name=$(basename "$base_pattern")
-        local composed_file="$STXW_FIGURE_CAPTION_MEDIA_DIR/${base_name}.jpg"
+        local composed_file="$SCITEX_WRITER_FIGURE_CAPTION_MEDIA_DIR/${base_name}.jpg"
         
         # Check if we have panels for this figure
-        local panels=($(ls "$STXW_FIGURE_CAPTION_MEDIA_DIR"/${base_name}[a-z]_*.jpg 2>/dev/null))
+        local panels=($(ls "$SCITEX_WRITER_FIGURE_CAPTION_MEDIA_DIR"/${base_name}[a-z]_*.jpg 2>/dev/null))
         
         if [ ${#panels[@]} -gt 0 ]; then
             # Create composed figure (this would be done by tile_panels function)
@@ -150,7 +150,7 @@ copy_composed_jpg_files() {
     echo_info "Copying composed figure JPGs to jpg_for_compilation..."
     local copied_count=0
     
-    for jpg_file in "$STXW_FIGURE_CAPTION_MEDIA_DIR"/[0-9]*.jpg; do
+    for jpg_file in "$SCITEX_WRITER_FIGURE_CAPTION_MEDIA_DIR"/[0-9]*.jpg; do
         [ -e "$jpg_file" ] || continue
         local filename=$(basename "$jpg_file")
         
@@ -161,7 +161,7 @@ copy_composed_jpg_files() {
         fi
         
         # Copy main figure
-        cp "$jpg_file" "$STXW_FIGURE_JPG_DIR/"
+        cp "$jpg_file" "$SCITEX_WRITER_FIGURE_JPG_DIR/"
         echo_success "Copied composed figure: $filename"
         ((copied_count++))
     done

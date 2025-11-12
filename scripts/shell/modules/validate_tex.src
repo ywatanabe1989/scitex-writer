@@ -6,7 +6,7 @@
 THIS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # ---------------------------------------
 
-source ./config/load_config.sh $STXW_DOC_TYPE
+source ./config/load_config.sh $SCITEX_WRITER_DOC_TYPE
 
 # Make sure echo_error_soft is defined if not already defined
 echo_error_soft() { echo -e "${RED}Error: $1${NC}"; }

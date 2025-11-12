@@ -52,32 +52,55 @@ GLOBAL OPTIONS:
     -w, --watch          Enable watch mode for hot-recompiling
                          (Only works with manuscript type)
 
-TYPE-SPECIFIC OPTIONS:
-    Pass any additional options after the document type.
-    These will be forwarded to the specific compilation script.
+COMMON SPEED OPTIONS (available for all document types):
+    -nf, --no_figs       Skip figure processing (~4s faster)
+    -nt, --no_tables     Skip table processing (~4s faster)
+    -nd, --no_diff       Skip diff generation (~17s faster)
+                         (revision skips diff by default)
+    -d,  --draft         Single-pass PDF compilation (~5s faster)
+    -dm, --dark_mode     Dark mode: black background, white text
+                         (figures keep original colors)
+    -q,  --quiet         Minimal logs
+    -v,  --verbose       Detailed logs
+
+    Note: All options accept both hyphens and underscores
+          (e.g., --no-figs or --no_figs, --dark-mode or --dark_mode)
 
 EXAMPLES:
+    Basic compilation:
     ./compile.sh                           # Compile manuscript (default)
     ./compile.sh manuscript                # Explicitly compile manuscript
     ./compile.sh supplementary             # Compile supplementary materials
-    ./compile.sh revision --track-changes  # Compile revision with track changes
+    ./compile.sh revision                  # Compile revision responses
 
     Short forms:
     ./compile.sh -m                        # Compile manuscript
     ./compile.sh -s                        # Compile supplementary
-    ./compile.sh -r --track-changes        # Compile revision with options
+    ./compile.sh -r                        # Compile revision
+
+    Speed options:
+    ./compile.sh -m --no-figs --no-diff    # Fast manuscript (~12s)
+    ./compile.sh -s --no_figs --no_tables --draft  # Ultra-fast supplementary
+    ./compile.sh -r --no-figs --draft      # Fast revision
+
+    Ultra-fast mode (all speed flags):
+    ./compile.sh -m --no-figs --no-tables --no-diff --draft  # ~8s
+
+    Dark mode:
+    ./compile.sh -m --dark-mode            # Black background, white text
+    ./compile.sh -s --dark_mode            # Works with all doc types
 
     Watch mode:
     ./compile.sh -m -w                     # Watch and recompile manuscript
-    ./compile.sh -m --watch                # Watch mode with long option
+    ./compile.sh -m --watch --no-figs      # Watch mode with speed options
 
 DELEGATION:
     This script delegates to:
-    - ./scripts/shell/compile_manuscript for manuscripts
-    - ./scripts/shell/compile_supplementary for supplementary materials
-    - ./scripts/shell/compile_revision for revision responses
+    - ./scripts/shell/compile_manuscript.sh for manuscripts
+    - ./scripts/shell/compile_supplementary.sh for supplementary materials
+    - ./scripts/shell/compile_revision.sh for revision responses
 
-    Each specific script has its own options and behaviors.
+    For type-specific options, use: ./compile.sh [TYPE] --help
 
 EOF
 }
@@ -104,8 +127,15 @@ while [ $# -gt 0 ]; do
             shift
             ;;
         -h|--help)
-            show_usage
-            exit 0
+            # If document type already specified, pass --help to that script
+            # Otherwise, show wrapper's help
+            if [ -z "$DOC_TYPE" ]; then
+                show_usage
+                exit 0
+            else
+                REMAINING_ARGS="$REMAINING_ARGS $1"
+                shift
+            fi
             ;;
         *)
             # Collect remaining arguments
@@ -134,22 +164,19 @@ if [ "$WATCH_MODE" = true ] && [ "$DOC_TYPE" != "manuscript" ]; then
     exit 1
 fi
 
-# Display what we're doing
-echo "=========================================="
-echo "Compilation Interface"
-echo "  Document type: $DOC_TYPE"
+# Display what we're doing (compact format)
+echo ""
+echo -e "\033[1;36m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\033[0m"
+echo -e "\033[1;36m  SciTeX Writer Compilation\033[0m"
+echo -e "\033[0;36m  Type: $DOC_TYPE\033[0m"
 if [ "$WATCH_MODE" = true ]; then
-    echo "  Mode: WATCH (hot-recompile enabled)"
+    echo -e "\033[0;36m  Mode: WATCH\033[0m"
 fi
 if [ -n "$REMAINING_ARGS" ]; then
-    echo "  Additional options:$REMAINING_ARGS"
+    echo -e "\033[0;90m  Options:$REMAINING_ARGS\033[0m"
 fi
-if [ "$WATCH_MODE" = true ]; then
-    echo "  Delegating to: ./scripts/shell/watch_compile.sh"
-else
-    echo "  Delegating to: ./scripts/shell/compile_$DOC_TYPE.sh"
-fi
-echo "=========================================="
+echo -e "\033[1;36m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\033[0m"
+echo ""
 
 # Handle watch mode
 if [ "$WATCH_MODE" = true ]; then
