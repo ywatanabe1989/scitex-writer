@@ -39,12 +39,17 @@ echo_info "Running ${BASH_SOURCE[0]}..."
 
 mmd2png(){
     # Early exit if no .mmd files (saves ~30s container setup time)
-    n_mmd_files="$(ls $SCITEX_WRITER_FIGURE_CAPTION_MEDIA_DIR/.*.mmd 2>/dev/null | wc -l)"
+    # Check for both hidden (.*.mmd) and numbered ([0-9]*.mmd) files
+    local n_hidden=$(ls "$SCITEX_WRITER_FIGURE_CAPTION_MEDIA_DIR"/.*.mmd 2>/dev/null | wc -l)
+    local n_numbered=$(ls "$SCITEX_WRITER_FIGURE_CAPTION_MEDIA_DIR"/[0-9]*.mmd 2>/dev/null | wc -l)
+    local n_mmd_files=$((n_hidden + n_numbered))
 
     if [[ $n_mmd_files -eq 0 ]]; then
         echo_info "    No .mmd files found in $SCITEX_WRITER_FIGURE_CAPTION_MEDIA_DIR"
         return 0
     fi
+
+    echo_info "    Found $n_mmd_files .mmd files ($n_hidden hidden, $n_numbered numbered)"
 
     # Get mmdc command only if we have files to process
     local mmdc_cmd=$(get_cmd_mmdc "$ORIG_DIR")
@@ -54,38 +59,37 @@ mmd2png(){
         return 1
     fi
 
-    # Process .mmd files (we know n_mmd_files > 0 from early exit check)
-    for mmd_file in "$SCITEX_WRITER_FIGURE_CAPTION_MEDIA_DIR"/.*.mmd; do
-            png_file="${mmd_file%.mmd}.png"
-            jpg_file="$SCITEX_WRITER_FIGURE_JPG_DIR/$(basename "${mmd_file%.mmd}.jpg")"
+    # Process .mmd files - handle both hidden and numbered files
+    for mmd_file in "$SCITEX_WRITER_FIGURE_CAPTION_MEDIA_DIR"/.*.mmd "$SCITEX_WRITER_FIGURE_CAPTION_MEDIA_DIR"/[0-9]*.mmd; do
+        [ -e "$mmd_file" ] || continue
 
-            echo_info "    Converting $(basename "$mmd_file") to PNG..."
-            eval "$mmdc_cmd -i \"$mmd_file\" -o \"$png_file\"" > /dev/null 2>&1
+        png_file="${mmd_file%.mmd}.png"
+        jpg_file="$SCITEX_WRITER_FIGURE_JPG_DIR/$(basename "${mmd_file%.mmd}.jpg")"
 
-            if [ -f "$png_file" ]; then
-                echo_success "    Created: $(basename "$png_file")"
+        echo_info "    Converting $(basename "$mmd_file") to PNG..."
+        eval "$mmdc_cmd -i \"$mmd_file\" -o \"$png_file\"" > /dev/null 2>&1
 
-                # Convert PNG to JPG using ImageMagick (with container fallback)
-                local convert_cmd=$(get_cmd_convert "$ORIG_DIR")
-                if [ -n "$convert_cmd" ]; then
-                    echo_info "    Converting to JPG..."
-                    eval "$convert_cmd \"$png_file\" \"$jpg_file\"" 2>/dev/null
-                    if [ -f "$jpg_file" ]; then
-                        echo_success "    Created: $(basename "$jpg_file")"
-                    fi
-                else
-                    # Fallback: copy PNG as JPG for LaTeX compatibility
-                    echo_warn "    ImageMagick not available, copying PNG as JPG"
-                    cp "$png_file" "$jpg_file" 2>/dev/null
-                    if [ -f "$jpg_file" ]; then
-                        echo_success "    Created: $(basename "$jpg_file") (PNG format)"
-                    fi
+        if [ -f "$png_file" ]; then
+            echo_success "    Created: $(basename "$png_file")"
+
+            # Convert PNG to JPG using ImageMagick (with container fallback)
+            local convert_cmd=$(get_cmd_convert "$ORIG_DIR")
+            if [ -n "$convert_cmd" ]; then
+                echo_info "    Converting to JPG..."
+                eval "$convert_cmd \"$png_file\" \"$jpg_file\"" 2>/dev/null
+                if [ -f "$jpg_file" ]; then
+                    echo_success "    Created: $(basename "$jpg_file")"
+                fi
+            else
+                # Fallback: copy PNG as JPG for LaTeX compatibility
+                echo_warn "    ImageMagick not available, copying PNG as JPG"
+                cp "$png_file" "$jpg_file" 2>/dev/null
+                if [ -f "$jpg_file" ]; then
+                    echo_success "    Created: $(basename "$jpg_file") (PNG format)"
                 fi
             fi
-        done 2>&1 | tee -a "$LOG_PATH"
-    else
-        echo_info "    No .mmd files found in $SCITEX_WRITER_FIGURE_CAPTION_MEDIA_DIR" | tee -a "$LOG_PATH"
-    fi
+        fi
+    done 2>&1 | tee -a "$LOG_PATH"
 }
 
 mmd2png

@@ -73,8 +73,8 @@ def deduplicate_entries(entries: List[dict]) -> tuple[List[dict], dict]:
         (unique_entries, stats)
     """
     unique = []
-    doi_index = {}      # DOI -> entry
-    title_index = {}    # (normalized_title, year) -> entry
+    doi_index = {}      # DOI -> index in unique list
+    title_index = {}    # (normalized_title, year) -> index in unique list
     duplicates_found = 0
     duplicates_merged = 0
 
@@ -85,12 +85,12 @@ def deduplicate_entries(entries: List[dict]) -> tuple[List[dict], dict]:
         title_norm = normalize_title(title)
 
         is_duplicate = False
-        merge_with = None
+        merge_with_idx = None
 
         # Check by DOI first (most reliable)
         if doi and doi in doi_index:
             is_duplicate = True
-            merge_with = doi_index[doi]
+            merge_with_idx = doi_index[doi]
             duplicates_found += 1
 
         # Check by title + year
@@ -98,33 +98,31 @@ def deduplicate_entries(entries: List[dict]) -> tuple[List[dict], dict]:
             key = (title_norm, year)
             if key in title_index:
                 is_duplicate = True
-                merge_with = title_index[key]
+                merge_with_idx = title_index[key]
                 duplicates_found += 1
 
-        if is_duplicate and merge_with:
-            # Merge metadata
+        if is_duplicate and merge_with_idx is not None:
+            # Merge metadata with existing entry
+            merge_with = unique[merge_with_idx]
             merged = merge_entries(merge_with, entry)
 
             # Update in unique list
-            idx = unique.index(merge_with)
-            unique[idx] = merged
+            unique[merge_with_idx] = merged
 
-            # Update indices
-            if doi:
-                doi_index[doi] = merged
-            if title_norm and year:
-                title_index[(title_norm, year)] = merged
+            # Indices remain the same (still pointing to same position)
+            # No need to update doi_index or title_index
 
             duplicates_merged += 1
         else:
             # New unique entry
+            new_idx = len(unique)
             unique.append(entry)
 
-            # Index it
+            # Index it by position
             if doi:
-                doi_index[doi] = entry
+                doi_index[doi] = new_idx
             if title_norm and year:
-                title_index[(title_norm, year)] = entry
+                title_index[(title_norm, year)] = new_idx
 
     stats = {
         'total_input': len(entries),
