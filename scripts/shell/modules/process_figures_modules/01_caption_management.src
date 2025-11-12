@@ -67,6 +67,21 @@ cleanup_panel_captions() {
 
 # Compile figure legends/captions
 compile_legends() {
+    mkdir -p "$SCITEX_WRITER_FIGURE_COMPILED_DIR"
+    rm -f "$SCITEX_WRITER_FIGURE_COMPILED_DIR"/[0-9]*.tex
+
+    # Create figures header file
+    local figures_header_file="$SCITEX_WRITER_FIGURE_COMPILED_DIR/00_Figures_Header.tex"
+    cat > "$figures_header_file" << "EOF"
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% FIGURES
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% \clearpage
+\section*{Figures}
+\label{figures}
+\pdfbookmark[1]{Figures}{figures}
+EOF
+
     # Process captions for compiled directory
     for tex_file in "$SCITEX_WRITER_FIGURE_CAPTION_MEDIA_DIR"/[0-9]*.tex; do
         [ -e "$tex_file" ] || continue

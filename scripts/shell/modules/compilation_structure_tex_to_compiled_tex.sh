@@ -17,6 +17,11 @@ RED='\033[0;31m'
 NC='\033[0m' # No Color
 
 echo_info() { echo -e "${GRAY}INFO: $1${NC}"; }
+log_info() {
+    if [ "${SCITEX_LOG_LEVEL:-1}" -ge 2 ]; then
+        echo -e "  \033[0;90m→ $1\033[0m"
+    fi
+}
 echo_success() { echo -e "${GREEN}SUCC: $1${NC}"; }
 echo_warning() { echo -e "${YELLOW}WARN: $1${NC}"; }
 echo_error() { echo -e "${RED}ERRO: $1${NC}"; }
@@ -29,7 +34,7 @@ source ./config/load_config.sh $SCITEX_WRITER_DOC_TYPE
 # Logging
 touch "$LOG_PATH" >/dev/null 2>&1
 echo
-echo_info "Running $0 ..."
+log_info "Running $0 ..."
 
 gather_tex_contents() {
     # Use fast Python-based recursive expansion (O(n) instead of O(n²))

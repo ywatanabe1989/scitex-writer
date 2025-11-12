@@ -59,7 +59,7 @@ function determine_previous() {
 function take_diff_tex() {
     local previous=$(determine_previous)
 
-    echo_info "    Creating diff between archive..."
+    log_info "    Creating diff between archive..."
 
     if [ ! -f "$SCITEX_WRITER_COMPILED_TEX" ]; then
         echo_warning "    $SCITEX_WRITER_COMPILED_TEX not found."
@@ -110,7 +110,7 @@ function take_diff_tex() {
 }
 
 compile_diff_tex() {
-    echo_info "    Compiling diff document..."
+    log_info "    Compiling diff document..."
 
     local tex_file="$SCITEX_WRITER_DIFF_TEX"
 
@@ -122,7 +122,7 @@ compile_diff_tex() {
     # Use the same engine as main compilation (or default to latexmk for diff stability)
     local engine="${SCITEX_WRITER_SELECTED_ENGINE:-latexmk}"
 
-    echo_info "    Using engine: $engine"
+    log_info "    Using engine: $engine"
 
     # Dispatch to engine-specific implementation
     case "$engine" in

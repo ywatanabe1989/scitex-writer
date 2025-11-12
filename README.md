@@ -113,31 +113,112 @@ cd scitex-writer
 
 ## Features
 
-- Multi-file bibliography with deduplication (DOI or title+year matching)
-- Hash-based caching for incremental compilation
-- Automatic diff generation with latexdiff
-- Container support (Docker, Singularity, Native)
-- Parallel processing for figures, tables, and word count
-- Citation style configuration via YAML
+### Core Capabilities
+
+- **Multi-Engine Compilation System**
+  - Auto-detection of best available engine (Tectonic, latexmk, 3-pass)
+  - Tectonic: Ultra-fast mode (1-3s incremental, 10× faster)
+  - latexmk: Standard mode (3-6s incremental, industry standard)
+  - 3-pass: Guaranteed mode (12-18s, maximum compatibility)
+  - Hot-recompile mode with file watching for rapid iteration
+
+- **Smart Bibliography Management**
+  - Multi-file bibliography with automatic deduplication
+  - DOI-based and title+year matching
+  - 20+ citation styles (APA, Chicago, IEEE, Nature, MLA, etc.)
+  - Easy style switching via YAML configuration
+
+- **Version Control Integration**
+  - Automatic archiving with version numbering
+  - Built-in diff generation using latexdiff
+  - Git auto-commit with semantic versioning
+  - Complete revision history tracking
+
+- **Automated Asset Processing**
+  - Parallel figure processing (PNG, JPEG, SVG, PDF, TIFF, Mermaid)
+  - Automatic table compilation from CSV files
+  - Format conversion and optimization
+  - Template-based figure and table generation
+
+- **Cross-Platform Reproducibility**
+  - Container support (Docker, Apptainer/Singularity)
+  - Native execution on Linux, macOS, Windows (WSL2)
+  - HPC cluster compatibility
+  - Byte-for-byte identical outputs across platforms
+
+- **Performance Optimizations**
+  - Hash-based caching for incremental compilation
+  - Parallel processing for figures, tables, and word count
+  - Smart recompilation (only process changed files)
+  - Draft mode for rapid iteration
 
 ## Usage
 
+### Basic Compilation
+
 ```bash
+# Compile manuscript (auto-detects best engine)
 ./scripts/shell/compile_manuscript.sh
+
+# Compile supplementary materials
 ./scripts/shell/compile_supplementary.sh
+
+# Compile revision response letter
 ./scripts/shell/compile_revision.sh
 ```
 
-**Bibliography Management:**
+### Advanced Compilation Options
+
 ```bash
-# Organize references by topic
+# Fast compilation (draft mode, skip figures/tables)
+./scripts/shell/compile_manuscript.sh --draft
+
+# Skip specific components
+./scripts/shell/compile_manuscript.sh --no-figs      # Skip figure processing
+./scripts/shell/compile_manuscript.sh --no-tables    # Skip table processing
+./scripts/shell/compile_manuscript.sh --no-diff      # Skip diff generation
+
+# Force specific compilation engine
+./scripts/shell/compile_manuscript.sh --engine tectonic
+./scripts/shell/compile_manuscript.sh --engine latexmk
+./scripts/shell/compile_manuscript.sh --engine 3pass
+
+# Enable hot-recompile mode (watches files for changes)
+./scripts/shell/compile_manuscript.sh --watch
+
+# Clean build (remove cache and temporary files)
+./scripts/shell/compile_manuscript.sh --clean
+```
+
+### Bibliography Management
+
+```bash
+# Organize references by topic in separate .bib files
 cd 00_shared/bib_files/
 vim methods_refs.bib
 vim field_background.bib
 vim my_papers.bib
 
-# Auto-merge during compilation
+# References auto-merge and deduplicate during compilation
 ./scripts/shell/compile_manuscript.sh
+
+# Change citation style (edit config/config_manuscript.yaml)
+# Options: unsrtnat, plainnat, apalike, IEEEtran, naturemag, etc.
+```
+
+### Version Control and Diff Generation
+
+```bash
+# Archive current version (auto-increments version number)
+git add .
+git commit -m "Revisions for reviewer comments"
+# Version archived automatically via git hooks
+
+# Generate diff from previous version
+./scripts/shell/compile_manuscript.sh --diff
+
+# View archived versions
+ls -lt 01_manuscript/archive/
 ```
 
 ## Documentation

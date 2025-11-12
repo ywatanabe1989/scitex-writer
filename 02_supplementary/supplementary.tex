@@ -1,3 +1,10 @@
+% ==============================================================================
+% SciTeX Writer v2.0.0-rc2 (https://scitex.ai)
+% LaTeX compilation engine: auto
+% Compiled: 2025-11-12 14:21:37
+% Source: 02_supplementary/base.tex
+% ==============================================================================
+
 %% -*- coding: utf-8 -*-
 %% Timestamp: "2025-09-27 17:21:29 (ywatanabe)"
 %% File: "/ssh:sp:/home/ywatanabe/proj/neurovista/paper/02_supplementary/base.tex"
@@ -43,6 +50,10 @@
 \usepackage[T1]{fontenc}
 \usepackage[utf8]{inputenc}
 
+%% Colors (load early to avoid option clashes with tikz, pgfplots, tcolorbox)
+% Include all common color options: table (for colortbl), svgnames (for tcolorbox)
+\usepackage[table,svgnames]{xcolor}
+
 %% Mathematics
 \usepackage{amsmath, amssymb, amsthm}
 \usepackage{siunitx}
@@ -55,7 +66,6 @@
 \usetikzlibrary{positioning,shapes,arrows,fit,calc,graphs,graphs.standard}
 
 %% Tables
-\usepackage[table]{xcolor}
 \usepackage{booktabs, colortbl, longtable, supertabular, tabularx, xltabular}
 \usepackage{csvsimple, makecell}
 
@@ -179,15 +189,16 @@
 % File: ./02_supplementary/contents/authors.tex
 % ======================================================================
 %% -*- coding: utf-8 -*-
-\author[1]{First Author}
+\author[1]{Yusuke Watanabe\corref{cor1}}
 \author[2]{Second Author}
-\author[1]{Corresponding Author\corref{cor1}}
+\author[3]{Third Author}
 
 
-\address[1]{First Institution, Department, City, Country}
+\address[1]{SciTeX.ai, Tokyo, Japan}
 \address[2]{Second Institution, Department, City, Country}
+\address[3]{Third Institution, Department, City, Country}
 
-\cortext[cor1]{Corresponding author. Email: corresponding.author@institution.edu}
+\cortext[cor1]{Corresponding author. Email: ywatanabe@scitex.ai}
 
 %%%% EOF
 
@@ -233,13 +244,19 @@ This section provides detailed technical specifications and implementation detai
 
 The Docker and Singularity container images are built from a base TeX Live distribution, specifically using the \texttt{texlive/texlive:latest} official image. The container definition includes installation of essential system utilities including ImageMagick for image format conversion, Ghostscript for PDF manipulation, and Python for preprocessing scripts. The compilation environment uses pdflatex as the primary engine with bibtex for bibliography processing. The container image size is approximately 3.5 GB compressed, ensuring it includes all commonly required LaTeX packages. Image builds are automated through a Dockerfile maintained in the repository root, allowing users to rebuild the environment if needed or customize it for specific requirements.
 
-\subsection*{Makefile Command Reference}
+\subsection*{Compilation Command Reference}
 
-The Makefile provides a comprehensive set of targets for document compilation and management. The \texttt{make manuscript} command compiles the main manuscript by first executing preprocessing scripts, then running pdflatex twice, followed by bibtex, and finally pdflatex twice more to resolve all cross-references. The \texttt{make clean} target removes auxiliary files while preserving source content and compiled PDFs. The \texttt{make archive} command creates a timestamped copy of the current manuscript in the archive directory using the format \texttt{manuscript\_vXXX.tex} where XXX is an automatically incremented version number. The \texttt{make diff} target executes latexdiff between the current version and the most recent archived version, producing a PDF with color-coded additions and deletions.
+The compilation scripts provide extensive command-line options for customizing the build process. Supplementary Table~\ref{tab:S1_compilation_options} documents all available options including engine selection, draft mode, component skipping, and performance tuning parameters. The system supports three compilation engines with distinct performance characteristics (Supplementary Table~\ref{tab:S2_compilation_engines}): Tectonic for ultra-fast incremental builds, latexmk for reliable smart recompilation, and traditional 3-pass for maximum compatibility.
+
+Configuration parameters are specified in YAML files located in the \texttt{config/} directory. Supplementary Table~\ref{tab:S3_yaml_configuration} details the available settings including citation style selection, engine preferences, and verbosity controls. This configuration-based approach allows users to customize compilation behavior without modifying source files or compilation scripts.
+
+The bibliography system supports over 20 citation styles (Supplementary Table~\ref{tab:S5_citation_styles}) covering major academic disciplines including sciences, engineering, social sciences, and humanities. Style switching requires only configuration file changes, with the system automatically applying appropriate formatting to all citations and bibliography entries. The \texttt{make archive} command creates a timestamped copy of the current manuscript in the archive directory using the format \texttt{manuscript\_vXXX.tex} where XXX is an automatically incremented version number. The \texttt{make diff} target executes latexdiff between the current version and the most recent archived version, producing a PDF with color-coded additions and deletions.
 
 \subsection*{Preprocessing Pipeline Implementation}
 
-Figure preprocessing involves scanning the \texttt{01\_manuscript/contents/figures/caption\_and\_media/} directory for subdirectories containing image files and corresponding \texttt{.tex} caption files. The script extracts the caption text, determines the appropriate image file based on priority ordering (PDF, then PNG, then JPEG), and generates LaTeX figure inclusion code using the \texttt{graphicx} package. The generated code maintains aspect ratios, sets maximum widths to column width, and includes proper labeling for cross-referencing. All generated figure code is concatenated into \texttt{FINAL.tex} which is included by the main document. The table preprocessing follows an analogous workflow but handles the additional complexity of tabular environments and allows for both simple and complex multi-column layouts.
+The preprocessing pipeline handles multiple asset types with format-specific processing. Supplementary Table~\ref{tab:S4_supported_formats} documents all supported file formats and auto-conversion capabilities. Figure preprocessing scans the \texttt{01\_manuscript/contents/figures/caption\_and\_media/} directory for image files and corresponding \texttt{.tex} caption files. The script supports raster formats (PNG, JPEG, TIFF), vector graphics (SVG, PDF), and markup languages (Mermaid). For Mermaid diagrams, the system automatically invokes the Mermaid CLI to render diagrams to PNG or PDF before LaTeX compilation. The script extracts caption text, determines the appropriate image file based on priority ordering, and generates LaTeX figure inclusion code using the \texttt{graphicx} package.
+
+Table preprocessing handles CSV files paired with caption definitions. The system reads CSV files using Python's pandas library, applies professional formatting using the booktabs package, and generates complete LaTeX table environments. Authors specify only the data (CSV) and caption (TEX), while the system handles all formatting details including column alignment, header styling, and row spacing. All generated figure and table code is concatenated into respective \texttt{FINAL.tex} files which are included by the main document. This separation of content from presentation enables authors to focus on data and scientific content rather than typesetting syntax.
 
 \subsection*{Version Control Integration}
 
@@ -300,41 +317,245 @@ We tested the framework's scalability by creating test documents ranging from mi
 % Auto-generated file containing all table inputs
 % Generated by gather_table_tex_files()
 
+% Table from: 01_compilation_options.tex
 
 % ======================================================================
-% File: ./02_supplementary/contents/tables/compiled/00_Tables_Header.tex
+% File: ./02_supplementary/contents/tables/compiled/01_compilation_options.tex
 % ======================================================================
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% TABLES
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% \clearpage
-\section*{Tables}
-\label{tables}
-\pdfbookmark[1]{Tables}{tables}
-
-% Template table when no actual tables are present
+\pdfbookmark[2]{Table 1_compilation_options}{table_01_compilation_options}
 \begin{table}[htbp]
-    \centering
-    \caption{\textbf{Table 0: Placeholder}\\
-    \smallskip
-    To add tables to your manuscript:\\
-    1. Place CSV files in \texttt{caption\_and\_media/} with format \texttt{XX\_description.csv}\\
-    2. Create matching caption files \texttt{XX\_description.tex}\\
-    3. Reference in text using \texttt{Table\textasciitilde\textbackslash ref\{tab:XX\_description\}}\\
-    \smallskip
-    Example: \texttt{01\_seizure\_count.csv} with \texttt{01\_seizure\_count.tex}
-    }
-    \label{tab:0_Tables_Header}
-    \begin{tabular}{p{0.3\textwidth}p{0.6\textwidth}}
-        \toprule
-        \textbf{Step} & \textbf{Instructions} \\
-        \midrule
-        1. Add CSV & Place file like \texttt{01\_data.csv} in \texttt{caption\_and\_media/} \\
-        2. Add Caption & Create \texttt{01\_data.tex} with table caption \\
-        3. Compile & Run \texttt{./compile -m} to process tables \\
-        4. Reference & Use \texttt{\textbackslash ref\{tab:01\_data\}} in manuscript \\
-        \bottomrule
-    \end{tabular}
+\centering
+\footnotesize
+\begin{tabular}{|l|l|l|l|l|}
+\hline
+Option&Description&Values&Default&Example\\
+\hline
+--engine&Force specific compilation engine&tectonic, latexmk, 3pass, auto&auto&--engine tectonic\\
+\hline
+--draft&Draft mode (single pass)&true/false&false&--draft\\
+\hline
+--no-figs&Skip figure processing&true/false&false&--no-figs\\
+\hline
+--no-tables&Skip table processing&true/false&false&--no-tables\\
+\hline
+--no-diff&Skip diff generation&true/false&false&--no-diff\\
+\hline
+--watch&Enable hot-recompile mode&true/false&false&--watch\\
+\hline
+--clean&Clean build (remove cache)&true/false&false&--clean\\
+\hline
+--verbose&Verbose output&true/false&false&--verbose\\
+\hline
+--debug&Debug mode (keep temp files)&true/false&false&--debug\\
+\hline
+--dark-mode&Dark theme for PDF&true/false&false&--dark-mode\\
+\hline
+--archive&Archive current version&true/false&auto on commit&--archive\\
+\hline
+--parallel&Parallel processing jobs&1-16&4&--parallel 8\\
+\hline
+\end{tabular}
+%% Compilation Options Table
+\caption{\textbf{Command-Line Compilation Options.}
+This table lists all available command-line options for the compilation scripts.
+Options can be combined (e.g., \texttt{--draft --no-figs} for fastest compilation).
+The \texttt{--engine} option allows forcing a specific LaTeX engine, while \texttt{auto} (default) automatically selects the best available.
+Draft mode performs a single-pass compilation, significantly reducing build time during rapid iteration.
+Hot-recompile mode (\texttt{--watch}) monitors source files and automatically recompiles when changes are detected.}
+\label{tab:S1_compilation_options}
+\label{tab:01_compilation_options}
+\end{table}
+
+
+
+% Table from: 02_compilation_engines.tex
+
+% ======================================================================
+% File: ./02_supplementary/contents/tables/compiled/02_compilation_engines.tex
+% ======================================================================
+\pdfbookmark[2]{Table 2_compilation_engines}{table_02_compilation_engines}
+\begin{table}[htbp]
+\centering
+\footnotesize
+\begin{tabular}{|l|l|l|l|l|l|}
+\hline
+Engine&Incremental Build&Full Build&Advantages&Disadvantages&Best For\\
+\hline
+Tectonic&1-3s&10-15s&Ultra-fast, modern, automatic package management&Limited package compatibility, newer tool&Rapid iteration and modern workflows\\
+\hline
+latexmk&3-6s&15-25s&Industry standard, reliable, smart recompilation&Slower than Tectonic&Standard academic publishing\\
+\hline
+3-pass&N/A&12-18s&Maximum compatibility, guaranteed to work&No incremental builds&Compatibility and legacy systems\\
+\hline
+\end{tabular}
+%% Compilation Engines Comparison Table
+\caption{\textbf{Compilation Engine Performance Comparison.}
+This table compares the three supported LaTeX compilation engines.
+Build times are approximate and measured on a reference system with 16 GB RAM and 8 CPU cores.
+Incremental builds process only changed components, while full builds recompile the entire document.
+The system automatically selects the best available engine when \texttt{engine: auto} is configured in \texttt{config/config\_manuscript.yaml}.
+Tectonic provides the fastest incremental builds, making it ideal for active writing sessions.
+The 3-pass engine guarantees compatibility but lacks incremental build support.}
+\label{tab:S2_compilation_engines}
+\label{tab:02_compilation_engines}
+\end{table}
+
+
+
+% Table from: 03_yaml_configuration.tex
+
+% ======================================================================
+% File: ./02_supplementary/contents/tables/compiled/03_yaml_configuration.tex
+% ======================================================================
+\pdfbookmark[2]{Table 3_yaml_configuration}{table_03_yaml_configuration}
+\begin{table}[htbp]
+\centering
+\footnotesize
+\begin{tabular}{|l|l|l|l|l|}
+\hline
+Section&Parameter&Description&Values&Default\\
+\hline
+citation&style&Bibliography style&unsrtnat, plainnat, apalike, IEEEtran, naturemag, etc.&unsrtnat\\
+\hline
+compilation&engine&Compilation engine&auto, tectonic, latexmk, 3pass&auto\\
+\hline
+compilation&draft\_mode&Single-pass compilation&true/false&false\\
+\hline
+compilation.engines.tectonic&incremental&Use incremental cache&true/false&true\\
+\hline
+compilation.engines.tectonic&cache\_dir&Cache directory path&directory path&./.tectonic-cache\\
+\hline
+compilation.engines.latexmk&incremental&Smart recompilation&true/false&true\\
+\hline
+compilation.engines.latexmk&max\_passes&Maximum compilation passes&1-20&10\\
+\hline
+compilation.engines.3pass&incremental&Incremental builds&true/false&false\\
+\hline
+hot-recompile&enabled&Enable file watching&true/false&true\\
+\hline
+hot-recompile&mode&Handle ongoing builds&restart, wait&restart\\
+\hline
+hot-recompile&stable\_link&Symlink to latest PDF&file path&./manuscript-latest.pdf\\
+\hline
+verbosity.pdflatex&verbose&Show pdflatex output&true/false&true\\
+\hline
+verbosity.bibtex&verbose&Show bibtex output&true/false&true\\
+\hline
+\end{tabular}
+%% YAML Configuration Parameters Table
+\caption{\textbf{YAML Configuration Parameters.}
+This table documents the main configuration parameters available in \texttt{config/config\_manuscript.yaml}.
+The configuration file uses nested YAML structure (indicated by dot notation: \texttt{section.parameter}).
+Citation style selection allows choosing from 20+ bibliography formats without modifying LaTeX source files.
+Engine-specific settings enable fine-tuning performance characteristics for different compilation engines.
+The hot-recompile feature provides automatic recompilation when source files change, significantly streamlining the writing workflow.
+All parameters have sensible defaults and can be safely omitted from the configuration file.}
+\label{tab:S3_yaml_configuration}
+\label{tab:03_yaml_configuration}
+\end{table}
+
+
+
+% Table from: 04_supported_formats.tex
+
+% ======================================================================
+% File: ./02_supplementary/contents/tables/compiled/04_supported_formats.tex
+% ======================================================================
+\pdfbookmark[2]{Table 4_supported_formats}{table_04_supported_formats}
+\begin{table}[htbp]
+\centering
+\footnotesize
+\begin{tabular}{|l|l|l|l|l|}
+\hline
+Asset Type&Input Formats&Auto-Conversion&Output Format&Notes\\
+\hline
+Figures&PNG&Yes&PDF/PNG&Raster images optimized for LaTeX\\
+\hline
+Figures&JPEG/JPG&Yes&PDF/JPEG&Quality preserved during conversion\\
+\hline
+Figures&SVG&Yes&PDF&Vector graphics converted to PDF\\
+\hline
+Figures&PDF&No (native)&PDF&Directly included without conversion\\
+\hline
+Figures&TIFF/TIF&Yes&PDF&High-quality scientific images\\
+\hline
+Figures&Mermaid (.mmd)&Yes&PNG/PDF&Diagrams rendered to raster or vector\\
+\hline
+Figures&PowerPoint (.pptx)&Manual&Export as PDF&Manual export required before compilation\\
+\hline
+Tables&CSV&Yes&LaTeX tabular&Auto-formatted with booktabs style\\
+\hline
+Tables&LaTeX (.tex)&No (native)&LaTeX&Direct inclusion of custom table code\\
+\hline
+Tables&Excel (.xlsx)&Manual&Export as CSV&Manual conversion required\\
+\hline
+Bibliography&.bib (BibTeX)&Merge&Single .bib&Multiple files auto-merged and deduplicated\\
+\hline
+Bibliography&DOI&Query&BibTeX entry&Auto-fetch from CrossRef API (future feature)\\
+\hline
+\end{tabular}
+%% Supported File Formats Table
+\caption{\textbf{Supported File Formats and Auto-Conversion.}
+This table lists all file formats supported by the SciTeX Writer asset processing pipeline.
+Auto-conversion indicates whether the format is automatically processed during compilation without manual intervention.
+Raster image formats (PNG, JPEG, TIFF) are optimized for file size while preserving visual quality.
+Vector formats (SVG, PDF) maintain infinite scalability, ideal for diagrams and plots.
+Mermaid diagram files (.mmd) are automatically rendered to images using the Mermaid CLI.
+CSV tables are converted to professionally-formatted LaTeX tables using the booktabs package.
+The bibliography system merges multiple .bib files and removes duplicates based on DOI or title+year matching.}
+\label{tab:S4_supported_formats}
+\label{tab:04_supported_formats}
+\end{table}
+
+
+
+% Table from: 05_citation_styles.tex
+
+% ======================================================================
+% File: ./02_supplementary/contents/tables/compiled/05_citation_styles.tex
+% ======================================================================
+\pdfbookmark[2]{Table 5_citation_styles}{table_05_citation_styles}
+\begin{table}[htbp]
+\centering
+\footnotesize
+\begin{tabular}{|l|l|l|l|l|}
+\hline
+Style&Format&Sorting&Field&Configuration\\
+\hline
+unsrtnat&Numbered [1]&Order of appearance&Most sciences&style: unsrtnat\\
+\hline
+plainnat&Numbered [1]&Alphabetical&Sciences&style: plainnat\\
+\hline
+IEEEtran&Numbered [1]&Order of appearance&Engineering/CS&style: IEEEtran\\
+\hline
+naturemag&Superscript¹&Order of appearance&Life sciences&style: naturemag\\
+\hline
+apalike&(Author Year)&Alphabetical&Social sciences&style: apalike + natbib\\
+\hline
+elsarticle-num&Numbered [1]&Alphabetical&Elsevier journals&style: elsarticle-num\\
+\hline
+elsarticle-harv&(Author Year)&Alphabetical&Elsevier journals&style: elsarticle-harv\\
+\hline
+chicago-authordate&(Author Year)&Alphabetical&Humanities&Requires biblatex\\
+\hline
+apa&APA 7th edition&Alphabetical&Psychology&Requires biblatex\\
+\hline
+mla&MLA 9th edition&Alphabetical&Humanities&Requires biblatex\\
+\hline
+ieee&IEEE style&Order of appearance&Engineering&Requires biblatex\\
+\hline
+\end{tabular}
+%% Citation Styles Table
+\caption{\textbf{Available Citation Styles.}
+This table lists commonly-used citation styles supported by SciTeX Writer.
+The Format column shows how citations appear in the compiled document.
+Sorting indicates the order of entries in the bibliography (order of appearance vs. alphabetical by author).
+Styles listed with ``Requires biblatex'' need additional configuration changes (see \texttt{00\_shared/latex\_styles/bibliography.tex} for instructions).
+Most styles work with the default natbib package configuration.
+Citation style is selected via the \texttt{citation.style} parameter in \texttt{config/config\_manuscript.yaml}.
+Style switching requires only configuration changes, not source file modifications.}
+\label{tab:S5_citation_styles}
+\label{tab:05_citation_styles}
 \end{table}
 
 
@@ -420,11 +641,11 @@ We tested the framework's scalability by creating test documents ranging from mi
 %% Format: (Author, Year) or Author (Year) depending on command
 %% Example: \cite{Tort2010} → (Tort et al., 2010)
 %%          \citet{Tort2010} → Tort et al. (2010) [textual]
-%%          \citep{Tort2010} → (Tort et al., 2010) [parenthetical]
+%%          \cite{Tort2010} → (Tort et al., 2010) [parenthetical]
 %% Commands:
 %%   - \citet{key}  → Author (Year)  [for text: "As shown by Author (2020)..."]
-%%   - \citep{key}  → (Author, Year) [for parentheses: "...as shown (Author, 2020)"]
-%%   - \cite{key}   → Same as \citep{key}
+%%   - \cite{key}  → (Author, Year) [for parentheses: "...as shown (Author, 2020)"]
+%%   - \cite{key}   → Same as \cite{key}
 %% Best for: Review papers, humanities, some social sciences
 %% Requires: natbib package (already loaded)
 % \bibliographystyle{plainnat}   % Author-year, alphabetical
@@ -607,9 +828,9 @@ We tested the framework's scalability by creating test documents ranging from mi
 %%
 %% Advanced natbib commands (only work with natbib-compatible styles):
 %%   \citet{key}             → Author (Year)  [textual citation]
-%%   \citep{key}             → (Author, Year) [parenthetical citation]
+%%   \cite{key}             → (Author, Year) [parenthetical citation]
 %%   \citet*{key}            → Full author list (Year)
-%%   \citep*{key}            → (Full author list, Year)
+%%   \cite*{key}            → (Full author list, Year)
 %%   \citealt{key}           → Author Year [no parentheses]
 %%   \citealp{key}           → Author, Year [no parentheses]
 %%   \citeauthor{key}        → Author [name only]
@@ -617,15 +838,15 @@ We tested the framework's scalability by creating test documents ranging from mi
 %%   \citeyearpar{key}       → (Year) [year in parentheses]
 %%
 %% Pre/post notes:
-%%   \citep[see][p.~10]{key} → (see Author, Year, p. 10)
-%%   \citep[p.~10]{key}      → (Author, Year, p. 10)
+%%   \cite[see][p.~10]{key} → (see Author, Year, p. 10)
+%%   \cite[p.~10]{key}      → (Author, Year, p. 10)
 %%
 %% Multiple citations:
-%%   \citep{key1,key2,key3}  → (Author1, Year1; Author2, Year2; Author3, Year3)
+%%   \cite{key1,key2,key3}  → (Author1, Year1; Author2, Year2; Author3, Year3)
 %%
 %% Suppressing parts:
-%%   \citep[e.g.,][]{key}    → (e.g., Author, Year)
-%%   \citep[][see p.~10]{key}→ (Author, Year, see p. 10)
+%%   \cite[e.g.,][]{key}    → (e.g., Author, Year)
+%%   \cite[][see p.~10]{key}→ (Author, Year, see p. 10)
 %%
 %% ----------------------------------------------------------------------------
 %% TROUBLESHOOTING

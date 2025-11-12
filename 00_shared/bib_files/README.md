@@ -1,73 +1,69 @@
-# Bibliography Files
+# Bibliography Files - SciTeX Writer Project
 
-This directory contains your bibliography files for the manuscript.
+## 🎯 Quick Start
 
-## Single File (Default)
-
-**Current setup:**
-```
-00_shared/bib_files/
-└── bibliography.bib    # All references here
+**For LaTeX/BibTeX use:**
+```latex
+\bibliography{enriched_all}
 ```
 
-Edit `bibliography.bib` directly.
+## 📁 Files Overview
 
-## Multiple Files
+### Primary Bibliography (USE THIS)
+- **`enriched_all.bib`** (97 KB, 102 entries)
+  - Fully enriched with DOIs, abstracts, citations, impact factors
+  - Ready for publication use
+  - Updated: 2025-11-12
 
-**Organize references by topic:**
-```
-00_shared/bib_files/
-├── bibliography.bib        # Auto-generated merged file
-├── my_papers.bib          # Your publications
-├── methods_refs.bib       # Methods and techniques
-├── field_background.bib   # Field overview papers
-└── tools_software.bib     # Software and tools
-```
+### Source Files (Individual collections)
+- `bibliography.bib` - Main collection (17 KB)
+- `related_work.bib` - Related work papers (13 KB)
+- `by_grok.bib`, `by_claude.bib`, `by_gpt5.bib`, `by_gemini.bib` - AI-curated
+- `field_background.bib` - Domain background papers
+- `methods_refs.bib` - Methodology references
+- `my_papers.bib` - Your publications
+- `scitex-system.bib` - SciTeX system reference
 
-**To merge:**
+### Processing Outputs
+- `merged_all.bib` - Deduplicated merge (66 KB)
+- `enriched_all_v2.bib` - Second-pass attempt (95 KB)
+- `enrichment_summary.txt` - Statistics
+- `enrichment_v2_summary.txt` - Second-pass statistics
+- `FINAL_REPORT.md` - Comprehensive analysis
+
+## 📊 Quality Metrics
+
+| Metric | Value |
+|--------|-------|
+| Total unique papers | 102 |
+| With DOI | 53 (52%) |
+| With abstract | 44 (43%) |
+| With citations | 21 (21%) |
+| Deduplication rate | 48% |
+
+## 🔄 Maintenance
+
+To update enrichment (e.g., refresh citation counts):
 ```bash
-python scripts/python/merge_bibliographies.py
+cd /home/ywatanabe/proj/scitex-writer/00_shared/bib_files
+python3 /home/ywatanabe/proj/scitex-writer/.tmp/enrich_second_pass.py
 ```
 
-**Deduplication:**
-- By DOI (most reliable)
-- By title + year
-- Merges metadata from duplicates
+## 📝 Adding New Papers
 
-**Auto-merge during compilation:**
-The merge happens automatically during all compilation steps (manuscript, supplementary, revision).
+1. Add to appropriate source file (e.g., `related_work.bib`)
+2. Run merge and enrichment:
+```bash
+python3 /home/ywatanabe/proj/scitex-writer/.tmp/merge_and_enrich_bibtex.py
+```
 
-**Hash-based caching:**
-- Tracks file changes using MD5 hashes
-- Skips merge if no files changed
-- Cache stored in `.bibliography_cache.json`
-- Use `--force` flag to rebuild: `python scripts/python/merge_bibliographies.py --force`
+## 🏆 Top Journals by Impact Factor
 
-## Usage
+- Trends in Cognitive Sciences: 16.7 (Q1)
+- Genome Biology: 10.1 (Q1)
+- Research Integrity and Peer Review: 7.2 (Q1)
+- Patterns (Elsevier): 6.7
+- Electrochimica Acta: 5.5
 
-**Add new reference:**
-1. Add to appropriate topic file (e.g., `methods_refs.bib`)
-2. Compile manuscript (auto-merges)
-3. Or manually: `python scripts/python/merge_bibliographies.py`
-
-**Single file workflow:**
-- Just edit `bibliography.bib` directly
-- No merging needed
-
-## Demo Files
-
-Three demo .bib files are included:
-- `methods_refs.bib` - Methods and techniques (4 entries)
-- `field_background.bib` - Field overview papers (5 entries)
-- `my_papers.bib` - Your own publications (4 entries, including duplicate)
-
-**To use demo files:**
-1. Run: `./scripts/shell/compile_manuscript.sh`
-2. Result: Merges 13 entries → 12 unique (1 duplicate removed)
-
-**To use your own references:**
-1. Replace demo files with your own .bib files
-2. Or delete demo files and use single `bibliography.bib`
-3. Organize by topic as needed
-
-<!-- EOF -->
+---
+Generated: 2025-11-12 | Tool: scitex.scholar v2.0

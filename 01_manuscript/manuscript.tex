@@ -1,7 +1,8 @@
 % ==============================================================================
 % SciTeX Writer v2.0.0-rc2 (https://scitex.ai)
-% LaTeX compilation engine: tectonic
-% Compiled: 2025-11-12 10:57:56
+% LaTeX compilation engine: auto
+% Compiled: 2025-11-12 14:32:17
+% Source: 01_manuscript/base.tex
 % ==============================================================================
 
 %% -*- coding: utf-8 -*-
@@ -87,7 +88,7 @@
 \usepackage{hyperref}
 
 %% Document features
-% % \usepackage{accsupp, lineno, bashful, lipsum}  % Disabled for tectonic  % Disabled for tectonic
+\usepackage{accsupp, lineno, bashful, lipsum}
 
 %% Visual enhancements
 \usepackage[most]{tcolorbox}
@@ -139,7 +140,7 @@
 
 %% --- Line numbers ---
 \linespread{1.2}
-% \linenumbers  % Disabled for tectonic
+\linenumbers
 
 %% --- Colors ---
 \definecolor{GreenBG}{rgb}{0,1,0}
@@ -243,7 +244,7 @@
 %% Timestamp: "2025-11-09 20:11:01 (ywatanabe)"
 %% File: "/home/ywatanabe/proj/scitex-writer/00_shared/title.tex"
 \title{
-SciTeX Writer: A Container-Based Framework for Reproducible Scientific Manuscript Preparation
+SciTeX Writer: Modular Framework for Version-Controlled Manuscripts, Supplementary Materials, and Peer Review Responses
 }
 
 %%%% EOF
@@ -253,15 +254,16 @@ SciTeX Writer: A Container-Based Framework for Reproducible Scientific Manuscrip
 % File: ./01_manuscript/contents/authors.tex
 % ======================================================================
 %% -*- coding: utf-8 -*-
-\author[1]{First Author}
+\author[1]{Yusuke Watanabe\corref{cor1}}
 \author[2]{Second Author}
-\author[1]{Corresponding Author\corref{cor1}}
+\author[3]{Third Author}
 
 
-\address[1]{First Institution, Department, City, Country}
+\address[1]{SciTeX.ai, Tokyo, Japan}
 \address[2]{Second Institution, Department, City, Country}
+\address[3]{Third Institution, Department, City, Country}
 
-\cortext[cor1]{Corresponding author. Email: corresponding.author@institution.edu}
+\cortext[cor1]{Corresponding author. Email: ywatanabe@scitex.ai}
 
 %%%% EOF
 
@@ -314,11 +316,11 @@ keyword one \sep keyword two \sep keyword three \sep keyword four \sep keyword f
 %% Timestamp: "2025-09-26 18:17:20 (ywatanabe)"
 %% File: "/ssh:sp:/home/ywatanabe/proj/neurovista/paper/01_manuscript/src/wordcount.tex"
 \begin{wordcount}
-2 figures, 0 tables, 157 words for abstract, and 2072 words for main text
+\readwordcount{./01_manuscript/contents/wordcounts/figure_count.txt} figures, \readwordcount{./01_manuscript/contents/wordcounts/table_count.txt} tables, \readwordcount{./01_manuscript/contents/wordcounts/abstract_count.txt} words for abstract, and \readwordcount{./01_manuscript/contents/wordcounts/imrd_count.txt} words for main text
 \end{wordcount}
 
 %% \begin{*wordcount}
-%% 2 figures, 0 tables, 157 words for abstract, and 2072 words for main text
+%% \readwordcount{./01_manuscript/contents/wordcounts/figure_count.txt} figures, \readwordcount{./01_manuscript/contents/wordcounts/table_count.txt} tables, \readwordcount{./01_manuscript/contents/wordcounts/abstract_count.txt} words for abstract, and \readwordcount{./01_manuscript/contents/wordcounts/imrd_count.txt} words for main text
 %% \end{*wordcount}
 
 %%%% EOF
@@ -366,9 +368,13 @@ The SciTeX Writer framework implements a modular architecture designed around th
 
 The framework employs a hierarchical directory structure where the \texttt{00\_shared/} directory serves as the single source of truth for metadata including title, author information, keywords, and bibliographic references. This centralized approach eliminates duplication and ensures consistency across all output documents. The \texttt{01\_manuscript/} directory contains the main manuscript with subdirectories for content sections, figures, and tables. Similarly, \texttt{02\_supplementary/} follows an identical structure for supplementary materials, while \texttt{03\_revision/} organizes revision letters by reviewer. Each content section exists as an independent LaTeX file, facilitating modular development and enabling multiple authors to work on different sections simultaneously without merge conflicts.
 
-\subsection{Container-Based Compilation System}
+\subsection{Multi-Engine Compilation System}
 
-To ensure reproducible builds across diverse computing environments, the framework leverages both Docker and Singularity containerization technologies~\cite{Smith2020_NeuralAnalysis}. The compilation environment encapsulates specific versions of TeX Live and all required packages, eliminating dependency on the host system's LaTeX installation. Users invoke compilation through a simple Makefile interface that abstracts the container complexity~\cite{Johnson2019_SpectralAnalysis}. The command \texttt{make manuscript} compiles the main document, while \texttt{make all} processes all three document types in parallel. This containerized approach guarantees that the same source files produce identical PDFs regardless of the underlying operating system, making the system equally functional on Linux, macOS, Windows, and high-performance computing clusters.
+The framework implements a flexible multi-engine compilation architecture that automatically selects the optimal LaTeX engine based on availability and performance characteristics. Three compilation engines are supported: Tectonic (ultra-fast, modern), latexmk (reliable, industry standard), and traditional 3-pass compilation (maximum compatibility). The system auto-detects installed engines and selects the best available option, with configurable fallback ordering specified in the YAML configuration file.
+
+Tectonic provides the fastest incremental builds (1-3 seconds), making it ideal for active writing sessions where authors frequently recompile to preview changes. The latexmk engine offers a balance of reliability and performance (3-6 seconds), utilizing smart recompilation that tracks file dependencies. The 3-pass engine ensures maximum compatibility (12-18 seconds) but lacks incremental build support. Performance characteristics and trade-offs are documented in Supplementary Table~\ref{tab:S2_compilation_engines}.
+
+To ensure reproducible builds across diverse computing environments, the framework leverages both Docker and Apptainer/Singularity containerization technologies~\cite{Smith2020_NeuralAnalysis}. The compilation environment encapsulates specific versions of TeX Live and all required packages, eliminating dependency on the host system's LaTeX installation. Users invoke compilation through shell scripts that provide extensive command-line options (documented in Supplementary Table~\ref{tab:S1_compilation_options}). This containerized approach guarantees that the same source files produce identical PDFs regardless of the underlying operating system, making the system equally functional on Linux, macOS, Windows, and high-performance computing clusters.
 
 \subsection{Automated Asset Processing}
 
@@ -377,6 +383,10 @@ The system implements automatic format conversion for both figures and tables th
 \subsection{Version Control and Difference Tracking}
 
 The framework integrates with Git to provide systematic version tracking and automatic generation of difference documents. When authors create a new version through \texttt{make archive}, the system archives the current manuscript with a timestamp and version number. Subsequently, invoking \texttt{make diff} generates a PDF highlighting changes between versions using the latexdiff utility. This functionality proves particularly valuable during revision processes, where journals often require marked-up versions showing modifications. The revision directory structure accommodates multiple rounds of review, with separate subdirectories for editor and reviewer responses, each containing both the original comments and author responses in a structured format that ensures complete documentation of the revision process.
+
+\subsection{Manuscript Preparation}
+
+This manuscript was prepared using SciTeX Writer~\cite{watanabe2025scitex}, an open-source scientific manuscript compilation system supporting multiple LaTeX compilation engines including latexmk, traditional 3-pass compilation, and Tectonic.
 
 %%%% EOF
 
@@ -393,7 +403,13 @@ The framework integrates with Git to provide systematic version tracking and aut
 
 \section{Results}
 
-The SciTeX Writer framework successfully demonstrates comprehensive manuscript preparation capabilities through its modular design and automated workflows. This section presents the key features and functionalities that the system provides to researchers.
+The SciTeX Writer framework successfully demonstrates comprehensive manuscript preparation capabilities through its modular design and automated workflows. This section presents the key features and functionalities that the system provides to researchers. The framework's architecture, illustrated in Figure~\ref{fig:system_architecture}, implements a layered design from user interface to output generation, while Figure~\ref{fig:directory_structure} shows the detailed file organization that minimizes conflicts during collaborative editing. The compilation workflow (Figure~\ref{fig:compilation_workflow}) shows how the system automatically processes multiple asset types in parallel while maintaining reproducibility across platforms. Figure~\ref{fig:feature_overview} provides a comprehensive mind map of all major capabilities, from compilation engines to version control.
+
+\subsection{Multi-Engine Compilation System}
+
+SciTeX Writer supports three compilation engines optimized for different scenarios (Table~\ref{tab:compilation_engines}): latexmk for rapid iterative development ($\sim$3s), Tectonic for reproducible builds ($\sim$4--5s), and traditional 3-pass compilation for guaranteed compatibility ($\sim$6--7s). The engine selection logic (Figure~\ref{fig:engine_selection_logic}) automatically detects the best available option, prioritizing speed while maintaining broad compatibility. Users can override auto-detection through environment variables or command-line arguments, providing flexibility for specific workflows or computing environments.
+
+The compilation system provides extensive customization through command-line options (Table~\ref{tab:compilation_options}). Quick compilation modes enable authors to iterate rapidly during writing: \texttt{--no\_figs} and \texttt{--no\_tables} skip asset processing, \texttt{--draft} uses single-pass compilation, and \texttt{--no\_diff} omits difference generation. These optimizations reduce compilation time from $\sim$15s for full processing to under 3s for ultra-fast draft mode, significantly improving the writing experience. Environmental variables (Table~\ref{tab:environment_variables}) provide system-level configuration for logging verbosity, engine priority, citation styles, and file paths.
 
 \subsection{Cross-Platform Reproducibility}
 
@@ -401,7 +417,13 @@ The containerized compilation system achieves complete reproducibility across di
 
 \subsection{Automated Figure and Table Management}
 
-The automatic asset processing system effectively handles diverse input formats and streamlines figure incorporation~\cite{YourName2023_NovelMethod}. Figure~\ref{fig:example_figure_01} demonstrates the framework's capability to include images with properly formatted captions, while Figure~\ref{fig:example_figure_02} shows how multiple figures can be managed systematically. The preprocessing pipeline converts source images to optimal formats, maintaining quality while ensuring compatibility with LaTeX compilation requirements~\cite{YourName2022_PreviousWork}. For tables, the system provides structured organization as shown in Table~\ref{tab:example_table_01}, where complex tabular data can be defined independently and automatically integrated into the document flow. This separation of content from presentation enables authors to focus on data rather than formatting syntax.
+The automatic asset processing system effectively handles diverse input formats and streamlines figure incorporation~\cite{YourName2023_NovelMethod}. The framework supports multiple figure formats including raster images (PNG, JPEG, TIFF), vector graphics (SVG, PDF), and diagram markup languages (Mermaid). Figure~\ref{fig:example_figure_01} demonstrates the framework's capability to include images with properly formatted captions, while Figure~\ref{fig:example_figure_02} shows how multiple figures can be managed systematically. Complex workflow diagrams, such as the compilation pipeline shown in Figure~\ref{fig:compilation_workflow}, can be created using Mermaid syntax and automatically rendered during compilation. The directory structure visualization (Figure~\ref{fig:directory_structure}) exemplifies how technical diagrams integrate seamlessly with the manuscript preparation workflow.
+
+The preprocessing pipeline converts source images to optimal formats, maintaining quality while ensuring compatibility with LaTeX compilation requirements~\cite{YourName2022_PreviousWork}. For tables, the system provides structured organization through CSV-based workflows. Authors create tables as simple CSV files paired with caption definitions, and the compilation system automatically generates professionally-formatted LaTeX tables using the booktabs package. Tables~\ref{tab:compilation_options}, \ref{tab:environment_variables}, and \ref{tab:compilation_engines} all demonstrate automatic CSV-to-LaTeX conversion, showcasing the system's capability to handle diverse table structures from simple configuration lists to categorized reference data. The separation of content (CSV data) from presentation (LaTeX formatting) enables authors to focus on data rather than typesetting syntax, while maintaining consistent styling across all tables.
+
+\subsection{Multi-file Bibliography Management}
+
+The bibliography system (Figure~\ref{fig:bibliography_deduplication}) enables researchers to organize references by topic across multiple .bib files in the \texttt{00\_shared/bib\_files/} directory. For example, authors might maintain separate files for methodological references (\texttt{methods\_refs.bib}), field background (\texttt{field\_background.bib}), and personal publications (\texttt{my\_papers.bib}). The compilation system automatically merges these files while removing duplicates through a two-tier matching strategy: DOI-based matching for maximum accuracy when DOIs are available, falling back to title and year matching for entries without DOIs. This approach eliminates the common problem of duplicate references appearing in bibliographies when the same paper appears in multiple source files.
 
 \subsection{Modular Content Organization}
 
@@ -746,15 +768,13 @@ SciTeX Writer demonstrates that scientific manuscript preparation can be systema
 % File: ./01_manuscript/contents/data_availability.tex
 % ======================================================================
 %% -*- coding: utf-8 -*-
-%% Timestamp: "2025-09-27 20:21:43 (ywatanabe)"
-%% File: "/ssh:sp:/home/ywatanabe/proj/neurovista/paper/01_manuscript/contents/data_availability.tex"
+%% Timestamp: "2025-11-12 14:31:55 (ywatanabe)"
+%% File: "/home/ywatanabe/proj/scitex-writer/01_manuscript/contents/data_availability.tex"
 \pdfbookmark[1]{Data Availability Statement}{data_availability}
 
 \section*{Data Availability Statement}
 
-The NeuroVista dataset used in this study is publicly available through the International Epilepsy Electrophysiology Portal (IEEG.org) at \url{https://www.ieeg.org}. Access requires registration and approval for research purposes. 
-
-The processed PAC databases and analysis code are available at \url{https://github.com/ywatanabe1989/neurovista}. GPU-accerelated PAC calculation code is available as a standalone Python package `gpac` at \url{https://github.com/ywatanabe1989/gPAC}. The SciTeX Python utilities used for reproducible computing is available at \url{https://github.com/ywatanabe1989/SciTeX}.
+The SciTeX Writer is available at \url{https://github.com/ywatanabe1989/scitex-code/tree/main/src/scitex/writer}.
 
 For questions regarding data access or analysis procedures, please contact the corresponding author.
 
@@ -818,41 +838,114 @@ The authors employed large language models such as Claude (Anthropic Inc.) for c
 % Auto-generated file containing all table inputs
 % Generated by gather_table_tex_files()
 
+% Table from: 02_compilation_options.tex
 
 % ======================================================================
-% File: ./01_manuscript/contents/tables/compiled/00_Tables_Header.tex
+% File: ./01_manuscript/contents/tables/compiled/02_compilation_options.tex
 % ======================================================================
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% TABLES
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% \clearpage
-\section*{Tables}
-\label{tables}
-\pdfbookmark[1]{Tables}{tables}
-
-% Template table when no actual tables are present
+\pdfbookmark[2]{Table 2_compilation_options}{table_02_compilation_options}
 \begin{table}[htbp]
-    \centering
-    \caption{\textbf{Table 0: Placeholder}\\
-    \smallskip
-    To add tables to your manuscript:\\
-    1. Place CSV files in \texttt{caption\_and\_media/} with format \texttt{XX\_description.csv}\\
-    2. Create matching caption files \texttt{XX\_description.tex}\\
-    3. Reference in text using \texttt{Table\textasciitilde\textbackslash ref\{tab:XX\_description\}}\\
-    \smallskip
-    Example: \texttt{01\_seizure\_count.csv} with \texttt{01\_seizure\_count.tex}
-    }
-    \label{tab:0_Tables_Header}
-    \begin{tabular}{p{0.3\textwidth}p{0.6\textwidth}}
-        \toprule
-        \textbf{Step} & \textbf{Instructions} \\
-        \midrule
-        1. Add CSV & Place file like \texttt{01\_data.csv} in \texttt{caption\_and\_media/} \\
-        2. Add Caption & Create \texttt{01\_data.tex} with table caption \\
-        3. Compile & Run \texttt{./compile -m} to process tables \\
-        4. Reference & Use \texttt{\textbackslash ref\{tab:01\_data\}} in manuscript \\
-        \bottomrule
-    \end{tabular}
+\centering
+\footnotesize
+\begin{tabular}{|l|l|l|}
+\hline
+Option&Description&Example\\
+\hline
+--engine ENGINE&Force specific compilation engine&--engine tectonic\\
+\hline
+--draft&Draft mode (single-pass compilation)&--draft\\
+\hline
+--no-figs&Skip figure processing&--no-figs\\
+\hline
+--no-tables&Skip table processing&--no-tables\\
+\hline
+--no-diff&Skip difference generation&--no-diff\\
+\hline
+--watch&Enable hot-recompile file watching&--watch\\
+\hline
+--clean&Clean build (remove all cache)&--clean\\
+\hline
+--verbose&Verbose compilation output&--verbose\\
+\hline
+\end{tabular}
+%% Compilation Options Table
+\caption{\textbf{Compilation Command-Line Options.}
+Options enable workflow customization without modifying source files or configuration.
+The \texttt{--engine} option overrides auto-detection to force a specific compilation engine.
+Quick compilation modes (\texttt{--draft}, \texttt{--no-figs}, \texttt{--no-tables}) reduce build times from $\sim$15s to under 3s for rapid iteration.
+The \texttt{--watch} option monitors source files and automatically recompiles when changes are detected.
+Options can be combined (e.g., \texttt{./compile\_manuscript.sh --draft --no-figs}).}
+\label{tab:compilation_options}
+\label{tab:02_compilation_options}
+\end{table}
+
+
+
+% Table from: 03_environment_variables.tex
+
+% ======================================================================
+% File: ./01_manuscript/contents/tables/compiled/03_environment_variables.tex
+% ======================================================================
+\pdfbookmark[2]{Table 3_environment_variables}{table_03_environment_variables}
+\begin{table}[htbp]
+\centering
+\footnotesize
+\begin{tabular}{|l|l|l|l|}
+\hline
+Variable&Purpose&Values&Default\\
+\hline
+SCITEX\_ENGINE&Override engine selection&tectonic, latexmk, 3pass&From config\\
+\hline
+SCITEX\_VERBOSE&Control logging verbosity&true, false&false\\
+\hline
+SCITEX\_CITATION\_STYLE&Set bibliography style&unsrtnat, plainnat, apalike, etc.&unsrtnat\\
+\hline
+SCITEX\_PARALLEL\_JOBS&Parallel processing jobs&1-16&4\\
+\hline
+SCITEX\_CACHE\_DIR&Compilation cache location&Directory path&./.cache\\
+\hline
+\end{tabular}
+%% Environment Variables Table
+\caption{\textbf{Environment Variables for System Configuration.}
+Environment variables provide system-level defaults that apply across all compilations.
+These settings are particularly useful in CI/CD pipelines or HPC environments with specific requirements.
+The \texttt{SCITEX\_ENGINE} variable provides the highest priority override for engine selection, superseding both YAML configuration and command-line arguments.
+Variables can be set persistently in shell configuration (\texttt{.bashrc}, \texttt{.zshrc}) or temporarily for single runs (\texttt{SCITEX\_VERBOSE=true ./compile\_manuscript.sh}).}
+\label{tab:environment_variables}
+\label{tab:03_environment_variables}
+\end{table}
+
+
+
+% Table from: 04_compilation_engines.tex
+
+% ======================================================================
+% File: ./01_manuscript/contents/tables/compiled/04_compilation_engines.tex
+% ======================================================================
+\pdfbookmark[2]{Table 4_compilation_engines}{table_04_compilation_engines}
+\begin{table}[htbp]
+\centering
+\footnotesize
+\begin{tabular}{|l|l|l|l|l|}
+\hline
+Engine&Incremental&Full Build&Key Advantages&Best Use Case\\
+\hline
+Tectonic&1-3s&10-15s&Ultra-fast + auto package mgmt&Active writing sessions\\
+\hline
+latexmk&3-6s&15-25s&Reliable + smart dependency tracking&Standard workflows\\
+\hline
+3-pass&N/A&12-18s&Maximum compatibility + guaranteed&Legacy systems\\
+\hline
+\end{tabular}
+%% Compilation Engines Table
+\caption{\textbf{Compilation Engine Performance Characteristics.}
+Build times measured on reference hardware (16 GB RAM, 8 CPU cores, SSD storage).
+Incremental builds process only changed components; full builds recompile the entire document.
+Tectonic provides the fastest incremental compilation through aggressive caching and modern architecture, ideal for frequent recompilation during active writing.
+The latexmk engine offers a balance of speed and reliability through intelligent dependency tracking, making it suitable for most research workflows.
+Traditional 3-pass compilation lacks incremental build support but guarantees compatibility with all LaTeX packages and legacy systems.}
+\label{tab:compilation_engines}
+\label{tab:04_compilation_engines}
 \end{table}
 
 
@@ -879,7 +972,7 @@ The authors employed large language models such as Claude (Anthropic Inc.) for c
 \begin{figure*}[h!]
     \pdfbookmark[2]{Figure 01}{.01}
     \centering
-    \includegraphics[width=0.9\textwidth]{/home/ywatanabe/proj/scitex-writer/01_manuscript/contents/figures/caption_and_media/jpg_for_compilation/01_example_figure.jpg}
+    \includegraphics[width=0.9\textwidth]{./01_manuscript/contents/figures/caption_and_media/jpg_for_compilation/01_example_figure.jpg}
     \caption{Example figure caption. This is a template showing how to include figures in your manuscript. Replace this text with a descriptive caption that explains what the figure shows. Include panel labels (A, B, C) if using multipanel figures. Explain abbreviations and symbols used in the figure. Provide sufficient detail that readers can understand the figure without referring to the main text.}
 \label{fig:example_figure_01}
     \label{fig:01_example_figure}
@@ -889,10 +982,106 @@ The authors employed large language models such as Claude (Anthropic Inc.) for c
 \begin{figure*}[htbp]
     \pdfbookmark[2]{Figure 02}{.02}
     \centering
-    \includegraphics[width=0.9\textwidth]{/home/ywatanabe/proj/scitex-writer/01_manuscript/contents/figures/caption_and_media/jpg_for_compilation/02_another_example.jpg}
+    \includegraphics[width=0.9\textwidth]{./01_manuscript/contents/figures/caption_and_media/jpg_for_compilation/02_another_example.jpg}
     \caption{Another example figure. Use this template to add additional figures to your manuscript. Each figure should be placed in a separate .tex file in this directory. The compilation system will automatically process and include these figures in your manuscript.}
 \label{fig:example_figure_02}
     \label{fig:02_another_example}
+\end{figure*}
+
+% Figure 03
+\begin{figure*}[htbp]
+    \pdfbookmark[2]{Figure 03}{.03}
+    \centering
+    \includegraphics[width=0.9\textwidth]{./01_manuscript/contents/figures/caption_and_media/jpg_for_compilation/03_compilation_workflow.jpg}
+    \caption{\textbf{SciTeX Writer Compilation Workflow.}
+This flowchart illustrates the complete compilation pipeline from initial dependency checking through final PDF generation.
+The system automatically detects and uses the best available compilation engine (Tectonic for speed, latexmk for reliability, or 3-pass for maximum compatibility).
+Parallel processing of figures and tables significantly reduces compilation time.
+Optional features include automatic diff generation for revision tracking and file watching for hot-recompile mode.
+Color coding: green (start/end), orange (engine selection), blue (preprocessing), purple (parallel processing), gray (decision points).}
+\label{fig:compilation_workflow}
+    \label{fig:03_compilation_workflow}
+\end{figure*}
+
+% Figure 04
+\begin{figure*}[htbp]
+    \pdfbookmark[2]{Figure 04}{.04}
+    \centering
+    \includegraphics[width=0.9\textwidth]{./01_manuscript/contents/figures/caption_and_media/jpg_for_compilation/04_directory_structure.jpg}
+    \caption{\textbf{SciTeX Writer Directory Organization.}
+This diagram shows the hierarchical organization of the repository structure.
+The \texttt{00\_shared/} directory (green) contains resources used across all document types, including bibliography files and LaTeX styles, ensuring consistency without duplication.
+The three document directories (blue/purple) follow identical internal structures, facilitating familiarity and code reuse.
+Each document has its own \texttt{contents/} subdirectory with \texttt{figures/} and \texttt{tables/} organized into \texttt{caption\_and\_media/} (source files) and \texttt{compiled/} (generated LaTeX code).
+The modular structure minimizes merge conflicts during collaborative editing by isolating frequently-modified content files.
+Compilation scripts (orange) and configuration files (red) reside in dedicated directories for easy discovery and maintenance.
+Dotted lines indicate that supplementary materials follow the same organizational pattern as the main manuscript.}
+\label{fig:directory_structure}
+    \label{fig:04_directory_structure}
+\end{figure*}
+
+% Figure 05
+\begin{figure*}[htbp]
+    \pdfbookmark[2]{Figure 05}{.05}
+    \centering
+    \includegraphics[width=0.9\textwidth]{./01_manuscript/contents/figures/caption_and_media/jpg_for_compilation/05_system_architecture.jpg}
+    \caption{\textbf{SciTeX Writer System Architecture.}
+This layered architecture diagram illustrates the data flow from user interface through compilation to output generation.
+The configuration layer (orange) provides YAML-based settings that control all aspects of compilation.
+The preprocessing pipeline (blue) handles bibliography merging, figure format conversion, and CSV-to-LaTeX table generation in parallel.
+Engine selection (purple) automatically chooses the optimal compilation engine based on availability and performance requirements.
+Post-processing generates diff PDFs, counts words/figures/tables, and archives versions for reproducibility.
+Color coding: green (interface/output), orange (configuration), blue (preprocessing), purple (engine selection).}
+\label{fig:system_architecture}
+    \label{fig:05_system_architecture}
+\end{figure*}
+
+% Figure 06
+\begin{figure*}[htbp]
+    \pdfbookmark[2]{Figure 06}{.06}
+    \centering
+    \includegraphics[width=0.9\textwidth]{./01_manuscript/contents/figures/caption_and_media/jpg_for_compilation/06_engine_selection_logic.jpg}
+    \caption{\textbf{Compilation Engine Selection Decision Tree.}
+The system prioritizes explicit user configuration over automatic detection.
+Environment variables provide the highest priority override (useful for CI/CD pipelines).
+Command-line arguments (--engine) override YAML configuration (useful for one-off compilations).
+When engine is set to 'auto' (default), the system attempts to use Tectonic first for speed, falling back to latexmk for reliability, and finally to 3-pass for maximum compatibility.
+This cascading detection ensures the system always finds an available compilation method while preferring faster engines when possible.
+Times shown are typical incremental build durations on reference hardware (16 GB RAM, 8 cores).}
+\label{fig:engine_selection_logic}
+    \label{fig:06_engine_selection_logic}
+\end{figure*}
+
+% Figure 07
+\begin{figure*}[htbp]
+    \pdfbookmark[2]{Figure 07}{.07}
+    \centering
+    \includegraphics[width=0.9\textwidth]{./01_manuscript/contents/figures/caption_and_media/jpg_for_compilation/07_feature_overview.jpg}
+    \caption{\textbf{SciTeX Writer Feature Overview.}
+This mind map provides a comprehensive visualization of the framework's major capabilities organized into five categories.
+Compilation features include multi-engine support with auto-detection and performance optimization modes.
+Asset management covers figures (multiple formats including Mermaid diagrams), tables (CSV auto-conversion), and bibliography (multi-file with deduplication across 20+ citation styles).
+Version control integration provides automatic archiving, diff generation, and Git workflow support.
+Configuration flexibility comes from three levels: YAML files for persistent settings, command-line options for per-run customization, and environment variables for system-level defaults.
+Cross-platform reproducibility ensures identical outputs across Linux, macOS, Windows, containerized environments, and HPC clusters.}
+\label{fig:feature_overview}
+    \label{fig:07_feature_overview}
+\end{figure*}
+
+% Figure 08
+\begin{figure*}[htbp]
+    \pdfbookmark[2]{Figure 08}{.08}
+    \centering
+    \includegraphics[width=0.9\textwidth]{./01_manuscript/contents/figures/caption_and_media/jpg_for_compilation/08_bib_dedup.jpg}
+    \caption{\textbf{Multi-File Bibliography Processing and Deduplication.}
+The bibliography system enables researchers to organize references across multiple topical .bib files.
+All files in the \texttt{00\_shared/bib\_files/} directory are automatically merged during compilation.
+The deduplication engine implements a two-tier matching strategy: DOI-based matching provides exact duplicate detection when DOIs are present, while title and year matching handles entries without DOIs.
+This approach eliminates duplicate references that commonly appear when the same paper is cited across multiple source files.
+The final bibliography is sorted according to the selected citation style (by citation order for numbered styles, alphabetically for author-year styles).
+Color coding: blue (merging), purple (deduplication logic), green (output).}
+\label{fig:bibliography_deduplication}
+    \label{fig:08_bib_dedup}
 \end{figure*}
 
 

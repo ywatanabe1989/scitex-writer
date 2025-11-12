@@ -1,6 +1,6 @@
 #!/bin/bash
 # -*- coding: utf-8 -*-
-# Timestamp: "2025-11-11 08:08:01 (ywatanabe)"
+# Timestamp: "2025-11-12 09:05:04 (ywatanabe)"
 # File: ./config/load_config.sh
 
 ORIG_DIR="$(pwd)"
@@ -46,11 +46,10 @@ else
 fi
 export SCITEX_WRITER_VERSION
 
-# Logging
+# Logging (quiet by default)
 CONFIG_LOADED=${CONFIG_LOADED:-false}
-if [ "$CONFIG_LOADED" != "true" ]; then
-    echo_header "SciTeX Writer v${SCITEX_WRITER_VERSION}"
-    echo_info "Running ${BASH_SOURCE[0]}..."
+if [ "$CONFIG_LOADED" != "true" ] && [ "${SCITEX_LOG_LEVEL:-1}" -ge 2 ]; then
+    echo_info "Loading configuration for ${SCITEX_WRITER_VERSION}..."
 fi
 
 # Manuscript Type
@@ -138,7 +137,10 @@ else
 fi
 
 if [ "$CONFIG_LOADED" != "true" ]; then
-    echo_success "    Configuration Loaded for $SCITEX_WRITER_DOC_TYPE (${SCITEX_WRITER_VERSION})"
+    # Only show in verbose mode
+    if [ "${SCITEX_LOG_LEVEL:-1}" -ge 2 ]; then
+        echo_success "    Configuration loaded: $SCITEX_WRITER_DOC_TYPE (${SCITEX_WRITER_VERSION})"
+    fi
     export CONFIG_LOADED=true
 fi
 

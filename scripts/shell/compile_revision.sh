@@ -206,21 +206,21 @@ check_revision_files "./03_revision/contents/reviewer2" "R2" "Reviewer 2"
 log_stage_end "Revision Structure Check"
 
 # Run independent processing in parallel for speed
-local parallel_start=$(date +%s)
-local timestamp=$(date '+%H:%M:%S')
+parallel_start=$(date +%s)
+timestamp=$(date '+%H:%M:%S')
 echo_info "[$timestamp] Starting: Parallel Processing (Figures, Tables)"
 
 # Create temp files for parallel job outputs
-local temp_dir=$(mktemp -d)
-local fig_log="$temp_dir/figures.log"
-local tbl_log="$temp_dir/tables.log"
+temp_dir=$(mktemp -d)
+fig_log="$temp_dir/figures.log"
+tbl_log="$temp_dir/tables.log"
 
 # Run both in parallel
 (./scripts/shell/modules/process_figures.sh "$no_figs" false false false > "$fig_log" 2>&1; echo $? > "$temp_dir/fig_exit") &
-local fig_pid=$!
+fig_pid=$!
 
 (./scripts/shell/modules/process_tables.sh "$no_tables" > "$tbl_log" 2>&1; echo $? > "$temp_dir/tbl_exit") &
-local tbl_pid=$!
+tbl_pid=$!
 
 # Wait for all parallel jobs
 wait $fig_pid $tbl_pid
@@ -233,8 +233,8 @@ echo_info "  Table Processing:"
 cat "$tbl_log" | sed 's/^/    /'
 
 # Check exit codes
-local fig_exit=$(cat "$temp_dir/fig_exit")
-local tbl_exit=$(cat "$temp_dir/tbl_exit")
+fig_exit=$(cat "$temp_dir/fig_exit")
+tbl_exit=$(cat "$temp_dir/tbl_exit")
 
 rm -rf "$temp_dir"
 
@@ -244,9 +244,9 @@ if [ "$fig_exit" -ne 0 ] || [ "$tbl_exit" -ne 0 ]; then
     exit 1
 fi
 
-local parallel_end=$(date +%s)
-local parallel_elapsed=$((parallel_end - parallel_start))
-local total_elapsed=$((parallel_end - COMPILATION_START_TIME))
+parallel_end=$(date +%s)
+parallel_elapsed=$((parallel_end - parallel_start))
+total_elapsed=$((parallel_end - COMPILATION_START_TIME))
 timestamp=$(date '+%H:%M:%S')
 echo_success "[$timestamp] Completed: Parallel Processing (${parallel_elapsed}s elapsed, ${total_elapsed}s total)"
 
@@ -281,8 +281,8 @@ log_stage_end "Directory Tree"
 # Logging
 echo
 
-local final_time=$(date +%s)
-local total_compilation_time=$((final_time - COMPILATION_START_TIME))
+final_time=$(date +%s)
+total_compilation_time=$((final_time - COMPILATION_START_TIME))
 echo_success "===================================================="
 echo_success "TOTAL COMPILATION TIME: ${total_compilation_time}s"
 echo_success "===================================================="

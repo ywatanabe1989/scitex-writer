@@ -107,6 +107,11 @@ data/*
 **/*.h5
 **/*.zip
 **/*.tar
+
+# Archive directory exceptions (version control)
+# Must come AFTER the ignore rules above
+!**/archive/*.pdf
+!**/archive/*.tex
 **/*.gz
 **/*.rar
 **/*.7z
