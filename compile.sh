@@ -164,22 +164,19 @@ if [ "$WATCH_MODE" = true ] && [ "$DOC_TYPE" != "manuscript" ]; then
     exit 1
 fi
 
-# Display what we're doing
-echo "=========================================="
-echo "Compilation Interface"
-echo "  Document type: $DOC_TYPE"
+# Display what we're doing (compact format)
+echo ""
+echo -e "\033[1;36m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\033[0m"
+echo -e "\033[1;36m  SciTeX Writer Compilation\033[0m"
+echo -e "\033[0;36m  Type: $DOC_TYPE\033[0m"
 if [ "$WATCH_MODE" = true ]; then
-    echo "  Mode: WATCH (hot-recompile enabled)"
+    echo -e "\033[0;36m  Mode: WATCH\033[0m"
 fi
 if [ -n "$REMAINING_ARGS" ]; then
-    echo "  Additional options:$REMAINING_ARGS"
+    echo -e "\033[0;90m  Options:$REMAINING_ARGS\033[0m"
 fi
-if [ "$WATCH_MODE" = true ]; then
-    echo "  Delegating to: ./scripts/shell/watch_compile.sh"
-else
-    echo "  Delegating to: ./scripts/shell/compile_$DOC_TYPE.sh"
-fi
-echo "=========================================="
+echo -e "\033[1;36m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\033[0m"
+echo ""
 
 # Handle watch mode
 if [ "$WATCH_MODE" = true ]; then
