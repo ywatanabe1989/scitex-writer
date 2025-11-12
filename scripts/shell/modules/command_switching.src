@@ -360,27 +360,31 @@ get_cmd_mmdc() {
     local working_dir="${1:-$(pwd)}"
     local abs_dir=$(realpath "$working_dir")
 
-    # In HPC environments, prefer container for consistency
-    # First choice: Container (Apptainer/Singularity)
-    local runtime=$(get_container_runtime)
-    if [ -n "$runtime" ] && setup_mermaid_container; then
-        # Use puppeteer config to point to installed chromium
-        local project_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../../" && pwd)"
-        local puppeteer_config="${project_root}/.cache/puppeteer-config.json"
-        echo "$runtime exec --bind ${abs_dir}:${abs_dir} --bind ${puppeteer_config}:${puppeteer_config}:ro --pwd ${abs_dir} $SCITEX_WRITER_MERMAID_APPTAINER_SIF /home/mermaidcli/node_modules/.bin/mmdc -p ${puppeteer_config}"
-        return 0
-    fi
-
-    # Second choice: Native mmdc (if properly configured)
+    # First choice: Native mmdc (fastest and most compatible)
     if command -v mmdc &> /dev/null; then
-        # Check if Chrome is available for native mmdc
-        if npx puppeteer browsers list 2>/dev/null | grep -q chrome; then
+        # Test if mmdc works (don't require puppeteer check, it's too slow)
+        if mmdc --version &> /dev/null 2>&1; then
             echo "mmdc"
             return 0
         fi
     fi
 
-    # Third choice: Try npm install
+    # Second choice: Container (Apptainer/Singularity)
+    local runtime=$(get_container_runtime)
+    if [ -n "$runtime" ] && setup_mermaid_container; then
+        # Use puppeteer config if it exists, otherwise run without it
+        local project_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../../" && pwd)"
+        local puppeteer_config="${project_root}/.cache/puppeteer-config.json"
+
+        if [ -f "$puppeteer_config" ]; then
+            echo "$runtime exec --bind ${abs_dir}:${abs_dir} --bind ${puppeteer_config}:${puppeteer_config}:ro --pwd ${abs_dir} $SCITEX_WRITER_MERMAID_APPTAINER_SIF /home/mermaidcli/node_modules/.bin/mmdc -p ${puppeteer_config}"
+        else
+            echo "$runtime exec --bind ${abs_dir}:${abs_dir} --pwd ${abs_dir} $SCITEX_WRITER_MERMAID_APPTAINER_SIF /home/mermaidcli/node_modules/.bin/mmdc"
+        fi
+        return 0
+    fi
+
+    # Third choice: Suggest installation
     if command -v npm &> /dev/null; then
         echo_info "    mmdc not found, consider: npm install -g @mermaid-js/mermaid-cli"
     fi
