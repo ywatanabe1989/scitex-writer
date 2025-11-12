@@ -25,6 +25,11 @@ RED='\033[0;31m'
 NC='\033[0m' # No Color
 
 echo_info() { echo -e "${GRAY}INFO: $1${NC}"; }
+log_info() {
+    if [ "${SCITEX_LOG_LEVEL:-1}" -ge 2 ]; then
+        echo -e "  \033[0;90m→ $1\033[0m"
+    fi
+}
 echo_success() { echo -e "${GREEN}SUCC: $1${NC}"; }
 echo_warning() { echo -e "${YELLOW}WARN: $1${NC}"; }
 echo_error() { echo -e "${RED}ERRO: $1${NC}"; }
@@ -53,7 +58,7 @@ source ./config/load_config.sh $SCITEX_WRITER_DOC_TYPE
 # Logging
 touch "$LOG_PATH" >/dev/null 2>&1
 echo
-echo_info "Running $0 ..."
+log_info "Running $0 ..."
 
 function init_tables() {
     # Cleanup and prepare directories
@@ -164,10 +169,31 @@ function csv2tex() {
 
         case "$use_method" in
             csv2latex)
-                # Use csv2latex command (most robust)
-                csv2latex --separator comma --position htbp --caption-file "$caption_file" \
-                          --label "tab:${base_name}" "$csv_file" > "$compiled_file" 2>/dev/null
-                if [ $? -eq 0 ]; then
+                # Use csv2latex command - generate basic table structure
+                # Note: csv2latex doesn't support captions or labels directly
+                {
+                    echo "\\pdfbookmark[2]{Table ${base_name#0}}{table_${base_name}}"
+                    echo "\\begin{table}[htbp]"
+                    echo "\\centering"
+                    echo "\\footnotesize"
+
+                    # Generate the tabular environment using csv2latex
+                    csv2latex --nohead --separator comma "$csv_file" 2>/dev/null
+
+                    # Add caption if it exists
+                    if [ -f "$caption_file" ] || [ -L "$caption_file" ]; then
+                        cat "$caption_file"
+                    else
+                        echo "\\caption{Table ${base_name#0}: ${base_name#*_}}"
+                    fi
+
+                    # Add label
+                    echo "\\label{tab:${base_name}}"
+                    echo "\\end{table}"
+                } > "$compiled_file"
+
+                # Check if csv2latex succeeded (look for \begin{tabular} with single backslash)
+                if [ -s "$compiled_file" ] && grep -q "\\\\begin{tabular}" "$compiled_file" 2>/dev/null; then
                     echo_success "    $compiled_file compiled (using csv2latex)"
                 else
                     echo_warning "    csv2latex failed, trying fallback"

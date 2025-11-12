@@ -1,0 +1,68 @@
+%%{init: {'theme':'base', 'themeVariables': { 'primaryColor':'#e3f2fd','primaryTextColor':'#000','primaryBorderColor':'#1976d2','lineColor':'#1976d2','secondaryColor':'#fff3e0','tertiaryColor':'#f5f5f5'}}}%%
+graph TB
+    Start([User runs compile script]) --> CheckDeps{Check<br/>Dependencies}
+
+    CheckDeps -->|Missing| InstallDeps[Suggest missing packages]
+    InstallDeps --> Exit1([Exit with instructions])
+
+    CheckDeps -->|All present| LoadConfig[Load YAML configuration]
+    LoadConfig --> SelectEngine{Select<br/>Compilation<br/>Engine}
+
+    SelectEngine -->|auto| AutoDetect[Auto-detect best engine]
+    SelectEngine -->|tectonic| Tectonic[Tectonic Engine]
+    SelectEngine -->|latexmk| Latexmk[latexmk Engine]
+    SelectEngine -->|3pass| ThreePass[3-Pass Engine]
+
+    AutoDetect --> Tectonic
+    AutoDetect --> Latexmk
+    AutoDetect --> ThreePass
+
+    Tectonic --> PreProcess
+    Latexmk --> PreProcess
+    ThreePass --> PreProcess
+
+    PreProcess[Preprocessing Pipeline] --> ProcessBib[Merge & Deduplicate<br/>Bibliography Files]
+    ProcessBib --> ProcessFigs{Process<br/>Figures?}
+
+    ProcessFigs -->|--no-figs| ProcessTabs
+    ProcessFigs -->|Yes| ParallelFigs[Parallel Figure Processing]
+
+    ParallelFigs --> ConvertFmt[Convert formats<br/>PNG/JPEG/SVG/PDF/Mermaid]
+    ConvertFmt --> GenFigTex[Generate figure<br/>inclusion code]
+    GenFigTex --> ProcessTabs
+
+    ProcessTabs{Process<br/>Tables?} -->|--no-tables| StructTex
+    ProcessTabs -->|Yes| ParallelTabs[Parallel Table Processing]
+
+    ParallelTabs --> ParseCSV[Parse CSV files]
+    ParseCSV --> GenTabTex[Generate table<br/>LaTeX code]
+    GenTabTex --> StructTex
+
+    StructTex[Compile structure.tex<br/>to compiled.tex] --> CompilePDF[Compile PDF]
+
+    CompilePDF --> GenDiff{Generate<br/>Diff?}
+    GenDiff -->|--no-diff| WordCount
+    GenDiff -->|Yes| RunDiff[Run latexdiff]
+    RunDiff --> DiffPDF[Compile diff PDF]
+    DiffPDF --> WordCount
+
+    WordCount[Count words<br/>figures, tables] --> Archive{Archive<br/>Version?}
+
+    Archive -->|Yes| SaveArchive[Save to archive/<br/>with version number]
+    Archive -->|No| Cleanup
+    SaveArchive --> Cleanup
+
+    Cleanup[Clean temporary files] --> Success([Compilation Complete])
+
+    Success -.->|--watch mode| WatchFiles[Monitor file changes]
+    WatchFiles -.->|File modified| LoadConfig
+
+    style Start fill:#4caf50,stroke:#2e7d32,stroke-width:3px,color:#fff
+    style Success fill:#4caf50,stroke:#2e7d32,stroke-width:3px,color:#fff
+    style Exit1 fill:#f44336,stroke:#c62828,stroke-width:2px,color:#fff
+    style PreProcess fill:#2196f3,stroke:#1565c0,stroke-width:2px,color:#fff
+    style Tectonic fill:#ff9800,stroke:#e65100,stroke-width:2px,color:#fff
+    style Latexmk fill:#ff9800,stroke:#e65100,stroke-width:2px,color:#fff
+    style ThreePass fill:#ff9800,stroke:#e65100,stroke-width:2px,color:#fff
+    style ParallelFigs fill:#9c27b0,stroke:#6a1b9a,stroke-width:2px,color:#fff
+    style ParallelTabs fill:#9c27b0,stroke:#6a1b9a,stroke-width:2px,color:#fff

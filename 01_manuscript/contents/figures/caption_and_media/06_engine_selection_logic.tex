@@ -1,0 +1,9 @@
+%% Engine Selection Logic Diagram
+\caption{\textbf{Compilation Engine Selection Decision Tree.}
+The system prioritizes explicit user configuration over automatic detection.
+Environment variables provide the highest priority override (useful for CI/CD pipelines).
+Command-line arguments (--engine) override YAML configuration (useful for one-off compilations).
+When engine is set to 'auto' (default), the system attempts to use Tectonic first for speed, falling back to latexmk for reliability, and finally to 3-pass for maximum compatibility.
+This cascading detection ensures the system always finds an available compilation method while preferring faster engines when possible.
+Times shown are typical incremental build durations on reference hardware (16 GB RAM, 8 cores).}
+\label{fig:engine_selection_logic}

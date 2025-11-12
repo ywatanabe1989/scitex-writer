@@ -1,0 +1,7 @@
+%% Environment Variables Table
+\caption{\textbf{Environment Variables for System Configuration.}
+Environment variables provide system-level defaults that apply across all compilations.
+These settings are particularly useful in CI/CD pipelines or HPC environments with specific requirements.
+The \texttt{SCITEX\_ENGINE} variable provides the highest priority override for engine selection, superseding both YAML configuration and command-line arguments.
+Variables can be set persistently in shell configuration (\texttt{.bashrc}, \texttt{.zshrc}) or temporarily for single runs (\texttt{SCITEX\_VERBOSE=true ./compile\_manuscript.sh}).}
+\label{tab:environment_variables}
