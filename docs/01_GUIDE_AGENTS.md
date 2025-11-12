@@ -5,7 +5,7 @@ Complete guide for AI agents to create scientific manuscripts using SciTeX Write
 ## Quick Start
 
 ```bash
-export STXW_DOC_TYPE=manuscript
+export SCITEX_WRITER_DOC_TYPE=manuscript
 ./compile_manuscript
 
 # Output
@@ -45,12 +45,12 @@ Neural interactions through phase-amplitude coupling...
 % Reference figures
 As shown in Figure~\ref{fig:01_seizure_prediction}...
 
-% Citations (from shared/bibliography.bib)
+% Citations (from 00_shared/bibliography.bib)
 Previous work \cite{Tort2010} demonstrated...
 ```
 
-Note: Bibliography is shared:
-- Edit: `shared/bibliography.bib`
+Note: Bibliography is 00_shared:
+- Edit: `00_shared/bibliography.bib`
 - Used by: manuscript, supplementary, revision
 
 ### 3. Add Figure Captions
@@ -96,7 +96,7 @@ Create `01_manuscript/contents/figures/caption_and_media/.01_seizure_prediction.
 \cite{key}           % (Author Year)
 \cite{key1,key2}     % (Author1 Year1; Author2 Year2)
 \citet{key}          % Author (Year)
-\citep{key}          % (Author Year)
+\cite{key}          % (Author Year)
 ```
 
 ## Manuscript Structure
@@ -122,7 +122,7 @@ Create `01_manuscript/contents/figures/caption_and_media/.01_seizure_prediction.
 │       │   ├── .01_table.csv
 │       │   └── .01_table.tex
 │       └── compiled/            # Auto-generated
-├── shared/
+├── 00_shared/
 │   ├── authors.tex
 │   ├── title.tex
 │   ├── keywords.tex
@@ -306,7 +306,7 @@ git diff HEAD~1  # See what changed in this commit
 - Examine debug output with `--debug` flag
 
 **Bibliography errors**
-- Ensure `shared/bibliography.bib` is valid
+- Ensure `00_shared/bibliography.bib` is valid
 - Verify all \cite{} keys exist in bibliography
 - Run `./compile_manuscript` again if keys were added
 

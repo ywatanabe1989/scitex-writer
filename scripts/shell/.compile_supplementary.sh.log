@@ -1,0 +1,118 @@
+
+[0;90mINFO: === SciTeX Writer v2.0.0a0 ===[0m
+[0;90mINFO: Running ./scripts/shell/compile_supplementary.sh...[0m
+[0;32mSUCC:     Configuration Loaded for supplementary (v2.0.0a0)[0m
+
+[0;90mINFO: Running ./scripts/shell/compile_supplementary.sh...[0m
+[0;90mINFO: [02:23:51] Starting: Dependency Check[0m
+
+[0;90mINFO: Running ./scripts/shell/modules/check_dependancy_commands.sh...[0m
+[0;90mINFO:     Warmup: 3ms[0m
+[0;90mINFO:     Parallel checks: 281ms[0m
+[0;32mSUCC:     Required tools:[0m
+      pdflatex             ✓
+      bibtex               ✓
+      latexdiff            ✓
+      texcount             ✓
+      xlsx2csv             ✓
+      csv2latex            ✓
+      parallel             ✓
+[0;32mSUCC: [02:23:52] Completed: Dependency Check (1s elapsed, 4s total)[0m
+[0;90mINFO: [02:23:52] Starting: Bibliography Merge[0m
+[0;32mSUCC: [02:23:52] Completed: Bibliography Merge (0s elapsed, 4s total)[0m
+[0;90mINFO: [02:23:52] Starting: Citation Style[0m
+[0;32mSUCC: Citation style already set to: unsrtnat[0m
+[0;32mSUCC: [02:23:52] Completed: Citation Style (0s elapsed, 4s total)[0m
+[0;90mINFO: [02:23:52] Starting: Parallel Processing (Figures, Tables, Word Count)[0m
+[0;90mINFO:   Figure Processing:[0m
+    
+    [0;90mINFO: Running ./scripts/shell/modules/process_figures.sh ...[0m
+    [0;90mINFO:     No figure source files found, creating placeholders only...[0m
+    [0;90mINFO:     Cleaning jpg_for_compilation directory...[0m
+    [0;90mINFO:     Skipping conversion pipeline (no source files)[0m
+    [0;90mINFO:     Checking for missing figures...[0m
+    [0;90mINFO:     Optimizing figures with Python script...[0m
+[0;90mINFO:   Table Processing:[0m
+    
+    [0;90mINFO: Running ./scripts/shell/modules/process_tables.sh ...[0m
+    [0;90mINFO:   [02:23:52] Initializing tables[0m
+    [0;32mSUCC:   [02:23:52] Initializing tables (0s)[0m
+    [0;90mINFO:   [02:23:52] Converting XLSX to CSV[0m
+    [0;32mSUCC:   [02:23:52] Converting XLSX to CSV (0s)[0m
+    [0;90mINFO:   [02:23:52] Ensuring captions exist[0m
+    [0;32mSUCC:   [02:23:52] Ensuring captions exist (0s)[0m
+    [0;90mINFO:   [02:23:52] Converting CSV to LaTeX[0m
+    [0;90mINFO:     Using csv2latex for table processing[0m
+    [0;32mSUCC:   [02:23:52] Converting CSV to LaTeX (0s)[0m
+    [0;90mINFO:   [02:23:52] Gathering table files[0m
+    [0;90mINFO:     Created table header template with instructions[0m
+    [0;32mSUCC:     1 tables compiled[0m
+    [0;32mSUCC:   [02:23:52] Gathering table files (0s)[0m
+[0;90mINFO:   Word Count:[0m
+    
+    [0;90mINFO: Running ./scripts/shell/modules/count_words.sh ...[0m
+    [0;32mSUCC:     Word counts updated:[0m
+    [0;32mSUCC:       Figures: 0[0m
+    [0;32mSUCC:       Tables: 0[0m
+    [0;32mSUCC:       Supplementary text: 1077 words[0m
+[0;32mSUCC: [02:23:52] Completed: Parallel Processing (0s elapsed, 4s total)[0m
+[0;90mINFO: [02:23:52] Starting: TeX Compilation (Structure)[0m
+
+[0;90mINFO: Running ./scripts/shell/modules/compilation_structure_tex_to_compiled_tex.sh ...[0m
+[0;32mSUCC:     ./02_supplementary/supplementary.tex compiled[0m
+[0;32mSUCC: [02:23:52] Completed: TeX Compilation (Structure) (0s elapsed, 4s total)[0m
+[0;90mINFO: [02:23:52] Starting: PDF Generation[0m
+
+[0;90mINFO: Running ./scripts/shell/modules/compilation_compiled_tex_to_compiled_pdf.sh ...[0m
+[0;90mINFO:     Converting ./02_supplementary/supplementary.tex to PDF...[0m
+[0;90mINFO:     Using latexmk (intelligent compilation)[0m
+[0;33mWARN:     Compilation completed with warnings (check citations/references)[0m
+[0;32mSUCC:     Total compilation: 2s[0m
+[0;32mSUCC:     ./02_supplementary/supplementary.pdf ready (264K)[0m
+[0;32mSUCC:     Symlink updated: ./02_supplementary/manuscript-latest.pdf -> supplementary.pdf (no archive yet)[0m
+[0;32mSUCC: [02:23:55] Completed: PDF Generation (3s elapsed, 7s total)[0m
+[0;90mINFO: [02:23:55] Starting: Diff Generation[0m
+
+[0;90mINFO: Running ./scripts/shell/modules/process_diff.sh ...[0m
+[0;90mINFO:     Creating diff between archive...[0m
+[0;32mSUCC:     ./02_supplementary/supplementary_diff.tex created[0m
+[0;90mINFO:     Compiling diff document...[0m
+[0;90mINFO:     Using latexmk (intelligent compilation)[0m
+Rc files read:
+  /etc/LatexMk
+Latexmk: Run number 1 of rule 'pdflatex'
+This is pdfTeX, Version 3.141592653-2.6-1.40.22 (TeX Live 2022/dev/Debian) (preloaded format=pdflatex)
+ \write18 enabled.
+entering extended mode
+Latexmk: Missing bbl file '02_supplementary/supplementary_diff.bbl' in following:
+ No file supplementary_diff.bbl.
+Latexmk: Summary of warnings from last run of *latex:
+  Latex failed to resolve 2 reference(s)
+Collected error summary (may duplicate other messages):
+  pdflatex: Command for 'pdflatex' gave return code 1
+      Refer to '02_supplementary/supplementary_diff.log' for details
+Latexmk: Use the -f option to force complete processing,
+ unless error was exceeding maximum runs, or warnings treated as errors.
+[0;32mSUCC:     ./02_supplementary/supplementary_diff.pdf ready (264K)[0m
+[0;90mINFO:     Total time: 3s[0m
+[0;32mSUCC: [02:23:58] Completed: Diff Generation (3s elapsed, 10s total)[0m
+[0;90mINFO: [02:23:58] Starting: Archive/Versioning[0m
+
+[0;90mINFO: Running ./scripts/shell/modules/process_archive.sh...[0m
+[0;32mSUCC:     Version allocated as: v003[0m
+[0;32mSUCC: [02:23:58] Completed: Archive/Versioning (0s elapsed, 10s total)[0m
+[0;90mINFO: [02:23:58] Starting: Cleanup[0m
+
+[0;90mINFO: Running ./scripts/shell/modules/cleanup.sh...[0m
+[0;90mINFO:     Removing versioned files from current directory...[0m
+[0;32mSUCC: [02:23:58] Completed: Cleanup (0s elapsed, 10s total)[0m
+[0;90mINFO: [02:23:58] Starting: Directory Tree[0m
+
+[0;90mINFO: ./scripts/shell/modules/custom_tree.sh...[0m
+[0;32mSUCC:     ./02_supplementary/docs/tree.txt created[0m
+[0;32mSUCC: [02:23:58] Completed: Directory Tree (0s elapsed, 10s total)[0m
+
+[0;32mSUCC: ====================================================[0m
+[0;32mSUCC: TOTAL COMPILATION TIME: 10s[0m
+[0;32mSUCC: ====================================================[0m
+[0;32mSUCC: See ./02_supplementary/logs/global.log[0m

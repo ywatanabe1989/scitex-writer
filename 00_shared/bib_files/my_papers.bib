@@ -1,0 +1,50 @@
+%% -*- coding: utf-8 -*-
+%% My Publications
+%% Demo file for bibliography merging system
+%% Replace these with your own publications
+
+@article{YourName2023_NovelMethod,
+  author = {Your-Name, First and Collaborator, Second},
+  title = {A Novel Method for Neural Data Analysis},
+  journal = {Scientific Reports},
+  year = {2023},
+  volume = {13},
+  pages = {12345},
+  doi = {10.1038/s41598-023-12345-6},
+  abstract = {We present a novel computational method for analyzing neural time-series data.}
+}
+
+@article{YourName2022_PreviousWork,
+  author = {Your-Name, First and Advisor, Principal},
+  title = {Foundations of Neural Signal Processing},
+  journal = {Journal of Neurophysiology},
+  year = {2022},
+  volume = {128},
+  number = {4},
+  pages = {1567-1589},
+  doi = {10.1152/jn.00123.2022}
+}
+
+@inproceedings{YourName2021_Conference,
+  author = {Your-Name, First and Team, Member},
+  title = {Machine Learning Approaches for Brain Signal Classification},
+  booktitle = {International Conference on Machine Learning},
+  year = {2021},
+  pages = {7890-7901},
+  organization = {ICML}
+}
+
+%% NOTE: This is a demo file showing intentional duplicate entries
+%% The merge system will deduplicate these based on DOI or title+year
+
+%% Duplicate entry (same DOI) - will be merged with the one above
+@article{YourName2023_NovelMethod_duplicate,
+  author = {Your-Name, F. and Collaborator, S.},
+  title = {Novel Method for Neural Data Analysis},
+  journal = {Sci. Rep.},
+  year = {2023},
+  doi = {10.1038/s41598-023-12345-6},
+  note = {This is a duplicate entry to demonstrate deduplication by DOI}
+}
+
+%% EOF

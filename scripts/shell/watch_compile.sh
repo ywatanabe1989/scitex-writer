@@ -10,17 +10,20 @@ THIS_DIR="$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)"
 PROJECT_ROOT="$(cd "$THIS_DIR/../.." && pwd)"
 
 # Colors for output
-BLACK='\033[0;30m'
-LIGHT_GRAY='\033[0;37m'
+GIT_ROOT="$(git rev-parse --show-toplevel 2>/dev/null)"
+
+GRAY='\033[0;90m'
 GREEN='\033[0;32m'
 YELLOW='\033[0;33m'
 RED='\033[0;31m'
 NC='\033[0m' # No Color
 
-echo_info() { echo -e "${LIGHT_GRAY}$1${NC}"; }
-echo_success() { echo -e "${GREEN}$1${NC}"; }
-echo_warning() { echo -e "${YELLOW}$1${NC}"; }
-echo_error() { echo -e "${RED}$1${NC}"; }
+echo_info() { echo -e "${GRAY}INFO: $1${NC}"; }
+echo_success() { echo -e "${GREEN}SUCC: $1${NC}"; }
+echo_warning() { echo -e "${YELLOW}WARN: $1${NC}"; }
+echo_error() { echo -e "${RED}ERRO: $1${NC}"; }
+echo_header() { echo_info "=== $1 ==="; }
+# ---------------------------------------
 
 # Lock file path
 LOCK_FILE="$PROJECT_ROOT/.compile.lock"
@@ -163,23 +166,23 @@ compile_with_lock() {
             echo_success "$(date '+%H:%M:%S') - Compilation successful"
             # Load configuration to get environment variables
             source ./config/load_config.sh manuscript >/dev/null 2>&1
-            
+
             # Update symlink to latest archive version (prevents viewing corrupted PDFs during compilation)
-            local archive_dir="${STXW_VERSIONS_DIR}"
-            local latest_archive=$(ls -1 "$archive_dir"/manuscript_v[0-9]*.pdf 2>/dev/null | grep -v "_diff.pdf" | sort -V | tail -1)
-            
+            local archive_dir="${SCITEX_WRITER_VERSIONS_DIR}"
+            local latest_archive=$(ls -1 "$archive_dir"/${SCITEX_WRITER_DOC_TYPE}_v[0-9]*.pdf 2>/dev/null | grep -v "_diff.pdf" | sort -V | tail -1)
+
             if [ -n "$latest_archive" ]; then
                 # Create relative symlink to archive
-                cd "${STWX_ROOT_DIR}"
-                ln -sf "archive/$(basename "$latest_archive")" "manuscript-latest.pdf"
+                cd "${SCITEX_WRITER_ROOT_DIR}"
+                ln -sf "archive/$(basename "$latest_archive")" "${SCITEX_WRITER_DOC_TYPE}-latest.pdf"
                 cd - > /dev/null
-                echo_info "    Symlink updated: manuscript-latest.pdf -> archive/$(basename "$latest_archive")"
+                echo_info "    Symlink updated: ${SCITEX_WRITER_DOC_TYPE}-latest.pdf -> archive/$(basename "$latest_archive")"
             else
                 # Fallback if no archive exists
-                cd "${STWX_ROOT_DIR}"
-                ln -sf "manuscript.pdf" "manuscript-latest.pdf"
+                cd "${SCITEX_WRITER_ROOT_DIR}"
+                ln -sf "${SCITEX_WRITER_DOC_TYPE}.pdf" "${SCITEX_WRITER_DOC_TYPE}-latest.pdf"
                 cd - > /dev/null
-                echo_info "    Symlink updated: manuscript-latest.pdf -> manuscript.pdf (no archive yet)"
+                echo_info "    Symlink updated: ${SCITEX_WRITER_DOC_TYPE}-latest.pdf -> ${SCITEX_WRITER_DOC_TYPE}.pdf (no archive yet)"
             fi
         else
             echo_error "$(date '+%H:%M:%S') - Compilation failed"

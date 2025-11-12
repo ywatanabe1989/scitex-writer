@@ -8,21 +8,21 @@
 
 This directory contains the main manuscript files and compilation outputs.
 
-## Quick Start
+## Usage
 
-From the paper root directory:
+From project root:
 ```bash
-# Basic compilation (no figures)
-./compile_manuscript
+# Basic compilation
+./scripts/shell/compile_manuscript.sh
 
-# Full compilation with figures
-./compile_manuscript -f
+# Skip figures
+./scripts/shell/compile_manuscript.sh --no_figs
 
-# Quiet mode (minimal output)
-./compile_manuscript -q
+# Quiet mode
+./scripts/shell/compile_manuscript.sh --quiet
 
-# All options
-./compile_manuscript -f -p2t -c -q
+# Draft mode (single-pass)
+./scripts/shell/compile_manuscript.sh --draft
 ```
 
 ## Directory Structure
@@ -76,11 +76,16 @@ Missing figures automatically generate placeholder images with instructions.
 
 ## Compilation Options
 
-- `-f, --figs` - Process and include figures
-- `-p2t, --ppt2tif` - Convert PowerPoint slides to TIF format (WSL)
-- `-c, --crop_tif` - Auto-crop TIF images to remove whitespace
-- `-q, --quiet` - Suppress detailed LaTeX compilation output
-- `-h, --help` - Show help message
+- `-nf, --no_figs` - Skip figure processing
+- `-nt, --no_tables` - Skip table processing
+- `-nd, --no_diff` - Skip diff generation
+- `-d, --draft` - Single-pass compilation
+- `-dm, --dark_mode` - Black background, white text
+- `-p2t, --ppt2tif` - Convert PowerPoint to TIF (WSL)
+- `-c, --crop_tif` - Auto-crop TIF images
+- `-q, --quiet` - Suppress detailed output
+- `--force` - Force full recompilation
+- `-h, --help` - Show help
 
 ## Troubleshooting
 

@@ -4,19 +4,22 @@
 # Common utilities and initialization for figure processing
 
 # Color codes for output
-BLACK='\033[0;30m'
-LIGHT_GRAY='\033[0;37m'
+GIT_ROOT="$(git rev-parse --show-toplevel 2>/dev/null)"
+
+GRAY='\033[0;90m'
 GREEN='\033[0;32m'
 YELLOW='\033[0;33m'
 RED='\033[0;31m'
 NC='\033[0m' # No Color
 
 # Echo functions
-echo_info() { echo -e "${LIGHT_GRAY}INFO:     $1${NC}"; }
+echo_info() { echo -e "${GRAY}INFO:     $1${NC}"; }
 echo_success() { echo -e "${GREEN}SUCC:     $1${NC}"; }
 echo_warning() { echo -e "${YELLOW}WARN:     $1${NC}"; }
 echo_warn() { echo -e "${YELLOW}WARN:     $1${NC}"; }
 echo_error() { echo -e "${RED}ERRO:     $1${NC}"; }
+echo_header() { echo_info "=== $1 ==="; }
+# ---------------------------------------
 
 # Validation functions
 validate_image_file() {
@@ -31,14 +34,14 @@ validate_image_file() {
 # Initialize figure processing environment
 init_figures() {
     # Create necessary directories
-    mkdir -p "$STXW_FIGURE_CAPTION_MEDIA_DIR" 2>/dev/null
-    mkdir -p "$STXW_FIGURE_JPG_DIR" 2>/dev/null
-    mkdir -p "$STXW_FIGURE_COMPILED_DIR" 2>/dev/null
+    mkdir -p "$SCITEX_WRITER_FIGURE_CAPTION_MEDIA_DIR" 2>/dev/null
+    mkdir -p "$SCITEX_WRITER_FIGURE_JPG_DIR" 2>/dev/null
+    mkdir -p "$SCITEX_WRITER_FIGURE_COMPILED_DIR" 2>/dev/null
     
     # Clean jpg_for_compilation directory
-    if [ -d "$STXW_FIGURE_JPG_DIR" ]; then
+    if [ -d "$SCITEX_WRITER_FIGURE_JPG_DIR" ]; then
         echo_info "Cleaning jpg_for_compilation directory..."
-        rm -rf "$STXW_FIGURE_JPG_DIR"/*
+        rm -rf "$SCITEX_WRITER_FIGURE_JPG_DIR"/*
     fi
 }
 
