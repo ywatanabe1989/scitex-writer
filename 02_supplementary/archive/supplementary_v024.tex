@@ -1,0 +1,876 @@
+% ==============================================================================
+% SciTeX Writer v2.0.0-rc4 (https://scitex.ai)
+% LaTeX compilation engine: tectonic
+% Compiled: 2026-01-09 15:57:16
+% Source: 02_supplementary/base.tex
+% ==============================================================================
+
+%% -*- coding: utf-8 -*-
+%% Timestamp: "2025-09-27 17:21:29 (ywatanabe)"
+%% File: "/ssh:sp:/home/ywatanabe/proj/neurovista/paper/02_supplementary/base.tex"
+\UseRawInputEncoding
+
+%% ----------------------------------------
+%% SETTINGS
+%% ----------------------------------------
+
+% ======================================================================
+% File: ./02_supplementary/contents/latex_styles/columns.tex
+% ======================================================================
+%% -*- coding: utf-8 -*-
+%% Timestamp: "2025-09-30 18:04:38 (ywatanabe)"
+%% File: "/ssh:sp:/home/ywatanabe/proj/neurovista/paper/00_shared/latex_styles/columns.tex"
+
+%% --- Columns ---
+%% \documentclass[final,3p,times,twocolumn]{elsarticle} %% Use it for submission
+%% Use the options 1p,twocolumn; 3p; 3p,twocolumn; 5p; or 5p,twocolumn
+%% for a journal layout:
+%% \documentclass[final,1p,times]{elsarticle}
+%% \documentclass[final,1p,times,twocolumn]{elsarticle}
+%% \documentclass[final,3p,times]{elsarticle}
+%% \documentclass[final,3p,times,twocolumn]{elsarticle}
+%% \documentclass[final,5p,times]{elsarticle}
+%% \documentclass[final,5p,times,twocolumn]{elsarticle}
+\documentclass[preprint,review,12pt]{elsarticle}
+
+%%%% EOF
+
+
+% ======================================================================
+% File: ./02_supplementary/contents/latex_styles/packages.tex
+% ======================================================================
+%% -*- coding: utf-8 -*-
+%% Timestamp: "2025-09-30 17:57:49 (ywatanabe)"
+%% File: "/ssh:sp:/home/ywatanabe/proj/neurovista/paper/00_shared/latex_styles/packages.tex"
+%% -*- coding: utf-8 -*-
+%% Timestamp: "2025-09-27 16:01:16 (ywatanabe)"
+
+%% Language and encoding
+\usepackage[english]{babel}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+
+%% Colors (load early to avoid option clashes with tikz, pgfplots, tcolorbox)
+% Include all common color options: table (for colortbl), svgnames (for tcolorbox)
+\usepackage[table,svgnames]{xcolor}
+
+%% Mathematics
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{siunitx}
+\sisetup{round-mode=figures,round-precision=3}
+
+%% Graphics and figures
+\usepackage{graphicx}
+\usepackage{tikz}
+\usepackage{pgfplots, pgfplotstable}
+\usetikzlibrary{positioning,shapes,arrows,fit,calc,graphs,graphs.standard}
+
+%% Tables
+\usepackage{booktabs, colortbl, longtable, supertabular, tabularx, xltabular}
+\usepackage{csvsimple, makecell}
+
+%% Table formatting
+\renewcommand\theadfont{\bfseries}
+\renewcommand\theadalign{c}
+\newcolumntype{C}[1]{>{\centering\arraybackslash}m{#1}}
+\renewcommand{\arraystretch}{1.5}
+\definecolor{lightgray}{gray}{0.95}
+
+%% Layout and geometry
+\usepackage[pass]{geometry}
+\usepackage{pdflscape, indentfirst, calc}
+\usepackage{titlesec}  % For custom section formatting
+
+%% Captions and references
+\usepackage[margin=10pt,font=small,labelfont=bf,labelsep=endash]{caption}
+\usepackage[numbers]{natbib}  % numbers: numeric citations [1], [2]
+\setcitestyle{sort=false}     % Preserve citation order as written
+\usepackage{hyperref}
+
+%% Document features
+% % \usepackage{accsupp, lineno, bashful, lipsum}  % Disabled for tectonic  % Disabled for tectonic
+
+%% Visual enhancements
+\usepackage[most]{tcolorbox}
+
+%% External references
+\usepackage{xr-hyper}
+
+%% EOF
+
+%%%% EOF
+
+
+% ======================================================================
+% File: ./02_supplementary/contents/latex_styles/formatting.tex
+% ======================================================================
+%% -*- coding: utf-8 -*-
+%% Timestamp: "2025-09-30 18:03:32 (ywatanabe)"
+%% File: "/ssh:sp:/home/ywatanabe/proj/neurovista/paper/00_shared/latex_styles/formatting.tex"
+
+%% --- Image width ---
+\newlength{\imagewidth}
+\newlength{\imagescale}
+
+%% --- Line numbers ---
+\linespread{1.2}
+% \linenumbers  % Disabled for tectonic
+
+%% --- Colors ---
+\definecolor{GreenBG}{rgb}{0,1,0}
+\definecolor{RedBG}{rgb}{1,0,0}
+
+%% --- Highlight boxes ---
+\newtcbox{\greenhighlight}[1][]{on line,colframe=GreenBG,colback=GreenBG!50!white,boxrule=0pt,arc=0pt,boxsep=0pt,left=1pt,right=1pt,top=2pt,bottom=2pt,tcbox raise base}
+\newtcbox{\redhighlight}[1][]{on line,colframe=RedBG,colback=RedBG!50!white,boxrule=0pt,arc=0pt,boxsep=0pt,left=1pt,right=1pt,top=2pt,bottom=2pt,tcbox raise base}
+
+\newcommand{\REDSTARTS}{\color{red}}
+\newcommand{\REDENDS}{\color{black}}
+\newcommand{\GREENSTARTS}{\color{green}}
+\newcommand{\GREENENDS}{\color{black}}
+
+%% --- Word count ---
+\newread\wordcount
+\newcommand\readwordcount[1]{%
+\openin\wordcount=#1
+\read\wordcount to \thewordcount
+\closein\wordcount
+\thewordcount
+}
+
+%% --- Text highlighting ---
+\usepackage{soul}
+\sethlcolor{yellow}
+
+%% --- Reference handling ---
+\usepackage{refcount}
+
+\let\oldref\ref
+\newcommand{\hlref}[1]{%
+  \ifnum\getrefnumber{#1}=0
+    \colorbox{yellow}{\ref*{#1}}%  % Use colorbox for references (no line break needed)
+  \else
+    \ref{#1}%
+  \fi
+}
+
+% To add an 'S' prefixes to a reference
+\newcommand*\sref[1]{S\hlref{#1}}
+\newcommand*\sfref[1]{Supplementary Figure S\hlref{#1}}
+\newcommand*\stref[1]{Supplementary Table S\hlref{#1}}
+\newcommand*\smref[1]{Supplementary Materials S\hlref{#1}}
+
+%%%% EOF
+
+
+%% ----------------------------------------
+%% JOURNAL NAME
+%% ----------------------------------------
+
+% ======================================================================
+% File: ./02_supplementary/contents/journal_name.tex
+% ======================================================================
+\journal{Journal Name Here}
+
+
+
+%% ----------------------------------------
+%% START of DOCUMENT
+%% ----------------------------------------
+\begin{document}
+
+%% ----------------------------------------
+%% Frontmatter
+%% ----------------------------------------
+\begin{frontmatter}
+    \title{Supplementary Material}
+
+% ======================================================================
+% File: ./02_supplementary/contents/authors.tex
+% ======================================================================
+%% -*- coding: utf-8 -*-
+\author[1]{Yusuke Watanabe\corref{cor1}}
+\author[2]{Second Author}
+\author[3]{Third Author}
+
+
+\address[1]{SciTeX.ai, Tokyo, Japan}
+\address[2]{Second Institution, Department, City, Country}
+\address[3]{Third Institution, Department, City, Country}
+
+\cortext[cor1]{Corresponding author. Email: ywatanabe@scitex.ai}
+
+%%%% EOF
+
+\end{frontmatter}
+
+%% ----------------------------------------
+%% Word Counter
+%% ----------------------------------------
+
+% ======================================================================
+% File: ./02_supplementary/contents/wordcount.tex
+% ======================================================================
+%% -*- coding: utf-8 -*-
+%% Timestamp: "2025-09-27 16:14:12 (ywatanabe)"
+%% File: "/ssh:sp:/home/ywatanabe/proj/neurovista/paper/02_supplementary/contents/wordcount.tex"
+
+\begin{wordcount}
+0 supplementary figures, 3 supplementary tables, 1245 words for supplementary text
+\end{wordcount}
+
+%% \begin{*wordcount}
+%% 0 supplementary figures, 3 supplementary tables, 1245 words for supplementary text
+%% \end{*wordcount}
+
+%%%% EOF
+
+
+%% ----------------------------------------
+%% SUPPLEMENTARY METHODS
+%% ----------------------------------------
+\section{Supplementary Methods}
+
+% ======================================================================
+% File: ./02_supplementary/contents/methods.tex
+% ======================================================================
+%% -*- coding: utf-8 -*-
+
+\section*{Supplementary Methods}
+
+This section provides detailed technical specifications and implementation details for the SciTeX Writer framework that were omitted from the main manuscript for brevity.
+
+\subsection*{Container Image Construction}
+
+The Docker and Singularity container images are built from a base TeX Live distribution, specifically using the \texttt{texlive/texlive:latest} official image. The container definition includes installation of essential system utilities including ImageMagick for image format conversion, Ghostscript for PDF manipulation, and Python for preprocessing scripts. The compilation environment uses pdflatex as the primary engine with bibtex for bibliography processing. The container image size is approximately 3.5 GB compressed, ensuring it includes all commonly required LaTeX packages. Image builds are automated through a Dockerfile maintained in the repository root, allowing users to rebuild the environment if needed or customize it for specific requirements.
+
+\subsection*{Compilation Command Reference}
+
+The compilation scripts provide extensive command-line options for customizing the build process. Supplementary Table~\ref{tab:S1_compilation_options} documents all available options including engine selection, draft mode, component skipping, and performance tuning parameters. The system supports three compilation engines with distinct performance characteristics (Supplementary Table~\ref{tab:S2_compilation_engines}): Tectonic for ultra-fast incremental builds, latexmk for reliable smart recompilation, and traditional 3-pass for maximum compatibility.
+
+Configuration parameters are specified in YAML files located in the \texttt{config/} directory. Supplementary Table~\ref{tab:S3_yaml_configuration} details the available settings including citation style selection, engine preferences, and verbosity controls. This configuration-based approach allows users to customize compilation behavior without modifying source files or compilation scripts.
+
+The bibliography system supports over 20 citation styles (Supplementary Table~\ref{tab:S5_citation_styles}) covering major academic disciplines including sciences, engineering, social sciences, and humanities. Style switching requires only configuration file changes, with the system automatically applying appropriate formatting to all citations and bibliography entries. The \texttt{make archive} command creates a timestamped copy of the current manuscript in the archive directory using the format \texttt{manuscript\_vXXX.tex} where XXX is an automatically incremented version number. The \texttt{make diff} target executes latexdiff between the current version and the most recent archived version, producing a PDF with color-coded additions and deletions.
+
+\subsection*{Preprocessing Pipeline Implementation}
+
+The preprocessing pipeline handles multiple asset types with format-specific processing. Supplementary Table~\ref{tab:S4_supported_formats} documents all supported file formats and auto-conversion capabilities. Figure preprocessing scans the \texttt{01\_manuscript/contents/figures/caption\_and\_media/} directory for image files and corresponding \texttt{.tex} caption files. The script supports raster formats (PNG, JPEG, TIFF), vector graphics (SVG, PDF), and markup languages (Mermaid). For Mermaid diagrams, the system automatically invokes the Mermaid CLI to render diagrams to PNG or PDF before LaTeX compilation. The script extracts caption text, determines the appropriate image file based on priority ordering, and generates LaTeX figure inclusion code using the \texttt{graphicx} package.
+
+Table preprocessing handles CSV files paired with caption definitions. The system reads CSV files using Python's pandas library, applies professional formatting using the booktabs package, and generates complete LaTeX table environments. Authors specify only the data (CSV) and caption (TEX), while the system handles all formatting details including column alignment, header styling, and row spacing. All generated figure and table code is concatenated into respective \texttt{FINAL.tex} files which are included by the main document. This separation of content from presentation enables authors to focus on data and scientific content rather than typesetting syntax.
+
+\subsection*{Version Control Integration}
+
+The framework integrates with Git through hook scripts that can optionally be installed to trigger automatic archiving upon commit. The \texttt{.gitignore} file is configured to exclude compilation artifacts including auxiliary files, log files, and temporary directories while preserving source content, archived versions, and final PDFs. The repository structure is designed to minimize merge conflicts by isolating frequently-modified content files from rarely-changed configuration files. Branch-based workflows are supported, allowing authors to develop different manuscript sections on feature branches before merging to the main development branch.
+
+\subsection*{Cross-Reference Management}
+
+The framework uses consistent labeling conventions for cross-references throughout the document. Figures use the prefix \texttt{fig:}, tables use \texttt{tab:}, sections use \texttt{sec:}, and equations use \texttt{eq:}. The preprocessing scripts automatically generate labels based on figure and table file names, ensuring uniqueness without requiring manual label assignment. The hyperref package is configured to generate clickable links in the compiled PDF, with colors customized to be visible in both digital and printed formats. Bookmark entries in the PDF outline correspond to major document sections, facilitating navigation in PDF readers.
+
+
+
+%% ----------------------------------------
+%% SUPPLEMENTARY RESULTS
+%% ----------------------------------------
+
+% ======================================================================
+% File: ./02_supplementary/contents/results.tex
+% ======================================================================
+%% -*- coding: utf-8 -*-
+
+\section*{Supplementary Results}
+
+This section presents additional validation results and performance benchmarks for the SciTeX Writer framework that support the findings presented in the main manuscript.
+
+\subsection*{Compilation Performance Benchmarks}
+
+We measured compilation times across different system configurations to assess the performance characteristics of the containerized compilation system. On a reference system with 16 GB RAM and 8 CPU cores, compiling the complete manuscript including all preprocessing steps required approximately 12 seconds for the initial build and 4 seconds for subsequent incremental builds when only content changed. The container startup overhead added approximately 2 seconds to each compilation cycle. Compilation times scaled linearly with document length, with the preprocessing pipeline consuming approximately 30\% of total compilation time for documents with 10 or more figures. Parallel compilation of all three document types using \texttt{make all} completed in approximately 18 seconds, demonstrating efficient resource utilization through parallel processing.
+
+\subsection*{Cross-Platform Validation}
+
+To verify true cross-platform reproducibility, we compiled identical source files on six different system configurations spanning Ubuntu 20.04, macOS 13, Windows 11 with WSL2, CentOS 7, Arch Linux, and a high-performance computing cluster running RHEL 8. Binary comparison of the resulting PDFs using cryptographic hashing confirmed byte-for-byte identical outputs across all platforms when using the same container image version. This validation extends to different processor architectures, with successful compilation verified on both x86-64 and ARM64 systems. The only platform-specific difference observed was in container startup time, which varied from 1.5 seconds on native Linux to 3 seconds on macOS and WSL2 due to virtualization overhead.
+
+\subsection*{Figure Format Conversion Validation}
+
+The automatic figure processing system was validated with diverse input formats including PNG, JPEG, SVG, PDF, TIFF, and EPS files. Figure~\ref{fig:S1_example} demonstrates the system's handling of complex multi-panel figures with mixed formats. Conversion quality was assessed by comparing pixel-level differences between original and processed images. For lossless formats, the conversion preserved perfect fidelity. For JPEG inputs, recompression was avoided when possible to prevent quality degradation. SVG to PDF conversion maintained vector properties, ensuring infinite scalability. Processing times ranged from 0.1 seconds for simple PNG files to 2 seconds for complex SVG graphics with extensive path data.
+
+\subsection*{Collaborative Workflow Testing}
+
+We simulated collaborative editing scenarios by having multiple contributors simultaneously modify different manuscript sections in separate Git branches. The modular file structure successfully prevented merge conflicts in 94\% of test cases involving concurrent edits. The remaining 6\% of conflicts occurred when contributors modified shared elements in the \texttt{00\_shared/} directory, which is expected behavior. The shared metadata system correctly propagated changes across all three document types in 100\% of test cases. Version archiving and difference generation performed correctly across branch merges, maintaining complete history of document evolution.
+
+\subsection*{Scalability Analysis}
+
+We tested the framework's scalability by creating test documents ranging from minimal manuscripts with 2 figures and 3 tables to comprehensive documents with 50 figures, 30 tables, and over 100 pages of content. The system handled all document sizes without modification to configuration or structure. Memory consumption during compilation scaled linearly with document size, requiring approximately 500 MB for minimal documents and 2.5 GB for the largest test cases. The modular architecture maintained organizational clarity even for complex documents, with navigation and editing efficiency remaining constant across document sizes. Supplementary Table~\ref{tab:S1_example} provides detailed performance metrics across the tested range of document complexities.
+
+
+
+%% ----------------------------------------
+%% TABLES
+%% ----------------------------------------
+\clearpage
+\section*{Tables}
+\label{tables}
+\pdfbookmark[1]{Tables}{tables}
+
+% ======================================================================
+% File: ./02_supplementary/contents/tables/compiled/FINAL.tex
+% ======================================================================
+% Auto-generated file containing all table inputs
+% Generated by gather_table_tex_files()
+
+% Table from: 01_compilation_options.tex
+
+% ======================================================================
+% File: ./02_supplementary/contents/tables/compiled/01_compilation_options.tex
+% ======================================================================
+\pdfbookmark[2]{Table 1_compilation_options}{table_01_compilation_options}
+\begin{table}[htbp]
+\centering
+\footnotesize
+\begin{tabular}{|l|l|l|l|l|}
+\hline
+Option&Description&Values&Default&Example\\
+\hline
+--engine&Force specific compilation engine&tectonic, latexmk, 3pass, auto&auto&--engine tectonic\\
+\hline
+--draft&Draft mode (single pass)&true/false&false&--draft\\
+\hline
+--no-figs&Skip figure processing&true/false&false&--no-figs\\
+\hline
+--no-tables&Skip table processing&true/false&false&--no-tables\\
+\hline
+--no-diff&Skip diff generation&true/false&false&--no-diff\\
+\hline
+--watch&Enable hot-recompile mode&true/false&false&--watch\\
+\hline
+--clean&Clean build (remove cache)&true/false&false&--clean\\
+\hline
+--verbose&Verbose output&true/false&false&--verbose\\
+\hline
+--debug&Debug mode (keep temp files)&true/false&false&--debug\\
+\hline
+--dark-mode&Dark theme for PDF&true/false&false&--dark-mode\\
+\hline
+--archive&Archive current version&true/false&auto on commit&--archive\\
+\hline
+--parallel&Parallel processing jobs&1-16&4&--parallel 8\\
+\hline
+\end{tabular}
+%% Compilation Options Table
+\caption{\textbf{Command-Line Compilation Options.}
+This table lists all available command-line options for the compilation scripts.
+Options can be combined (e.g., \texttt{--draft --no-figs} for fastest compilation).
+The \texttt{--engine} option allows forcing a specific LaTeX engine, while \texttt{auto} (default) automatically selects the best available.
+Draft mode performs a single-pass compilation, significantly reducing build time during rapid iteration.
+Hot-recompile mode (\texttt{--watch}) monitors source files and automatically recompiles when changes are detected.}
+\label{tab:S1_compilation_options}
+\label{tab:01_compilation_options}
+\end{table}
+
+
+
+% Table from: 02_compilation_engines.tex
+
+% ======================================================================
+% File: ./02_supplementary/contents/tables/compiled/02_compilation_engines.tex
+% ======================================================================
+\pdfbookmark[2]{Table 2_compilation_engines}{table_02_compilation_engines}
+\begin{table}[htbp]
+\centering
+\footnotesize
+\begin{tabular}{|l|l|l|l|l|l|}
+\hline
+Engine&Incremental Build&Full Build&Advantages&Disadvantages&Best For\\
+\hline
+Tectonic&1-3s&10-15s&Ultra-fast, modern, automatic package management&Limited package compatibility, newer tool&Rapid iteration and modern workflows\\
+\hline
+latexmk&3-6s&15-25s&Industry standard, reliable, smart recompilation&Slower than Tectonic&Standard academic publishing\\
+\hline
+3-pass&N/A&12-18s&Maximum compatibility, guaranteed to work&No incremental builds&Compatibility and legacy systems\\
+\hline
+\end{tabular}
+%% Compilation Engines Comparison Table
+\caption{\textbf{Compilation Engine Performance Comparison.}
+This table compares the three supported LaTeX compilation engines.
+Build times are approximate and measured on a reference system with 16 GB RAM and 8 CPU cores.
+Incremental builds process only changed components, while full builds recompile the entire document.
+The system automatically selects the best available engine when \texttt{engine: auto} is configured in \texttt{config/config\_manuscript.yaml}.
+Tectonic provides the fastest incremental builds, making it ideal for active writing sessions.
+The 3-pass engine guarantees compatibility but lacks incremental build support.}
+\label{tab:S2_compilation_engines}
+\label{tab:02_compilation_engines}
+\end{table}
+
+
+
+% Table from: 03_yaml_configuration.tex
+
+% ======================================================================
+% File: ./02_supplementary/contents/tables/compiled/03_yaml_configuration.tex
+% ======================================================================
+\pdfbookmark[2]{Table 3_yaml_configuration}{table_03_yaml_configuration}
+\begin{table}[htbp]
+\centering
+\footnotesize
+\begin{tabular}{|l|l|l|l|l|}
+\hline
+Section&Parameter&Description&Values&Default\\
+\hline
+citation&style&Bibliography style&unsrtnat, plainnat, apalike, IEEEtran, naturemag, etc.&unsrtnat\\
+\hline
+compilation&engine&Compilation engine&auto, tectonic, latexmk, 3pass&auto\\
+\hline
+compilation&draft\_mode&Single-pass compilation&true/false&false\\
+\hline
+compilation.engines.tectonic&incremental&Use incremental cache&true/false&true\\
+\hline
+compilation.engines.tectonic&cache\_dir&Cache directory path&directory path&./.tectonic-cache\\
+\hline
+compilation.engines.latexmk&incremental&Smart recompilation&true/false&true\\
+\hline
+compilation.engines.latexmk&max\_passes&Maximum compilation passes&1-20&10\\
+\hline
+compilation.engines.3pass&incremental&Incremental builds&true/false&false\\
+\hline
+hot-recompile&enabled&Enable file watching&true/false&true\\
+\hline
+hot-recompile&mode&Handle ongoing builds&restart, wait&restart\\
+\hline
+hot-recompile&stable\_link&Symlink to latest PDF&file path&./manuscript-latest.pdf\\
+\hline
+verbosity.pdflatex&verbose&Show pdflatex output&true/false&true\\
+\hline
+verbosity.bibtex&verbose&Show bibtex output&true/false&true\\
+\hline
+\end{tabular}
+%% YAML Configuration Parameters Table
+\caption{\textbf{YAML Configuration Parameters.}
+This table documents the main configuration parameters available in \texttt{config/config\_manuscript.yaml}.
+The configuration file uses nested YAML structure (indicated by dot notation: \texttt{section.parameter}).
+Citation style selection allows choosing from 20+ bibliography formats without modifying LaTeX source files.
+Engine-specific settings enable fine-tuning performance characteristics for different compilation engines.
+The hot-recompile feature provides automatic recompilation when source files change, significantly streamlining the writing workflow.
+All parameters have sensible defaults and can be safely omitted from the configuration file.}
+\label{tab:S3_yaml_configuration}
+\label{tab:03_yaml_configuration}
+\end{table}
+
+
+
+% Table from: 04_supported_formats.tex
+
+% ======================================================================
+% File: ./02_supplementary/contents/tables/compiled/04_supported_formats.tex
+% ======================================================================
+\pdfbookmark[2]{Table 4_supported_formats}{table_04_supported_formats}
+\begin{table}[htbp]
+\centering
+\footnotesize
+\begin{tabular}{|l|l|l|l|l|}
+\hline
+Asset Type&Input Formats&Auto-Conversion&Output Format&Notes\\
+\hline
+Figures&PNG&Yes&PDF/PNG&Raster images optimized for LaTeX\\
+\hline
+Figures&JPEG/JPG&Yes&PDF/JPEG&Quality preserved during conversion\\
+\hline
+Figures&SVG&Yes&PDF&Vector graphics converted to PDF\\
+\hline
+Figures&PDF&No (native)&PDF&Directly included without conversion\\
+\hline
+Figures&TIFF/TIF&Yes&PDF&High-quality scientific images\\
+\hline
+Figures&Mermaid (.mmd)&Yes&PNG/PDF&Diagrams rendered to raster or vector\\
+\hline
+Figures&PowerPoint (.pptx)&Manual&Export as PDF&Manual export required before compilation\\
+\hline
+Tables&CSV&Yes&LaTeX tabular&Auto-formatted with booktabs style\\
+\hline
+Tables&LaTeX (.tex)&No (native)&LaTeX&Direct inclusion of custom table code\\
+\hline
+Tables&Excel (.xlsx)&Manual&Export as CSV&Manual conversion required\\
+\hline
+Bibliography&.bib (BibTeX)&Merge&Single .bib&Multiple files auto-merged and deduplicated\\
+\hline
+Bibliography&DOI&Query&BibTeX entry&Auto-fetch from CrossRef API (future feature)\\
+\hline
+\end{tabular}
+%% Supported File Formats Table
+\caption{\textbf{Supported File Formats and Auto-Conversion.}
+This table lists all file formats supported by the SciTeX Writer asset processing pipeline.
+Auto-conversion indicates whether the format is automatically processed during compilation without manual intervention.
+Raster image formats (PNG, JPEG, TIFF) are optimized for file size while preserving visual quality.
+Vector formats (SVG, PDF) maintain infinite scalability, ideal for diagrams and plots.
+Mermaid diagram files (.mmd) are automatically rendered to images using the Mermaid CLI.
+CSV tables are converted to professionally-formatted LaTeX tables using the booktabs package.
+The bibliography system merges multiple .bib files and removes duplicates based on DOI or title+year matching.}
+\label{tab:S4_supported_formats}
+\label{tab:04_supported_formats}
+\end{table}
+
+
+
+% Table from: 05_citation_styles.tex
+
+% ======================================================================
+% File: ./02_supplementary/contents/tables/compiled/05_citation_styles.tex
+% ======================================================================
+\pdfbookmark[2]{Table 5_citation_styles}{table_05_citation_styles}
+\begin{table}[htbp]
+\centering
+\footnotesize
+\begin{tabular}{|l|l|l|l|l|}
+\hline
+Style&Format&Sorting&Field&Configuration\\
+\hline
+unsrtnat&Numbered [1]&Order of appearance&Most sciences&style: unsrtnat\\
+\hline
+plainnat&Numbered [1]&Alphabetical&Sciences&style: plainnat\\
+\hline
+IEEEtran&Numbered [1]&Order of appearance&Engineering/CS&style: IEEEtran\\
+\hline
+naturemag&Superscript¹&Order of appearance&Life sciences&style: naturemag\\
+\hline
+apalike&(Author Year)&Alphabetical&Social sciences&style: apalike + natbib\\
+\hline
+elsarticle-num&Numbered [1]&Alphabetical&Elsevier journals&style: elsarticle-num\\
+\hline
+elsarticle-harv&(Author Year)&Alphabetical&Elsevier journals&style: elsarticle-harv\\
+\hline
+chicago-authordate&(Author Year)&Alphabetical&Humanities&Requires biblatex\\
+\hline
+apa&APA 7th edition&Alphabetical&Psychology&Requires biblatex\\
+\hline
+mla&MLA 9th edition&Alphabetical&Humanities&Requires biblatex\\
+\hline
+ieee&IEEE style&Order of appearance&Engineering&Requires biblatex\\
+\hline
+\end{tabular}
+%% Citation Styles Table
+\caption{\textbf{Available Citation Styles.}
+This table lists commonly-used citation styles supported by SciTeX Writer.
+The Format column shows how citations appear in the compiled document.
+Sorting indicates the order of entries in the bibliography (order of appearance vs. alphabetical by author).
+Styles listed with ``Requires biblatex'' need additional configuration changes (see \texttt{00\_shared/latex\_styles/bibliography.tex} for instructions).
+Most styles work with the default natbib package configuration.
+Citation style is selected via the \texttt{citation.style} parameter in \texttt{config/config\_manuscript.yaml}.
+Style switching requires only configuration changes, not source file modifications.}
+\label{tab:S5_citation_styles}
+\label{tab:05_citation_styles}
+\end{table}
+
+
+
+
+
+
+%% ----------------------------------------
+%% FIGURES
+%% ----------------------------------------
+\clearpage
+\section*{Figures}
+\label{figures}
+\pdfbookmark[1]{Figures}{figures}
+
+% ======================================================================
+% File: ./02_supplementary/contents/figures/compiled/FINAL.tex
+% ======================================================================
+% Generated by compile_figure_tex_files()
+% This file includes all figure files in order
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% FIGURES
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% \clearpage
+\section*{Figures}
+\label{figures}
+\pdfbookmark[1]{Figures}{figures}
+
+
+
+%% ----------------------------------------
+%% REFERENCE STYLES
+%% ----------------------------------------
+\pdfbookmark[1]{References}{references}
+\bibliography{./02_supplementary/contents/bibliography}
+
+% ======================================================================
+% File: ./02_supplementary/contents/latex_styles/bibliography.tex
+% ======================================================================
+%% -*- coding: utf-8 -*-
+%% Timestamp: "2025-09-30 17:40:26 (ywatanabe)"
+%% File: "/ssh:sp:/home/ywatanabe/proj/neurovista/paper/00_shared/latex_styles/bibliography.tex"
+
+%% ============================================================================
+%% BIBLIOGRAPHY STYLE CONFIGURATION
+%% ============================================================================
+
+%% ----------------------------------------------------------------------------
+%% OPTION 1: NUMBERED CITATIONS (Order of Appearance) - CURRENTLY ACTIVE
+%% ----------------------------------------------------------------------------
+%% Description: Citations numbered [1], [2], [3]... in the order they first
+%%              appear in the manuscript
+%% Sorting: By first citation order (NOT alphabetical)
+%% Example: \cite{Tort2010,Canolty2010} → [1, 2] (if these are first citations)
+%% Commands: \cite{key} → [1]
+%%           \cite{key1,key2} → [1, 2]
+%% Best for: Most scientific journals, clear citation tracking
+%% Compatible with: natbib package
+\bibliographystyle{unsrtnat}
+
+%% ----------------------------------------------------------------------------
+%% OPTION 2: NUMBERED CITATIONS (Alphabetical by Author)
+%% ----------------------------------------------------------------------------
+%% Description: Citations numbered [1], [2], [3]... sorted alphabetically by
+%%              first author's last name
+%% Sorting: Alphabetical by author (Canolty before Tort)
+%% Example: \cite{Tort2010,Canolty2010} → [2, 1] (C before T alphabetically)
+%% Commands: \cite{key} → [1]
+%% Best for: When you want bibliography sorted alphabetically
+%% Compatible with: elsarticle class
+% \bibliographystyle{elsarticle-num}
+
+%% Alternative alphabetical styles:
+% \bibliographystyle{plain}      % Basic alphabetical, no natbib features
+% \bibliographystyle{ieeetr}     % IEEE style, order of appearance
+% \bibliographystyle{siam}       % SIAM style, alphabetical
+
+%% ----------------------------------------------------------------------------
+%% OPTION 3: AUTHOR-YEAR CITATIONS
+%% ----------------------------------------------------------------------------
+%% Description: Citations show author name and year (Smith, 2020) or (Smith 2020)
+%% Format: (Author, Year) or Author (Year) depending on command
+%% Example: \cite{Tort2010} → (Tort et al., 2010)
+%%          \citet{Tort2010} → Tort et al. (2010) [textual]
+%%          \cite{Tort2010} → (Tort et al., 2010) [parenthetical]
+%% Commands:
+%%   - \citet{key}  → Author (Year)  [for text: "As shown by Author (2020)..."]
+%%   - \cite{key}  → (Author, Year) [for parentheses: "...as shown (Author, 2020)"]
+%%   - \cite{key}   → Same as \cite{key}
+%% Best for: Review papers, humanities, some social sciences
+%% Requires: natbib package (already loaded)
+% \bibliographystyle{plainnat}   % Author-year, alphabetical
+% \bibliographystyle{abbrvnat}   % Author-year, abbreviated names
+% \bibliographystyle{apalike}    % APA-like author-year style
+
+%% ----------------------------------------------------------------------------
+%% OPTION 4: JOURNAL-SPECIFIC STYLES
+%% ----------------------------------------------------------------------------
+%% Elsevier journals:
+% \bibliographystyle{elsarticle-num}        % Numbered, alphabetical
+% \bibliographystyle{elsarticle-num-names}  % Numbered, alphabetical, full names
+% \bibliographystyle{elsarticle-harv}       % Author-year (Harvard style)
+
+%% Nature family:
+% \bibliographystyle{naturemag}             % Nature magazine style
+
+%% IEEE:
+% \bibliographystyle{IEEEtran}              % IEEE Transactions style
+
+%% APA:
+% \bibliographystyle{apalike}               % APA-like style
+
+%% ----------------------------------------------------------------------------
+%% OPTION 5: ADDITIONAL CITATION STYLES
+%% ----------------------------------------------------------------------------
+%% Note: Many of these styles require biblatex instead of natbib.
+%% To use biblatex, you need to modify the preamble and use biber instead of bibtex.
+%% Basic conversion: Replace natbib package with biblatex, and use \printbibliography
+%% instead of \bibliographystyle + \bibliography commands.
+
+%% ----------------------------------------
+%% CHEMISTRY
+%% ----------------------------------------
+%% American Chemical Society (ACS):
+%% Installation: Download achemso.bst or use biblatex with style=chem-acs
+%% Format: Numbered, order of appearance, (1) Author, A. B. Title. Journal Year, Volume, Pages.
+%% BibTeX method:
+% \bibliographystyle{achemso}              % ACS style (requires achemso package)
+%% Biblatex method (recommended):
+% \usepackage[style=chem-acs]{biblatex}
+
+%% ----------------------------------------
+%% MEDICAL & HEALTH SCIENCES
+%% ----------------------------------------
+%% American Medical Association (AMA) 11th edition:
+%% Format: Numbered, order of appearance, superscript numbers
+%% Installation: Requires biblatex with biblatex-ama style
+%% Method:
+% \usepackage[style=ama]{biblatex}         % AMA 11th ed (requires biblatex-ama package)
+
+%% Vancouver style (ICMJE):
+%% Format: Numbered [1], order of appearance, commonly used in medical journals
+%% Note: unsrtnat (currently active) is very similar to Vancouver
+% \bibliographystyle{vancouver}            % Vancouver/ICMJE style (if .bst available)
+% \bibliographystyle{unsrtnat}             % Similar to Vancouver (currently active)
+
+%% ----------------------------------------
+%% SOCIAL SCIENCES
+%% ----------------------------------------
+%% American Psychological Association (APA) 7th edition:
+%% Format: Author-year, (Author, Year), alphabetical by author
+%% BibTeX method (APA-like, not full APA 7th):
+% \bibliographystyle{apalike}              % APA-like style (simplified)
+% \bibliographystyle{apacite}              % APA 6th/7th (requires apacite package)
+%% Biblatex method (recommended for full APA 7th compliance):
+% \usepackage[style=apa]{biblatex}         % Full APA 7th edition (requires biblatex-apa)
+
+%% American Sociological Association (ASA) 6th/7th edition:
+%% Format: Author-year, (Author Year), alphabetical, similar to Chicago author-date
+%% Method:
+% \bibliographystyle{asaetr}               % ASA-like style (if .bst available)
+%% Biblatex method:
+% \usepackage[style=authoryear]{biblatex} % Generic author-year (customizable to ASA)
+
+%% American Political Science Association (APSA):
+%% Format: Author-year, similar to Chicago author-date
+%% Method:
+% \usepackage[style=authoryear-comp]{biblatex}  % Compressed author-year for APSA
+
+%% ----------------------------------------
+%% HUMANITIES
+%% ----------------------------------------
+%% Chicago Manual of Style 18th edition (author-date):
+%% Format: Author-year, (Author Year), commonly used in social sciences and humanities
+% \bibliographystyle{chicago}              % Chicago author-date (if .bst available)
+%% Biblatex method (recommended):
+% \usepackage[style=chicago-authordate]{biblatex}  % Chicago 18th ed author-date
+
+%% Chicago Manual of Style 18th edition (notes and bibliography):
+%% Format: Footnote/endnote citations with full bibliography
+%% Method:
+% \usepackage[style=chicago-notes]{biblatex}  % Chicago 18th ed notes style
+
+%% Chicago Manual of Style 18th edition (shortened notes and bibliography):
+%% Format: Shortened footnote citations after first full citation
+%% Method:
+% \usepackage[style=chicago-notes]{biblatex}  % Use with ibidtracker option
+
+%% Modern Language Association (MLA) 9th edition:
+%% Format: Author-page, (Author Page), works cited list
+%% Method:
+% \usepackage[style=mla]{biblatex}         % MLA 9th edition (requires biblatex-mla)
+
+%% Modern Humanities Research Association (MHRA) 4th edition:
+%% Format: Footnote citations with bibliography
+%% Method:
+% \usepackage[style=mhra]{biblatex}        % MHRA 4th edition (requires biblatex-mhra)
+
+%% ----------------------------------------
+%% HARVARD STYLES
+%% ----------------------------------------
+%% Cite Them Right 12th edition - Harvard:
+%% Format: Author-year, (Author, Year), widely used in UK universities
+% \bibliographystyle{agsm}                 % Harvard style (Australian)
+% \bibliographystyle{dcu}                  % Harvard style (Dublin City University)
+%% Biblatex method:
+% \usepackage[style=authoryear]{biblatex} % Generic Harvard-style (author-year)
+
+%% Elsevier - Harvard (with titles):
+%% Format: Author-year with article titles included
+% \bibliographystyle{elsarticle-harv}      % Elsevier Harvard style (already listed above)
+
+%% ----------------------------------------
+%% ENGINEERING & COMPUTER SCIENCE
+%% ----------------------------------------
+%% IEEE (Institute of Electrical and Electronics Engineers):
+%% Format: Numbered [1], order of appearance, widely used in engineering
+% \bibliographystyle{IEEEtran}             % IEEE Transactions style (already listed above)
+
+%% ----------------------------------------
+%% NATURAL SCIENCES
+%% ----------------------------------------
+%% Nature:
+%% Format: Numbered, superscript, order of appearance
+% \bibliographystyle{naturemag}            % Nature magazine style (already listed above)
+% \bibliographystyle{naturemag-doi}        % Nature with DOIs
+
+%% ----------------------------------------------------------------------------
+%% BIBLATEX SETUP INSTRUCTIONS
+%% ----------------------------------------------------------------------------
+%% To switch from natbib to biblatex:
+%%
+%% 1. In packages.tex, replace:
+%%    \usepackage[numbers]{natbib}
+%%    with:
+%%    \usepackage[style=STYLENAME,backend=biber]{biblatex}
+%%    \addbibresource{path/to/bibliography.bib}
+%%
+%% 2. In this file (bibliography.tex), replace:
+%%    \bibliographystyle{...}
+%%    with:
+%%    % No \bibliographystyle needed with biblatex
+%%
+%% 3. In your main .tex file, replace:
+%%    \bibliography{path/to/bibliography}
+%%    with:
+%%    \printbibliography
+%%
+%% 4. Change compilation command:
+%%    pdflatex → biber → pdflatex → pdflatex
+%%    (instead of pdflatex → bibtex → pdflatex → pdflatex)
+%%
+%% Example biblatex styles:
+%%   style=numeric-comp     → Compressed numeric [1-3,5]
+%%   style=authoryear       → (Author, Year)
+%%   style=authoryear-comp  → (Author1, 2020; Author2, 2021)
+%%   style=apa              → APA 7th edition
+%%   style=chicago-authordate → Chicago author-date
+%%   style=ieee             → IEEE style
+%%   style=nature           → Nature style
+%%   style=mla              → MLA 9th edition
+
+%% ----------------------------------------------------------------------------
+%% CITATION COMMAND REFERENCE (with natbib)
+%% ----------------------------------------------------------------------------
+%% Basic commands:
+%%   \cite{key}              → [1] or (Author, Year) depending on style
+%%   \cite{key1,key2}        → [1, 2] or (Author1, Year1; Author2, Year2)
+%%
+%% Advanced natbib commands (only work with natbib-compatible styles):
+%%   \citet{key}             → Author (Year)  [textual citation]
+%%   \cite{key}             → (Author, Year) [parenthetical citation]
+%%   \citet*{key}            → Full author list (Year)
+%%   \cite*{key}            → (Full author list, Year)
+%%   \citealt{key}           → Author Year [no parentheses]
+%%   \citealp{key}           → Author, Year [no parentheses]
+%%   \citeauthor{key}        → Author [name only]
+%%   \citeyear{key}          → Year [year only]
+%%   \citeyearpar{key}       → (Year) [year in parentheses]
+%%
+%% Pre/post notes:
+%%   \cite[see][p.~10]{key} → (see Author, Year, p. 10)
+%%   \cite[p.~10]{key}      → (Author, Year, p. 10)
+%%
+%% Multiple citations:
+%%   \cite{key1,key2,key3}  → (Author1, Year1; Author2, Year2; Author3, Year3)
+%%
+%% Suppressing parts:
+%%   \cite[e.g.,][]{key}    → (e.g., Author, Year)
+%%   \cite[][see p.~10]{key}→ (Author, Year, see p. 10)
+%%
+%% ----------------------------------------------------------------------------
+%% TROUBLESHOOTING
+%% ----------------------------------------------------------------------------
+%% Problem: Citations appear as [?] or undefined
+%% Solution: Run compilation 3-4 times to resolve all references
+%%
+%% Problem: Citation numbers out of order [3, 1] instead of [1, 3]
+%% Solution: Use unsrtnat (order of appearance) instead of elsarticle-num
+%%
+%% Problem: "Undefined control sequence \citet"
+%% Solution: \citet only works with natbib-compatible styles (unsrtnat, plainnat)
+%%           Use \cite{} with non-natbib styles
+%%
+%% Problem: Bibliography not appearing
+%% Solution: Ensure \bibliography{path/to/bibfile} command exists in main file
+%%           Run: pdflatex → bibtex → pdflatex → pdflatex
+
+%%%% EOF
+
+
+%% ----------------------------------------
+%% END of DOCUMENT
+%% ----------------------------------------
+\end{document}
+
+%%%% EOF
