@@ -1,0 +1,9 @@
+%% Compilation Engines Comparison Table
+\caption{\textbf{Compilation Engine Performance Comparison.}
+This table compares the three supported LaTeX compilation engines.
+Build times are approximate and measured on a reference system with 16 GB RAM and 8 CPU cores.
+Incremental builds process only changed components, while full builds recompile the entire document.
+The system automatically selects the best available engine when \texttt{engine: auto} is configured in \texttt{config/config\_manuscript.yaml}.
+Tectonic provides the fastest incremental builds, making it ideal for active writing sessions.
+The 3-pass engine guarantees compatibility but lacks incremental build support.}
+\label{tab:S2_compilation_engines}

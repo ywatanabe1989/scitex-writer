@@ -7,7 +7,8 @@
 set -e
 
 ORIG_DIR="$(pwd)"
-THIS_DIR="$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)"
+# shellcheck disable=SC2034
+THIS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(git rev-parse --show-toplevel 2>/dev/null)"
 
 # Colors
@@ -42,7 +43,8 @@ echo
 
 # Get current version
 if [ -f "$SCITEX_WRITER_VERSION_COUNTER_TXT" ]; then
-    CURRENT_VERSION=$(cat "$SCITEX_WRITER_VERSION_COUNTER_TXT")
+    # Read only the first line (version number), ignore cleanup history comments
+    CURRENT_VERSION=$(head -n1 "$SCITEX_WRITER_VERSION_COUNTER_TXT")
     NEXT_VERSION=$(printf "%03d" $((10#$CURRENT_VERSION + 1)))
     echo_info "Current version: v$CURRENT_VERSION"
     echo_info "Next version will be: v$NEXT_VERSION"
@@ -59,7 +61,8 @@ echo_header "Test: File Selection Logic"
 source ./scripts/shell/modules/git_auto_commit.sh
 
 # Manually build the file list (same logic as in git_auto_commit)
-files_to_commit=()
+# shellcheck disable=SC2034
+files_to_commit=() # Intentionally unused - this is a simulation test
 archive_dir="${SCITEX_WRITER_VERSIONS_DIR}"
 doc_type="${SCITEX_WRITER_DOC_TYPE}"
 version="$NEXT_VERSION"
@@ -90,9 +93,9 @@ echo
 echo_header "Current Git Status"
 if git status --short | head -20; then
     echo
-    untracked_count=$(git status --short | grep "^??" | wc -l)
-    modified_count=$(git status --short | grep "^ M" | wc -l)
-    staged_count=$(git status --short | grep "^M" | wc -l)
+    untracked_count=$(git status --short | grep -c "^??" || true)
+    modified_count=$(git status --short | grep -c "^ M" || true)
+    staged_count=$(git status --short | grep -c "^M" || true)
 
     echo_info "Untracked files: $untracked_count"
     echo_info "Modified files: $modified_count"

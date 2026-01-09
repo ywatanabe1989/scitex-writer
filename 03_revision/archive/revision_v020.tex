@@ -1,0 +1,971 @@
+% ==============================================================================
+% SciTeX Writer v2.0.0-rc4 (https://scitex.ai)
+% LaTeX compilation engine: tectonic
+% Compiled: 2026-01-09 15:57:16
+% Source: 03_revision/base.tex
+% ==============================================================================
+
+%% -*- coding: utf-8 -*-
+%% Timestamp: "2025-09-27 14:52:52 (ywatanabe)"
+%% File: "/ssh:sp:/home/ywatanabe/proj/neurovista/paper/03_revision/base.tex"
+\UseRawInputEncoding
+
+%% ----------------------------------------
+%% SETTINGS
+%% ----------------------------------------
+
+% ======================================================================
+% File: ./03_revision/contents/latex_styles/columns.tex
+% ======================================================================
+%% -*- coding: utf-8 -*-
+%% Timestamp: "2025-09-30 18:04:38 (ywatanabe)"
+%% File: "/ssh:sp:/home/ywatanabe/proj/neurovista/paper/00_shared/latex_styles/columns.tex"
+
+%% --- Columns ---
+%% \documentclass[final,3p,times,twocolumn]{elsarticle} %% Use it for submission
+%% Use the options 1p,twocolumn; 3p; 3p,twocolumn; 5p; or 5p,twocolumn
+%% for a journal layout:
+%% \documentclass[final,1p,times]{elsarticle}
+%% \documentclass[final,1p,times,twocolumn]{elsarticle}
+%% \documentclass[final,3p,times]{elsarticle}
+%% \documentclass[final,3p,times,twocolumn]{elsarticle}
+%% \documentclass[final,5p,times]{elsarticle}
+%% \documentclass[final,5p,times,twocolumn]{elsarticle}
+\documentclass[preprint,review,12pt]{elsarticle}
+
+%%%% EOF
+
+
+% ======================================================================
+% File: ./03_revision/contents/latex_styles/packages.tex
+% ======================================================================
+%% -*- coding: utf-8 -*-
+%% Timestamp: "2025-09-30 17:57:49 (ywatanabe)"
+%% File: "/ssh:sp:/home/ywatanabe/proj/neurovista/paper/00_shared/latex_styles/packages.tex"
+%% -*- coding: utf-8 -*-
+%% Timestamp: "2025-09-27 16:01:16 (ywatanabe)"
+
+%% Language and encoding
+\usepackage[english]{babel}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+
+%% Colors (load early to avoid option clashes with tikz, pgfplots, tcolorbox)
+% Include all common color options: table (for colortbl), svgnames (for tcolorbox)
+\usepackage[table,svgnames]{xcolor}
+
+%% Mathematics
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{siunitx}
+\sisetup{round-mode=figures,round-precision=3}
+
+%% Graphics and figures
+\usepackage{graphicx}
+\usepackage{tikz}
+\usepackage{pgfplots, pgfplotstable}
+\usetikzlibrary{positioning,shapes,arrows,fit,calc,graphs,graphs.standard}
+
+%% Tables
+\usepackage{booktabs, colortbl, longtable, supertabular, tabularx, xltabular}
+\usepackage{csvsimple, makecell}
+
+%% Table formatting
+\renewcommand\theadfont{\bfseries}
+\renewcommand\theadalign{c}
+\newcolumntype{C}[1]{>{\centering\arraybackslash}m{#1}}
+\renewcommand{\arraystretch}{1.5}
+\definecolor{lightgray}{gray}{0.95}
+
+%% Layout and geometry
+\usepackage[pass]{geometry}
+\usepackage{pdflscape, indentfirst, calc}
+\usepackage{titlesec}  % For custom section formatting
+
+%% Captions and references
+\usepackage[margin=10pt,font=small,labelfont=bf,labelsep=endash]{caption}
+\usepackage[numbers]{natbib}  % numbers: numeric citations [1], [2]
+\setcitestyle{sort=false}     % Preserve citation order as written
+\usepackage{hyperref}
+
+%% Document features
+% % \usepackage{accsupp, lineno, bashful, lipsum}  % Disabled for tectonic  % Disabled for tectonic
+
+%% Visual enhancements
+\usepackage[most]{tcolorbox}
+
+%% External references
+\usepackage{xr-hyper}
+
+%% EOF
+
+%%%% EOF
+
+
+% ======================================================================
+% File: ./03_revision/contents/latex_styles/formatting.tex
+% ======================================================================
+%% -*- coding: utf-8 -*-
+%% Timestamp: "2025-09-30 18:03:32 (ywatanabe)"
+%% File: "/ssh:sp:/home/ywatanabe/proj/neurovista/paper/00_shared/latex_styles/formatting.tex"
+
+%% --- Image width ---
+\newlength{\imagewidth}
+\newlength{\imagescale}
+
+%% --- Line numbers ---
+\linespread{1.2}
+% \linenumbers  % Disabled for tectonic
+
+%% --- Colors ---
+\definecolor{GreenBG}{rgb}{0,1,0}
+\definecolor{RedBG}{rgb}{1,0,0}
+
+%% --- Highlight boxes ---
+\newtcbox{\greenhighlight}[1][]{on line,colframe=GreenBG,colback=GreenBG!50!white,boxrule=0pt,arc=0pt,boxsep=0pt,left=1pt,right=1pt,top=2pt,bottom=2pt,tcbox raise base}
+\newtcbox{\redhighlight}[1][]{on line,colframe=RedBG,colback=RedBG!50!white,boxrule=0pt,arc=0pt,boxsep=0pt,left=1pt,right=1pt,top=2pt,bottom=2pt,tcbox raise base}
+
+\newcommand{\REDSTARTS}{\color{red}}
+\newcommand{\REDENDS}{\color{black}}
+\newcommand{\GREENSTARTS}{\color{green}}
+\newcommand{\GREENENDS}{\color{black}}
+
+%% --- Word count ---
+\newread\wordcount
+\newcommand\readwordcount[1]{%
+\openin\wordcount=#1
+\read\wordcount to \thewordcount
+\closein\wordcount
+\thewordcount
+}
+
+%% --- Text highlighting ---
+\usepackage{soul}
+\sethlcolor{yellow}
+
+%% --- Reference handling ---
+\usepackage{refcount}
+
+\let\oldref\ref
+\newcommand{\hlref}[1]{%
+  \ifnum\getrefnumber{#1}=0
+    \colorbox{yellow}{\ref*{#1}}%  % Use colorbox for references (no line break needed)
+  \else
+    \ref{#1}%
+  \fi
+}
+
+% To add an 'S' prefixes to a reference
+\newcommand*\sref[1]{S\hlref{#1}}
+\newcommand*\sfref[1]{Supplementary Figure S\hlref{#1}}
+\newcommand*\stref[1]{Supplementary Table S\hlref{#1}}
+\newcommand*\smref[1]{Supplementary Materials S\hlref{#1}}
+
+%%%% EOF
+
+
+% ======================================================================
+% File: ./03_revision/contents/latex_styles/commands.tex
+% ======================================================================
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Custom
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Colors
+\definecolor{editor_color}{rgb}{0.35, 0.35, 0.35}
+\definecolor{reviewer1_color}{rgb}{0.35, 0.35, 0.35}
+\definecolor{reviewer2_color}{rgb}{0.35, 0.35, 0.35}
+\definecolor{author_color}{rgb}{0., 0., 1.}
+% \definecolor{author_color}{rgb}{0., 0.5, 0.75} % 8939 blue
+% \definecolor{revision_color}{rgb}{0.5, 0.0, 0.5} % purple
+\definecolor{revision_color}{rgb}{0., 0., 1.}
+% \definecolor{added_color}{rgb}{0., 0.5, .75} % 8939 blue
+% \definecolor{added_color}{rgb}{0.078, 0.703, 0.078} % 8939 green
+\definecolor{added_color}{rgb}{0., 0.5, 0.} % 8939 green
+% \definecolor{added_color}{rgb}{0., 1., 0.} % green
+% \definecolor{deleted_color}{rgb}{255/256, 70/256, 50/256}
+\definecolor{deleted_color}{rgb}{1., .273, .195}
+
+
+% \definecolor{revision_color}{rgb}{0., 0., 1.}
+\definecolor{highlighter_color}{rgb}{0.9, 0.63, 0.08}
+
+
+% Section headings
+\titleformat{\section}
+{\normalfont\normalsize\bfseries}
+{\thesection}{1em}{}
+
+% Define comment counters
+\newcounter{EditorCounter}
+\newcounter{RevOneCounter}
+\newcounter{RevTwoCounter}
+
+% Color commands
+\newcommand{\editorText}[1]{
+  \textit{\textcolor{editor_color}{#1}}
+}
+
+\newcommand{\authorText}[1]{
+  \textcolor{author_color}{#1}
+}
+
+\newcommand{\revisionText}[1]{
+  \textcolor{revision_color}{#1}
+}
+
+% Editor's and Reviewers' comments
+\newcommand{\editorComment}[1]{
+  \stepcounter{EditorCounter}
+  \pdfbookmark[2]{Comments \#\theEditorCounter}{editor-comment-\theEditorCounter}
+  \subsection*{Dr. Rivolta's Comments \#\theEditorCounter}
+  \textit{\textcolor{editor_color}{#1}}
+}
+
+\newcommand{\revOneComment}[1]{
+  \stepcounter{RevOneCounter}
+  \pdfbookmark[2]{Comments \#\theRevOneCounter}{reviewer-1-comment-\theRevOneCounter}
+  \subsection*{Reviewer \#1's Comments \#\theRevOneCounter}
+  \textit{\textcolor{reviewer1_color}{#1}}
+}
+
+\newcommand{\revTwoComment}[1]{
+  \stepcounter{RevTwoCounter}
+  \pdfbookmark[2]{Comments \#\theRevTwoCounter}{reviewer-2-comment-\theRevTwoCounter}
+  \subsection*{Reviewer \#2's Comments \#\theRevTwoCounter}
+  \textit{\textcolor{reviewer1_color}{#1}}
+}
+
+% Our comments
+\newcommand{\resEditor}[1]{
+  \subsection*{\textcolor{author_color}{Response}}
+}
+
+
+\newcommand{\resRevOne}[1]{
+  \subsection*{\textcolor{author_color}{Response}}
+  % \textcolor{author_color}{#1}
+}
+
+\newcommand{\resRevTwo}[1]{
+  \subsection*{\textcolor{author_color}{Response}}
+  % \textcolor{author_color}{#1}
+}
+
+% Our comments
+\newcommand{\revEditor}[1]{
+  \subsection*{\textcolor{revision_color}{Revision}}
+}
+
+
+\newcommand{\revRevOne}[1]{
+  \subsection*{\textcolor{revision_color}{Revision}}
+}
+
+\newcommand{\revRevTwo}[1]{
+  \subsection*{\textcolor{revision_color}{Revision}}
+}
+
+
+\newcommand{\revise}[1]{
+  \colorbox{yellow}{\parbox{\linewidth}{#1}}
+}
+
+\newcommand{\hlurl}[1]{%
+  \colorbox{yellow}{\href{#1}{\nolinkurl{#1}}}%
+}
+
+
+
+% ======================================================================
+% File: ./03_revision/contents/latex_styles/commands_diff.tex
+% ======================================================================
+%DIF PREAMBLE EXTENSION ADDED BY LATEXDIFF
+%DIF UNDERLINE PREAMBLE %DIF PREAMBLE
+\RequirePackage[normalem]{ulem} %DIF PREAMBLE
+\RequirePackage{color}\definecolor{RED}{rgb}{1,0,0}\definecolor{BLUE}{rgb}{0,0,1} %DIF PREAMBLE
+\providecommand{\DIFaddtex}[1]{{\protect\color{added_color}\uwave{#1}}} %DIF PREAMBLE
+% \providecommand{\DIFaddtex}[1]{{\protect\color{blue}\hl{#1}}} %DIF PREAMBLE
+\providecommand{\DIFdeltex}[1]{{\protect\color{deleted_color}\sout{#1}}}                      %DIF PREAMBLE
+% \providecommand{\DIFdeltex}[1]{{\protect\color{revision_color}\sout{#1}}}                      %DIF PREAMBLE
+%DIF SAFE PREAMBLE %DIF PREAMBLE
+\providecommand{\DIFaddbegin}{} %DIF PREAMBLE
+\providecommand{\DIFaddend}{} %DIF PREAMBLE
+\providecommand{\DIFdelbegin}{} %DIF PREAMBLE
+\providecommand{\DIFdelend}{} %DIF PREAMBLE
+\providecommand{\DIFmodbegin}{} %DIF PREAMBLE
+\providecommand{\DIFmodend}{} %DIF PREAMBLE
+%DIF FLOATSAFE PREAMBLE %DIF PREAMBLE
+\providecommand{\DIFaddFL}[1]{\DIFadd{#1}} %DIF PREAMBLE
+\providecommand{\DIFdelFL}[1]{\DIFdel{#1}} %DIF PREAMBLE
+\providecommand{\DIFaddbeginFL}{} %DIF PREAMBLE
+\providecommand{\DIFaddendFL}{} %DIF PREAMBLE
+\providecommand{\DIFdelbeginFL}{} %DIF PREAMBLE
+\providecommand{\DIFdelendFL}{} %DIF PREAMBLE
+%DIF HYPERREF PREAMBLE %DIF PREAMBLE
+\providecommand{\DIFadd}[1]{\texorpdfstring{\DIFaddtex{#1}}{#1}} %DIF PREAMBLE
+\providecommand{\DIFdel}[1]{\texorpdfstring{\DIFdeltex{#1}}{}} %DIF PREAMBLE
+\newcommand{\DIFscaledelfig}{0.5}
+%DIF HIGHLIGHTGRAPHICS PREAMBLE %DIF PREAMBLE
+\RequirePackage{settobox} %DIF PREAMBLE
+\RequirePackage{letltxmacro} %DIF PREAMBLE
+\newsavebox{\DIFdelgraphicsbox} %DIF PREAMBLE
+\newlength{\DIFdelgraphicswidth} %DIF PREAMBLE
+\newlength{\DIFdelgraphicsheight} %DIF PREAMBLE
+% store original definition of \includegraphics %DIF PREAMBLE
+\LetLtxMacro{\DIFOincludegraphics}{\includegraphics} %DIF PREAMBLE
+\newcommand{\DIFaddincludegraphics}[2][]{{\color{blue}\fbox{\DIFOincludegraphics[#1]{#2}}}} %DIF PREAMBLE
+\newcommand{\DIFdelincludegraphics}[2][]{% %DIF PREAMBLE
+\sbox{\DIFdelgraphicsbox}{\DIFOincludegraphics[#1]{#2}}% %DIF PREAMBLE
+\settoboxwidth{\DIFdelgraphicswidth}{\DIFdelgraphicsbox} %DIF PREAMBLE
+\settoboxtotalheight{\DIFdelgraphicsheight}{\DIFdelgraphicsbox} %DIF PREAMBLE
+\scalebox{\DIFscaledelfig}{% %DIF PREAMBLE
+\parbox[b]{\DIFdelgraphicswidth}{\usebox{\DIFdelgraphicsbox}\\[-\baselineskip] \rule{\DIFdelgraphicswidth}{0em}}\llap{\resizebox{\DIFdelgraphicswidth}{\DIFdelgraphicsheight}{% %DIF PREAMBLE
+\setlength{\unitlength}{\DIFdelgraphicswidth}% %DIF PREAMBLE
+\begin{picture}(1,1)% %DIF PREAMBLE
+\thicklines\linethickness{2pt} %DIF PREAMBLE
+{\color[rgb]{1,0,0}\put(0,0){\framebox(1,1){}}}% %DIF PREAMBLE
+{\color[rgb]{1,0,0}\put(0,0){\line( 1,1){1}}}% %DIF PREAMBLE
+{\color[rgb]{1,0,0}\put(0,1){\line(1,-1){1}}}% %DIF PREAMBLE
+\end{picture}% %DIF PREAMBLE
+}\hspace*{3pt}}} %DIF PREAMBLE
+} %DIF PREAMBLE
+\LetLtxMacro{\DIFOaddbegin}{\DIFaddbegin} %DIF PREAMBLE
+\LetLtxMacro{\DIFOaddend}{\DIFaddend} %DIF PREAMBLE
+\LetLtxMacro{\DIFOdelbegin}{\DIFdelbegin} %DIF PREAMBLE
+\LetLtxMacro{\DIFOdelend}{\DIFdelend} %DIF PREAMBLE
+\DeclareRobustCommand{\DIFaddbegin}{\DIFOaddbegin \let\includegraphics\DIFaddincludegraphics} %DIF PREAMBLE
+\DeclareRobustCommand{\DIFaddend}{\DIFOaddend \let\includegraphics\DIFOincludegraphics} %DIF PREAMBLE
+\DeclareRobustCommand{\DIFdelbegin}{\DIFOdelbegin \let\includegraphics\DIFdelincludegraphics} %DIF PREAMBLE
+\DeclareRobustCommand{\DIFdelend}{\DIFOaddend \let\includegraphics\DIFOincludegraphics} %DIF PREAMBLE
+\LetLtxMacro{\DIFOaddbeginFL}{\DIFaddbeginFL} %DIF PREAMBLE
+\LetLtxMacro{\DIFOaddendFL}{\DIFaddendFL} %DIF PREAMBLE
+\LetLtxMacro{\DIFOdelbeginFL}{\DIFdelbeginFL} %DIF PREAMBLE
+\LetLtxMacro{\DIFOdelendFL}{\DIFdelendFL} %DIF PREAMBLE
+\DeclareRobustCommand{\DIFaddbeginFL}{\DIFOaddbeginFL \let\includegraphics\DIFaddincludegraphics} %DIF PREAMBLE
+\DeclareRobustCommand{\DIFaddendFL}{\DIFOaddendFL \let\includegraphics\DIFOincludegraphics} %DIF PREAMBLE
+\DeclareRobustCommand{\DIFdelbeginFL}{\DIFOdelbeginFL \let\includegraphics\DIFdelincludegraphics} %DIF PREAMBLE
+\DeclareRobustCommand{\DIFdelendFL}{\DIFOaddendFL \let\includegraphics\DIFOincludegraphics} %DIF PREAMBLE
+%DIF LISTINGS PREAMBLE %DIF PREAMBLE
+\RequirePackage{listings} %DIF PREAMBLE
+\RequirePackage{color} %DIF PREAMBLE
+\lstdefinelanguage{DIFcode}{ %DIF PREAMBLE
+%DIF DIFCODE_UNDERLINE %DIF PREAMBLE
+  moredelim=[il][\color{red}\sout]{\%DIF\ <\ }, %DIF PREAMBLE
+  moredelim=[il][\color{blue}\uwave]{\%DIF\ >\ } %DIF PREAMBLE
+} %DIF PREAMBLE
+\lstdefinestyle{DIFverbatimstyle}{ %DIF PREAMBLE
+	language=DIFcode, %DIF PREAMBLE
+	basicstyle=\ttfamily, %DIF PREAMBLE
+	columns=fullflexible, %DIF PREAMBLE
+	keepspaces=true %DIF PREAMBLE
+} %DIF PREAMBLE
+\lstnewenvironment{DIFverbatim}{\lstset{style=DIFverbatimstyle}}{} %DIF PREAMBLE
+\lstnewenvironment{DIFverbatim*}{\lstset{style=DIFverbatimstyle,showspaces=true}}{} %DIF PREAMBLE
+%DIF END PREAMBLE EXTENSION ADDED BY LATEXDIFF
+
+
+%% ----------------------------------------
+%% START of DOCUMENT
+%% ----------------------------------------
+\begin{document}
+
+%% ----------------------------------------
+%% Frontmatter
+%% ----------------------------------------
+\begin{frontmatter}
+
+% ======================================================================
+% File: ./03_revision/contents/title.tex
+% ======================================================================
+%% -*- coding: utf-8 -*-
+%% Timestamp: "2025-11-09 20:11:01 (ywatanabe)"
+%% File: "/home/ywatanabe/proj/scitex-writer/00_shared/title.tex"
+\title{
+SciTeX Writer: Modular Framework for Version-Controlled Manuscripts, Supplementary Materials, and Peer Review Responses
+}
+
+%%%% EOF
+
+
+% ======================================================================
+% File: ./03_revision/contents/authors.tex
+% ======================================================================
+%% -*- coding: utf-8 -*-
+\author[1]{Yusuke Watanabe\corref{cor1}}
+\author[2]{Second Author}
+\author[3]{Third Author}
+
+
+\address[1]{SciTeX.ai, Tokyo, Japan}
+\address[2]{Second Institution, Department, City, Country}
+\address[3]{Third Institution, Department, City, Country}
+
+\cortext[cor1]{Corresponding author. Email: ywatanabe@scitex.ai}
+
+%%%% EOF
+
+\end{frontmatter}
+
+%% ----------------------------------------
+%% Introduction
+%% ----------------------------------------
+
+% ======================================================================
+% File: ./03_revision/contents/introduction.tex
+% ======================================================================
+%% -*- coding: utf-8 -*-
+
+\noindent\hrulefill
+\pdfbookmark[1]{Introduction}{introduction}
+
+\section*{Introduction}
+
+We thank the Editor and Reviewers for their thoughtful and constructive feedback on our manuscript describing the SciTeX Writer framework. Their comments have significantly strengthened both the technical content and the clarity of our presentation. We have carefully addressed each point raised during the review process and believe the revised manuscript provides a more comprehensive and accessible description of the framework's capabilities.
+
+\editorText{Original comments from the editor and reviewers are presented in gray italicized text.}
+
+\authorText{Our responses to these comments are shown in blue text.}
+
+Changes made to the manuscript text are highlighted using latexdiff formatting, with \DIFadd{additions shown in blue} and \DIFdel{deletions shown in red with strikethrough}.
+
+This response document demonstrates one of the key features of SciTeX Writer: the structured organization of revision materials. Each reviewer's comments and our corresponding responses are maintained in separate, version-controlled files that are automatically compiled into this comprehensive response letter. The integration with latexdiff enables automatic generation of marked-up manuscripts showing precisely where changes were made. This systematic approach ensures that all reviewer concerns are addressed and documented in a format that facilitates editorial review.
+
+%%%% EOF
+
+
+
+%% ----------------------------------------
+%% Editor
+%% ----------------------------------------
+\pdfbookmark[1]{Editor}{editor}
+
+% ======================================================================
+% File: ./03_revision/contents/editor/E_01_comments.tex
+% ======================================================================
+%% Editor comment 1
+\subsection*{Editor Comment 1}
+
+\editorText{The manuscript presents an interesting framework for scientific manuscript preparation. However, the reviewers have raised several important points regarding performance benchmarks, comparison with existing solutions, and accessibility for researchers without extensive technical backgrounds. Please address these concerns in your revision and provide additional validation data as suggested by the reviewers.}
+
+
+
+% ======================================================================
+% File: ./03_revision/contents/editor/E_01_response.tex
+% ======================================================================
+%% Response to editor comment 1
+\subsection*{Response to Editor Comment 1}
+
+\authorText{We thank the Editor for this helpful summary. We have carefully addressed all reviewer concerns through the following revisions:}
+
+\authorText{1) Added comprehensive performance benchmarks in the Supplementary Results section, including compilation times across different system configurations and scalability analysis with varying document sizes.}
+
+\authorText{2) Expanded the Discussion section to include detailed comparison with existing solutions (Overleaf, traditional LaTeX installations, and template repositories), clearly articulating the distinct advantages of our containerized approach.}
+
+\authorText{3) Acknowledged the learning curve for command-line interfaces in the Limitations section and proposed future directions including optional graphical interfaces and expanded documentation for LaTeX newcomers.}
+
+\authorText{4) Provided cross-platform validation results demonstrating byte-for-byte reproducibility across six different operating systems and two processor architectures.}
+
+\authorText{These additions strengthen the manuscript by providing quantitative validation and addressing accessibility concerns while maintaining focus on the framework's core contributions.}
+
+
+
+% ======================================================================
+% File: ./03_revision/contents/editor/E_01_revision.tex
+% ======================================================================
+%% Revision for editor comment 1
+%% This section shows the actual changes made to the manuscript
+
+%% No specific manuscript changes required - responses addressed through additions to discussion and supplementary materials
+
+
+
+
+% ======================================================================
+% File: ./03_revision/contents/editor/E_02_comments.tex
+% ======================================================================
+% SKIPPED: \input{03_revision/contents/editor/E_02_comments.tex} (file not found)
+
+
+
+% ======================================================================
+% File: ./03_revision/contents/editor/E_02_response.tex
+% ======================================================================
+% SKIPPED: \input{03_revision/contents/editor/E_02_response.tex} (file not found)
+
+
+% \input{./03_revision/contents/editor/E_02_revision}
+
+%% ----------------------------------------
+%% Reviewer #1
+%% ----------------------------------------
+\pdfbookmark[1]{Reviewer \#1}{reviewer1}
+
+
+% ======================================================================
+% File: ./03_revision/contents/reviewer1/R1_00_comments.tex
+% ======================================================================
+% SKIPPED: \input{03_revision/contents/reviewer1/R1_00_comments.tex} (file not found)
+
+
+
+% ======================================================================
+% File: ./03_revision/contents/reviewer1/R1_00_response.tex
+% ======================================================================
+% SKIPPED: \input{03_revision/contents/reviewer1/R1_00_response.tex} (file not found)
+
+
+% \input{./03_revision/contents/reviewer1/R1_00_revision}
+
+
+% ======================================================================
+% File: ./03_revision/contents/reviewer1/R1_01_comments.tex
+% ======================================================================
+%% Reviewer 1 comment 1
+\subsection*{Reviewer 1, Comment 1}
+
+\editorText{The manuscript describes an interesting approach to scientific manuscript preparation using containerization. However, I am concerned about the computational overhead introduced by container startup times. The authors should provide detailed performance benchmarks comparing compilation times with and without containerization, across different document sizes and system configurations. Without this quantitative data, it is difficult to assess whether the reproducibility benefits outweigh the performance costs.}
+
+
+
+% ======================================================================
+% File: ./03_revision/contents/reviewer1/R1_01_response.tex
+% ======================================================================
+%% Response to reviewer 1 comment 1
+\subsection*{Response to Reviewer 1, Comment 1}
+
+\authorText{We thank the reviewer for this important point. We have added a comprehensive ``Compilation Performance Benchmarks'' subsection to the Supplementary Results that directly addresses this concern.}
+
+\authorText{Our benchmarking revealed that container startup overhead adds approximately 2 seconds to each compilation cycle on our reference system (16 GB RAM, 8 cores). For a typical manuscript, total compilation time is 12 seconds for initial builds and 4 seconds for incremental builds. While this represents a measurable overhead compared to native LaTeX compilation, we argue that this cost is negligible in the context of typical writing workflows where authors compile documents infrequently (every few minutes at most).}
+
+\authorText{More importantly, the reproducibility benefits become evident when considering the time lost to debugging environment-specific compilation failures in collaborative settings. Our own experience and informal surveys of colleagues suggest that researchers commonly spend 30-60 minutes resolving package version conflicts when collaborating across different systems. The 2-second container overhead is trivial compared to these multi-hour debugging sessions.}
+
+\authorText{We have added this cost-benefit analysis to the Discussion section to help readers understand that while containerization introduces measurable overhead, the reproducibility benefits provide substantial time savings in collaborative workflows. We appreciate the reviewer prompting us to make this trade-off explicit.}
+
+
+
+% ======================================================================
+% File: ./03_revision/contents/reviewer1/R1_01_revision.tex
+% ======================================================================
+%% Revision for reviewer 1 comment 1
+%% Added performance benchmarks to discussion (from Discussion > Advantages of the Containerized Approach)
+
+The container-based compilation system represents a significant departure from traditional LaTeX workflows and offers substantial practical benefits. By encapsulating the entire compilation environment, the framework eliminates the common scenario where manuscripts compile successfully on one author's machine but fail on collaborators' systems due to package version differences.
+
+\DIFadd{Our benchmarking revealed that container startup overhead adds approximately 2 seconds to each compilation cycle on our reference system (16 GB RAM, 8 cores). For a typical manuscript, total compilation time is 12 seconds for initial builds and 4 seconds for incremental builds. While this represents a measurable overhead compared to native LaTeX compilation, this cost is negligible in the context of typical writing workflows where authors compile documents infrequently.}
+
+\DIFadd{More importantly, the reproducibility benefits become evident when considering the time lost to debugging environment-specific compilation failures. The 2-second container overhead is trivial compared to the 30-60 minutes researchers commonly spend resolving package version conflicts when collaborating across different systems.}
+
+This reproducibility becomes increasingly important as research teams become more distributed and as long-term document maintenance requires compilation environments to remain stable over years.
+
+
+
+
+% ======================================================================
+% File: ./03_revision/contents/reviewer1/R1_02_comments.tex
+% ======================================================================
+% SKIPPED: \input{03_revision/contents/reviewer1/R1_02_comments.tex} (file not found)
+
+
+
+% ======================================================================
+% File: ./03_revision/contents/reviewer1/R1_02_response.tex
+% ======================================================================
+% SKIPPED: \input{03_revision/contents/reviewer1/R1_02_response.tex} (file not found)
+
+
+% \input{./03_revision/contents/reviewer1/R1_02_revision}
+
+%% ----------------------------------------
+%% Reviewer #2
+%% ----------------------------------------
+\pdfbookmark[1]{Reviewer \#2}{reviewer2}
+
+% ======================================================================
+% File: ./03_revision/contents/reviewer2/R2_00_comments.tex
+% ======================================================================
+% SKIPPED: \input{03_revision/contents/reviewer2/R2_00_comments.tex} (file not found)
+
+
+
+% ======================================================================
+% File: ./03_revision/contents/reviewer2/R2_00_response.tex
+% ======================================================================
+% SKIPPED: \input{03_revision/contents/reviewer2/R2_00_response.tex} (file not found)
+
+
+% \input{./03_revision/contents/reviewer2/R2_00_revision}
+
+
+% ======================================================================
+% File: ./03_revision/contents/reviewer2/R2_01_comments.tex
+% ======================================================================
+%% Reviewer 2 comment 1
+\subsection*{Reviewer 2, Comment 1}
+
+\editorText{The manuscript would benefit from a more thorough comparison with Overleaf, which already provides reproducible LaTeX compilation environments. The authors mention Overleaf briefly but do not clearly articulate what advantages their containerized approach offers over this established cloud-based platform. Additionally, the manuscript does not address accessibility for researchers who may not be comfortable with command-line interfaces and containerization technologies. This could limit adoption of the framework.}
+
+
+
+% ======================================================================
+% File: ./03_revision/contents/reviewer2/R2_01_response.tex
+% ======================================================================
+%% Response to reviewer 2 comment 1
+\subsection*{Response to Reviewer 2, Comment 1}
+
+\authorText{We appreciate these thoughtful observations. We have substantially expanded the ``Comparison with Existing Solutions'' subsection in the Discussion to provide a more detailed analysis of how SciTeX Writer differs from Overleaf.}
+
+\authorText{The key distinctions are: (1) SciTeX Writer operates entirely on local systems or institutional computing infrastructure, eliminating dependency on internet connectivity and addressing concerns about sensitive research data on cloud platforms; (2) the framework provides complete control over the compilation environment through transparent, modifiable container definitions rather than a proprietary compilation service; (3) the modular file structure and automated asset management go beyond what Overleaf provides, actively preventing merge conflicts and automating figure/table preprocessing; and (4) the system integrates seamlessly with existing Git workflows and institutional HPC resources that often prohibit cloud services.}
+
+\authorText{Regarding accessibility, we acknowledge this is a valid limitation. We have added discussion of this concern in the ``Limitations and Considerations'' subsection, explicitly noting that the command-line interface may present a learning curve for some researchers. We have also proposed future development directions including optional graphical interfaces and expanded documentation for LaTeX newcomers. However, we note that our target audience includes researchers already using or willing to learn Git for version control, a group that increasingly represents the norm in computational research fields.}
+
+\authorText{We have also clarified in the Introduction that SciTeX Writer is positioned as a complementary tool rather than a universal replacement for existing solutions. Different research workflows have different requirements, and we now better articulate the specific use cases where our framework provides the greatest value.}
+
+
+
+% ======================================================================
+% File: ./03_revision/contents/reviewer2/R2_01_revision.tex
+% ======================================================================
+%% Revision for reviewer 2 comment 1
+%% Expanded comparison with Overleaf and addressed accessibility (from Discussion > Comparison with Existing Solutions and Limitations)
+
+Compared to cloud-based platforms like Overleaf, SciTeX Writer offers greater control over the compilation environment and eliminates dependency on internet connectivity, which can be crucial for researchers working in bandwidth-limited environments or on sensitive projects requiring air-gapped systems. Unlike simple template repositories, the framework provides active workflow automation through Makefiles and preprocessing scripts rather than merely offering formatting guidelines. The system complements rather than replaces Git-based workflows, adding a layer of manuscript-specific tooling while maintaining compatibility with standard version control practices.
+
+\DIFadd{The key distinctions from Overleaf are: (1) SciTeX Writer operates entirely on local systems or institutional computing infrastructure, addressing concerns about sensitive research data on cloud platforms; (2) the framework provides complete control over the compilation environment through transparent, modifiable container definitions rather than a proprietary compilation service; (3) the modular file structure and automated asset management go beyond what Overleaf provides, actively preventing merge conflicts and automating figure/table preprocessing; and (4) the system integrates seamlessly with existing Git workflows and institutional HPC resources that often prohibit cloud services.}
+
+Where other solutions address individual aspects of the manuscript preparation challenge, SciTeX Writer integrates multiple components into a unified system.
+
+\DIFadd{The framework requires users to have basic familiarity with command-line interfaces and Makefiles, which may present a learning curve for researchers accustomed to graphical editing environments.} \DIFdel{While the system automates many aspects of document preparation, it remains a LaTeX-based solution and therefore inherits both the power and complexity of the underlying typesetting system.} \DIFadd{The containerization approach requires Docker or Singularity installation, adding a dependency that, while increasingly common in research computing environments, may not be universally available. The framework is optimized for scientific articles following conventional IMRAD structure and may require adaptation for other document types such as books or technical reports. Future development could address these limitations through optional graphical interfaces, expanded documentation for LaTeX newcomers, and templates adapted for diverse document formats.}
+
+
+
+
+% ======================================================================
+% File: ./03_revision/contents/reviewer2/R2_02_comments.tex
+% ======================================================================
+% SKIPPED: \input{03_revision/contents/reviewer2/R2_02_comments.tex} (file not found)
+
+
+
+% ======================================================================
+% File: ./03_revision/contents/reviewer2/R2_02_response.tex
+% ======================================================================
+% SKIPPED: \input{03_revision/contents/reviewer2/R2_02_response.tex} (file not found)
+
+
+% \input{./03_revision/contents/reviewer2/R2_02_revision}
+
+%% ----------------------------------------
+%% Conclusion
+%% ----------------------------------------
+
+% ======================================================================
+% File: ./03_revision/contents/conclusion.tex
+% ======================================================================
+%% -*- coding: utf-8 -*-
+
+\noindent\hrulefill
+
+\section*{Conclusion}
+
+We sincerely appreciate the time and expertise that the Editor and Reviewers devoted to evaluating our manuscript. Their insightful comments have led to substantial improvements in both the technical documentation and the clarity of our presentation. The revision process has strengthened the manuscript's contribution by prompting us to provide additional validation results, clarify implementation details, and better articulate the framework's advantages for collaborative scientific writing.
+
+All concerns raised during the initial review have been addressed through revisions to the manuscript text, addition of supplementary materials, and clarification of technical specifications. We believe the revised manuscript now provides researchers with a clear understanding of how SciTeX Writer can streamline their manuscript preparation workflow while ensuring reproducibility across diverse computing environments.
+
+Appropriately, this revision letter itself was generated using the SciTeX Writer framework, demonstrating the system's practical utility for managing the peer review process. The structured organization of reviewer comments and author responses, combined with automatic generation of marked-up manuscripts, exemplifies the workflow efficiencies that the framework provides.
+
+We look forward to your decision on the revised manuscript and remain available to address any additional questions or concerns.
+
+Sincerely,
+
+The SciTeX Writer Development Team
+
+%%%% EOF
+
+
+
+%% ----------------------------------------
+%% REFERENCE STYLES
+%% ----------------------------------------
+\pdfbookmark[1]{References}{references}
+\bibliography{./03_revision/contents/bibliography}
+
+% ======================================================================
+% File: ./03_revision/contents/latex_styles/bibliography.tex
+% ======================================================================
+%% -*- coding: utf-8 -*-
+%% Timestamp: "2025-09-30 17:40:26 (ywatanabe)"
+%% File: "/ssh:sp:/home/ywatanabe/proj/neurovista/paper/00_shared/latex_styles/bibliography.tex"
+
+%% ============================================================================
+%% BIBLIOGRAPHY STYLE CONFIGURATION
+%% ============================================================================
+
+%% ----------------------------------------------------------------------------
+%% OPTION 1: NUMBERED CITATIONS (Order of Appearance) - CURRENTLY ACTIVE
+%% ----------------------------------------------------------------------------
+%% Description: Citations numbered [1], [2], [3]... in the order they first
+%%              appear in the manuscript
+%% Sorting: By first citation order (NOT alphabetical)
+%% Example: \cite{Tort2010,Canolty2010} → [1, 2] (if these are first citations)
+%% Commands: \cite{key} → [1]
+%%           \cite{key1,key2} → [1, 2]
+%% Best for: Most scientific journals, clear citation tracking
+%% Compatible with: natbib package
+\bibliographystyle{unsrtnat}
+
+%% ----------------------------------------------------------------------------
+%% OPTION 2: NUMBERED CITATIONS (Alphabetical by Author)
+%% ----------------------------------------------------------------------------
+%% Description: Citations numbered [1], [2], [3]... sorted alphabetically by
+%%              first author's last name
+%% Sorting: Alphabetical by author (Canolty before Tort)
+%% Example: \cite{Tort2010,Canolty2010} → [2, 1] (C before T alphabetically)
+%% Commands: \cite{key} → [1]
+%% Best for: When you want bibliography sorted alphabetically
+%% Compatible with: elsarticle class
+% \bibliographystyle{elsarticle-num}
+
+%% Alternative alphabetical styles:
+% \bibliographystyle{plain}      % Basic alphabetical, no natbib features
+% \bibliographystyle{ieeetr}     % IEEE style, order of appearance
+% \bibliographystyle{siam}       % SIAM style, alphabetical
+
+%% ----------------------------------------------------------------------------
+%% OPTION 3: AUTHOR-YEAR CITATIONS
+%% ----------------------------------------------------------------------------
+%% Description: Citations show author name and year (Smith, 2020) or (Smith 2020)
+%% Format: (Author, Year) or Author (Year) depending on command
+%% Example: \cite{Tort2010} → (Tort et al., 2010)
+%%          \citet{Tort2010} → Tort et al. (2010) [textual]
+%%          \cite{Tort2010} → (Tort et al., 2010) [parenthetical]
+%% Commands:
+%%   - \citet{key}  → Author (Year)  [for text: "As shown by Author (2020)..."]
+%%   - \cite{key}  → (Author, Year) [for parentheses: "...as shown (Author, 2020)"]
+%%   - \cite{key}   → Same as \cite{key}
+%% Best for: Review papers, humanities, some social sciences
+%% Requires: natbib package (already loaded)
+% \bibliographystyle{plainnat}   % Author-year, alphabetical
+% \bibliographystyle{abbrvnat}   % Author-year, abbreviated names
+% \bibliographystyle{apalike}    % APA-like author-year style
+
+%% ----------------------------------------------------------------------------
+%% OPTION 4: JOURNAL-SPECIFIC STYLES
+%% ----------------------------------------------------------------------------
+%% Elsevier journals:
+% \bibliographystyle{elsarticle-num}        % Numbered, alphabetical
+% \bibliographystyle{elsarticle-num-names}  % Numbered, alphabetical, full names
+% \bibliographystyle{elsarticle-harv}       % Author-year (Harvard style)
+
+%% Nature family:
+% \bibliographystyle{naturemag}             % Nature magazine style
+
+%% IEEE:
+% \bibliographystyle{IEEEtran}              % IEEE Transactions style
+
+%% APA:
+% \bibliographystyle{apalike}               % APA-like style
+
+%% ----------------------------------------------------------------------------
+%% OPTION 5: ADDITIONAL CITATION STYLES
+%% ----------------------------------------------------------------------------
+%% Note: Many of these styles require biblatex instead of natbib.
+%% To use biblatex, you need to modify the preamble and use biber instead of bibtex.
+%% Basic conversion: Replace natbib package with biblatex, and use \printbibliography
+%% instead of \bibliographystyle + \bibliography commands.
+
+%% ----------------------------------------
+%% CHEMISTRY
+%% ----------------------------------------
+%% American Chemical Society (ACS):
+%% Installation: Download achemso.bst or use biblatex with style=chem-acs
+%% Format: Numbered, order of appearance, (1) Author, A. B. Title. Journal Year, Volume, Pages.
+%% BibTeX method:
+% \bibliographystyle{achemso}              % ACS style (requires achemso package)
+%% Biblatex method (recommended):
+% \usepackage[style=chem-acs]{biblatex}
+
+%% ----------------------------------------
+%% MEDICAL & HEALTH SCIENCES
+%% ----------------------------------------
+%% American Medical Association (AMA) 11th edition:
+%% Format: Numbered, order of appearance, superscript numbers
+%% Installation: Requires biblatex with biblatex-ama style
+%% Method:
+% \usepackage[style=ama]{biblatex}         % AMA 11th ed (requires biblatex-ama package)
+
+%% Vancouver style (ICMJE):
+%% Format: Numbered [1], order of appearance, commonly used in medical journals
+%% Note: unsrtnat (currently active) is very similar to Vancouver
+% \bibliographystyle{vancouver}            % Vancouver/ICMJE style (if .bst available)
+% \bibliographystyle{unsrtnat}             % Similar to Vancouver (currently active)
+
+%% ----------------------------------------
+%% SOCIAL SCIENCES
+%% ----------------------------------------
+%% American Psychological Association (APA) 7th edition:
+%% Format: Author-year, (Author, Year), alphabetical by author
+%% BibTeX method (APA-like, not full APA 7th):
+% \bibliographystyle{apalike}              % APA-like style (simplified)
+% \bibliographystyle{apacite}              % APA 6th/7th (requires apacite package)
+%% Biblatex method (recommended for full APA 7th compliance):
+% \usepackage[style=apa]{biblatex}         % Full APA 7th edition (requires biblatex-apa)
+
+%% American Sociological Association (ASA) 6th/7th edition:
+%% Format: Author-year, (Author Year), alphabetical, similar to Chicago author-date
+%% Method:
+% \bibliographystyle{asaetr}               % ASA-like style (if .bst available)
+%% Biblatex method:
+% \usepackage[style=authoryear]{biblatex} % Generic author-year (customizable to ASA)
+
+%% American Political Science Association (APSA):
+%% Format: Author-year, similar to Chicago author-date
+%% Method:
+% \usepackage[style=authoryear-comp]{biblatex}  % Compressed author-year for APSA
+
+%% ----------------------------------------
+%% HUMANITIES
+%% ----------------------------------------
+%% Chicago Manual of Style 18th edition (author-date):
+%% Format: Author-year, (Author Year), commonly used in social sciences and humanities
+% \bibliographystyle{chicago}              % Chicago author-date (if .bst available)
+%% Biblatex method (recommended):
+% \usepackage[style=chicago-authordate]{biblatex}  % Chicago 18th ed author-date
+
+%% Chicago Manual of Style 18th edition (notes and bibliography):
+%% Format: Footnote/endnote citations with full bibliography
+%% Method:
+% \usepackage[style=chicago-notes]{biblatex}  % Chicago 18th ed notes style
+
+%% Chicago Manual of Style 18th edition (shortened notes and bibliography):
+%% Format: Shortened footnote citations after first full citation
+%% Method:
+% \usepackage[style=chicago-notes]{biblatex}  % Use with ibidtracker option
+
+%% Modern Language Association (MLA) 9th edition:
+%% Format: Author-page, (Author Page), works cited list
+%% Method:
+% \usepackage[style=mla]{biblatex}         % MLA 9th edition (requires biblatex-mla)
+
+%% Modern Humanities Research Association (MHRA) 4th edition:
+%% Format: Footnote citations with bibliography
+%% Method:
+% \usepackage[style=mhra]{biblatex}        % MHRA 4th edition (requires biblatex-mhra)
+
+%% ----------------------------------------
+%% HARVARD STYLES
+%% ----------------------------------------
+%% Cite Them Right 12th edition - Harvard:
+%% Format: Author-year, (Author, Year), widely used in UK universities
+% \bibliographystyle{agsm}                 % Harvard style (Australian)
+% \bibliographystyle{dcu}                  % Harvard style (Dublin City University)
+%% Biblatex method:
+% \usepackage[style=authoryear]{biblatex} % Generic Harvard-style (author-year)
+
+%% Elsevier - Harvard (with titles):
+%% Format: Author-year with article titles included
+% \bibliographystyle{elsarticle-harv}      % Elsevier Harvard style (already listed above)
+
+%% ----------------------------------------
+%% ENGINEERING & COMPUTER SCIENCE
+%% ----------------------------------------
+%% IEEE (Institute of Electrical and Electronics Engineers):
+%% Format: Numbered [1], order of appearance, widely used in engineering
+% \bibliographystyle{IEEEtran}             % IEEE Transactions style (already listed above)
+
+%% ----------------------------------------
+%% NATURAL SCIENCES
+%% ----------------------------------------
+%% Nature:
+%% Format: Numbered, superscript, order of appearance
+% \bibliographystyle{naturemag}            % Nature magazine style (already listed above)
+% \bibliographystyle{naturemag-doi}        % Nature with DOIs
+
+%% ----------------------------------------------------------------------------
+%% BIBLATEX SETUP INSTRUCTIONS
+%% ----------------------------------------------------------------------------
+%% To switch from natbib to biblatex:
+%%
+%% 1. In packages.tex, replace:
+%%    \usepackage[numbers]{natbib}
+%%    with:
+%%    \usepackage[style=STYLENAME,backend=biber]{biblatex}
+%%    \addbibresource{path/to/bibliography.bib}
+%%
+%% 2. In this file (bibliography.tex), replace:
+%%    \bibliographystyle{...}
+%%    with:
+%%    % No \bibliographystyle needed with biblatex
+%%
+%% 3. In your main .tex file, replace:
+%%    \bibliography{path/to/bibliography}
+%%    with:
+%%    \printbibliography
+%%
+%% 4. Change compilation command:
+%%    pdflatex → biber → pdflatex → pdflatex
+%%    (instead of pdflatex → bibtex → pdflatex → pdflatex)
+%%
+%% Example biblatex styles:
+%%   style=numeric-comp     → Compressed numeric [1-3,5]
+%%   style=authoryear       → (Author, Year)
+%%   style=authoryear-comp  → (Author1, 2020; Author2, 2021)
+%%   style=apa              → APA 7th edition
+%%   style=chicago-authordate → Chicago author-date
+%%   style=ieee             → IEEE style
+%%   style=nature           → Nature style
+%%   style=mla              → MLA 9th edition
+
+%% ----------------------------------------------------------------------------
+%% CITATION COMMAND REFERENCE (with natbib)
+%% ----------------------------------------------------------------------------
+%% Basic commands:
+%%   \cite{key}              → [1] or (Author, Year) depending on style
+%%   \cite{key1,key2}        → [1, 2] or (Author1, Year1; Author2, Year2)
+%%
+%% Advanced natbib commands (only work with natbib-compatible styles):
+%%   \citet{key}             → Author (Year)  [textual citation]
+%%   \cite{key}             → (Author, Year) [parenthetical citation]
+%%   \citet*{key}            → Full author list (Year)
+%%   \cite*{key}            → (Full author list, Year)
+%%   \citealt{key}           → Author Year [no parentheses]
+%%   \citealp{key}           → Author, Year [no parentheses]
+%%   \citeauthor{key}        → Author [name only]
+%%   \citeyear{key}          → Year [year only]
+%%   \citeyearpar{key}       → (Year) [year in parentheses]
+%%
+%% Pre/post notes:
+%%   \cite[see][p.~10]{key} → (see Author, Year, p. 10)
+%%   \cite[p.~10]{key}      → (Author, Year, p. 10)
+%%
+%% Multiple citations:
+%%   \cite{key1,key2,key3}  → (Author1, Year1; Author2, Year2; Author3, Year3)
+%%
+%% Suppressing parts:
+%%   \cite[e.g.,][]{key}    → (e.g., Author, Year)
+%%   \cite[][see p.~10]{key}→ (Author, Year, see p. 10)
+%%
+%% ----------------------------------------------------------------------------
+%% TROUBLESHOOTING
+%% ----------------------------------------------------------------------------
+%% Problem: Citations appear as [?] or undefined
+%% Solution: Run compilation 3-4 times to resolve all references
+%%
+%% Problem: Citation numbers out of order [3, 1] instead of [1, 3]
+%% Solution: Use unsrtnat (order of appearance) instead of elsarticle-num
+%%
+%% Problem: "Undefined control sequence \citet"
+%% Solution: \citet only works with natbib-compatible styles (unsrtnat, plainnat)
+%%           Use \cite{} with non-natbib styles
+%%
+%% Problem: Bibliography not appearing
+%% Solution: Ensure \bibliography{path/to/bibfile} command exists in main file
+%%           Run: pdflatex → bibtex → pdflatex → pdflatex
+
+%%%% EOF
+
+
+%% ----------------------------------------
+%% END of DOCUMENT
+%% ----------------------------------------
+\end{document}
+
+%%%% EOF

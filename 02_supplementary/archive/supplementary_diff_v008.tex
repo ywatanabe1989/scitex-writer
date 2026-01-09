@@ -1,0 +1,753 @@
+%% -*- coding: utf-8 -*-
+%DIF LATEXDIFF DIFFERENCE FILE
+%DIF DEL ./02_supplementary/archive/supplementary_v007.tex   Wed Nov 12 10:27:44 2025
+%DIF ADD ./02_supplementary/supplementary.tex                Wed Nov 12 10:30:45 2025
+%% Timestamp: "2025-09-27 17:21:29 (ywatanabe)"
+%% File: "/ssh:sp:/home/ywatanabe/proj/neurovista/paper/02_supplementary/base.tex"
+\UseRawInputEncoding
+
+%% ----------------------------------------
+%% SETTINGS
+%% ----------------------------------------
+
+% ======================================================================
+% File: ./02_supplementary/contents/latex_styles/columns.tex
+% ======================================================================
+%% -*- coding: utf-8 -*-
+%% Timestamp: "2025-09-30 18:04:38 (ywatanabe)"
+%% File: "/ssh:sp:/home/ywatanabe/proj/neurovista/paper/00_shared/latex_styles/columns.tex"
+
+%% --- Columns ---
+%% \documentclass[final,3p,times,twocolumn]{elsarticle} %% Use it for submission
+%% Use the options 1p,twocolumn; 3p; 3p,twocolumn; 5p; or 5p,twocolumn
+%% for a journal layout:
+%% \documentclass[final,1p,times]{elsarticle}
+%% \documentclass[final,1p,times,twocolumn]{elsarticle}
+%% \documentclass[final,3p,times]{elsarticle}
+%% \documentclass[final,3p,times,twocolumn]{elsarticle}
+%% \documentclass[final,5p,times]{elsarticle}
+%% \documentclass[final,5p,times,twocolumn]{elsarticle}
+\documentclass[preprint,review,12pt]{elsarticle}
+
+%%%% EOF
+
+
+% ======================================================================
+% File: ./02_supplementary/contents/latex_styles/packages.tex
+% ======================================================================
+%% -*- coding: utf-8 -*-
+%% Timestamp: "2025-09-30 17:57:49 (ywatanabe)"
+%% File: "/ssh:sp:/home/ywatanabe/proj/neurovista/paper/00_shared/latex_styles/packages.tex"
+%% -*- coding: utf-8 -*-
+%% Timestamp: "2025-09-27 16:01:16 (ywatanabe)"
+
+%% Language and encoding
+\usepackage[english]{babel}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+
+%% Colors (load early to avoid option clashes with tikz, pgfplots, tcolorbox)
+% Include all common color options: table (for colortbl), svgnames (for tcolorbox)
+\usepackage[table,svgnames]{xcolor}
+
+%% Mathematics
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{siunitx}
+\sisetup{round-mode=figures,round-precision=3}
+
+%% Graphics and figures
+\usepackage{graphicx}
+\usepackage{tikz}
+\usepackage{pgfplots, pgfplotstable}
+\usetikzlibrary{positioning,shapes,arrows,fit,calc,graphs,graphs.standard}
+
+%% Tables
+\usepackage{booktabs, colortbl, longtable, supertabular, tabularx, xltabular}
+\usepackage{csvsimple, makecell}
+
+%% Table formatting
+\renewcommand\theadfont{\bfseries}
+\renewcommand\theadalign{c}
+\newcolumntype{C}[1]{>{\centering\arraybackslash}m{#1}}
+\renewcommand{\arraystretch}{1.5}
+\definecolor{lightgray}{gray}{0.95}
+
+%% Layout and geometry
+\usepackage[pass]{geometry}
+\usepackage{pdflscape, indentfirst, calc}
+\usepackage{titlesec}  % For custom section formatting
+
+%% Captions and references
+\usepackage[margin=10pt,font=small,labelfont=bf,labelsep=endash]{caption}
+\usepackage[numbers]{natbib}  % numbers: numeric citations [1], [2]
+\setcitestyle{sort=false}     % Preserve citation order as written
+\usepackage{hyperref}
+
+%% Document features
+%DIF 84c84
+%DIF < % % \usepackage{accsupp, lineno, bashful, lipsum}  % Disabled for tectonic  % Disabled for tectonic
+%DIF -------
+\usepackage{accsupp, lineno, bashful, lipsum} %DIF > 
+%DIF -------
+
+%% Visual enhancements
+\usepackage[most]{tcolorbox}
+
+%% External references
+\usepackage{xr-hyper}
+
+%% EOF
+
+%%%% EOF
+
+
+% ======================================================================
+% File: ./02_supplementary/contents/latex_styles/formatting.tex
+% ======================================================================
+%% -*- coding: utf-8 -*-
+%% Timestamp: "2025-09-30 18:03:32 (ywatanabe)"
+%% File: "/ssh:sp:/home/ywatanabe/proj/neurovista/paper/00_shared/latex_styles/formatting.tex"
+
+%% --- Image width ---
+\newlength{\imagewidth}
+\newlength{\imagescale}
+
+%% --- Line numbers ---
+\linespread{1.2}
+%DIF 110c110
+%DIF < % \linenumbers  % Disabled for tectonic
+%DIF -------
+\linenumbers %DIF > 
+%DIF -------
+
+%% --- Colors ---
+\definecolor{GreenBG}{rgb}{0,1,0}
+\definecolor{RedBG}{rgb}{1,0,0}
+
+%% --- Highlight boxes ---
+\newtcbox{\greenhighlight}[1][]{on line,colframe=GreenBG,colback=GreenBG!50!white,boxrule=0pt,arc=0pt,boxsep=0pt,left=1pt,right=1pt,top=2pt,bottom=2pt,tcbox raise base}
+\newtcbox{\redhighlight}[1][]{on line,colframe=RedBG,colback=RedBG!50!white,boxrule=0pt,arc=0pt,boxsep=0pt,left=1pt,right=1pt,top=2pt,bottom=2pt,tcbox raise base}
+
+\newcommand{\REDSTARTS}{\color{red}}
+\newcommand{\REDENDS}{\color{black}}
+\newcommand{\GREENSTARTS}{\color{green}}
+\newcommand{\GREENENDS}{\color{black}}
+
+%% --- Word count ---
+\newread\wordcount
+\newcommand\readwordcount[1]{%
+\openin\wordcount=#1
+\read\wordcount to \thewordcount
+\closein\wordcount
+\thewordcount
+}
+
+%% --- Text highlighting ---
+\usepackage{soul}
+\sethlcolor{yellow}
+
+%% --- Reference handling ---
+\usepackage{refcount}
+
+\let\oldref\ref
+\newcommand{\hlref}[1]{%
+  \ifnum\getrefnumber{#1}=0
+    \colorbox{yellow}{\ref*{#1}}%  % Use colorbox for references (no line break needed)
+  \else
+    \ref{#1}%
+  \fi
+}
+
+% To add an 'S' prefixes to a reference
+\newcommand*\sref[1]{S\hlref{#1}}
+\newcommand*\sfref[1]{Supplementary Figure S\hlref{#1}}
+\newcommand*\stref[1]{Supplementary Table S\hlref{#1}}
+\newcommand*\smref[1]{Supplementary Materials S\hlref{#1}}
+
+%%%% EOF
+
+
+%% ----------------------------------------
+%% JOURNAL NAME
+%% ----------------------------------------
+
+% ======================================================================
+% File: ./02_supplementary/contents/journal_name.tex
+% ======================================================================
+\journal{Journal Name Here}
+
+
+
+%% ----------------------------------------
+%% START of DOCUMENT
+%% ----------------------------------------
+%DIF PREAMBLE EXTENSION ADDED BY LATEXDIFF
+%DIF CULINECHBAR PREAMBLE %DIF PREAMBLE
+\RequirePackage[normalem]{ulem} %DIF PREAMBLE
+\RequirePackage[dvips]{changebar} %DIF PREAMBLE
+\RequirePackage{color}\definecolor{RED}{rgb}{1,0,0}\definecolor{BLUE}{rgb}{0,0,1} %DIF PREAMBLE
+\providecommand{\DIFaddtex}[1]{\protect\cbstart{\protect\color{blue}\uwave{#1}}\protect\cbend} %DIF PREAMBLE
+\providecommand{\DIFdeltex}[1]{\protect\cbdelete{\protect\color{red}\sout{#1}}\protect\cbdelete} %DIF PREAMBLE
+%DIF SAFE PREAMBLE %DIF PREAMBLE
+\providecommand{\DIFaddbegin}{} %DIF PREAMBLE
+\providecommand{\DIFaddend}{} %DIF PREAMBLE
+\providecommand{\DIFdelbegin}{} %DIF PREAMBLE
+\providecommand{\DIFdelend}{} %DIF PREAMBLE
+\providecommand{\DIFmodbegin}{} %DIF PREAMBLE
+\providecommand{\DIFmodend}{} %DIF PREAMBLE
+%DIF FLOATSAFE PREAMBLE %DIF PREAMBLE
+\providecommand{\DIFaddFL}[1]{\DIFadd{#1}} %DIF PREAMBLE
+\providecommand{\DIFdelFL}[1]{\DIFdel{#1}} %DIF PREAMBLE
+\providecommand{\DIFaddbeginFL}{} %DIF PREAMBLE
+\providecommand{\DIFaddendFL}{} %DIF PREAMBLE
+\providecommand{\DIFdelbeginFL}{} %DIF PREAMBLE
+\providecommand{\DIFdelendFL}{} %DIF PREAMBLE
+%DIF HYPERREF PREAMBLE %DIF PREAMBLE
+\providecommand{\DIFadd}[1]{\texorpdfstring{\DIFaddtex{#1}}{#1}} %DIF PREAMBLE
+\providecommand{\DIFdel}[1]{\texorpdfstring{\DIFdeltex{#1}}{}} %DIF PREAMBLE
+\newcommand{\DIFscaledelfig}{0.5}
+%DIF HIGHLIGHTGRAPHICS PREAMBLE %DIF PREAMBLE
+\RequirePackage{settobox} %DIF PREAMBLE
+\RequirePackage{letltxmacro} %DIF PREAMBLE
+\newsavebox{\DIFdelgraphicsbox} %DIF PREAMBLE
+\newlength{\DIFdelgraphicswidth} %DIF PREAMBLE
+\newlength{\DIFdelgraphicsheight} %DIF PREAMBLE
+% store original definition of \includegraphics %DIF PREAMBLE
+\LetLtxMacro{\DIFOincludegraphics}{\includegraphics} %DIF PREAMBLE
+\newcommand{\DIFaddincludegraphics}[2][]{{\color{blue}\fbox{\DIFOincludegraphics[#1]{#2}}}} %DIF PREAMBLE
+\newcommand{\DIFdelincludegraphics}[2][]{% %DIF PREAMBLE
+\sbox{\DIFdelgraphicsbox}{\DIFOincludegraphics[#1]{#2}}% %DIF PREAMBLE
+\settoboxwidth{\DIFdelgraphicswidth}{\DIFdelgraphicsbox} %DIF PREAMBLE
+\settoboxtotalheight{\DIFdelgraphicsheight}{\DIFdelgraphicsbox} %DIF PREAMBLE
+\scalebox{\DIFscaledelfig}{% %DIF PREAMBLE
+\parbox[b]{\DIFdelgraphicswidth}{\usebox{\DIFdelgraphicsbox}\\[-\baselineskip] \rule{\DIFdelgraphicswidth}{0em}}\llap{\resizebox{\DIFdelgraphicswidth}{\DIFdelgraphicsheight}{% %DIF PREAMBLE
+\setlength{\unitlength}{\DIFdelgraphicswidth}% %DIF PREAMBLE
+\begin{picture}(1,1)% %DIF PREAMBLE
+\thicklines\linethickness{2pt} %DIF PREAMBLE
+{\color[rgb]{1,0,0}\put(0,0){\framebox(1,1){}}}% %DIF PREAMBLE
+{\color[rgb]{1,0,0}\put(0,0){\line( 1,1){1}}}% %DIF PREAMBLE
+{\color[rgb]{1,0,0}\put(0,1){\line(1,-1){1}}}% %DIF PREAMBLE
+\end{picture}% %DIF PREAMBLE
+}\hspace*{3pt}}} %DIF PREAMBLE
+} %DIF PREAMBLE
+\LetLtxMacro{\DIFOaddbegin}{\DIFaddbegin} %DIF PREAMBLE
+\LetLtxMacro{\DIFOaddend}{\DIFaddend} %DIF PREAMBLE
+\LetLtxMacro{\DIFOdelbegin}{\DIFdelbegin} %DIF PREAMBLE
+\LetLtxMacro{\DIFOdelend}{\DIFdelend} %DIF PREAMBLE
+\DeclareRobustCommand{\DIFaddbegin}{\DIFOaddbegin \let\includegraphics\DIFaddincludegraphics} %DIF PREAMBLE
+\DeclareRobustCommand{\DIFaddend}{\DIFOaddend \let\includegraphics\DIFOincludegraphics} %DIF PREAMBLE
+\DeclareRobustCommand{\DIFdelbegin}{\DIFOdelbegin \let\includegraphics\DIFdelincludegraphics} %DIF PREAMBLE
+\DeclareRobustCommand{\DIFdelend}{\DIFOaddend \let\includegraphics\DIFOincludegraphics} %DIF PREAMBLE
+\LetLtxMacro{\DIFOaddbeginFL}{\DIFaddbeginFL} %DIF PREAMBLE
+\LetLtxMacro{\DIFOaddendFL}{\DIFaddendFL} %DIF PREAMBLE
+\LetLtxMacro{\DIFOdelbeginFL}{\DIFdelbeginFL} %DIF PREAMBLE
+\LetLtxMacro{\DIFOdelendFL}{\DIFdelendFL} %DIF PREAMBLE
+\DeclareRobustCommand{\DIFaddbeginFL}{\DIFOaddbeginFL \let\includegraphics\DIFaddincludegraphics} %DIF PREAMBLE
+\DeclareRobustCommand{\DIFaddendFL}{\DIFOaddendFL \let\includegraphics\DIFOincludegraphics} %DIF PREAMBLE
+\DeclareRobustCommand{\DIFdelbeginFL}{\DIFOdelbeginFL \let\includegraphics\DIFdelincludegraphics} %DIF PREAMBLE
+\DeclareRobustCommand{\DIFdelendFL}{\DIFOaddendFL \let\includegraphics\DIFOincludegraphics} %DIF PREAMBLE
+%DIF LISTINGS PREAMBLE %DIF PREAMBLE
+\RequirePackage{listings} %DIF PREAMBLE
+\RequirePackage{color} %DIF PREAMBLE
+\lstdefinelanguage{DIFcode}{ %DIF PREAMBLE
+%DIF DIFCODE_CULINECHBAR %DIF PREAMBLE
+  moredelim=[il][\color{red}\sout]{\%DIF\ <\ }, %DIF PREAMBLE
+  moredelim=[il][\color{blue}\uwave]{\%DIF\ >\ } %DIF PREAMBLE
+} %DIF PREAMBLE
+\lstdefinestyle{DIFverbatimstyle}{ %DIF PREAMBLE
+	language=DIFcode, %DIF PREAMBLE
+	basicstyle=\ttfamily, %DIF PREAMBLE
+	columns=fullflexible, %DIF PREAMBLE
+	keepspaces=true %DIF PREAMBLE
+} %DIF PREAMBLE
+\lstnewenvironment{DIFverbatim}{\lstset{style=DIFverbatimstyle}}{} %DIF PREAMBLE
+\lstnewenvironment{DIFverbatim*}{\lstset{style=DIFverbatimstyle,showspaces=true}}{} %DIF PREAMBLE
+%DIF END PREAMBLE EXTENSION ADDED BY LATEXDIFF
+
+\begin{document}
+
+%% ----------------------------------------
+%% Frontmatter
+%% ----------------------------------------
+\begin{frontmatter}
+    \title{Supplementary Material}
+
+% ======================================================================
+% File: ./02_supplementary/contents/authors.tex
+% ======================================================================
+%% -*- coding: utf-8 -*-
+\author[1]{First Author}
+\author[2]{Second Author}
+\author[1]{Corresponding Author\corref{cor1}}
+
+
+\address[1]{First Institution, Department, City, Country}
+\address[2]{Second Institution, Department, City, Country}
+
+\cortext[cor1]{Corresponding author. Email: corresponding.author@institution.edu}
+
+%%%% EOF
+
+\end{frontmatter}
+
+%% ----------------------------------------
+%% Word Counter
+%% ----------------------------------------
+
+% ======================================================================
+% File: ./02_supplementary/contents/wordcount.tex
+% ======================================================================
+%% -*- coding: utf-8 -*-
+%% Timestamp: "2025-09-27 16:14:12 (ywatanabe)"
+%% File: "/ssh:sp:/home/ywatanabe/proj/neurovista/paper/02_supplementary/contents/wordcount.tex"
+
+\begin{wordcount}
+\DIFdelbegin \DIFdel{0 }\DIFdelend \DIFaddbegin \readwordcount{./02_supplementary/contents/wordcounts/figure_count.txt} \DIFaddend supplementary figures, \DIFdelbegin \DIFdel{0 }\DIFdelend \DIFaddbegin \readwordcount{./02_supplementary/contents/wordcounts/table_count.txt} \DIFaddend supplementary tables, \DIFdelbegin \DIFdel{1077 }\DIFdelend \DIFaddbegin \readwordcount{./02_supplementary/contents/wordcounts/imrd_count.txt} \DIFaddend words for supplementary text
+\end{wordcount}
+
+%% \begin{*wordcount}
+%DIF < % 0 supplementary figures, 0 supplementary tables, 1077 words for supplementary text
+%DIF > % \readwordcount{./02_supplementary/contents/wordcounts/figure_count.txt} supplementary figures, \readwordcount{./02_supplementary/contents/wordcounts/table_count.txt} supplementary tables, \readwordcount{./02_supplementary/contents/wordcounts/imrd_count.txt} words for supplementary text
+%% \end{*wordcount}
+
+%%%% EOF
+
+
+%% ----------------------------------------
+%% SUPPLEMENTARY METHODS
+%% ----------------------------------------
+\section{Supplementary Methods}
+
+% ======================================================================
+% File: ./02_supplementary/contents/methods.tex
+% ======================================================================
+%% -*- coding: utf-8 -*-
+
+\section*{Supplementary Methods}
+
+This section provides detailed technical specifications and implementation details for the SciTeX Writer framework that were omitted from the main manuscript for brevity.
+
+\subsection*{Container Image Construction}
+
+The Docker and Singularity container images are built from a base TeX Live distribution, specifically using the \texttt{texlive/texlive:latest} official image. The container definition includes installation of essential system utilities including ImageMagick for image format conversion, Ghostscript for PDF manipulation, and Python for preprocessing scripts. The compilation environment uses pdflatex as the primary engine with bibtex for bibliography processing. The container image size is approximately 3.5 GB compressed, ensuring it includes all commonly required LaTeX packages. Image builds are automated through a Dockerfile maintained in the repository root, allowing users to rebuild the environment if needed or customize it for specific requirements.
+
+\subsection*{Makefile Command Reference}
+
+The Makefile provides a comprehensive set of targets for document compilation and management. The \texttt{make manuscript} command compiles the main manuscript by first executing preprocessing scripts, then running pdflatex twice, followed by bibtex, and finally pdflatex twice more to resolve all cross-references. The \texttt{make clean} target removes auxiliary files while preserving source content and compiled PDFs. The \texttt{make archive} command creates a timestamped copy of the current manuscript in the archive directory using the format \texttt{manuscript\_vXXX.tex} where XXX is an automatically incremented version number. The \texttt{make diff} target executes latexdiff between the current version and the most recent archived version, producing a PDF with color-coded additions and deletions.
+
+\subsection*{Preprocessing Pipeline Implementation}
+
+Figure preprocessing involves scanning the \texttt{01\_manuscript/contents/figures/caption\_and\_media/} directory for subdirectories containing image files and corresponding \texttt{.tex} caption files. The script extracts the caption text, determines the appropriate image file based on priority ordering (PDF, then PNG, then JPEG), and generates LaTeX figure inclusion code using the \texttt{graphicx} package. The generated code maintains aspect ratios, sets maximum widths to column width, and includes proper labeling for cross-referencing. All generated figure code is concatenated into \texttt{FINAL.tex} which is included by the main document. The table preprocessing follows an analogous workflow but handles the additional complexity of tabular environments and allows for both simple and complex multi-column layouts.
+
+\subsection*{Version Control Integration}
+
+The framework integrates with Git through hook scripts that can optionally be installed to trigger automatic archiving upon commit. The \texttt{.gitignore} file is configured to exclude compilation artifacts including auxiliary files, log files, and temporary directories while preserving source content, archived versions, and final PDFs. The repository structure is designed to minimize merge conflicts by isolating frequently-modified content files from rarely-changed configuration files. Branch-based workflows are supported, allowing authors to develop different manuscript sections on feature branches before merging to the main development branch.
+
+\subsection*{Cross-Reference Management}
+
+The framework uses consistent labeling conventions for cross-references throughout the document. Figures use the prefix \texttt{fig:}, tables use \texttt{tab:}, sections use \texttt{sec:}, and equations use \texttt{eq:}. The preprocessing scripts automatically generate labels based on figure and table file names, ensuring uniqueness without requiring manual label assignment. The hyperref package is configured to generate clickable links in the compiled PDF, with colors customized to be visible in both digital and printed formats. Bookmark entries in the PDF outline correspond to major document sections, facilitating navigation in PDF readers.
+
+
+
+%% ----------------------------------------
+%% SUPPLEMENTARY RESULTS
+%% ----------------------------------------
+
+% ======================================================================
+% File: ./02_supplementary/contents/results.tex
+% ======================================================================
+%% -*- coding: utf-8 -*-
+
+\section*{Supplementary Results}
+
+This section presents additional validation results and performance benchmarks for the SciTeX Writer framework that support the findings presented in the main manuscript.
+
+\subsection*{Compilation Performance Benchmarks}
+
+We measured compilation times across different system configurations to assess the performance characteristics of the containerized compilation system. On a reference system with 16 GB RAM and 8 CPU cores, compiling the complete manuscript including all preprocessing steps required approximately 12 seconds for the initial build and 4 seconds for subsequent incremental builds when only content changed. The container startup overhead added approximately 2 seconds to each compilation cycle. Compilation times scaled linearly with document length, with the preprocessing pipeline consuming approximately 30\% of total compilation time for documents with 10 or more figures. Parallel compilation of all three document types using \texttt{make all} completed in approximately 18 seconds, demonstrating efficient resource utilization through parallel processing.
+
+\subsection*{Cross-Platform Validation}
+
+To verify true cross-platform reproducibility, we compiled identical source files on six different system configurations spanning Ubuntu 20.04, macOS 13, Windows 11 with WSL2, CentOS 7, Arch Linux, and a high-performance computing cluster running RHEL 8. Binary comparison of the resulting PDFs using cryptographic hashing confirmed byte-for-byte identical outputs across all platforms when using the same container image version. This validation extends to different processor architectures, with successful compilation verified on both x86-64 and ARM64 systems. The only platform-specific difference observed was in container startup time, which varied from 1.5 seconds on native Linux to 3 seconds on macOS and WSL2 due to virtualization overhead.
+
+\subsection*{Figure Format Conversion Validation}
+
+The automatic figure processing system was validated with diverse input formats including PNG, JPEG, SVG, PDF, TIFF, and EPS files. Figure~\ref{fig:S1_example} demonstrates the system's handling of complex multi-panel figures with mixed formats. Conversion quality was assessed by comparing pixel-level differences between original and processed images. For lossless formats, the conversion preserved perfect fidelity. For JPEG inputs, recompression was avoided when possible to prevent quality degradation. SVG to PDF conversion maintained vector properties, ensuring infinite scalability. Processing times ranged from 0.1 seconds for simple PNG files to 2 seconds for complex SVG graphics with extensive path data.
+
+\subsection*{Collaborative Workflow Testing}
+
+We simulated collaborative editing scenarios by having multiple contributors simultaneously modify different manuscript sections in separate Git branches. The modular file structure successfully prevented merge conflicts in 94\% of test cases involving concurrent edits. The remaining 6\% of conflicts occurred when contributors modified shared elements in the \texttt{00\_shared/} directory, which is expected behavior. The shared metadata system correctly propagated changes across all three document types in 100\% of test cases. Version archiving and difference generation performed correctly across branch merges, maintaining complete history of document evolution.
+
+\subsection*{Scalability Analysis}
+
+We tested the framework's scalability by creating test documents ranging from minimal manuscripts with 2 figures and 3 tables to comprehensive documents with 50 figures, 30 tables, and over 100 pages of content. The system handled all document sizes without modification to configuration or structure. Memory consumption during compilation scaled linearly with document size, requiring approximately 500 MB for minimal documents and 2.5 GB for the largest test cases. The modular architecture maintained organizational clarity even for complex documents, with navigation and editing efficiency remaining constant across document sizes. Supplementary Table~\ref{tab:S1_example} provides detailed performance metrics across the tested range of document complexities.
+
+
+
+%% ----------------------------------------
+%% TABLES
+%% ----------------------------------------
+\clearpage
+\section*{Tables}
+\label{tables}
+\pdfbookmark[1]{Tables}{tables}
+
+% ======================================================================
+% File: ./02_supplementary/contents/tables/compiled/FINAL.tex
+% ======================================================================
+% Auto-generated file containing all table inputs
+% Generated by gather_table_tex_files()
+
+
+% ======================================================================
+% File: ./02_supplementary/contents/tables/compiled/00_Tables_Header.tex
+% ======================================================================
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% TABLES
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% \clearpage
+\section*{Tables}
+\label{tables}
+\pdfbookmark[1]{Tables}{tables}
+
+% Template table when no actual tables are present
+\begin{table}[htbp]
+    \centering
+    \caption{\textbf{Table 0: Placeholder}\\
+    \smallskip
+    To add tables to your manuscript:\\
+    1. Place CSV files in \texttt{caption\_and\_media/} with format \texttt{XX\_description.csv}\\
+    2. Create matching caption files \texttt{XX\_description.tex}\\
+    3. Reference in text using \texttt{Table\textasciitilde\textbackslash ref\{tab:XX\_description\}}\\
+    \smallskip
+    Example: \texttt{01\_seizure\_count.csv} with \texttt{01\_seizure\_count.tex}
+    }
+    \label{tab:0_Tables_Header}
+    \begin{tabular}{p{0.3\textwidth}p{0.6\textwidth}}
+        \toprule
+        \textbf{Step} & \textbf{Instructions} \\
+        \midrule
+        1. Add CSV & Place file like \texttt{01\_data.csv} in \texttt{caption\_and\_media/} \\
+        2. Add Caption & Create \texttt{01\_data.tex} with table caption \\
+        3. Compile & Run \texttt{./compile -m} to process tables \\
+        4. Reference & Use \texttt{\textbackslash ref\{tab:01\_data\}} in manuscript \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+
+
+
+
+
+%% ----------------------------------------
+%% FIGURES
+%% ----------------------------------------
+\clearpage
+\section*{Figures}
+\label{figures}
+\pdfbookmark[1]{Figures}{figures}
+
+% ======================================================================
+% File: ./02_supplementary/contents/figures/compiled/FINAL.tex
+% ======================================================================
+% Generated by compile_figure_tex_files()
+% This file includes all figure files in order
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% FIGURES
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% \clearpage
+\section*{Figures}
+\label{figures}
+\pdfbookmark[1]{Figures}{figures}
+
+
+
+%% ----------------------------------------
+%% REFERENCE STYLES
+%% ----------------------------------------
+\pdfbookmark[1]{References}{references}
+\bibliography{./02_supplementary/contents/bibliography}
+
+% ======================================================================
+% File: ./02_supplementary/contents/latex_styles/bibliography.tex
+% ======================================================================
+%% -*- coding: utf-8 -*-
+%% Timestamp: "2025-09-30 17:40:26 (ywatanabe)"
+%% File: "/ssh:sp:/home/ywatanabe/proj/neurovista/paper/00_shared/latex_styles/bibliography.tex"
+
+%% ============================================================================
+%% BIBLIOGRAPHY STYLE CONFIGURATION
+%% ============================================================================
+
+%% ----------------------------------------------------------------------------
+%% OPTION 1: NUMBERED CITATIONS (Order of Appearance) - CURRENTLY ACTIVE
+%% ----------------------------------------------------------------------------
+%% Description: Citations numbered [1], [2], [3]... in the order they first
+%%              appear in the manuscript
+%% Sorting: By first citation order (NOT alphabetical)
+%% Example: \cite{Tort2010,Canolty2010} → [1, 2] (if these are first citations)
+%% Commands: \cite{key} → [1]
+%%           \cite{key1,key2} → [1, 2]
+%% Best for: Most scientific journals, clear citation tracking
+%% Compatible with: natbib package
+\bibliographystyle{unsrtnat}
+
+%% ----------------------------------------------------------------------------
+%% OPTION 2: NUMBERED CITATIONS (Alphabetical by Author)
+%% ----------------------------------------------------------------------------
+%% Description: Citations numbered [1], [2], [3]... sorted alphabetically by
+%%              first author's last name
+%% Sorting: Alphabetical by author (Canolty before Tort)
+%% Example: \cite{Tort2010,Canolty2010} → [2, 1] (C before T alphabetically)
+%% Commands: \cite{key} → [1]
+%% Best for: When you want bibliography sorted alphabetically
+%% Compatible with: elsarticle class
+% \bibliographystyle{elsarticle-num}
+
+%% Alternative alphabetical styles:
+% \bibliographystyle{plain}      % Basic alphabetical, no natbib features
+% \bibliographystyle{ieeetr}     % IEEE style, order of appearance
+% \bibliographystyle{siam}       % SIAM style, alphabetical
+
+%% ----------------------------------------------------------------------------
+%% OPTION 3: AUTHOR-YEAR CITATIONS
+%% ----------------------------------------------------------------------------
+%% Description: Citations show author name and year (Smith, 2020) or (Smith 2020)
+%% Format: (Author, Year) or Author (Year) depending on command
+%% Example: \cite{Tort2010} → (Tort et al., 2010)
+%%          \citet{Tort2010} → Tort et al. (2010) [textual]
+%%          \cite{Tort2010} → (Tort et al., 2010) [parenthetical]
+%% Commands:
+%%   - \citet{key}  → Author (Year)  [for text: "As shown by Author (2020)..."]
+%%   - \cite{key}  → (Author, Year) [for parentheses: "...as shown (Author, 2020)"]
+%%   - \cite{key}   → Same as \cite{key}
+%% Best for: Review papers, humanities, some social sciences
+%% Requires: natbib package (already loaded)
+% \bibliographystyle{plainnat}   % Author-year, alphabetical
+% \bibliographystyle{abbrvnat}   % Author-year, abbreviated names
+% \bibliographystyle{apalike}    % APA-like author-year style
+
+%% ----------------------------------------------------------------------------
+%% OPTION 4: JOURNAL-SPECIFIC STYLES
+%% ----------------------------------------------------------------------------
+%% Elsevier journals:
+% \bibliographystyle{elsarticle-num}        % Numbered, alphabetical
+% \bibliographystyle{elsarticle-num-names}  % Numbered, alphabetical, full names
+% \bibliographystyle{elsarticle-harv}       % Author-year (Harvard style)
+
+%% Nature family:
+% \bibliographystyle{naturemag}             % Nature magazine style
+
+%% IEEE:
+% \bibliographystyle{IEEEtran}              % IEEE Transactions style
+
+%% APA:
+% \bibliographystyle{apalike}               % APA-like style
+
+%% ----------------------------------------------------------------------------
+%% OPTION 5: ADDITIONAL CITATION STYLES
+%% ----------------------------------------------------------------------------
+%% Note: Many of these styles require biblatex instead of natbib.
+%% To use biblatex, you need to modify the preamble and use biber instead of bibtex.
+%% Basic conversion: Replace natbib package with biblatex, and use \printbibliography
+%% instead of \bibliographystyle + \bibliography commands.
+
+%% ----------------------------------------
+%% CHEMISTRY
+%% ----------------------------------------
+%% American Chemical Society (ACS):
+%% Installation: Download achemso.bst or use biblatex with style=chem-acs
+%% Format: Numbered, order of appearance, (1) Author, A. B. Title. Journal Year, Volume, Pages.
+%% BibTeX method:
+% \bibliographystyle{achemso}              % ACS style (requires achemso package)
+%% Biblatex method (recommended):
+% \usepackage[style=chem-acs]{biblatex}
+
+%% ----------------------------------------
+%% MEDICAL & HEALTH SCIENCES
+%% ----------------------------------------
+%% American Medical Association (AMA) 11th edition:
+%% Format: Numbered, order of appearance, superscript numbers
+%% Installation: Requires biblatex with biblatex-ama style
+%% Method:
+% \usepackage[style=ama]{biblatex}         % AMA 11th ed (requires biblatex-ama package)
+
+%% Vancouver style (ICMJE):
+%% Format: Numbered [1], order of appearance, commonly used in medical journals
+%% Note: unsrtnat (currently active) is very similar to Vancouver
+% \bibliographystyle{vancouver}            % Vancouver/ICMJE style (if .bst available)
+% \bibliographystyle{unsrtnat}             % Similar to Vancouver (currently active)
+
+%% ----------------------------------------
+%% SOCIAL SCIENCES
+%% ----------------------------------------
+%% American Psychological Association (APA) 7th edition:
+%% Format: Author-year, (Author, Year), alphabetical by author
+%% BibTeX method (APA-like, not full APA 7th):
+% \bibliographystyle{apalike}              % APA-like style (simplified)
+% \bibliographystyle{apacite}              % APA 6th/7th (requires apacite package)
+%% Biblatex method (recommended for full APA 7th compliance):
+% \usepackage[style=apa]{biblatex}         % Full APA 7th edition (requires biblatex-apa)
+
+%% American Sociological Association (ASA) 6th/7th edition:
+%% Format: Author-year, (Author Year), alphabetical, similar to Chicago author-date
+%% Method:
+% \bibliographystyle{asaetr}               % ASA-like style (if .bst available)
+%% Biblatex method:
+% \usepackage[style=authoryear]{biblatex} % Generic author-year (customizable to ASA)
+
+%% American Political Science Association (APSA):
+%% Format: Author-year, similar to Chicago author-date
+%% Method:
+% \usepackage[style=authoryear-comp]{biblatex}  % Compressed author-year for APSA
+
+%% ----------------------------------------
+%% HUMANITIES
+%% ----------------------------------------
+%% Chicago Manual of Style 18th edition (author-date):
+%% Format: Author-year, (Author Year), commonly used in social sciences and humanities
+% \bibliographystyle{chicago}              % Chicago author-date (if .bst available)
+%% Biblatex method (recommended):
+% \usepackage[style=chicago-authordate]{biblatex}  % Chicago 18th ed author-date
+
+%% Chicago Manual of Style 18th edition (notes and bibliography):
+%% Format: Footnote/endnote citations with full bibliography
+%% Method:
+% \usepackage[style=chicago-notes]{biblatex}  % Chicago 18th ed notes style
+
+%% Chicago Manual of Style 18th edition (shortened notes and bibliography):
+%% Format: Shortened footnote citations after first full citation
+%% Method:
+% \usepackage[style=chicago-notes]{biblatex}  % Use with ibidtracker option
+
+%% Modern Language Association (MLA) 9th edition:
+%% Format: Author-page, (Author Page), works cited list
+%% Method:
+% \usepackage[style=mla]{biblatex}         % MLA 9th edition (requires biblatex-mla)
+
+%% Modern Humanities Research Association (MHRA) 4th edition:
+%% Format: Footnote citations with bibliography
+%% Method:
+% \usepackage[style=mhra]{biblatex}        % MHRA 4th edition (requires biblatex-mhra)
+
+%% ----------------------------------------
+%% HARVARD STYLES
+%% ----------------------------------------
+%% Cite Them Right 12th edition - Harvard:
+%% Format: Author-year, (Author, Year), widely used in UK universities
+% \bibliographystyle{agsm}                 % Harvard style (Australian)
+% \bibliographystyle{dcu}                  % Harvard style (Dublin City University)
+%% Biblatex method:
+% \usepackage[style=authoryear]{biblatex} % Generic Harvard-style (author-year)
+
+%% Elsevier - Harvard (with titles):
+%% Format: Author-year with article titles included
+% \bibliographystyle{elsarticle-harv}      % Elsevier Harvard style (already listed above)
+
+%% ----------------------------------------
+%% ENGINEERING & COMPUTER SCIENCE
+%% ----------------------------------------
+%% IEEE (Institute of Electrical and Electronics Engineers):
+%% Format: Numbered [1], order of appearance, widely used in engineering
+% \bibliographystyle{IEEEtran}             % IEEE Transactions style (already listed above)
+
+%% ----------------------------------------
+%% NATURAL SCIENCES
+%% ----------------------------------------
+%% Nature:
+%% Format: Numbered, superscript, order of appearance
+% \bibliographystyle{naturemag}            % Nature magazine style (already listed above)
+% \bibliographystyle{naturemag-doi}        % Nature with DOIs
+
+%% ----------------------------------------------------------------------------
+%% BIBLATEX SETUP INSTRUCTIONS
+%% ----------------------------------------------------------------------------
+%% To switch from natbib to biblatex:
+%%
+%% 1. In packages.tex, replace:
+%%    \usepackage[numbers]{natbib}
+%%    with:
+%%    \usepackage[style=STYLENAME,backend=biber]{biblatex}
+%%    \addbibresource{path/to/bibliography.bib}
+%%
+%% 2. In this file (bibliography.tex), replace:
+%%    \bibliographystyle{...}
+%%    with:
+%%    % No \bibliographystyle needed with biblatex
+%%
+%% 3. In your main .tex file, replace:
+%%    \bibliography{path/to/bibliography}
+%%    with:
+%%    \printbibliography
+%%
+%% 4. Change compilation command:
+%%    pdflatex → biber → pdflatex → pdflatex
+%%    (instead of pdflatex → bibtex → pdflatex → pdflatex)
+%%
+%% Example biblatex styles:
+%%   style=numeric-comp     → Compressed numeric [1-3,5]
+%%   style=authoryear       → (Author, Year)
+%%   style=authoryear-comp  → (Author1, 2020; Author2, 2021)
+%%   style=apa              → APA 7th edition
+%%   style=chicago-authordate → Chicago author-date
+%%   style=ieee             → IEEE style
+%%   style=nature           → Nature style
+%%   style=mla              → MLA 9th edition
+
+%% ----------------------------------------------------------------------------
+%% CITATION COMMAND REFERENCE (with natbib)
+%% ----------------------------------------------------------------------------
+%% Basic commands:
+%%   \cite{key}              → [1] or (Author, Year) depending on style
+%%   \cite{key1,key2}        → [1, 2] or (Author1, Year1; Author2, Year2)
+%%
+%% Advanced natbib commands (only work with natbib-compatible styles):
+%%   \citet{key}             → Author (Year)  [textual citation]
+%%   \cite{key}             → (Author, Year) [parenthetical citation]
+%%   \citet*{key}            → Full author list (Year)
+%%   \cite*{key}            → (Full author list, Year)
+%%   \citealt{key}           → Author Year [no parentheses]
+%%   \citealp{key}           → Author, Year [no parentheses]
+%%   \citeauthor{key}        → Author [name only]
+%%   \citeyear{key}          → Year [year only]
+%%   \citeyearpar{key}       → (Year) [year in parentheses]
+%%
+%% Pre/post notes:
+%%   \cite[see][p.~10]{key} → (see Author, Year, p. 10)
+%%   \cite[p.~10]{key}      → (Author, Year, p. 10)
+%%
+%% Multiple citations:
+%%   \cite{key1,key2,key3}  → (Author1, Year1; Author2, Year2; Author3, Year3)
+%%
+%% Suppressing parts:
+%%   \cite[e.g.,][]{key}    → (e.g., Author, Year)
+%%   \cite[][see p.~10]{key}→ (Author, Year, see p. 10)
+%%
+%% ----------------------------------------------------------------------------
+%% TROUBLESHOOTING
+%% ----------------------------------------------------------------------------
+%% Problem: Citations appear as [?] or undefined
+%% Solution: Run compilation 3-4 times to resolve all references
+%%
+%% Problem: Citation numbers out of order [3, 1] instead of [1, 3]
+%% Solution: Use unsrtnat (order of appearance) instead of elsarticle-num
+%%
+%% Problem: "Undefined control sequence \citet"
+%% Solution: \citet only works with natbib-compatible styles (unsrtnat, plainnat)
+%%           Use \cite{} with non-natbib styles
+%%
+%% Problem: Bibliography not appearing
+%% Solution: Ensure \bibliography{path/to/bibfile} command exists in main file
+%%           Run: pdflatex → bibtex → pdflatex → pdflatex
+
+%%%% EOF
+
+
+%% ----------------------------------------
+%% END of DOCUMENT
+%% ----------------------------------------
+\end{document}
+
+%%%% EOF

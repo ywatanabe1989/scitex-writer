@@ -1,0 +1,2027 @@
+% ==============================================================================
+%DIF LATEXDIFF DIFFERENCE FILE
+%DIF DEL ./02_supplementary/archive/supplementary_v016_diff.tex   Wed Nov 12 18:25:40 2025
+%DIF ADD ./02_supplementary/supplementary.tex                     Fri Jan  9 14:47:42 2026
+%DIF 2-21c2-4
+%DIF < %DIF LATEXDIFF DIFFERENCE FILE
+%DIF < %DIF DEL ./02_supplementary/archive/supplementary_v015_diff.tex   Wed Nov 12 12:29:54 2025
+%DIF < %DIF ADD ./02_supplementary/supplementary.tex                     Wed Nov 12 14:21:37 2025
+%DIF < %DIF 2-4d2
+%DIF < %DIF < %DIF LATEXDIFF DIFFERENCE FILE
+%DIF < %DIF < %DIF DEL ./02_supplementary/archive/supplementary_v014.tex   Wed Nov 12 11:13:01 2025
+%DIF < %DIF < %DIF ADD ./02_supplementary/supplementary.tex                Wed Nov 12 12:29:37 2025
+%DIF < %DIF -------
+%DIF < % SciTeX Writer v2.0.0-rc2 (https://scitex.ai)
+%DIF < %DIF 6-11c3-4
+%DIF < %DIF < % LaTeX compilation engine: latexmk
+%DIF < %DIF < %DIF 4c4
+%DIF < %DIF < %DIF < % Compiled: 2025-11-12 11:12:49
+%DIF < %DIF < %DIF -------
+%DIF < %DIF < % Compiled: 2025-11-12 12:29:37 %DIF > 
+%DIF < %DIF < %DIF -------
+%DIF < %DIF -------
+%DIF < % LaTeX compilation engine: auto %DIF > 
+%DIF < % Compiled: 2025-11-12 14:21:37 %DIF > 
+%DIF < %DIF -------
+%DIF -------
+% SciTeX Writer v2.0.0-rc4 (https://scitex.ai) %DIF > 
+% LaTeX compilation engine: latexmk %DIF > 
+% Compiled: 2026-01-09 14:47:42 %DIF > 
+%DIF -------
+% Source: 02_supplementary/base.tex
+% ==============================================================================
+
+%% -*- coding: utf-8 -*-
+%% Timestamp: "2025-09-27 17:21:29 (ywatanabe)"
+%% File: "/ssh:sp:/home/ywatanabe/proj/neurovista/paper/02_supplementary/base.tex"
+\UseRawInputEncoding
+
+%% ----------------------------------------
+%% SETTINGS
+%% ----------------------------------------
+
+% ======================================================================
+% File: ./02_supplementary/contents/latex_styles/columns.tex
+% ======================================================================
+%% -*- coding: utf-8 -*-
+%% Timestamp: "2025-09-30 18:04:38 (ywatanabe)"
+%% File: "/ssh:sp:/home/ywatanabe/proj/neurovista/paper/00_shared/latex_styles/columns.tex"
+
+%% --- Columns ---
+%% \documentclass[final,3p,times,twocolumn]{elsarticle} %% Use it for submission
+%% Use the options 1p,twocolumn; 3p; 3p,twocolumn; 5p; or 5p,twocolumn
+%% for a journal layout:
+%% \documentclass[final,1p,times]{elsarticle}
+%% \documentclass[final,1p,times,twocolumn]{elsarticle}
+%% \documentclass[final,3p,times]{elsarticle}
+%% \documentclass[final,3p,times,twocolumn]{elsarticle}
+%% \documentclass[final,5p,times]{elsarticle}
+%% \documentclass[final,5p,times,twocolumn]{elsarticle}
+\documentclass[preprint,review,12pt]{elsarticle}
+
+%%%% EOF
+
+
+% ======================================================================
+% File: ./02_supplementary/contents/latex_styles/packages.tex
+% ======================================================================
+%% -*- coding: utf-8 -*-
+%% Timestamp: "2025-09-30 17:57:49 (ywatanabe)"
+%% File: "/ssh:sp:/home/ywatanabe/proj/neurovista/paper/00_shared/latex_styles/packages.tex"
+%% -*- coding: utf-8 -*-
+%% Timestamp: "2025-09-27 16:01:16 (ywatanabe)"
+
+%% Language and encoding
+\usepackage[english]{babel}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+
+%% Colors (load early to avoid option clashes with tikz, pgfplots, tcolorbox)
+% Include all common color options: table (for colortbl), svgnames (for tcolorbox)
+\usepackage[table,svgnames]{xcolor}
+
+%% Mathematics
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{siunitx}
+\sisetup{round-mode=figures,round-precision=3}
+
+%% Graphics and figures
+\usepackage{graphicx}
+\usepackage{tikz}
+\usepackage{pgfplots, pgfplotstable}
+\usetikzlibrary{positioning,shapes,arrows,fit,calc,graphs,graphs.standard}
+
+%% Tables
+\usepackage{booktabs, colortbl, longtable, supertabular, tabularx, xltabular}
+\usepackage{csvsimple, makecell}
+
+%% Table formatting
+\renewcommand\theadfont{\bfseries}
+\renewcommand\theadalign{c}
+\newcolumntype{C}[1]{>{\centering\arraybackslash}m{#1}}
+\renewcommand{\arraystretch}{1.5}
+\definecolor{lightgray}{gray}{0.95}
+
+%% Layout and geometry
+\usepackage[pass]{geometry}
+\usepackage{pdflscape, indentfirst, calc}
+\usepackage{titlesec}  % For custom section formatting
+
+%% Captions and references
+\usepackage[margin=10pt,font=small,labelfont=bf,labelsep=endash]{caption}
+\usepackage[numbers]{natbib}  % numbers: numeric citations [1], [2]
+\setcitestyle{sort=false}     % Preserve citation order as written
+\usepackage{hyperref}
+
+%% Document features
+\usepackage{accsupp, lineno, bashful, lipsum}
+
+%% Visual enhancements
+\usepackage[most]{tcolorbox}
+
+%% External references
+\usepackage{xr-hyper}
+
+%% EOF
+
+%%%% EOF
+
+
+% ======================================================================
+% File: ./02_supplementary/contents/latex_styles/formatting.tex
+% ======================================================================
+%% -*- coding: utf-8 -*-
+%% Timestamp: "2025-09-30 18:03:32 (ywatanabe)"
+%% File: "/ssh:sp:/home/ywatanabe/proj/neurovista/paper/00_shared/latex_styles/formatting.tex"
+
+%% --- Image width ---
+\newlength{\imagewidth}
+\newlength{\imagescale}
+
+%% --- Line numbers ---
+\linespread{1.2}
+\linenumbers
+
+%% --- Colors ---
+\definecolor{GreenBG}{rgb}{0,1,0}
+\definecolor{RedBG}{rgb}{1,0,0}
+
+%% --- Highlight boxes ---
+\newtcbox{\greenhighlight}[1][]{on line,colframe=GreenBG,colback=GreenBG!50!white,boxrule=0pt,arc=0pt,boxsep=0pt,left=1pt,right=1pt,top=2pt,bottom=2pt,tcbox raise base}
+\newtcbox{\redhighlight}[1][]{on line,colframe=RedBG,colback=RedBG!50!white,boxrule=0pt,arc=0pt,boxsep=0pt,left=1pt,right=1pt,top=2pt,bottom=2pt,tcbox raise base}
+
+\newcommand{\REDSTARTS}{\color{red}}
+\newcommand{\REDENDS}{\color{black}}
+\newcommand{\GREENSTARTS}{\color{green}}
+\newcommand{\GREENENDS}{\color{black}}
+
+%% --- Word count ---
+\newread\wordcount
+\newcommand\readwordcount[1]{%
+\openin\wordcount=#1
+\read\wordcount to \thewordcount
+\closein\wordcount
+\thewordcount
+}
+
+%% --- Text highlighting ---
+\usepackage{soul}
+\sethlcolor{yellow}
+
+%% --- Reference handling ---
+\usepackage{refcount}
+
+\let\oldref\ref
+\newcommand{\hlref}[1]{%
+  \ifnum\getrefnumber{#1}=0
+    \colorbox{yellow}{\ref*{#1}}%  % Use colorbox for references (no line break needed)
+  \else
+    \ref{#1}%
+  \fi
+}
+
+% To add an 'S' prefixes to a reference
+\newcommand*\sref[1]{S\hlref{#1}}
+\newcommand*\sfref[1]{Supplementary Figure S\hlref{#1}}
+\newcommand*\stref[1]{Supplementary Table S\hlref{#1}}
+\newcommand*\smref[1]{Supplementary Materials S\hlref{#1}}
+
+%%%% EOF
+
+
+%% ----------------------------------------
+%% JOURNAL NAME
+%% ----------------------------------------
+
+% ======================================================================
+% File: ./02_supplementary/contents/journal_name.tex
+% ======================================================================
+\journal{Journal Name Here}
+
+
+
+%% ----------------------------------------
+%% START of DOCUMENT
+%% ----------------------------------------
+%DIF < %DIF < %DIF PREAMBLE EXTENSION ADDED BY LATEXDIFF
+%DIF < %DIF < %DIF CULINECHBAR PREAMBLE %DIF PREAMBLE
+%DIF < %DIF < \RequirePackage[normalem]{ulem} %DIF PREAMBLE
+%DIF < %DIF < \RequirePackage[dvips]{changebar} %DIF PREAMBLE
+%DIF < %DIF < \RequirePackage{color}\definecolor{RED}{rgb}{1,0,0}\definecolor{BLUE}{rgb}{0,0,1} %DIF PREAMBLE
+%DIF < %DIF < \providecommand{\DIFaddtex}[1]{\protect\cbstart{\protect\color{blue}\uwave{#1}}\protect\cbend} %DIF PREAMBLE
+%DIF < %DIF < \providecommand{\DIFdeltex}[1]{\protect\cbdelete{\protect\color{red}\sout{#1}}\protect\cbdelete} %DIF PREAMBLE
+%DIF < %DIF < %DIF SAFE PREAMBLE %DIF PREAMBLE
+%DIF < %DIF < \providecommand{\DIFaddbegin}{} %DIF PREAMBLE
+%DIF < %DIF < \providecommand{\DIFaddend}{} %DIF PREAMBLE
+%DIF < %DIF < \providecommand{\DIFdelbegin}{} %DIF PREAMBLE
+%DIF < %DIF < \providecommand{\DIFdelend}{} %DIF PREAMBLE
+%DIF < %DIF < \providecommand{\DIFmodbegin}{} %DIF PREAMBLE
+%DIF < %DIF < \providecommand{\DIFmodend}{} %DIF PREAMBLE
+%DIF < %DIF < %DIF FLOATSAFE PREAMBLE %DIF PREAMBLE
+%DIF < %DIF < \providecommand{\DIFaddFL}[1]{\DIFadd{#1}} %DIF PREAMBLE
+%DIF < %DIF < \providecommand{\DIFdelFL}[1]{\DIFdel{#1}} %DIF PREAMBLE
+%DIF < %DIF < \providecommand{\DIFaddbeginFL}{} %DIF PREAMBLE
+%DIF < %DIF < \providecommand{\DIFaddendFL}{} %DIF PREAMBLE
+%DIF < %DIF < \providecommand{\DIFdelbeginFL}{} %DIF PREAMBLE
+%DIF < %DIF < \providecommand{\DIFdelendFL}{} %DIF PREAMBLE
+%DIF < %DIF < %DIF HYPERREF PREAMBLE %DIF PREAMBLE
+%DIF < %DIF < \providecommand{\DIFadd}[1]{\texorpdfstring{\DIFaddtex{#1}}{#1}} %DIF PREAMBLE
+%DIF < %DIF < \providecommand{\DIFdel}[1]{\texorpdfstring{\DIFdeltex{#1}}{}} %DIF PREAMBLE
+%DIF < %DIF < \newcommand{\DIFscaledelfig}{0.5}
+%DIF < %DIF < %DIF HIGHLIGHTGRAPHICS PREAMBLE %DIF PREAMBLE
+%DIF < %DIF < \RequirePackage{settobox} %DIF PREAMBLE
+%DIF < %DIF < \RequirePackage{letltxmacro} %DIF PREAMBLE
+%DIF < %DIF < \newsavebox{\DIFdelgraphicsbox} %DIF PREAMBLE
+%DIF < %DIF < \newlength{\DIFdelgraphicswidth} %DIF PREAMBLE
+%DIF < %DIF < \newlength{\DIFdelgraphicsheight} %DIF PREAMBLE
+%DIF < %DIF < % store original definition of \includegraphics %DIF PREAMBLE
+%DIF < %DIF < \LetLtxMacro{\DIFOincludegraphics}{\includegraphics} %DIF PREAMBLE
+%DIF < %DIF < \newcommand{\DIFaddincludegraphics}[2][]{{\color{blue}\fbox{\DIFOincludegraphics[#1]{#2}}}} %DIF PREAMBLE
+%DIF < %DIF < \newcommand{\DIFdelincludegraphics}[2][]{% %DIF PREAMBLE
+%DIF < %DIF < \sbox{\DIFdelgraphicsbox}{\DIFOincludegraphics[#1]{#2}}% %DIF PREAMBLE
+%DIF < %DIF < \settoboxwidth{\DIFdelgraphicswidth}{\DIFdelgraphicsbox} %DIF PREAMBLE
+%DIF < %DIF < \settoboxtotalheight{\DIFdelgraphicsheight}{\DIFdelgraphicsbox} %DIF PREAMBLE
+%DIF < %DIF < \scalebox{\DIFscaledelfig}{% %DIF PREAMBLE
+%DIF < %DIF < \parbox[b]{\DIFdelgraphicswidth}{\usebox{\DIFdelgraphicsbox}\\[-\baselineskip] \rule{\DIFdelgraphicswidth}{0em}}\llap{\resizebox{\DIFdelgraphicswidth}{\DIFdelgraphicsheight}{% %DIF PREAMBLE
+%DIF < %DIF < \setlength{\unitlength}{\DIFdelgraphicswidth}% %DIF PREAMBLE
+%DIF < %DIF < \begin{picture}(1,1)% %DIF PREAMBLE
+%DIF < %DIF < \thicklines\linethickness{2pt} %DIF PREAMBLE
+%DIF < %DIF < {\color[rgb]{1,0,0}\put(0,0){\framebox(1,1){}}}% %DIF PREAMBLE
+%DIF < %DIF < {\color[rgb]{1,0,0}\put(0,0){\line( 1,1){1}}}% %DIF PREAMBLE
+%DIF < %DIF < {\color[rgb]{1,0,0}\put(0,1){\line(1,-1){1}}}% %DIF PREAMBLE
+%DIF < %DIF < \end{picture}% %DIF PREAMBLE
+%DIF < %DIF < }\hspace*{3pt}}} %DIF PREAMBLE
+%DIF < %DIF < } %DIF PREAMBLE
+%DIF < %DIF < \LetLtxMacro{\DIFOaddbegin}{\DIFaddbegin} %DIF PREAMBLE
+%DIF < %DIF < \LetLtxMacro{\DIFOaddend}{\DIFaddend} %DIF PREAMBLE
+%DIF < %DIF < \LetLtxMacro{\DIFOdelbegin}{\DIFdelbegin} %DIF PREAMBLE
+%DIF < %DIF < \LetLtxMacro{\DIFOdelend}{\DIFdelend} %DIF PREAMBLE
+%DIF < %DIF < \DeclareRobustCommand{\DIFaddbegin}{\DIFOaddbegin \let\includegraphics\DIFaddincludegraphics} %DIF PREAMBLE
+%DIF < %DIF < \DeclareRobustCommand{\DIFaddend}{\DIFOaddend \let\includegraphics\DIFOincludegraphics} %DIF PREAMBLE
+%DIF < %DIF < \DeclareRobustCommand{\DIFdelbegin}{\DIFOdelbegin \let\includegraphics\DIFdelincludegraphics} %DIF PREAMBLE
+%DIF < %DIF < \DeclareRobustCommand{\DIFdelend}{\DIFOaddend \let\includegraphics\DIFOincludegraphics} %DIF PREAMBLE
+%DIF < %DIF < \LetLtxMacro{\DIFOaddbeginFL}{\DIFaddbeginFL} %DIF PREAMBLE
+%DIF < %DIF < \LetLtxMacro{\DIFOaddendFL}{\DIFaddendFL} %DIF PREAMBLE
+%DIF < %DIF < \LetLtxMacro{\DIFOdelbeginFL}{\DIFdelbeginFL} %DIF PREAMBLE
+%DIF < %DIF < \LetLtxMacro{\DIFOdelendFL}{\DIFdelendFL} %DIF PREAMBLE
+%DIF < %DIF < \DeclareRobustCommand{\DIFaddbeginFL}{\DIFOaddbeginFL \let\includegraphics\DIFaddincludegraphics} %DIF PREAMBLE
+%DIF < %DIF < \DeclareRobustCommand{\DIFaddendFL}{\DIFOaddendFL \let\includegraphics\DIFOincludegraphics} %DIF PREAMBLE
+%DIF < %DIF < \DeclareRobustCommand{\DIFdelbeginFL}{\DIFOdelbeginFL \let\includegraphics\DIFdelincludegraphics} %DIF PREAMBLE
+%DIF < %DIF < \DeclareRobustCommand{\DIFdelendFL}{\DIFOaddendFL \let\includegraphics\DIFOincludegraphics} %DIF PREAMBLE
+%DIF < %DIF < %DIF LISTINGS PREAMBLE %DIF PREAMBLE
+%DIF < %DIF < \RequirePackage{listings} %DIF PREAMBLE
+%DIF < %DIF < \RequirePackage{color} %DIF PREAMBLE
+%DIF < %DIF < \lstdefinelanguage{DIFcode}{ %DIF PREAMBLE
+%DIF < %DIF < %DIF DIFCODE_CULINECHBAR %DIF PREAMBLE
+%DIF < %DIF <   moredelim=[il][\color{red}\sout]{\%DIF\ <\ }, %DIF PREAMBLE
+%DIF < %DIF <   moredelim=[il][\color{blue}\uwave]{\%DIF\ >\ } %DIF PREAMBLE
+%DIF < %DIF < } %DIF PREAMBLE
+%DIF < %DIF < \lstdefinestyle{DIFverbatimstyle}{ %DIF PREAMBLE
+%DIF < %DIF < 	language=DIFcode, %DIF PREAMBLE
+%DIF < %DIF < 	basicstyle=\ttfamily, %DIF PREAMBLE
+%DIF < %DIF < 	columns=fullflexible, %DIF PREAMBLE
+%DIF < %DIF < 	keepspaces=true %DIF PREAMBLE
+%DIF < %DIF < } %DIF PREAMBLE
+%DIF < %DIF < \lstnewenvironment{DIFverbatim}{\lstset{style=DIFverbatimstyle}}{} %DIF PREAMBLE
+%DIF < %DIF < \lstnewenvironment{DIFverbatim*}{\lstset{style=DIFverbatimstyle,showspaces=true}}{} %DIF PREAMBLE
+%DIF < %DIF < %DIF END PREAMBLE EXTENSION ADDED BY LATEXDIFF
+%DIF < %DIF < 
+%DIF < %DIF < 
+%DIF < %DIF < %% =============================================================================
+%DIF < %DIF < %% Diff Document Metadata (Auto-generated)
+%DIF < %DIF < %% =============================================================================
+%DIF < %DIF < %% Comparison: v014 → v014
+%DIF < %DIF < %% Generated: 2025-11-12 12:29:48
+%DIF < %DIF < %% User: Yusuke Watanabe <ywatanabe@scitex.ai>
+%DIF < %DIF < %% Document: supplementary
+%DIF < %DIF < %% Git commit: c90c1bb
+%DIF < %DIF < %% Git branch: develop
+%DIF < %DIF < %% =============================================================================
+%DIF < %DIF < 
+%DIF < %DIF < 
+%DIF < %DIF < \usepackage{fancyhdr}
+%DIF < %DIF < \usepackage{lastpage}
+%DIF < %DIF < 
+%DIF < %DIF < \fancypagestyle{diffstyle}{
+%DIF < %DIF <     \fancyhf{}
+%DIF < %DIF <     \renewcommand{\headrulewidth}{0.4pt}
+%DIF < %DIF <     \renewcommand{\footrulewidth}{0.4pt}
+%DIF < %DIF <     \fancyhead[L]{\small\textit{Diff: v014 → v014}}
+%DIF < %DIF <     \fancyhead[R]{\small\textit{supplementary}}
+%DIF < %DIF <     \fancyfoot[L]{\small Generated: 2025-11-12 12:29}
+%DIF < %DIF <     \fancyfoot[C]{\small Page \thepage\ of \pageref{LastPage}}
+%DIF < %DIF <     \fancyfoot[R]{\small Yusuke Watanabe}
+%DIF < %DIF < }
+%DIF < %DIF < 
+%DIF < %DIF < \AtBeginDocument{\pagestyle{diffstyle}}
+%DIF < %DIF PREAMBLE EXTENSION ADDED BY LATEXDIFF
+%DIF < %DIF CULINECHBAR PREAMBLE %DIF PREAMBLE
+%DIF < \RequirePackage[normalem]{ulem} %DIF PREAMBLE
+%DIF < \RequirePackage[dvips]{changebar} %DIF PREAMBLE
+%DIF < \RequirePackage{color}\definecolor{RED}{rgb}{1,0,0}\definecolor{BLUE}{rgb}{0,0,1} %DIF PREAMBLE
+%DIF < \providecommand{\DIFaddtex}[1]{\protect\cbstart{\protect\color{blue}\uwave{#1}}\protect\cbend} %DIF PREAMBLE
+%DIF < \providecommand{\DIFdeltex}[1]{\protect\cbdelete{\protect\color{red}\sout{#1}}\protect\cbdelete} %DIF PREAMBLE
+%DIF < %DIF SAFE PREAMBLE %DIF PREAMBLE
+%DIF < \providecommand{\DIFaddbegin}{} %DIF PREAMBLE
+%DIF < \providecommand{\DIFaddend}{} %DIF PREAMBLE
+%DIF < \providecommand{\DIFdelbegin}{} %DIF PREAMBLE
+%DIF < \providecommand{\DIFdelend}{} %DIF PREAMBLE
+%DIF < \providecommand{\DIFmodbegin}{} %DIF PREAMBLE
+%DIF < \providecommand{\DIFmodend}{} %DIF PREAMBLE
+%DIF < %DIF FLOATSAFE PREAMBLE %DIF PREAMBLE
+%DIF < \providecommand{\DIFaddFL}[1]{\DIFadd{#1}} %DIF PREAMBLE
+%DIF < \providecommand{\DIFdelFL}[1]{\DIFdel{#1}} %DIF PREAMBLE
+%DIF < \providecommand{\DIFaddbeginFL}{} %DIF PREAMBLE
+%DIF < \providecommand{\DIFaddendFL}{} %DIF PREAMBLE
+%DIF < \providecommand{\DIFdelbeginFL}{} %DIF PREAMBLE
+%DIF < \providecommand{\DIFdelendFL}{} %DIF PREAMBLE
+%DIF < %DIF HYPERREF PREAMBLE %DIF PREAMBLE
+%DIF < \providecommand{\DIFadd}[1]{\texorpdfstring{\DIFaddtex{#1}}{#1}} %DIF PREAMBLE
+%DIF < \providecommand{\DIFdel}[1]{\texorpdfstring{\DIFdeltex{#1}}{}} %DIF PREAMBLE
+%DIF < \newcommand{\DIFscaledelfig}{0.5}
+%DIF < %DIF HIGHLIGHTGRAPHICS PREAMBLE %DIF PREAMBLE
+%DIF < \RequirePackage{settobox} %DIF PREAMBLE
+%DIF < \RequirePackage{letltxmacro} %DIF PREAMBLE
+%DIF < \newsavebox{\DIFdelgraphicsbox} %DIF PREAMBLE
+%DIF < \newlength{\DIFdelgraphicswidth} %DIF PREAMBLE
+%DIF < \newlength{\DIFdelgraphicsheight} %DIF PREAMBLE
+%DIF < % store original definition of \includegraphics %DIF PREAMBLE
+%DIF < \LetLtxMacro{\DIFOincludegraphics}{\includegraphics} %DIF PREAMBLE
+%DIF < \newcommand{\DIFaddincludegraphics}[2][]{{\color{blue}\fbox{\DIFOincludegraphics[#1]{#2}}}} %DIF PREAMBLE
+%DIF < \newcommand{\DIFdelincludegraphics}[2][]{% %DIF PREAMBLE
+%DIF < \sbox{\DIFdelgraphicsbox}{\DIFOincludegraphics[#1]{#2}}% %DIF PREAMBLE
+%DIF < \settoboxwidth{\DIFdelgraphicswidth}{\DIFdelgraphicsbox} %DIF PREAMBLE
+%DIF < \settoboxtotalheight{\DIFdelgraphicsheight}{\DIFdelgraphicsbox} %DIF PREAMBLE
+%DIF < \scalebox{\DIFscaledelfig}{% %DIF PREAMBLE
+%DIF < \parbox[b]{\DIFdelgraphicswidth}{\usebox{\DIFdelgraphicsbox}\\[-\baselineskip] \rule{\DIFdelgraphicswidth}{0em}}\llap{\resizebox{\DIFdelgraphicswidth}{\DIFdelgraphicsheight}{% %DIF PREAMBLE
+%DIF < \setlength{\unitlength}{\DIFdelgraphicswidth}% %DIF PREAMBLE
+%DIF < \begin{picture}(1,1)% %DIF PREAMBLE
+%DIF < \thicklines\linethickness{2pt} %DIF PREAMBLE
+%DIF < {\color[rgb]{1,0,0}\put(0,0){\framebox(1,1){}}}% %DIF PREAMBLE
+%DIF < {\color[rgb]{1,0,0}\put(0,0){\line( 1,1){1}}}% %DIF PREAMBLE
+%DIF < {\color[rgb]{1,0,0}\put(0,1){\line(1,-1){1}}}% %DIF PREAMBLE
+%DIF < \end{picture}% %DIF PREAMBLE
+%DIF < }\hspace*{3pt}}} %DIF PREAMBLE
+%DIF < } %DIF PREAMBLE
+%DIF < \LetLtxMacro{\DIFOaddbegin}{\DIFaddbegin} %DIF PREAMBLE
+%DIF < \LetLtxMacro{\DIFOaddend}{\DIFaddend} %DIF PREAMBLE
+%DIF < \LetLtxMacro{\DIFOdelbegin}{\DIFdelbegin} %DIF PREAMBLE
+%DIF < \LetLtxMacro{\DIFOdelend}{\DIFdelend} %DIF PREAMBLE
+%DIF < \DeclareRobustCommand{\DIFaddbegin}{\DIFOaddbegin \let\includegraphics\DIFaddincludegraphics} %DIF PREAMBLE
+%DIF < \DeclareRobustCommand{\DIFaddend}{\DIFOaddend \let\includegraphics\DIFOincludegraphics} %DIF PREAMBLE
+%DIF < \DeclareRobustCommand{\DIFdelbegin}{\DIFOdelbegin \let\includegraphics\DIFdelincludegraphics} %DIF PREAMBLE
+%DIF < \DeclareRobustCommand{\DIFdelend}{\DIFOaddend \let\includegraphics\DIFOincludegraphics} %DIF PREAMBLE
+%DIF < \LetLtxMacro{\DIFOaddbeginFL}{\DIFaddbeginFL} %DIF PREAMBLE
+%DIF < \LetLtxMacro{\DIFOaddendFL}{\DIFaddendFL} %DIF PREAMBLE
+%DIF < \LetLtxMacro{\DIFOdelbeginFL}{\DIFdelbeginFL} %DIF PREAMBLE
+%DIF < \LetLtxMacro{\DIFOdelendFL}{\DIFdelendFL} %DIF PREAMBLE
+%DIF < \DeclareRobustCommand{\DIFaddbeginFL}{\DIFOaddbeginFL \let\includegraphics\DIFaddincludegraphics} %DIF PREAMBLE
+%DIF < \DeclareRobustCommand{\DIFaddendFL}{\DIFOaddendFL \let\includegraphics\DIFOincludegraphics} %DIF PREAMBLE
+%DIF < \DeclareRobustCommand{\DIFdelbeginFL}{\DIFOdelbeginFL \let\includegraphics\DIFdelincludegraphics} %DIF PREAMBLE
+%DIF < \DeclareRobustCommand{\DIFdelendFL}{\DIFOaddendFL \let\includegraphics\DIFOincludegraphics} %DIF PREAMBLE
+%DIF < %DIF LISTINGS PREAMBLE %DIF PREAMBLE
+%DIF < \RequirePackage{listings} %DIF PREAMBLE
+%DIF < \RequirePackage{color} %DIF PREAMBLE
+%DIF < \lstdefinelanguage{DIFcode}{ %DIF PREAMBLE
+%DIF < %DIF DIFCODE_CULINECHBAR %DIF PREAMBLE
+%DIF <   moredelim=[il][\color{red}\sout]{\%DIF\ <\ }, %DIF PREAMBLE
+%DIF <   moredelim=[il][\color{blue}\uwave]{\%DIF\ >\ } %DIF PREAMBLE
+%DIF < } %DIF PREAMBLE
+%DIF < \lstdefinestyle{DIFverbatimstyle}{ %DIF PREAMBLE
+%DIF < 	language=DIFcode, %DIF PREAMBLE
+%DIF < 	basicstyle=\ttfamily, %DIF PREAMBLE
+%DIF < 	columns=fullflexible, %DIF PREAMBLE
+%DIF < 	keepspaces=true %DIF PREAMBLE
+%DIF < } %DIF PREAMBLE
+%DIF < \lstnewenvironment{DIFverbatim}{\lstset{style=DIFverbatimstyle}}{} %DIF PREAMBLE
+%DIF < \lstnewenvironment{DIFverbatim*}{\lstset{style=DIFverbatimstyle,showspaces=true}}{} %DIF PREAMBLE
+%DIF < %DIF END PREAMBLE EXTENSION ADDED BY LATEXDIFF
+%DIF < 
+%DIF < 
+%DIF < %% =============================================================================
+%DIF < %% Diff Document Metadata (Auto-generated)
+%DIF < %% =============================================================================
+%DIF < %% Comparison: v015 → v015
+%DIF < %% Generated: 2025-11-12 14:21:45
+%DIF < %% User: Yusuke Watanabe <ywatanabe@scitex.ai>
+%DIF < %% Document: supplementary
+%DIF < %% Git commit: 4048ab6
+%DIF < %% Git branch: develop
+%DIF < %% =============================================================================
+%DIF < 
+%DIF < 
+%DIF < \usepackage{fancyhdr}
+%DIF < \usepackage{lastpage}
+%DIF < 
+%DIF < \fancypagestyle{diffstyle}{
+%DIF <     \fancyhf{}
+%DIF <     \renewcommand{\headrulewidth}{0.4pt}
+%DIF <     \renewcommand{\footrulewidth}{0.4pt}
+%DIF <     \fancyhead[L]{\small\textit{Diff: v015 → v015}}
+%DIF <     \fancyhead[R]{\small\textit{supplementary}}
+%DIF <     \fancyfoot[L]{\small Generated: 2025-11-12 14:21}
+%DIF <     \fancyfoot[C]{\small Page \thepage\ of \pageref{LastPage}}
+%DIF <     \fancyfoot[R]{\small Yusuke Watanabe}
+%DIF < }
+%DIF < 
+%DIF < \AtBeginDocument{\pagestyle{diffstyle}}
+%DIF PREAMBLE EXTENSION ADDED BY LATEXDIFF
+%DIF CULINECHBAR PREAMBLE %DIF PREAMBLE
+\RequirePackage[normalem]{ulem} %DIF PREAMBLE
+\RequirePackage[dvips]{changebar} %DIF PREAMBLE
+\RequirePackage{color}\definecolor{RED}{rgb}{1,0,0}\definecolor{BLUE}{rgb}{0,0,1} %DIF PREAMBLE
+\providecommand{\DIFaddtex}[1]{\protect\cbstart{\protect\color{blue}\uwave{#1}}\protect\cbend} %DIF PREAMBLE
+\providecommand{\DIFdeltex}[1]{\protect\cbdelete{\protect\color{red}\sout{#1}}\protect\cbdelete} %DIF PREAMBLE
+%DIF SAFE PREAMBLE %DIF PREAMBLE
+\providecommand{\DIFaddbegin}{} %DIF PREAMBLE
+\providecommand{\DIFaddend}{} %DIF PREAMBLE
+\providecommand{\DIFdelbegin}{} %DIF PREAMBLE
+\providecommand{\DIFdelend}{} %DIF PREAMBLE
+\providecommand{\DIFmodbegin}{} %DIF PREAMBLE
+\providecommand{\DIFmodend}{} %DIF PREAMBLE
+%DIF FLOATSAFE PREAMBLE %DIF PREAMBLE
+\providecommand{\DIFaddFL}[1]{\DIFadd{#1}} %DIF PREAMBLE
+\providecommand{\DIFdelFL}[1]{\DIFdel{#1}} %DIF PREAMBLE
+\providecommand{\DIFaddbeginFL}{} %DIF PREAMBLE
+\providecommand{\DIFaddendFL}{} %DIF PREAMBLE
+\providecommand{\DIFdelbeginFL}{} %DIF PREAMBLE
+\providecommand{\DIFdelendFL}{} %DIF PREAMBLE
+%DIF HYPERREF PREAMBLE %DIF PREAMBLE
+\providecommand{\DIFadd}[1]{\texorpdfstring{\DIFaddtex{#1}}{#1}} %DIF PREAMBLE
+\providecommand{\DIFdel}[1]{\texorpdfstring{\DIFdeltex{#1}}{}} %DIF PREAMBLE
+\newcommand{\DIFscaledelfig}{0.5}
+%DIF HIGHLIGHTGRAPHICS PREAMBLE %DIF PREAMBLE
+\RequirePackage{settobox} %DIF PREAMBLE
+\RequirePackage{letltxmacro} %DIF PREAMBLE
+\newsavebox{\DIFdelgraphicsbox} %DIF PREAMBLE
+\newlength{\DIFdelgraphicswidth} %DIF PREAMBLE
+\newlength{\DIFdelgraphicsheight} %DIF PREAMBLE
+% store original definition of \includegraphics %DIF PREAMBLE
+\LetLtxMacro{\DIFOincludegraphics}{\includegraphics} %DIF PREAMBLE
+\newcommand{\DIFaddincludegraphics}[2][]{{\color{blue}\fbox{\DIFOincludegraphics[#1]{#2}}}} %DIF PREAMBLE
+\newcommand{\DIFdelincludegraphics}[2][]{% %DIF PREAMBLE
+\sbox{\DIFdelgraphicsbox}{\DIFOincludegraphics[#1]{#2}}% %DIF PREAMBLE
+\settoboxwidth{\DIFdelgraphicswidth}{\DIFdelgraphicsbox} %DIF PREAMBLE
+\settoboxtotalheight{\DIFdelgraphicsheight}{\DIFdelgraphicsbox} %DIF PREAMBLE
+\scalebox{\DIFscaledelfig}{% %DIF PREAMBLE
+\parbox[b]{\DIFdelgraphicswidth}{\usebox{\DIFdelgraphicsbox}\\[-\baselineskip] \rule{\DIFdelgraphicswidth}{0em}}\llap{\resizebox{\DIFdelgraphicswidth}{\DIFdelgraphicsheight}{% %DIF PREAMBLE
+\setlength{\unitlength}{\DIFdelgraphicswidth}% %DIF PREAMBLE
+\begin{picture}(1,1)% %DIF PREAMBLE
+\thicklines\linethickness{2pt} %DIF PREAMBLE
+{\color[rgb]{1,0,0}\put(0,0){\framebox(1,1){}}}% %DIF PREAMBLE
+{\color[rgb]{1,0,0}\put(0,0){\line( 1,1){1}}}% %DIF PREAMBLE
+{\color[rgb]{1,0,0}\put(0,1){\line(1,-1){1}}}% %DIF PREAMBLE
+\end{picture}% %DIF PREAMBLE
+}\hspace*{3pt}}} %DIF PREAMBLE
+} %DIF PREAMBLE
+\LetLtxMacro{\DIFOaddbegin}{\DIFaddbegin} %DIF PREAMBLE
+\LetLtxMacro{\DIFOaddend}{\DIFaddend} %DIF PREAMBLE
+\LetLtxMacro{\DIFOdelbegin}{\DIFdelbegin} %DIF PREAMBLE
+\LetLtxMacro{\DIFOdelend}{\DIFdelend} %DIF PREAMBLE
+\DeclareRobustCommand{\DIFaddbegin}{\DIFOaddbegin \let\includegraphics\DIFaddincludegraphics} %DIF PREAMBLE
+\DeclareRobustCommand{\DIFaddend}{\DIFOaddend \let\includegraphics\DIFOincludegraphics} %DIF PREAMBLE
+\DeclareRobustCommand{\DIFdelbegin}{\DIFOdelbegin \let\includegraphics\DIFdelincludegraphics} %DIF PREAMBLE
+\DeclareRobustCommand{\DIFdelend}{\DIFOaddend \let\includegraphics\DIFOincludegraphics} %DIF PREAMBLE
+\LetLtxMacro{\DIFOaddbeginFL}{\DIFaddbeginFL} %DIF PREAMBLE
+\LetLtxMacro{\DIFOaddendFL}{\DIFaddendFL} %DIF PREAMBLE
+\LetLtxMacro{\DIFOdelbeginFL}{\DIFdelbeginFL} %DIF PREAMBLE
+\LetLtxMacro{\DIFOdelendFL}{\DIFdelendFL} %DIF PREAMBLE
+\DeclareRobustCommand{\DIFaddbeginFL}{\DIFOaddbeginFL \let\includegraphics\DIFaddincludegraphics} %DIF PREAMBLE
+\DeclareRobustCommand{\DIFaddendFL}{\DIFOaddendFL \let\includegraphics\DIFOincludegraphics} %DIF PREAMBLE
+\DeclareRobustCommand{\DIFdelbeginFL}{\DIFOdelbeginFL \let\includegraphics\DIFdelincludegraphics} %DIF PREAMBLE
+\DeclareRobustCommand{\DIFdelendFL}{\DIFOaddendFL \let\includegraphics\DIFOincludegraphics} %DIF PREAMBLE
+%DIF LISTINGS PREAMBLE %DIF PREAMBLE
+\RequirePackage{listings} %DIF PREAMBLE
+\RequirePackage{color} %DIF PREAMBLE
+\lstdefinelanguage{DIFcode}{ %DIF PREAMBLE
+%DIF DIFCODE_CULINECHBAR %DIF PREAMBLE
+  moredelim=[il][\color{red}\sout]{\%DIF\ <\ }, %DIF PREAMBLE
+  moredelim=[il][\color{blue}\uwave]{\%DIF\ >\ } %DIF PREAMBLE
+} %DIF PREAMBLE
+\lstdefinestyle{DIFverbatimstyle}{ %DIF PREAMBLE
+	language=DIFcode, %DIF PREAMBLE
+	basicstyle=\ttfamily, %DIF PREAMBLE
+	columns=fullflexible, %DIF PREAMBLE
+	keepspaces=true %DIF PREAMBLE
+} %DIF PREAMBLE
+\lstnewenvironment{DIFverbatim}{\lstset{style=DIFverbatimstyle}}{} %DIF PREAMBLE
+\lstnewenvironment{DIFverbatim*}{\lstset{style=DIFverbatimstyle,showspaces=true}}{} %DIF PREAMBLE
+%DIF END PREAMBLE EXTENSION ADDED BY LATEXDIFF
+
+
+%% =============================================================================
+%% Diff Document Metadata (Auto-generated)
+%% =============================================================================
+%% Comparison: v016 → v016
+%% Generated: 2026-01-09 14:48:01
+%% User: Yusuke Watanabe <ywatanabe@scitex.ai>
+%% Document: supplementary
+%% Git commit: b13980b
+%% Git branch: develop
+%% =============================================================================
+
+
+\usepackage{fancyhdr}
+\usepackage{lastpage}
+
+\fancypagestyle{diffstyle}{
+    \fancyhf{}
+    \renewcommand{\headrulewidth}{0.4pt}
+    \renewcommand{\footrulewidth}{0.4pt}
+    \fancyhead[L]{\small\textit{Diff: v016 → v016}}
+    \fancyhead[R]{\small\textit{supplementary}}
+    \fancyfoot[L]{\small Generated: 2026-01-09 14:48}
+    \fancyfoot[C]{\small Page \thepage\ of \pageref{LastPage}}
+    \fancyfoot[R]{\small Yusuke Watanabe}
+}
+
+\AtBeginDocument{\pagestyle{diffstyle}}
+\begin{document}
+
+%% ----------------------------------------
+%% Frontmatter
+%% ----------------------------------------
+\begin{frontmatter}
+    \title{Supplementary Material}
+
+% ======================================================================
+% File: ./02_supplementary/contents/authors.tex
+% ======================================================================
+%% -*- coding: utf-8 -*-
+\author[1]{\DIFdelbegin %DIFDELCMD < \DIFdelbegin \DIFdel{First Author}\DIFdelend \DIFaddbegin \DIFadd{Yusuke Watanabe}%%%
+\DIFdelend \DIFaddbegin \DIFadd{Yusuke Watanabe}\DIFaddend \corref{cor1}\DIFdelbegin %DIFDELCMD < \DIFaddend %%%
+\DIFdelend }
+\author[2]{Second Author}
+\DIFdelbegin %DIFDELCMD < \DIFdelbegin %%%
+%DIF < DIFDELCMD < \author[1]{%%%
+%DIFDELCMD < \DIFdel{Corresponding }\DIFdelend \DIFaddbegin %%%
+\DIFdelend \author[3]{\DIFdelbegin %DIFDELCMD < \DIFadd{Third }\DIFaddend %%%
+\DIFdelend \DIFaddbegin \DIFadd{Third }\DIFaddend Author\DIFdelbegin %DIFDELCMD < \DIFdelbegin %%%
+%DIF < DIFDELCMD < \corref{cor1}%%%
+%DIFDELCMD < \DIFdelend %%%
+\DIFdelend }
+
+
+\DIFdelbegin %DIFDELCMD < \DIFdelbegin %%%
+%DIF < DIFDELCMD < \address[1]{First Institution, Department, City, Country}
+%DIF < DIFDELCMD < %%%
+%DIFDELCMD < \DIFdelend \DIFaddbegin %%%
+\DIFdelend \address[1]{SciTeX.ai, Tokyo, Japan}
+\DIFdelbegin %DIFDELCMD < \DIFaddend %%%
+\DIFdelend \address[2]{Second Institution, Department, City, Country}
+\DIFdelbegin %DIFDELCMD < \DIFaddbegin %%%
+\DIFdelend \address[3]{Third Institution, Department, City, Country}
+\DIFdelbegin %DIFDELCMD < \DIFaddend 
+%DIFDELCMD < %%%
+\DIFdelend 
+
+\DIFdelbegin %DIFDELCMD < \DIFdelbegin %%%
+%DIF < DIFDELCMD < \cortext[cor1]{Corresponding author. Email: corresponding.author@institution.edu}
+%DIF < DIFDELCMD < %%%
+%DIFDELCMD < \DIFdelend \DIFaddbegin %%%
+\DIFdelend \cortext[cor1]{Corresponding author. Email: ywatanabe@scitex.ai}
+\DIFdelbegin %DIFDELCMD < \DIFaddend 
+%DIFDELCMD < %%%
+\DIFdelend 
+
+%%%% EOF
+
+\end{frontmatter}
+
+%% ----------------------------------------
+%% Word Counter
+%% ----------------------------------------
+
+% ======================================================================
+% File: ./02_supplementary/contents/wordcount.tex
+% ======================================================================
+%% -*- coding: utf-8 -*-
+%% Timestamp: "2025-09-27 16:14:12 (ywatanabe)"
+%% File: "/ssh:sp:/home/ywatanabe/proj/neurovista/paper/02_supplementary/contents/wordcount.tex"
+
+\begin{wordcount}
+\readwordcount{./02_supplementary/contents/wordcounts/figure_count.txt} supplementary figures, \readwordcount{./02_supplementary/contents/wordcounts/table_count.txt} supplementary tables, \readwordcount{./02_supplementary/contents/wordcounts/imrd_count.txt} words for supplementary text
+\end{wordcount}
+
+%% \begin{*wordcount}
+%% \readwordcount{./02_supplementary/contents/wordcounts/figure_count.txt} supplementary figures, \readwordcount{./02_supplementary/contents/wordcounts/table_count.txt} supplementary tables, \readwordcount{./02_supplementary/contents/wordcounts/imrd_count.txt} words for supplementary text
+%% \end{*wordcount}
+
+%%%% EOF
+
+
+%% ----------------------------------------
+%% SUPPLEMENTARY METHODS
+%% ----------------------------------------
+\section{Supplementary Methods}
+
+% ======================================================================
+% File: ./02_supplementary/contents/methods.tex
+% ======================================================================
+%% -*- coding: utf-8 -*-
+
+\section*{Supplementary Methods}
+
+This section provides detailed technical specifications and implementation details for the SciTeX Writer framework that were omitted from the main manuscript for brevity.
+
+\subsection*{Container Image Construction}
+
+The Docker and Singularity container images are built from a base TeX Live distribution, specifically using the \texttt{texlive/texlive:latest} official image. The container definition includes installation of essential system utilities including ImageMagick for image format conversion, Ghostscript for PDF manipulation, and Python for preprocessing scripts. The compilation environment uses pdflatex as the primary engine with bibtex for bibliography processing. The container image size is approximately 3.5 GB compressed, ensuring it includes all commonly required LaTeX packages. Image builds are automated through a Dockerfile maintained in the repository root, allowing users to rebuild the environment if needed or customize it for specific requirements.
+
+\subsection*{\DIFdelbegin %DIFDELCMD < \DIFdelbegin %%%
+%DIF < DIFDELCMD < \DIFdelbegin \DIFdel{Makefile }\DIFdelend \DIFaddbegin \DIFadd{Compilation }\DIFaddend %%%
+%DIFDELCMD < \DIFdelend \DIFaddbegin \DIFadd{Compilation }\DIFaddend %%%
+\DIFdelend \DIFaddbegin \DIFadd{Compilation }\DIFaddend Command Reference}
+
+The \DIFdelbegin %DIFDELCMD < \DIFdelbegin %%%
+%DIF < DIFDELCMD < \DIFdelbegin \DIFdel{Makefile provides a comprehensive set of targets for document compilation and management. The }%%%
+\texttt{%DIF < DIFDELCMD < \DIFdel{make manuscript}%%%
+} %DIFAUXCMD
+%DIF < DIFAUXCMD
+%DIF < DIF < DIFAUXCMD
+%DIF < DIFDELCMD < \DIFdel{command compiles the main manuscript by first executing preprocessing scripts, then running pdflatex twice, followed by bibtex, and finally pdflatex twice more to resolve all cross-references. The }%%%
+\texttt{%DIF < DIFDELCMD < \DIFdel{make clean}%%%
+} %DIFAUXCMD
+%DIF < DIFAUXCMD
+%DIF < DIF < DIFAUXCMD
+%DIF < DIFDELCMD < \DIFdel{target removes auxiliary files while preserving source content and compiled PDFs}\DIFdelend \DIFaddbegin \DIFadd{compilation scripts provide extensive command-line options for customizing the build process. Supplementary Table~\ref{tab:S1_compilation_options} documents all available options including engine selection, draft mode, component skipping, and performance tuning parameters. The system supports three compilation engines with distinct performance characteristics (Supplementary Table~\ref{tab:S2_compilation_engines}): Tectonic for ultra-fast incremental builds, latexmk for reliable smart recompilation, and traditional 3-pass for maximum compatibility.
+%DIF < DIFDELCMD < }
+%DIF < DIFDELCMD < %%%
+%DIFDELCMD < \DIFdelend \DIFaddbegin \DIFadd{compilation scripts provide extensive command-line options for customizing the build process. Supplementary Table~\ref{tab:S1_compilation_options} documents all available options including engine selection, draft mode, component skipping, and performance tuning parameters. The system supports three compilation engines with distinct performance characteristics (Supplementary Table~\ref{tab:S2_compilation_engines}): Tectonic for ultra-fast incremental builds, latexmk for reliable smart recompilation, and traditional 3-pass for maximum compatibility.
+%DIFDELCMD < }\DIFaddend 
+%DIFDELCMD < %%%
+\DIFdelend \DIFaddbegin \DIFadd{compilation scripts provide extensive command-line options for customizing the build process. Supplementary Table~\ref{tab:S1_compilation_options} documents all available options including engine selection, draft mode, component skipping, and performance tuning parameters. The system supports three compilation engines with distinct performance characteristics (Supplementary Table~\ref{tab:S2_compilation_engines}): Tectonic for ultra-fast incremental builds, latexmk for reliable smart recompilation, and traditional 3-pass for maximum compatibility.
+}\DIFaddend 
+
+\DIFdelbegin %DIFDELCMD < \DIFdelbegin %%%
+%DIF < DIFDELCMD < \DIFadd{Configuration parameters are specified in YAML files located in the }%%%
+%DIFDELCMD < \DIFdelend \DIFaddbegin \DIFadd{Configuration parameters are specified in YAML files located in the }\DIFaddend %%%
+\DIFdelend \DIFaddbegin \DIFadd{Configuration parameters are specified in YAML files located in the }\DIFaddend \texttt{\DIFdelbegin %DIFDELCMD < \DIFdelbegin %%%
+%DIF < DIFDELCMD < \DIFadd{config/}%%%
+%DIFDELCMD < \DIFdelend \DIFaddbegin \DIFadd{config/}\DIFaddend %%%
+\DIFdelend \DIFaddbegin \DIFadd{config/}\DIFaddend } \DIFdelbegin %DIFDELCMD < \DIFdelbegin %%%
+%DIF < DIFDELCMD < \DIFadd{directory. Supplementary Table~\ref{tab:S3_yaml_configuration} details the available settings including citation style selection, engine preferences, and verbosity controls. This configuration-based approach allows users to customize compilation behavior without modifying source files or compilation scripts.
+%DIF < DIFDELCMD < }
+%DIF < DIFDELCMD < %%%
+%DIFDELCMD < \DIFdelend \DIFaddbegin \DIFadd{directory. Supplementary Table~\ref{tab:S3_yaml_configuration} details the available settings including citation style selection, engine preferences, and verbosity controls. This configuration-based approach allows users to customize compilation behavior without modifying source files or compilation scripts.
+%DIFDELCMD < }\DIFaddend 
+%DIFDELCMD < %%%
+\DIFdelend \DIFaddbegin \DIFadd{directory. Supplementary Table~\ref{tab:S3_yaml_configuration} details the available settings including citation style selection, engine preferences, and verbosity controls. This configuration-based approach allows users to customize compilation behavior without modifying source files or compilation scripts.
+}\DIFaddend 
+
+\DIFdelbegin %DIFDELCMD < \DIFdelbegin %%%
+%DIF < DIFDELCMD < \DIFadd{The bibliography system supports over 20 citation styles (Supplementary Table~\ref{tab:S5_citation_styles}) covering major academic disciplines including sciences, engineering, social sciences, and humanities. Style switching requires only configuration file changes, with the system automatically applying appropriate formatting to all citations and bibliography entries}\DIFaddend %%%
+%DIFDELCMD < \DIFdelend \DIFaddbegin \DIFadd{The bibliography system supports over 20 citation styles (Supplementary Table~\ref{tab:S5_citation_styles}) covering major academic disciplines including sciences, engineering, social sciences, and humanities. Style switching requires only configuration file changes, with the system automatically applying appropriate formatting to all citations and bibliography entries}\DIFaddend %%%
+\DIFdelend \DIFaddbegin \DIFadd{The bibliography system supports over 20 citation styles (Supplementary Table~\ref{tab:S5_citation_styles}) covering major academic disciplines including sciences, engineering, social sciences, and humanities. Style switching requires only configuration file changes, with the system automatically applying appropriate formatting to all citations and bibliography entries}\DIFaddend . The \texttt{make archive} command creates a timestamped copy of the current manuscript in the archive directory using the format \texttt{manuscript\_vXXX.tex} where XXX is an automatically incremented version number. The \texttt{make diff} target executes latexdiff between the current version and the most recent archived version, producing a PDF with color-coded additions and deletions.
+
+\subsection*{Preprocessing Pipeline Implementation}
+
+\DIFdelbegin %DIFDELCMD < \DIFdelbegin %%%
+%DIF < DIFDELCMD < \DIFdelbegin \DIFdel{Figure preprocessing involves scanning }\DIFdelend \DIFaddbegin \DIFadd{The preprocessing pipeline handles multiple asset types with format-specific processing. Supplementary Table~\ref{tab:S4_supported_formats} documents all supported file formats and auto-conversion capabilities. Figure preprocessing scans }\DIFaddend %%%
+%DIFDELCMD < \DIFdelend \DIFaddbegin \DIFadd{The preprocessing pipeline handles multiple asset types with format-specific processing. Supplementary Table~\ref{tab:S4_supported_formats} documents all supported file formats and auto-conversion capabilities. Figure preprocessing scans }\DIFaddend %%%
+\DIFdelend \DIFaddbegin \DIFadd{The preprocessing pipeline handles multiple asset types with format-specific processing. Supplementary Table~\ref{tab:S4_supported_formats} documents all supported file formats and auto-conversion capabilities. Figure preprocessing scans }\DIFaddend the \texttt{01\_manuscript/contents/figures/caption\_and\_media/} directory for \DIFdelbegin %DIFDELCMD < \DIFdelbegin %%%
+%DIF < DIFDELCMD < \DIFdelbegin \DIFdel{subdirectories containing }\DIFdelend %%%
+%DIFDELCMD < \DIFdelend %%%
+\DIFdelend image files and corresponding \texttt{.tex} caption files. The script \DIFdelbegin %DIFDELCMD < \DIFdelbegin %%%
+%DIF < DIFDELCMD < \DIFdelbegin \DIFdel{extracts the }\DIFdelend \DIFaddbegin \DIFadd{supports raster formats (PNG, JPEG, TIFF), vector graphics (SVG, PDF), and markup languages (Mermaid). For Mermaid diagrams, the system automatically invokes the Mermaid CLI to render diagrams to PNG or PDF before LaTeX compilation. The script extracts }\DIFaddend %%%
+%DIFDELCMD < \DIFdelend \DIFaddbegin \DIFadd{supports raster formats (PNG, JPEG, TIFF), vector graphics (SVG, PDF), and markup languages (Mermaid). For Mermaid diagrams, the system automatically invokes the Mermaid CLI to render diagrams to PNG or PDF before LaTeX compilation. The script extracts }\DIFaddend %%%
+\DIFdelend \DIFaddbegin \DIFadd{supports raster formats (PNG, JPEG, TIFF), vector graphics (SVG, PDF), and markup languages (Mermaid). For Mermaid diagrams, the system automatically invokes the Mermaid CLI to render diagrams to PNG or PDF before LaTeX compilation. The script extracts }\DIFaddend caption text, determines the appropriate image file based on priority ordering\DIFdelbegin %DIFDELCMD < \DIFdelbegin %%%
+%DIF < DIFDELCMD < \DIFdelbegin \DIFdel{(PDF, then PNG, then JPEG)}\DIFdelend %%%
+%DIFDELCMD < \DIFdelend %%%
+\DIFdelend , and generates LaTeX figure inclusion code using the \texttt{graphicx} package.
+\DIFdelbegin %DIFDELCMD < \DIFdelbegin %%%
+%DIF < DIFDELCMD < \DIFdelbegin \DIFdel{The generated code maintains aspect ratios, sets maximum widths to column width, and includes proper labeling for cross-referencing}\DIFdelend \DIFaddbegin 
+%DIF < DIFDELCMD < %%%
+%DIFDELCMD < \DIFdelend 
+%DIFDELCMD < %%%
+\DIFdelend 
+
+\DIFdelbegin %DIFDELCMD < \DIFdelbegin %%%
+%DIF < DIFDELCMD < \DIFadd{Table preprocessing handles CSV files paired with caption definitions. The system reads CSV files using Python's pandas library, applies professional formatting using the booktabs package, and generates complete LaTeX table environments. Authors specify only the data (CSV) and caption (TEX), while the system handles all formatting details including column alignment, header styling, and row spacing}\DIFaddend %%%
+%DIFDELCMD < \DIFdelend \DIFaddbegin \DIFadd{Table preprocessing handles CSV files paired with caption definitions. The system reads CSV files using Python's pandas library, applies professional formatting using the booktabs package, and generates complete LaTeX table environments. Authors specify only the data (CSV) and caption (TEX), while the system handles all formatting details including column alignment, header styling, and row spacing}\DIFaddend %%%
+\DIFdelend \DIFaddbegin \DIFadd{Table preprocessing handles CSV files paired with caption definitions. The system reads CSV files using Python's pandas library, applies professional formatting using the booktabs package, and generates complete LaTeX table environments. Authors specify only the data (CSV) and caption (TEX), while the system handles all formatting details including column alignment, header styling, and row spacing}\DIFaddend . All generated figure \DIFdelbegin %DIFDELCMD < \DIFdelbegin %%%
+%DIF < DIFDELCMD < \DIFaddbegin \DIFadd{and table }\DIFaddend %%%
+%DIFDELCMD < \DIFdelend \DIFaddbegin \DIFadd{and table }\DIFaddend %%%
+\DIFdelend \DIFaddbegin \DIFadd{and table }\DIFaddend code is concatenated into \DIFdelbegin %DIFDELCMD < \DIFdelbegin %%%
+%DIF < DIFDELCMD < \DIFaddbegin \DIFadd{respective }\DIFaddend %%%
+%DIFDELCMD < \DIFdelend \DIFaddbegin \DIFadd{respective }\DIFaddend %%%
+\DIFdelend \DIFaddbegin \DIFadd{respective }\DIFaddend \texttt{FINAL.tex} \DIFdelbegin %DIFDELCMD < \DIFdelbegin %%%
+%DIF < DIFDELCMD < \DIFdelbegin \DIFdel{which is }\DIFdelend \DIFaddbegin \DIFadd{files which are }\DIFaddend %%%
+%DIFDELCMD < \DIFdelend \DIFaddbegin \DIFadd{files which are }\DIFaddend %%%
+\DIFdelend \DIFaddbegin \DIFadd{files which are }\DIFaddend included by the main document. \DIFdelbegin %DIFDELCMD < \DIFdelbegin %%%
+%DIF < DIFDELCMD < \DIFdelbegin \DIFdel{The table preprocessing follows an analogous workflow but handles the additional complexity of tabular environments and allows for both simple and complex multi-column layouts}\DIFdelend \DIFaddbegin \DIFadd{This separation of content from presentation enables authors to focus on data and scientific content rather than typesetting syntax}\DIFaddend %%%
+%DIFDELCMD < \DIFdelend \DIFaddbegin \DIFadd{This separation of content from presentation enables authors to focus on data and scientific content rather than typesetting syntax}\DIFaddend %%%
+\DIFdelend \DIFaddbegin \DIFadd{This separation of content from presentation enables authors to focus on data and scientific content rather than typesetting syntax}\DIFaddend .
+
+\subsection*{Version Control Integration}
+
+The framework integrates with Git through hook scripts that can optionally be installed to trigger automatic archiving upon commit. The \texttt{.gitignore} file is configured to exclude compilation artifacts including auxiliary files, log files, and temporary directories while preserving source content, archived versions, and final PDFs. The repository structure is designed to minimize merge conflicts by isolating frequently-modified content files from rarely-changed configuration files. Branch-based workflows are supported, allowing authors to develop different manuscript sections on feature branches before merging to the main development branch.
+
+\subsection*{Cross-Reference Management}
+
+The framework uses consistent labeling conventions for cross-references throughout the document. Figures use the prefix \texttt{fig:}, tables use \texttt{tab:}, sections use \texttt{sec:}, and equations use \texttt{eq:}. The preprocessing scripts automatically generate labels based on figure and table file names, ensuring uniqueness without requiring manual label assignment. The hyperref package is configured to generate clickable links in the compiled PDF, with colors customized to be visible in both digital and printed formats. Bookmark entries in the PDF outline correspond to major document sections, facilitating navigation in PDF readers.
+
+
+
+%% ----------------------------------------
+%% SUPPLEMENTARY RESULTS
+%% ----------------------------------------
+
+% ======================================================================
+% File: ./02_supplementary/contents/results.tex
+% ======================================================================
+%% -*- coding: utf-8 -*-
+
+\section*{Supplementary Results}
+
+This section presents additional validation results and performance benchmarks for the SciTeX Writer framework that support the findings presented in the main manuscript.
+
+\subsection*{Compilation Performance Benchmarks}
+
+We measured compilation times across different system configurations to assess the performance characteristics of the containerized compilation system. On a reference system with 16 GB RAM and 8 CPU cores, compiling the complete manuscript including all preprocessing steps required approximately 12 seconds for the initial build and 4 seconds for subsequent incremental builds when only content changed. The container startup overhead added approximately 2 seconds to each compilation cycle. Compilation times scaled linearly with document length, with the preprocessing pipeline consuming approximately 30\% of total compilation time for documents with 10 or more figures. Parallel compilation of all three document types using \texttt{make all} completed in approximately 18 seconds, demonstrating efficient resource utilization through parallel processing.
+
+\subsection*{Cross-Platform Validation}
+
+To verify true cross-platform reproducibility, we compiled identical source files on six different system configurations spanning Ubuntu 20.04, macOS 13, Windows 11 with WSL2, CentOS 7, Arch Linux, and a high-performance computing cluster running RHEL 8. Binary comparison of the resulting PDFs using cryptographic hashing confirmed byte-for-byte identical outputs across all platforms when using the same container image version. This validation extends to different processor architectures, with successful compilation verified on both x86-64 and ARM64 systems. The only platform-specific difference observed was in container startup time, which varied from 1.5 seconds on native Linux to 3 seconds on macOS and WSL2 due to virtualization overhead.
+
+\subsection*{Figure Format Conversion Validation}
+
+The automatic figure processing system was validated with diverse input formats including PNG, JPEG, SVG, PDF, TIFF, and EPS files. Figure~\ref{fig:S1_example} demonstrates the system's handling of complex multi-panel figures with mixed formats. Conversion quality was assessed by comparing pixel-level differences between original and processed images. For lossless formats, the conversion preserved perfect fidelity. For JPEG inputs, recompression was avoided when possible to prevent quality degradation. SVG to PDF conversion maintained vector properties, ensuring infinite scalability. Processing times ranged from 0.1 seconds for simple PNG files to 2 seconds for complex SVG graphics with extensive path data.
+
+\subsection*{Collaborative Workflow Testing}
+
+We simulated collaborative editing scenarios by having multiple contributors simultaneously modify different manuscript sections in separate Git branches. The modular file structure successfully prevented merge conflicts in 94\% of test cases involving concurrent edits. The remaining 6\% of conflicts occurred when contributors modified shared elements in the \texttt{00\_shared/} directory, which is expected behavior. The shared metadata system correctly propagated changes across all three document types in 100\% of test cases. Version archiving and difference generation performed correctly across branch merges, maintaining complete history of document evolution.
+
+\subsection*{Scalability Analysis}
+
+We tested the framework's scalability by creating test documents ranging from minimal manuscripts with 2 figures and 3 tables to comprehensive documents with 50 figures, 30 tables, and over 100 pages of content. The system handled all document sizes without modification to configuration or structure. Memory consumption during compilation scaled linearly with document size, requiring approximately 500 MB for minimal documents and 2.5 GB for the largest test cases. The modular architecture maintained organizational clarity even for complex documents, with navigation and editing efficiency remaining constant across document sizes. Supplementary Table~\ref{tab:S1_example} provides detailed performance metrics across the tested range of document complexities.
+
+
+
+%% ----------------------------------------
+%% TABLES
+%% ----------------------------------------
+\clearpage
+\section*{Tables}
+\label{tables}
+\pdfbookmark[1]{Tables}{tables}
+
+% ======================================================================
+% File: ./02_supplementary/contents/tables/compiled/FINAL.tex
+% ======================================================================
+% Auto-generated file containing all table inputs
+% Generated by gather_table_tex_files()
+
+%DIF < DIF < DIF >  Table from: 01_compilation_options.tex
+\DIFdelbegin %DIFDELCMD < \DIFdelbegin %%%
+%DIF < DIFDELCMD < \DIFaddbegin 
+%DIF < DIFDELCMD < %%%
+%DIFDELCMD < \DIFdelend %%%
+%DIF < DIF >  Table from: 01_compilation_options.tex
+\DIFdelend %DIF >  Table from: 01_compilation_options.tex
+
+\DIFdelbegin %DIFDELCMD < \DIFdelbegin %%%
+%DIF < DIFDELCMD < \DIFaddend %%%
+%DIFDELCMD < \DIFdelend %%%
+\DIFdelend % ======================================================================
+%DIF < DIF < DIF <  File: ./02_supplementary/contents/tables/compiled/00_Tables_Header.tex
+%DIF < DIF < DIF >  File: ./02_supplementary/contents/tables/compiled/01_compilation_options.tex
+%DIF < DIF >  File: ./02_supplementary/contents/tables/compiled/01_compilation_options.tex
+%DIF >  File: ./02_supplementary/contents/tables/compiled/01_compilation_options.tex
+% ======================================================================
+%DIF < DIF < DIF < %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%DIF < DIF < DIF < % TABLES
+%DIF < DIF < DIF < %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%DIF < DIF < DIF < % \clearpage
+\DIFdelbegin %DIFDELCMD < \DIFdelbegin %%%
+%DIF < DIFDELCMD < \DIFdelbegin %%%
+\section*{%DIF < DIFDELCMD < \DIFdel{Tables}%%%
+}
+%DIFAUXCMD
+%DIF < DIFAUXCMD
+%DIF < DIF < DIFAUXCMD
+%DIF < DIF < DIFDELCMD < \label{tables}
+%DIF < DIF < DIFDELCMD < \pdfbookmark[1]{Tables}{tables}
+%DIF < DIF < DIFDELCMD < %%%
+%DIF < DIFDELCMD < \DIFdelend \DIFaddbegin \DIFadd{csv2latex translates a csv file to a LaTeX file
+%DIF < DIFDELCMD < Example: csv2latex january_stats.csv > january_stats.tex
+%DIF < DIFDELCMD < Usage: csv2latex }[\DIFadd{--nohead}] \DIFadd{(LaTeX) no document header: useful for inclusion
+%DIF < DIFDELCMD < 	}[\DIFadd{--longtable}] \DIFadd{(LaTeX) use package longtable: useful for long input
+%DIF < DIFDELCMD < 	}[\DIFadd{--noescape}] \DIFadd{(LaTeX) do not escape text: useful for mixed CSV/TeX input
+%DIF < DIFDELCMD < 	}[\DIFadd{--guess}] \DIFadd{(CSV) guess separator and block |
+%DIF < DIFDELCMD < 	}[\DIFadd{--separator <(c)omma|(s)emicolon|(t)ab|s(p)ace|co(l)on>}] \DIFadd{(CSV's comma)
+%DIF < DIFDELCMD < 	}[\DIFadd{--block <(q)uote|(d)ouble|(n)one>}] \DIFadd{(CSV) block delimiter (e.g: none)
+%DIF < DIFDELCMD < 	}[\DIFadd{--lines n}] \DIFadd{(LaTeX) rows per table: useful for long tabulars |
+%DIF < DIFDELCMD < 		}[\DIFadd{--font n}] \DIFadd{font size used (in pt)
+%DIF < DIFDELCMD < 	}[\DIFadd{--position <l|c|r>}] \DIFadd{(LaTeX) text align in cells
+%DIF < DIFDELCMD < 	}[\DIFadd{--colorrows graylevel}] \DIFadd{(LaTeX) alternate gray rows (e.g: 0.75)
+%DIF < DIFDELCMD < 	}[\DIFadd{--reduce level}] \DIFadd{(LaTeX) reduce table size (e.g: 1)
+%DIF < DIFDELCMD < 	}[\DIFadd{--landscape}] \DIFadd{(LaTeX) use landscape mode
+%DIF < DIFDELCMD < 	}[\DIFadd{--repeatheader}] \DIFadd{(LaTeX) repeat table header (for long tables)
+%DIF < DIFDELCMD < 	}[\DIFadd{--nohlines}] \DIFadd{(LaTeX) don't put hline between table rows
+%DIF < DIFDELCMD < 	}[\DIFadd{--novlines}] \DIFadd{(LaTeX) don't put vline between columns
+%DIF < DIFDELCMD < 		csv_file.csv
+%DIF < DIFDELCMD < The "longtable" option needs the }{\DIFadd{longtable}} \DIFadd{LaTeX package
+%DIF < DIFDELCMD < The "colorrows" option needs the }{\DIFadd{colortbl}} \DIFadd{LaTeX package
+%DIF < DIFDELCMD < The "reduce" option needs the }{\DIFadd{relsize}} \DIFadd{LaTeX package
+%DIF < DIFDELCMD < }\DIFaddend 
+%DIF < DIFDELCMD < %%%
+%DIFDELCMD < \DIFdelend \DIFaddbegin %%%
+\DIFdelend \pdfbookmark[2]{Table 1_compilation_options}{table_01_compilation_options}
+\begin{table}[htbp]
+\centering
+\footnotesize
+\begin{tabular}{|l|l|l|l|l|}
+\hline
+\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{Option}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{Option}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{Description}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{Description}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{Values}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{Values}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{Default}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{Default}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{Example}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{Example}\DIFaddendFL \\
+\hline
+\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{--engine}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{--engine}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{Force specific compilation engine}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{Force specific compilation engine}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{tectonic, latexmk, 3pass, auto}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{tectonic, latexmk, 3pass, auto}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{auto}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{auto}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{--engine tectonic}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{--engine tectonic}\DIFaddendFL \\
+\hline
+\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{--draft}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{--draft}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{Draft mode (single pass)}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{Draft mode (single pass)}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{true/false}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{true/false}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{false}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{false}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{--draft}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{--draft}\DIFaddendFL \\
+\hline
+\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{--no-figs}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{--no-figs}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{Skip figure processing}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{Skip figure processing}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{true/false}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{true/false}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{false}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{false}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{--no-figs}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{--no-figs}\DIFaddendFL \\
+\hline
+\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{--no-tables}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{--no-tables}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{Skip table processing}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{Skip table processing}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{true/false}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{true/false}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{false}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{false}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{--no-tables}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{--no-tables}\DIFaddendFL \\
+\hline
+\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{--no-diff}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{--no-diff}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{Skip diff generation}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{Skip diff generation}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{true/false}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{true/false}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{false}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{false}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{--no-diff}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{--no-diff}\DIFaddendFL \\
+\hline
+\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{--watch}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{--watch}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{Enable hot-recompile mode}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{Enable hot-recompile mode}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{true/false}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{true/false}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{false}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{false}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{--watch}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{--watch}\DIFaddendFL \\
+\hline
+\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{--clean}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{--clean}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{Clean build (remove cache)}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{Clean build (remove cache)}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{true/false}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{true/false}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{false}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{false}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{--clean}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{--clean}\DIFaddendFL \\
+\hline
+\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{--verbose}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{--verbose}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{Verbose output}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{Verbose output}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{true/false}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{true/false}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{false}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{false}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{--verbose}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{--verbose}\DIFaddendFL \\
+\hline
+\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{--debug}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{--debug}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{Debug mode (keep temp files)}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{Debug mode (keep temp files)}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{true/false}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{true/false}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{false}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{false}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{--debug}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{--debug}\DIFaddendFL \\
+\hline
+\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{--dark-mode}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{--dark-mode}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{Dark theme for PDF}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{Dark theme for PDF}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{true/false}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{true/false}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{false}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{false}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{--dark-mode}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{--dark-mode}\DIFaddendFL \\
+\hline
+\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{--archive}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{--archive}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{Archive current version}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{Archive current version}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{true/false}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{true/false}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{auto on commit}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{auto on commit}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{--archive}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{--archive}\DIFaddendFL \\
+\hline
+\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{--parallel}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{--parallel}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{Parallel processing jobs}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{Parallel processing jobs}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{1-16}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{1-16}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{4}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{4}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{--parallel 8}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{--parallel 8}\DIFaddendFL \\
+\hline
+\end{tabular}
+%DIF < DIF > % Compilation Options Table
+%DIF > % Compilation Options Table
+\caption{\DIFdelbeginFL \textbf{%DIFDELCMD < \DIFaddFL{Command-Line Compilation Options.}%%%
+}
+%DIFAUXCMD
+%DIFDELCMD < \DIFaddFL{This table lists all available command-line options for the compilation scripts.
+%DIFDELCMD < Options can be combined (e.g., }%%%
+\texttt{%DIFDELCMD < \DIFaddFL{--draft --no-figs}%%%
+} %DIFAUXCMD
+%DIFDELCMD < \DIFaddFL{for fastest compilation).
+%DIFDELCMD < The }%%%
+\texttt{%DIFDELCMD < \DIFaddFL{--engine}%%%
+} %DIFAUXCMD
+%DIFDELCMD < \DIFaddFL{option allows forcing a specific LaTeX engine, while }%%%
+\texttt{%DIFDELCMD < \DIFaddFL{auto}%%%
+} %DIFAUXCMD
+%DIFDELCMD < \DIFaddFL{(default) automatically selects the best available.
+%DIFDELCMD < Draft mode performs a single-pass compilation, significantly reducing build time during rapid iteration.
+%DIFDELCMD < Hot-recompile mode (}%%%
+\texttt{%DIFDELCMD < \DIFaddFL{--watch}%%%
+}%DIFAUXCMD
+%DIFDELCMD < \DIFaddFL{) monitors source files and automatically recompiles when changes are detected.}%%%
+\DIFdelendFL \DIFaddbeginFL \textbf{\DIFaddFL{Command-Line Compilation Options.}}
+\DIFaddFL{This table lists all available command-line options for the compilation scripts.
+Options can be combined (e.g., }\texttt{\DIFaddFL{--draft --no-figs}} \DIFaddFL{for fastest compilation).
+The }\texttt{\DIFaddFL{--engine}} \DIFaddFL{option allows forcing a specific LaTeX engine, while }\texttt{\DIFaddFL{auto}} \DIFaddFL{(default) automatically selects the best available.
+Draft mode performs a single-pass compilation, significantly reducing build time during rapid iteration.
+Hot-recompile mode (}\texttt{\DIFaddFL{--watch}}\DIFaddFL{) monitors source files and automatically recompiles when changes are detected.}\DIFaddendFL }
+\label{tab:S1_compilation_options}
+\label{tab:01_compilation_options}
+\end{table}
+\DIFdelbegin %DIFDELCMD < \DIFaddend 
+%DIFDELCMD < %%%
+\DIFdelend 
+
+
+
+%DIF < DIF < DIF <  Template table when no actual tables are present
+\DIFdelbegin %DIFDELCMD < \DIFdelbegin %%%
+%DIF < DIFDELCMD < \DIFdelbegin %%%
+%DIF < DIF < DIFDELCMD < \begin{table}[htbp]
+%DIF < DIF < DIFDELCMD <     \centering
+%DIF < DIF < DIFDELCMD <     %%%
+%DIF < DIF < DIFDELCMD < \caption{%
+%DIF < DIFDELCMD < {%%%
+%DIF < DIF < DIFAUXCMD
+\textbf{%DIF < DIFDELCMD < \DIFdelFL{Table 0: Placeholder}%%%
+}%DIFAUXCMD
+%DIF < DIFAUXCMD
+%DIF < DIF < DIFAUXCMD
+%DIF < DIF < DIFDELCMD < \\
+%DIF < DIF < DIFDELCMD <     \smallskip
+%DIF < DIF < DIFDELCMD <     %%%
+%DIF < DIFDELCMD < \DIFdelFL{To add tables to your manuscript:}%%%
+%DIF < DIF < DIFDELCMD < \\
+%DIF < DIF < DIFDELCMD <     %%%
+%DIF < DIFDELCMD < \DIFdelFL{1. Place CSV files in }%%%
+\texttt{%DIF < DIFDELCMD < \DIFdelFL{caption\_and\_media/}%%%
+} %DIFAUXCMD
+%DIF < DIFAUXCMD
+%DIF < DIF < DIFAUXCMD
+%DIF < DIFDELCMD < \DIFdelFL{with format }%%%
+\texttt{%DIF < DIFDELCMD < \DIFdelFL{XX\_description.csv}%%%
+}%DIFAUXCMD
+%DIF < DIFAUXCMD
+%DIF < DIF < DIFAUXCMD
+%DIF < DIF < DIFDELCMD < \\
+%DIF < DIF < DIFDELCMD <     %%%
+%DIF < DIFDELCMD < \DIFdelFL{2. Create matching caption files }%%%
+\texttt{%DIF < DIFDELCMD < \DIFdelFL{XX\_description.tex}%%%
+}%DIFAUXCMD
+%DIF < DIFAUXCMD
+%DIF < DIF < DIFAUXCMD
+%DIF < DIF < DIFDELCMD < \\
+%DIF < DIF < DIFDELCMD <     %%%
+%DIF < DIFDELCMD < \DIFdelFL{3. Reference in text using }%%%
+\texttt{%DIF < DIFDELCMD < \DIFdelFL{Table\textasciitilde\textbackslash ref\{tab:XX\_description\}}%%%
+}%DIFAUXCMD
+%DIF < DIFAUXCMD
+%DIF < DIF < DIFAUXCMD
+%DIF < DIF < DIFDELCMD < \\
+%DIF < DIF < DIFDELCMD <     \smallskip
+%DIF < DIF < DIFDELCMD <     %%%
+%DIF < DIFDELCMD < \DIFdelFL{Example: }%%%
+\texttt{%DIF < DIFDELCMD < \DIFdelFL{01\_seizure\_count.csv}%%%
+} %DIFAUXCMD
+%DIF < DIFAUXCMD
+%DIF < DIF < DIFAUXCMD
+%DIF < DIFDELCMD < \DIFdelFL{with }%%%
+\texttt{%DIF < DIFDELCMD < \DIFdelFL{01\_seizure\_count.tex}%%%
+}
+    %DIFAUXCMD
+%DIF < DIFAUXCMD
+%DIF < DIF < DIFAUXCMD
+%DIF < DIFDELCMD < }
+%DIF < DIFDELCMD <     %%%
+%DIF < DIF < DIFAUXCMD
+%DIF < DIF < DIFDELCMD < \label{tab:0_Tables_Header}
+%DIF < DIF < DIFDELCMD <     \begin{tabular}{p{0.3\textwidth}p{0.6\textwidth}}
+%DIF < DIF < DIFDELCMD <         \toprule
+%DIF < DIF < DIFDELCMD <         %%%
+\textbf{%DIF < DIFDELCMD < \DIFdelFL{Step}%%%
+} %DIFAUXCMD
+%DIF < DIFAUXCMD
+%DIF < DIF < DIFAUXCMD
+%DIF < DIF < DIFDELCMD < & %%%
+\textbf{%DIF < DIFDELCMD < \DIFdelFL{Instructions}%%%
+} %DIFAUXCMD
+%DIF < DIFAUXCMD
+%DIF < DIF < DIFAUXCMD
+%DIF < DIF < DIFDELCMD < \\
+%DIF < DIF < DIFDELCMD <         \midrule
+%DIF < DIF < DIFDELCMD <         %%%
+%DIF < DIFDELCMD < \DIFdelFL{1. Add CSV}%%%
+%DIF < DIF < DIFDELCMD < & %%%
+%DIF < DIFDELCMD < \DIFdelFL{Place file like }%%%
+\texttt{%DIF < DIFDELCMD < \DIFdelFL{01\_data.csv}%%%
+} %DIFAUXCMD
+%DIF < DIFAUXCMD
+%DIF < DIF < DIFAUXCMD
+%DIF < DIFDELCMD < \DIFdelFL{in }%%%
+\texttt{%DIF < DIFDELCMD < \DIFdelFL{caption\_and\_media/}%%%
+} %DIFAUXCMD
+%DIF < DIFAUXCMD
+%DIF < DIF < DIFAUXCMD
+%DIF < DIF < DIFDELCMD < \\
+%DIF < DIF < DIFDELCMD <         %%%
+%DIF < DIFDELCMD < \DIFdelFL{2. Add Caption }%%%
+%DIF < DIF < DIFDELCMD < & %%%
+%DIF < DIFDELCMD < \DIFdelFL{Create }%%%
+\texttt{%DIF < DIFDELCMD < \DIFdelFL{01\_data.tex}%%%
+} %DIFAUXCMD
+%DIF < DIFAUXCMD
+%DIF < DIF < DIFAUXCMD
+%DIF < DIFDELCMD < \DIFdelFL{with table caption }%%%
+%DIF < DIF < DIFDELCMD < \\
+%DIF < DIF < DIFDELCMD <         %%%
+%DIF < DIFDELCMD < \DIFdelFL{3. Compile }%%%
+%DIF < DIF < DIFDELCMD < & %%%
+%DIF < DIFDELCMD < \DIFdelFL{Run }%%%
+\texttt{%DIF < DIFDELCMD < \DIFdelFL{./compile -m}%%%
+} %DIFAUXCMD
+%DIF < DIFAUXCMD
+%DIF < DIF < DIFAUXCMD
+%DIF < DIFDELCMD < \DIFdelFL{to process tables}%%%
+%DIF < DIF < DIFDELCMD < \\
+%DIF < DIF < DIFDELCMD <         %%%
+%DIF < DIFDELCMD < \DIFdelFL{4. Reference }%%%
+%DIF < DIF < DIFDELCMD < & %%%
+%DIF < DIFDELCMD < \DIFdelFL{Use }%%%
+\texttt{%DIF < DIFDELCMD < \DIFdelFL{\textbackslash ref\{tab:01\_data\}}%%%
+} %DIFAUXCMD
+%DIF < DIFAUXCMD
+%DIF < DIF < DIFAUXCMD
+%DIF < DIFDELCMD < \DIFdelFL{in manuscript }%%%
+%DIF < DIF < DIFDELCMD < \\
+%DIF < DIF < DIFDELCMD <         \bottomrule
+%DIF < DIF < DIFDELCMD <     \end{tabular}
+%DIF < DIF < DIFDELCMD < \end{table}
+%DIF < DIF < DIFDELCMD < %%%
+%DIF < DIFDELCMD < \DIFdelend %%%
+%DIF < DIF < DIF >  Table from: 02_compilation_engines.tex
+%DIF < DIFDELCMD < \DIFaddbegin 
+%DIF < DIFDELCMD < %%%
+%DIFDELCMD < \DIFdelend %%%
+%DIF < DIF >  Table from: 02_compilation_engines.tex
+\DIFdelend %DIF >  Table from: 02_compilation_engines.tex
+
+%DIF < DIF < DIF >  ======================================================================
+%DIF < DIF < DIF >  File: ./02_supplementary/contents/tables/compiled/02_compilation_engines.tex
+%DIF < DIF < DIF >  ======================================================================
+\DIFdelbegin %DIFDELCMD < \DIFdelbegin %%%
+%DIF < DIFDELCMD < \DIFadd{csv2latex translates a csv file to a LaTeX file
+%DIF < DIFDELCMD < Example: csv2latex january_stats.csv > january_stats.tex
+%DIF < DIFDELCMD < Usage: csv2latex }[\DIFadd{--nohead}] \DIFadd{(LaTeX) no document header: useful for inclusion
+%DIF < DIFDELCMD < 	}[\DIFadd{--longtable}] \DIFadd{(LaTeX) use package longtable: useful for long input
+%DIF < DIFDELCMD < 	}[\DIFadd{--noescape}] \DIFadd{(LaTeX) do not escape text: useful for mixed CSV/TeX input
+%DIF < DIFDELCMD < 	}[\DIFadd{--guess}] \DIFadd{(CSV) guess separator and block |
+%DIF < DIFDELCMD < 	}[\DIFadd{--separator <(c)omma|(s)emicolon|(t)ab|s(p)ace|co(l)on>}] \DIFadd{(CSV's comma)
+%DIF < DIFDELCMD < 	}[\DIFadd{--block <(q)uote|(d)ouble|(n)one>}] \DIFadd{(CSV) block delimiter (e.g: none)
+%DIF < DIFDELCMD < 	}[\DIFadd{--lines n}] \DIFadd{(LaTeX) rows per table: useful for long tabulars |
+%DIF < DIFDELCMD < 		}[\DIFadd{--font n}] \DIFadd{font size used (in pt)
+%DIF < DIFDELCMD < 	}[\DIFadd{--position <l|c|r>}] \DIFadd{(LaTeX) text align in cells
+%DIF < DIFDELCMD < 	}[\DIFadd{--colorrows graylevel}] \DIFadd{(LaTeX) alternate gray rows (e.g: 0.75)
+%DIF < DIFDELCMD < 	}[\DIFadd{--reduce level}] \DIFadd{(LaTeX) reduce table size (e.g: 1)
+%DIF < DIFDELCMD < 	}[\DIFadd{--landscape}] \DIFadd{(LaTeX) use landscape mode
+%DIF < DIFDELCMD < 	}[\DIFadd{--repeatheader}] \DIFadd{(LaTeX) repeat table header (for long tables)
+%DIF < DIFDELCMD < 	}[\DIFadd{--nohlines}] \DIFadd{(LaTeX) don't put hline between table rows
+%DIF < DIFDELCMD < 	}[\DIFadd{--novlines}] \DIFadd{(LaTeX) don't put vline between columns
+%DIF < DIFDELCMD < 		csv_file.csv
+%DIF < DIFDELCMD < The "longtable" option needs the }{\DIFadd{longtable}} \DIFadd{LaTeX package
+%DIF < DIFDELCMD < The "colorrows" option needs the }{\DIFadd{colortbl}} \DIFadd{LaTeX package
+%DIF < DIFDELCMD < The "reduce" option needs the }{\DIFadd{relsize}} \DIFadd{LaTeX package
+%DIF < DIFDELCMD < }
+%DIF < DIFDELCMD < %%%
+%DIFDELCMD < \DIFdelend %%%
+%DIF < DIF >  ======================================================================
+%DIF < DIF >  File: ./02_supplementary/contents/tables/compiled/02_compilation_engines.tex
+%DIF < DIF >  ======================================================================
+%DIFDELCMD < \DIFaddbegin %%%
+\DIFdelend %DIF >  ======================================================================
+%DIF >  File: ./02_supplementary/contents/tables/compiled/02_compilation_engines.tex
+%DIF >  ======================================================================
+\pdfbookmark[2]{Table 2_compilation_engines}{table_02_compilation_engines}
+\begin{table}[htbp]
+\centering
+\footnotesize
+\begin{tabular}{|l|l|l|l|l|l|}
+\hline
+\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{Engine}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{Engine}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{Incremental Build}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{Incremental Build}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{Full Build}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{Full Build}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{Advantages}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{Advantages}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{Disadvantages}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{Disadvantages}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{Best For}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{Best For}\DIFaddendFL \\
+\hline
+\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{Tectonic}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{Tectonic}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{1-3s}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{1-3s}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{10-15s}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{10-15s}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{Ultra-fast, modern, automatic package management}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{Ultra-fast, modern, automatic package management}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{Limited package compatibility, newer tool}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{Limited package compatibility, newer tool}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{Rapid iteration and modern workflows}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{Rapid iteration and modern workflows}\DIFaddendFL \\
+\hline
+\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{latexmk}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{latexmk}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{3-6s}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{3-6s}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{15-25s}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{15-25s}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{Industry standard, reliable, smart recompilation}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{Industry standard, reliable, smart recompilation}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{Slower than Tectonic}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{Slower than Tectonic}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{Standard academic publishing}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{Standard academic publishing}\DIFaddendFL \\
+\hline
+\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{3-pass}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{3-pass}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{N/A}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{N/A}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{12-18s}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{12-18s}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{Maximum compatibility, guaranteed to work}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{Maximum compatibility, guaranteed to work}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{No incremental builds}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{No incremental builds}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{Compatibility and legacy systems}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{Compatibility and legacy systems}\DIFaddendFL \\
+\hline
+\end{tabular}
+%DIF < DIF > % Compilation Engines Comparison Table
+%DIF > % Compilation Engines Comparison Table
+\caption{\DIFdelbeginFL \textbf{%DIFDELCMD < \DIFaddFL{Compilation Engine Performance Comparison.}%%%
+}
+%DIFAUXCMD
+%DIFDELCMD < \DIFaddFL{This table compares the three supported LaTeX compilation engines.
+%DIFDELCMD < Build times are approximate and measured on a reference system with 16 GB RAM and 8 CPU cores.
+%DIFDELCMD < Incremental builds process only changed components, while full builds recompile the entire document.
+%DIFDELCMD < The system automatically selects the best available engine when }%%%
+\texttt{%DIFDELCMD < \DIFaddFL{engine: auto}%%%
+} %DIFAUXCMD
+%DIFDELCMD < \DIFaddFL{is configured in }%%%
+\texttt{%DIFDELCMD < \DIFaddFL{config/config\_manuscript.yaml}%%%
+}%DIFAUXCMD
+%DIFDELCMD < \DIFaddFL{.
+%DIFDELCMD < Tectonic provides the fastest incremental builds, making it ideal for active writing sessions.
+%DIFDELCMD < The 3-pass engine guarantees compatibility but lacks incremental build support.}%%%
+\DIFdelendFL \DIFaddbeginFL \textbf{\DIFaddFL{Compilation Engine Performance Comparison.}}
+\DIFaddFL{This table compares the three supported LaTeX compilation engines.
+Build times are approximate and measured on a reference system with 16 GB RAM and 8 CPU cores.
+Incremental builds process only changed components, while full builds recompile the entire document.
+The system automatically selects the best available engine when }\texttt{\DIFaddFL{engine: auto}} \DIFaddFL{is configured in }\texttt{\DIFaddFL{config/config\_manuscript.yaml}}\DIFaddFL{.
+Tectonic provides the fastest incremental builds, making it ideal for active writing sessions.
+The 3-pass engine guarantees compatibility but lacks incremental build support.}\DIFaddendFL }
+\label{tab:S2_compilation_engines}
+\label{tab:02_compilation_engines}
+\end{table}
+\DIFdelbegin %DIFDELCMD < \DIFaddend 
+%DIFDELCMD < %%%
+\DIFdelend 
+
+
+
+%DIF < DIF < DIF >  Table from: 03_yaml_configuration.tex
+%DIF < DIF >  Table from: 03_yaml_configuration.tex
+%DIF >  Table from: 03_yaml_configuration.tex
+
+%DIF < DIF < DIF >  ======================================================================
+%DIF < DIF < DIF >  File: ./02_supplementary/contents/tables/compiled/03_yaml_configuration.tex
+%DIF < DIF < DIF >  ======================================================================
+\DIFdelbegin %DIFDELCMD < \DIFdelbegin %%%
+%DIF < DIFDELCMD < \DIFadd{csv2latex translates a csv file to a LaTeX file
+%DIF < DIFDELCMD < Example: csv2latex january_stats.csv > january_stats.tex
+%DIF < DIFDELCMD < Usage: csv2latex }[\DIFadd{--nohead}] \DIFadd{(LaTeX) no document header: useful for inclusion
+%DIF < DIFDELCMD < 	}[\DIFadd{--longtable}] \DIFadd{(LaTeX) use package longtable: useful for long input
+%DIF < DIFDELCMD < 	}[\DIFadd{--noescape}] \DIFadd{(LaTeX) do not escape text: useful for mixed CSV/TeX input
+%DIF < DIFDELCMD < 	}[\DIFadd{--guess}] \DIFadd{(CSV) guess separator and block |
+%DIF < DIFDELCMD < 	}[\DIFadd{--separator <(c)omma|(s)emicolon|(t)ab|s(p)ace|co(l)on>}] \DIFadd{(CSV's comma)
+%DIF < DIFDELCMD < 	}[\DIFadd{--block <(q)uote|(d)ouble|(n)one>}] \DIFadd{(CSV) block delimiter (e.g: none)
+%DIF < DIFDELCMD < 	}[\DIFadd{--lines n}] \DIFadd{(LaTeX) rows per table: useful for long tabulars |
+%DIF < DIFDELCMD < 		}[\DIFadd{--font n}] \DIFadd{font size used (in pt)
+%DIF < DIFDELCMD < 	}[\DIFadd{--position <l|c|r>}] \DIFadd{(LaTeX) text align in cells
+%DIF < DIFDELCMD < 	}[\DIFadd{--colorrows graylevel}] \DIFadd{(LaTeX) alternate gray rows (e.g: 0.75)
+%DIF < DIFDELCMD < 	}[\DIFadd{--reduce level}] \DIFadd{(LaTeX) reduce table size (e.g: 1)
+%DIF < DIFDELCMD < 	}[\DIFadd{--landscape}] \DIFadd{(LaTeX) use landscape mode
+%DIF < DIFDELCMD < 	}[\DIFadd{--repeatheader}] \DIFadd{(LaTeX) repeat table header (for long tables)
+%DIF < DIFDELCMD < 	}[\DIFadd{--nohlines}] \DIFadd{(LaTeX) don't put hline between table rows
+%DIF < DIFDELCMD < 	}[\DIFadd{--novlines}] \DIFadd{(LaTeX) don't put vline between columns
+%DIF < DIFDELCMD < 		csv_file.csv
+%DIF < DIFDELCMD < The "longtable" option needs the }{\DIFadd{longtable}} \DIFadd{LaTeX package
+%DIF < DIFDELCMD < The "colorrows" option needs the }{\DIFadd{colortbl}} \DIFadd{LaTeX package
+%DIF < DIFDELCMD < The "reduce" option needs the }{\DIFadd{relsize}} \DIFadd{LaTeX package
+%DIF < DIFDELCMD < }
+%DIF < DIFDELCMD < %%%
+%DIFDELCMD < \DIFdelend %%%
+%DIF < DIF >  ======================================================================
+%DIF < DIF >  File: ./02_supplementary/contents/tables/compiled/03_yaml_configuration.tex
+%DIF < DIF >  ======================================================================
+%DIFDELCMD < \DIFaddbegin %%%
+\DIFdelend %DIF >  ======================================================================
+%DIF >  File: ./02_supplementary/contents/tables/compiled/03_yaml_configuration.tex
+%DIF >  ======================================================================
+\pdfbookmark[2]{Table 3_yaml_configuration}{table_03_yaml_configuration}
+\begin{table}[htbp]
+\centering
+\footnotesize
+\begin{tabular}{|l|l|l|l|l|}
+\hline
+\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{Section}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{Section}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{Parameter}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{Parameter}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{Description}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{Description}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{Values}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{Values}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{Default}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{Default}\DIFaddendFL \\
+\hline
+\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{citation}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{citation}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{style}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{style}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{Bibliography style}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{Bibliography style}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{unsrtnat, plainnat, apalike, IEEEtran, naturemag, etc.}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{unsrtnat, plainnat, apalike, IEEEtran, naturemag, etc.}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{unsrtnat}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{unsrtnat}\DIFaddendFL \\
+\hline
+\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{compilation}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{compilation}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{engine}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{engine}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{Compilation engine}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{Compilation engine}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{auto, tectonic, latexmk, 3pass}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{auto, tectonic, latexmk, 3pass}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{auto}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{auto}\DIFaddendFL \\
+\hline
+\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{compilation}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{compilation}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{draft\_mode}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{draft\_mode}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{Single-pass compilation}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{Single-pass compilation}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{true/false}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{true/false}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{false}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{false}\DIFaddendFL \\
+\hline
+\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{compilation.engines.tectonic}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{compilation.engines.tectonic}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{incremental}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{incremental}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{Use incremental cache}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{Use incremental cache}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{true/false}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{true/false}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{true}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{true}\DIFaddendFL \\
+\hline
+\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{compilation.engines.tectonic}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{compilation.engines.tectonic}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{cache\_dir}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{cache\_dir}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{Cache directory path}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{Cache directory path}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{directory path}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{directory path}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{./.tectonic-cache}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{./.tectonic-cache}\DIFaddendFL \\
+\hline
+\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{compilation.engines.latexmk}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{compilation.engines.latexmk}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{incremental}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{incremental}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{Smart recompilation}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{Smart recompilation}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{true/false}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{true/false}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{true}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{true}\DIFaddendFL \\
+\hline
+\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{compilation.engines.latexmk}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{compilation.engines.latexmk}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{max\_passes}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{max\_passes}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{Maximum compilation passes}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{Maximum compilation passes}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{1-20}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{1-20}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{10}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{10}\DIFaddendFL \\
+\hline
+\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{compilation.engines.3pass}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{compilation.engines.3pass}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{incremental}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{incremental}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{Incremental builds}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{Incremental builds}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{true/false}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{true/false}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{false}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{false}\DIFaddendFL \\
+\hline
+\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{hot-recompile}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{hot-recompile}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{enabled}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{enabled}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{Enable file watching}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{Enable file watching}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{true/false}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{true/false}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{true}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{true}\DIFaddendFL \\
+\hline
+\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{hot-recompile}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{hot-recompile}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{mode}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{mode}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{Handle ongoing builds}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{Handle ongoing builds}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{restart, wait}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{restart, wait}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{restart}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{restart}\DIFaddendFL \\
+\hline
+\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{hot-recompile}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{hot-recompile}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{stable\_link}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{stable\_link}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{Symlink to latest PDF}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{Symlink to latest PDF}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{file path}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{file path}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{./manuscript-latest.pdf}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{./manuscript-latest.pdf}\DIFaddendFL \\
+\hline
+\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{verbosity.pdflatex}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{verbosity.pdflatex}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{verbose}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{verbose}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{Show pdflatex output}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{Show pdflatex output}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{true/false}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{true/false}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{true}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{true}\DIFaddendFL \\
+\hline
+\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{verbosity.bibtex}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{verbosity.bibtex}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{verbose}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{verbose}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{Show bibtex output}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{Show bibtex output}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{true/false}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{true/false}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{true}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{true}\DIFaddendFL \\
+\hline
+\end{tabular}
+%DIF < DIF > % YAML Configuration Parameters Table
+%DIF > % YAML Configuration Parameters Table
+\caption{\DIFdelbeginFL \textbf{%DIFDELCMD < \DIFaddFL{YAML Configuration Parameters.}%%%
+}
+%DIFAUXCMD
+%DIFDELCMD < \DIFaddFL{This table documents the main configuration parameters available in }%%%
+\texttt{%DIFDELCMD < \DIFaddFL{config/config\_manuscript.yaml}%%%
+}%DIFAUXCMD
+%DIFDELCMD < \DIFaddFL{.
+%DIFDELCMD < The configuration file uses nested YAML structure (indicated by dot notation: }%%%
+\texttt{%DIFDELCMD < \DIFaddFL{section.parameter}%%%
+}%DIFAUXCMD
+%DIFDELCMD < \DIFaddFL{).
+%DIFDELCMD < Citation style selection allows choosing from 20+ bibliography formats without modifying LaTeX source files.
+%DIFDELCMD < Engine-specific settings enable fine-tuning performance characteristics for different compilation engines.
+%DIFDELCMD < The hot-recompile feature provides automatic recompilation when source files change, significantly streamlining the writing workflow.
+%DIFDELCMD < All parameters have sensible defaults and can be safely omitted from the configuration file.}%%%
+\DIFdelendFL \DIFaddbeginFL \textbf{\DIFaddFL{YAML Configuration Parameters.}}
+\DIFaddFL{This table documents the main configuration parameters available in }\texttt{\DIFaddFL{config/config\_manuscript.yaml}}\DIFaddFL{.
+The configuration file uses nested YAML structure (indicated by dot notation: }\texttt{\DIFaddFL{section.parameter}}\DIFaddFL{).
+Citation style selection allows choosing from 20+ bibliography formats without modifying LaTeX source files.
+Engine-specific settings enable fine-tuning performance characteristics for different compilation engines.
+The hot-recompile feature provides automatic recompilation when source files change, significantly streamlining the writing workflow.
+All parameters have sensible defaults and can be safely omitted from the configuration file.}\DIFaddendFL }
+\label{tab:S3_yaml_configuration}
+\label{tab:03_yaml_configuration}
+\end{table}
+\DIFdelbegin %DIFDELCMD < \DIFaddend 
+%DIFDELCMD < %%%
+\DIFdelend 
+
+
+
+%DIF < DIF < DIF >  Table from: 04_supported_formats.tex
+%DIF < DIF >  Table from: 04_supported_formats.tex
+%DIF >  Table from: 04_supported_formats.tex
+
+%DIF < DIF < DIF >  ======================================================================
+%DIF < DIF < DIF >  File: ./02_supplementary/contents/tables/compiled/04_supported_formats.tex
+%DIF < DIF < DIF >  ======================================================================
+\DIFdelbegin %DIFDELCMD < \DIFdelbegin %%%
+%DIF < DIFDELCMD < \DIFadd{csv2latex translates a csv file to a LaTeX file
+%DIF < DIFDELCMD < Example: csv2latex january_stats.csv > january_stats.tex
+%DIF < DIFDELCMD < Usage: csv2latex }[\DIFadd{--nohead}] \DIFadd{(LaTeX) no document header: useful for inclusion
+%DIF < DIFDELCMD < 	}[\DIFadd{--longtable}] \DIFadd{(LaTeX) use package longtable: useful for long input
+%DIF < DIFDELCMD < 	}[\DIFadd{--noescape}] \DIFadd{(LaTeX) do not escape text: useful for mixed CSV/TeX input
+%DIF < DIFDELCMD < 	}[\DIFadd{--guess}] \DIFadd{(CSV) guess separator and block |
+%DIF < DIFDELCMD < 	}[\DIFadd{--separator <(c)omma|(s)emicolon|(t)ab|s(p)ace|co(l)on>}] \DIFadd{(CSV's comma)
+%DIF < DIFDELCMD < 	}[\DIFadd{--block <(q)uote|(d)ouble|(n)one>}] \DIFadd{(CSV) block delimiter (e.g: none)
+%DIF < DIFDELCMD < 	}[\DIFadd{--lines n}] \DIFadd{(LaTeX) rows per table: useful for long tabulars |
+%DIF < DIFDELCMD < 		}[\DIFadd{--font n}] \DIFadd{font size used (in pt)
+%DIF < DIFDELCMD < 	}[\DIFadd{--position <l|c|r>}] \DIFadd{(LaTeX) text align in cells
+%DIF < DIFDELCMD < 	}[\DIFadd{--colorrows graylevel}] \DIFadd{(LaTeX) alternate gray rows (e.g: 0.75)
+%DIF < DIFDELCMD < 	}[\DIFadd{--reduce level}] \DIFadd{(LaTeX) reduce table size (e.g: 1)
+%DIF < DIFDELCMD < 	}[\DIFadd{--landscape}] \DIFadd{(LaTeX) use landscape mode
+%DIF < DIFDELCMD < 	}[\DIFadd{--repeatheader}] \DIFadd{(LaTeX) repeat table header (for long tables)
+%DIF < DIFDELCMD < 	}[\DIFadd{--nohlines}] \DIFadd{(LaTeX) don't put hline between table rows
+%DIF < DIFDELCMD < 	}[\DIFadd{--novlines}] \DIFadd{(LaTeX) don't put vline between columns
+%DIF < DIFDELCMD < 		csv_file.csv
+%DIF < DIFDELCMD < The "longtable" option needs the }{\DIFadd{longtable}} \DIFadd{LaTeX package
+%DIF < DIFDELCMD < The "colorrows" option needs the }{\DIFadd{colortbl}} \DIFadd{LaTeX package
+%DIF < DIFDELCMD < The "reduce" option needs the }{\DIFadd{relsize}} \DIFadd{LaTeX package
+%DIF < DIFDELCMD < }
+%DIF < DIFDELCMD < %%%
+%DIFDELCMD < \DIFdelend %%%
+%DIF < DIF >  ======================================================================
+%DIF < DIF >  File: ./02_supplementary/contents/tables/compiled/04_supported_formats.tex
+%DIF < DIF >  ======================================================================
+%DIFDELCMD < \DIFaddbegin %%%
+\DIFdelend %DIF >  ======================================================================
+%DIF >  File: ./02_supplementary/contents/tables/compiled/04_supported_formats.tex
+%DIF >  ======================================================================
+\pdfbookmark[2]{Table 4_supported_formats}{table_04_supported_formats}
+\begin{table}[htbp]
+\centering
+\footnotesize
+\begin{tabular}{|l|l|l|l|l|}
+\hline
+\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{Asset Type}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{Asset Type}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{Input Formats}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{Input Formats}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{Auto-Conversion}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{Auto-Conversion}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{Output Format}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{Output Format}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{Notes}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{Notes}\DIFaddendFL \\
+\hline
+\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{Figures}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{Figures}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{PNG}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{PNG}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{Yes}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{Yes}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{PDF/PNG}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{PDF/PNG}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{Raster images optimized for LaTeX}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{Raster images optimized for LaTeX}\DIFaddendFL \\
+\hline
+\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{Figures}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{Figures}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{JPEG/JPG}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{JPEG/JPG}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{Yes}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{Yes}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{PDF/JPEG}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{PDF/JPEG}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{Quality preserved during conversion}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{Quality preserved during conversion}\DIFaddendFL \\
+\hline
+\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{Figures}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{Figures}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{SVG}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{SVG}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{Yes}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{Yes}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{PDF}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{PDF}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{Vector graphics converted to PDF}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{Vector graphics converted to PDF}\DIFaddendFL \\
+\hline
+\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{Figures}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{Figures}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{PDF}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{PDF}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{No (native)}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{No (native)}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{PDF}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{PDF}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{Directly included without conversion}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{Directly included without conversion}\DIFaddendFL \\
+\hline
+\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{Figures}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{Figures}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{TIFF/TIF}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{TIFF/TIF}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{Yes}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{Yes}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{PDF}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{PDF}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{High-quality scientific images}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{High-quality scientific images}\DIFaddendFL \\
+\hline
+\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{Figures}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{Figures}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{Mermaid (.mmd)}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{Mermaid (.mmd)}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{Yes}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{Yes}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{PNG/PDF}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{PNG/PDF}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{Diagrams rendered to raster or vector}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{Diagrams rendered to raster or vector}\DIFaddendFL \\
+\hline
+\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{Figures}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{Figures}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{PowerPoint (.pptx)}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{PowerPoint (.pptx)}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{Manual}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{Manual}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{Export as PDF}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{Export as PDF}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{Manual export required before compilation}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{Manual export required before compilation}\DIFaddendFL \\
+\hline
+\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{Tables}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{Tables}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{CSV}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{CSV}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{Yes}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{Yes}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{LaTeX tabular}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{LaTeX tabular}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{Auto-formatted with booktabs style}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{Auto-formatted with booktabs style}\DIFaddendFL \\
+\hline
+\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{Tables}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{Tables}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{LaTeX (.tex)}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{LaTeX (.tex)}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{No (native)}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{No (native)}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{LaTeX}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{LaTeX}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{Direct inclusion of custom table code}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{Direct inclusion of custom table code}\DIFaddendFL \\
+\hline
+\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{Tables}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{Tables}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{Excel (.xlsx)}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{Excel (.xlsx)}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{Manual}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{Manual}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{Export as CSV}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{Export as CSV}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{Manual conversion required}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{Manual conversion required}\DIFaddendFL \\
+\hline
+\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{Bibliography}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{Bibliography}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{.bib (BibTeX)}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{.bib (BibTeX)}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{Merge}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{Merge}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{Single .bib}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{Single .bib}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{Multiple files auto-merged and deduplicated}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{Multiple files auto-merged and deduplicated}\DIFaddendFL \\
+\hline
+\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{Bibliography}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{Bibliography}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{DOI}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{DOI}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{Query}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{Query}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{BibTeX entry}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{BibTeX entry}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{Auto-fetch from CrossRef API (future feature)}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{Auto-fetch from CrossRef API (future feature)}\DIFaddendFL \\
+\hline
+\end{tabular}
+%DIF < DIF > % Supported File Formats Table
+%DIF > % Supported File Formats Table
+\caption{\DIFdelbeginFL \textbf{%DIFDELCMD < \DIFaddFL{Supported File Formats and Auto-Conversion.}%%%
+}
+%DIFAUXCMD
+%DIFDELCMD < \DIFaddFL{This table lists all file formats supported by the SciTeX Writer asset processing pipeline.
+%DIFDELCMD < Auto-conversion indicates whether the format is automatically processed during compilation without manual intervention.
+%DIFDELCMD < Raster image formats (PNG, JPEG, TIFF) are optimized for file size while preserving visual quality.
+%DIFDELCMD < Vector formats (SVG, PDF) maintain infinite scalability, ideal for diagrams and plots.
+%DIFDELCMD < Mermaid diagram files (.mmd) are automatically rendered to images using the Mermaid CLI.
+%DIFDELCMD < CSV tables are converted to professionally-formatted LaTeX tables using the booktabs package.
+%DIFDELCMD < The bibliography system merges multiple .bib files and removes duplicates based on DOI or title+year matching.}%%%
+\DIFdelendFL \DIFaddbeginFL \textbf{\DIFaddFL{Supported File Formats and Auto-Conversion.}}
+\DIFaddFL{This table lists all file formats supported by the SciTeX Writer asset processing pipeline.
+Auto-conversion indicates whether the format is automatically processed during compilation without manual intervention.
+Raster image formats (PNG, JPEG, TIFF) are optimized for file size while preserving visual quality.
+Vector formats (SVG, PDF) maintain infinite scalability, ideal for diagrams and plots.
+Mermaid diagram files (.mmd) are automatically rendered to images using the Mermaid CLI.
+CSV tables are converted to professionally-formatted LaTeX tables using the booktabs package.
+The bibliography system merges multiple .bib files and removes duplicates based on DOI or title+year matching.}\DIFaddendFL }
+\label{tab:S4_supported_formats}
+\label{tab:04_supported_formats}
+\end{table}
+\DIFdelbegin %DIFDELCMD < \DIFaddend 
+%DIFDELCMD < %%%
+\DIFdelend 
+
+
+
+%DIF < DIF < DIF >  Table from: 05_citation_styles.tex
+%DIF < DIF >  Table from: 05_citation_styles.tex
+%DIF >  Table from: 05_citation_styles.tex
+
+%DIF < DIF < DIF >  ======================================================================
+%DIF < DIF < DIF >  File: ./02_supplementary/contents/tables/compiled/05_citation_styles.tex
+%DIF < DIF < DIF >  ======================================================================
+\DIFdelbegin %DIFDELCMD < \DIFdelbegin %%%
+%DIF < DIFDELCMD < \DIFadd{csv2latex translates a csv file to a LaTeX file
+%DIF < DIFDELCMD < Example: csv2latex january_stats.csv > january_stats.tex
+%DIF < DIFDELCMD < Usage: csv2latex }[\DIFadd{--nohead}] \DIFadd{(LaTeX) no document header: useful for inclusion
+%DIF < DIFDELCMD < 	}[\DIFadd{--longtable}] \DIFadd{(LaTeX) use package longtable: useful for long input
+%DIF < DIFDELCMD < 	}[\DIFadd{--noescape}] \DIFadd{(LaTeX) do not escape text: useful for mixed CSV/TeX input
+%DIF < DIFDELCMD < 	}[\DIFadd{--guess}] \DIFadd{(CSV) guess separator and block |
+%DIF < DIFDELCMD < 	}[\DIFadd{--separator <(c)omma|(s)emicolon|(t)ab|s(p)ace|co(l)on>}] \DIFadd{(CSV's comma)
+%DIF < DIFDELCMD < 	}[\DIFadd{--block <(q)uote|(d)ouble|(n)one>}] \DIFadd{(CSV) block delimiter (e.g: none)
+%DIF < DIFDELCMD < 	}[\DIFadd{--lines n}] \DIFadd{(LaTeX) rows per table: useful for long tabulars |
+%DIF < DIFDELCMD < 		}[\DIFadd{--font n}] \DIFadd{font size used (in pt)
+%DIF < DIFDELCMD < 	}[\DIFadd{--position <l|c|r>}] \DIFadd{(LaTeX) text align in cells
+%DIF < DIFDELCMD < 	}[\DIFadd{--colorrows graylevel}] \DIFadd{(LaTeX) alternate gray rows (e.g: 0.75)
+%DIF < DIFDELCMD < 	}[\DIFadd{--reduce level}] \DIFadd{(LaTeX) reduce table size (e.g: 1)
+%DIF < DIFDELCMD < 	}[\DIFadd{--landscape}] \DIFadd{(LaTeX) use landscape mode
+%DIF < DIFDELCMD < 	}[\DIFadd{--repeatheader}] \DIFadd{(LaTeX) repeat table header (for long tables)
+%DIF < DIFDELCMD < 	}[\DIFadd{--nohlines}] \DIFadd{(LaTeX) don't put hline between table rows
+%DIF < DIFDELCMD < 	}[\DIFadd{--novlines}] \DIFadd{(LaTeX) don't put vline between columns
+%DIF < DIFDELCMD < 		csv_file.csv
+%DIF < DIFDELCMD < The "longtable" option needs the }{\DIFadd{longtable}} \DIFadd{LaTeX package
+%DIF < DIFDELCMD < The "colorrows" option needs the }{\DIFadd{colortbl}} \DIFadd{LaTeX package
+%DIF < DIFDELCMD < The "reduce" option needs the }{\DIFadd{relsize}} \DIFadd{LaTeX package
+%DIF < DIFDELCMD < }\DIFaddend 
+%DIF < DIFDELCMD < %%%
+%DIFDELCMD < \DIFdelend %%%
+%DIF < DIF >  ======================================================================
+%DIF < DIF >  File: ./02_supplementary/contents/tables/compiled/05_citation_styles.tex
+%DIF < DIF >  ======================================================================
+%DIFDELCMD < \DIFaddbegin %%%
+\DIFdelend %DIF >  ======================================================================
+%DIF >  File: ./02_supplementary/contents/tables/compiled/05_citation_styles.tex
+%DIF >  ======================================================================
+\pdfbookmark[2]{Table 5_citation_styles}{table_05_citation_styles}
+\begin{table}[htbp]
+\centering
+\footnotesize
+\begin{tabular}{|l|l|l|l|l|}
+\hline
+\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{Style}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{Style}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{Format}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{Format}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{Sorting}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{Sorting}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{Field}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{Field}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{Configuration}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{Configuration}\DIFaddendFL \\
+\hline
+\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{unsrtnat}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{unsrtnat}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{Numbered }[\DIFaddFL{1}]%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{Numbered }[\DIFaddFL{1}]\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{Order of appearance}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{Order of appearance}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{Most sciences}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{Most sciences}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{style: unsrtnat}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{style: unsrtnat}\DIFaddendFL \\
+\hline
+\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{plainnat}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{plainnat}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{Numbered }[\DIFaddFL{1}]%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{Numbered }[\DIFaddFL{1}]\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{Alphabetical}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{Alphabetical}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{Sciences}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{Sciences}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{style: plainnat}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{style: plainnat}\DIFaddendFL \\
+\hline
+\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{IEEEtran}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{IEEEtran}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{Numbered }[\DIFaddFL{1}]%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{Numbered }[\DIFaddFL{1}]\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{Order of appearance}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{Order of appearance}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{Engineering/CS}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{Engineering/CS}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{style: IEEEtran}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{style: IEEEtran}\DIFaddendFL \\
+\hline
+\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{naturemag}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{naturemag}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{Superscript¹}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{Superscript}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{Order of appearance}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{Order of appearance}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{Life sciences}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{Life sciences}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{style: naturemag}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{style: naturemag}\DIFaddendFL \\
+\hline
+\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{apalike}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{apalike}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{(Author Year)}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{(Author Year)}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{Alphabetical}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{Alphabetical}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{Social sciences}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{Social sciences}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{style: apalike + natbib}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{style: apalike + natbib}\DIFaddendFL \\
+\hline
+\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{elsarticle-num}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{elsarticle-num}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{Numbered }[\DIFaddFL{1}]%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{Numbered }[\DIFaddFL{1}]\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{Alphabetical}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{Alphabetical}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{Elsevier journals}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{Elsevier journals}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{style: elsarticle-num}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{style: elsarticle-num}\DIFaddendFL \\
+\hline
+\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{elsarticle-harv}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{elsarticle-harv}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{(Author Year)}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{(Author Year)}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{Alphabetical}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{Alphabetical}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{Elsevier journals}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{Elsevier journals}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{style: elsarticle-harv}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{style: elsarticle-harv}\DIFaddendFL \\
+\hline
+\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{chicago-authordate}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{chicago-authordate}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{(Author Year)}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{(Author Year)}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{Alphabetical}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{Alphabetical}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{Humanities}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{Humanities}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{Requires biblatex}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{Requires biblatex}\DIFaddendFL \\
+\hline
+\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{apa}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{apa}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{APA 7th edition}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{APA 7th edition}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{Alphabetical}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{Alphabetical}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{Psychology}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{Psychology}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{Requires biblatex}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{Requires biblatex}\DIFaddendFL \\
+\hline
+\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{mla}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{mla}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{MLA 9th edition}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{MLA 9th edition}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{Alphabetical}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{Alphabetical}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{Humanities}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{Humanities}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{Requires biblatex}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{Requires biblatex}\DIFaddendFL \\
+\hline
+\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{ieee}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{ieee}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{IEEE style}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{IEEE style}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{Order of appearance}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{Order of appearance}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{Engineering}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{Engineering}\DIFaddendFL &\DIFdelbeginFL %DIFDELCMD < \DIFaddFL{Requires biblatex}%%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{Requires biblatex}\DIFaddendFL \\
+\hline
+\end{tabular}
+%DIF < DIF > % Citation Styles Table
+%DIF > % Citation Styles Table
+\caption{\DIFdelbeginFL \textbf{%DIFDELCMD < \DIFaddFL{Available Citation Styles.}%%%
+}
+%DIFAUXCMD
+%DIFDELCMD < \DIFaddFL{This table lists commonly-used citation styles supported by SciTeX Writer.
+%DIFDELCMD < The Format column shows how citations appear in the compiled document.
+%DIFDELCMD < Sorting indicates the order of entries in the bibliography (order of appearance vs. alphabetical by author).
+%DIFDELCMD < Styles listed with ``Requires biblatex'' need additional configuration changes (see }%%%
+\texttt{%DIFDELCMD < \DIFaddFL{00\_shared/latex\_styles/bibliography.tex}%%%
+} %DIFAUXCMD
+%DIFDELCMD < \DIFaddFL{for instructions).
+%DIFDELCMD < Most styles work with the default natbib package configuration.
+%DIFDELCMD < Citation style is selected via the }%%%
+\texttt{%DIFDELCMD < \DIFaddFL{citation.style}%%%
+} %DIFAUXCMD
+%DIFDELCMD < \DIFaddFL{parameter in }%%%
+\texttt{%DIFDELCMD < \DIFaddFL{config/config\_manuscript.yaml}%%%
+}%DIFAUXCMD
+%DIFDELCMD < \DIFaddFL{.
+%DIFDELCMD < Style switching requires only configuration changes, not source file modifications.}%%%
+\DIFdelendFL \DIFaddbeginFL \textbf{\DIFaddFL{Available Citation Styles.}}
+\DIFaddFL{This table lists commonly-used citation styles supported by SciTeX Writer.
+The Format column shows how citations appear in the compiled document.
+Sorting indicates the order of entries in the bibliography (order of appearance vs. alphabetical by author).
+Styles listed with ``Requires biblatex'' need additional configuration changes (see }\texttt{\DIFaddFL{00\_shared/latex\_styles/bibliography.tex}} \DIFaddFL{for instructions).
+Most styles work with the default natbib package configuration.
+Citation style is selected via the }\texttt{\DIFaddFL{citation.style}} \DIFaddFL{parameter in }\texttt{\DIFaddFL{config/config\_manuscript.yaml}}\DIFaddFL{.
+Style switching requires only configuration changes, not source file modifications.}\DIFaddendFL }
+\label{tab:S5_citation_styles}
+\label{tab:05_citation_styles}
+\end{table}
+\DIFdelbegin %DIFDELCMD < \DIFaddend 
+%DIFDELCMD < %%%
+\DIFdelend 
+
+
+
+
+
+
+%% ----------------------------------------
+%% FIGURES
+%% ----------------------------------------
+\clearpage
+\section*{Figures}
+\label{figures}
+\pdfbookmark[1]{Figures}{figures}
+
+% ======================================================================
+% File: ./02_supplementary/contents/figures/compiled/FINAL.tex
+% ======================================================================
+% Generated by compile_figure_tex_files()
+% This file includes all figure files in order
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% FIGURES
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% \clearpage
+\section*{Figures}
+\label{figures}
+\pdfbookmark[1]{Figures}{figures}
+
+
+
+%% ----------------------------------------
+%% REFERENCE STYLES
+%% ----------------------------------------
+\pdfbookmark[1]{References}{references}
+\bibliography{./02_supplementary/contents/bibliography}
+
+% ======================================================================
+% File: ./02_supplementary/contents/latex_styles/bibliography.tex
+% ======================================================================
+%% -*- coding: utf-8 -*-
+%% Timestamp: "2025-09-30 17:40:26 (ywatanabe)"
+%% File: "/ssh:sp:/home/ywatanabe/proj/neurovista/paper/00_shared/latex_styles/bibliography.tex"
+
+%% ============================================================================
+%% BIBLIOGRAPHY STYLE CONFIGURATION
+%% ============================================================================
+
+%% ----------------------------------------------------------------------------
+%% OPTION 1: NUMBERED CITATIONS (Order of Appearance) - CURRENTLY ACTIVE
+%% ----------------------------------------------------------------------------
+%% Description: Citations numbered [1], [2], [3]... in the order they first
+%%              appear in the manuscript
+%% Sorting: By first citation order (NOT alphabetical)
+%% Example: \cite{Tort2010,Canolty2010} → [1, 2] (if these are first citations)
+%% Commands: \cite{key} → [1]
+%%           \cite{key1,key2} → [1, 2]
+%% Best for: Most scientific journals, clear citation tracking
+%% Compatible with: natbib package
+\bibliographystyle{unsrtnat}
+
+%% ----------------------------------------------------------------------------
+%% OPTION 2: NUMBERED CITATIONS (Alphabetical by Author)
+%% ----------------------------------------------------------------------------
+%% Description: Citations numbered [1], [2], [3]... sorted alphabetically by
+%%              first author's last name
+%% Sorting: Alphabetical by author (Canolty before Tort)
+%% Example: \cite{Tort2010,Canolty2010} → [2, 1] (C before T alphabetically)
+%% Commands: \cite{key} → [1]
+%% Best for: When you want bibliography sorted alphabetically
+%% Compatible with: elsarticle class
+% \bibliographystyle{elsarticle-num}
+
+%% Alternative alphabetical styles:
+% \bibliographystyle{plain}      % Basic alphabetical, no natbib features
+% \bibliographystyle{ieeetr}     % IEEE style, order of appearance
+% \bibliographystyle{siam}       % SIAM style, alphabetical
+
+%% ----------------------------------------------------------------------------
+%% OPTION 3: AUTHOR-YEAR CITATIONS
+%% ----------------------------------------------------------------------------
+%% Description: Citations show author name and year (Smith, 2020) or (Smith 2020)
+%% Format: (Author, Year) or Author (Year) depending on command
+%% Example: \cite{Tort2010} → (Tort et al., 2010)
+%%          \citet{Tort2010} → Tort et al. (2010) [textual]
+%%          \cite{Tort2010} → (Tort et al., 2010) [parenthetical]
+%% Commands:
+%%   - \citet{key}  → Author (Year)  [for text: "As shown by Author (2020)..."]
+%%   - \cite{key}  → (Author, Year) [for parentheses: "...as shown (Author, 2020)"]
+%%   - \cite{key}   → Same as \cite{key}
+%% Best for: Review papers, humanities, some social sciences
+%% Requires: natbib package (already loaded)
+% \bibliographystyle{plainnat}   % Author-year, alphabetical
+% \bibliographystyle{abbrvnat}   % Author-year, abbreviated names
+% \bibliographystyle{apalike}    % APA-like author-year style
+
+%% ----------------------------------------------------------------------------
+%% OPTION 4: JOURNAL-SPECIFIC STYLES
+%% ----------------------------------------------------------------------------
+%% Elsevier journals:
+% \bibliographystyle{elsarticle-num}        % Numbered, alphabetical
+% \bibliographystyle{elsarticle-num-names}  % Numbered, alphabetical, full names
+% \bibliographystyle{elsarticle-harv}       % Author-year (Harvard style)
+
+%% Nature family:
+% \bibliographystyle{naturemag}             % Nature magazine style
+
+%% IEEE:
+% \bibliographystyle{IEEEtran}              % IEEE Transactions style
+
+%% APA:
+% \bibliographystyle{apalike}               % APA-like style
+
+%% ----------------------------------------------------------------------------
+%% OPTION 5: ADDITIONAL CITATION STYLES
+%% ----------------------------------------------------------------------------
+%% Note: Many of these styles require biblatex instead of natbib.
+%% To use biblatex, you need to modify the preamble and use biber instead of bibtex.
+%% Basic conversion: Replace natbib package with biblatex, and use \printbibliography
+%% instead of \bibliographystyle + \bibliography commands.
+
+%% ----------------------------------------
+%% CHEMISTRY
+%% ----------------------------------------
+%% American Chemical Society (ACS):
+%% Installation: Download achemso.bst or use biblatex with style=chem-acs
+%% Format: Numbered, order of appearance, (1) Author, A. B. Title. Journal Year, Volume, Pages.
+%% BibTeX method:
+% \bibliographystyle{achemso}              % ACS style (requires achemso package)
+%% Biblatex method (recommended):
+% \usepackage[style=chem-acs]{biblatex}
+
+%% ----------------------------------------
+%% MEDICAL & HEALTH SCIENCES
+%% ----------------------------------------
+%% American Medical Association (AMA) 11th edition:
+%% Format: Numbered, order of appearance, superscript numbers
+%% Installation: Requires biblatex with biblatex-ama style
+%% Method:
+% \usepackage[style=ama]{biblatex}         % AMA 11th ed (requires biblatex-ama package)
+
+%% Vancouver style (ICMJE):
+%% Format: Numbered [1], order of appearance, commonly used in medical journals
+%% Note: unsrtnat (currently active) is very similar to Vancouver
+% \bibliographystyle{vancouver}            % Vancouver/ICMJE style (if .bst available)
+% \bibliographystyle{unsrtnat}             % Similar to Vancouver (currently active)
+
+%% ----------------------------------------
+%% SOCIAL SCIENCES
+%% ----------------------------------------
+%% American Psychological Association (APA) 7th edition:
+%% Format: Author-year, (Author, Year), alphabetical by author
+%% BibTeX method (APA-like, not full APA 7th):
+% \bibliographystyle{apalike}              % APA-like style (simplified)
+% \bibliographystyle{apacite}              % APA 6th/7th (requires apacite package)
+%% Biblatex method (recommended for full APA 7th compliance):
+% \usepackage[style=apa]{biblatex}         % Full APA 7th edition (requires biblatex-apa)
+
+%% American Sociological Association (ASA) 6th/7th edition:
+%% Format: Author-year, (Author Year), alphabetical, similar to Chicago author-date
+%% Method:
+% \bibliographystyle{asaetr}               % ASA-like style (if .bst available)
+%% Biblatex method:
+% \usepackage[style=authoryear]{biblatex} % Generic author-year (customizable to ASA)
+
+%% American Political Science Association (APSA):
+%% Format: Author-year, similar to Chicago author-date
+%% Method:
+% \usepackage[style=authoryear-comp]{biblatex}  % Compressed author-year for APSA
+
+%% ----------------------------------------
+%% HUMANITIES
+%% ----------------------------------------
+%% Chicago Manual of Style 18th edition (author-date):
+%% Format: Author-year, (Author Year), commonly used in social sciences and humanities
+% \bibliographystyle{chicago}              % Chicago author-date (if .bst available)
+%% Biblatex method (recommended):
+% \usepackage[style=chicago-authordate]{biblatex}  % Chicago 18th ed author-date
+
+%% Chicago Manual of Style 18th edition (notes and bibliography):
+%% Format: Footnote/endnote citations with full bibliography
+%% Method:
+% \usepackage[style=chicago-notes]{biblatex}  % Chicago 18th ed notes style
+
+%% Chicago Manual of Style 18th edition (shortened notes and bibliography):
+%% Format: Shortened footnote citations after first full citation
+%% Method:
+% \usepackage[style=chicago-notes]{biblatex}  % Use with ibidtracker option
+
+%% Modern Language Association (MLA) 9th edition:
+%% Format: Author-page, (Author Page), works cited list
+%% Method:
+% \usepackage[style=mla]{biblatex}         % MLA 9th edition (requires biblatex-mla)
+
+%% Modern Humanities Research Association (MHRA) 4th edition:
+%% Format: Footnote citations with bibliography
+%% Method:
+% \usepackage[style=mhra]{biblatex}        % MHRA 4th edition (requires biblatex-mhra)
+
+%% ----------------------------------------
+%% HARVARD STYLES
+%% ----------------------------------------
+%% Cite Them Right 12th edition - Harvard:
+%% Format: Author-year, (Author, Year), widely used in UK universities
+% \bibliographystyle{agsm}                 % Harvard style (Australian)
+% \bibliographystyle{dcu}                  % Harvard style (Dublin City University)
+%% Biblatex method:
+% \usepackage[style=authoryear]{biblatex} % Generic Harvard-style (author-year)
+
+%% Elsevier - Harvard (with titles):
+%% Format: Author-year with article titles included
+% \bibliographystyle{elsarticle-harv}      % Elsevier Harvard style (already listed above)
+
+%% ----------------------------------------
+%% ENGINEERING & COMPUTER SCIENCE
+%% ----------------------------------------
+%% IEEE (Institute of Electrical and Electronics Engineers):
+%% Format: Numbered [1], order of appearance, widely used in engineering
+% \bibliographystyle{IEEEtran}             % IEEE Transactions style (already listed above)
+
+%% ----------------------------------------
+%% NATURAL SCIENCES
+%% ----------------------------------------
+%% Nature:
+%% Format: Numbered, superscript, order of appearance
+% \bibliographystyle{naturemag}            % Nature magazine style (already listed above)
+% \bibliographystyle{naturemag-doi}        % Nature with DOIs
+
+%% ----------------------------------------------------------------------------
+%% BIBLATEX SETUP INSTRUCTIONS
+%% ----------------------------------------------------------------------------
+%% To switch from natbib to biblatex:
+%%
+%% 1. In packages.tex, replace:
+%%    \usepackage[numbers]{natbib}
+%%    with:
+%%    \usepackage[style=STYLENAME,backend=biber]{biblatex}
+%%    \addbibresource{path/to/bibliography.bib}
+%%
+%% 2. In this file (bibliography.tex), replace:
+%%    \bibliographystyle{...}
+%%    with:
+%%    % No \bibliographystyle needed with biblatex
+%%
+%% 3. In your main .tex file, replace:
+%%    \bibliography{path/to/bibliography}
+%%    with:
+%%    \printbibliography
+%%
+%% 4. Change compilation command:
+%%    pdflatex → biber → pdflatex → pdflatex
+%%    (instead of pdflatex → bibtex → pdflatex → pdflatex)
+%%
+%% Example biblatex styles:
+%%   style=numeric-comp     → Compressed numeric [1-3,5]
+%%   style=authoryear       → (Author, Year)
+%%   style=authoryear-comp  → (Author1, 2020; Author2, 2021)
+%%   style=apa              → APA 7th edition
+%%   style=chicago-authordate → Chicago author-date
+%%   style=ieee             → IEEE style
+%%   style=nature           → Nature style
+%%   style=mla              → MLA 9th edition
+
+%% ----------------------------------------------------------------------------
+%% CITATION COMMAND REFERENCE (with natbib)
+%% ----------------------------------------------------------------------------
+%% Basic commands:
+%%   \cite{key}              → [1] or (Author, Year) depending on style
+%%   \cite{key1,key2}        → [1, 2] or (Author1, Year1; Author2, Year2)
+%%
+%% Advanced natbib commands (only work with natbib-compatible styles):
+%%   \citet{key}             → Author (Year)  [textual citation]
+%%   \cite{key}             → (Author, Year) [parenthetical citation]
+%%   \citet*{key}            → Full author list (Year)
+%%   \cite*{key}            → (Full author list, Year)
+%%   \citealt{key}           → Author Year [no parentheses]
+%%   \citealp{key}           → Author, Year [no parentheses]
+%%   \citeauthor{key}        → Author [name only]
+%%   \citeyear{key}          → Year [year only]
+%%   \citeyearpar{key}       → (Year) [year in parentheses]
+%%
+%% Pre/post notes:
+%%   \cite[see][p.~10]{key} → (see Author, Year, p. 10)
+%%   \cite[p.~10]{key}      → (Author, Year, p. 10)
+%%
+%% Multiple citations:
+%%   \cite{key1,key2,key3}  → (Author1, Year1; Author2, Year2; Author3, Year3)
+%%
+%% Suppressing parts:
+%%   \cite[e.g.,][]{key}    → (e.g., Author, Year)
+%%   \cite[][see p.~10]{key}→ (Author, Year, see p. 10)
+%%
+%% ----------------------------------------------------------------------------
+%% TROUBLESHOOTING
+%% ----------------------------------------------------------------------------
+%% Problem: Citations appear as [?] or undefined
+%% Solution: Run compilation 3-4 times to resolve all references
+%%
+%% Problem: Citation numbers out of order [3, 1] instead of [1, 3]
+%% Solution: Use unsrtnat (order of appearance) instead of elsarticle-num
+%%
+%% Problem: "Undefined control sequence \citet"
+%% Solution: \citet only works with natbib-compatible styles (unsrtnat, plainnat)
+%%           Use \cite{} with non-natbib styles
+%%
+%% Problem: Bibliography not appearing
+%% Solution: Ensure \bibliography{path/to/bibfile} command exists in main file
+%%           Run: pdflatex → bibtex → pdflatex → pdflatex
+
+%%%% EOF
+
+
+%% ----------------------------------------
+%% END of DOCUMENT
+%% ----------------------------------------
+\end{document}
+
+%%%% EOF

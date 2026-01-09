@@ -4,11 +4,29 @@
 # File: ./compile.sh
 
 ORIG_DIR="$(pwd)"
-THIS_DIR="$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)"
-LOG_PATH="$THIS_DIR/.$(basename $0).log"
-echo > "$LOG_PATH"
+export ORIG_DIR
+THIS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+LOG_PATH="$THIS_DIR/.$(basename "$0").log"
+echo >"$LOG_PATH"
 
+# Resolve project root - handles working directory independence (Issue #13)
 GIT_ROOT="$(git rev-parse --show-toplevel 2>/dev/null)"
+if [ -z "$GIT_ROOT" ]; then
+    # Fallback: resolve from script location
+    GIT_ROOT="$(cd "$THIS_DIR" && pwd)"
+fi
+export PROJECT_ROOT="$GIT_ROOT"
+
+# Change to project root to ensure all relative paths work (Issue #13)
+cd "$PROJECT_ROOT" || exit 1
+
+# Auto-initialize project if preprocessing artifacts are missing (Issue #12)
+if [ ! -f "01_manuscript/contents/wordcounts/figure_count.txt" ]; then
+    if [ -x "scripts/installation/init_project.sh" ]; then
+        echo "Initializing project (missing preprocessing artifacts)..."
+        ./scripts/installation/init_project.sh >/dev/null 2>&1 || true
+    fi
+fi
 
 GRAY='\033[0;90m'
 GREEN='\033[0;32m'
@@ -31,13 +49,11 @@ echo_header() { echo_info "=== $1 ==="; }
 
 # Default values
 DOC_TYPE=""
-SHOW_HELP=false
 WATCH_MODE=false
-WATCH_ARGS=""
 
 # Function to display usage
 show_usage() {
-    cat << EOF
+    cat <<EOF
 Usage: ./compile.sh [TYPE] [OPTIONS]
 
 Unified compilation interface for scientific documents.
@@ -110,45 +126,45 @@ REMAINING_ARGS=""
 
 while [ $# -gt 0 ]; do
     case $1 in
-        manuscript|-m)
-            DOC_TYPE="manuscript"
+    manuscript | -m)
+        DOC_TYPE="manuscript"
+        shift
+        ;;
+    supplementary | -s)
+        DOC_TYPE="supplementary"
+        shift
+        ;;
+    revision | -r)
+        DOC_TYPE="revision"
+        shift
+        ;;
+    -w | --watch)
+        WATCH_MODE=true
+        shift
+        ;;
+    -h | --help)
+        # If document type already specified, pass --help to that script
+        # Otherwise, show wrapper's help
+        if [ -z "$DOC_TYPE" ]; then
+            show_usage
+            exit 0
+        else
+            REMAINING_ARGS="$REMAINING_ARGS $1"
             shift
-            ;;
-        supplementary|-s)
-            DOC_TYPE="supplementary"
+        fi
+        ;;
+    *)
+        # Collect remaining arguments
+        if [ -z "$DOC_TYPE" ]; then
+            echo "ERROR: Unknown document type '$1'"
+            echo "Valid types: manuscript, supplementary, revision"
+            echo "Use './compile --help' for usage information"
+            exit 1
+        else
+            REMAINING_ARGS="$REMAINING_ARGS $1"
             shift
-            ;;
-        revision|-r)
-            DOC_TYPE="revision"
-            shift
-            ;;
-        -w|--watch)
-            WATCH_MODE=true
-            shift
-            ;;
-        -h|--help)
-            # If document type already specified, pass --help to that script
-            # Otherwise, show wrapper's help
-            if [ -z "$DOC_TYPE" ]; then
-                show_usage
-                exit 0
-            else
-                REMAINING_ARGS="$REMAINING_ARGS $1"
-                shift
-            fi
-            ;;
-        *)
-            # Collect remaining arguments
-            if [ -z "$DOC_TYPE" ]; then
-                echo "ERROR: Unknown document type '$1'"
-                echo "Valid types: manuscript, supplementary, revision"
-                echo "Use './compile --help' for usage information"
-                exit 1
-            else
-                REMAINING_ARGS="$REMAINING_ARGS $1"
-                shift
-            fi
-            ;;
+        fi
+        ;;
     esac
 done
 
@@ -186,20 +202,21 @@ if [ "$WATCH_MODE" = true ]; then
 fi
 
 # Delegate to the appropriate compilation script
+# Note: Use ${VAR:+$VAR} to only pass args when non-empty (avoid passing "" as an argument)
 case $DOC_TYPE in
-    manuscript)
-        ./scripts/shell/compile_manuscript.sh $REMAINING_ARGS
-        ;;
-    supplementary)
-        ./scripts/shell/compile_supplementary.sh $REMAINING_ARGS
-        ;;
-    revision)
-        ./scripts/shell/compile_revision.sh $REMAINING_ARGS
-        ;;
-    *)
-        echo "Error: Unknown document type: $DOC_TYPE"
-        exit 1
-        ;;
+manuscript)
+    ./scripts/shell/compile_manuscript.sh ${REMAINING_ARGS:+$REMAINING_ARGS}
+    ;;
+supplementary)
+    ./scripts/shell/compile_supplementary.sh ${REMAINING_ARGS:+$REMAINING_ARGS}
+    ;;
+revision)
+    ./scripts/shell/compile_revision.sh ${REMAINING_ARGS:+$REMAINING_ARGS}
+    ;;
+*)
+    echo "Error: Unknown document type: $DOC_TYPE"
+    exit 1
+    ;;
 esac
 
 # Exit with the same status as the delegated script
