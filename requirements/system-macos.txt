@@ -1,8 +1,0 @@
-basictex
-latexdiff
-ghostscript
-imagemagick
-perl
-parallel
-make
-gnu-sed

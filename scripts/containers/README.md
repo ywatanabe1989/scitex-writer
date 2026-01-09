@@ -25,7 +25,7 @@ apptainer build mermaid.sif mermaid.def
 ### Docker
 
 ```bash
-docker build -t scitex-writer -f Dockerfile .
+docker build -t scitex-writer -f scripts/containers/Dockerfile .
 ```
 
 ## Usage

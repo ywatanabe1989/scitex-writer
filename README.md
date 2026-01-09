@@ -1,5 +1,5 @@
 <!-- ---
-!-- Timestamp: 2026-01-09 13:47:25
+!-- Timestamp: 2026-01-09 13:48:14
 !-- Author: ywatanabe
 !-- File: /home/ywatanabe/proj/scitex-writer/README.md
 !-- --- -->
@@ -252,38 +252,6 @@ ls -lt 01_manuscript/archive/
 - [Bibliography Management](docs/01_GUIDE_BIBLIOGRAPHY.md) - Managing references and citations
 - [Architecture](docs/02_ARCHITECTURE_IMPLEMENTATION.md) - Technical implementation details
 - [Full Documentation](docs/00_INDEX.md) - All guides and resources
-
-<!-- ## Testing
- !-- 
- !-- ### Running Tests
- !-- 
- !-- ```bash
- !-- # Run all tests
- !-- ./tests/run_all_tests.sh
- !-- 
- !-- # Run specific test suites
- !-- ./tests/scripts/test_compile_options.sh  # Compilation options
- !-- ./tests/scripts/test_dark_mode.sh        # Dark mode features
- !-- ./tests/scripts/test_performance.sh      # Performance optimizations
- !-- ```
- !-- 
- !-- ### Test Coverage
- !-- 
- !-- - **30+ tests** covering all features
- !-- - **Shell Script Tests**: 30 tests
- !--   - Compilation options (10 tests)
- !--   - Dark mode functionality (10 tests)
- !--   - Performance optimizations (10 tests) -->
-
-### Continuous Integration
-
-All tests run automatically on GitHub Actions:
-- ✅ Full compilation with PDF validation
-- ✅ Fast mode (`--no_figs --no_diff`)
-- ✅ Ultra-fast mode (`--draft --no_tables`)
-- ✅ Dark mode (`--dark-mode`)
-- ✅ All document types (manuscript, supplementary, revision)
-- ✅ Option name flexibility (hyphens/underscores)
 
 
 ---
