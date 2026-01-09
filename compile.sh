@@ -22,9 +22,9 @@ cd "$PROJECT_ROOT" || exit 1
 
 # Auto-initialize project if preprocessing artifacts are missing (Issue #12)
 if [ ! -f "01_manuscript/contents/wordcounts/figure_count.txt" ]; then
-    if [ -x "scripts/init_project.sh" ]; then
+    if [ -x "scripts/installation/init_project.sh" ]; then
         echo "Initializing project (missing preprocessing artifacts)..."
-        ./scripts/init_project.sh >/dev/null 2>&1 || true
+        ./scripts/installation/init_project.sh >/dev/null 2>&1 || true
     fi
 fi
 
@@ -202,15 +202,16 @@ if [ "$WATCH_MODE" = true ]; then
 fi
 
 # Delegate to the appropriate compilation script
+# Note: Use ${VAR:+$VAR} to only pass args when non-empty (avoid passing "" as an argument)
 case $DOC_TYPE in
 manuscript)
-    ./scripts/shell/compile_manuscript.sh $REMAINING_ARGS
+    ./scripts/shell/compile_manuscript.sh ${REMAINING_ARGS:+$REMAINING_ARGS}
     ;;
 supplementary)
-    ./scripts/shell/compile_supplementary.sh $REMAINING_ARGS
+    ./scripts/shell/compile_supplementary.sh ${REMAINING_ARGS:+$REMAINING_ARGS}
     ;;
 revision)
-    ./scripts/shell/compile_revision.sh $REMAINING_ARGS
+    ./scripts/shell/compile_revision.sh ${REMAINING_ARGS:+$REMAINING_ARGS}
     ;;
 *)
     echo "Error: Unknown document type: $DOC_TYPE"
