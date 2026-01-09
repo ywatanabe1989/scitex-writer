@@ -111,6 +111,29 @@ cd scitex-writer
 
 **👉 See [Full Installation Guide](docs/01_GUIDE_INSTALLATION.md) for detailed instructions by environment.**
 
+## Minimal Template
+
+To create a minimal template with less example content (Issue #14):
+
+```bash
+git clone https://github.com/ywatanabe1989/scitex-writer.git my-paper
+cd my-paper
+
+# Strip all example content and keep only essential structure
+./scripts/strip_example_content.sh
+
+# Now you have a clean slate with just the necessary structure
+./compile.sh manuscript
+```
+
+This removes:
+- Example figure and table files
+- Archive versions
+- Example content from abstract, introduction, methods, results, discussion
+- Generated JPG cache
+
+**Result:** A clean project structure ready for your content (~5MB instead of ~50MB)
+
 ## Features
 
 ### Core Capabilities
