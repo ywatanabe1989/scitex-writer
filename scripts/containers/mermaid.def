@@ -1,0 +1,57 @@
+Bootstrap: docker
+From: node:20-slim
+
+%labels
+    Author SciTeX Writer Project
+    Version 1.0.0
+    Description Mermaid CLI for diagram generation
+
+%help
+    SciTeX Writer - Mermaid Container
+
+    Generates diagrams from Mermaid markup files.
+
+    Usage:
+        apptainer build mermaid.sif mermaid.def
+        apptainer run mermaid.sif mmdc -i diagram.mmd -o diagram.png
+
+    Or with bind mount:
+        apptainer run --bind $(pwd):/workspace mermaid.sif mmdc -i input.mmd -o output.png
+
+%environment
+    export PATH=/usr/local/bin:$PATH
+    export NODE_OPTIONS="--max-old-space-size=4096"
+
+%post
+    # Install dependencies for Puppeteer/Chrome
+    apt-get update
+    apt-get install -y --no-install-recommends \
+        chromium \
+        fonts-liberation \
+        fonts-noto-cjk \
+        fonts-dejavu-core \
+        ca-certificates
+
+    # Install mermaid-cli globally
+    npm install -g @mermaid-js/mermaid-cli
+
+    # Configure Puppeteer to use system Chromium
+    mkdir -p /root/.puppeteerrc
+    echo '{"executablePath": "/usr/bin/chromium"}' > /root/.puppeteerrc
+
+    # Clean up
+    apt-get clean
+    rm -rf /var/lib/apt/lists/*
+    npm cache clean --force
+
+%runscript
+    if [ $# -eq 0 ]; then
+        exec mmdc --help
+    else
+        exec "$@"
+    fi
+
+%test
+    command -v mmdc || exit 1
+    mmdc --version
+    echo "Mermaid CLI available"
