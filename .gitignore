@@ -136,6 +136,8 @@ data/*
 **/*.ppt
 **/*.pptx
 **/*.txt
+# Exception: Allow requirements txt files for CI
+!scripts/installation/requirements/*.txt
 **/*.log
 **/*.db
 **/*.sqlite
