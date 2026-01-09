@@ -8,11 +8,10 @@ set -e
 
 # Resolve project root
 THIS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PROJECT_ROOT="$(cd "$THIS_DIR/.." && pwd)"
+PROJECT_ROOT="$(cd "$THIS_DIR/../.." && pwd)"
 cd "$PROJECT_ROOT" || exit 1
 
 # Colors
-RED='\033[0;31m'
 YELLOW='\033[0;33m'
 GREEN='\033[0;32m'
 NC='\033[0m'
@@ -34,7 +33,7 @@ for doc_dir in 01_manuscript 02_supplementary; do
     for section in introduction methods results discussion; do
         file="$doc_dir/contents/${section}.tex"
         if [ -f "$file" ]; then
-            echo "% Placeholder for $section" > "$file"
+            echo "% Placeholder for $section" >"$file"
         fi
     done
 done
@@ -50,7 +49,7 @@ for doc_dir in 01_manuscript 02_supplementary; do
         for tex_file in "$fig_dir"/*.tex; do
             if [ -f "$tex_file" ] && [ "$(basename "$tex_file")" != ".gitkeep.tex" ]; then
                 name=$(basename "$tex_file" .tex)
-                echo "% Figure: $name" > "$tex_file"
+                echo "% Figure: $name" >"$tex_file"
             fi
         done
     fi

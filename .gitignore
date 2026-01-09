@@ -138,6 +138,8 @@ data/*
 **/*.txt
 # Exception: Allow requirements txt files for CI
 !scripts/installation/requirements/*.txt
+# Exception: Allow wordcount placeholder files for template clone
+!*/contents/wordcounts/*.txt
 **/*.log
 **/*.db
 **/*.sqlite
