@@ -9,7 +9,7 @@ Dependency specifications for SciTeX Writer.
 Install all dependencies automatically:
 
 ```bash
-./requirements/install.sh
+./scripts/installation/requirements/install.sh
 ```
 
 This will detect your system and install:
@@ -23,13 +23,13 @@ Install only specific dependencies:
 
 ```bash
 # System packages only
-./requirements/install.sh --system-only
+./scripts/installation/requirements/install.sh --system-only
 
 # Python packages only
-./requirements/install.sh --python-only
+./scripts/installation/requirements/install.sh --python-only
 
 # yq only
-./requirements/install.sh --yq-only
+./scripts/installation/requirements/install.sh --yq-only
 ```
 
 ## Files

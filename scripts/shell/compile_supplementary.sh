@@ -3,11 +3,22 @@
 # Timestamp: "2025-09-27 15:20:00 (ywatanabe)"
 # File: ./paper/scripts/shell/compile_supplementary.sh
 
-ORIG_DIR="$(pwd)"
-THIS_DIR="$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)"
-LOG_PATH="$THIS_DIR/.$(basename $0).log"
+# shellcheck disable=SC1091  # Don't follow sourced files
 
+export ORIG_DIR
+ORIG_DIR="$(pwd)"
+THIS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+LOG_PATH="$THIS_DIR/.$(basename "$0").log"
+
+# Resolve project root - critical for working directory independence (Issue #13)
 GIT_ROOT="$(git rev-parse --show-toplevel 2>/dev/null)"
+if [ -z "$GIT_ROOT" ]; then
+    GIT_ROOT="$(cd "$THIS_DIR/../.." && pwd)"
+fi
+export PROJECT_ROOT="$GIT_ROOT"
+
+# Change to project root to ensure relative paths work
+cd "$PROJECT_ROOT" || exit 1
 
 GRAY='\033[0;90m'
 GREEN='\033[0;32m'
@@ -90,18 +101,21 @@ parse_arguments() {
         local normalized_opt=$(echo "$1" | tr '_' '-')
 
         case $normalized_opt in
-            -h|--help) usage ;;
-            -p2t|--ppt2tif) do_p2t=true ;;
-            -nf|--no-figs) no_figs=true ;;
-            -nt|--no-tables) no_tables=true ;;
-            -nd|--no-diff) no_diff=true ;;
-            -d|--draft) draft_mode=true ;;
-            -dm|--dark-mode) dark_mode=true ;;
-            -c|--crop-tif) do_crop_tif=true ;;
-            -v|--verbose) do_verbose=true ;;
-            -q|--quiet) do_verbose=false ;;
-            --force) do_force=true ;;
-            *) echo "Unknown option: $1"; usage ;;
+        -h | --help) usage ;;
+        -p2t | --ppt2tif) do_p2t=true ;;
+        -nf | --no-figs) no_figs=true ;;
+        -nt | --no-tables) no_tables=true ;;
+        -nd | --no-diff) no_diff=true ;;
+        -d | --draft) draft_mode=true ;;
+        -dm | --dark-mode) dark_mode=true ;;
+        -c | --crop-tif) do_crop_tif=true ;;
+        -v | --verbose) do_verbose=true ;;
+        -q | --quiet) do_verbose=false ;;
+        --force) do_force=true ;;
+        *)
+            echo "Unknown option: $1"
+            usage
+            ;;
         esac
         shift
     done
@@ -159,13 +173,22 @@ main() {
     local wrd_log="$temp_dir/words.log"
 
     # Run all three in parallel
-    (./scripts/shell/modules/process_figures.sh "$no_figs" "$do_p2t" "$do_verbose" "$do_crop_tif" > "$fig_log" 2>&1; echo $? > "$temp_dir/fig_exit") &
+    (
+        ./scripts/shell/modules/process_figures.sh "$no_figs" "$do_p2t" "$do_verbose" "$do_crop_tif" >"$fig_log" 2>&1
+        echo $? >"$temp_dir/fig_exit"
+    ) &
     local fig_pid=$!
 
-    (./scripts/shell/modules/process_tables.sh "$no_tables" > "$tbl_log" 2>&1; echo $? > "$temp_dir/tbl_exit") &
+    (
+        ./scripts/shell/modules/process_tables.sh "$no_tables" >"$tbl_log" 2>&1
+        echo $? >"$temp_dir/tbl_exit"
+    ) &
     local tbl_pid=$!
 
-    (./scripts/shell/modules/count_words.sh > "$wrd_log" 2>&1; echo $? > "$temp_dir/wrd_exit") &
+    (
+        ./scripts/shell/modules/count_words.sh >"$wrd_log" 2>&1
+        echo $? >"$temp_dir/wrd_exit"
+    ) &
     local wrd_pid=$!
 
     # Wait for all parallel jobs

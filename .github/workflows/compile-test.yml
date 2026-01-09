@@ -8,7 +8,7 @@ on:
       - 'scripts/shell/**'
       - 'config/**'
       - 'shared/**'
-      - 'requirements/**'
+      - 'scripts/installation/requirements/**'
       - '.github/workflows/compile-test.yml'
   pull_request:
     branches: [ main, develop ]
@@ -17,7 +17,7 @@ on:
       - 'scripts/shell/**'
       - 'config/**'
       - 'shared/**'
-      - 'requirements/**'
+      - 'scripts/installation/requirements/**'
       - '.github/workflows/compile-test.yml'
 
 concurrency:
@@ -35,14 +35,14 @@ jobs:
       uses: actions/cache@v4
       with:
         path: ~/.cache/pip
-        key: pip-${{ runner.os }}-${{ hashFiles('requirements/python.txt') }}
+        key: pip-${{ runner.os }}-xlsx2csv-csv2latex
         restore-keys: |
           pip-${{ runner.os }}-
 
     - name: Install dependencies
       run: |
         sudo apt-get update
-        xargs sudo apt-get install -y < requirements/system-debian.txt
+        xargs sudo apt-get install -y < scripts/installation/requirements/system-debian.txt
 
         # Install yq (Go version)
         sudo wget -qO /usr/local/bin/yq \
@@ -51,7 +51,7 @@ jobs:
 
         # Install Python dependencies
         python3 -m pip install --upgrade pip
-        pip install -r requirements/python.txt
+        pip install xlsx2csv csv2latex bibtexparser
 
     - name: Test compilation (full mode)
       run: |

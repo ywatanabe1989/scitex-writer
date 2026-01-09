@@ -1,5 +1,5 @@
 <!-- ---
-!-- Timestamp: 2025-11-10 02:24:18
+!-- Timestamp: 2026-01-09 13:48:14
 !-- Author: ywatanabe
 !-- File: /home/ywatanabe/proj/scitex-writer/README.md
 !-- --- -->
@@ -110,6 +110,29 @@ cd scitex-writer
 - Singularity: `singularity run scitex-writer.sif`
 
 **👉 See [Full Installation Guide](docs/01_GUIDE_INSTALLATION.md) for detailed instructions by environment.**
+
+## Minimal Template
+
+To create a minimal template with less example content (Issue #14):
+
+```bash
+git clone https://github.com/ywatanabe1989/scitex-writer.git my-paper
+cd my-paper
+
+# Strip all example content and keep only essential structure
+./scripts/repository_maintenance/strip_example_content.sh
+
+# Now you have a clean slate with just the necessary structure
+./compile.sh manuscript
+```
+
+This removes:
+- Example figure and table files
+- Archive versions
+- Example content from abstract, introduction, methods, results, discussion
+- Generated JPG cache
+
+**Result:** A clean project structure ready for your content (~5MB instead of ~50MB)
 
 ## Features
 
@@ -230,44 +253,15 @@ ls -lt 01_manuscript/archive/
 - [Architecture](docs/02_ARCHITECTURE_IMPLEMENTATION.md) - Technical implementation details
 - [Full Documentation](docs/00_INDEX.md) - All guides and resources
 
-## Testing
 
-### Running Tests
+---
 
-```bash
-# Run all tests
-./tests/run_all_tests.sh
+<p align="center">
+  <a href="https://scitex.ai" target="_blank"><img src="docs/scitex-icon-navy-inverted.png" alt="SciTeX" width="40"/></a>
+  <br>
+  AGPL-3.0 · ywatanabe@scitex.ai
+</p>
 
-# Run specific test suites
-./tests/scripts/test_compile_options.sh  # Compilation options
-./tests/scripts/test_dark_mode.sh        # Dark mode features
-./tests/scripts/test_performance.sh      # Performance optimizations
-```
-
-### Test Coverage
-
-- **30+ tests** covering all features
-- **Shell Script Tests**: 30 tests
-  - Compilation options (10 tests)
-  - Dark mode functionality (10 tests)
-  - Performance optimizations (10 tests)
-
-### Continuous Integration
-
-All tests run automatically on GitHub Actions:
-- ✅ Full compilation with PDF validation
-- ✅ Fast mode (`--no_figs --no_diff`)
-- ✅ Ultra-fast mode (`--draft --no_tables`)
-- ✅ Dark mode (`--dark-mode`)
-- ✅ All document types (manuscript, supplementary, revision)
-- ✅ Option name flexibility (hyphens/underscores)
-
-## License
-
-GNU Affero General Public License v3.0 (AGPL-3.0)
-
-## Contact
-
-ywatanabe@scitex.ai • [scitex.ai](https://scitex.ai)
+    <!-- EOF -->
 
 <!-- EOF -->

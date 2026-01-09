@@ -4,7 +4,7 @@
 # Timestamp: "$(date +"%Y-%m-%d %H:%M:%S") ($(whoami))"
 # File: ./tests/scripts/test_parallel_compilation.sh
 
-set -e
+# NOTE: Removed set -e because assert functions need to track failures without exiting
 
 # Colors
 RED='\033[0;31m'
@@ -29,7 +29,7 @@ assert_success() {
     local test_name="$1"
     local exit_code="$2"
 
-    if [ $exit_code -eq 0 ]; then
+    if [ "$exit_code" -eq 0 ]; then
         echo -e "${GREEN}✓ PASS: $test_name${NC}"
         ((TESTS_PASSED++))
         return 0
@@ -85,22 +85,22 @@ for engine in latexmk 3pass tectonic; do
     # Run 3 documents in parallel (SAFE - different directories)
     (
         export SCITEX_WRITER_ENGINE=$engine
-        ./compile.sh manuscript > /tmp/test_${engine}_manuscript.log 2>&1
-        echo $? > "$temp_dir/${engine}_manuscript_exit"
+        ./compile.sh manuscript >/tmp/test_${engine}_manuscript.log 2>&1
+        echo $? >"$temp_dir/${engine}_manuscript_exit"
     ) &
     manuscript_pid=$!
 
     (
         export SCITEX_WRITER_ENGINE=$engine
-        ./compile.sh supplementary > /tmp/test_${engine}_supplementary.log 2>&1
-        echo $? > "$temp_dir/${engine}_supplementary_exit"
+        ./compile.sh supplementary >/tmp/test_${engine}_supplementary.log 2>&1
+        echo $? >"$temp_dir/${engine}_supplementary_exit"
     ) &
     supplementary_pid=$!
 
     (
         export SCITEX_WRITER_ENGINE=$engine
-        ./compile.sh revision > /tmp/test_${engine}_revision.log 2>&1
-        echo $? > "$temp_dir/${engine}_revision_exit"
+        ./compile.sh revision >/tmp/test_${engine}_revision.log 2>&1
+        echo $? >"$temp_dir/${engine}_revision_exit"
     ) &
     revision_pid=$!
 
@@ -112,9 +112,9 @@ for engine in latexmk 3pass tectonic; do
     supplementary_exit=$(cat "$temp_dir/${engine}_supplementary_exit")
     revision_exit=$(cat "$temp_dir/${engine}_revision_exit")
 
-    assert_success "$engine: manuscript" $manuscript_exit
-    assert_success "$engine: supplementary" $supplementary_exit
-    assert_success "$engine: revision" $revision_exit
+    assert_success "$engine: manuscript" "$manuscript_exit"
+    assert_success "$engine: supplementary" "$supplementary_exit"
+    assert_success "$engine: revision" "$revision_exit"
 
     # Verify PDFs exist
     assert_file_exists "$engine: manuscript PDF" "./01_manuscript/manuscript.pdf"
@@ -153,7 +153,7 @@ echo -e "${GREEN}Passed: $TESTS_PASSED${NC}"
 echo -e "${RED}Failed: $TESTS_FAILED${NC}"
 echo ""
 
-if [ $TESTS_FAILED -eq 0 ]; then
+if [ "$TESTS_FAILED" -eq 0 ]; then
     echo -e "${GREEN}All tests passed!${NC}"
     exit 0
 else
