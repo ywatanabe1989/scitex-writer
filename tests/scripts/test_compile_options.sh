@@ -38,7 +38,7 @@ echo "=============================="
 # Test 1: Help option works
 echo
 echo "Test 1: Help option"
-if ./compile.sh -h &> /dev/null; then
+if ./compile.sh -h &>/dev/null; then
     test_pass "Help option works"
 else
     test_fail "Help option failed"
@@ -48,11 +48,11 @@ fi
 echo
 echo "Test 2: Manuscript help includes new options"
 HELP_OUTPUT=$(./compile.sh manuscript -h 2>&1)
-if echo "$HELP_OUTPUT" | grep -q "no_figs" && \
-   echo "$HELP_OUTPUT" | grep -q "no_tables" && \
-   echo "$HELP_OUTPUT" | grep -q "no_diff" && \
-   echo "$HELP_OUTPUT" | grep -q "draft" && \
-   echo "$HELP_OUTPUT" | grep -q "dark_mode"; then
+if echo "$HELP_OUTPUT" | grep -q "no_figs" &&
+    echo "$HELP_OUTPUT" | grep -q "no_tables" &&
+    echo "$HELP_OUTPUT" | grep -q "no_diff" &&
+    echo "$HELP_OUTPUT" | grep -q "draft" &&
+    echo "$HELP_OUTPUT" | grep -q "dark_mode"; then
     test_pass "All new options documented"
 else
     test_fail "Missing options in help"
@@ -73,10 +73,10 @@ fi
 echo
 echo "Test 4: Supplementary compilation options"
 SUPP_HELP=$(./compile.sh supplementary -h 2>&1)
-if echo "$SUPP_HELP" | grep -q "no_figs" && \
-   echo "$SUPP_HELP" | grep -q "no_tables" && \
-   echo "$SUPP_HELP" | grep -q "draft" && \
-   echo "$SUPP_HELP" | grep -q "dark_mode"; then
+if echo "$SUPP_HELP" | grep -q "no_figs" &&
+    echo "$SUPP_HELP" | grep -q "no_tables" &&
+    echo "$SUPP_HELP" | grep -q "draft" &&
+    echo "$SUPP_HELP" | grep -q "dark_mode"; then
     test_pass "Supplementary has all speed options"
 else
     test_fail "Supplementary missing options"
@@ -86,10 +86,10 @@ fi
 echo
 echo "Test 5: Revision compilation options"
 REV_HELP=$(./compile.sh revision -h 2>&1)
-if echo "$REV_HELP" | grep -q "no_figs" && \
-   echo "$REV_HELP" | grep -q "no_tables" && \
-   echo "$REV_HELP" | grep -q "draft" && \
-   echo "$REV_HELP" | grep -q "dark_mode"; then
+if echo "$REV_HELP" | grep -q "no_figs" &&
+    echo "$REV_HELP" | grep -q "no_tables" &&
+    echo "$REV_HELP" | grep -q "draft" &&
+    echo "$REV_HELP" | grep -q "dark_mode"; then
     test_pass "Revision has speed options"
 else
     test_fail "Revision missing options"
@@ -107,8 +107,8 @@ fi
 # Test 7: Dark mode style file contains required commands
 echo
 echo "Test 7: Dark mode style file content"
-if grep -q "\\\\pagecolor{black" "./00_shared/latex_styles/dark_mode.tex" && \
-   grep -q "\\\\color{white}" "./00_shared/latex_styles/dark_mode.tex"; then
+if grep -q "\\\\pagecolor{black" "./00_shared/latex_styles/dark_mode.tex" &&
+    grep -q "\\\\color{white}" "./00_shared/latex_styles/dark_mode.tex"; then
     test_pass "Dark mode has pagecolor and text color settings"
 else
     test_fail "Dark mode missing color settings"
@@ -117,8 +117,8 @@ fi
 # Test 8: Config loading guard exists
 echo
 echo "Test 8: Config loading optimization"
-if grep -q "Skip if already loaded" "./config/load_config.sh" && \
-   grep -q "CONFIG_LOADED" "./config/load_config.sh"; then
+if grep -q "Skip if already loaded" "./config/load_config.sh" &&
+    grep -q "CONFIG_LOADED" "./config/load_config.sh"; then
     test_pass "Config loading guard implemented"
 else
     test_fail "Config loading guard missing"
@@ -127,8 +127,8 @@ fi
 # Test 9: Command caching exists
 echo
 echo "Test 9: Command caching optimization"
-if grep -q "_CACHED_CONTAINER_RUNTIME" "./scripts/shell/modules/command_switching.src" && \
-   grep -q "_CACHED_MODULE_AVAILABLE" "./scripts/shell/modules/command_switching.src"; then
+if grep -q "_CACHED_CONTAINER_RUNTIME" "./scripts/shell/modules/command_switching.src" &&
+    grep -q "_CACHED_MODULE_AVAILABLE" "./scripts/shell/modules/command_switching.src"; then
     test_pass "Command caching implemented"
 else
     test_fail "Command caching missing"
@@ -137,9 +137,10 @@ fi
 # Test 10: Parallel processing in compile scripts
 echo
 echo "Test 10: Parallel processing"
-if grep -q "Parallel Processing" "./scripts/shell/compile_manuscript.sh" && \
-   grep -q "&" "./scripts/shell/compile_manuscript.sh" && \
-   grep -q "wait" "./scripts/shell/compile_manuscript.sh"; then
+# Check for background jobs (&) and wait command - the actual implementation
+# Note: Use single quotes to ensure \$ is passed literally to grep
+if grep -q ") &" "./scripts/shell/compile_manuscript.sh" &&
+    grep -q 'wait \$' "./scripts/shell/compile_manuscript.sh"; then
     test_pass "Parallel processing implemented in manuscript"
 else
     test_fail "Parallel processing missing in manuscript"

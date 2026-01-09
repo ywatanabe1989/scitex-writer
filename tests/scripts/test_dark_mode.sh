@@ -63,8 +63,8 @@ fi
 # Test 4: Hyperlink colors adjusted
 echo
 echo "Test 4: Hyperlink colors for dark mode"
-if grep -q "hypersetup" "./00_shared/latex_styles/dark_mode.tex" && \
-   grep -q "linkcolor" "./00_shared/latex_styles/dark_mode.tex"; then
+if grep -q "hypersetup" "./00_shared/latex_styles/dark_mode.tex" &&
+    grep -q "linkcolor" "./00_shared/latex_styles/dark_mode.tex"; then
     test_pass "Hyperlink colors adjusted for dark mode"
 else
     test_fail "Missing hyperlink color adjustments"
@@ -127,7 +127,8 @@ echo
 echo "Test 10: Dark mode option parsing"
 PARSE_COUNT=0
 for script in ./scripts/shell/compile_{manuscript,supplementary,revision}.sh; do
-    if grep -q "\-dm|\--dark-mode" "$script"; then
+    # Check for the actual pattern: -dm | --dark-mode (with spaces)
+    if grep -q "\-dm.*--dark-mode" "$script"; then
         PARSE_COUNT=$((PARSE_COUNT + 1))
     fi
 done

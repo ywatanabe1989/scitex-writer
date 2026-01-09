@@ -7,7 +7,8 @@
 set -e
 
 ORIG_DIR="$(pwd)"
-THIS_DIR="$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)"
+# shellcheck disable=SC2034
+THIS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(git rev-parse --show-toplevel 2>/dev/null)"
 
 # Colors
@@ -80,7 +81,8 @@ export SCITEX_WRITER_DOC_TYPE="manuscript"
 source ./config/load_config.sh "$SCITEX_WRITER_DOC_TYPE" 2>/dev/null
 
 if [ -f "$SCITEX_WRITER_VERSION_COUNTER_TXT" ]; then
-    current_ver=$(cat "$SCITEX_WRITER_VERSION_COUNTER_TXT")
+    # Read only the first line (version number), ignore cleanup history comments
+    current_ver=$(head -n1 "$SCITEX_WRITER_VERSION_COUNTER_TXT")
     NEXT_VERSION=$(printf "%03d" $((10#${current_ver:-0} + 1)))
 else
     NEXT_VERSION="001"
@@ -134,7 +136,7 @@ echo_success "✅ Your development workflow unaffected"
 echo
 
 echo_header "Example git log After Auto-Commit"
-cat << 'EOF'
+cat <<'EOF'
 commit abc123 (HEAD -> develop)
 Author: You <you@example.com>
 Date:   Wed Nov 12 11:00:00 2025
