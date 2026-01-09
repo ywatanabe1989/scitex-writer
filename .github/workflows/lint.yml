@@ -5,13 +5,11 @@ on:
     branches: [ main, develop ]
     paths:
       - 'scripts/python/**'
-      - 'requirements/python.txt'
       - '.github/workflows/lint.yml'
   pull_request:
     branches: [ main, develop ]
     paths:
       - 'scripts/python/**'
-      - 'requirements/python.txt'
       - '.github/workflows/lint.yml'
 
 concurrency:
@@ -34,7 +32,7 @@ jobs:
       uses: actions/cache@v4
       with:
         path: ~/.cache/pip
-        key: pip-lint-${{ runner.os }}-${{ hashFiles('**/requirements*.txt') }}
+        key: pip-lint-${{ runner.os }}-flake8-black
         restore-keys: |
           pip-lint-${{ runner.os }}-
 

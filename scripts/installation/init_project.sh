@@ -1,7 +1,7 @@
 #!/bin/bash
 # -*- coding: utf-8 -*-
 # Timestamp: "2026-01-09 (ywatanabe)"
-# File: ./scripts/init_project.sh
+# File: ./scripts/installation/init_project.sh
 # Description: Initialize project with required preprocessing artifacts
 #              Addresses GitHub Issue #12
 

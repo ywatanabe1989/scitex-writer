@@ -4,7 +4,7 @@
 # Timestamp: "$(date +"%Y-%m-%d %H:%M:%S") ($(whoami))"
 # File: ./tests/scripts/test_document_types.sh
 
-set -e
+# NOTE: Removed set -e because assert functions need to track failures without exiting
 
 # Colors
 RED='\033[0;31m'
@@ -24,7 +24,7 @@ assert_success() {
     local test_name="$1"
     local exit_code="$2"
 
-    if [ $exit_code -eq 0 ]; then
+    if [ "$exit_code" -eq 0 ]; then
         echo -e "${GREEN}✓ PASS: $test_name${NC}"
         ((TESTS_PASSED++))
         return 0
@@ -71,13 +71,22 @@ rm -f ./03_revision/revision.pdf
 temp_dir=$(mktemp -d)
 
 # Run all three in parallel
-(./compile.sh manuscript > /tmp/test_manuscript.log 2>&1; echo $? > "$temp_dir/manuscript_exit") &
+(
+    ./compile.sh manuscript >/tmp/test_manuscript.log 2>&1
+    echo $? >"$temp_dir/manuscript_exit"
+) &
 manuscript_pid=$!
 
-(./compile.sh supplementary > /tmp/test_supplementary.log 2>&1; echo $? > "$temp_dir/supplementary_exit") &
+(
+    ./compile.sh supplementary >/tmp/test_supplementary.log 2>&1
+    echo $? >"$temp_dir/supplementary_exit"
+) &
 supplementary_pid=$!
 
-(./compile.sh revision > /tmp/test_revision.log 2>&1; echo $? > "$temp_dir/revision_exit") &
+(
+    ./compile.sh revision >/tmp/test_revision.log 2>&1
+    echo $? >"$temp_dir/revision_exit"
+) &
 revision_pid=$!
 
 # Wait for all to complete
@@ -91,15 +100,15 @@ revision_exit=$(cat "$temp_dir/revision_exit")
 rm -rf "$temp_dir"
 
 # Assert success for each
-assert_success "manuscript compilation" $manuscript_exit
+assert_success "manuscript compilation" "$manuscript_exit"
 assert_file_exists "manuscript PDF" "./01_manuscript/manuscript.pdf"
 assert_file_exists "manuscript diff PDF" "./01_manuscript/manuscript_diff.pdf"
 
-assert_success "supplementary compilation" $supplementary_exit
+assert_success "supplementary compilation" "$supplementary_exit"
 assert_file_exists "supplementary PDF" "./02_supplementary/supplementary.pdf"
 assert_file_exists "supplementary diff PDF" "./02_supplementary/supplementary_diff.pdf"
 
-assert_success "revision compilation" $revision_exit
+assert_success "revision compilation" "$revision_exit"
 assert_file_exists "revision PDF" "./03_revision/revision.pdf"
 echo ""
 
@@ -108,7 +117,7 @@ print_test "all engines (manuscript)"
 for engine in latexmk 3pass tectonic; do
     rm -f ./01_manuscript/manuscript.pdf
     export SCITEX_WRITER_ENGINE=$engine
-    ./compile.sh manuscript > /tmp/test_engine_$engine.log 2>&1
+    ./compile.sh manuscript >/tmp/test_engine_$engine.log 2>&1
     assert_success "$engine engine (manuscript)" $?
 done
 echo ""
@@ -121,7 +130,7 @@ echo -e "${GREEN}Passed: $TESTS_PASSED${NC}"
 echo -e "${RED}Failed: $TESTS_FAILED${NC}"
 echo ""
 
-if [ $TESTS_FAILED -eq 0 ]; then
+if [ "$TESTS_FAILED" -eq 0 ]; then
     echo -e "${GREEN}All tests passed!${NC}"
     exit 0
 else
