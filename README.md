@@ -120,7 +120,7 @@ git clone https://github.com/ywatanabe1989/scitex-writer.git my-paper
 cd my-paper
 
 # Strip all example content and keep only essential structure
-./scripts/strip_example_content.sh
+./scripts/repository_maintenance/strip_example_content.sh
 
 # Now you have a clean slate with just the necessary structure
 ./compile.sh manuscript
