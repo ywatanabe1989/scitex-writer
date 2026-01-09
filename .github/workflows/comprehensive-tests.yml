@@ -29,6 +29,10 @@ jobs:
           https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
         sudo chmod +x /usr/local/bin/yq
 
+        # Install Python dependencies
+        python3 -m pip install --upgrade pip
+        pip install xlsx2csv csv2latex bibtexparser
+
     - name: Run shell script tests
       run: |
         echo "=========================================="

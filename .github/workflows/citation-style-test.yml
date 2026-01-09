@@ -65,7 +65,7 @@ jobs:
 
         # Install Python dependencies
         python3 -m pip install --upgrade pip
-        pip install xlsx2csv csv2latex
+        pip install xlsx2csv csv2latex bibtexparser
 
     - name: Set citation style - ${{ matrix.style.name }}
       run: |
