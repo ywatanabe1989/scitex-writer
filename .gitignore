@@ -112,6 +112,9 @@ data/*
 # Must come AFTER the ignore rules above
 !**/archive/*.pdf
 !**/archive/*.tex
+
+# Logo files for README
+!docs/scitex-*.png
 **/*.gz
 **/*.rar
 **/*.7z
