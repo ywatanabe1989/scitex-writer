@@ -684,3 +684,7 @@ flycheck_*.el
 .claude
 .dev
 .bibliography_cache.json
+
+# Temporary files
+.tmp/
+*.tmp
