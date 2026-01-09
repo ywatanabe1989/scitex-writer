@@ -1,7 +1,7 @@
 % ==============================================================================
-% SciTeX Writer v2.0.0-rc2 (https://scitex.ai)
-% LaTeX compilation engine: auto
-% Compiled: 2025-11-12 14:32:17
+% SciTeX Writer v2.0.0-rc4 (https://scitex.ai)
+% LaTeX compilation engine: tectonic
+% Compiled: 2026-01-09 17:57:31
 % Source: 01_manuscript/base.tex
 % ==============================================================================
 
@@ -88,7 +88,7 @@
 \usepackage{hyperref}
 
 %% Document features
-\usepackage{accsupp, lineno, bashful, lipsum}
+% % \usepackage{accsupp, lineno, bashful, lipsum}  % Disabled for tectonic  % Disabled for tectonic
 
 %% Visual enhancements
 \usepackage[most]{tcolorbox}
@@ -140,7 +140,7 @@
 
 %% --- Line numbers ---
 \linespread{1.2}
-\linenumbers
+% \linenumbers  % Disabled for tectonic
 
 %% --- Colors ---
 \definecolor{GreenBG}{rgb}{0,1,0}
@@ -316,11 +316,11 @@ keyword one \sep keyword two \sep keyword three \sep keyword four \sep keyword f
 %% Timestamp: "2025-09-26 18:17:20 (ywatanabe)"
 %% File: "/ssh:sp:/home/ywatanabe/proj/neurovista/paper/01_manuscript/src/wordcount.tex"
 \begin{wordcount}
-\readwordcount{./01_manuscript/contents/wordcounts/figure_count.txt} figures, \readwordcount{./01_manuscript/contents/wordcounts/table_count.txt} tables, \readwordcount{./01_manuscript/contents/wordcounts/abstract_count.txt} words for abstract, and \readwordcount{./01_manuscript/contents/wordcounts/imrd_count.txt} words for main text
+8 figures, 3 tables, 157 words for abstract, and 2626 words for main text
 \end{wordcount}
 
 %% \begin{*wordcount}
-%% \readwordcount{./01_manuscript/contents/wordcounts/figure_count.txt} figures, \readwordcount{./01_manuscript/contents/wordcounts/table_count.txt} tables, \readwordcount{./01_manuscript/contents/wordcounts/abstract_count.txt} words for abstract, and \readwordcount{./01_manuscript/contents/wordcounts/imrd_count.txt} words for main text
+%% 8 figures, 3 tables, 157 words for abstract, and 2626 words for main text
 %% \end{*wordcount}
 
 %%%% EOF
@@ -972,7 +972,7 @@ Traditional 3-pass compilation lacks incremental build support but guarantees co
 \begin{figure*}[h!]
     \pdfbookmark[2]{Figure 01}{.01}
     \centering
-    \includegraphics[width=0.9\textwidth]{./01_manuscript/contents/figures/caption_and_media/jpg_for_compilation/01_example_figure.jpg}
+    \includegraphics[width=0.9\textwidth]{/home/ywatanabe/proj/scitex-writer/01_manuscript/contents/figures/caption_and_media/jpg_for_compilation/01_example_figure.jpg}
     \caption{Example figure caption. This is a template showing how to include figures in your manuscript. Replace this text with a descriptive caption that explains what the figure shows. Include panel labels (A, B, C) if using multipanel figures. Explain abbreviations and symbols used in the figure. Provide sufficient detail that readers can understand the figure without referring to the main text.}
 \label{fig:example_figure_01}
     \label{fig:01_example_figure}
@@ -982,7 +982,7 @@ Traditional 3-pass compilation lacks incremental build support but guarantees co
 \begin{figure*}[htbp]
     \pdfbookmark[2]{Figure 02}{.02}
     \centering
-    \includegraphics[width=0.9\textwidth]{./01_manuscript/contents/figures/caption_and_media/jpg_for_compilation/02_another_example.jpg}
+    \includegraphics[width=0.9\textwidth]{/home/ywatanabe/proj/scitex-writer/01_manuscript/contents/figures/caption_and_media/jpg_for_compilation/02_another_example.jpg}
     \caption{Another example figure. Use this template to add additional figures to your manuscript. Each figure should be placed in a separate .tex file in this directory. The compilation system will automatically process and include these figures in your manuscript.}
 \label{fig:example_figure_02}
     \label{fig:02_another_example}
@@ -992,7 +992,7 @@ Traditional 3-pass compilation lacks incremental build support but guarantees co
 \begin{figure*}[htbp]
     \pdfbookmark[2]{Figure 03}{.03}
     \centering
-    \includegraphics[width=0.9\textwidth]{./01_manuscript/contents/figures/caption_and_media/jpg_for_compilation/03_compilation_workflow.jpg}
+    \includegraphics[width=0.9\textwidth]{/home/ywatanabe/proj/scitex-writer/01_manuscript/contents/figures/caption_and_media/jpg_for_compilation/03_compilation_workflow.jpg}
     \caption{\textbf{SciTeX Writer Compilation Workflow.}
 This flowchart illustrates the complete compilation pipeline from initial dependency checking through final PDF generation.
 The system automatically detects and uses the best available compilation engine (Tectonic for speed, latexmk for reliability, or 3-pass for maximum compatibility).
@@ -1007,7 +1007,7 @@ Color coding: green (start/end), orange (engine selection), blue (preprocessing)
 \begin{figure*}[htbp]
     \pdfbookmark[2]{Figure 04}{.04}
     \centering
-    \includegraphics[width=0.9\textwidth]{./01_manuscript/contents/figures/caption_and_media/jpg_for_compilation/04_directory_structure.jpg}
+    \includegraphics[width=0.9\textwidth]{/home/ywatanabe/proj/scitex-writer/01_manuscript/contents/figures/caption_and_media/jpg_for_compilation/04_directory_structure.jpg}
     \caption{\textbf{SciTeX Writer Directory Organization.}
 This diagram shows the hierarchical organization of the repository structure.
 The \texttt{00\_shared/} directory (green) contains resources used across all document types, including bibliography files and LaTeX styles, ensuring consistency without duplication.
@@ -1024,7 +1024,7 @@ Dotted lines indicate that supplementary materials follow the same organizationa
 \begin{figure*}[htbp]
     \pdfbookmark[2]{Figure 05}{.05}
     \centering
-    \includegraphics[width=0.9\textwidth]{./01_manuscript/contents/figures/caption_and_media/jpg_for_compilation/05_system_architecture.jpg}
+    \includegraphics[width=0.9\textwidth]{/home/ywatanabe/proj/scitex-writer/01_manuscript/contents/figures/caption_and_media/jpg_for_compilation/05_system_architecture.jpg}
     \caption{\textbf{SciTeX Writer System Architecture.}
 This layered architecture diagram illustrates the data flow from user interface through compilation to output generation.
 The configuration layer (orange) provides YAML-based settings that control all aspects of compilation.
@@ -1040,7 +1040,7 @@ Color coding: green (interface/output), orange (configuration), blue (preprocess
 \begin{figure*}[htbp]
     \pdfbookmark[2]{Figure 06}{.06}
     \centering
-    \includegraphics[width=0.9\textwidth]{./01_manuscript/contents/figures/caption_and_media/jpg_for_compilation/06_engine_selection_logic.jpg}
+    \includegraphics[width=0.9\textwidth]{/home/ywatanabe/proj/scitex-writer/01_manuscript/contents/figures/caption_and_media/jpg_for_compilation/06_engine_selection_logic.jpg}
     \caption{\textbf{Compilation Engine Selection Decision Tree.}
 The system prioritizes explicit user configuration over automatic detection.
 Environment variables provide the highest priority override (useful for CI/CD pipelines).
@@ -1056,7 +1056,7 @@ Times shown are typical incremental build durations on reference hardware (16 GB
 \begin{figure*}[htbp]
     \pdfbookmark[2]{Figure 07}{.07}
     \centering
-    \includegraphics[width=0.9\textwidth]{./01_manuscript/contents/figures/caption_and_media/jpg_for_compilation/07_feature_overview.jpg}
+    \includegraphics[width=0.9\textwidth]{/home/ywatanabe/proj/scitex-writer/01_manuscript/contents/figures/caption_and_media/jpg_for_compilation/07_feature_overview.jpg}
     \caption{\textbf{SciTeX Writer Feature Overview.}
 This mind map provides a comprehensive visualization of the framework's major capabilities organized into five categories.
 Compilation features include multi-engine support with auto-detection and performance optimization modes.
@@ -1072,7 +1072,7 @@ Cross-platform reproducibility ensures identical outputs across Linux, macOS, Wi
 \begin{figure*}[htbp]
     \pdfbookmark[2]{Figure 08}{.08}
     \centering
-    \includegraphics[width=0.9\textwidth]{./01_manuscript/contents/figures/caption_and_media/jpg_for_compilation/08_bib_dedup.jpg}
+    \includegraphics[width=0.9\textwidth]{/home/ywatanabe/proj/scitex-writer/01_manuscript/contents/figures/caption_and_media/jpg_for_compilation/08_bib_dedup.jpg}
     \caption{\textbf{Multi-File Bibliography Processing and Deduplication.}
 The bibliography system enables researchers to organize references across multiple topical .bib files.
 All files in the \texttt{00\_shared/bib\_files/} directory are automatically merged during compilation.
