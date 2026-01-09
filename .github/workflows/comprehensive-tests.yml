@@ -64,10 +64,11 @@ jobs:
           exit 1
         fi
 
-        # Check diff PDF was generated
-        if [ ! -f "01_manuscript/manuscript_diff.pdf" ]; then
-          echo "✗ ERROR: manuscript_diff.pdf not generated"
-          exit 1
+        # Check diff PDF (optional - won't exist in fresh clones without archive history)
+        if [ -f "01_manuscript/manuscript_diff.pdf" ]; then
+          echo "✓ Diff PDF generated"
+        else
+          echo "⚠ Diff PDF not generated (normal for fresh clones without archive history)"
         fi
 
         echo "✓ Full mode: PDF generated ($SIZE bytes)"
