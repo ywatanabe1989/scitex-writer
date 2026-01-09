@@ -29,6 +29,10 @@ jobs:
           https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
         sudo chmod +x /usr/local/bin/yq
 
+        # Install tectonic (for tectonic integration tests)
+        curl -fsSL https://drop-sh.fullyjustified.net | sh
+        sudo mv tectonic /usr/local/bin/
+
         # Install Python dependencies
         python3 -m pip install --upgrade pip
         pip install xlsx2csv csv2latex bibtexparser
