@@ -3,12 +3,24 @@
 # Timestamp: "2025-11-11 06:58:09 (ywatanabe)"
 # File: ./scripts/shell/compile_manuscript.sh
 
-ORIG_DIR="$(pwd)"
-THIS_DIR="$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)"
-LOG_PATH="$THIS_DIR/.$(basename $0).log"
-echo > "$LOG_PATH"
+# shellcheck disable=SC1091  # Don't follow sourced files
 
+export ORIG_DIR
+ORIG_DIR="$(pwd)"
+THIS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+LOG_PATH="$THIS_DIR/.$(basename "$0").log"
+echo >"$LOG_PATH"
+
+# Resolve project root - critical for working directory independence (Issue #13)
 GIT_ROOT="$(git rev-parse --show-toplevel 2>/dev/null)"
+if [ -z "$GIT_ROOT" ]; then
+    # Fallback: resolve from script location
+    GIT_ROOT="$(cd "$THIS_DIR/../.." && pwd)"
+fi
+export PROJECT_ROOT="$GIT_ROOT"
+
+# Change to project root to ensure relative paths work
+cd "$PROJECT_ROOT" || exit 1
 
 # Timestamp tracking
 STAGE_START_TIME=0
@@ -23,7 +35,8 @@ log_stage_start() {
 
 log_stage_end() {
     local stage_name="$1"
-    local end_time=$(date +%s)
+    local end_time
+    end_time=$(date +%s)
     local elapsed=$((end_time - STAGE_START_TIME))
     echo -e "\033[0;32m✓\033[0m ${stage_name} \033[0;90m(${elapsed}s)\033[0m"
 }
@@ -59,7 +72,7 @@ source ./config/load_config.sh "$SCITEX_WRITER_DOC_TYPE"
 echo
 
 # Log
-touch $LOG_PATH >/dev/null 2>&1
+touch "$LOG_PATH" >/dev/null 2>&1
 mkdir -p "$LOG_DIR" && touch "$SCITEX_WRITER_GLOBAL_LOG_FILE"
 
 # Shell options
@@ -98,21 +111,25 @@ usage() {
 parse_arguments() {
     while [[ "$#" -gt 0 ]]; do
         # Normalize option: replace underscores with hyphens for matching
-        local normalized_opt=$(echo "$1" | tr '_' '-')
+        local normalized_opt
+        normalized_opt=$(echo "$1" | tr '_' '-')
 
         case $normalized_opt in
-            -h|--help) usage ;;
-            -p2t|--ppt2tif) do_p2t=true ;;
-            -nf|--no-figs) no_figs=true ;;
-            -nt|--no-tables) no_tables=true ;;
-            -nd|--no-diff) no_diff=true ;;
-            -d|--draft) draft_mode=true ;;
-            -dm|--dark-mode) dark_mode=true ;;
-            -c|--crop-tif) do_crop_tif=true ;;
-            -v|--verbose) do_verbose=true ;;
-            -q|--quiet) do_verbose=false ;;
-            --force) do_force=true ;;
-            *) echo "Unknown option: $1"; usage ;;
+        -h | --help) usage ;;
+        -p2t | --ppt2tif) do_p2t=true ;;
+        -nf | --no-figs) no_figs=true ;;
+        -nt | --no-tables) no_tables=true ;;
+        -nd | --no-diff) no_diff=true ;;
+        -d | --draft) draft_mode=true ;;
+        -dm | --dark-mode) dark_mode=true ;;
+        -c | --crop-tif) do_crop_tif=true ;;
+        -v | --verbose) do_verbose=true ;;
+        -q | --quiet) do_verbose=false ;;
+        --force) do_force=true ;;
+        *)
+            echo "Unknown option: $1"
+            usage
+            ;;
         esac
         shift
     done
@@ -164,22 +181,31 @@ main() {
 
     # Run independent processing in parallel for speed
     log_stage_start "Asset Processing"
-    local parallel_start=$(date +%s)
 
     # Create temp files for parallel job outputs
-    local temp_dir=$(mktemp -d)
+    local temp_dir
+    temp_dir=$(mktemp -d)
     local fig_log="$temp_dir/figures.log"
     local tbl_log="$temp_dir/tables.log"
     local wrd_log="$temp_dir/words.log"
 
     # Run all three in parallel
-    (./scripts/shell/modules/process_figures.sh "$no_figs" "$do_p2t" "$do_verbose" "$do_crop_tif" > "$fig_log" 2>&1; echo $? > "$temp_dir/fig_exit") &
+    (
+        ./scripts/shell/modules/process_figures.sh "$no_figs" "$do_p2t" "$do_verbose" "$do_crop_tif" >"$fig_log" 2>&1
+        echo $? >"$temp_dir/fig_exit"
+    ) &
     local fig_pid=$!
 
-    (./scripts/shell/modules/process_tables.sh "$no_tables" > "$tbl_log" 2>&1; echo $? > "$temp_dir/tbl_exit") &
+    (
+        ./scripts/shell/modules/process_tables.sh "$no_tables" >"$tbl_log" 2>&1
+        echo $? >"$temp_dir/tbl_exit"
+    ) &
     local tbl_pid=$!
 
-    (./scripts/shell/modules/count_words.sh > "$wrd_log" 2>&1; echo $? > "$temp_dir/wrd_exit") &
+    (
+        ./scripts/shell/modules/count_words.sh >"$wrd_log" 2>&1
+        echo $? >"$temp_dir/wrd_exit"
+    ) &
     local wrd_pid=$!
 
     # Wait for all parallel jobs
@@ -188,19 +214,22 @@ main() {
     # Display outputs only in verbose mode
     if [ "${SCITEX_LOG_LEVEL:-1}" -ge 2 ]; then
         log_info "Figure Processing:"
-        cat "$fig_log" | sed 's/^/    /'
+        sed 's/^/    /' "$fig_log"
 
         log_info "Table Processing:"
-        cat "$tbl_log" | sed 's/^/    /'
+        sed 's/^/    /' "$tbl_log"
 
         log_info "Word Count:"
-        cat "$wrd_log" | sed 's/^/    /'
+        sed 's/^/    /' "$wrd_log"
     fi
 
     # Check exit codes
-    local fig_exit=$(cat "$temp_dir/fig_exit")
-    local tbl_exit=$(cat "$temp_dir/tbl_exit")
-    local wrd_exit=$(cat "$temp_dir/wrd_exit")
+    local fig_exit
+    local tbl_exit
+    local wrd_exit
+    fig_exit=$(cat "$temp_dir/fig_exit")
+    tbl_exit=$(cat "$temp_dir/tbl_exit")
+    wrd_exit=$(cat "$temp_dir/wrd_exit")
 
     # Extract summary lines for normal mode
     if [ "${SCITEX_LOG_LEVEL:-1}" -lt 2 ]; then
@@ -216,8 +245,6 @@ main() {
         exit 1
     fi
 
-    local parallel_end=$(date +%s)
-    local parallel_elapsed=$((parallel_end - parallel_start))
     log_stage_end "Asset Processing"
 
     # Compile documents
@@ -250,7 +277,7 @@ main() {
 
     # Export for downstream modules
     export SCITEX_WRITER_SELECTED_ENGINE="$SELECTED_ENGINE"
-    echo_info "$(get_engine_info $SELECTED_ENGINE)"
+    echo_info "$(get_engine_info "$SELECTED_ENGINE")"
     log_stage_end "Engine Selection"
 
     # TeX to PDF
@@ -284,7 +311,8 @@ main() {
 
     # Final summary
     echo ""
-    local final_time=$(date +%s)
+    local final_time
+    final_time=$(date +%s)
     local total_compilation_time=$((final_time - COMPILATION_START_TIME))
     echo -e "\033[1;32m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\033[0m"
     echo -e "\033[1;32m  Compilation Complete\033[0m"
