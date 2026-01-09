@@ -36,7 +36,7 @@ jobs:
     - name: Install Python dependencies
       run: |
         python3 -m pip install --upgrade pip
-        pip install xlsx2csv csv2latex || echo "Warning: Some Python dependencies may not be available"
+        pip install xlsx2csv csv2latex bibtexparser || echo "Warning: Some Python dependencies may not be available"
 
     - name: Run manuscript compilation
       run: ./compile.sh manuscript
