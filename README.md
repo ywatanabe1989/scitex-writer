@@ -1,5 +1,5 @@
 <!-- ---
-!-- Timestamp: 2026-01-10
+!-- Timestamp: 2026-01-19 03:17:43
 !-- Author: ywatanabe
 !-- File: /home/ywatanabe/proj/scitex-writer/README.md
 !-- --- -->
@@ -47,16 +47,19 @@ my-paper/
 
 ## Features
 
-| Feature | Description |
-|---------|-------------|
-| **Multi-Engine** | Auto-selects best engine (Tectonic 1-3s, latexmk 3-6s, 3-pass 12-18s) |
-| **Bibliography** | Multi-file with auto-deduplication, 20+ citation styles |
-| **Versioning** | Auto-archive, diff generation, git integration |
-| **Assets** | Parallel figure/table processing (PNG, PDF, SVG, Mermaid, CSV) |
-| **Cross-Platform** | Linux, macOS, WSL2, Docker, Singularity, HPC clusters |
+| Feature                | Description                                                           |
+|------------------------|-----------------------------------------------------------------------|
+| **Separated Files**    | FIXME                                                                 |
+| **Built-in Templates** | FIXME: For manuscript, supplementary materials, and revision          |
+| **Bibliography**       | Multi-file with auto-deduplication, 20+ citation styles               |
+| **Assets**             | Parallel figure/table processing (PNG, PDF, SVG, Mermaid, CSV)        |
+| **Multi-Engine**       | Auto-selects best engine (Tectonic 1-3s, latexmk 3-6s, 3-pass 12-18s) |
+| **Cross-Platform**     | Linux, macOS, WSL2, Docker, Singularity, HPC clusters                 |
+
+## Usage
 
 <details>
-<summary><strong>Compilation Options</strong></summary>
+<summary><strong>PDF Compilation</strong></summary>
 
 ```bash
 # Basic compilation
@@ -83,28 +86,7 @@ my-paper/
 </details>
 
 <details>
-<summary><strong>Bibliography Management</strong></summary>
-
-Organize references in multiple `.bib` files - they auto-merge with deduplication:
-
-```bash
-00_shared/bib_files/
-├── methods_refs.bib      # Method-related references
-├── field_background.bib  # Background literature
-└── my_papers.bib         # Your own publications
-```
-
-Change citation style in `config/config_manuscript.yaml`:
-- `unsrtnat` (numbered, order of citation)
-- `plainnat` (numbered, alphabetical)
-- `apalike` (author-year, APA style)
-- `IEEEtran` (IEEE format)
-- `naturemag` (Nature style)
-
-</details>
-
-<details>
-<summary><strong>Adding Figures</strong></summary>
+<summary><strong>Figures</strong></summary>
 
 1. Place media files in `01_manuscript/contents/figures/caption_and_media/`:
    ```
@@ -126,7 +108,7 @@ Change citation style in `config/config_manuscript.yaml`:
 </details>
 
 <details>
-<summary><strong>Adding Tables</strong></summary>
+<summary><strong>Tables</strong></summary>
 
 1. Place CSV + caption in `01_manuscript/contents/tables/caption_and_media/`:
    ```
@@ -142,6 +124,27 @@ Change citation style in `config/config_manuscript.yaml`:
    \caption{Your table caption. Define abbreviations used.}
    \label{tab:example_table_01}
    ```
+
+</details>
+
+<details>
+<summary><strong>References</strong></summary>
+
+Organize references in multiple `.bib` files - they auto-merge with deduplication:
+
+```bash
+00_shared/bib_files/
+├── methods_refs.bib      # Method-related references
+├── field_background.bib  # Background literature
+└── my_papers.bib         # Your own publications
+```
+
+Change citation style in `config/config_manuscript.yaml`:
+- `unsrtnat` (numbered, order of citation)
+- `plainnat` (numbered, alphabetical)
+- `apalike` (author-year, APA style)
+- `IEEEtran` (IEEE format)
+- `naturemag` (Nature style)
 
 </details>
 

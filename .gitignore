@@ -691,3 +691,8 @@ flycheck_*.el
 # Temporary files
 .tmp/
 *.tmp
+/.claude-worktree-symlinks
+# Claude worktree symlink
+/fix-versioning-with-git
+# Claude worktree symlink
+/fix-table
