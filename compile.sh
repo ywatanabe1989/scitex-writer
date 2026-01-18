@@ -57,9 +57,9 @@ Usage: ./compile.sh [TYPE] [OPTIONS]
 Unified compilation interface for scientific documents.
 
 DOCUMENT TYPES:
-    manuscript, -m        Compile manuscript (default if no type specified)
-    supplementary, -s     Compile supplementary materials
-    revision, -r          Compile revision responses
+    manuscript, -m        Compile manuscript (= ./scripts/shell/compile_manuscript.sh)
+    supplementary, -s     Compile supplementary (= ./scripts/shell/compile_supplementary.sh)
+    revision, -r          Compile revision (= ./scripts/shell/compile_revision.sh)
 
 GLOBAL OPTIONS:
     -h, --help           Show this help message
@@ -108,14 +108,6 @@ EXAMPLES:
     Watch mode:
     ./compile.sh -m -w                     # Watch and recompile manuscript
     ./compile.sh -m --watch --no-figs      # Watch mode with speed options
-
-DELEGATION:
-    This script delegates to:
-    - ./scripts/shell/compile_manuscript.sh for manuscripts
-    - ./scripts/shell/compile_supplementary.sh for supplementary materials
-    - ./scripts/shell/compile_revision.sh for revision responses
-
-    For type-specific options, use: ./compile.sh [TYPE] --help
 
 EOF
 }
