@@ -61,6 +61,7 @@ DOCUMENT TYPES:
 
 GLOBAL OPTIONS:
     -h, --help           Show this help message
+    --help-recursive     Show help for all commands recursively
     -w, --watch          Enable watch mode for hot-recompiling
                          (Only works with manuscript type)
 
@@ -117,6 +118,31 @@ DELEGATION:
 EOF
 }
 
+# Function to display help for all commands recursively
+show_help_recursive() {
+    echo ""
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo "  compile.sh (main)"
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    show_usage
+    echo ""
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo "  compile.sh manuscript (./scripts/shell/compile_manuscript.sh)"
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    ./scripts/shell/compile_manuscript.sh --help 2>/dev/null || echo "(No help available)"
+    echo ""
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo "  compile.sh supplementary (./scripts/shell/compile_supplementary.sh)"
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    ./scripts/shell/compile_supplementary.sh --help 2>/dev/null || echo "(No help available)"
+    echo ""
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo "  compile.sh revision (./scripts/shell/compile_revision.sh)"
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    ./scripts/shell/compile_revision.sh --help 2>/dev/null || echo "(No help available)"
+    echo ""
+}
+
 # Parse arguments
 REMAINING_ARGS=""
 
@@ -137,6 +163,10 @@ while [ $# -gt 0 ]; do
     -w | --watch)
         WATCH_MODE=true
         shift
+        ;;
+    --help-recursive)
+        show_help_recursive
+        exit 0
         ;;
     -h | --help)
         # If document type already specified, pass --help to that script
