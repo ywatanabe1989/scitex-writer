@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # Timestamp: "2025-11-12 14:19:14 (ywatanabe)"
 
-"""
+r"""
 Fast recursive TeX structure compiler.
 
 Replaces \input{} commands with file contents in single pass.
@@ -46,7 +46,7 @@ def generate_signature(source_file: Path = None) -> str:
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
     # Format signature
-    signature = f"""% {'=' * 78}
+    signature = f"""% {"=" * 78}
 % SciTeX Writer {version} (https://scitex.ai)
 % LaTeX compilation engine: {engine}
 % Compiled: {timestamp}
@@ -55,7 +55,7 @@ def generate_signature(source_file: Path = None) -> str:
     if source_file:
         signature += f"% Source: {source_file}\n"
 
-    signature += f"""% {'=' * 78}
+    signature += f"""% {"=" * 78}
 
 """
     return signature
@@ -67,7 +67,7 @@ def expand_inputs(
     depth: int = 0,
     max_depth: int = 10,
 ) -> str:
-    """
+    r"""
     Recursively expand \input{} commands.
 
     Args:
@@ -165,7 +165,7 @@ def compile_tex_structure(
     dark_mode: bool = False,
     tectonic_mode: bool = False,
 ) -> bool:
-    """
+    r"""
     Compile TeX structure by expanding all \input{} commands.
 
     Args:
@@ -186,9 +186,9 @@ def compile_tex_structure(
         print(f"Compiling TeX structure: {base_tex}")
         print(f"Output: {output_tex}")
         if dark_mode:
-            print(f"Dark mode: enabled")
+            print("Dark mode: enabled")
         if tectonic_mode:
-            print(f"Tectonic mode: enabled (disabling incompatible packages)")
+            print("Tectonic mode: enabled (disabling incompatible packages)")
 
     # Expand all inputs recursively
     expanded_content = expand_inputs(base_tex)
@@ -211,9 +211,7 @@ def compile_tex_structure(
         print(f"{GREEN}{'=' * 78}{NC}")
         print(f"{GREEN}Thank you for citing SciTeX Writer! 🙏{NC}")
         print("")
-        print(
-            f"{GREEN}Your support helps maintain this open-source project.{NC}"
-        )
+        print(f"{GREEN}Your support helps maintain this open-source project.{NC}")
         print(f"{GREEN}Citation found: \\cite{{{{watanabe2025scitex}}}}{NC}")
         print(f"{GREEN}{'=' * 78}{NC}")
         print("")
@@ -221,17 +219,13 @@ def compile_tex_structure(
         print(f"{YELLOW}{'=' * 78}{NC}")
         print(f"{YELLOW}WARN: SciTeX Writer citation not found!{NC}")
         print("")
-        print(
-            f"{YELLOW}Please consider citing SciTeX Writer in your manuscript:{NC}"
-        )
+        print(f"{YELLOW}Please consider citing SciTeX Writer in your manuscript:{NC}")
         print("  \\cite{watanabe2025scitex")
         print("")
         print(f"{YELLOW}Add this to your bibliography by including:{NC}")
         print("  00_shared/bib_files/scitex-system.bib")
         print("")
-        print(
-            f"{YELLOW}Or merge it with your existing bibliography files.{NC}"
-        )
+        print(f"{YELLOW}Or merge it with your existing bibliography files.{NC}")
         print(f"{YELLOW}{'=' * 78}{NC}")
         print("")
 
@@ -324,12 +318,8 @@ def main():
         description="Compile TeX structure by expanding \\input{} commands"
     )
     parser.add_argument("base_tex", type=Path, help="Base TeX file")
-    parser.add_argument(
-        "output_tex", type=Path, help="Output compiled TeX file"
-    )
-    parser.add_argument(
-        "-q", "--quiet", action="store_true", help="Quiet mode"
-    )
+    parser.add_argument("output_tex", type=Path, help="Output compiled TeX file")
+    parser.add_argument("-q", "--quiet", action="store_true", help="Quiet mode")
     parser.add_argument(
         "--dark-mode",
         action="store_true",
