@@ -1,5 +1,5 @@
 <!-- ---
-!-- Timestamp: 2026-01-19 04:11:25
+!-- Timestamp: 2026-01-19 04:22:29
 !-- Author: ywatanabe
 !-- File: /home/ywatanabe/proj/scitex-writer/README.md
 !-- --- -->
@@ -67,10 +67,14 @@ git clone https://github.com/ywatanabe1989/scitex-writer.git
 ├── config/                     # Configuration files
 │   └── config_manuscript.yaml  # Citation style, engine settings
 │
-└── scripts/shell/              # Compilation scripts
-    ├── compile_manuscript.sh
-    ├── compile_supplementary.sh
-    └── compile_revision.sh
+└── scripts                     # Compilation scripts
+    ├── containers/             # Container image builds (Apptainer/Singularity)
+    ├── installation/           # Environment setup and dependency installation
+    ├── maintenance/            # Repository maintenance (usage, update, demos)
+    ├── powershell/             # Windows PowerShell scripts
+    ├── python/                 # Python utilities
+    └── shell/                  # Core compilation scripts
+    
 ```
 
 </details>
