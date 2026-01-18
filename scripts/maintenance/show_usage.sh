@@ -3,10 +3,31 @@
 # File: scripts/maintenance/show_usage.sh
 # Description: Display project usage guide
 
+# Resolve project root
+THIS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(cd "$THIS_DIR/../.." && pwd)"
+
 echo ""
 echo "╭────────────────────────────────────────────────────────────────╮"
 echo "│  SciTeX Writer - Project Usage Guide                           │"
 echo "╰────────────────────────────────────────────────────────────────╯"
+echo ""
+echo "Project Root: $PROJECT_ROOT"
+echo ""
+echo "Editable Content:"
+echo "  $PROJECT_ROOT/00_shared/title.tex"
+echo "  $PROJECT_ROOT/00_shared/authors.tex"
+echo "  $PROJECT_ROOT/00_shared/keywords.tex"
+echo "  $PROJECT_ROOT/00_shared/journal_name.tex"
+echo "  $PROJECT_ROOT/00_shared/bib_files/*.bib"
+echo ""
+echo "  $PROJECT_ROOT/01_manuscript/contents/abstract.tex"
+echo "  $PROJECT_ROOT/01_manuscript/contents/introduction.tex"
+echo "  $PROJECT_ROOT/01_manuscript/contents/methods.tex"
+echo "  $PROJECT_ROOT/01_manuscript/contents/results.tex"
+echo "  $PROJECT_ROOT/01_manuscript/contents/discussion.tex"
+echo "  $PROJECT_ROOT/01_manuscript/contents/figures/caption_and_media/"
+echo "  $PROJECT_ROOT/01_manuscript/contents/tables/caption_and_media/"
 echo ""
 echo "Project Structure:"
 echo "  00_shared/           Shared: title, authors, keywords, journal_name, bib_files/"
