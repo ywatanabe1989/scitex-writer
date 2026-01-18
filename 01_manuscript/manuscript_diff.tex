@@ -1,10 +1,19 @@
 % ==============================================================================
 %DIF LATEXDIFF DIFFERENCE FILE
-%DIF DEL ./01_manuscript/manuscript.tex   Sat Jan 10 00:35:46 2026
-%DIF ADD ./01_manuscript/manuscript.tex   Sat Jan 10 00:35:46 2026
+%DIF DEL ./01_manuscript/archive/manuscript_v001_diff.tex   Sat Jan 10 00:35:58 2026
+%DIF ADD ./01_manuscript/manuscript.tex                     Mon Jan 19 02:33:27 2026
+%DIF 2-4d2
+%DIF < %DIF LATEXDIFF DIFFERENCE FILE
+%DIF < %DIF DEL ./01_manuscript/manuscript.tex   Sat Jan 10 00:35:46 2026
+%DIF < %DIF ADD ./01_manuscript/manuscript.tex   Sat Jan 10 00:35:46 2026
+%DIF -------
 % SciTeX Writer v2.0.0-rc5 (https://scitex.ai)
 % LaTeX compilation engine: auto
-% Compiled: 2026-01-10 00:35:46
+%DIF 7c4
+%DIF < % Compiled: 2026-01-10 00:35:46
+%DIF -------
+% Compiled: 2026-01-19 02:33:27 %DIF > 
+%DIF -------
 % Source: 01_manuscript/base.tex
 % ==============================================================================
 
@@ -207,6 +216,117 @@
 %% ----------------------------------------
 %% START of DOCUMENT
 %% ----------------------------------------
+%DIF < %DIF PREAMBLE EXTENSION ADDED BY LATEXDIFF
+%DIF < %DIF CULINECHBAR PREAMBLE %DIF PREAMBLE
+%DIF < \RequirePackage[normalem]{ulem} %DIF PREAMBLE
+%DIF < \RequirePackage[dvips]{changebar} %DIF PREAMBLE
+%DIF < \RequirePackage{color}\definecolor{RED}{rgb}{1,0,0}\definecolor{BLUE}{rgb}{0,0,1} %DIF PREAMBLE
+%DIF < \providecommand{\DIFaddtex}[1]{\protect\cbstart{\protect\color{blue}\uwave{#1}}\protect\cbend} %DIF PREAMBLE
+%DIF < \providecommand{\DIFdeltex}[1]{\protect\cbdelete{\protect\color{red}\sout{#1}}\protect\cbdelete} %DIF PREAMBLE
+%DIF < %DIF SAFE PREAMBLE %DIF PREAMBLE
+%DIF < \providecommand{\DIFaddbegin}{} %DIF PREAMBLE
+%DIF < \providecommand{\DIFaddend}{} %DIF PREAMBLE
+%DIF < \providecommand{\DIFdelbegin}{} %DIF PREAMBLE
+%DIF < \providecommand{\DIFdelend}{} %DIF PREAMBLE
+%DIF < \providecommand{\DIFmodbegin}{} %DIF PREAMBLE
+%DIF < \providecommand{\DIFmodend}{} %DIF PREAMBLE
+%DIF < %DIF FLOATSAFE PREAMBLE %DIF PREAMBLE
+%DIF < \providecommand{\DIFaddFL}[1]{\DIFadd{#1}} %DIF PREAMBLE
+%DIF < \providecommand{\DIFdelFL}[1]{\DIFdel{#1}} %DIF PREAMBLE
+%DIF < \providecommand{\DIFaddbeginFL}{} %DIF PREAMBLE
+%DIF < \providecommand{\DIFaddendFL}{} %DIF PREAMBLE
+%DIF < \providecommand{\DIFdelbeginFL}{} %DIF PREAMBLE
+%DIF < \providecommand{\DIFdelendFL}{} %DIF PREAMBLE
+%DIF < %DIF HYPERREF PREAMBLE %DIF PREAMBLE
+%DIF < \providecommand{\DIFadd}[1]{\texorpdfstring{\DIFaddtex{#1}}{#1}} %DIF PREAMBLE
+%DIF < \providecommand{\DIFdel}[1]{\texorpdfstring{\DIFdeltex{#1}}{}} %DIF PREAMBLE
+%DIF < \newcommand{\DIFscaledelfig}{0.5}
+%DIF < %DIF HIGHLIGHTGRAPHICS PREAMBLE %DIF PREAMBLE
+%DIF < \RequirePackage{settobox} %DIF PREAMBLE
+%DIF < \RequirePackage{letltxmacro} %DIF PREAMBLE
+%DIF < \newsavebox{\DIFdelgraphicsbox} %DIF PREAMBLE
+%DIF < \newlength{\DIFdelgraphicswidth} %DIF PREAMBLE
+%DIF < \newlength{\DIFdelgraphicsheight} %DIF PREAMBLE
+%DIF < % store original definition of \includegraphics %DIF PREAMBLE
+%DIF < \LetLtxMacro{\DIFOincludegraphics}{\includegraphics} %DIF PREAMBLE
+%DIF < \newcommand{\DIFaddincludegraphics}[2][]{{\color{blue}\fbox{\DIFOincludegraphics[#1]{#2}}}} %DIF PREAMBLE
+%DIF < \newcommand{\DIFdelincludegraphics}[2][]{% %DIF PREAMBLE
+%DIF < \sbox{\DIFdelgraphicsbox}{\DIFOincludegraphics[#1]{#2}}% %DIF PREAMBLE
+%DIF < \settoboxwidth{\DIFdelgraphicswidth}{\DIFdelgraphicsbox} %DIF PREAMBLE
+%DIF < \settoboxtotalheight{\DIFdelgraphicsheight}{\DIFdelgraphicsbox} %DIF PREAMBLE
+%DIF < \scalebox{\DIFscaledelfig}{% %DIF PREAMBLE
+%DIF < \parbox[b]{\DIFdelgraphicswidth}{\usebox{\DIFdelgraphicsbox}\\[-\baselineskip] \rule{\DIFdelgraphicswidth}{0em}}\llap{\resizebox{\DIFdelgraphicswidth}{\DIFdelgraphicsheight}{% %DIF PREAMBLE
+%DIF < \setlength{\unitlength}{\DIFdelgraphicswidth}% %DIF PREAMBLE
+%DIF < \begin{picture}(1,1)% %DIF PREAMBLE
+%DIF < \thicklines\linethickness{2pt} %DIF PREAMBLE
+%DIF < {\color[rgb]{1,0,0}\put(0,0){\framebox(1,1){}}}% %DIF PREAMBLE
+%DIF < {\color[rgb]{1,0,0}\put(0,0){\line( 1,1){1}}}% %DIF PREAMBLE
+%DIF < {\color[rgb]{1,0,0}\put(0,1){\line(1,-1){1}}}% %DIF PREAMBLE
+%DIF < \end{picture}% %DIF PREAMBLE
+%DIF < }\hspace*{3pt}}} %DIF PREAMBLE
+%DIF < } %DIF PREAMBLE
+%DIF < \LetLtxMacro{\DIFOaddbegin}{\DIFaddbegin} %DIF PREAMBLE
+%DIF < \LetLtxMacro{\DIFOaddend}{\DIFaddend} %DIF PREAMBLE
+%DIF < \LetLtxMacro{\DIFOdelbegin}{\DIFdelbegin} %DIF PREAMBLE
+%DIF < \LetLtxMacro{\DIFOdelend}{\DIFdelend} %DIF PREAMBLE
+%DIF < \DeclareRobustCommand{\DIFaddbegin}{\DIFOaddbegin \let\includegraphics\DIFaddincludegraphics} %DIF PREAMBLE
+%DIF < \DeclareRobustCommand{\DIFaddend}{\DIFOaddend \let\includegraphics\DIFOincludegraphics} %DIF PREAMBLE
+%DIF < \DeclareRobustCommand{\DIFdelbegin}{\DIFOdelbegin \let\includegraphics\DIFdelincludegraphics} %DIF PREAMBLE
+%DIF < \DeclareRobustCommand{\DIFdelend}{\DIFOaddend \let\includegraphics\DIFOincludegraphics} %DIF PREAMBLE
+%DIF < \LetLtxMacro{\DIFOaddbeginFL}{\DIFaddbeginFL} %DIF PREAMBLE
+%DIF < \LetLtxMacro{\DIFOaddendFL}{\DIFaddendFL} %DIF PREAMBLE
+%DIF < \LetLtxMacro{\DIFOdelbeginFL}{\DIFdelbeginFL} %DIF PREAMBLE
+%DIF < \LetLtxMacro{\DIFOdelendFL}{\DIFdelendFL} %DIF PREAMBLE
+%DIF < \DeclareRobustCommand{\DIFaddbeginFL}{\DIFOaddbeginFL \let\includegraphics\DIFaddincludegraphics} %DIF PREAMBLE
+%DIF < \DeclareRobustCommand{\DIFaddendFL}{\DIFOaddendFL \let\includegraphics\DIFOincludegraphics} %DIF PREAMBLE
+%DIF < \DeclareRobustCommand{\DIFdelbeginFL}{\DIFOdelbeginFL \let\includegraphics\DIFdelincludegraphics} %DIF PREAMBLE
+%DIF < \DeclareRobustCommand{\DIFdelendFL}{\DIFOaddendFL \let\includegraphics\DIFOincludegraphics} %DIF PREAMBLE
+%DIF < %DIF LISTINGS PREAMBLE %DIF PREAMBLE
+%DIF < \RequirePackage{listings} %DIF PREAMBLE
+%DIF < \RequirePackage{color} %DIF PREAMBLE
+%DIF < \lstdefinelanguage{DIFcode}{ %DIF PREAMBLE
+%DIF < %DIF DIFCODE_CULINECHBAR %DIF PREAMBLE
+%DIF <   moredelim=[il][\color{red}\sout]{\%DIF\ <\ }, %DIF PREAMBLE
+%DIF <   moredelim=[il][\color{blue}\uwave]{\%DIF\ >\ } %DIF PREAMBLE
+%DIF < } %DIF PREAMBLE
+%DIF < \lstdefinestyle{DIFverbatimstyle}{ %DIF PREAMBLE
+%DIF < 	language=DIFcode, %DIF PREAMBLE
+%DIF < 	basicstyle=\ttfamily, %DIF PREAMBLE
+%DIF < 	columns=fullflexible, %DIF PREAMBLE
+%DIF < 	keepspaces=true %DIF PREAMBLE
+%DIF < } %DIF PREAMBLE
+%DIF < \lstnewenvironment{DIFverbatim}{\lstset{style=DIFverbatimstyle}}{} %DIF PREAMBLE
+%DIF < \lstnewenvironment{DIFverbatim*}{\lstset{style=DIFverbatimstyle,showspaces=true}}{} %DIF PREAMBLE
+%DIF < %DIF END PREAMBLE EXTENSION ADDED BY LATEXDIFF
+%DIF < 
+%DIF < 
+%DIF < %% =============================================================================
+%DIF < %% Diff Document Metadata (Auto-generated)
+%DIF < %% =============================================================================
+%DIF < %% Comparison: vunknown → v0
+%DIF < %% Generated: 2026-01-10 00:35:51
+%DIF < %% User: Yusuke Watanabe <ywatanabe@scitex.ai>
+%DIF < %% Document: manuscript
+%DIF < %% Git commit: 0638a04
+%DIF < %% Git branch: develop
+%DIF < %% =============================================================================
+%DIF < 
+%DIF < 
+%DIF < \usepackage{fancyhdr}
+%DIF < \usepackage{lastpage}
+%DIF < 
+%DIF < \fancypagestyle{diffstyle}{
+%DIF <     \fancyhf{}
+%DIF <     \renewcommand{\headrulewidth}{0.4pt}
+%DIF <     \renewcommand{\footrulewidth}{0.4pt}
+%DIF <     \fancyhead[L]{\small\textit{Diff: vunknown → v0}}
+%DIF <     \fancyhead[R]{\small\textit{manuscript}}
+%DIF <     \fancyfoot[L]{\small Generated: 2026-01-10 00:35}
+%DIF <     \fancyfoot[C]{\small Page \thepage\ of \pageref{LastPage}}
+%DIF <     \fancyfoot[R]{\small Yusuke Watanabe}
+%DIF < }
+%DIF < 
+%DIF < \AtBeginDocument{\pagestyle{diffstyle}}
 %DIF PREAMBLE EXTENSION ADDED BY LATEXDIFF
 %DIF CULINECHBAR PREAMBLE %DIF PREAMBLE
 \RequirePackage[normalem]{ulem} %DIF PREAMBLE
@@ -294,11 +414,11 @@
 %% =============================================================================
 %% Diff Document Metadata (Auto-generated)
 %% =============================================================================
-%% Comparison: vunknown → v0
-%% Generated: 2026-01-10 00:35:51
+%% Comparison: v001 → v001
+%% Generated: 2026-01-19 02:33:37
 %% User: Yusuke Watanabe <ywatanabe@scitex.ai>
 %% Document: manuscript
-%% Git commit: 0638a04
+%% Git commit: 8026eca
 %% Git branch: develop
 %% =============================================================================
 
@@ -310,9 +430,9 @@
     \fancyhf{}
     \renewcommand{\headrulewidth}{0.4pt}
     \renewcommand{\footrulewidth}{0.4pt}
-    \fancyhead[L]{\small\textit{Diff: vunknown → v0}}
+    \fancyhead[L]{\small\textit{Diff: v001 → v001}}
     \fancyhead[R]{\small\textit{manuscript}}
-    \fancyfoot[L]{\small Generated: 2026-01-10 00:35}
+    \fancyfoot[L]{\small Generated: 2026-01-19 02:33}
     \fancyfoot[C]{\small Page \thepage\ of \pageref{LastPage}}
     \fancyfoot[R]{\small Yusuke Watanabe}
 }
@@ -905,8 +1025,10 @@ For questions regarding data access or analysis procedures, please contact the c
 % File: ./01_manuscript/contents/additional_info.tex
 % ======================================================================
 %% -*- coding: utf-8 -*-
-%% Timestamp: "2025-09-27 20:17:53 (ywatanabe)"
-%% File: "/ssh:sp:/home/ywatanabe/proj/neurovista/paper/01_manuscript/contents/additional_info.tex"
+%DIF < % Timestamp: "2025-09-27 20:17:53 (ywatanabe)"
+%DIF < % File: "/ssh:sp:/home/ywatanabe/proj/neurovista/paper/01_manuscript/contents/additional_info.tex"
+%DIF > % Timestamp: "2026-01-19 02:31:14 (ywatanabe)"
+%DIF > % File: "/home/ywatanabe/proj/scitex-writer/01_manuscript/contents/additional_info.tex"
 
 \pdfbookmark[1]{Additional Information}{additional_information}
 
@@ -922,8 +1044,10 @@ Y.W., T.Y., and D.G. conceptualized the study ...
 
 \pdfbookmark[2]{Acknowledgments}{acknowledgments}                    
 \section*{Acknowledgments}
-This research was funded by \hl{funding bodies here}
-\label{acknowledgments}
+This research was funded by \DIFdelbegin %DIFDELCMD < \hl{funding bodies here}
+%DIFDELCMD < %%%
+\DIFdelend \DIFaddbegin \DIFadd{...
+}\DIFaddend \label{acknowledgments}
 
 \pdfbookmark[2]{Declaration of Interests}{declaration_of_interest}           \section*{Declaration of Interests}
 The authors declare that they have no competing interests.
@@ -1013,8 +1137,10 @@ The authors employed large language models such as Claude (Anthropic Inc.) for c
 \begin{figure*}[h!]
     \pdfbookmark[2]{Figure 01}{.01}
     \centering
-    \includegraphics[width=0.9\textwidth]{./01_manuscript/contents/figures/caption_and_media/jpg_for_compilation/01.jpg}
-    \caption{Example figure caption. This is a template showing how to include figures in your manuscript. Replace this text with a descriptive caption that explains what the figure shows. Include panel labels (A, B, C) if using multipanel figures. Explain abbreviations and symbols used in the figure. Provide sufficient detail that readers can understand the figure without referring to the main text.}
+    \DIFdelbeginFL %DIFDELCMD < \includegraphics[width=0.9\textwidth]{./01_manuscript/contents/figures/caption_and_media/jpg_for_compilation/01.jpg}
+%DIFDELCMD <     %%%
+\DIFdelendFL \DIFaddbeginFL \includegraphics[width=0.9\textwidth]{./01_manuscript/contents/figures/caption_and_media/jpg_for_compilation/01_example_figure.jpg}
+    \DIFaddendFL \caption{Example figure caption. This is a template showing how to include figures in your manuscript. Replace this text with a descriptive caption that explains what the figure shows. Include panel labels (A, B, C) if using multipanel figures. Explain abbreviations and symbols used in the figure. Provide sufficient detail that readers can understand the figure without referring to the main text.}
 \label{fig:example_figure_01}
     \label{fig:01_example_figure}
 \end{figure*}
@@ -1023,8 +1149,10 @@ The authors employed large language models such as Claude (Anthropic Inc.) for c
 \begin{figure*}[htbp]
     \pdfbookmark[2]{Figure 02}{.02}
     \centering
-    \includegraphics[width=0.9\textwidth]{./01_manuscript/contents/figures/caption_and_media/jpg_for_compilation/02.jpg}
-    \caption{Another example figure. Use this template to add additional figures to your manuscript. Each figure should be placed in a separate .tex file in this directory. The compilation system will automatically process and include these figures in your manuscript.}
+    \DIFdelbeginFL %DIFDELCMD < \includegraphics[width=0.9\textwidth]{./01_manuscript/contents/figures/caption_and_media/jpg_for_compilation/02.jpg}
+%DIFDELCMD <     %%%
+\DIFdelendFL \DIFaddbeginFL \includegraphics[width=0.9\textwidth]{./01_manuscript/contents/figures/caption_and_media/jpg_for_compilation/02_another_example.jpg}
+    \DIFaddendFL \caption{Another example figure. Use this template to add additional figures to your manuscript. Each figure should be placed in a separate .tex file in this directory. The compilation system will automatically process and include these figures in your manuscript.}
 \label{fig:example_figure_02}
     \label{fig:02_another_example}
 \end{figure*}
