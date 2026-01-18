@@ -9,13 +9,9 @@ THIS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 LOG_PATH="$THIS_DIR/.$(basename "$0").log"
 echo >"$LOG_PATH"
 
-# Resolve project root - handles working directory independence (Issue #13)
-GIT_ROOT="$(git rev-parse --show-toplevel 2>/dev/null)"
-if [ -z "$GIT_ROOT" ]; then
-    # Fallback: resolve from script location
-    GIT_ROOT="$(cd "$THIS_DIR" && pwd)"
-fi
-export PROJECT_ROOT="$GIT_ROOT"
+# Resolve project root from script location (safe for nested repos)
+PROJECT_ROOT="$(cd "$THIS_DIR" && pwd)"
+export PROJECT_ROOT
 
 # Change to project root to ensure all relative paths work (Issue #13)
 cd "$PROJECT_ROOT" || exit 1

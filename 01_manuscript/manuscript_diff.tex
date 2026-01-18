@@ -1,10 +1,14 @@
 % ==============================================================================
 %DIF LATEXDIFF DIFFERENCE FILE
-%DIF DEL ./01_manuscript/manuscript.tex   Sat Jan 10 00:35:46 2026
-%DIF ADD ./01_manuscript/manuscript.tex   Sat Jan 10 00:35:46 2026
+%DIF DEL /home/ywatanabe/.cache/tmp/tmp.w25BGbu72Q.tex   Mon Jan 19 03:37:36 2026
+%DIF ADD ./01_manuscript/manuscript.tex                  Mon Jan 19 03:37:29 2026
 % SciTeX Writer v2.0.0-rc5 (https://scitex.ai)
 % LaTeX compilation engine: auto
-% Compiled: 2026-01-10 00:35:46
+%DIF 4c4
+%DIF < % Compiled: 2026-01-19 02:33:27
+%DIF -------
+% Compiled: 2026-01-19 03:37:29 %DIF > 
+%DIF -------
 % Source: 01_manuscript/base.tex
 % ==============================================================================
 
@@ -294,11 +298,11 @@
 %% =============================================================================
 %% Diff Document Metadata (Auto-generated)
 %% =============================================================================
-%% Comparison: vunknown → v0
-%% Generated: 2026-01-10 00:35:51
+%% Comparison: v603e4f5 → vb21a5de+
+%% Generated: 2026-01-19 03:37:37
 %% User: Yusuke Watanabe <ywatanabe@scitex.ai>
 %% Document: manuscript
-%% Git commit: 0638a04
+%% Git commit: b21a5de
 %% Git branch: develop
 %% =============================================================================
 
@@ -310,9 +314,9 @@
     \fancyhf{}
     \renewcommand{\headrulewidth}{0.4pt}
     \renewcommand{\footrulewidth}{0.4pt}
-    \fancyhead[L]{\small\textit{Diff: vunknown → v0}}
+    \fancyhead[L]{\small\textit{Diff: v603e4f5 → vb21a5de+}}
     \fancyhead[R]{\small\textit{manuscript}}
-    \fancyfoot[L]{\small Generated: 2026-01-10 00:35}
+    \fancyfoot[L]{\small Generated: 2026-01-19 03:37}
     \fancyfoot[C]{\small Page \thepage\ of \pageref{LastPage}}
     \fancyfoot[R]{\small Yusuke Watanabe}
 }
@@ -905,8 +909,8 @@ For questions regarding data access or analysis procedures, please contact the c
 % File: ./01_manuscript/contents/additional_info.tex
 % ======================================================================
 %% -*- coding: utf-8 -*-
-%% Timestamp: "2025-09-27 20:17:53 (ywatanabe)"
-%% File: "/ssh:sp:/home/ywatanabe/proj/neurovista/paper/01_manuscript/contents/additional_info.tex"
+%% Timestamp: "2026-01-19 02:31:14 (ywatanabe)"
+%% File: "/home/ywatanabe/proj/scitex-writer/01_manuscript/contents/additional_info.tex"
 
 \pdfbookmark[1]{Additional Information}{additional_information}
 
@@ -922,7 +926,7 @@ Y.W., T.Y., and D.G. conceptualized the study ...
 
 \pdfbookmark[2]{Acknowledgments}{acknowledgments}                    
 \section*{Acknowledgments}
-This research was funded by \hl{funding bodies here}
+This research was funded by ...
 \label{acknowledgments}
 
 \pdfbookmark[2]{Declaration of Interests}{declaration_of_interest}           \section*{Declaration of Interests}
@@ -956,25 +960,33 @@ The authors employed large language models such as Claude (Anthropic Inc.) for c
 % ======================================================================
 % File: ./01_manuscript/contents/tables/compiled/00_Tables_Header.tex
 % ======================================================================
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% TABLES
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% \clearpage
-\section*{Tables}
-\label{tables}
-\pdfbookmark[1]{Tables}{tables}
+%DIF < %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%DIF < % TABLES
+%DIF < %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%DIF < % \clearpage
+\DIFdelbegin \section*{\DIFdel{Tables}}
+%DIFAUXCMD
+%DIFDELCMD < \label{tables}
+%DIFDELCMD < \pdfbookmark[1]{Tables}{tables}
+%DIFDELCMD < 
 
-% Template table when no actual tables are present
+%DIFDELCMD < %%%
+\DIFdelend % Template table when no actual tables are present
 \begin{table}[htbp]
     \centering
-    \caption{\textbf{Table 0: Placeholder}\\
+      \caption{\DIFdelbeginFL \textbf{\DIFdelFL{Table 0: Placeholder}}%DIFAUXCMD
+\DIFdelendFL \DIFaddbeginFL \textbf{\DIFaddFL{Placeholder table demonstrating the table format for this manuscript template}}\DIFaddendFL \\
     \smallskip
-    To add tables to your manuscript:\\
-    1. Place CSV files in \texttt{caption\_and\_media/} with format \texttt{XX\_description.csv}\\
-    2. Create matching caption files \texttt{XX\_description.tex}\\
-    3. Reference in text using \texttt{Table\textasciitilde\textbackslash ref\{tab:XX\_description\}}\\
-    \smallskip
-    Example: \texttt{01\_seizure\_count.csv} with \texttt{01\_seizure\_count.tex}
+    To add tables to your manuscript\DIFdelbeginFL \DIFdelFL{:}%DIFDELCMD < \\
+%DIFDELCMD <     %%%
+\DIFdelFL{1. Place }\DIFdelendFL \DIFaddbeginFL \DIFaddFL{, place }\DIFaddendFL CSV files in \texttt{caption\_and\_media/} with format \texttt{XX\_description.csv}\DIFdelbeginFL %DIFDELCMD < \\
+%DIFDELCMD <     %%%
+\DIFdelFL{2. Create }\DIFdelendFL \DIFaddbeginFL \DIFaddFL{, create }\DIFaddendFL matching caption files \texttt{XX\_description.tex}\DIFdelbeginFL %DIFDELCMD < \\
+%DIFDELCMD <     %%%
+\DIFdelFL{3. Reference }\DIFdelendFL \DIFaddbeginFL \DIFaddFL{, and reference }\DIFaddendFL in text using \texttt{Table\textasciitilde\textbackslash ref\{tab:XX\_description\}}\DIFdelbeginFL %DIFDELCMD < \\
+%DIFDELCMD <     \smallskip
+%DIFDELCMD <     %%%
+\DIFdelendFL \DIFaddbeginFL \DIFaddFL{. }\DIFaddendFL Example \DIFdelbeginFL \DIFdelFL{: }\DIFdelendFL \DIFaddbeginFL \DIFaddFL{can be seen at }\DIFaddendFL \texttt{01\_seizure\_count.csv} with \texttt{01\_seizure\_count.tex}
     }
     \label{tab:0_Tables_Header}
     \begin{tabular}{p{0.3\textwidth}p{0.6\textwidth}}
@@ -1013,7 +1025,7 @@ The authors employed large language models such as Claude (Anthropic Inc.) for c
 \begin{figure*}[h!]
     \pdfbookmark[2]{Figure 01}{.01}
     \centering
-    \includegraphics[width=0.9\textwidth]{./01_manuscript/contents/figures/caption_and_media/jpg_for_compilation/01.jpg}
+    \includegraphics[width=0.9\textwidth]{./01_manuscript/contents/figures/caption_and_media/jpg_for_compilation/01_example_figure.jpg}
     \caption{Example figure caption. This is a template showing how to include figures in your manuscript. Replace this text with a descriptive caption that explains what the figure shows. Include panel labels (A, B, C) if using multipanel figures. Explain abbreviations and symbols used in the figure. Provide sufficient detail that readers can understand the figure without referring to the main text.}
 \label{fig:example_figure_01}
     \label{fig:01_example_figure}
@@ -1023,7 +1035,7 @@ The authors employed large language models such as Claude (Anthropic Inc.) for c
 \begin{figure*}[htbp]
     \pdfbookmark[2]{Figure 02}{.02}
     \centering
-    \includegraphics[width=0.9\textwidth]{./01_manuscript/contents/figures/caption_and_media/jpg_for_compilation/02.jpg}
+    \includegraphics[width=0.9\textwidth]{./01_manuscript/contents/figures/caption_and_media/jpg_for_compilation/02_another_example.jpg}
     \caption{Another example figure. Use this template to add additional figures to your manuscript. Each figure should be placed in a separate .tex file in this directory. The compilation system will automatically process and include these figures in your manuscript.}
 \label{fig:example_figure_02}
     \label{fig:02_another_example}

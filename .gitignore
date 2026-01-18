@@ -2,15 +2,8 @@
 ### Source: /home/ywatanabe/.git-templates/.gitignore-templates/Custom/Specific.gitignore ###
 # Please add files here
 
-# Archive version files (auto-generated during compilation)
-**/archive/manuscript_v*.tex
-**/archive/manuscript_v*.pdf
-**/archive/*_diff.tex
-**/archive/*_diff.pdf
-**/archive/supplementary_v*.tex
-**/archive/supplementary_v*.pdf
-**/archive/revision_v*.tex
-**/archive/revision_v*.pdf
+# Archive directories (auto-generated, redundant with git history)
+**/archive/
 
 # Compiled figure/table directories (auto-generated)
 **/contents/figures/compiled/
@@ -108,13 +101,19 @@ data/*
 **/*.zip
 **/*.tar
 
-# Archive directory exceptions (version control)
-# Must come AFTER the ignore rules above
-!**/archive/*.pdf
-!**/archive/*.tex
+# Archive files are auto-generated - rely on git for version history
+# No exceptions needed - archive files are always ignored
 
 # Logo files for README
 !docs/scitex-*.png
+
+# Main manuscript output PDFs (small, useful for collaborators)
+!01_manuscript/manuscript.pdf
+!01_manuscript/manuscript_diff.pdf
+!02_supplementary/supplementary.pdf
+!02_supplementary/supplementary_diff.pdf
+!03_revision/revision.pdf
+!03_revision/revision_diff.pdf
 **/*.gz
 **/*.rar
 **/*.7z
@@ -691,3 +690,8 @@ flycheck_*.el
 # Temporary files
 .tmp/
 *.tmp
+/.claude-worktree-symlinks
+# Claude worktree symlink
+/fix-versioning-with-git
+# Claude worktree symlink
+/fix-table
