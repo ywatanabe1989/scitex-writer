@@ -1,5 +1,5 @@
 <!-- ---
-!-- Timestamp: 2026-01-19 03:17:43
+!-- Timestamp: 2026-01-19 03:20:58
 !-- Author: ywatanabe
 !-- File: /home/ywatanabe/proj/scitex-writer/README.md
 !-- --- -->
@@ -13,8 +13,7 @@ Part of the fully open-source SciTeX project: https://scitex.ai
 ## Quick Start
 
 ```bash
-git clone https://github.com/ywatanabe1989/scitex-writer.git my-paper
-cd my-paper
+git clone https://github.com/ywatanabe1989/scitex-writer.git my-paper && cd my-paper
 ./scripts/shell/compile_manuscript.sh
 ```
 
@@ -49,8 +48,8 @@ my-paper/
 
 | Feature                | Description                                                           |
 |------------------------|-----------------------------------------------------------------------|
-| **Separated Files**    | FIXME                                                                 |
-| **Built-in Templates** | FIXME: For manuscript, supplementary materials, and revision          |
+| **Separated Files**    | Modular sections (abstract, intro, methods, results, discussion)      |
+| **Built-in Templates** | Pre-configured manuscript, supplementary materials, and revision      |
 | **Bibliography**       | Multi-file with auto-deduplication, 20+ citation styles               |
 | **Assets**             | Parallel figure/table processing (PNG, PDF, SVG, Mermaid, CSV)        |
 | **Multi-Engine**       | Auto-selects best engine (Tectonic 1-3s, latexmk 3-6s, 3-pass 12-18s) |
