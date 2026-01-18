@@ -1,5 +1,5 @@
 <!-- ---
-!-- Timestamp: 2026-01-19 04:22:29
+!-- Timestamp: 2026-01-19 04:54:16
 !-- Author: ywatanabe
 !-- File: /home/ywatanabe/proj/scitex-writer/README.md
 !-- --- -->
@@ -27,7 +27,7 @@ git clone https://github.com/ywatanabe1989/scitex-writer.git
 │   ├── authors.tex             # Author names and affiliations
 │   ├── keywords.tex            # Keywords for the manuscript
 │   ├── journal_name.tex        # Target journal name
-│   ├── bib_files/              # Multiple .bib files (auto-merged)
+│   ├── bib_files/              # Multiple .bib files (auto-merged and deduplicated)
 │   ├── latex_styles/           # Common LaTeX configurations
 │   └── templates/              # LaTeX document templates
 │
@@ -188,6 +188,54 @@ Change citation style in `config/config_manuscript.yaml`:
 </details>
 
 ## Installation
+
+<details>
+<summary><strong>Python Package (MCP Server)</strong></summary>
+
+```bash
+# Install from PyPI
+pip install scitex-writer
+
+# Verify installation (CLI or Python module)
+scitex-writer --version
+python -m scitex_writer version
+
+# Check MCP setup
+scitex-writer mcp doctor
+python -m scitex_writer mcp doctor
+
+# Start MCP server
+scitex-writer mcp start
+python -m scitex_writer mcp start
+```
+
+Add to Claude Desktop config (`~/.config/Claude/claude_desktop_config.json`):
+
+Option 1: CLI command
+```json
+{
+  "mcpServers": {
+    "scitex-writer": {
+      "command": "scitex-writer",
+      "args": ["mcp", "start"]
+    }
+  }
+}
+```
+
+Option 2: Python module
+```json
+{
+  "mcpServers": {
+    "scitex-writer": {
+      "command": "python",
+      "args": ["-m", "scitex_writer", "mcp", "start"]
+    }
+  }
+}
+```
+
+</details>
 
 <details>
 <summary><strong>Ubuntu/Debian</strong></summary>
