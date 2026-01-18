@@ -4,11 +4,9 @@
 # File: ./scripts/shell/modules/check_dependancy_commands.sh
 
 ORIG_DIR="$(pwd)"
-THIS_DIR="$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)"
-LOG_PATH="$THIS_DIR/.$(basename $0).log"
-echo > "$LOG_PATH"
-
-GIT_ROOT="$(git rev-parse --show-toplevel 2>/dev/null)"
+THIS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+LOG_PATH="$THIS_DIR/.$(basename "$0").log"
+echo >"$LOG_PATH"
 
 GRAY='\033[0;90m'
 GREEN='\033[0;32m'
@@ -31,18 +29,17 @@ echo_header() { echo_info "=== $1 ==="; }
 # Don't clear log at start - timing info will be appended
 
 # Configurations
-source ./config/load_config.sh $SCITEX_WRITER_DOC_TYPE
+source ./config/load_config.sh "$SCITEX_WRITER_DOC_TYPE"
 
 # Source the 00_shared LaTeX commands module
-source "$(dirname ${BASH_SOURCE[0]})/command_switching.src"
+source "$(dirname "${BASH_SOURCE[0]}")/command_switching.src"
 log_info "Running ${BASH_SOURCE[0]}..."
-
 
 # Detect package manager
 detect_package_manager() {
-    if command -v apt &> /dev/null; then
+    if command -v apt &>/dev/null; then
         echo "apt"
-    elif command -v yum &> /dev/null; then
+    elif command -v yum &>/dev/null; then
         echo "yum"
     else
         echo "unknown"
@@ -51,7 +48,7 @@ detect_package_manager() {
 
 # Check if sudo is available
 has_sudo() {
-    if command -v sudo &> /dev/null; then
+    if command -v sudo &>/dev/null; then
         return 0
     else
         return 1
@@ -66,7 +63,8 @@ fi
 
 # Standalone checker for each tool
 check_pdflatex() {
-    local cmd=$(get_cmd_pdflatex "$ORIG_DIR")
+    local cmd
+    cmd=$(get_cmd_pdflatex "$ORIG_DIR")
     if [ -z "$cmd" ]; then
         echo "- pdflatex"
         if [ "$PKG_MANAGER" = "apt" ]; then
@@ -82,7 +80,8 @@ check_pdflatex() {
 }
 
 check_bibtex() {
-    local cmd=$(get_cmd_bibtex "$ORIG_DIR")
+    local cmd
+    cmd=$(get_cmd_bibtex "$ORIG_DIR")
     if [ -z "$cmd" ]; then
         echo "- bibtex"
         if [ "$PKG_MANAGER" = "apt" ]; then
@@ -98,7 +97,8 @@ check_bibtex() {
 }
 
 check_latexdiff() {
-    local cmd=$(get_cmd_latexdiff "$ORIG_DIR")
+    local cmd
+    cmd=$(get_cmd_latexdiff "$ORIG_DIR")
     if [ -z "$cmd" ]; then
         echo "- latexdiff"
         if [ "$PKG_MANAGER" = "apt" ]; then
@@ -114,7 +114,8 @@ check_latexdiff() {
 }
 
 check_texcount() {
-    local cmd=$(get_cmd_texcount "$ORIG_DIR")
+    local cmd
+    cmd=$(get_cmd_texcount "$ORIG_DIR")
     if [ -z "$cmd" ]; then
         echo "- texcount"
         if [ "$PKG_MANAGER" = "apt" ]; then
@@ -130,7 +131,7 @@ check_texcount() {
 }
 
 check_xlsx2csv() {
-    if ! command -v xlsx2csv &> /dev/null && ! python3 -c "import xlsx2csv" &> /dev/null 2>&1; then
+    if ! command -v xlsx2csv &>/dev/null && ! python3 -c "import xlsx2csv" &>/dev/null 2>&1; then
         echo "- xlsx2csv"
         echo "    - pip install xlsx2csv"
         if [ "$PKG_MANAGER" = "apt" ]; then
@@ -142,7 +143,7 @@ check_xlsx2csv() {
 }
 
 check_csv2latex() {
-    if ! command -v csv2latex &> /dev/null && ! python3 -c "import csv2latex" &> /dev/null 2>&1; then
+    if ! command -v csv2latex &>/dev/null && ! python3 -c "import csv2latex" &>/dev/null 2>&1; then
         echo "- csv2latex"
         echo "    - pip install csv2latex"
         return 1
@@ -151,7 +152,7 @@ check_csv2latex() {
 }
 
 check_parallel() {
-    if ! command -v parallel &> /dev/null; then
+    if ! command -v parallel &>/dev/null; then
         echo "- parallel"
         if [ "$PKG_MANAGER" = "apt" ]; then
             echo "    - ${SUDO_PREFIX}apt install parallel"
@@ -164,8 +165,8 @@ check_parallel() {
 }
 
 check_opencv() {
-    if command -v python3 &> /dev/null; then
-        if ! python3 -c "import cv2" &> /dev/null 2>&1; then
+    if command -v python3 &>/dev/null; then
+        if ! python3 -c "import cv2" &>/dev/null 2>&1; then
             echo "- opencv-python (optional, for --crop_tif)"
             echo "    - pip install opencv-python"
             return 1
@@ -175,8 +176,8 @@ check_opencv() {
 }
 
 check_numpy() {
-    if command -v python3 &> /dev/null; then
-        if ! python3 -c "import numpy" &> /dev/null 2>&1; then
+    if command -v python3 &>/dev/null; then
+        if ! python3 -c "import numpy" &>/dev/null 2>&1; then
             echo "- numpy (optional, for --crop_tif)"
             echo "    - pip install numpy"
             return 1
@@ -186,10 +187,11 @@ check_numpy() {
 }
 
 check_mmdc() {
-    local cmd=$(get_cmd_mmdc "$ORIG_DIR")
+    local cmd
+    cmd=$(get_cmd_mmdc "$ORIG_DIR")
     if [ -z "$cmd" ]; then
         echo "- mmdc (optional, for Mermaid diagrams)"
-        if ! command -v npm &> /dev/null; then
+        if ! command -v npm &>/dev/null; then
             echo "    - First install npm/nodejs"
         fi
         echo "    - npm install -g @mermaid-js/mermaid-cli"
@@ -200,8 +202,8 @@ check_mmdc() {
 }
 
 check_bibtexparser() {
-    if command -v python3 &> /dev/null; then
-        if ! python3 -c "import bibtexparser" &> /dev/null 2>&1; then
+    if command -v python3 &>/dev/null; then
+        if ! python3 -c "import bibtexparser" &>/dev/null 2>&1; then
             echo "- bibtexparser (for bibliography analysis tools)"
             echo "    - pip install bibtexparser"
             return 1
@@ -218,26 +220,29 @@ check_all_dependencies() {
     local optional_output=""
 
     # Log run timestamp
-    echo "=== $(date '+%Y-%m-%d %H:%M:%S') ===" >> "$LOG_PATH"
+    echo "=== $(date '+%Y-%m-%d %H:%M:%S') ===" >>"$LOG_PATH"
 
     # Quick native-only check to avoid expensive container warmup
     local all_native_available=true
-    local start_native_check=$(date +%s%N)
+    local start_native_check
+    start_native_check=$(date +%s%N)
 
     # Check if all required native commands exist (fast check only)
-    if ! command -v pdflatex &> /dev/null || ! pdflatex --version &> /dev/null 2>&1; then
+    if ! command -v pdflatex &>/dev/null || ! pdflatex --version &>/dev/null 2>&1; then
         all_native_available=false
-    elif ! command -v bibtex &> /dev/null || ! bibtex --version &> /dev/null 2>&1; then
+    elif ! command -v bibtex &>/dev/null || ! bibtex --version &>/dev/null 2>&1; then
         all_native_available=false
-    elif ! command -v latexdiff &> /dev/null; then
+    elif ! command -v latexdiff &>/dev/null; then
         all_native_available=false
-    elif ! command -v texcount &> /dev/null || ! texcount --version &> /dev/null 2>&1; then
+    elif ! command -v texcount &>/dev/null || ! texcount --version &>/dev/null 2>&1; then
         all_native_available=false
     fi
 
-    local end_native_check=$(date +%s%N)
-    local native_check_ms=$(( (end_native_check - start_native_check) / 1000000 ))
-    echo "Native check: ${native_check_ms}ms" >> "$LOG_PATH"
+    local end_native_check
+    end_native_check=$(date +%s%N)
+    local native_check_ms
+    native_check_ms=$(((end_native_check - start_native_check) / 1000000))
+    echo "Native check: ${native_check_ms}ms" >>"$LOG_PATH"
     echo_info "    Native check: ${native_check_ms}ms"
 
     # Only do expensive warmup if native commands are missing
@@ -245,49 +250,90 @@ check_all_dependencies() {
         echo_info "    Native commands incomplete, checking alternatives..."
         # Pre-warmup: do expensive shared setup once before parallelizing
         # This prevents each parallel job from doing redundant work
-        local start_warmup=$(date +%s%N)
-        get_container_runtime &> /dev/null
-        load_texlive_module &> /dev/null
-        setup_latex_container &> /dev/null
-        setup_mermaid_container &> /dev/null
-        local end_warmup=$(date +%s%N)
-        local warmup_ms=$(( (end_warmup - start_warmup) / 1000000 ))
-        echo "Warmup: ${warmup_ms}ms" >> "$LOG_PATH"
+        local start_warmup
+        start_warmup=$(date +%s%N)
+        get_container_runtime &>/dev/null
+        load_texlive_module &>/dev/null
+        setup_latex_container &>/dev/null
+        setup_mermaid_container &>/dev/null
+        local end_warmup
+        end_warmup=$(date +%s%N)
+        local warmup_ms
+        warmup_ms=$(((end_warmup - start_warmup) / 1000000))
+        echo "Warmup: ${warmup_ms}ms" >>"$LOG_PATH"
         echo_info "    Warmup: ${warmup_ms}ms"
     else
         echo_info "    All native LaTeX commands available (skipping container warmup)"
     fi
 
     # Temp directory for parallel results
-    local temp_dir=$(mktemp -d)
+    local temp_dir
+    temp_dir=$(mktemp -d)
 
     # Run all required checks in parallel, capturing exit codes
-    local start_checks=$(date +%s%N)
-    (check_pdflatex > "$temp_dir/req_pdflatex" 2>&1; echo $? > "$temp_dir/req_pdflatex.exit") &
-    (check_bibtex > "$temp_dir/req_bibtex" 2>&1; echo $? > "$temp_dir/req_bibtex.exit") &
-    (check_latexdiff > "$temp_dir/req_latexdiff" 2>&1; echo $? > "$temp_dir/req_latexdiff.exit") &
-    (check_texcount > "$temp_dir/req_texcount" 2>&1; echo $? > "$temp_dir/req_texcount.exit") &
-    (check_xlsx2csv > "$temp_dir/req_xlsx2csv" 2>&1; echo $? > "$temp_dir/req_xlsx2csv.exit") &
-    (check_csv2latex > "$temp_dir/req_csv2latex" 2>&1; echo $? > "$temp_dir/req_csv2latex.exit") &
-    (check_parallel > "$temp_dir/req_parallel" 2>&1; echo $? > "$temp_dir/req_parallel.exit") &
+    local start_checks
+    start_checks=$(date +%s%N)
+    (
+        check_pdflatex >"$temp_dir/req_pdflatex" 2>&1
+        echo $? >"$temp_dir/req_pdflatex.exit"
+    ) &
+    (
+        check_bibtex >"$temp_dir/req_bibtex" 2>&1
+        echo $? >"$temp_dir/req_bibtex.exit"
+    ) &
+    (
+        check_latexdiff >"$temp_dir/req_latexdiff" 2>&1
+        echo $? >"$temp_dir/req_latexdiff.exit"
+    ) &
+    (
+        check_texcount >"$temp_dir/req_texcount" 2>&1
+        echo $? >"$temp_dir/req_texcount.exit"
+    ) &
+    (
+        check_xlsx2csv >"$temp_dir/req_xlsx2csv" 2>&1
+        echo $? >"$temp_dir/req_xlsx2csv.exit"
+    ) &
+    (
+        check_csv2latex >"$temp_dir/req_csv2latex" 2>&1
+        echo $? >"$temp_dir/req_csv2latex.exit"
+    ) &
+    (
+        check_parallel >"$temp_dir/req_parallel" 2>&1
+        echo $? >"$temp_dir/req_parallel.exit"
+    ) &
+    (
+        check_bibtexparser >"$temp_dir/req_bibtexparser" 2>&1
+        echo $? >"$temp_dir/req_bibtexparser.exit"
+    ) &
 
     # Run all optional checks in parallel
-    (check_opencv > "$temp_dir/opt_opencv" 2>&1; echo $? > "$temp_dir/opt_opencv.exit") &
-    (check_numpy > "$temp_dir/opt_numpy" 2>&1; echo $? > "$temp_dir/opt_numpy.exit") &
-    (check_mmdc > "$temp_dir/opt_mmdc" 2>&1; echo $? > "$temp_dir/opt_mmdc.exit") &
-    (check_bibtexparser > "$temp_dir/opt_bibtexparser" 2>&1; echo $? > "$temp_dir/opt_bibtexparser.exit") &
+    (
+        check_opencv >"$temp_dir/opt_opencv" 2>&1
+        echo $? >"$temp_dir/opt_opencv.exit"
+    ) &
+    (
+        check_numpy >"$temp_dir/opt_numpy" 2>&1
+        echo $? >"$temp_dir/opt_numpy.exit"
+    ) &
+    (
+        check_mmdc >"$temp_dir/opt_mmdc" 2>&1
+        echo $? >"$temp_dir/opt_mmdc.exit"
+    ) &
 
     # Wait for all background jobs
     wait
-    local end_checks=$(date +%s%N)
-    local checks_ms=$(( (end_checks - start_checks) / 1000000 ))
-    echo "Parallel checks: ${checks_ms}ms" >> "$LOG_PATH"
+    local end_checks
+    end_checks=$(date +%s%N)
+    local checks_ms
+    checks_ms=$(((end_checks - start_checks) / 1000000))
+    echo "Parallel checks: ${checks_ms}ms" >>"$LOG_PATH"
     echo_info "    Parallel checks: ${checks_ms}ms"
 
     # Collect required results with exit codes
     declare -A tool_status
-    for tool in pdflatex bibtex latexdiff texcount xlsx2csv csv2latex parallel; do
-        local exit_code=$(cat "$temp_dir/req_${tool}.exit" 2>/dev/null || echo 1)
+    local exit_code
+    for tool in pdflatex bibtex latexdiff texcount xlsx2csv csv2latex parallel bibtexparser; do
+        exit_code=$(cat "$temp_dir/req_${tool}.exit" 2>/dev/null || echo 1)
         if [ "$exit_code" -eq 0 ]; then
             tool_status[$tool]="✓"
         else
@@ -300,9 +346,10 @@ check_all_dependencies() {
     done
 
     # Collect optional results
+    local tool
     for result_file in "$temp_dir"/opt_*.exit; do
-        local tool=$(basename "$result_file" .exit | sed 's/opt_//')
-        local exit_code=$(cat "$result_file" 2>/dev/null || echo 1)
+        tool=$(basename "$result_file" .exit | sed 's/opt_//')
+        exit_code=$(cat "$result_file" 2>/dev/null || echo 1)
         if [ "$exit_code" -ne 0 ]; then
             has_missing_optional=true
             if [ -s "${result_file%.exit}" ]; then
@@ -329,6 +376,7 @@ check_all_dependencies() {
         printf "      %-20s %s\n" "xlsx2csv" "${tool_status[xlsx2csv]}"
         printf "      %-20s %s\n" "csv2latex" "${tool_status[csv2latex]}"
         printf "      %-20s %s\n" "parallel" "${tool_status[parallel]}"
+        printf "      %-20s %s\n" "bibtexparser" "${tool_status[bibtexparser]}"
     fi
 
     if [ "$has_missing_optional" = true ]; then
