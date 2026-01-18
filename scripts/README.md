@@ -1,3 +1,9 @@
+<!-- ---
+!-- Timestamp: 2026-01-19 05:16:50
+!-- Author: ywatanabe
+!-- File: /home/ywatanabe/proj/scitex-writer/scripts/README.md
+!-- --- -->
+
 # Scripts
 
 ```
@@ -34,3 +40,5 @@ make usage          # Show project guide
 make update         # Update to latest version
 make demo-previews  # Generate README screenshots
 ```
+
+<!-- EOF -->

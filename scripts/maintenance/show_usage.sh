@@ -1,18 +1,16 @@
 #!/bin/bash
 # -*- coding: utf-8 -*-
 # File: scripts/maintenance/show_usage.sh
-# Description: Display project usage guide
+# Description: Display project usage guide (delegates to compile.sh --help-recursive)
 
 # Resolve project root
 THIS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$THIS_DIR/../.." && pwd)"
 
 # Colors
-GRAY='\033[0;90m'
-CYAN='\033[0;36m'
 BOLD_CYAN='\033[1;36m'
+GRAY='\033[0;90m'
 GREEN='\033[0;32m'
-YELLOW='\033[0;33m'
 NC='\033[0m'
 
 echo ""
@@ -28,71 +26,8 @@ echo -e "  ${GREEN}01_manuscript/${NC}       Main manuscript (abstract, intro, m
 echo -e "  ${GREEN}02_supplementary/${NC}    Supplementary materials (methods, results, figures, tables)"
 echo -e "  ${GREEN}03_revision/${NC}         Revision responses (editor/, reviewer1/, reviewer2/)"
 echo ""
-echo -e "${CYAN}────────────────────────────────────────────────────────────────────${NC}"
-echo ""
+
+# Delegate to compile.sh --help-recursive for detailed documentation
 "$PROJECT_ROOT/compile.sh" --help-recursive
-echo ""
-echo -e "${CYAN}────────────────────────────────────────────────────────────────────${NC}"
-echo ""
-echo -e "${BOLD_CYAN}━━━ Editable Content ━━━${NC}"
-echo ""
-echo -e "${GREEN}00_shared:${NC}"
-echo -e "  ${GRAY}$PROJECT_ROOT/00_shared/${NC}title.tex"
-echo -e "  ${GRAY}$PROJECT_ROOT/00_shared/${NC}authors.tex"
-echo -e "  ${GRAY}$PROJECT_ROOT/00_shared/${NC}keywords.tex"
-echo -e "  ${GRAY}$PROJECT_ROOT/00_shared/${NC}journal_name.tex"
-echo -e "  ${GRAY}$PROJECT_ROOT/00_shared/bib_files/${NC}*.bib"
-echo ""
-echo -e "${GREEN}01_manuscript:${NC}"
-echo -e "  ${GRAY}$PROJECT_ROOT/01_manuscript/contents/${NC}abstract.tex"
-echo -e "  ${GRAY}$PROJECT_ROOT/01_manuscript/contents/${NC}introduction.tex"
-echo -e "  ${GRAY}$PROJECT_ROOT/01_manuscript/contents/${NC}methods.tex"
-echo -e "  ${GRAY}$PROJECT_ROOT/01_manuscript/contents/${NC}results.tex"
-echo -e "  ${GRAY}$PROJECT_ROOT/01_manuscript/contents/${NC}discussion.tex"
-echo -e "  ${GRAY}$PROJECT_ROOT/01_manuscript/contents/figures/${NC}caption_and_media/"
-echo -e "  ${GRAY}$PROJECT_ROOT/01_manuscript/contents/tables/${NC}caption_and_media/"
-echo ""
-echo -e "${GREEN}02_supplementary:${NC}"
-echo -e "  ${GRAY}$PROJECT_ROOT/02_supplementary/contents/${NC}methods.tex"
-echo -e "  ${GRAY}$PROJECT_ROOT/02_supplementary/contents/${NC}results.tex"
-echo -e "  ${GRAY}$PROJECT_ROOT/02_supplementary/contents/figures/${NC}caption_and_media/"
-echo -e "  ${GRAY}$PROJECT_ROOT/02_supplementary/contents/tables/${NC}caption_and_media/"
-echo ""
-echo -e "${GREEN}03_revision:${NC}"
-echo -e "  ${GRAY}$PROJECT_ROOT/03_revision/contents/${NC}introduction.tex"
-echo -e "  ${GRAY}$PROJECT_ROOT/03_revision/contents/${NC}conclusion.tex"
-echo -e "  ${GRAY}$PROJECT_ROOT/03_revision/contents/editor/${NC}E_*_comments.tex"
-echo -e "  ${GRAY}$PROJECT_ROOT/03_revision/contents/editor/${NC}E_*_response.tex"
-echo -e "  ${GRAY}$PROJECT_ROOT/03_revision/contents/reviewer1/${NC}R1_*_comments.tex"
-echo -e "  ${GRAY}$PROJECT_ROOT/03_revision/contents/reviewer1/${NC}R1_*_response.tex"
-echo -e "  ${GRAY}$PROJECT_ROOT/03_revision/contents/reviewer2/${NC}R2_*_comments.tex"
-echo -e "  ${GRAY}$PROJECT_ROOT/03_revision/contents/reviewer2/${NC}R2_*_response.tex"
-echo ""
-echo -e "${CYAN}────────────────────────────────────────────────────────────────────${NC}"
-echo ""
-echo -e "${BOLD_CYAN}━━━ Adding Figures ━━━${NC}"
-echo -e "  1. Place media in: ${YELLOW}<doc>/contents/figures/caption_and_media/${NC}"
-echo -e "     Supported: PNG, JPEG, PDF, SVG, TIFF, Mermaid (.mmd)"
-echo -e "  2. Create caption: ${YELLOW}01_example_figure.tex${NC} alongside ${YELLOW}01_example_figure.png${NC}"
-echo -e "     Format:"
-echo -e "       ${GRAY}%% Figure caption${NC}"
-echo -e "       ${GRAY}\\caption{Your caption here.}${NC}"
-echo -e "       ${GRAY}\\label{fig:example_figure_01}${NC}"
-echo ""
-echo -e "${BOLD_CYAN}━━━ Adding Tables ━━━${NC}"
-echo -e "  1. Place CSV in: ${YELLOW}<doc>/contents/tables/caption_and_media/${NC}"
-echo -e "     CSV auto-converts to LaTeX table format"
-echo -e "  2. Create caption: ${YELLOW}01_example_table.tex${NC} alongside ${YELLOW}01_example_table.csv${NC}"
-echo -e "     Format:"
-echo -e "       ${GRAY}%% Table caption${NC}"
-echo -e "       ${GRAY}\\caption{Your caption here.}${NC}"
-echo -e "       ${GRAY}\\label{tab:example_table_01}${NC}"
-echo ""
-echo -e "${BOLD_CYAN}━━━ Managing Bibliography ━━━${NC}"
-echo -e "  Place .bib files in: ${YELLOW}$PROJECT_ROOT/00_shared/bib_files/${NC}"
-echo -e "  Multiple .bib files auto-merge with deduplication"
-echo -e "  Citation style: ${YELLOW}$PROJECT_ROOT/config/config_manuscript.yaml${NC}"
-echo -e "  Styles: ${GREEN}unsrtnat${NC}, ${GREEN}plainnat${NC}, ${GREEN}apalike${NC}, ${GREEN}IEEEtran${NC}, ${GREEN}naturemag${NC}"
-echo ""
 
 # EOF

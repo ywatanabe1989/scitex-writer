@@ -21,7 +21,11 @@
 	clean-python \
 	clean-all \
 	help \
-	usage
+	usage-all \
+	usage-manuscript \
+	usage-supplementary \
+	usage-revision \
+	usage-shared
 
 # Default target - show help instead of compiling
 .DEFAULT_GOAL := help
@@ -158,6 +162,11 @@ help:
 	@echo "Information:"
 	@echo "  status           - Show compilation status"
 	@echo "  help             - Show this help message"
+	@echo "  usage-all        - Show full project usage guide"
+	@echo "  usage-manuscript - Show manuscript usage"
+	@echo "  usage-supplementary - Show supplementary usage"
+	@echo "  usage-revision   - Show revision usage"
+	@echo "  usage-shared     - Show shared files info"
 	@echo ""
 	@echo "Examples:"
 	@echo "  make manuscript         # Compile manuscript"
@@ -166,6 +175,30 @@ help:
 	@echo "  make update             # Update to latest version"
 	@echo "  make clean-all          # Clean everything"
 
-# Project usage guide
-usage:
+# Project usage guides
+usage-all:
 	@./scripts/maintenance/show_usage.sh
+
+usage-manuscript:
+	@./scripts/shell/compile_manuscript.sh --help
+
+usage-supplementary:
+	@./scripts/shell/compile_supplementary.sh --help
+
+usage-revision:
+	@./scripts/shell/compile_revision.sh --help
+
+usage-shared:
+	@echo "━━━ 00_shared/ - Shared Metadata ━━━"
+	@echo ""
+	@echo "Files shared across all document types:"
+	@echo "  title.tex        - Manuscript title"
+	@echo "  authors.tex      - Author list and affiliations"
+	@echo "  keywords.tex     - Keywords for the manuscript"
+	@echo "  journal_name.tex - Target journal name"
+	@echo "  bib_files/*.bib  - Bibliography files (auto-merged and deduplicated)"
+	@echo ""
+	@echo "Location: $(CURDIR)/00_shared/"
+	@echo ""
+	@echo "These files are automatically included in all document types"
+	@echo "(manuscript, supplementary, revision)."
