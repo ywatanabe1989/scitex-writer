@@ -160,10 +160,10 @@ echo ""
 # Issue #14: Strip example content script
 # ==========================================
 print_test "Issue #14: strip_example_content.sh exists"
-assert_file_exists "strip_example_content.sh exists" "./scripts/repository_maintenance/strip_example_content.sh"
+assert_file_exists "strip_example_content.sh exists" "./scripts/maintenance/strip_example_content.sh"
 
 print_test "Issue #14: strip_example_content.sh is executable"
-if [ -x "./scripts/repository_maintenance/strip_example_content.sh" ]; then
+if [ -x "./scripts/maintenance/strip_example_content.sh" ]; then
     echo -e "${GREEN}✓ PASS: strip_example_content.sh is executable${NC}"
     ((TESTS_PASSED++))
 else
@@ -173,7 +173,7 @@ fi
 
 print_test "Issue #14: strip_example_content.sh has correct PROJECT_ROOT path"
 # shellcheck disable=SC2016  # Intentionally searching for literal $THIS_DIR
-if grep -q 'PROJECT_ROOT="\$(cd "\$THIS_DIR/../.."' ./scripts/repository_maintenance/strip_example_content.sh; then
+if grep -q 'PROJECT_ROOT="\$(cd "\$THIS_DIR/../.."' ./scripts/maintenance/strip_example_content.sh; then
     echo -e "${GREEN}✓ PASS: Correct PROJECT_ROOT path (../../)${NC}"
     ((TESTS_PASSED++))
 else

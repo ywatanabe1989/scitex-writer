@@ -38,14 +38,10 @@ import argparse
 import json
 import re
 from pathlib import Path
-from typing import Any
-from typing import Dict
-from typing import List
-from typing import Set
+from typing import Any, Dict, List, Set
 
 import yaml
 from _logging import getLogger
-
 
 HEADER = """# Literature Search Request
 We are preparing a manuscript with the information provided below.
@@ -69,9 +65,7 @@ def load_config(config_path: Path = None) -> Dict[str, Any]:
     if config_path is None:
         # Default to ../config/config_manuscript.yaml relative to script location
         script_dir = Path(__file__).resolve().parent
-        config_path = (
-            script_dir.parent.parent / "config" / "config_manuscript.yaml"
-        )
+        config_path = script_dir.parent.parent / "config" / "config_manuscript.yaml"
 
     if not config_path.exists():
         raise FileNotFoundError(f"Config file not found: {config_path}")
@@ -465,7 +459,7 @@ Examples:
         sections = ["title", "keywords", "authors", "abstract"]
 
     # Load configuration
-    config = load_config(args.config)
+    load_config(args.config)
 
     # Get project root (where the config file is located)
     if args.config:
@@ -479,9 +473,7 @@ Examples:
     title_path = project_root / "00_shared" / "title.tex"
     keywords_path = project_root / "00_shared" / "keywords.tex"
     authors_path = project_root / "00_shared" / "authors.tex"
-    abstract_path = (
-        project_root / "01_manuscript" / "contents" / "abstract.tex"
-    )
+    abstract_path = project_root / "01_manuscript" / "contents" / "abstract.tex"
 
     logger.info("Reading manuscript files...")
 
@@ -494,9 +486,7 @@ Examples:
     if not title and "title" in sections:
         logger.warning("No title found in 00_shared/title.tex")
     if not abstract and "abstract" in sections:
-        logger.warning(
-            "No abstract found in 01_manuscript/contents/abstract.tex"
-        )
+        logger.warning("No abstract found in 01_manuscript/contents/abstract.tex")
 
     # Load citation data if any bib options are specified
     citation_data = None
@@ -509,15 +499,11 @@ Examples:
                 citation_data = json.loads(
                     citation_json_path.read_text(encoding="utf-8")
                 )
-                logger.info(
-                    f"Loaded citation data from {citation_json_path.name}"
-                )
+                logger.info(f"Loaded citation data from {citation_json_path.name}")
             except Exception as e:
                 logger.warning(f"Could not load citation data: {e}")
         else:
-            logger.warning(
-                f"Citation data not found. Run check_cited_states.py first."
-            )
+            logger.warning("Citation data not found. Run check_cited_states.py first.")
             logger.warning(f"Expected: {citation_json_path}")
 
     # Determine which citation filters are active
@@ -549,9 +535,7 @@ Examples:
         "prompt": prompt,
         "sections_included": sections,
         "citation_filters": bib_filters if any(bib_filters.values()) else None,
-        "citation_data": (
-            citation_data.get("summary") if citation_data else None
-        ),
+        "citation_data": (citation_data.get("summary") if citation_data else None),
     }
 
     # Always save to default locations unless custom output specified

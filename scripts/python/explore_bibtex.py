@@ -4,10 +4,10 @@
 # File: /ssh:sp:/home/ywatanabe/proj/neurovista/paper/scripts/python/explore_bibtex.py
 # ----------------------------------------
 from __future__ import annotations
+
 import os
-__FILE__ = (
-    "./scripts/python/explore_bibtex.py"
-)
+
+__FILE__ = "./scripts/python/explore_bibtex.py"
 __DIR__ = os.path.dirname(__FILE__)
 # ----------------------------------------
 
@@ -47,9 +47,7 @@ from typing import List, Optional, Set
 try:
     import bibtexparser
 except ImportError:
-    print(
-        "Error: bibtexparser is required. Install with: pip install bibtexparser"
-    )
+    print("Error: bibtexparser is required. Install with: pip install bibtexparser")
     sys.exit(1)
 
 
@@ -158,22 +156,17 @@ class Papers:
             filtered = [
                 p
                 for p in filtered
-                if p.citation_count
-                and p.citation_count >= kwargs["min_citations"]
+                if p.citation_count and p.citation_count >= kwargs["min_citations"]
             ]
 
         if "max_citations" in kwargs and kwargs["max_citations"] is not None:
             filtered = [
                 p
                 for p in filtered
-                if p.citation_count
-                and p.citation_count <= kwargs["max_citations"]
+                if p.citation_count and p.citation_count <= kwargs["max_citations"]
             ]
 
-        if (
-            "min_impact_factor" in kwargs
-            and kwargs["min_impact_factor"] is not None
-        ):
+        if "min_impact_factor" in kwargs and kwargs["min_impact_factor"] is not None:
             filtered = [
                 p
                 for p in filtered
@@ -181,10 +174,7 @@ class Papers:
                 and p.journal_impact_factor >= kwargs["min_impact_factor"]
             ]
 
-        if (
-            "max_impact_factor" in kwargs
-            and kwargs["max_impact_factor"] is not None
-        ):
+        if "max_impact_factor" in kwargs and kwargs["max_impact_factor"] is not None:
             filtered = [
                 p
                 for p in filtered
@@ -194,14 +184,10 @@ class Papers:
 
         # Year filter
         if "year_min" in kwargs and kwargs["year_min"] is not None:
-            filtered = [
-                p for p in filtered if p.year and p.year >= kwargs["year_min"]
-            ]
+            filtered = [p for p in filtered if p.year and p.year >= kwargs["year_min"]]
 
         if "year_max" in kwargs and kwargs["year_max"] is not None:
-            filtered = [
-                p for p in filtered if p.year and p.year <= kwargs["year_max"]
-            ]
+            filtered = [p for p in filtered if p.year and p.year <= kwargs["year_max"]]
 
         # Text filters
         if "keyword" in kwargs and kwargs["keyword"]:
@@ -216,16 +202,12 @@ class Papers:
 
         if "journal" in kwargs and kwargs["journal"]:
             j = kwargs["journal"].lower()
-            filtered = [
-                p for p in filtered if p.journal and j in p.journal.lower()
-            ]
+            filtered = [p for p in filtered if p.journal and j in p.journal.lower()]
 
         if "author" in kwargs and kwargs["author"]:
             a = kwargs["author"].lower()
             filtered = [
-                p
-                for p in filtered
-                if any(a in author.lower() for author in p.authors)
+                p for p in filtered if any(a in author.lower() for author in p.authors)
             ]
 
         return Papers(filtered)
@@ -243,9 +225,7 @@ class Papers:
                     return float("-inf") if reverse else float("inf")
                 return value
 
-            sorted_papers = sorted(
-                self._papers, key=get_field, reverse=reverse
-            )
+            sorted_papers = sorted(self._papers, key=get_field, reverse=reverse)
         else:
             # Handle callable functions
             sorted_papers = sorted(self._papers, key=key_func, reverse=reverse)
@@ -307,12 +287,12 @@ def extract_coauthors_from_tex(authors_tex_path: Path) -> List[str]:
     content = authors_tex_path.read_text()
 
     # Extract author names from \author[X]{Name} format
-    author_pattern = r'\\author\[[^\]]+\]\{([^}]+)\}'
+    author_pattern = r"\\author\[[^\]]+\]\{([^}]+)\}"
     matches = re.findall(author_pattern, content)
 
     for match in matches:
         # Remove ALL LaTeX commands and their arguments (handles nested braces)
-        clean_name = re.sub(r'\\[a-zA-Z]+(?:\{[^}]*\})?', '', match).strip()
+        clean_name = re.sub(r"\\[a-zA-Z]+(?:\{[^}]*\})?", "", match).strip()
         # Extract last name (assuming format: "First Last" or "First Middle Last")
         parts = clean_name.split()
         if parts:
@@ -338,9 +318,7 @@ def calculate_score(paper: Paper, weights: dict = None) -> float:
     citations = paper.citation_count if paper.citation_count else 0
     impact = paper.journal_impact_factor if paper.journal_impact_factor else 0
 
-    return (citations * weights["citations"]) + (
-        impact * weights["impact_factor"]
-    )
+    return (citations * weights["citations"]) + (impact * weights["impact_factor"])
 
 
 def print_papers_table(
@@ -436,9 +414,7 @@ def print_summary_stats(papers: Papers, cited_keys: Optional[Set[str]] = None):
 
     total = len(papers)
     with_citations = len(
-        papers.filter(
-            lambda p: p.citation_count is not None and p.citation_count > 0
-        )
+        papers.filter(lambda p: p.citation_count is not None and p.citation_count > 0)
     )
     with_impact = len(
         papers.filter(
@@ -457,44 +433,38 @@ def print_summary_stats(papers: Papers, cited_keys: Optional[Set[str]] = None):
 
     print(f"Total papers: {total}")
     print(
-        f"Papers with citation count: {with_citations} ({with_citations/total*100:.1f}%)"
+        f"Papers with citation count: {with_citations} ({with_citations / total * 100:.1f}%)"
     )
     print(
-        f"Papers with impact factor: {with_impact} ({with_impact/total*100:.1f}%)"
+        f"Papers with impact factor: {with_impact} ({with_impact / total * 100:.1f}%)"
     )
-    print(
-        f"Papers with both metrics: {with_both} ({with_both/total*100:.1f}%)"
-    )
+    print(f"Papers with both metrics: {with_both} ({with_both / total * 100:.1f}%)")
 
     if cited_keys:
         cited_count = sum(1 for p in papers if p.key in cited_keys)
         uncited_count = total - cited_count
         print(
-            f"\nCited in manuscript: {cited_count} ({cited_count/total*100:.1f}%)"
+            f"\nCited in manuscript: {cited_count} ({cited_count / total * 100:.1f}%)"
         )
-        print(
-            f"Not yet cited: {uncited_count} ({uncited_count/total*100:.1f}%)"
-        )
+        print(f"Not yet cited: {uncited_count} ({uncited_count / total * 100:.1f}%)")
 
     # Citation statistics
     citations = [p.citation_count for p in papers if p.citation_count]
     if citations:
-        print(f"\nCitation count statistics:")
+        print("\nCitation count statistics:")
         print(f"  Min: {min(citations)}")
         print(f"  Max: {max(citations)}")
-        print(f"  Mean: {sum(citations)/len(citations):.1f}")
-        print(f"  Median: {sorted(citations)[len(citations)//2]}")
+        print(f"  Mean: {sum(citations) / len(citations):.1f}")
+        print(f"  Median: {sorted(citations)[len(citations) // 2]}")
 
     # Impact factor statistics
-    impacts = [
-        p.journal_impact_factor for p in papers if p.journal_impact_factor
-    ]
+    impacts = [p.journal_impact_factor for p in papers if p.journal_impact_factor]
     if impacts:
-        print(f"\nImpact factor statistics:")
+        print("\nImpact factor statistics:")
         print(f"  Min: {min(impacts):.1f}")
         print(f"  Max: {max(impacts):.1f}")
-        print(f"  Mean: {sum(impacts)/len(impacts):.1f}")
-        print(f"  Median: {sorted(impacts)[len(impacts)//2]:.1f}")
+        print(f"  Mean: {sum(impacts) / len(impacts):.1f}")
+        print(f"  Median: {sorted(impacts)[len(impacts) // 2]:.1f}")
 
     print()
 
@@ -530,23 +500,13 @@ Examples:
     parser.add_argument("bibtex_file", type=Path, help="Path to BibTeX file")
 
     # Filter arguments
-    parser.add_argument(
-        "--min-citations", type=int, help="Minimum citation count"
-    )
-    parser.add_argument(
-        "--max-citations", type=int, help="Maximum citation count"
-    )
+    parser.add_argument("--min-citations", type=int, help="Minimum citation count")
+    parser.add_argument("--max-citations", type=int, help="Maximum citation count")
     parser.add_argument("--min-if", type=float, help="Minimum impact factor")
     parser.add_argument("--max-if", type=float, help="Maximum impact factor")
-    parser.add_argument(
-        "--min-score", type=float, help="Minimum composite score"
-    )
-    parser.add_argument(
-        "--year-min", type=int, help="Minimum publication year"
-    )
-    parser.add_argument(
-        "--year-max", type=int, help="Maximum publication year"
-    )
+    parser.add_argument("--min-score", type=float, help="Minimum composite score")
+    parser.add_argument("--year-min", type=int, help="Minimum publication year")
+    parser.add_argument("--year-max", type=int, help="Maximum publication year")
     parser.add_argument(
         "--keyword", type=str, help="Filter by keyword in title/abstract"
     )
@@ -605,15 +565,11 @@ Examples:
     )
 
     # Display arguments
-    parser.add_argument(
-        "--limit", type=int, help="Maximum number of papers to display"
-    )
+    parser.add_argument("--limit", type=int, help="Maximum number of papers to display")
     parser.add_argument(
         "--no-score", action="store_true", help="Hide composite score column"
     )
-    parser.add_argument(
-        "--stats", action="store_true", help="Show summary statistics"
-    )
+    parser.add_argument("--stats", action="store_true", help="Show summary statistics")
 
     # Output arguments
     parser.add_argument(
@@ -650,9 +606,7 @@ Examples:
             cited_keys = get_cited_papers(args.manuscript_dir)
             print(f"✓ Found {len(cited_keys)} cited papers in manuscript\n")
         else:
-            print(
-                f"Warning: Manuscript directory not found: {args.manuscript_dir}\n"
-            )
+            print(f"Warning: Manuscript directory not found: {args.manuscript_dir}\n")
 
     # Apply filters
     filtered = papers
@@ -670,15 +624,11 @@ Examples:
 
     # Score filter (custom)
     if args.min_score:
-        filtered = filtered.filter(
-            lambda p: calculate_score(p) >= args.min_score
-        )
+        filtered = filtered.filter(lambda p: calculate_score(p) >= args.min_score)
 
     # Year filter
     if args.year_min or args.year_max:
-        filtered = filtered.filter(
-            year_min=args.year_min, year_max=args.year_max
-        )
+        filtered = filtered.filter(year_min=args.year_min, year_max=args.year_max)
 
     # Text filters
     if args.keyword:

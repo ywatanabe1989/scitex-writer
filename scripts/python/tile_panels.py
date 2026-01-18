@@ -4,10 +4,10 @@
 # File: /ssh:sp:/home/ywatanabe/proj/neurovista/paper/scripts/python/tile_panels.py
 # ----------------------------------------
 from __future__ import annotations
+
 import os
-__FILE__ = (
-    "./scripts/python/tile_panels.py"
-)
+
+__FILE__ = "./scripts/python/tile_panels.py"
 __DIR__ = os.path.dirname(__FILE__)
 # ----------------------------------------
 
@@ -207,7 +207,7 @@ def tile_images(panels, output_path, spacing=20, dpi=300):
             img = Image.open(path)
             images[label] = img
             # print(f"Loaded panel {label}: {img.size}")
-        except Exception as e:
+        except Exception:
             # print(f"Error loading panel {label} from {path}: {e}")
             return False
 
@@ -222,9 +222,7 @@ def tile_images(panels, output_path, spacing=20, dpi=300):
 
     # Force all panels to exactly the same dimensions for perfect consistency
     # Use dimensions from panels A, B, C (which are the same) as the standard
-    standard_panels = [
-        img for label, img in images.items() if label in ["A", "B", "C"]
-    ]
+    standard_panels = [img for label, img in images.items() if label in ["A", "B", "C"]]
     if standard_panels:
         target_width = standard_panels[0].width  # Use A, B, C dimensions
         target_height = standard_panels[0].height
@@ -237,7 +235,7 @@ def tile_images(panels, output_path, spacing=20, dpi=300):
 
     # Resize ALL panels (including A, B, C) to ensure perfect consistency
     for label in images:
-        original_size = images[label].size
+        images[label].size
         images[label] = images[label].resize(
             (target_width, target_height), Image.Resampling.LANCZOS
         )
@@ -291,9 +289,7 @@ def main():
         required=True,
         help="Directory to search for panel files",
     )
-    parser.add_argument(
-        "--output", required=True, help="Output tiled image path"
-    )
+    parser.add_argument("--output", required=True, help="Output tiled image path")
     parser.add_argument(
         "--spacing",
         type=int,

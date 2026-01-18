@@ -16,12 +16,12 @@ import hashlib
 import json
 import re
 from pathlib import Path
-from typing import Dict, List, Set, Optional
+from typing import List, Optional
 
 try:
     import bibtexparser
-    from bibtexparser.bwriter import BibTexWriter
     from bibtexparser.bibdatabase import BibDatabase
+    from bibtexparser.bwriter import BibTexWriter
 except ImportError:
     print("ERROR: bibtexparser not installed")
     print("Install with: pip install bibtexparser")
@@ -33,20 +33,20 @@ def normalize_title(title: str) -> str:
     if not title:
         return ""
     # Remove LaTeX commands
-    title = re.sub(r'\\[a-zA-Z]+\{([^}]*)\}', r'\1', title)
+    title = re.sub(r"\\[a-zA-Z]+\{([^}]*)\}", r"\1", title)
     # Remove special characters and extra whitespace
-    title = re.sub(r'[^\w\s]', '', title.lower())
-    title = re.sub(r'\s+', ' ', title).strip()
+    title = re.sub(r"[^\w\s]", "", title.lower())
+    title = re.sub(r"\s+", " ", title).strip()
     return title
 
 
 def get_doi(entry: dict) -> str:
     """Extract DOI from entry."""
-    doi = entry.get('doi', '').strip()
+    doi = entry.get("doi", "").strip()
     if doi:
         # Normalize DOI (remove URL prefix if present)
-        doi = re.sub(r'https?://doi.org/', '', doi, flags=re.IGNORECASE)
-        doi = re.sub(r'https?://dx.doi.org/', '', doi, flags=re.IGNORECASE)
+        doi = re.sub(r"https?://doi.org/", "", doi, flags=re.IGNORECASE)
+        doi = re.sub(r"https?://dx.doi.org/", "", doi, flags=re.IGNORECASE)
     return doi
 
 
@@ -73,15 +73,15 @@ def deduplicate_entries(entries: List[dict]) -> tuple[List[dict], dict]:
         (unique_entries, stats)
     """
     unique = []
-    doi_index = {}      # DOI -> index in unique list
-    title_index = {}    # (normalized_title, year) -> index in unique list
+    doi_index = {}  # DOI -> index in unique list
+    title_index = {}  # (normalized_title, year) -> index in unique list
     duplicates_found = 0
     duplicates_merged = 0
 
     for entry in entries:
         doi = get_doi(entry)
-        title = entry.get('title', '')
-        year = entry.get('year', '')
+        title = entry.get("title", "")
+        year = entry.get("year", "")
         title_norm = normalize_title(title)
 
         is_duplicate = False
@@ -125,10 +125,10 @@ def deduplicate_entries(entries: List[dict]) -> tuple[List[dict], dict]:
                 title_index[(title_norm, year)] = new_idx
 
     stats = {
-        'total_input': len(entries),
-        'unique_output': len(unique),
-        'duplicates_found': duplicates_found,
-        'duplicates_merged': duplicates_merged,
+        "total_input": len(entries),
+        "unique_output": len(unique),
+        "duplicates_found": duplicates_found,
+        "duplicates_merged": duplicates_merged,
     }
 
     return unique, stats
@@ -149,12 +149,12 @@ def calculate_files_hash(bib_files: List[Path]) -> str:
     # Sort files for consistent hashing
     for bib_file in sorted(bib_files, key=lambda x: x.name):
         # Include filename in hash
-        hasher.update(bib_file.name.encode('utf-8'))
+        hasher.update(bib_file.name.encode("utf-8"))
 
         # Include file content hash
-        with open(bib_file, 'rb') as f:
+        with open(bib_file, "rb") as f:
             file_hash = hashlib.md5(f.read()).hexdigest()
-            hasher.update(file_hash.encode('utf-8'))
+            hasher.update(file_hash.encode("utf-8"))
 
     return hasher.hexdigest()
 
@@ -165,7 +165,7 @@ def load_cache(cache_file: Path) -> Optional[dict]:
         return None
 
     try:
-        with open(cache_file, 'r', encoding='utf-8') as f:
+        with open(cache_file, "r", encoding="utf-8") as f:
             return json.load(f)
     except (json.JSONDecodeError, IOError):
         return None
@@ -174,17 +174,13 @@ def load_cache(cache_file: Path) -> Optional[dict]:
 def save_cache(cache_file: Path, data: dict) -> None:
     """Save cache to file."""
     try:
-        with open(cache_file, 'w', encoding='utf-8') as f:
+        with open(cache_file, "w", encoding="utf-8") as f:
             json.dump(data, f, indent=2)
     except IOError as e:
         print(f"WARNING: Could not save cache: {e}")
 
 
-def is_cache_valid(
-    cache_file: Path,
-    bib_files: List[Path],
-    output_file: Path
-) -> bool:
+def is_cache_valid(cache_file: Path, bib_files: List[Path], output_file: Path) -> bool:
     """
     Check if cached merge is still valid.
 
@@ -213,14 +209,14 @@ def is_cache_valid(
     current_hash = calculate_files_hash(bib_files)
 
     # Compare with cached hash
-    return cache.get('input_hash') == current_hash
+    return cache.get("input_hash") == current_hash
 
 
 def merge_bibtex_files(
     bib_dir: Path,
     output_file: str = "bibliography.bib",
     verbose: bool = True,
-    force: bool = False
+    force: bool = False,
 ) -> bool:
     """
     Merge all .bib files in directory with smart deduplication.
@@ -239,10 +235,7 @@ def merge_bibtex_files(
     cache_file = bib_dir / ".bibliography_cache.json"
 
     # Find all .bib files except the output file
-    bib_files = [
-        f for f in bib_dir.glob("*.bib")
-        if f.name != output_file
-    ]
+    bib_files = [f for f in bib_dir.glob("*.bib") if f.name != output_file]
 
     if not bib_files:
         if verbose:
@@ -252,8 +245,8 @@ def merge_bibtex_files(
     # Check cache (skip if force=True)
     if not force and is_cache_valid(cache_file, bib_files, output_path):
         if verbose:
-            print(f"✓ Bibliography cache valid (no changes detected)")
-            print(f"  Use --force to rebuild")
+            print("✓ Bibliography cache valid (no changes detected)")
+            print("  Use --force to rebuild")
         return True
 
     if verbose:
@@ -265,15 +258,16 @@ def merge_bibtex_files(
     all_entries = []
     for bib_file in bib_files:
         try:
-            with open(bib_file, 'r', encoding='utf-8') as f:
+            with open(bib_file, "r", encoding="utf-8") as f:
                 parser = bibtexparser.bparser.BibTexParser(
-                    common_strings=True,
-                    ignore_nonstandard_types=False
+                    common_strings=True, ignore_nonstandard_types=False
                 )
                 bib_db = bibtexparser.load(f, parser=parser)
                 all_entries.extend(bib_db.entries)
                 if verbose:
-                    print(f"  Loaded: {len(bib_db.entries)} entries from {bib_file.name}")
+                    print(
+                        f"  Loaded: {len(bib_db.entries)} entries from {bib_file.name}"
+                    )
         except Exception as e:
             print(f"ERROR: Failed to parse {bib_file}: {e}")
             continue
@@ -287,19 +281,19 @@ def merge_bibtex_files(
 
     # Write output
     writer = BibTexWriter()
-    writer.indent = '  '  # 2-space indentation
-    writer.order_entries_by = 'ID'  # Sort by citation key
+    writer.indent = "  "  # 2-space indentation
+    writer.order_entries_by = "ID"  # Sort by citation key
 
-    with open(output_path, 'w', encoding='utf-8') as f:
+    with open(output_path, "w", encoding="utf-8") as f:
         f.write(writer.write(output_db))
 
     # Save cache
     input_hash = calculate_files_hash(bib_files)
     cache_data = {
-        'input_hash': input_hash,
-        'input_files': [f.name for f in sorted(bib_files, key=lambda x: x.name)],
-        'output_file': output_file,
-        'stats': stats
+        "input_hash": input_hash,
+        "input_files": [f.name for f in sorted(bib_files, key=lambda x: x.name)],
+        "output_file": output_file,
+        "stats": stats,
     }
     save_cache(cache_file, cache_data)
 
@@ -319,24 +313,21 @@ def main():
     )
     parser.add_argument(
         "bib_dir",
-        nargs='?',
+        nargs="?",
         default="00_shared/bib_files",
-        help="Directory containing .bib files (default: 00_shared/bib_files)"
+        help="Directory containing .bib files (default: 00_shared/bib_files)",
     )
     parser.add_argument(
-        "-o", "--output",
+        "-o",
+        "--output",
         default="bibliography.bib",
-        help="Output filename (default: bibliography.bib)"
+        help="Output filename (default: bibliography.bib)",
     )
     parser.add_argument(
-        "-q", "--quiet",
-        action="store_true",
-        help="Quiet mode (no output)"
+        "-q", "--quiet", action="store_true", help="Quiet mode (no output)"
     )
     parser.add_argument(
-        "-f", "--force",
-        action="store_true",
-        help="Force merge (ignore cache)"
+        "-f", "--force", action="store_true", help="Force merge (ignore cache)"
     )
 
     args = parser.parse_args()
@@ -345,7 +336,7 @@ def main():
         bib_dir=Path(args.bib_dir),
         output_file=args.output,
         verbose=not args.quiet,
-        force=args.force
+        force=args.force,
     )
 
     exit(0 if success else 1)

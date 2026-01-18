@@ -1,7 +1,7 @@
 #!/bin/bash
 # -*- coding: utf-8 -*-
 # Timestamp: "2025-11-09 19:00:00 (ywatanabe)"
-# File: ./scripts/repository_maintenance/update.sh
+# File: ./scripts/maintenance/update.sh
 # Description: Update scitex-writer while preserving user content
 
 set -e

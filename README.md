@@ -1,5 +1,5 @@
 <!-- ---
-!-- Timestamp: 2026-01-19 03:23:29
+!-- Timestamp: 2026-01-19 04:54:16
 !-- Author: ywatanabe
 !-- File: /home/ywatanabe/proj/scitex-writer/README.md
 !-- --- -->
@@ -13,33 +13,68 @@ Part of the fully open-source SciTeX project: https://scitex.ai
 ## Quick Start
 
 ```bash
-git clone https://github.com/ywatanabe1989/scitex-writer.git my-paper && cd my-paper
-./scripts/shell/compile_manuscript.sh
+git clone https://github.com/ywatanabe1989/scitex-writer.git
+./scitex-writer/scripts/compile.sh manuscript
 ```
 
 <details>
 <summary><strong>Output Structure</strong></summary>
 
 ```
-my-paper/
-├── 00_shared/              # Shared resources (bibliography, styles)
-│   ├── bib_files/          # Multiple .bib files (auto-merged)
-│   └── latex_styles/       # Common LaTeX configurations
-├── 01_manuscript/          # Main manuscript
-│   ├── contents/           # Modular content sections
+./scitex-writer/
+├── 00_shared/                  # Shared resources across all documents
+│   ├── title.tex               # Manuscript title
+│   ├── authors.tex             # Author names and affiliations
+│   ├── keywords.tex            # Keywords for the manuscript
+│   ├── journal_name.tex        # Target journal name
+│   ├── bib_files/              # Multiple .bib files (auto-merged and deduplicated)
+│   ├── latex_styles/           # Common LaTeX configurations
+│   └── templates/              # LaTeX document templates
+│
+├── 01_manuscript/              # Main manuscript
+│   ├── contents/               # Modular content sections
 │   │   ├── abstract.tex
 │   │   ├── introduction.tex
 │   │   ├── methods.tex
 │   │   ├── results.tex
 │   │   ├── discussion.tex
-│   │   ├── figures/        # Figure captions + media
-│   │   └── tables/         # Table captions + CSV data
-│   ├── archive/            # Version history (auto-generated)
-│   ├── manuscript.tex      # Compiled LaTeX
-│   └── manuscript.pdf      # Output PDF
-├── 02_supplementary/       # Supplementary materials
-├── 03_revision/            # Revision response letter
-└── scripts/shell/          # Compilation scripts
+│   │   ├── figures/            # Figure captions + media
+│   │   └── tables/             # Table captions + CSV data
+│   ├── archive/                # Version history (gitignored)
+│   ├── manuscript.tex          # Compiled LaTeX
+│   ├── manuscript_diff.tex     # Change-tracked version
+│   └── manuscript.pdf          # Output PDF
+│
+├── 02_supplementary/           # Supplementary materials
+│   ├── contents/               # Supplementary content sections
+│   │   ├── supplementary_methods.tex
+│   │   ├── supplementary_results.tex
+│   │   ├── figures/            # Supplementary figures
+│   │   └── tables/             # Supplementary tables
+│   ├── archive/                # Version history (gitignored)
+│   ├── supplementary.tex       # Compiled LaTeX
+│   └── supplementary.pdf       # Output PDF
+│
+├── 03_revision/                # Revision response letter
+│   ├── contents/               # Reviewer responses
+│   │   ├── editor/             # E_01_comments.tex, E_01_response.tex
+│   │   ├── reviewer1/          # R1_01_comments.tex, R1_01_response.tex
+│   │   └── reviewer2/          # R2_01_comments.tex, R2_01_response.tex
+│   ├── archive/                # Version history (gitignored)
+│   ├── revision.tex            # Compiled LaTeX
+│   └── revision.pdf            # Output PDF
+│
+├── config/                     # Configuration files
+│   └── config_manuscript.yaml  # Citation style, engine settings
+│
+└── scripts                     # Compilation scripts
+    ├── containers/             # Container image builds (Apptainer/Singularity)
+    ├── installation/           # Environment setup and dependency installation
+    ├── maintenance/            # Repository maintenance (usage, update, demos)
+    ├── powershell/             # Windows PowerShell scripts
+    ├── python/                 # Python utilities
+    └── shell/                  # Core compilation scripts
+    
 ```
 
 </details>
@@ -153,6 +188,54 @@ Change citation style in `config/config_manuscript.yaml`:
 </details>
 
 ## Installation
+
+<details>
+<summary><strong>Python Package (MCP Server)</strong></summary>
+
+```bash
+# Install from PyPI
+pip install scitex-writer
+
+# Verify installation (CLI or Python module)
+scitex-writer --version
+python -m scitex_writer version
+
+# Check MCP setup
+scitex-writer mcp doctor
+python -m scitex_writer mcp doctor
+
+# Start MCP server
+scitex-writer mcp start
+python -m scitex_writer mcp start
+```
+
+Add to Claude Desktop config (`~/.config/Claude/claude_desktop_config.json`):
+
+Option 1: CLI command
+```json
+{
+  "mcpServers": {
+    "scitex-writer": {
+      "command": "scitex-writer",
+      "args": ["mcp", "start"]
+    }
+  }
+}
+```
+
+Option 2: Python module
+```json
+{
+  "mcpServers": {
+    "scitex-writer": {
+      "command": "python",
+      "args": ["-m", "scitex_writer", "mcp", "start"]
+    }
+  }
+}
+```
+
+</details>
 
 <details>
 <summary><strong>Ubuntu/Debian</strong></summary>
