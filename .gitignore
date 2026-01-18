@@ -2,6 +2,10 @@
 ### Source: /home/ywatanabe/.git-templates/.gitignore-templates/Custom/Specific.gitignore ###
 # Please add files here
 
+# Examples directory - allow demo files
+!examples/*.pdf
+!examples/*.tex
+
 # Archive directories (auto-generated, redundant with git history)
 **/archive/
 

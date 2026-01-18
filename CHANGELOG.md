@@ -7,6 +7,38 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.2.0] - 2026-01-19
+
+### Added
+- Demo examples in `examples/` directory
+  - Org-mode session export
+  - PDF exports (demo session, manuscript, revision)
+  - Video demo with thumbnail
+- Improved MCP server instructions for AI agents
+  - Absolute path guidance for Claude Code
+  - BASH_ENV workaround documentation
+  - Figure/table caption format examples
+
+### Fixed
+- bibtexparser correctly classified as required dependency (was optional)
+- Shellcheck compliance in check_dependancy_commands.sh
+  - Proper variable quoting (SC2046/SC2086)
+  - Removed unused GIT_ROOT variable (SC2034)
+  - Separated local declarations from assignments (SC2155)
+- Script portability improvements with $PROJECT_ROOT paths
+- Bibliography symlink (00_shared/bibliography.bib) now tracked in git
+
+### Changed
+- Python MCP package version: 0.1.1
+
+## [2.1.0] - 2026-01-18
+
+### Added
+- Python MCP package published to PyPI (`pip install scitex-writer`)
+- CLI commands: `scitex-writer --version`, `scitex-writer mcp start`
+- AGPL-3.0 license
+- CI workflows for testing and publishing
+
 ## [2.0.0-rc4] - 2026-01-09
 
 ### Added
@@ -63,7 +95,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Restructured project for better modularity
 - Separated configuration from scripts
 
-[Unreleased]: https://github.com/ywatanabe1989/scitex-writer/compare/v2.0.0-rc4...HEAD
+[Unreleased]: https://github.com/ywatanabe1989/scitex-writer/compare/v2.2.0...HEAD
+[2.2.0]: https://github.com/ywatanabe1989/scitex-writer/compare/v2.1.0...v2.2.0
+[2.1.0]: https://github.com/ywatanabe1989/scitex-writer/compare/v2.0.0-rc4...v2.1.0
 [2.0.0-rc4]: https://github.com/ywatanabe1989/scitex-writer/compare/v2.0.0-rc3...v2.0.0-rc4
 [2.0.0-rc3]: https://github.com/ywatanabe1989/scitex-writer/compare/v2.0.0-rc2...v2.0.0-rc3
 [2.0.0-rc2]: https://github.com/ywatanabe1989/scitex-writer/compare/v2.0.0-rc1...v2.0.0-rc2
