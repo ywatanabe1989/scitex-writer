@@ -1,15 +1,7 @@
 #!/bin/bash
 # -*- coding: utf-8 -*-
-# Timestamp: "2025-09-28 19:49:15 (ywatanabe)"
-# File: ./paper/scripts/shell/modules/process_tables.sh
-
-# Quick check for --no_tables BEFORE expensive config loading
-NO_TABLES_ARG="${1:-false}"
-if [ "$NO_TABLES_ARG" = true ]; then
-    echo -e "\033[0;90mINFO: Running $0 ...\033[0m"
-    echo -e "\033[0;90mINFO:     Skipping all table processing (--no_tables specified)\033[0m"
-    exit 0
-fi
+# Timestamp: "2026-01-19 02:59:33 (ywatanabe)"
+# File: ./scripts/shell/modules/process_tables.sh
 
 ORIG_DIR="$(pwd)"
 THIS_DIR="$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)"
@@ -25,16 +17,25 @@ RED='\033[0;31m'
 NC='\033[0m' # No Color
 
 echo_info() { echo -e "${GRAY}INFO: $1${NC}"; }
-log_info() {
-    if [ "${SCITEX_LOG_LEVEL:-1}" -ge 2 ]; then
-        echo -e "  \033[0;90m→ $1\033[0m"
-    fi
-}
 echo_success() { echo -e "${GREEN}SUCC: $1${NC}"; }
 echo_warning() { echo -e "${YELLOW}WARN: $1${NC}"; }
 echo_error() { echo -e "${RED}ERRO: $1${NC}"; }
 echo_header() { echo_info "=== $1 ==="; }
 # ---------------------------------------
+
+# Quick check for --no_tables BEFORE expensive config loading
+NO_TABLES_ARG="${1:-false}"
+if [ "$NO_TABLES_ARG" = true ]; then
+    echo -e "\033[0;90mINFO: Running $0 ...\033[0m"
+    echo -e "\033[0;90mINFO:     Skipping all table processing (--no_tables specified)\033[0m"
+    exit 0
+fi
+
+log_info() {
+    if [ "${SCITEX_LOG_LEVEL:-1}" -ge 2 ]; then
+        echo -e "  \033[0;90m→ $1\033[0m"
+    fi
+}
 
 # Timestamp tracking for table processing
 TABLE_STAGE_START=0
@@ -50,7 +51,6 @@ log_table_stage_end() {
     local timestamp=$(date '+%H:%M:%S')
     echo_success "  [$timestamp] $1 (${elapsed}s)"
 }
-# ---------------------------------------
 
 # Configurations
 source ./config/load_config.sh $SCITEX_WRITER_DOC_TYPE
@@ -272,7 +272,7 @@ function csv2tex_single_fallback() {
         echo "\\begin{table}[htbp]"
         echo "\\centering"
         echo "$fontsize"
-        
+
         # Adjust tabcolsep based on number of columns to fit width
         if [ $num_columns -gt 8 ]; then
             echo "\\setlength{\\tabcolsep}{2pt}"  # Very tight for many columns
@@ -283,7 +283,7 @@ function csv2tex_single_fallback() {
         else
             echo "\\setlength{\\tabcolsep}{6pt}"  # Normal spacing
         fi
-        
+
         # Use resizebox to ensure table fits within text width
         echo "\\resizebox{\\textwidth}{!}{%"
         echo "\\begin{tabular}{*{$num_columns}{l}}"
@@ -346,7 +346,7 @@ function csv2tex_single_fallback() {
         echo "\\bottomrule"
         echo "\\end{tabular}"
         echo "}"  # Close resizebox
-        
+
         if [ -f "$caption_file" ] || [ -L "$caption_file" ]; then
             if [ "$truncated" = true ]; then
                 # Add truncation note to caption
@@ -386,25 +386,12 @@ function create_table_header() {
     local header_file="$SCITEX_WRITER_TABLE_COMPILED_DIR/00_Tables_Header.tex"
 
     cat > "$header_file" << 'EOF'
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% TABLES
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% \clearpage
-\section*{Tables}
-\label{tables}
-\pdfbookmark[1]{Tables}{tables}
-
 % Template table when no actual tables are present
 \begin{table}[htbp]
     \centering
-    \caption{\textbf{Table 0: Placeholder}\\
+      \caption{\textbf{Placeholder table demonstrating the table format for this manuscript template}\\
     \smallskip
-    To add tables to your manuscript:\\
-    1. Place CSV files in \texttt{caption\_and\_media/} with format \texttt{XX\_description.csv}\\
-    2. Create matching caption files \texttt{XX\_description.tex}\\
-    3. Reference in text using \texttt{Table\textasciitilde\textbackslash ref\{tab:XX\_description\}}\\
-    \smallskip
-    Example: \texttt{01\_seizure\_count.csv} with \texttt{01\_seizure\_count.tex}
+    To add tables to your manuscript, place CSV files in \texttt{caption\_and\_media/} with format \texttt{XX\_description.csv}, create matching caption files \texttt{XX\_description.tex}, and reference in text using \texttt{Table\textasciitilde\textbackslash ref\{tab:XX\_description\}}. Example can be seen at \texttt{01\_seizure\_count.csv} with \texttt{01\_seizure\_count.tex}
     }
     \label{tab:0_Tables_Header}
     \begin{tabular}{p{0.3\textwidth}p{0.6\textwidth}}
