@@ -10,6 +10,18 @@ A LaTeX compilation system for academic manuscripts with automatic versioning, d
 
 Part of the fully open-source SciTeX project: https://scitex.ai
 
+## Demo
+
+<p align="center">
+  <a href="https://scitex.ai/media/videos/scitex-writer-v2.2.0-demo.mp4">
+    <img src="examples/scitex-writer-v2.2.0-demo-thumbnail.png" alt="Demo Video Thumbnail" width="600"/>
+  </a>
+</p>
+
+▶️ *Click thumbnail to watch video demo*
+
+📄 [Full demo (org)](examples/scitex-writer-v2.2.0-demo.org) | [Full demo (pdf)](examples/scitex-writer-v2.2.0-demo.pdf) | [Manuscript output](examples/scitex-writer-v2.2.0-demo-manuscript.pdf) | [Revision output](examples/scitex-writer-v2.2.0-demo-revision.pdf)
+
 ## Quick Start
 
 ```bash
