@@ -23,10 +23,13 @@ git clone https://github.com/ywatanabe1989/scitex-writer.git
 ```
 ./scitex-writer/
 ├── 00_shared/                  # Shared resources across all documents
+│   ├── title.tex               # Manuscript title
+│   ├── authors.tex             # Author names and affiliations
+│   ├── keywords.tex            # Keywords for the manuscript
+│   ├── journal_name.tex        # Target journal name
 │   ├── bib_files/              # Multiple .bib files (auto-merged)
 │   ├── latex_styles/           # Common LaTeX configurations
-│   ├── metadata/               # Title, authors, keywords, affiliations
-│   └── word_counts/            # Auto-generated word statistics
+│   └── templates/              # LaTeX document templates
 │
 ├── 01_manuscript/              # Main manuscript
 │   ├── contents/               # Modular content sections
