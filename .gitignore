@@ -9,9 +9,6 @@
 **/contents/figures/compiled/
 **/contents/tables/compiled/
 
-# Auto-generated symlinks and merged files
-00_shared/bibliography.bib
-
 # Revision working files
 **/contents/editor/*_revision.tex
 **/contents/reviewer*/*_revision.tex
