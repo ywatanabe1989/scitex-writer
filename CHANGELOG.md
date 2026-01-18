@@ -10,7 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [2.0.0-rc4] - 2026-01-09
 
 ### Added
-- `scripts/repository_maintenance/strip_example_content.sh` - Minimal template creation tool (#14)
+- `scripts/maintenance/strip_example_content.sh` - Minimal template creation tool (#14)
 - Automatic preprocessing artifact initialization on compile (#12)
 
 ### Fixed
@@ -24,7 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Project structure reorganization:
   - Moved `Dockerfile` to `scripts/containers/`
   - Moved `requirements/` to `scripts/installation/requirements/`
-  - Created `scripts/repository_maintenance/` for maintenance tools
+  - Created `scripts/maintenance/` for maintenance tools
 - Updated documentation paths in README and container setup instructions
 - Compile scripts now use absolute path resolution for better portability
 - Shellcheck compliance improvements

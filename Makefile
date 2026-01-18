@@ -68,14 +68,14 @@ upload-test:
 
 update:
 	@echo "Updating scitex-writer..."
-	./scripts/repository_maintenance/update.sh
+	./scripts/maintenance/update.sh
 
 version:
 	@echo "SciTeX Writer $(shell grep '^version = ' pyproject.toml | sed 's/version = "\(.*\)"/\1/' | head -1 | tr -d '\"')"
 
 demo-previews:
 	@echo "Generating demo preview images for README..."
-	./scripts/repository_maintenance/generate_demo_previews.sh
+	./scripts/maintenance/generate_demo_previews.sh
 
 # Cleaning targets
 clean:
