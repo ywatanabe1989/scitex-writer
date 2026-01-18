@@ -695,3 +695,4 @@ flycheck_*.el
 /fix-versioning-with-git
 # Claude worktree symlink
 /fix-table
+GITIGNORED/

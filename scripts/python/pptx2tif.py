@@ -4,9 +4,8 @@
 # File: /home/ywatanabe/proj/SciTex/manuscript/scripts/python/pptx2tif.py
 # ----------------------------------------
 import os
-__FILE__ = (
-    "./manuscript/scripts/python/pptx2tif.py"
-)
+
+__FILE__ = "./manuscript/scripts/python/pptx2tif.py"
 __DIR__ = os.path.dirname(__FILE__)
 # ----------------------------------------
 """
@@ -103,7 +102,7 @@ def convert_pptx_to_tif_libreoffice(
             "--headless",
             "--convert-to",
             "tiff",
-            f"--outdir",
+            "--outdir",
             temp_dir,
             input_path,
         ]
@@ -114,9 +113,7 @@ def convert_pptx_to_tif_libreoffice(
             )
 
             if result.returncode != 0:
-                raise RuntimeError(
-                    f"LibreOffice conversion failed: {result.stderr}"
-                )
+                raise RuntimeError(f"LibreOffice conversion failed: {result.stderr}")
 
             if verbose:
                 print(result.stdout)
@@ -129,9 +126,7 @@ def convert_pptx_to_tif_libreoffice(
             ]
 
             if not tif_files:
-                raise FileNotFoundError(
-                    "No TIF files were generated during conversion"
-                )
+                raise FileNotFoundError("No TIF files were generated during conversion")
 
             # Move files to output directory with proper naming
             output_files = []
@@ -141,14 +136,15 @@ def convert_pptx_to_tif_libreoffice(
                 if len(tif_files) == 1:
                     output_name = f"{base_name}.tif"
                 else:
-                    output_name = f"{base_name}_slide_{i+1}.tif"
+                    output_name = f"{base_name}_slide_{i + 1}.tif"
 
                 output_path = os.path.join(output_dir, output_name)
 
                 # Copy file to output directory
-                with open(tif_file, "rb") as contents_file, open(
-                    output_path, "wb"
-                ) as dst_file:
+                with (
+                    open(tif_file, "rb") as contents_file,
+                    open(output_path, "wb") as dst_file,
+                ):
                     dst_file.write(contents_file.read())
 
                 output_files.append(output_path)
@@ -159,9 +155,7 @@ def convert_pptx_to_tif_libreoffice(
             return output_files
 
         except Exception as e:
-            raise RuntimeError(
-                f"Error during LibreOffice conversion: {str(e)}"
-            )
+            raise RuntimeError(f"Error during LibreOffice conversion: {str(e)}")
 
 
 def convert_pptx_to_tif_python(
@@ -212,14 +206,14 @@ def convert_pptx_to_tif_python(
     # Convert each slide
     for i, slide in enumerate(prs.slides):
         if verbose:
-            print(f"Processing slide {i+1}/{len(prs.slides)}")
+            print(f"Processing slide {i + 1}/{len(prs.slides)}")
 
         # For multi-slide presentations, append slide number
         # For single slide presentations, use the base name
         if len(prs.slides) == 1:
             output_name = f"{base_name}.tif"
         else:
-            output_name = f"{base_name}_slide_{i+1}.tif"
+            output_name = f"{base_name}_slide_{i + 1}.tif"
 
         output_path = os.path.join(output_dir, output_name)
 
@@ -228,7 +222,7 @@ def convert_pptx_to_tif_python(
 
         # Instead, we'll just output a message
         print(
-            f"Warning: Python-only conversion is limited. Slide {i+1} would be saved to {output_path}"
+            f"Warning: Python-only conversion is limited. Slide {i + 1} would be saved to {output_path}"
         )
         print(
             "For better results, please install LibreOffice or use the LibreOffice conversion method"
@@ -280,9 +274,7 @@ def convert_pptx_to_tif(
         elif PYTHON_PPT_AVAILABLE and PIL_AVAILABLE:
             method = "python"
             if verbose:
-                print(
-                    "Using python-pptx for conversion (limited functionality)"
-                )
+                print("Using python-pptx for conversion (limited functionality)")
         else:
             raise RuntimeError(
                 "No suitable conversion method available. Please install LibreOffice or "
@@ -437,9 +429,7 @@ def main():
     )
 
     # Batch mode
-    batch_parser = subparsers.add_parser(
-        "batch", help="Process multiple files"
-    )
+    batch_parser = subparsers.add_parser("batch", help="Process multiple files")
     batch_parser.add_argument(
         "-d",
         "--directory",
@@ -503,9 +493,7 @@ def main():
                 args.margin,
                 args.verbose,
             )
-            print(
-                f"\nConversion complete. Generated {len(output_files)} TIF file(s)."
-            )
+            print(f"\nConversion complete. Generated {len(output_files)} TIF file(s).")
         except Exception as e:
             print(f"Error: {e}")
             sys.exit(1)

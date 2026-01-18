@@ -28,6 +28,8 @@ GRAY='\033[0;90m'
 GREEN='\033[0;32m'
 YELLOW='\033[0;33m'
 RED='\033[0;31m'
+CYAN='\033[0;36m'
+BOLD_CYAN='\033[1;36m'
 NC='\033[0m' # No Color
 
 echo_info() { echo -e "${GRAY}INFO: $1${NC}"; }
@@ -55,12 +57,13 @@ Usage: ./compile.sh [TYPE] [OPTIONS]
 Unified compilation interface for scientific documents.
 
 DOCUMENT TYPES:
-    manuscript, -m        Compile manuscript (default if no type specified)
-    supplementary, -s     Compile supplementary materials
-    revision, -r          Compile revision responses
+    manuscript, -m        Compile manuscript (= ./scripts/shell/compile_manuscript.sh)
+    supplementary, -s     Compile supplementary (= ./scripts/shell/compile_supplementary.sh)
+    revision, -r          Compile revision (= ./scripts/shell/compile_revision.sh)
 
 GLOBAL OPTIONS:
     -h, --help           Show this help message
+    --help-recursive     Show help for all commands recursively
     -w, --watch          Enable watch mode for hot-recompiling
                          (Only works with manuscript type)
 
@@ -106,15 +109,36 @@ EXAMPLES:
     ./compile.sh -m -w                     # Watch and recompile manuscript
     ./compile.sh -m --watch --no-figs      # Watch mode with speed options
 
-DELEGATION:
-    This script delegates to:
-    - ./scripts/shell/compile_manuscript.sh for manuscripts
-    - ./scripts/shell/compile_supplementary.sh for supplementary materials
-    - ./scripts/shell/compile_revision.sh for revision responses
-
-    For type-specific options, use: ./compile.sh [TYPE] --help
-
 EOF
+}
+
+# Function to display help for all commands recursively
+show_help_recursive() {
+    echo ""
+    echo -e "${BOLD_CYAN}━━━ compile.sh (main) ━━━${NC}"
+    show_usage
+    echo ""
+    echo -e "${CYAN}────────────────────────────────────────────────────────────────────${NC}"
+    echo ""
+    echo -e "${BOLD_CYAN}━━━ compile.sh manuscript ━━━${NC}"
+    echo -e "${GRAY}./scripts/shell/compile_manuscript.sh${NC}"
+    echo ""
+    ./scripts/shell/compile_manuscript.sh --help 2>/dev/null || echo "(No help available)"
+    echo ""
+    echo -e "${CYAN}────────────────────────────────────────────────────────────────────${NC}"
+    echo ""
+    echo -e "${BOLD_CYAN}━━━ compile.sh supplementary ━━━${NC}"
+    echo -e "${GRAY}./scripts/shell/compile_supplementary.sh${NC}"
+    echo ""
+    ./scripts/shell/compile_supplementary.sh --help 2>/dev/null || echo "(No help available)"
+    echo ""
+    echo -e "${CYAN}────────────────────────────────────────────────────────────────────${NC}"
+    echo ""
+    echo -e "${BOLD_CYAN}━━━ compile.sh revision ━━━${NC}"
+    echo -e "${GRAY}./scripts/shell/compile_revision.sh${NC}"
+    echo ""
+    ./scripts/shell/compile_revision.sh --help 2>/dev/null || echo "(No help available)"
+    echo ""
 }
 
 # Parse arguments
@@ -137,6 +161,10 @@ while [ $# -gt 0 ]; do
     -w | --watch)
         WATCH_MODE=true
         shift
+        ;;
+    --help-recursive)
+        show_help_recursive
+        exit 0
         ;;
     -h | --help)
         # If document type already specified, pass --help to that script

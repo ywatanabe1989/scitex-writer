@@ -1,7 +1,7 @@
 #!/bin/bash
 # -*- coding: utf-8 -*-
 # Timestamp: "2025-11-10 02:14:17 (ywatanabe)"
-# File: ./scripts/repository_maintenance/generate_demo_previews.sh
+# File: ./scripts/maintenance/generate_demo_previews.sh
 
 ORIG_DIR="$(pwd)"
 THIS_DIR="$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)"

@@ -3,7 +3,7 @@
 # Timestamp: "2025-11-11 (ywatanabe)"
 
 
-"""
+r"""
 Check citation states in manuscript - find uncited and missing references
 
 Functionalities:
@@ -39,10 +39,7 @@ import json
 import logging
 import re
 from pathlib import Path
-from typing import Any
-from typing import Dict
-from typing import List
-from typing import Set
+from typing import Any, Dict, List, Set
 
 import yaml
 from _logging import getLogger
@@ -60,9 +57,7 @@ def load_config(config_path: Path = None) -> Dict[str, Any]:
     if config_path is None:
         # Default to ../config/config_manuscript.yaml relative to script location
         script_dir = Path(__file__).resolve().parent
-        config_path = (
-            script_dir.parent.parent / "config" / "config_manuscript.yaml"
-        )
+        config_path = script_dir.parent.parent / "config" / "config_manuscript.yaml"
 
     if not config_path.exists():
         raise FileNotFoundError(f"Config file not found: {config_path}")
@@ -88,14 +83,14 @@ def extract_bib_keys(bib_path: Path) -> Set[str]:
     content = bib_path.read_text(encoding="utf-8")
 
     # Match @article{key, @book{key, etc.
-    pattern = r'@\w+\s*\{\s*([^,\s]+)'
+    pattern = r"@\w+\s*\{\s*([^,\s]+)"
     keys = re.findall(pattern, content)
 
     return set(keys)
 
 
 def extract_citations_from_tex(tex_path: Path) -> Set[str]:
-    """Extract all citation keys from \cite commands in a .tex file.
+    r"""Extract all citation keys from \cite commands in a .tex file.
 
     Args:
         tex_path: Path to .tex file
@@ -115,7 +110,7 @@ def extract_citations_from_tex(tex_path: Path) -> Set[str]:
 
     # Match various cite commands: \cite{key}, \cite{key1,key2}, etc.
     # Supports: cite, cite, citet, citealt, citealp, citeauthor, citeyear, etc.
-    pattern = r'\\cite\w*\s*(?:\[[^\]]*\])?\s*(?:\[[^\]]*\])?\s*\{([^}]+)\}'
+    pattern = r"\\cite\w*\s*(?:\[[^\]]*\])?\s*(?:\[[^\]]*\])?\s*\{([^}]+)\}"
     matches = re.findall(pattern, content)
 
     # Split multiple citations and clean whitespace
@@ -196,7 +191,7 @@ def print_text_report(
     data: Dict[str, Any],
     logger: logging.Logger,
     show_details: bool = True,
-    show_sections: Dict[str, bool] = None
+    show_sections: Dict[str, bool] = None,
 ):
     """Print citation report to console using logger.
 
@@ -223,12 +218,12 @@ def print_text_report(
     logger.info(f"Total citations in .tex files:  {summary['total_citations']}")
     logger.success(f"Successfully cited:              {summary['successfully_cited']}")
 
-    if summary['uncited'] > 0:
+    if summary["uncited"] > 0:
         logger.warning(f"Uncited references:              {summary['uncited']}")
     else:
         logger.info(f"Uncited references:              {summary['uncited']}")
 
-    if summary['missing'] > 0:
+    if summary["missing"] > 0:
         logger.error(f"Missing references:              {summary['missing']}")
     else:
         logger.info(f"Missing references:              {summary['missing']}")
@@ -243,8 +238,8 @@ def print_text_report(
     if show_sections.get("cited", False):
         print("SUCCESSFULLY CITED REFERENCES")
         print("-" * 80)
-        if details['successfully_cited']:
-            for key in details['successfully_cited']:
+        if details["successfully_cited"]:
+            for key in details["successfully_cited"]:
                 logger.success(f"  ✓ {key}")
         else:
             logger.info("  (none)")
@@ -254,8 +249,8 @@ def print_text_report(
     if show_sections.get("uncited", False):
         print("UNCITED REFERENCES (in .bib but not cited in .tex)")
         print("-" * 80)
-        if details['uncited_references']:
-            for key in details['uncited_references']:
+        if details["uncited_references"]:
+            for key in details["uncited_references"]:
                 logger.warning(f"  ⚠ {key}")
         else:
             logger.success("  ✓ All references are cited")
@@ -265,8 +260,8 @@ def print_text_report(
     if show_sections.get("missing", False):
         print("MISSING REFERENCES (cited in .tex but not in .bib)")
         print("-" * 80)
-        if details['missing_references']:
-            for key in details['missing_references']:
+        if details["missing_references"]:
+            for key in details["missing_references"]:
                 logger.error(f"  ✗ {key}")
         else:
             logger.success("  ✓ All citations have references")
@@ -368,13 +363,15 @@ Examples:
     # If any filter is specified, show only those
     # Otherwise, show all
     if any(filter_flags.values()):
-        show_sections = {name: enabled for name, enabled in filter_flags.items() if enabled}
+        show_sections = {
+            name: enabled for name, enabled in filter_flags.items() if enabled
+        }
     else:
         show_sections = {"cited": True, "uncited": True, "missing": True}
 
     # Load configuration
     try:
-        config = load_config(args.config)
+        load_config(args.config)
     except FileNotFoundError as e:
         logger.error(str(e))
         return 1
@@ -451,28 +448,38 @@ Examples:
                 f.write("=" * 80 + "\n\n")
                 f.write("SUMMARY\n")
                 f.write("-" * 80 + "\n")
-                f.write(f"Total references in .bib files: {data['summary']['total_references']}\n")
-                f.write(f"Total citations in .tex files:  {data['summary']['total_citations']}\n")
-                f.write(f"Successfully cited:              {data['summary']['successfully_cited']}\n")
-                f.write(f"Uncited references:              {data['summary']['uncited']}\n")
-                f.write(f"Missing references:              {data['summary']['missing']}\n\n")
+                f.write(
+                    f"Total references in .bib files: {data['summary']['total_references']}\n"
+                )
+                f.write(
+                    f"Total citations in .tex files:  {data['summary']['total_citations']}\n"
+                )
+                f.write(
+                    f"Successfully cited:              {data['summary']['successfully_cited']}\n"
+                )
+                f.write(
+                    f"Uncited references:              {data['summary']['uncited']}\n"
+                )
+                f.write(
+                    f"Missing references:              {data['summary']['missing']}\n\n"
+                )
 
                 if not args.summary_only:
                     f.write("SUCCESSFULLY CITED REFERENCES\n")
                     f.write("-" * 80 + "\n")
-                    for key in data['details']['successfully_cited']:
+                    for key in data["details"]["successfully_cited"]:
                         f.write(f"  ✓ {key}\n")
                     f.write("\n")
 
                     f.write("UNCITED REFERENCES (in .bib but not cited in .tex)\n")
                     f.write("-" * 80 + "\n")
-                    for key in data['details']['uncited_references']:
+                    for key in data["details"]["uncited_references"]:
                         f.write(f"  ⚠ {key}\n")
                     f.write("\n")
 
                     f.write("MISSING REFERENCES (cited in .tex but not in .bib)\n")
                     f.write("-" * 80 + "\n")
-                    for key in data['details']['missing_references']:
+                    for key in data["details"]["missing_references"]:
                         f.write(f"  ✗ {key}\n")
                     f.write("\n")
 
@@ -485,12 +492,12 @@ Examples:
                 data,
                 logger,
                 show_details=not args.summary_only,
-                show_sections=show_sections
+                show_sections=show_sections,
             )
             logger.success(f"Saved to: {default_json_path}")
 
     # Return exit code based on results
-    if data['summary']['missing'] > 0:
+    if data["summary"]["missing"] > 0:
         return 1  # Error: missing references
     return 0
 
