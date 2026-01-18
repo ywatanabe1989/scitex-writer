@@ -1,5 +1,5 @@
 <!-- ---
-!-- Timestamp: 2026-01-19 03:20:58
+!-- Timestamp: 2026-01-19 03:23:29
 !-- Author: ywatanabe
 !-- File: /home/ywatanabe/proj/scitex-writer/README.md
 !-- --- -->
@@ -46,6 +46,9 @@ my-paper/
 
 ## Features
 
+<details>
+<summary><strong>Details</strong></summary>
+
 | Feature                | Description                                                           |
 |------------------------|-----------------------------------------------------------------------|
 | **Separated Files**    | Modular sections (abstract, intro, methods, results, discussion)      |
@@ -54,6 +57,8 @@ my-paper/
 | **Assets**             | Parallel figure/table processing (PNG, PDF, SVG, Mermaid, CSV)        |
 | **Multi-Engine**       | Auto-selects best engine (Tectonic 1-3s, latexmk 3-6s, 3-pass 12-18s) |
 | **Cross-Platform**     | Linux, macOS, WSL2, Docker, Singularity, HPC clusters                 |
+
+</details>
 
 ## Usage
 
@@ -185,6 +190,9 @@ singularity run scitex-writer.sif
 
 ## Documentation
 
+<details>
+<summary><strong>Details</strong></summary>
+
 | Guide | Description |
 |-------|-------------|
 | [Installation](docs/01_GUIDE_INSTALLATION.md) | Setup for all environments |
@@ -192,6 +200,8 @@ singularity run scitex-writer.sif
 | [Content Creation](docs/01_GUIDE_CONTENT_CREATION.md) | Writing manuscripts |
 | [Bibliography](docs/01_GUIDE_BIBLIOGRAPHY.md) | Reference management |
 | [Architecture](docs/02_ARCHITECTURE_IMPLEMENTATION.md) | Technical details |
+
+</details>
 
 ---
 
