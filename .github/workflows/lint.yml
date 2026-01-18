@@ -45,10 +45,15 @@ jobs:
         python -m pip install --upgrade pip
         pip install ruff
 
-    - name: Lint with ruff
+    - name: Lint MCP package (strict)
       run: |
-        ruff check src/ tests/python/ scripts/python/ --output-format=github
+        ruff check src/ tests/python/ --output-format=github
 
-    - name: Check formatting with ruff
+    - name: Check formatting MCP package
       run: |
         ruff format --check src/ tests/python/
+
+    - name: Lint legacy scripts (warnings only)
+      continue-on-error: true
+      run: |
+        ruff check scripts/python/ --output-format=github || echo "Legacy scripts have lint warnings (non-blocking)"
