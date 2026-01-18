@@ -18,9 +18,9 @@ cd "$PROJECT_ROOT" || exit 1
 
 # Auto-initialize project if preprocessing artifacts are missing (Issue #12)
 if [ ! -f "01_manuscript/contents/wordcounts/figure_count.txt" ]; then
-    if [ -x "scripts/installation/init_project.sh" ]; then
+    if [ -x "$PROJECT_ROOT/scripts/installation/init_project.sh" ]; then
         echo "Initializing project (missing preprocessing artifacts)..."
-        ./scripts/installation/init_project.sh >/dev/null 2>&1 || true
+        "$PROJECT_ROOT/scripts/installation/init_project.sh" >/dev/null 2>&1 || true
     fi
 fi
 
@@ -123,21 +123,21 @@ show_help_recursive() {
     echo -e "${BOLD_CYAN}━━━ compile.sh manuscript ━━━${NC}"
     echo -e "${GRAY}./scripts/shell/compile_manuscript.sh${NC}"
     echo ""
-    ./scripts/shell/compile_manuscript.sh --help 2>/dev/null || echo "(No help available)"
+    "$PROJECT_ROOT/scripts/shell/compile_manuscript.sh" --help 2>/dev/null || echo "(No help available)"
     echo ""
     echo -e "${CYAN}────────────────────────────────────────────────────────────────────${NC}"
     echo ""
     echo -e "${BOLD_CYAN}━━━ compile.sh supplementary ━━━${NC}"
     echo -e "${GRAY}./scripts/shell/compile_supplementary.sh${NC}"
     echo ""
-    ./scripts/shell/compile_supplementary.sh --help 2>/dev/null || echo "(No help available)"
+    "$PROJECT_ROOT/scripts/shell/compile_supplementary.sh" --help 2>/dev/null || echo "(No help available)"
     echo ""
     echo -e "${CYAN}────────────────────────────────────────────────────────────────────${NC}"
     echo ""
     echo -e "${BOLD_CYAN}━━━ compile.sh revision ━━━${NC}"
     echo -e "${GRAY}./scripts/shell/compile_revision.sh${NC}"
     echo ""
-    ./scripts/shell/compile_revision.sh --help 2>/dev/null || echo "(No help available)"
+    "$PROJECT_ROOT/scripts/shell/compile_revision.sh" --help 2>/dev/null || echo "(No help available)"
     echo ""
 }
 
@@ -221,7 +221,7 @@ echo ""
 # Handle watch mode
 if [ "$WATCH_MODE" = true ]; then
     # Run watch script for manuscript
-    ./scripts/shell/watch_compile.sh "$REMAINING_ARGS"
+    "$PROJECT_ROOT/scripts/shell/watch_compile.sh" "$REMAINING_ARGS"
     exit $?
 fi
 
@@ -229,13 +229,13 @@ fi
 # Note: Use ${VAR:+$VAR} to only pass args when non-empty (avoid passing "" as an argument)
 case $DOC_TYPE in
 manuscript)
-    ./scripts/shell/compile_manuscript.sh ${REMAINING_ARGS:+$REMAINING_ARGS}
+    "$PROJECT_ROOT/scripts/shell/compile_manuscript.sh" ${REMAINING_ARGS:+$REMAINING_ARGS}
     ;;
 supplementary)
-    ./scripts/shell/compile_supplementary.sh ${REMAINING_ARGS:+$REMAINING_ARGS}
+    "$PROJECT_ROOT/scripts/shell/compile_supplementary.sh" ${REMAINING_ARGS:+$REMAINING_ARGS}
     ;;
 revision)
-    ./scripts/shell/compile_revision.sh ${REMAINING_ARGS:+$REMAINING_ARGS}
+    "$PROJECT_ROOT/scripts/shell/compile_revision.sh" ${REMAINING_ARGS:+$REMAINING_ARGS}
     ;;
 *)
     echo "Error: Unknown document type: $DOC_TYPE"
