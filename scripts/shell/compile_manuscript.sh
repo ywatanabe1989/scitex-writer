@@ -64,7 +64,7 @@ echo_header() { log_stage_start "$1"; }
 
 # Configurations
 export SCITEX_WRITER_DOC_TYPE="manuscript"
-source ./config/load_config.sh "$SCITEX_WRITER_DOC_TYPE"
+source "$PROJECT_ROOT/config/load_config.sh" "$SCITEX_WRITER_DOC_TYPE"
 echo
 
 # Log
@@ -253,17 +253,17 @@ main() {
 
     # Check dependencies
     log_stage_start "Dependency Check"
-    ./scripts/shell/modules/check_dependancy_commands.sh
+    "$PROJECT_ROOT/scripts/shell/modules/check_dependancy_commands.sh"
     log_stage_end "Dependency Check"
 
     # Merge bibliography files if multiple exist
     log_stage_start "Bibliography Merge"
-    ./scripts/shell/modules/merge_bibliographies.sh
+    "$PROJECT_ROOT/scripts/shell/modules/merge_bibliographies.sh"
     log_stage_end "Bibliography Merge"
 
     # Apply citation style from config
     log_stage_start "Citation Style"
-    ./scripts/shell/modules/apply_citation_style.sh
+    "$PROJECT_ROOT/scripts/shell/modules/apply_citation_style.sh"
     log_stage_end "Citation Style"
 
     # Run independent processing in parallel for speed
@@ -278,19 +278,19 @@ main() {
 
     # Run all three in parallel
     (
-        ./scripts/shell/modules/process_figures.sh "$no_figs" "$do_p2t" "$do_verbose" "$do_crop_tif" >"$fig_log" 2>&1
+        "$PROJECT_ROOT/scripts/shell/modules/process_figures.sh" "$no_figs" "$do_p2t" "$do_verbose" "$do_crop_tif" >"$fig_log" 2>&1
         echo $? >"$temp_dir/fig_exit"
     ) &
     local fig_pid=$!
 
     (
-        ./scripts/shell/modules/process_tables.sh "$no_tables" >"$tbl_log" 2>&1
+        "$PROJECT_ROOT/scripts/shell/modules/process_tables.sh" "$no_tables" >"$tbl_log" 2>&1
         echo $? >"$temp_dir/tbl_exit"
     ) &
     local tbl_pid=$!
 
     (
-        ./scripts/shell/modules/count_words.sh >"$wrd_log" 2>&1
+        "$PROJECT_ROOT/scripts/shell/modules/count_words.sh" >"$wrd_log" 2>&1
         echo $? >"$temp_dir/wrd_exit"
     ) &
     local wrd_pid=$!
@@ -336,12 +336,12 @@ main() {
 
     # Compile documents
     log_stage_start "TeX Compilation (Structure)"
-    ./scripts/shell/modules/compilation_structure_tex_to_compiled_tex.sh
+    "$PROJECT_ROOT/scripts/shell/modules/compilation_structure_tex_to_compiled_tex.sh"
     log_stage_end "TeX Compilation (Structure)"
 
     # Engine Selection
     log_stage_start "Engine Selection"
-    source ./scripts/shell/modules/select_compilation_engine.sh
+    source "$PROJECT_ROOT/scripts/shell/modules/select_compilation_engine.sh"
 
     # Get engine from config or default to auto
     SELECTED_ENGINE="${SCITEX_WRITER_ENGINE:-auto}"
@@ -369,13 +369,13 @@ main() {
 
     # TeX to PDF
     log_stage_start "PDF Generation"
-    ./scripts/shell/modules/compilation_compiled_tex_to_compiled_pdf.sh
+    "$PROJECT_ROOT/scripts/shell/modules/compilation_compiled_tex_to_compiled_pdf.sh"
     log_stage_end "PDF Generation"
 
     # Diff (skip if --no_diff specified)
     if [ "$no_diff" = false ]; then
         log_stage_start "Diff Generation"
-        ./scripts/shell/modules/process_diff.sh
+        "$PROJECT_ROOT/scripts/shell/modules/process_diff.sh"
         log_stage_end "Diff Generation"
     else
         echo_info "Skipping diff generation (--no_diff specified)"
@@ -383,17 +383,17 @@ main() {
 
     # Versioning
     log_stage_start "Archive/Versioning"
-    ./scripts/shell/modules/process_archive.sh
+    "$PROJECT_ROOT/scripts/shell/modules/process_archive.sh"
     log_stage_end "Archive/Versioning"
 
     # Cleanup
     log_stage_start "Cleanup"
-    ./scripts/shell/modules/cleanup.sh
+    "$PROJECT_ROOT/scripts/shell/modules/cleanup.sh"
     log_stage_end "Cleanup"
 
     # Final steps
     log_stage_start "Directory Tree"
-    ./scripts/shell/modules/custom_tree.sh
+    "$PROJECT_ROOT/scripts/shell/modules/custom_tree.sh"
     log_stage_end "Directory Tree"
 
     # Final summary
