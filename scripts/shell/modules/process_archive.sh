@@ -32,8 +32,19 @@ touch "$LOG_PATH" >/dev/null 2>&1
 echo
 log_info "Running ${BASH_SOURCE[0]}..."
 
+# Check if working directory is clean (no uncommitted changes)
+is_git_clean() {
+    if ! git rev-parse --git-dir >/dev/null 2>&1; then
+        return 1 # Not a git repo
+    fi
+    if ! git rev-parse HEAD >/dev/null 2>&1; then
+        return 1 # No commits yet
+    fi
+    # Check for uncommitted changes (staged or unstaged)
+    git diff --quiet HEAD -- 2>/dev/null && git diff --cached --quiet HEAD -- 2>/dev/null
+}
+
 # Get git-based identifier: YYYYMMDD-HHMMSS_abc1234
-# If uncommitted changes exist, appends "+" to hash
 get_git_identifier() {
     local timestamp
     timestamp=$(date +%Y%m%d-%H%M%S)
@@ -43,8 +54,6 @@ get_git_identifier() {
         hash=$(git rev-parse --short=7 HEAD 2>/dev/null)
         if [ -z "$hash" ]; then
             hash="nocommit"
-        elif ! git diff --quiet HEAD -- 2>/dev/null || ! git diff --cached --quiet HEAD -- 2>/dev/null; then
-            hash="${hash}+"
         fi
     else
         hash="nogit"
@@ -86,6 +95,13 @@ store_file() {
 
 process_archive() {
     mkdir -p "$SCITEX_WRITER_VERSIONS_DIR"
+
+    # Only archive on clean commits
+    if ! is_git_clean; then
+        echo_warning "    Skipping archive (uncommitted changes detected)"
+        echo_warning "    Commit your changes to create an archive snapshot"
+        return 0
+    fi
 
     local git_id
     git_id=$(get_git_identifier)

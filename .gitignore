@@ -2,27 +2,8 @@
 ### Source: /home/ywatanabe/.git-templates/.gitignore-templates/Custom/Specific.gitignore ###
 # Please add files here
 
-# Archive files (auto-generated during compilation)
-# Git-based naming: {doc}_{YYYYMMDD-HHMMSS}_{hash}.{ext}
-**/archive/manuscript_[0-9]*_*.tex
-**/archive/manuscript_[0-9]*_*.pdf
-**/archive/supplementary_[0-9]*_*.tex
-**/archive/supplementary_[0-9]*_*.pdf
-**/archive/revision_[0-9]*_*.tex
-**/archive/revision_[0-9]*_*.pdf
-# Current version copies (no timestamp)
-**/archive/manuscript.tex
-**/archive/manuscript.pdf
-**/archive/manuscript_diff.tex
-**/archive/manuscript_diff.pdf
-**/archive/supplementary.tex
-**/archive/supplementary.pdf
-**/archive/supplementary_diff.tex
-**/archive/supplementary_diff.pdf
-**/archive/revision.tex
-**/archive/revision.pdf
-**/archive/revision_diff.tex
-**/archive/revision_diff.pdf
+# Archive directories (auto-generated, redundant with git history)
+**/archive/
 
 # Compiled figure/table directories (auto-generated)
 **/contents/figures/compiled/
@@ -125,6 +106,14 @@ data/*
 
 # Logo files for README
 !docs/scitex-*.png
+
+# Main manuscript output PDFs (small, useful for collaborators)
+!01_manuscript/manuscript.pdf
+!01_manuscript/manuscript_diff.pdf
+!02_supplementary/supplementary.pdf
+!02_supplementary/supplementary_diff.pdf
+!03_revision/revision.pdf
+!03_revision/revision_diff.pdf
 **/*.gz
 **/*.rar
 **/*.7z
