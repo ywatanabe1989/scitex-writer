@@ -28,6 +28,8 @@ GRAY='\033[0;90m'
 GREEN='\033[0;32m'
 YELLOW='\033[0;33m'
 RED='\033[0;31m'
+CYAN='\033[0;36m'
+BOLD_CYAN='\033[1;36m'
 NC='\033[0m' # No Color
 
 echo_info() { echo -e "${GRAY}INFO: $1${NC}"; }
@@ -121,24 +123,28 @@ EOF
 # Function to display help for all commands recursively
 show_help_recursive() {
     echo ""
-    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    echo "  compile.sh (main)"
-    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo -e "${BOLD_CYAN}━━━ compile.sh (main) ━━━${NC}"
     show_usage
     echo ""
-    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    echo "  compile.sh manuscript (./scripts/shell/compile_manuscript.sh)"
-    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo -e "${CYAN}────────────────────────────────────────────────────────────────────${NC}"
+    echo ""
+    echo -e "${BOLD_CYAN}━━━ compile.sh manuscript ━━━${NC}"
+    echo -e "${GRAY}./scripts/shell/compile_manuscript.sh${NC}"
+    echo ""
     ./scripts/shell/compile_manuscript.sh --help 2>/dev/null || echo "(No help available)"
     echo ""
-    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    echo "  compile.sh supplementary (./scripts/shell/compile_supplementary.sh)"
-    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo -e "${CYAN}────────────────────────────────────────────────────────────────────${NC}"
+    echo ""
+    echo -e "${BOLD_CYAN}━━━ compile.sh supplementary ━━━${NC}"
+    echo -e "${GRAY}./scripts/shell/compile_supplementary.sh${NC}"
+    echo ""
     ./scripts/shell/compile_supplementary.sh --help 2>/dev/null || echo "(No help available)"
     echo ""
-    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    echo "  compile.sh revision (./scripts/shell/compile_revision.sh)"
-    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo -e "${CYAN}────────────────────────────────────────────────────────────────────${NC}"
+    echo ""
+    echo -e "${BOLD_CYAN}━━━ compile.sh revision ━━━${NC}"
+    echo -e "${GRAY}./scripts/shell/compile_revision.sh${NC}"
+    echo ""
     ./scripts/shell/compile_revision.sh --help 2>/dev/null || echo "(No help available)"
     echo ""
 }
