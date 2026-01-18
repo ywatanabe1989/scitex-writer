@@ -6,9 +6,7 @@
 ORIG_DIR="$(pwd)"
 THIS_DIR="$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)"
 LOG_PATH="$THIS_DIR/.$(basename $0).log"
-echo > "$LOG_PATH"
-
-GIT_ROOT="$(git rev-parse --show-toplevel 2>/dev/null)"
+echo >"$LOG_PATH"
 
 GRAY='\033[0;90m'
 GREEN='\033[0;32m'
@@ -24,7 +22,8 @@ echo_header() { echo_info "=== $1 ==="; }
 # ---------------------------------------
 # Description: Generate preview images for README from compiled PDFs
 
-PROJECT_ROOT="${GIT_ROOT:-$(cd $THIS_DIR/../.. && pwd)}"
+# Resolve project root from script location (safe for nested repos)
+PROJECT_ROOT="$(cd "$THIS_DIR/../.." && pwd)"
 
 echo_header "Generating Demo Previews for README"
 
@@ -33,8 +32,8 @@ DEMO_DIR="${PROJECT_ROOT}/docs"
 mkdir -p "$DEMO_DIR"
 
 # Settings
-RESOLUTION=300  # DPI
-WIDTH=1200      # Max width in pixels
+RESOLUTION=300 # DPI
+WIDTH=1200     # Max width in pixels
 
 # Function to convert PDF first page to PNG
 convert_pdf_to_preview() {

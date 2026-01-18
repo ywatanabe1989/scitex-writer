@@ -12,12 +12,9 @@ ORIG_DIR="$(pwd)"
 THIS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 MODULES_DIR="$THIS_DIR/process_figures_modules"
 
-# Resolve project root for working directory independence
-GIT_ROOT="$(git rev-parse --show-toplevel 2>/dev/null)"
-if [ -z "$GIT_ROOT" ]; then
-    GIT_ROOT="$(cd "$THIS_DIR/../../.." && pwd)"
-fi
-export PROJECT_ROOT="$GIT_ROOT"
+# Resolve project root from script location (safe for nested repos)
+PROJECT_ROOT="$(cd "$THIS_DIR/../../.." && pwd)"
+export PROJECT_ROOT
 cd "$PROJECT_ROOT" || exit 1
 
 # Source configuration
