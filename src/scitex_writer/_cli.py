@@ -15,26 +15,36 @@ MCP_TOOLS_INFO = """
 MCP Server: scitex-writer
 Version: {version}
 
-Tool:
-  scitex_writer(command, doc_type, project_dir)
+Tools (13 total):
+  Compilation:
+    compile_manuscript     - Compile manuscript to PDF
+    compile_supplementary  - Compile supplementary materials
+    compile_revision       - Compile revision document
 
-Parameters:
-  command:     Literal["usage"]
-  doc_type:    Literal["manuscript", "supplementary", "revision"]
-  project_dir: str (path to project)
+  Project Management:
+    clone_project          - Create new project from template
+    get_project_info       - Get project structure and status
+    get_pdf                - Get path to compiled PDF
+    list_document_types    - List available document types
 
-Usage:
-  The tool returns project usage guide for AI agents.
-  AI agents can then use shell commands to perform actual operations.
+  Conversion:
+    csv_to_latex           - Convert CSV to LaTeX table
+    latex_to_csv           - Convert LaTeX table to CSV
+    pdf_to_images          - Render PDF pages as images
 
-Setup (clone template first):
+  Figures:
+    list_figures           - List figures in project
+    convert_figure         - Convert figure formats
+
+  Help:
+    scitex_writer          - Get usage guide
+
+Setup:
   git clone https://github.com/ywatanabe1989/scitex-writer.git my-paper
   cd my-paper
 
-Shell Commands (run via Bash):
+Shell Commands:
   ./compile.sh manuscript       # Compile manuscript
-  ./compile.sh supplementary    # Compile supplementary
-  ./compile.sh revision         # Compile revision
   ./compile.sh --help-recursive # Full documentation
 """
 

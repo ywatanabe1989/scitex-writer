@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.2.1] - 2026-01-20
+
+### Added
+- Full MCP tool suite migrated from scitex.writer (13 tools total)
+  - clone_project, compile_manuscript, compile_supplementary, compile_revision
+  - get_project_info, get_pdf, list_document_types
+  - csv_to_latex, latex_to_csv, pdf_to_images
+  - list_figures, convert_figure, scitex_writer
+
+### Changed
+- Python MCP package version: 0.1.2
+- Refactored MCP module structure (_server.py, _mcp/handlers.py, _mcp/utils.py)
+
 ## [2.2.0] - 2026-01-19
 
 ### Added
