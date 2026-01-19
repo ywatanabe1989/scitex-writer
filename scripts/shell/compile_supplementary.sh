@@ -11,7 +11,8 @@ THIS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 LOG_PATH="$THIS_DIR/.$(basename "$0").log"
 
 # Resolve project root from script location (safe for nested repos)
-PROJECT_ROOT="$(cd "$THIS_DIR/../.." && pwd)"
+# Allow override via environment variable for moved projects
+PROJECT_ROOT="${PROJECT_ROOT:-$(cd "$THIS_DIR/../.." && pwd)}"
 export PROJECT_ROOT
 
 # Change to project root to ensure relative paths work

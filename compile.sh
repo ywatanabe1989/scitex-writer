@@ -9,8 +9,18 @@ THIS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 LOG_PATH="$THIS_DIR/.$(basename "$0").log"
 echo >"$LOG_PATH"
 
+# Early parsing for --project-root (must be done before PROJECT_ROOT is set)
+for arg in "$@"; do
+    case $arg in
+    -p=* | --project-root=* | --project_root=*)
+        PROJECT_ROOT="${arg#*=}"
+        ;;
+    esac
+done
+
 # Resolve project root from script location (safe for nested repos)
-PROJECT_ROOT="$(cd "$THIS_DIR" && pwd)"
+# Priority: 1. -p/--project-root arg, 2. env var, 3. auto-detect from script location
+PROJECT_ROOT="${PROJECT_ROOT:-$(cd "$THIS_DIR" && pwd)}"
 export PROJECT_ROOT
 
 # Change to project root to ensure all relative paths work (Issue #13)
@@ -64,6 +74,8 @@ DOCUMENT TYPES:
 GLOBAL OPTIONS:
     -h, --help           Show this help message
     --help-recursive     Show help for all commands recursively
+    -p, --project-root   Override project root directory
+                         (useful when project is moved)
     -w, --watch          Enable watch mode for hot-recompiling
                          (Only works with manuscript type)
 
@@ -108,6 +120,10 @@ EXAMPLES:
     Watch mode:
     ./compile.sh -m -w                     # Watch and recompile manuscript
     ./compile.sh -m --watch --no-figs      # Watch mode with speed options
+
+    Custom project root (for moved projects):
+    ./compile.sh -m -p=/new/path/to/project
+    ./compile.sh -m --project-root=/path/to/project
 
 EOF
 }
@@ -160,6 +176,10 @@ while [ $# -gt 0 ]; do
         ;;
     -w | --watch)
         WATCH_MODE=true
+        shift
+        ;;
+    -p=* | --project-root=* | --project_root=*)
+        # Already parsed early, just consume the argument
         shift
         ;;
     --help-recursive)

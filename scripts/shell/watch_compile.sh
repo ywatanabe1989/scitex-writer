@@ -7,7 +7,8 @@
 
 ORIG_DIR="$(pwd)"
 THIS_DIR="$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)"
-PROJECT_ROOT="$(cd "$THIS_DIR/../.." && pwd)"
+# Allow override via environment variable for moved projects
+PROJECT_ROOT="${PROJECT_ROOT:-$(cd "$THIS_DIR/../.." && pwd)}"
 
 # Colors for output
 GIT_ROOT="$(git rev-parse --show-toplevel 2>/dev/null)"
@@ -35,21 +36,21 @@ is_locked() {
         local lock_pid=$(cat "$LOCK_FILE" 2>/dev/null)
         # Check if the process is still running
         if [ -n "$lock_pid" ] && kill -0 "$lock_pid" 2>/dev/null; then
-            return 0  # Locked and process is running
+            return 0 # Locked and process is running
         else
             # Process is dead, remove stale lock
             rm -f "$LOCK_FILE"
             return 1
         fi
     fi
-    return 1  # Not locked
+    return 1 # Not locked
 }
 
 # Function to acquire lock
 acquire_lock() {
-    local max_wait=60  # Maximum seconds to wait for lock
+    local max_wait=60 # Maximum seconds to wait for lock
     local waited=0
-    
+
     while is_locked; do
         if [ $waited -eq 0 ]; then
             echo_warning "Compilation in progress, waiting for lock..."
@@ -61,9 +62,9 @@ acquire_lock() {
             return 1
         fi
     done
-    
+
     # Create lock with our PID
-    echo $$ > "$LOCK_FILE"
+    echo $$ >"$LOCK_FILE"
     return 0
 }
 
@@ -108,26 +109,26 @@ get_yaml_array() {
 # Load hot-recompile configuration
 # Note: YAML key uses "enabled" not "enable"
 HOT_RECOMPILE_ENABLED=$(awk '/^hot-recompile:/{flag=1} flag && /^[[:space:]]*enabled:/{print $2; exit}' "$CONFIG_FILE" | grep -o "true\|false")
-COMPILE_MODE="${1:-$(get_yaml_value "hot-recompile.mode")}"  # Use arg or config
-COMPILE_MODE="${COMPILE_MODE:-restart}"  # Default to restart if not specified
+COMPILE_MODE="${1:-$(get_yaml_value "hot-recompile.mode")}" # Use arg or config
+COMPILE_MODE="${COMPILE_MODE:-restart}"                     # Default to restart if not specified
 STABLE_LINK=$(get_yaml_value "hot-recompile.stable_link")
 STABLE_LINK="${STABLE_LINK:-./01_manuscript/manuscript-latest.pdf}"
 
 # Function to compile manuscript
 compile_with_lock() {
     local compilation_start_file="$PROJECT_ROOT/.compile_start_time"
-    
+
     # Check if compilation is running
     if is_locked; then
         local lock_pid=$(cat "$LOCK_FILE" 2>/dev/null)
-        
+
         if [ "$COMPILE_MODE" = "restart" ]; then
             # Check how long compilation has been running
             if [ -f "$compilation_start_file" ]; then
                 local start_time=$(cat "$compilation_start_file")
                 local current_time=$(date +%s)
                 local elapsed=$((current_time - start_time))
-                
+
                 if [ $elapsed -lt 3 ]; then
                     # Just started, kill and restart
                     echo_warning "$(date '+%H:%M:%S') - Stopping current compilation (just started)..."
@@ -152,16 +153,16 @@ compile_with_lock() {
             return 1
         fi
     fi
-    
+
     if acquire_lock; then
         echo_info "$(date '+%H:%M:%S') - Starting compilation..."
-        date +%s > "$compilation_start_file"
+        date +%s >"$compilation_start_file"
         cd "$PROJECT_ROOT"
         ./compile -m
         local status=$?
         release_lock
         rm -f "$compilation_start_file"
-        
+
         if [ $status -eq 0 ]; then
             echo_success "$(date '+%H:%M:%S') - Compilation successful"
             # Load configuration to get environment variables
@@ -175,13 +176,13 @@ compile_with_lock() {
                 # Create relative symlink to archive
                 cd "${SCITEX_WRITER_ROOT_DIR}"
                 ln -sf "archive/$(basename "$latest_archive")" "${SCITEX_WRITER_DOC_TYPE}-latest.pdf"
-                cd - > /dev/null
+                cd - >/dev/null
                 echo_info "    Symlink updated: ${SCITEX_WRITER_DOC_TYPE}-latest.pdf -> archive/$(basename "$latest_archive")"
             else
                 # Fallback if no archive exists
                 cd "${SCITEX_WRITER_ROOT_DIR}"
                 ln -sf "${SCITEX_WRITER_DOC_TYPE}.pdf" "${SCITEX_WRITER_DOC_TYPE}-latest.pdf"
-                cd - > /dev/null
+                cd - >/dev/null
                 echo_info "    Symlink updated: ${SCITEX_WRITER_DOC_TYPE}-latest.pdf -> ${SCITEX_WRITER_DOC_TYPE}.pdf (no archive yet)"
             fi
         else
@@ -197,16 +198,16 @@ compile_with_lock() {
 # Function to get list of files to watch from config
 get_watch_files() {
     # Read watch patterns from YAML config
-    local patterns=$(awk '/^  watching_files:/,/^[^ ]/' "$CONFIG_FILE" | \
-                    grep '^[[:space:]]*-' | \
-                    sed 's/^[[:space:]]*-[[:space:]]*//' | \
-                    sed 's/"//g')
-    
+    local patterns=$(awk '/^  watching_files:/,/^[^ ]/' "$CONFIG_FILE" |
+        grep '^[[:space:]]*-' |
+        sed 's/^[[:space:]]*-[[:space:]]*//' |
+        sed 's/"//g')
+
     # Expand patterns and find matching files
     for pattern in $patterns; do
         # Skip comments
         [[ "$pattern" =~ ^# ]] && continue
-        
+
         # Expand the pattern (handles wildcards)
         if [[ "$pattern" == *"**"* ]]; then
             # Handle recursive patterns
@@ -226,17 +227,17 @@ get_watch_files() {
 # Main watch loop
 main() {
     # Save PID for external monitoring
-    echo $$ > "$WATCH_PID_FILE"
-    
+    echo $$ >"$WATCH_PID_FILE"
+
     # Check if hot-recompile is enabled
     if [ "$HOT_RECOMPILE_ENABLED" != "true" ]; then
         echo_warning "Hot-recompile is disabled in config. Set hot-recompile.enabled: true to enable."
         exit 0
     fi
-    
+
     # Count files being watched
     local watch_count=$(get_watch_files | wc -l)
-    
+
     echo_success "==========================================
 Hot-Recompile Watch Mode Started
 ==========================================
@@ -253,44 +254,44 @@ Press Ctrl+C to stop
 
     # Initial compilation
     compile_with_lock
-    
+
     # Check for inotifywait (preferred) or fall back to polling
     if command -v inotifywait >/dev/null 2>&1; then
         echo_info "Using inotify for file watching (efficient)"
-        
+
         # Watch for changes using inotify
         while true; do
             inotifywait -r -q -e modify,create,delete,move \
                 "$PROJECT_ROOT/01_manuscript/contents/" \
                 --exclude '(~$|\.swp$|\.tmp$|#.*#$|\.git)' \
                 2>/dev/null
-            
+
             # Small delay to batch rapid changes
             sleep 0.5
-            
+
             # Compile if not locked
             compile_with_lock
-            
+
             echo_info "$(date '+%H:%M:%S') - Waiting for changes..."
         done
     else
         echo_warning "inotifywait not found, using polling mode (less efficient)"
         echo_info "Install inotify-tools for better performance"
-        
+
         # Polling fallback
         declare -A file_times
-        
+
         # Initialize file timestamps
         while IFS= read -r file; do
             if [ -f "$file" ]; then
                 file_times["$file"]=$(stat -c %Y "$file" 2>/dev/null)
             fi
         done < <(get_watch_files)
-        
+
         # Poll for changes
         while true; do
             changed=false
-            
+
             while IFS= read -r file; do
                 if [ -f "$file" ]; then
                     current_time=$(stat -c %Y "$file" 2>/dev/null)
@@ -301,13 +302,13 @@ Press Ctrl+C to stop
                     fi
                 fi
             done < <(get_watch_files)
-            
+
             if [ "$changed" = true ]; then
                 compile_with_lock
                 echo_info "$(date '+%H:%M:%S') - Waiting for changes..."
             fi
-            
-            sleep 2  # Poll interval
+
+            sleep 2 # Poll interval
         done
     fi
 }
