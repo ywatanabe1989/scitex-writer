@@ -3,9 +3,12 @@
 # Timestamp: 2026-01-20
 # File: tests/python/test_scitex_writer_mcp.py
 
-"""Tests for scitex_writer MCP module."""
+"""Tests for scitex_writer MCP module.
 
-import tempfile
+Note: The MCP server currently exposes a simplified API with just the `usage` tool.
+Handler functions exist but are not registered as MCP tools (for future use).
+"""
+
 from pathlib import Path
 
 
@@ -36,154 +39,34 @@ class TestMcpModule:
 
 
 class TestToolRegistration:
-    """Test that all 13 tools are registered."""
+    """Test that the usage tool is registered."""
 
-    def test_all_tools_registered(self):
-        """Test that all expected tools are registered with MCP."""
+    def test_usage_tool_registered(self):
+        """Test that usage tool is registered with MCP."""
         from scitex_writer._mcp import mcp
 
         tool_names = [t.name for t in mcp._tool_manager._tools.values()]
-
-        expected_tools = [
-            "clone_project",
-            "compile_manuscript",
-            "compile_supplementary",
-            "compile_revision",
-            "get_project_info",
-            "get_pdf",
-            "list_document_types",
-            "csv_to_latex",
-            "latex_to_csv",
-            "pdf_to_images",
-            "list_figures",
-            "convert_figure",
-            "scitex_writer",
-        ]
-
-        for tool in expected_tools:
-            assert tool in tool_names, f"Tool {tool} not registered"
+        assert "usage" in tool_names
 
     def test_tool_count(self):
-        """Test that exactly 13 tools are registered."""
+        """Test that exactly 1 tool is registered (simplified API)."""
         from scitex_writer._mcp import mcp
 
         tool_count = len(mcp._tool_manager._tools)
-        assert tool_count == 13
+        assert tool_count == 1
 
 
-class TestScitexWriterTool:
-    """Test scitex_writer tool functionality."""
+class TestUsageTool:
+    """Test usage tool functionality."""
 
-    def test_scitex_writer_usage_command(self):
-        """Test scitex_writer with usage command."""
+    def test_usage_returns_instructions(self):
+        """Test usage tool returns INSTRUCTIONS."""
         from scitex_writer._mcp import INSTRUCTIONS, mcp
 
-        tool = mcp._tool_manager._tools.get("scitex_writer")
-        result = tool.fn(command="usage")
+        tool = mcp._tool_manager._tools.get("usage")
+        assert tool is not None
+        result = tool.fn()
         assert result == INSTRUCTIONS
-
-
-class TestListDocumentTypes:
-    """Test list_document_types tool."""
-
-    def test_list_document_types_returns_dict(self):
-        """Test that list_document_types returns a dict."""
-        from scitex_writer._mcp import mcp
-
-        tool = mcp._tool_manager._tools.get("list_document_types")
-        result = tool.fn()
-        assert isinstance(result, dict)
-        assert result["success"] is True
-
-    def test_list_document_types_has_types(self):
-        """Test that list_document_types includes all doc types."""
-        from scitex_writer._mcp import mcp
-
-        tool = mcp._tool_manager._tools.get("list_document_types")
-        result = tool.fn()
-        doc_types = [d["id"] for d in result["document_types"]]
-        assert "manuscript" in doc_types
-        assert "supplementary" in doc_types
-        assert "revision" in doc_types
-
-
-class TestGetProjectInfo:
-    """Test get_project_info tool."""
-
-    def test_get_project_info_nonexistent(self):
-        """Test get_project_info with non-existent directory."""
-        from scitex_writer._mcp import mcp
-
-        tool = mcp._tool_manager._tools.get("get_project_info")
-        result = tool.fn(project_dir="/nonexistent/path")
-        assert result["success"] is False
-        assert "error" in result
-
-    def test_get_project_info_current_dir(self):
-        """Test get_project_info with current project directory."""
-        from scitex_writer._mcp import mcp
-
-        tool = mcp._tool_manager._tools.get("get_project_info")
-        result = tool.fn(project_dir=".")
-        assert result["success"] is True
-        assert "project_dir" in result
-
-
-class TestGetPdf:
-    """Test get_pdf tool."""
-
-    def test_get_pdf_manuscript(self):
-        """Test get_pdf with manuscript doc_type."""
-        from scitex_writer._mcp import mcp
-
-        tool = mcp._tool_manager._tools.get("get_pdf")
-        result = tool.fn(project_dir=".", doc_type="manuscript")
-        assert result["success"] is True
-        assert result["doc_type"] == "manuscript"
-
-
-class TestCsvToLatex:
-    """Test csv_to_latex tool."""
-
-    def test_csv_to_latex_nonexistent(self):
-        """Test csv_to_latex with non-existent file."""
-        from scitex_writer._mcp import mcp
-
-        tool = mcp._tool_manager._tools.get("csv_to_latex")
-        result = tool.fn(csv_path="/nonexistent/file.csv")
-        assert result["success"] is False
-
-    def test_csv_to_latex_valid(self):
-        """Test csv_to_latex with valid CSV."""
-        from scitex_writer._mcp import mcp
-
-        # Create a temporary CSV file
-        with tempfile.NamedTemporaryFile(mode="w", suffix=".csv", delete=False) as f:
-            f.write("Name,Value\nA,1\nB,2\n")
-            csv_path = f.name
-
-        try:
-            tool = mcp._tool_manager._tools.get("csv_to_latex")
-            result = tool.fn(csv_path=csv_path)
-            assert result["success"] is True
-            assert "latex_content" in result
-            assert "\\begin{table}" in result["latex_content"]
-        finally:
-            Path(csv_path).unlink()
-
-
-class TestListFigures:
-    """Test list_figures tool."""
-
-    def test_list_figures_current_project(self):
-        """Test list_figures on current project."""
-        from scitex_writer._mcp import mcp
-
-        tool = mcp._tool_manager._tools.get("list_figures")
-        result = tool.fn(project_dir=".")
-        assert result["success"] is True
-        assert "figures" in result
-        assert "count" in result
 
 
 class TestInstructionsContent:
@@ -232,6 +115,29 @@ class TestInstructionsContent:
         assert "supplementary.pdf" in INSTRUCTIONS
         assert "revision.pdf" in INSTRUCTIONS
 
+    def test_instructions_has_scitex_writer_root(self):
+        """Test that INSTRUCTIONS explains SCITEX_WRITER_ROOT."""
+        from scitex_writer._mcp import INSTRUCTIONS
+
+        assert "SCITEX_WRITER_ROOT" in INSTRUCTIONS
+        assert "compile.sh" in INSTRUCTIONS
+
+    def test_instructions_has_triplet_structure(self):
+        """Test that INSTRUCTIONS explains TRIPLET structure for revisions."""
+        from scitex_writer._mcp import INSTRUCTIONS
+
+        assert "TRIPLET" in INSTRUCTIONS
+        assert "comments.tex" in INSTRUCTIONS
+        assert "response.tex" in INSTRUCTIONS
+        assert "revision.tex" in INSTRUCTIONS
+
+    def test_instructions_has_bib_merge(self):
+        """Test that INSTRUCTIONS explains bib auto-merge."""
+        from scitex_writer._mcp import INSTRUCTIONS
+
+        assert "bib_files/" in INSTRUCTIONS
+        assert "auto-merge" in INSTRUCTIONS.lower() or "merge" in INSTRUCTIONS.lower()
+
 
 class TestHandlersModule:
     """Test handlers module can be imported."""
@@ -243,7 +149,7 @@ class TestHandlersModule:
         assert handlers is not None
 
     def test_handlers_functions_exist(self):
-        """Test that all handler functions exist."""
+        """Test that all handler functions exist (not registered, but available)."""
         from scitex_writer._mcp import handlers
 
         assert callable(handlers.clone_project)

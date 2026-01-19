@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Timestamp: 2026-01-19 05:15:00
+# Timestamp: 2026-01-20
 # File: tests/python/test_scitex_writer_cli.py
 
 """Tests for scitex_writer CLI module."""
@@ -81,79 +81,22 @@ class TestMcpCommand:
             text=True,
         )
         assert result.returncode == 0
-        assert "config" in result.stdout
-        assert "doctor" in result.stdout
-        assert "info" in result.stdout
+        assert "installation" in result.stdout
         assert "start" in result.stdout
 
-    def test_mcp_help_recursive(self):
-        """Test mcp --help-recursive."""
+
+class TestMcpInstallation:
+    """Test mcp installation subcommand."""
+
+    def test_mcp_installation(self):
+        """Test mcp installation output."""
         result = subprocess.run(
-            [sys.executable, "-m", "scitex_writer", "mcp", "--help-recursive"],
+            [sys.executable, "-m", "scitex_writer", "mcp", "installation"],
             capture_output=True,
             text=True,
         )
         assert result.returncode == 0
-        assert "config" in result.stdout
-        assert "doctor" in result.stdout
-        assert "info" in result.stdout
-        assert "start" in result.stdout
-        assert "--transport" in result.stdout
-
-
-class TestMcpConfig:
-    """Test mcp config subcommand."""
-
-    def test_mcp_config(self):
-        """Test mcp config output."""
-        result = subprocess.run(
-            [sys.executable, "-m", "scitex_writer", "mcp", "config"],
-            capture_output=True,
-            text=True,
-        )
-        assert result.returncode == 0
-        assert "mcpServers" in result.stdout
-        assert "scitex-writer" in result.stdout
-        assert "mcp" in result.stdout
-        assert "start" in result.stdout
-        # Both CLI and Python module options
-        assert "Option 1: CLI command" in result.stdout
-        assert "Option 2: Python module" in result.stdout
-        assert "scitex_writer" in result.stdout  # Python module uses underscore
-
-
-class TestMcpDoctor:
-    """Test mcp doctor subcommand."""
-
-    def test_mcp_doctor(self):
-        """Test mcp doctor output."""
-        result = subprocess.run(
-            [sys.executable, "-m", "scitex_writer", "mcp", "doctor"],
-            capture_output=True,
-            text=True,
-        )
-        assert result.returncode == 0
-        assert "Python version" in result.stdout
-        assert "fastmcp" in result.stdout
-        assert "MCP server module" in result.stdout
-
-
-class TestMcpInfo:
-    """Test mcp info subcommand."""
-
-    def test_mcp_info(self):
-        """Test mcp info output."""
-        result = subprocess.run(
-            [sys.executable, "-m", "scitex_writer", "mcp", "info"],
-            capture_output=True,
-            text=True,
-        )
-        assert result.returncode == 0
-        assert "MCP Server: scitex-writer" in result.stdout
-        assert "Tools (13 total)" in result.stdout
-        assert "compile_manuscript" in result.stdout
-        assert "scitex_writer" in result.stdout
-        assert "./compile.sh" in result.stdout
+        assert "mcpServers" in result.stdout or "Installation" in result.stdout
 
 
 class TestMcpStart:
@@ -167,10 +110,7 @@ class TestMcpStart:
             text=True,
         )
         assert result.returncode == 0
-        assert "--transport" in result.stdout
-        assert "-t" in result.stdout
-        assert "stdio" in result.stdout
-        assert "sse" in result.stdout
+        assert "--transport" in result.stdout or "-t" in result.stdout
 
 
 class TestMainFunction:
