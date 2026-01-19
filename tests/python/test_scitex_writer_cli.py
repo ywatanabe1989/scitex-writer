@@ -23,6 +23,8 @@ class TestVersion:
 
     def test_version_cli_flag(self):
         """Test --version flag."""
+        from scitex_writer import __version__
+
         result = subprocess.run(
             [sys.executable, "-m", "scitex_writer", "--version"],
             capture_output=True,
@@ -30,7 +32,7 @@ class TestVersion:
         )
         assert result.returncode == 0
         assert "scitex-writer" in result.stdout
-        assert "0.1.0" in result.stdout
+        assert __version__ in result.stdout
 
     def test_version_short_flag(self):
         """Test -V flag."""
@@ -148,9 +150,9 @@ class TestMcpInfo:
         )
         assert result.returncode == 0
         assert "MCP Server: scitex-writer" in result.stdout
-        assert "scitex_writer(command, doc_type, project_dir)" in result.stdout
-        assert 'Literal["usage"]' in result.stdout
-        assert 'Literal["manuscript", "supplementary", "revision"]' in result.stdout
+        assert "Tools (13 total)" in result.stdout
+        assert "compile_manuscript" in result.stdout
+        assert "scitex_writer" in result.stdout
         assert "./compile.sh" in result.stdout
 
 
