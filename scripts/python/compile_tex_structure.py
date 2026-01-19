@@ -27,13 +27,17 @@ def generate_signature(source_file: Path = None) -> str:
     Returns:
         Formatted signature as comment block
     """
-    # Read version
-    version_file = Path("VERSION")
+    # Read version from pyproject.toml (single source of truth)
+    version = "unknown"
+    pyproject_path = Path(__file__).parent.parent.parent / "pyproject.toml"
     try:
-        with open(version_file, "r") as f:
-            version = f.read().strip()
-    except:
-        version = "unknown"
+        with open(pyproject_path, "r") as f:
+            for line in f:
+                if line.startswith("version"):
+                    version = line.split("=")[1].strip().strip('"')
+                    break
+    except Exception:
+        pass
 
     # Get engine
     engine = (
