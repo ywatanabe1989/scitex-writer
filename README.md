@@ -62,32 +62,49 @@ cd my-paper && ./scripts/compile.sh manuscript
 
 <br>
 
-**Guidelines** — IMRAD Writing Tips
+**Compile** — Build PDFs
 
 ```python
 import scitex_writer as sw
 
-# Get writing guidelines for a section
-tips = sw.get_guideline("abstract")
+sw.compile.manuscript("./my-paper")                    # Full compile
+sw.compile.manuscript("./my-paper", draft=True)       # Fast draft mode
+sw.compile.supplementary("./my-paper")
+sw.compile.revision("./my-paper", track_changes=True)
+```
 
-# Build prompt with your draft
-prompt = sw.build_guideline("abstract", draft="Your draft text...")
+**Tables/Figures/Bib** — CRUD Operations
 
-# List available sections
+```python
+# Tables
+sw.tables.list("./my-paper")
+sw.tables.add("./my-paper", "results", "a,b\n1,2", "Results summary")
+sw.tables.remove("./my-paper", "results")
+
+# Figures
+sw.figures.list("./my-paper")
+sw.figures.add("./my-paper", "fig01", "./plot.png", "My figure")
+sw.figures.remove("./my-paper", "fig01")
+
+# Bibliography
+sw.bib.list_files("./my-paper")
+sw.bib.add("./my-paper", "@article{Smith2024, title={...}}")
+sw.bib.merge("./my-paper")  # Merge + deduplicate
+```
+
+**Guidelines** — IMRAD Writing Tips
+
+```python
+sw.get_guideline("abstract")
+sw.build_guideline("abstract", draft="Your draft...")
 sw.list_guidelines()  # ['abstract', 'introduction', 'methods', 'discussion', 'proofread']
 ```
 
-**Prompts** — AI2 Asta Integration
+**Prompts** — AI2 Asta
 
 ```python
 from scitex_writer import generate_asta
-
-# Generate prompt to find related papers
-result = generate_asta(project_path="./my-paper", search_type="related")
-print(result["prompt"])  # Copy to AI2 Asta
-
-# Find potential collaborators
-result = generate_asta(project_path="./my-paper", search_type="coauthors")
+result = generate_asta("./my-paper", search_type="related")
 ```
 
 </details>

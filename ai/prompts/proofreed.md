@@ -1,15 +1,8 @@
 <!-- ---
-!-- Timestamp: 2025-11-18 19:18:42
+!-- Timestamp: 2026-01-27 07:03:05
 !-- Author: ywatanabe
-!-- File: /home/ywatanabe/proj/scitex-writer/ai/prompts/general.md
+!-- File: /home/ywatanabe/proj/scitex-writer/ai/prompts/proofreed.md
 !-- --- -->
-
-<!-- ---
-!-- title: ./genai/templates/SciWrite.md
-!-- author: ywatanabe
-!-- date: 2024-11-19 23:18:55
-!-- --- -->
-
 
 ----------
 Background

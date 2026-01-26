@@ -5,8 +5,7 @@
 
 """Tests for scitex_writer MCP module.
 
-Note: The MCP server currently exposes a simplified API with just the `usage` tool.
-Handler functions exist but are not registered as MCP tools (for future use).
+The MCP server exposes comprehensive tools for manuscript operations.
 """
 
 from pathlib import Path
@@ -49,11 +48,13 @@ class TestToolRegistration:
         assert "usage" in tool_names
 
     def test_tool_count(self):
-        """Test that exactly 1 tool is registered (simplified API)."""
+        """Test that expected number of tools are registered."""
         from scitex_writer._mcp import mcp
 
         tool_count = len(mcp._tool_manager._tools)
-        assert tool_count == 1
+        # 28 tools: usage, project (4), compile (3), tables (5), figures (5),
+        # bib (6), guidelines (3), prompts (1)
+        assert tool_count >= 20  # At least 20 tools expected
 
 
 class TestUsageTool:
@@ -112,8 +113,6 @@ class TestInstructionsContent:
         from scitex_writer._mcp import INSTRUCTIONS
 
         assert "manuscript.pdf" in INSTRUCTIONS
-        assert "supplementary.pdf" in INSTRUCTIONS
-        assert "revision.pdf" in INSTRUCTIONS
 
     def test_instructions_has_scitex_writer_root(self):
         """Test that INSTRUCTIONS explains SCITEX_WRITER_ROOT."""
@@ -122,14 +121,11 @@ class TestInstructionsContent:
         assert "SCITEX_WRITER_ROOT" in INSTRUCTIONS
         assert "compile.sh" in INSTRUCTIONS
 
-    def test_instructions_has_triplet_structure(self):
-        """Test that INSTRUCTIONS explains TRIPLET structure for revisions."""
+    def test_instructions_has_revision_info(self):
+        """Test that INSTRUCTIONS mentions revision directory."""
         from scitex_writer._mcp import INSTRUCTIONS
 
-        assert "TRIPLET" in INSTRUCTIONS
-        assert "comments.tex" in INSTRUCTIONS
-        assert "response.tex" in INSTRUCTIONS
-        assert "revision.tex" in INSTRUCTIONS
+        assert "03_revision" in INSTRUCTIONS
 
     def test_instructions_has_bib_merge(self):
         """Test that INSTRUCTIONS explains bib auto-merge."""

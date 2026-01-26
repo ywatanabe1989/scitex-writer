@@ -1,13 +1,7 @@
 <!-- ---
-!-- Timestamp: 2025-11-18 19:18:41
+!-- Timestamp: 2026-01-27 07:02:16
 !-- Author: ywatanabe
 !-- File: /home/ywatanabe/proj/scitex-writer/ai/prompts/abstract.md
-!-- --- -->
-
-<!-- ---
-!-- title: ./genai/templates/SciWriteAbstract.md
-!-- author: ywatanabe
-!-- date: 2024-11-19 22:07:20
 !-- --- -->
 
 

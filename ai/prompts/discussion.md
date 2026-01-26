@@ -1,16 +1,10 @@
 <!-- ---
-!-- Timestamp: 2025-11-18 19:18:42
+!-- Timestamp: 2026-01-27 07:02:45
 !-- Author: ywatanabe
 !-- File: /home/ywatanabe/proj/scitex-writer/ai/prompts/discussion.md
 !-- --- -->
 
-<!-- ---
-!-- title: ./genai/templates/SciWriteDiscussion.md
-!-- author: ywatanabe
-!-- date: 2024-11-19 22:11:11
-!-- --- -->
-
-
+----------
 Background
 ----------
 # Your Role
