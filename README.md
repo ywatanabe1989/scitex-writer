@@ -4,13 +4,29 @@
 !-- File: /home/ywatanabe/proj/scitex-writer/README.md
 !-- --- -->
 
-# SciTeX Writer
+<p align="center">
+  <a href="https://scitex.ai">
+    <img src="docs/scitex-logo-banner.png" alt="SciTeX Writer" width="400">
+  </a>
+</p>
 
-A LaTeX compilation system for academic manuscripts with automatic versioning, diff generation, and cross-platform reproducibility.
+<p align="center">
+  <a href="https://badge.fury.io/py/scitex-writer"><img src="https://badge.fury.io/py/scitex-writer.svg" alt="PyPI version"></a>
+  <a href="https://pypi.org/project/scitex-writer/"><img src="https://img.shields.io/pypi/pyversions/scitex-writer.svg" alt="Python Versions"></a>
+  <a href="https://github.com/ywatanabe1989/scitex-writer/blob/main/LICENSE"><img src="https://img.shields.io/github/license/ywatanabe1989/scitex-writer" alt="License"></a>
+</p>
 
-Part of the fully open-source SciTeX project: https://scitex.ai
+<p align="center">
+  <a href="https://scitex.ai">scitex.ai</a> · <code>pip install scitex-writer</code>
+</p>
 
-## Demo
+---
+
+**LaTeX compilation system for scientific manuscripts with automatic versioning, diff generation, and cross-platform reproducibility.**
+
+Part of the [SciTeX](https://scitex.ai) ecosystem — empowers both human researchers and AI agents.
+
+## 🎬 Demo
 
 <p align="center">
   <a href="https://scitex.ai/media/videos/scitex-writer-v2.2.0-demo.mp4">
@@ -18,16 +34,122 @@ Part of the fully open-source SciTeX project: https://scitex.ai
   </a>
 </p>
 
-▶️ *Click thumbnail to watch video demo*
+📄 Demo prompt and progress report ([org](examples/scitex-writer-v2.2.0-demo.org) | [pdf](examples/scitex-writer-v2.2.0-demo.pdf)) | [Manuscript output](examples/scitex-writer-v2.2.0-demo-manuscript.pdf) | [Revision output](examples/scitex-writer-v2.2.0-demo-revision.pdf)
 
-📄 [Full demo (org)](examples/scitex-writer-v2.2.0-demo.org) | [Full demo (pdf)](examples/scitex-writer-v2.2.0-demo.pdf) | [Manuscript output](examples/scitex-writer-v2.2.0-demo-manuscript.pdf) | [Revision output](examples/scitex-writer-v2.2.0-demo-revision.pdf)
+## 📦 Installation
+
+```bash
+pip install scitex-writer         # Python package + MCP server
+```
 
 ## Quick Start
 
 ```bash
-git clone https://github.com/ywatanabe1989/scitex-writer.git
-./scitex-writer/scripts/compile.sh manuscript
+git clone https://github.com/ywatanabe1989/scitex-writer.git my-paper
+cd my-paper && ./scripts/compile.sh manuscript
 ```
+
+## Three Interfaces
+
+| Interface | For | Description |
+|-----------|-----|-------------|
+| 🐍 **Python API** | Human researchers | `import scitex_writer` — guidelines & prompts |
+| 🖥️ **CLI Commands** | Terminal users | `scitex-writer guidelines`, `scitex-writer prompts` |
+| 🔧 **MCP Tools** | AI agents | 28 tools for Claude/GPT integration |
+
+<details>
+<summary><strong>🐍 Python API</strong></summary>
+
+<br>
+
+**Guidelines** — IMRAD Writing Tips
+
+```python
+import scitex_writer as sw
+
+# Get writing guidelines for a section
+tips = sw.get_guideline("abstract")
+
+# Build prompt with your draft
+prompt = sw.build_guideline("abstract", draft="Your draft text...")
+
+# List available sections
+sw.list_guidelines()  # ['abstract', 'introduction', 'methods', 'discussion', 'proofread']
+```
+
+**Prompts** — AI2 Asta Integration
+
+```python
+from scitex_writer import generate_asta
+
+# Generate prompt to find related papers
+result = generate_asta(project_path="./my-paper", search_type="related")
+print(result["prompt"])  # Copy to AI2 Asta
+
+# Find potential collaborators
+result = generate_asta(project_path="./my-paper", search_type="coauthors")
+```
+
+</details>
+
+<details>
+<summary><strong>🖥️ CLI Commands</strong></summary>
+
+<br>
+
+```bash
+scitex-writer --help                           # Show all commands
+
+# Guidelines - IMRAD writing tips
+scitex-writer guidelines list                  # List available sections
+scitex-writer guidelines abstract              # Get abstract guidelines
+scitex-writer guidelines abstract -d draft.tex # Build prompt with draft
+
+# Prompts - AI2 Asta integration
+scitex-writer prompts asta                     # Generate related papers prompt
+scitex-writer prompts asta -t coauthors        # Find collaborators
+
+# MCP server management
+scitex-writer mcp list-tools                   # List all MCP tools
+scitex-writer mcp doctor                       # Check server health
+scitex-writer mcp installation                 # Show Claude Desktop config
+scitex-writer mcp start                        # Start MCP server
+```
+
+</details>
+
+<details>
+<summary><strong>🔧 MCP Tools — 28 tools for AI Agents</strong></summary>
+
+<br>
+
+Turn AI agents into autonomous manuscript compilers.
+
+| Category | Tools | Description |
+|----------|-------|-------------|
+| project | 4 | Clone, info, PDF paths, document types |
+| compile | 3 | Manuscript, supplementary, revision |
+| tables | 5 | CSV↔LaTeX, list/add/remove tables |
+| figures | 5 | Convert, render PDF, list/add/remove |
+| bib | 6 | List files/entries, CRUD, merge/dedupe |
+| guidelines | 3 | List, get, build with draft |
+| prompts | 1 | AI2 Asta prompt generation |
+| usage | 1 | Project guide |
+
+**Claude Desktop** (`~/.config/Claude/claude_desktop_config.json`):
+
+```json
+{
+  "mcpServers": {
+    "scitex-writer": {
+      "command": "scitex-writer",
+      "args": ["mcp", "start"]
+    }
+  }
+}
+```
+
+</details>
 
 <details>
 <summary><strong>Output Structure</strong></summary>
@@ -199,55 +321,7 @@ Change citation style in `config/config_manuscript.yaml`:
 
 </details>
 
-## Installation
-
-<details>
-<summary><strong>Python Package (MCP Server)</strong></summary>
-
-```bash
-# Install from PyPI
-pip install scitex-writer
-
-# Verify installation (CLI or Python module)
-scitex-writer --version
-python -m scitex_writer version
-
-# Check MCP setup
-scitex-writer mcp doctor
-python -m scitex_writer mcp doctor
-
-# Start MCP server
-scitex-writer mcp start
-python -m scitex_writer mcp start
-```
-
-Add to Claude Desktop config (`~/.config/Claude/claude_desktop_config.json`):
-
-Option 1: CLI command
-```json
-{
-  "mcpServers": {
-    "scitex-writer": {
-      "command": "scitex-writer",
-      "args": ["mcp", "start"]
-    }
-  }
-}
-```
-
-Option 2: Python module
-```json
-{
-  "mcpServers": {
-    "scitex-writer": {
-      "command": "python",
-      "args": ["-m", "scitex_writer", "mcp", "start"]
-    }
-  }
-}
-```
-
-</details>
+## LaTeX Dependencies
 
 <details>
 <summary><strong>Ubuntu/Debian</strong></summary>
