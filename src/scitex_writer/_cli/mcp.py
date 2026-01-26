@@ -41,11 +41,12 @@ def cmd_list_tools(args: argparse.Namespace) -> int:
     """List all available MCP tools as markdown."""
     from .._mcp import mcp
 
-    print(f"# scitex-writer {__version__} MCP Tools\n")
+    tools = list(mcp._tool_manager._tools.values())
+    total = len(tools)
 
     # Group tools by category
     categories = {}
-    for tool in mcp._tool_manager._tools.values():
+    for tool in tools:
         name = tool.name
         parts = name.split("_")
         category = parts[0] if len(parts) > 1 else "general"
@@ -53,14 +54,27 @@ def cmd_list_tools(args: argparse.Namespace) -> int:
             categories[category] = []
         categories[category].append(tool)
 
+    print(f"# SciTeX Writer MCP Tools ({total} total)\n")
+    print("Model Context Protocol tools for AI agent integration.\n")
+    print("```bash")
+    print("scitex-writer mcp list-tools    # List all tools")
+    print("scitex-writer mcp start         # Start MCP server (stdio)")
+    print("```\n")
+    print("## Tools by Category\n")
+    print("| Category | Tool | Description |")
+    print("|----------|------|-------------|")
+
     for category in sorted(categories.keys()):
-        print(f"## {category.title()}\n")
-        print("| Tool | Description |")
-        print("|------|-------------|")
-        for tool in sorted(categories[category], key=lambda t: t.name):
-            desc = (tool.description or "").split("\n")[0][:60]
-            print(f"| `{tool.name}` | {desc} |")
-        print()
+        cat_tools = sorted(categories[category], key=lambda t: t.name)
+        first = True
+        for tool in cat_tools:
+            desc = (tool.description or "").split("\n")[0]
+            desc = desc.replace("[writer] ", "")[:50]
+            if first:
+                print(f"| **{category}** ({len(cat_tools)}) | `{tool.name}` | {desc} |")
+                first = False
+            else:
+                print(f"|  | `{tool.name}` | {desc} |")
 
     return 0
 

@@ -220,6 +220,8 @@ Turn AI agents into autonomous manuscript compilers.
 }
 ```
 
+→ **[Full MCP tool reference](./docs/MCP_TOOLS.md)**
+
 </details>
 
 <details>
