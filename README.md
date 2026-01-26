@@ -39,23 +39,53 @@ Part of the [SciTeX](https://scitex.ai) ecosystem — empowers both human resear
 ## 📦 Installation
 
 ```bash
-pip install scitex-writer         # Python package + MCP server
+# LaTeX dependencies (Ubuntu/Debian)
+sudo apt-get install texlive-latex-extra latexdiff parallel imagemagick ghostscript
+
+# LaTeX dependencies (macOS)
+brew install texlive latexdiff parallel imagemagick ghostscript
+
+# Python package + MCP server
+pip install scitex-writer
 ```
 
 ## Quick Start
 
 ```bash
 git clone https://github.com/ywatanabe1989/scitex-writer.git my-paper
-cd my-paper && ./scripts/compile.sh manuscript
+cd my-paper && make manuscript   # or: ./compile.sh manuscript
 ```
 
-## Three Interfaces
+## Four Interfaces
 
 | Interface | For | Description |
 |-----------|-----|-------------|
-| 🐍 **Python API** | Human researchers | `import scitex_writer` — guidelines & prompts |
-| 🖥️ **CLI Commands** | Terminal users | `scitex-writer guidelines`, `scitex-writer prompts` |
+| 📜 **Shell/Make** | Direct compilation | `make manuscript`, `./compile.sh` |
+| 🐍 **Python API** | Human researchers | `import scitex_writer as sw` |
+| 🖥️ **CLI Commands** | Terminal users | `scitex-writer compile`, `scitex-writer bib` |
 | 🔧 **MCP Tools** | AI agents | 28 tools for Claude/GPT integration |
+
+<details>
+<summary><strong>📜 Shell Scripts / Make</strong></summary>
+
+<br>
+
+```bash
+# Make commands (recommended)
+make manuscript              # Compile manuscript
+make supplementary           # Compile supplementary
+make revision                # Compile revision
+make all                     # Compile all documents
+make clean                   # Remove build artifacts
+
+# Shell scripts (direct)
+./compile.sh manuscript --draft       # Fast single-pass
+./compile.sh manuscript --no-figs     # Skip figures
+./compile.sh manuscript --no-tables   # Skip tables
+./compile.sh manuscript --watch       # Hot-reload
+```
+
+</details>
 
 <details>
 <summary><strong>🐍 Python API</strong></summary>
@@ -117,6 +147,30 @@ result = generate_asta("./my-paper", search_type="related")
 ```bash
 scitex-writer --help                           # Show all commands
 
+# Compile - Build PDFs
+scitex-writer compile manuscript               # Compile manuscript
+scitex-writer compile manuscript --draft       # Fast single-pass
+scitex-writer compile supplementary            # Compile supplementary
+scitex-writer compile revision                 # Compile revision letter
+
+# Bibliography - Reference management
+scitex-writer bib list-files                   # List .bib files
+scitex-writer bib list-entries                 # List all entries
+scitex-writer bib get Smith2024                # Get specific entry
+scitex-writer bib add '@article{...}'          # Add entry
+scitex-writer bib remove Smith2024             # Remove entry
+scitex-writer bib merge                        # Merge and deduplicate
+
+# Tables - CSV↔LaTeX management
+scitex-writer tables list                      # List tables
+scitex-writer tables add results data.csv "Caption"
+scitex-writer tables remove results
+
+# Figures - Image management
+scitex-writer figures list                     # List figures
+scitex-writer figures add fig01 plot.png "Caption"
+scitex-writer figures remove fig01
+
 # Guidelines - IMRAD writing tips
 scitex-writer guidelines list                  # List available sections
 scitex-writer guidelines abstract              # Get abstract guidelines
@@ -127,7 +181,7 @@ scitex-writer prompts asta                     # Generate related papers prompt
 scitex-writer prompts asta -t coauthors        # Find collaborators
 
 # MCP server management
-scitex-writer mcp list-tools                   # List all MCP tools
+scitex-writer mcp list-tools                   # List all MCP tools (markdown)
 scitex-writer mcp doctor                       # Check server health
 scitex-writer mcp installation                 # Show Claude Desktop config
 scitex-writer mcp start                        # Start MCP server
@@ -335,42 +389,6 @@ Change citation style in `config/config_manuscript.yaml`:
 - `apalike` (author-year, APA style)
 - `IEEEtran` (IEEE format)
 - `naturemag` (Nature style)
-
-</details>
-
-## LaTeX Dependencies
-
-<details>
-<summary><strong>Ubuntu/Debian</strong></summary>
-
-```bash
-sudo apt-get install texlive-latex-extra latexdiff parallel imagemagick ghostscript
-```
-
-</details>
-
-<details>
-<summary><strong>macOS</strong></summary>
-
-```bash
-brew install texlive latexdiff parallel imagemagick ghostscript
-```
-
-</details>
-
-<details>
-<summary><strong>HPC / Containers</strong></summary>
-
-```bash
-# Module system
-module load texlive latexdiff parallel
-
-# Docker
-docker run -v $(pwd):/work scitex-writer
-
-# Singularity/Apptainer
-singularity run scitex-writer.sif
-```
 
 </details>
 
