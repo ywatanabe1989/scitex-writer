@@ -26,7 +26,7 @@ from importlib.metadata import version as _version
 try:
     __version__ = _version("scitex-writer")
 except _PackageNotFoundError:
-    __version__ = "2.3.0"  # fallback for development
+    __version__ = "2.3.1"  # fallback for development
 
 # Import modules for convenient access
 from . import bib, compile, figures, guidelines, project, prompts, tables
