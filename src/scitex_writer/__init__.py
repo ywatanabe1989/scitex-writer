@@ -28,17 +28,16 @@ try:
 except _PackageNotFoundError:
     __version__ = "2.3.1"  # fallback for development
 
+# Branding support (set SCITEX_WRITER_BRAND and SCITEX_WRITER_ALIAS env vars before import)
 # Import modules for convenient access
 from . import bib, compile, figures, guidelines, project, prompts, tables
-
-# Top-level convenience functions
-from .guidelines import build as build_guideline
-from .guidelines import get as get_guideline
-from .guidelines import list_sections as list_guidelines
-from .prompts import generate_ai2_prompt, generate_asta
+from ._branding import BRAND_ALIAS, BRAND_NAME
 
 __all__ = [
     "__version__",
+    # Branding
+    "BRAND_NAME",
+    "BRAND_ALIAS",
     # Modules
     "compile",
     "project",
@@ -47,13 +46,6 @@ __all__ = [
     "bib",
     "guidelines",
     "prompts",
-    # Guidelines functions
-    "get_guideline",
-    "build_guideline",
-    "list_guidelines",
-    # Prompts functions
-    "generate_ai2_prompt",
-    "generate_asta",
 ]
 
 # EOF

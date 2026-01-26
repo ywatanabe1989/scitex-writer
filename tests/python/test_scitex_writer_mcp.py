@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Timestamp: 2026-01-20
+# Timestamp: 2026-01-27
 # File: tests/python/test_scitex_writer_mcp.py
 
 """Tests for scitex_writer MCP module.
@@ -19,16 +19,19 @@ class TestMcpModule:
         from scitex_writer._mcp import mcp
 
         assert mcp is not None
-        assert mcp.name == "scitex-writer"
+        # Server name uses branding
+        from scitex_writer._branding import get_mcp_server_name
 
-    def test_instructions_defined(self):
-        """Test that INSTRUCTIONS is defined."""
-        from scitex_writer._mcp import INSTRUCTIONS
+        assert mcp.name == get_mcp_server_name()
 
-        assert INSTRUCTIONS is not None
-        assert isinstance(INSTRUCTIONS, str)
-        assert "scitex-writer" in INSTRUCTIONS
-        assert "manuscript" in INSTRUCTIONS
+    def test_instructions_via_branding(self):
+        """Test that instructions are available via branding module."""
+        from scitex_writer._branding import get_mcp_instructions
+
+        instructions = get_mcp_instructions()
+        assert instructions is not None
+        assert isinstance(instructions, str)
+        assert "manuscript" in instructions
 
     def test_run_server_function_exists(self):
         """Test that run_server function exists."""
@@ -61,78 +64,87 @@ class TestUsageTool:
     """Test usage tool functionality."""
 
     def test_usage_returns_instructions(self):
-        """Test usage tool returns INSTRUCTIONS."""
-        from scitex_writer._mcp import INSTRUCTIONS, mcp
+        """Test usage tool returns instructions."""
+        from scitex_writer._branding import get_mcp_instructions
+        from scitex_writer._mcp import mcp
 
         tool = mcp._tool_manager._tools.get("usage")
         assert tool is not None
         result = tool.fn()
-        assert result == INSTRUCTIONS
+        assert result == get_mcp_instructions()
 
 
 class TestInstructionsContent:
-    """Test INSTRUCTIONS content."""
+    """Test instructions content."""
 
     def test_instructions_has_setup(self):
-        """Test that INSTRUCTIONS contains setup/clone info."""
-        from scitex_writer._mcp import INSTRUCTIONS
+        """Test that instructions contains setup/clone info."""
+        from scitex_writer._branding import get_mcp_instructions
 
-        assert "git clone" in INSTRUCTIONS
-        assert "scitex-writer" in INSTRUCTIONS
+        instructions = get_mcp_instructions()
+        assert "git clone" in instructions
+        assert "scitex-writer" in instructions
 
     def test_instructions_has_structure(self):
-        """Test that INSTRUCTIONS contains project structure info."""
-        from scitex_writer._mcp import INSTRUCTIONS
+        """Test that instructions contains project structure info."""
+        from scitex_writer._branding import get_mcp_instructions
 
-        assert "00_shared/" in INSTRUCTIONS
-        assert "01_manuscript/" in INSTRUCTIONS
-        assert "02_supplementary/" in INSTRUCTIONS
-        assert "03_revision/" in INSTRUCTIONS
+        instructions = get_mcp_instructions()
+        assert "00_shared/" in instructions
+        assert "01_manuscript/" in instructions
+        assert "02_supplementary/" in instructions
+        assert "03_revision/" in instructions
 
     def test_instructions_has_editable_files(self):
-        """Test that INSTRUCTIONS lists editable files."""
-        from scitex_writer._mcp import INSTRUCTIONS
+        """Test that instructions lists editable files."""
+        from scitex_writer._branding import get_mcp_instructions
 
-        assert "abstract.tex" in INSTRUCTIONS
-        assert "introduction.tex" in INSTRUCTIONS
-        assert "methods.tex" in INSTRUCTIONS
-        assert "results.tex" in INSTRUCTIONS
-        assert "discussion.tex" in INSTRUCTIONS
+        instructions = get_mcp_instructions()
+        assert "abstract.tex" in instructions
+        assert "introduction.tex" in instructions
+        assert "methods.tex" in instructions
+        assert "results.tex" in instructions
+        assert "discussion.tex" in instructions
 
     def test_instructions_has_compile_options(self):
-        """Test that INSTRUCTIONS lists compile options."""
-        from scitex_writer._mcp import INSTRUCTIONS
+        """Test that instructions lists compile options."""
+        from scitex_writer._branding import get_mcp_instructions
 
-        assert "--draft" in INSTRUCTIONS
-        assert "--no_figs" in INSTRUCTIONS
-        assert "--no_tables" in INSTRUCTIONS
-        assert "--no_diff" in INSTRUCTIONS
+        instructions = get_mcp_instructions()
+        assert "--draft" in instructions
+        assert "--no_figs" in instructions
+        assert "--no_tables" in instructions
+        assert "--no_diff" in instructions
 
     def test_instructions_has_output_info(self):
-        """Test that INSTRUCTIONS lists output files."""
-        from scitex_writer._mcp import INSTRUCTIONS
+        """Test that instructions lists output files."""
+        from scitex_writer._branding import get_mcp_instructions
 
-        assert "manuscript.pdf" in INSTRUCTIONS
+        instructions = get_mcp_instructions()
+        assert "manuscript.pdf" in instructions
 
     def test_instructions_has_scitex_writer_root(self):
-        """Test that INSTRUCTIONS explains SCITEX_WRITER_ROOT."""
-        from scitex_writer._mcp import INSTRUCTIONS
+        """Test that instructions explains SCITEX_WRITER_ROOT."""
+        from scitex_writer._branding import get_mcp_instructions
 
-        assert "SCITEX_WRITER_ROOT" in INSTRUCTIONS
-        assert "compile.sh" in INSTRUCTIONS
+        instructions = get_mcp_instructions()
+        assert "SCITEX_WRITER_ROOT" in instructions
+        assert "compile.sh" in instructions
 
     def test_instructions_has_revision_info(self):
-        """Test that INSTRUCTIONS mentions revision directory."""
-        from scitex_writer._mcp import INSTRUCTIONS
+        """Test that instructions mentions revision directory."""
+        from scitex_writer._branding import get_mcp_instructions
 
-        assert "03_revision" in INSTRUCTIONS
+        instructions = get_mcp_instructions()
+        assert "03_revision" in instructions
 
     def test_instructions_has_bib_merge(self):
-        """Test that INSTRUCTIONS explains bib auto-merge."""
-        from scitex_writer._mcp import INSTRUCTIONS
+        """Test that instructions explains bib auto-merge."""
+        from scitex_writer._branding import get_mcp_instructions
 
-        assert "bib_files/" in INSTRUCTIONS
-        assert "auto-merge" in INSTRUCTIONS.lower() or "merge" in INSTRUCTIONS.lower()
+        instructions = get_mcp_instructions()
+        assert "bib_files/" in instructions
+        assert "auto-merge" in instructions.lower() or "merge" in instructions.lower()
 
 
 class TestHandlersModule:
@@ -185,6 +197,41 @@ class TestUtilsModule:
 
         result = resolve_project_path("/tmp")
         assert result == Path("/tmp")
+
+
+class TestBranding:
+    """Test branding module functionality."""
+
+    def test_default_brand_values(self):
+        """Test default branding values."""
+        from scitex_writer._branding import BRAND_ALIAS, BRAND_NAME
+
+        # Default values when env vars not set
+        assert BRAND_NAME == "scitex-writer"
+        assert BRAND_ALIAS == "sw"
+
+    def test_get_mcp_server_name(self):
+        """Test MCP server name generation."""
+        from scitex_writer._branding import get_mcp_server_name
+
+        # Should replace dots with hyphens
+        name = get_mcp_server_name()
+        assert "." not in name
+
+    def test_rebrand_text_noop(self):
+        """Test rebrand_text returns original when no branding change."""
+        from scitex_writer._branding import rebrand_text
+
+        text = "import scitex_writer as sw"
+        result = rebrand_text(text)
+        assert result == text
+
+    def test_rebrand_text_none(self):
+        """Test rebrand_text handles None."""
+        from scitex_writer._branding import rebrand_text
+
+        result = rebrand_text(None)
+        assert result is None
 
 
 # EOF
