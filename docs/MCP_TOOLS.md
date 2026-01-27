@@ -1,4 +1,4 @@
-# SciTeX Writer MCP Tools (28 total)
+# SciTeX Writer MCP Tools (29 total)
 
 Model Context Protocol tools for AI agent integration.
 
@@ -15,7 +15,8 @@ scitex-writer mcp start         # Start MCP server (stdio)
 |  | `add_figure` | Add a figure (copy image + create caption) to the  |
 |  | `add_table` | Add a new table (CSV + caption) to the project. |
 | **clone** (1) | `clone_project` | Create a new LaTeX manuscript project from templat |
-| **compile** (3) | `compile_manuscript` | Compile manuscript LaTeX document to PDF. |
+| **compile** (4) | `compile_content` | Compile raw LaTeX content to PDF with color mode. |
+|  | `compile_manuscript` | Compile manuscript LaTeX document to PDF. |
 |  | `compile_revision` | Compile revision document to PDF with optional cha |
 |  | `compile_supplementary` | Compile supplementary materials LaTeX document to  |
 | **convert** (1) | `convert_figure` | Convert figure between formats (e.g., PDF to PNG). |

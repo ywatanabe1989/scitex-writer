@@ -18,6 +18,13 @@ Usage::
     # Compile other document types
     result = sw.compile.supplementary("./my-paper")
     result = sw.compile.revision("./my-paper", track_changes=True)
+
+    # Compile raw LaTeX content with color mode support
+    result = sw.compile.content(
+        latex_content,
+        project_dir="./my-paper",  # Optional, for bibliography
+        color_mode="dark",         # 'light', 'dark', 'sepia', 'paper'
+    )
 """
 
 from ._mcp.handlers import compile_manuscript as _compile_manuscript
@@ -130,6 +137,66 @@ def revision(
     )
 
 
-__all__ = ["manuscript", "supplementary", "revision"]
+def content(
+    latex_content: str,
+    project_dir: str | None = None,
+    color_mode: str = "light",
+    name: str = "content",
+    timeout: int = 60,
+    keep_aux: bool = False,
+) -> dict:
+    """Compile raw LaTeX content to PDF.
+
+    Creates a standalone document from the provided LaTeX content and compiles
+    it to PDF. Supports color modes for comfortable viewing and can link to
+    project bibliography for citation rendering.
+
+    Args:
+        latex_content: Raw LaTeX content to compile. Can be:
+            - A complete document (with \\documentclass)
+            - Document body only (will be wrapped automatically)
+        project_dir: Optional path to scitex-writer project for bibliography.
+        color_mode: Color theme for output:
+            - 'light': Default white background
+            - 'dark': Dark gray background with light text
+            - 'sepia': Warm cream background for comfortable reading
+            - 'paper': Pure white, optimized for printing
+        name: Name for the output (used in filename).
+        timeout: Compilation timeout in seconds.
+        keep_aux: Keep auxiliary files (.aux, .log, etc.) after compilation.
+
+    Returns:
+        Dict with success status, output_pdf path, log, and any errors.
+
+    Example::
+
+        import scitex_writer as sw
+
+        # Compile simple content
+        result = sw.compile.content(
+            r"\\section{Introduction}\\nThis is my introduction.",
+            color_mode="dark",
+        )
+
+        # With project bibliography
+        result = sw.compile.content(
+            latex_content,
+            project_dir="./my-paper",
+            color_mode="sepia",
+        )
+    """
+    from ._mcp.content import compile_content as _compile_content
+
+    return _compile_content(
+        latex_content,
+        project_dir=project_dir,
+        color_mode=color_mode,
+        section_name=name,
+        timeout=timeout,
+        keep_aux=keep_aux,
+    )
+
+
+__all__ = ["manuscript", "supplementary", "revision", "content"]
 
 # EOF
