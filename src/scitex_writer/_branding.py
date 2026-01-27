@@ -179,8 +179,6 @@ def get_mcp_instructions() -> str:
     str
         Instructions text with branding applied.
     """
-    brand_module = BRAND_NAME.replace("-", "_")
-
     instructions = f"""
 ================================================================================
 {BRAND_NAME} - LaTeX Manuscript Compilation System
