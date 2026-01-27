@@ -9,11 +9,10 @@ SciTeX Writer MCP module.
 Re-exports from _server.py.
 """
 
-from scitex_writer._server import INSTRUCTIONS, mcp, run_server
+from scitex_writer._server import mcp, run_server
 
 __all__ = [
     "mcp",
-    "INSTRUCTIONS",
     "run_server",
 ]
 

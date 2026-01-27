@@ -4,13 +4,29 @@
 !-- File: /home/ywatanabe/proj/scitex-writer/README.md
 !-- --- -->
 
-# SciTeX Writer
+<p align="center">
+  <a href="https://scitex.ai">
+    <img src="docs/scitex-logo-banner.png" alt="SciTeX Writer" width="400">
+  </a>
+</p>
 
-A LaTeX compilation system for academic manuscripts with automatic versioning, diff generation, and cross-platform reproducibility.
+<p align="center">
+  <a href="https://badge.fury.io/py/scitex-writer"><img src="https://badge.fury.io/py/scitex-writer.svg" alt="PyPI version"></a>
+  <a href="https://pypi.org/project/scitex-writer/"><img src="https://img.shields.io/pypi/pyversions/scitex-writer.svg" alt="Python Versions"></a>
+  <a href="https://github.com/ywatanabe1989/scitex-writer/blob/main/LICENSE"><img src="https://img.shields.io/github/license/ywatanabe1989/scitex-writer" alt="License"></a>
+</p>
 
-Part of the fully open-source SciTeX project: https://scitex.ai
+<p align="center">
+  <a href="https://scitex.ai">scitex.ai</a> · <code>pip install scitex-writer</code>
+</p>
 
-## Demo
+---
+
+**LaTeX compilation system for scientific manuscripts with automatic versioning, diff generation, and cross-platform reproducibility.**
+
+Part of the [SciTeX](https://scitex.ai) ecosystem — empowers both human researchers and AI agents.
+
+## 🎬 Demo
 
 <p align="center">
   <a href="https://scitex.ai/media/videos/scitex-writer-v2.2.0-demo.mp4">
@@ -18,16 +34,195 @@ Part of the fully open-source SciTeX project: https://scitex.ai
   </a>
 </p>
 
-▶️ *Click thumbnail to watch video demo*
+📄 Demo prompt and progress report ([org](examples/scitex-writer-v2.2.0-demo.org) | [pdf](examples/scitex-writer-v2.2.0-demo.pdf)) | [Manuscript output](examples/scitex-writer-v2.2.0-demo-manuscript.pdf) | [Revision output](examples/scitex-writer-v2.2.0-demo-revision.pdf)
 
-📄 [Full demo (org)](examples/scitex-writer-v2.2.0-demo.org) | [Full demo (pdf)](examples/scitex-writer-v2.2.0-demo.pdf) | [Manuscript output](examples/scitex-writer-v2.2.0-demo-manuscript.pdf) | [Revision output](examples/scitex-writer-v2.2.0-demo-revision.pdf)
+## 📦 Installation
+
+```bash
+# LaTeX dependencies (Ubuntu/Debian)
+sudo apt-get install texlive-latex-extra latexdiff parallel imagemagick ghostscript
+
+# LaTeX dependencies (macOS)
+brew install texlive latexdiff parallel imagemagick ghostscript
+
+# Python package + MCP server
+pip install scitex-writer
+```
 
 ## Quick Start
 
 ```bash
-git clone https://github.com/ywatanabe1989/scitex-writer.git
-./scitex-writer/scripts/compile.sh manuscript
+git clone https://github.com/ywatanabe1989/scitex-writer.git my-paper
+cd my-paper && make manuscript   # or: ./compile.sh manuscript
 ```
+
+## Four Interfaces
+
+| Interface | For | Description |
+|-----------|-----|-------------|
+| 📜 **Shell/Make** | Direct compilation | `make manuscript`, `./compile.sh` |
+| 🐍 **Python API** | Human researchers | `import scitex_writer as sw` |
+| 🖥️ **CLI Commands** | Terminal users | `scitex-writer compile`, `scitex-writer bib` |
+| 🔧 **MCP Tools** | AI agents | 28 tools for Claude/GPT integration |
+
+<details>
+<summary><strong>📜 Shell Scripts / Make</strong></summary>
+
+<br>
+
+```bash
+# Make commands (recommended)
+make manuscript              # Compile manuscript
+make supplementary           # Compile supplementary
+make revision                # Compile revision
+make all                     # Compile all documents
+make clean                   # Remove build artifacts
+
+# Shell scripts (direct)
+./compile.sh manuscript --draft       # Fast single-pass
+./compile.sh manuscript --no-figs     # Skip figures
+./compile.sh manuscript --no-tables   # Skip tables
+./compile.sh manuscript --watch       # Hot-reload
+```
+
+</details>
+
+<details>
+<summary><strong>🐍 Python API</strong></summary>
+
+<br>
+
+**Compile** — Build PDFs
+
+```python
+import scitex_writer as sw
+
+sw.compile.manuscript("./my-paper")                    # Full compile
+sw.compile.manuscript("./my-paper", draft=True)       # Fast draft mode
+sw.compile.supplementary("./my-paper")
+sw.compile.revision("./my-paper", track_changes=True)
+```
+
+**Tables/Figures/Bib** — CRUD Operations
+
+```python
+# Tables
+sw.tables.list("./my-paper")
+sw.tables.add("./my-paper", "results", "a,b\n1,2", "Results summary")
+sw.tables.remove("./my-paper", "results")
+
+# Figures
+sw.figures.list("./my-paper")
+sw.figures.add("./my-paper", "fig01", "./plot.png", "My figure")
+sw.figures.remove("./my-paper", "fig01")
+
+# Bibliography
+sw.bib.list_files("./my-paper")
+sw.bib.add("./my-paper", "@article{Smith2024, title={...}}")
+sw.bib.merge("./my-paper")  # Merge + deduplicate
+```
+
+**Guidelines** — IMRAD Writing Tips
+
+```python
+sw.get_guideline("abstract")
+sw.build_guideline("abstract", draft="Your draft...")
+sw.list_guidelines()  # ['abstract', 'introduction', 'methods', 'discussion', 'proofread']
+```
+
+**Prompts** — AI2 Asta
+
+```python
+from scitex_writer import generate_asta
+result = generate_asta("./my-paper", search_type="related")
+```
+
+</details>
+
+<details>
+<summary><strong>🖥️ CLI Commands</strong></summary>
+
+<br>
+
+```bash
+scitex-writer --help                           # Show all commands
+
+# Compile - Build PDFs
+scitex-writer compile manuscript               # Compile manuscript
+scitex-writer compile manuscript --draft       # Fast single-pass
+scitex-writer compile supplementary            # Compile supplementary
+scitex-writer compile revision                 # Compile revision letter
+
+# Bibliography - Reference management
+scitex-writer bib list-files                   # List .bib files
+scitex-writer bib list-entries                 # List all entries
+scitex-writer bib get Smith2024                # Get specific entry
+scitex-writer bib add '@article{...}'          # Add entry
+scitex-writer bib remove Smith2024             # Remove entry
+scitex-writer bib merge                        # Merge and deduplicate
+
+# Tables - CSV↔LaTeX management
+scitex-writer tables list                      # List tables
+scitex-writer tables add results data.csv "Caption"
+scitex-writer tables remove results
+
+# Figures - Image management
+scitex-writer figures list                     # List figures
+scitex-writer figures add fig01 plot.png "Caption"
+scitex-writer figures remove fig01
+
+# Guidelines - IMRAD writing tips
+scitex-writer guidelines list                  # List available sections
+scitex-writer guidelines abstract              # Get abstract guidelines
+scitex-writer guidelines abstract -d draft.tex # Build prompt with draft
+
+# Prompts - AI2 Asta integration
+scitex-writer prompts asta                     # Generate related papers prompt
+scitex-writer prompts asta -t coauthors        # Find collaborators
+
+# MCP server management
+scitex-writer mcp list-tools                   # List all MCP tools (markdown)
+scitex-writer mcp doctor                       # Check server health
+scitex-writer mcp installation                 # Show Claude Desktop config
+scitex-writer mcp start                        # Start MCP server
+```
+
+</details>
+
+<details>
+<summary><strong>🔧 MCP Tools — 28 tools for AI Agents</strong></summary>
+
+<br>
+
+Turn AI agents into autonomous manuscript compilers.
+
+| Category | Tools | Description |
+|----------|-------|-------------|
+| project | 4 | Clone, info, PDF paths, document types |
+| compile | 3 | Manuscript, supplementary, revision |
+| tables | 5 | CSV↔LaTeX, list/add/remove tables |
+| figures | 5 | Convert, render PDF, list/add/remove |
+| bib | 6 | List files/entries, CRUD, merge/dedupe |
+| guidelines | 3 | List, get, build with draft |
+| prompts | 1 | AI2 Asta prompt generation |
+| usage | 1 | Project guide |
+
+**Claude Desktop** (`~/.config/Claude/claude_desktop_config.json`):
+
+```json
+{
+  "mcpServers": {
+    "scitex-writer": {
+      "command": "scitex-writer",
+      "args": ["mcp", "start"]
+    }
+  }
+}
+```
+
+→ **[Full MCP tool reference](./docs/MCP_TOOLS.md)**
+
+</details>
 
 <details>
 <summary><strong>Output Structure</strong></summary>
@@ -196,90 +391,6 @@ Change citation style in `config/config_manuscript.yaml`:
 - `apalike` (author-year, APA style)
 - `IEEEtran` (IEEE format)
 - `naturemag` (Nature style)
-
-</details>
-
-## Installation
-
-<details>
-<summary><strong>Python Package (MCP Server)</strong></summary>
-
-```bash
-# Install from PyPI
-pip install scitex-writer
-
-# Verify installation (CLI or Python module)
-scitex-writer --version
-python -m scitex_writer version
-
-# Check MCP setup
-scitex-writer mcp doctor
-python -m scitex_writer mcp doctor
-
-# Start MCP server
-scitex-writer mcp start
-python -m scitex_writer mcp start
-```
-
-Add to Claude Desktop config (`~/.config/Claude/claude_desktop_config.json`):
-
-Option 1: CLI command
-```json
-{
-  "mcpServers": {
-    "scitex-writer": {
-      "command": "scitex-writer",
-      "args": ["mcp", "start"]
-    }
-  }
-}
-```
-
-Option 2: Python module
-```json
-{
-  "mcpServers": {
-    "scitex-writer": {
-      "command": "python",
-      "args": ["-m", "scitex_writer", "mcp", "start"]
-    }
-  }
-}
-```
-
-</details>
-
-<details>
-<summary><strong>Ubuntu/Debian</strong></summary>
-
-```bash
-sudo apt-get install texlive-latex-extra latexdiff parallel imagemagick ghostscript
-```
-
-</details>
-
-<details>
-<summary><strong>macOS</strong></summary>
-
-```bash
-brew install texlive latexdiff parallel imagemagick ghostscript
-```
-
-</details>
-
-<details>
-<summary><strong>HPC / Containers</strong></summary>
-
-```bash
-# Module system
-module load texlive latexdiff parallel
-
-# Docker
-docker run -v $(pwd):/work scitex-writer
-
-# Singularity/Apptainer
-singularity run scitex-writer.sif
-```
 
 </details>
 
