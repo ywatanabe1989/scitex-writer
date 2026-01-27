@@ -82,6 +82,41 @@ def cmd_revision(args: argparse.Namespace) -> int:
         return 1
 
 
+def cmd_content(args: argparse.Namespace) -> int:
+    """Compile raw LaTeX content to PDF."""
+    from .. import compile
+
+    # Read content from file or stdin
+    if args.file:
+        content_path = Path(args.file)
+        if not content_path.exists():
+            print(f"Error: File not found: {content_path}", file=sys.stderr)
+            return 1
+        latex_content = content_path.read_text(encoding="utf-8")
+    else:
+        latex_content = sys.stdin.read()
+
+    project_dir = str(Path(args.project).resolve()) if args.project else None
+
+    result = compile.content(
+        latex_content,
+        project_dir=project_dir,
+        color_mode=args.color_mode,
+        name=args.name,
+        timeout=args.timeout,
+        keep_aux=args.keep_aux,
+    )
+
+    if result["success"]:
+        print(f"PDF: {result['output_pdf']}")
+        return 0
+    else:
+        print(f"Error: {result.get('error', 'Unknown error')}", file=sys.stderr)
+        if result.get("log"):
+            print(f"Log: {result['log'][-500:]}", file=sys.stderr)
+        return 1
+
+
 def register_parser(subparsers) -> argparse.ArgumentParser:
     """Register compile subcommand parser."""
     compile_help = """Compile LaTeX documents to PDF.
@@ -91,6 +126,8 @@ Quick start:
   scitex-writer compile manuscript --draft   # Fast single-pass
   scitex-writer compile supplementary        # Compile supplementary
   scitex-writer compile revision             # Compile revision letter
+  scitex-writer compile content -f intro.tex  # Compile content with color modes
+  echo '\\section{Test}' | scitex-writer compile content --color-mode dark
 """
     parser = subparsers.add_parser(
         "compile",
@@ -131,6 +168,22 @@ Quick start:
         "--engine", choices=["tectonic", "latexmk", "3pass"], help="LaTeX engine"
     )
     rv.set_defaults(func=cmd_revision)
+
+    # content
+    ct = sub.add_parser("content", help="Compile raw LaTeX content to PDF")
+    ct.add_argument("-f", "--file", help="LaTeX file to compile (or use stdin)")
+    ct.add_argument("-p", "--project", help="Project path for bibliography access")
+    ct.add_argument("-n", "--name", default="content", help="Output name")
+    ct.add_argument(
+        "-c",
+        "--color-mode",
+        choices=["light", "dark", "sepia", "paper"],
+        default="light",
+        help="Color mode (default: light)",
+    )
+    ct.add_argument("-t", "--timeout", type=int, default=60, help="Timeout in seconds")
+    ct.add_argument("--keep-aux", action="store_true", help="Keep auxiliary files")
+    ct.set_defaults(func=cmd_content)
 
     return parser
 
