@@ -19,7 +19,7 @@ def register_tools(mcp: FastMCP) -> None:
     """Register bibliography tools."""
 
     @mcp.tool()
-    def list_bibfiles(project_dir: str) -> dict:
+    def writer_list_bibfiles(project_dir: str) -> dict:
         """[writer] List all bibliography files in the project."""
         try:
             project_path = resolve_project_path(project_dir)
@@ -46,7 +46,7 @@ def register_tools(mcp: FastMCP) -> None:
             return {"success": False, "error": str(e)}
 
     @mcp.tool()
-    def list_bibentries(project_dir: str, bibfile: Optional[str] = None) -> dict:
+    def writer_list_bibentries(project_dir: str, bibfile: Optional[str] = None) -> dict:
         """[writer] List all BibTeX entries in the project or specific file."""
         try:
             project_path = resolve_project_path(project_dir)
@@ -81,7 +81,7 @@ def register_tools(mcp: FastMCP) -> None:
             return {"success": False, "error": str(e)}
 
     @mcp.tool()
-    def get_bibentry(project_dir: str, citation_key: str) -> dict:
+    def writer_get_bibentry(project_dir: str, citation_key: str) -> dict:
         """[writer] Get a specific BibTeX entry by citation key."""
         try:
             project_path = resolve_project_path(project_dir)
@@ -111,7 +111,7 @@ def register_tools(mcp: FastMCP) -> None:
             return {"success": False, "error": str(e)}
 
     @mcp.tool()
-    def add_bibentry(
+    def writer_add_bibentry(
         project_dir: str,
         bibtex_entry: str,
         bibfile: str = "custom.bib",
@@ -138,7 +138,7 @@ def register_tools(mcp: FastMCP) -> None:
 
             # Check for duplicates if requested
             if deduplicate:
-                existing = get_bibentry.__wrapped__(project_dir, citation_key)
+                existing = writer_get_bibentry.__wrapped__(project_dir, citation_key)
                 if existing.get("success"):
                     return {
                         "success": False,
@@ -167,7 +167,7 @@ def register_tools(mcp: FastMCP) -> None:
             return {"success": False, "error": str(e)}
 
     @mcp.tool()
-    def remove_bibentry(
+    def writer_remove_bibentry(
         project_dir: str,
         citation_key: str,
     ) -> dict:
@@ -203,7 +203,7 @@ def register_tools(mcp: FastMCP) -> None:
             return {"success": False, "error": str(e)}
 
     @mcp.tool()
-    def merge_bibfiles(
+    def writer_merge_bibfiles(
         project_dir: str,
         output_file: str = "bibliography.bib",
         deduplicate: bool = True,

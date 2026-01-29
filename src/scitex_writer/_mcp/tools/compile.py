@@ -24,7 +24,7 @@ def register_tools(mcp: FastMCP) -> None:
     """Register compilation tools."""
 
     @mcp.tool()
-    def compile_manuscript(
+    def writer_compile_manuscript(
         project_dir: str,
         timeout: int = 300,
         no_figs: bool = False,
@@ -51,7 +51,7 @@ def register_tools(mcp: FastMCP) -> None:
         )
 
     @mcp.tool()
-    def compile_supplementary(
+    def writer_compile_supplementary(
         project_dir: str,
         timeout: int = 300,
         no_figs: bool = False,
@@ -72,7 +72,7 @@ def register_tools(mcp: FastMCP) -> None:
         )
 
     @mcp.tool()
-    def compile_revision(
+    def writer_compile_revision(
         project_dir: str,
         track_changes: bool = False,
         timeout: int = 300,
@@ -91,7 +91,7 @@ def register_tools(mcp: FastMCP) -> None:
         )
 
     @mcp.tool()
-    def compile_content(
+    def writer_compile_content(
         latex_content: str,
         project_dir: str | None = None,
         color_mode: str = "light",

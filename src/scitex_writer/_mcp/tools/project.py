@@ -29,7 +29,7 @@ def register_tools(mcp: FastMCP) -> None:
     """Register project management tools."""
 
     @mcp.tool()
-    def clone_project(
+    def writer_clone_project(
         project_dir: str,
         git_strategy: Literal["child", "parent", "origin", "none"] = "child",
         branch: Optional[str] = None,
@@ -39,12 +39,12 @@ def register_tools(mcp: FastMCP) -> None:
         return _clone_project(project_dir, git_strategy, branch, tag)
 
     @mcp.tool()
-    def get_project_info(project_dir: str) -> dict:
+    def writer_get_project_info(project_dir: str) -> dict:
         """[writer] Get writer project structure and status information."""
         return _get_project_info(project_dir)
 
     @mcp.tool()
-    def get_pdf(
+    def writer_get_pdf(
         project_dir: str,
         doc_type: Literal["manuscript", "supplementary", "revision"] = "manuscript",
     ) -> dict:
@@ -52,7 +52,7 @@ def register_tools(mcp: FastMCP) -> None:
         return _get_pdf(project_dir, doc_type)
 
     @mcp.tool()
-    def list_document_types() -> dict:
+    def writer_list_document_types() -> dict:
         """[writer] List available document types in a writer project."""
         return _list_document_types()
 
