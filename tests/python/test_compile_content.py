@@ -241,7 +241,7 @@ class TestMcpToolRegistration:
         from scitex_writer._mcp import mcp
 
         tool_names = [t.name for t in mcp._tool_manager._tools.values()]
-        assert "compile_content" in tool_names
+        assert "writer_compile_content" in tool_names
 
 
 # EOF
