@@ -40,6 +40,99 @@ def _style(text: str, fg: str = None, bold: bool = False) -> str:
     return text
 
 
+def _simplify_type(ann) -> str:
+    """Simplify type annotation to base type name like figrecipe."""
+    import types
+    import typing
+
+    # Handle Python 3.10+ UnionType (str | None)
+    if isinstance(ann, types.UnionType):
+        args = typing.get_args(ann)
+        non_none = [a for a in args if a is not type(None)]
+        if len(non_none) == 1 and type(None) in args:
+            return "Optional"
+        return "Union"
+
+    # Get origin for generic types (Optional, Union, List, Dict, etc.)
+    origin = typing.get_origin(ann)
+    if origin is not None:
+        # For Union types (including Optional which is Union[X, None])
+        if origin is typing.Union:
+            args = typing.get_args(ann)
+            # Check if it's Optional (Union with None)
+            non_none = [a for a in args if a is not type(None)]
+            if len(non_none) == 1 and type(None) in args:
+                return "Optional"
+            return "Union"
+        # For other generic types, return the origin name
+        return origin.__name__ if hasattr(origin, "__name__") else str(origin)
+
+    # For simple types
+    if hasattr(ann, "__name__"):
+        return ann.__name__
+
+    # Fallback: string representation cleaned up
+    type_str = str(ann)
+    type_str = type_str.replace("typing.", "")
+    # Further simplify: extract just the base type
+    if "[" in type_str:
+        type_str = type_str.split("[")[0]
+    return type_str
+
+
+def _format_python_signature(func, multiline: bool = True, indent: str = "  ") -> tuple:
+    """Format Python function signature with colors matching figrecipe.
+
+    Returns (name_colored, signature_colored)
+    """
+    try:
+        sig = inspect.signature(func)
+    except (ValueError, TypeError):
+        return _style(func.__name__, "green", bold=True), ""
+
+    params = []
+    for name, param in sig.parameters.items():
+        # Get type annotation
+        if param.annotation != inspect.Parameter.empty:
+            type_str = _simplify_type(param.annotation)
+        else:
+            type_str = None
+
+        # Get default value
+        if param.default != inspect.Parameter.empty:
+            default = param.default
+            def_str = repr(default) if len(repr(default)) < 20 else "..."
+            if type_str:
+                p = f"{_style(name, 'white', bold=True)}: {_style(type_str, 'cyan')} = {_style(def_str, 'yellow')}"
+            else:
+                p = f"{_style(name, 'white', bold=True)} = {_style(def_str, 'yellow')}"
+        else:
+            if type_str:
+                p = f"{_style(name, 'white', bold=True)}: {_style(type_str, 'cyan')}"
+            else:
+                p = _style(name, "white", bold=True)
+        params.append(p)
+
+    # Return type
+    ret_str = ""
+    if sig.return_annotation != inspect.Parameter.empty:
+        ret = sig.return_annotation
+        ret_name = ret.__name__ if hasattr(ret, "__name__") else str(ret)
+        ret_name = ret_name.replace("typing.", "")
+        ret_str = f" -> {_style(ret_name, 'magenta')}"
+
+    name_s = _style(func.__name__, "green", bold=True)
+
+    if multiline and len(params) > 2:
+        param_indent = indent + "    "
+        params_str = ",\n".join(f"{param_indent}{p}" for p in params)
+        sig_s = f"(\n{params_str}\n{indent}){ret_str}"
+    else:
+        sig_s = f"({', '.join(params)}){ret_str}"
+
+    return name_s, sig_s
+
+
 def _get_api_tree(module, max_depth: int = 5, docstring: bool = False) -> list[dict]:
     """Get API tree for a module with types and signatures.
 
@@ -121,7 +214,6 @@ def cmd_api(args: argparse.Namespace) -> int:
         t = row["Type"]
         type_s = _style(f"[{t}]", fg=TYPE_COLORS.get(t, "yellow"))
         name = row["Name"].split(".")[-1]
-        sig_s = ""
 
         if t == "F":
             try:
@@ -133,24 +225,17 @@ def cmd_api(args: argparse.Namespace) -> int:
                     if obj is None:
                         break
                 if obj and callable(obj):
-                    sig = str(inspect.signature(obj))
-                    ret = sig[sig.rfind(" -> ") :] if " -> " in sig else ""
-                    pstr = sig[: sig.rfind(" -> ")] if ret else sig
-                    params = [
-                        p.strip() for p in pstr.strip("()").split(",") if p.strip()
-                    ]
-                    if len(params) > 2:  # Multiline for 3+ params
-                        sig_lines = [f"{indent}    {p}," for p in params[:-1]]
-                        sig_lines.append(f"{indent}    {params[-1]}")
-                        sig_s = "(\n" + "\n".join(sig_lines) + f"\n{indent}){ret}"
-                    else:
-                        sig_s = sig
+                    name_s, sig_s = _format_python_signature(obj, indent=indent)
+                    print(f"{indent}{type_s} {name_s}{sig_s}")
+                else:
+                    name_s = _style(name, "green", bold=True)
+                    print(f"{indent}{type_s} {name_s}")
             except Exception:
-                pass
-
-        name_s = _style(name, fg=TYPE_COLORS.get(t, "white"), bold=True)
-        sig_styled = _style(sig_s, fg=TYPE_COLORS.get(t, "white"), bold=True)
-        print(f"{indent}{type_s} {name_s}{sig_styled}")
+                name_s = _style(name, "green", bold=True)
+                print(f"{indent}{type_s} {name_s}")
+        else:
+            name_s = _style(name, fg=TYPE_COLORS.get(t, "white"), bold=True)
+            print(f"{indent}{type_s} {name_s}")
 
         if args.verbose >= 1 and row.get("Docstring"):
             if args.verbose == 1:
