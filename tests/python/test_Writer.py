@@ -156,7 +156,7 @@ class TestWriterCompileMethods:
     def test_compile_manuscript_calls_function(self, valid_project_structure):
         """Verify compile_manuscript calls the compile function."""
         with patch("scitex_writer.writer._find_git_root", return_value=None):
-            writer = Writer(valid_project_structure)
+            Writer(valid_project_structure)  # Verify initialization works
 
         mock_result = MagicMock()
         with patch(
@@ -175,7 +175,7 @@ class TestWriterCompileMethods:
     def test_compile_supplementary_calls_function(self, valid_project_structure):
         """Verify compile_supplementary calls the compile function."""
         with patch("scitex_writer.writer._find_git_root", return_value=None):
-            writer = Writer(valid_project_structure)
+            Writer(valid_project_structure)  # Verify initialization works
 
         mock_result = MagicMock()
         with patch(
@@ -194,7 +194,7 @@ class TestWriterCompileMethods:
     def test_compile_revision_calls_function(self, valid_project_structure):
         """Verify compile_revision calls the compile function."""
         with patch("scitex_writer.writer._find_git_root", return_value=None):
-            writer = Writer(valid_project_structure)
+            Writer(valid_project_structure)  # Verify initialization works
 
         mock_result = MagicMock()
         with patch(

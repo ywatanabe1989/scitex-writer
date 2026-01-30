@@ -106,7 +106,7 @@ class TestRunCompile:
         with patch("pathlib.Path.exists", return_value=True):
             with patch("os.chdir"):
                 with patch("pathlib.Path.cwd", return_value=project_dir):
-                    result = run_compile(
+                    run_compile(
                         "manuscript",
                         project_dir,
                         no_figs=True,
@@ -147,7 +147,7 @@ class TestRunCompile:
         with patch("pathlib.Path.exists", return_value=True):
             with patch("os.chdir"):
                 with patch("pathlib.Path.cwd", return_value=project_dir):
-                    result = run_compile(
+                    run_compile(
                         "manuscript",
                         project_dir,
                         no_figs=True,
@@ -194,7 +194,7 @@ class TestRunCompile:
         with patch("pathlib.Path.exists", return_value=True):
             with patch("os.chdir"):
                 with patch("pathlib.Path.cwd", return_value=project_dir):
-                    result = run_compile(
+                    run_compile(
                         "supplementary",
                         project_dir,
                         no_figs=False,  # Include figures
@@ -233,7 +233,7 @@ class TestRunCompile:
         with patch("pathlib.Path.exists", return_value=True):
             with patch("os.chdir"):
                 with patch("pathlib.Path.cwd", return_value=project_dir):
-                    result = run_compile(
+                    run_compile(
                         "revision",
                         project_dir,
                         track_changes=True,
