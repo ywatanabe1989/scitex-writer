@@ -697,3 +697,4 @@ flycheck_*.el
 # Claude worktree symlink
 /fix-table
 GITIGNORED/
+docs/sphinx/_build/
