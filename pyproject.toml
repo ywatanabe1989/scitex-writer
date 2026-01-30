@@ -56,6 +56,9 @@ docs = [
     "sphinx-copybutton>=0.5",
     "sphinx-autodoc-typehints>=1.25",
 ]
+all = [
+    "scitex-writer[dev,docs]",
+]
 
 [project.scripts]
 scitex-writer = "scitex_writer._cli:main"
