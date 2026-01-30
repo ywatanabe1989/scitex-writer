@@ -32,6 +32,15 @@ except _PackageNotFoundError:
 # Import modules for convenient access
 from . import bib, compile, figures, guidelines, project, prompts, tables
 from ._branding import BRAND_ALIAS, BRAND_NAME
+from ._dataclasses import (
+    CompilationResult,
+    ManuscriptTree,
+    RevisionTree,
+    SupplementaryTree,
+)
+
+# Import Writer class and dataclasses
+from .writer import Writer
 
 __all__ = [
     "__version__",
@@ -46,6 +55,13 @@ __all__ = [
     "bib",
     "guidelines",
     "prompts",
+    # Writer class
+    "Writer",
+    # Dataclasses
+    "CompilationResult",
+    "ManuscriptTree",
+    "SupplementaryTree",
+    "RevisionTree",
 ]
 
 # EOF
