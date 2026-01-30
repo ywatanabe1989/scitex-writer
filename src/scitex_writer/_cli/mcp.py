@@ -37,44 +37,204 @@ def cmd_start(args: argparse.Namespace) -> int:
     return 0
 
 
+def _get_tool_module(name: str) -> str:
+    """Get logical module for a tool name."""
+    if name == "usage":
+        return "general"
+    if "bib" in name:
+        return "bib"
+    if "compile" in name:
+        return "compile"
+    if "figure" in name or "pdf_to_images" in name:
+        return "figures"
+    if "table" in name or "csv_to_latex" in name or "latex_to_csv" in name:
+        return "tables"
+    if (
+        "project" in name
+        or "clone" in name
+        or "get_pdf" in name
+        or "document_types" in name
+    ):
+        return "project"
+    if "guideline" in name:
+        return "guidelines"
+    if "prompts" in name:
+        return "prompts"
+    return "general"
+
+
+def _style(text: str, fg: str = None, bold: bool = False) -> str:
+    """Apply ANSI color styling."""
+    import sys
+
+    if not sys.stdout.isatty():
+        return text
+    codes = {
+        "green": "\033[32m",
+        "cyan": "\033[36m",
+        "yellow": "\033[33m",
+        "magenta": "\033[35m",
+        "white": "\033[37m",
+        "bold": "\033[1m",
+        "reset": "\033[0m",
+    }
+    prefix = ""
+    if bold:
+        prefix += codes["bold"]
+    if fg and fg in codes:
+        prefix += codes[fg]
+    return f"{prefix}{text}{codes['reset']}" if prefix else text
+
+
+def _format_tool_signature(tool, compact: bool = False, indent: str = "  ") -> str:
+    """Format tool as Python-like function signature with colors."""
+    import inspect
+    import re
+
+    params = []
+    if hasattr(tool, "parameters") and tool.parameters:
+        schema = tool.parameters
+        props = schema.get("properties", {})
+        required = schema.get("required", [])
+        for name, info in props.items():
+            ptype = info.get("type", "any")
+            default = info.get("default")
+            # Color: name in white bold, type in cyan, default in yellow
+            name_s = _style(name, "white", bold=True)
+            type_s = _style(ptype, "cyan")
+            if name in required:
+                params.append(f"{name_s}: {type_s}")
+            elif default is not None:
+                def_str = repr(default) if len(repr(default)) < 20 else "..."
+                def_s = _style(f"= {def_str}", "yellow")
+                params.append(f"{name_s}: {type_s} {def_s}")
+            else:
+                def_s = _style("= None", "yellow")
+                params.append(f"{name_s}: {type_s} {def_s}")
+
+    # Get return type with dict keys from docstring
+    ret_type = ""
+    if hasattr(tool, "fn") and tool.fn:
+        try:
+            sig = inspect.signature(tool.fn)
+            if sig.return_annotation != inspect.Parameter.empty:
+                ret = sig.return_annotation
+                ret_name = ret.__name__ if hasattr(ret, "__name__") else str(ret)
+                # Extract return dict keys from docstring
+                keys = []
+                if tool.description and "Returns" in tool.description:
+                    match = re.search(
+                        r"Returns\s*[-]+\s*\w+\s*(.+?)(?:Raises|Examples|Notes|\Z)",
+                        tool.description,
+                        re.DOTALL,
+                    )
+                    if match:
+                        keys = re.findall(r"'([a-z_]+)'", match.group(1))
+                keys_s = _style(f"{{{', '.join(keys)}}}", "yellow") if keys else ""
+                ret_type = f" -> {_style(ret_name, 'magenta')}{keys_s}"
+        except Exception:
+            pass
+
+    # Function name in green
+    name_s = _style(tool.name, "green")
+    if compact or len(params) <= 2:
+        return f"{indent}{name_s}({', '.join(params)}){ret_type}"
+    else:
+        param_indent = indent + "    "
+        params_str = ",\n".join(f"{param_indent}{p}" for p in params)
+        return f"{indent}{name_s}(\n{params_str}\n{indent}){ret_type}"
+
+
 def cmd_list_tools(args: argparse.Namespace) -> int:
-    """List all available MCP tools as markdown."""
+    """List all available MCP tools (figrecipe-compatible format)."""
     from .._mcp import mcp
 
-    tools = list(mcp._tool_manager._tools.values())
+    verbose = getattr(args, "verbose", 0)
+    compact = getattr(args, "compact", False)
+    module_filter = getattr(args, "module", None)
+    as_json = getattr(args, "json", False)
+
+    tools = list(mcp._tool_manager._tools.keys())
     total = len(tools)
 
-    # Group tools by category
-    categories = {}
-    for tool in tools:
-        name = tool.name
-        parts = name.split("_")
-        category = parts[0] if len(parts) > 1 else "general"
-        if category not in categories:
-            categories[category] = []
-        categories[category].append(tool)
+    # Group by logical module
+    modules = {}
+    for tool_name in sorted(tools):
+        module = _get_tool_module(tool_name)
+        if module not in modules:
+            modules[module] = []
+        modules[module].append(tool_name)
 
-    print(f"# SciTeX Writer MCP Tools ({total} total)\n")
-    print("Model Context Protocol tools for AI agent integration.\n")
-    print("```bash")
-    print("scitex-writer mcp list-tools    # List all tools")
-    print("scitex-writer mcp start         # Start MCP server (stdio)")
-    print("```\n")
-    print("## Tools by Category\n")
-    print("| Category | Tool | Description |")
-    print("|----------|------|-------------|")
+    # Filter by module if specified
+    if module_filter:
+        module_filter = module_filter.lower()
+        if module_filter not in modules:
+            print(f"ERROR: Unknown module '{module_filter}'")
+            print(f"Available modules: {', '.join(sorted(modules.keys()))}")
+            return 1
+        modules = {module_filter: modules[module_filter]}
 
-    for category in sorted(categories.keys()):
-        cat_tools = sorted(categories[category], key=lambda t: t.name)
-        first = True
-        for tool in cat_tools:
-            desc = (tool.description or "").split("\n")[0]
-            desc = desc.replace("[writer] ", "")[:50]
-            if first:
-                print(f"| **{category}** ({len(cat_tools)}) | `{tool.name}` | {desc} |")
-                first = False
+    if as_json:
+        import json
+
+        output = {
+            "name": "scitex-writer",
+            "total": sum(len(t) for t in modules.values()),
+            "modules": {},
+        }
+        for mod, tool_list in modules.items():
+            output["modules"][mod] = {
+                "count": len(tool_list),
+                "tools": tool_list,
+            }
+        print(json.dumps(output, indent=2))
+        return 0
+
+    print(_style("SciTeX Writer MCP: scitex-writer", "cyan", bold=True))
+    print(f"Tools: {total} ({len(modules)} modules)\n")
+
+    for module in sorted(modules.keys()):
+        mod_tools = sorted(modules[module])
+        print(_style(f"{module}: {len(mod_tools)} tools", "green", bold=True))
+        for tool_name in mod_tools:
+            tool_obj = mcp._tool_manager._tools.get(tool_name)
+
+            if verbose == 0:
+                # Names only
+                print(f"  {tool_name}")
+            elif verbose == 1:
+                # Signatures
+                sig = (
+                    _format_tool_signature(tool_obj, compact=compact)
+                    if tool_obj
+                    else f"  {tool_name}"
+                )
+                print(sig)
+            elif verbose == 2:
+                # Signature + one-line description
+                sig = (
+                    _format_tool_signature(tool_obj, compact=compact)
+                    if tool_obj
+                    else f"  {tool_name}"
+                )
+                print(sig)
+                if tool_obj and tool_obj.description:
+                    desc = tool_obj.description.split("\n")[0].strip()
+                    print(f"    {desc}")
+                print()
             else:
-                print(f"|  | `{tool.name}` | {desc} |")
+                # Signature + full description
+                sig = (
+                    _format_tool_signature(tool_obj, compact=compact)
+                    if tool_obj
+                    else f"  {tool_name}"
+                )
+                print(sig)
+                if tool_obj and tool_obj.description:
+                    for line in tool_obj.description.strip().split("\n"):
+                        print(f"    {line}")
+                print()
+        print()
 
     return 0
 
@@ -165,7 +325,31 @@ Quick start:
     )
     inst.set_defaults(func=cmd_config)
 
-    lst = mcp_sub.add_parser("list-tools", help="List all available MCP tools")
+    lst = mcp_sub.add_parser(
+        "list-tools",
+        help="List all available MCP tools",
+        description="Verbosity: (none) names, -v signatures, -vv +description, -vvv full",
+    )
+    lst.add_argument(
+        "-v",
+        "--verbose",
+        action="count",
+        default=0,
+        help="Verbosity: -v sig, -vv +desc, -vvv full",
+    )
+    lst.add_argument(
+        "-c", "--compact", action="store_true", help="Compact signatures (single line)"
+    )
+    lst.add_argument(
+        "-m",
+        "--module",
+        type=str,
+        default=None,
+        help="Filter by module (bib, compile, figures, tables, project, guidelines, prompts)",
+    )
+    lst.add_argument(
+        "--json", action="store_true", default=False, help="Output as JSON"
+    )
     lst.set_defaults(func=cmd_list_tools)
 
     doc = mcp_sub.add_parser("doctor", help="Check MCP server health")

@@ -19,7 +19,7 @@ import argparse
 import sys
 
 from .. import __version__
-from . import bib, compile, figures, guidelines, mcp, prompts, tables
+from . import bib, compile, figures, guidelines, introspect, mcp, prompts, tables
 
 
 def main() -> int:
@@ -44,6 +44,10 @@ def main() -> int:
     bib_parser = bib.register_parser(subparsers)
     tables_parser = tables.register_parser(subparsers)
     figures_parser = figures.register_parser(subparsers)
+    introspect.register_parser(subparsers)
+
+    # Register top-level convenience commands
+    introspect.register_list_python_apis(subparsers)
 
     args = parser.parse_args()
 

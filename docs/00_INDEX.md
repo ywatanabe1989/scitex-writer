@@ -7,21 +7,17 @@ This directory contains comprehensive documentation for the SciTeX Writer templa
 ### Guides (01_GUIDE_*)
 Procedural documentation for common tasks and workflows:
 - **01_GUIDE_QUICK_START.md** - Quick reference for common tasks and basic workflows
+- **01_GUIDE_INSTALLATION.md** - Setup for all environments
 - **01_GUIDE_BIBLIOGRAPHY.md** - Complete guide to bibliography management with multi-file support and caching
 - **01_GUIDE_CONTENT_CREATION.md** - Comprehensive guide for creating and managing figures and tables
 - **01_GUIDE_AGENTS.md** - Guide for using AI agents and LLMs with the system
 
 ### Architecture (02_ARCHITECTURE_*)
 Technical design and implementation details:
-- **02_ARCHITECTURE.md** - System architecture, technical implementation, and troubleshooting guide
+- **02_ARCHITECTURE_IMPLEMENTATION.md** - System architecture, technical implementation, and troubleshooting guide
 
-### Research (03_RESEARCH_*)
-Lookup resources and standards for scientific writing:
-- **03_RESEARCH_TERMINOLOGY.md** - Terminology guidelines and language conventions for scientific manuscripts
-
-### External (04_EXTERNAL_*)
-External resources and third-party references:
-- **04_EXTERNAL_RESOURCES.md** - Comprehensive links to LaTeX, scientific writing, and research tools
+### MCP Tools
+- **MCP_TOOLS.md** - Reference for all 29 MCP tools for AI agent integration
 
 ## Subdirectories
 
@@ -55,12 +51,12 @@ Step-by-step instructions for Claude Code tasks:
 ## Navigation Tips
 
 1. **For quick answers**: Start with `01_GUIDE_QUICK_START.md`
-2. **For bibliography management**: See `01_GUIDE_BIBLIOGRAPHY.md`
-3. **For figure/table creation**: See `01_GUIDE_CONTENT_CREATION.md`
-4. **For AI agent and LLM setup**: Consult `01_GUIDE_AGENTS.md`
-5. **For terminology guidance**: Check `03_RESEARCH_TERMINOLOGY.md`
-6. **For technical architecture**: Review `02_ARCHITECTURE.md`
-7. **For external resources**: See `04_EXTERNAL_RESOURCES.md`
+2. **For installation**: See `01_GUIDE_INSTALLATION.md`
+3. **For bibliography management**: See `01_GUIDE_BIBLIOGRAPHY.md`
+4. **For figure/table creation**: See `01_GUIDE_CONTENT_CREATION.md`
+5. **For AI agent and LLM setup**: Consult `01_GUIDE_AGENTS.md`
+6. **For technical architecture**: Review `02_ARCHITECTURE_IMPLEMENTATION.md`
+7. **For MCP tools reference**: See `MCP_TOOLS.md`
 8. **For Python development**: Check `to_claude/guidelines/python/` directory
 9. **For project management**: Look in `to_claude/guidelines/project/`
 10. **For scientific writing standards**: See `to_claude/guidelines/science/` directory
@@ -71,18 +67,13 @@ Root-level documentation files use explicit descriptive prefixes for semantic me
 
 - **01_GUIDE_*** = Guide (procedural, how-to documentation)
   - `01_GUIDE_QUICK_START.md` - Quick reference for immediate needs
+  - `01_GUIDE_INSTALLATION.md` - Setup for all environments
   - `01_GUIDE_BIBLIOGRAPHY.md` - Bibliography management and organization
   - `01_GUIDE_CONTENT_CREATION.md` - Detailed creation processes
   - `01_GUIDE_AGENTS.md` - AI and LLM integration
 
 - **02_ARCHITECTURE_*** = Architecture (technical design and implementation)
-  - `02_ARCHITECTURE.md` - System design and technical details
-
-- **03_RESEARCH_*** = Research (lookup materials, standards, terminology)
-  - `03_RESEARCH_TERMINOLOGY.md` - Scientific writing conventions
-
-- **04_EXTERNAL_*** = External (third-party resources and references)
-  - `04_EXTERNAL_RESOURCES.md` - Links and external references
+  - `02_ARCHITECTURE_IMPLEMENTATION.md` - System design and technical details
 
 This prefix system provides immediate visual context about document purpose and category when viewing directory listings.
 

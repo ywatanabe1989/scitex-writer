@@ -15,8 +15,8 @@ def main():
     """Demonstrate scitex-writer Python API."""
     print("=== Example 03: Python API ===")
 
-    # Import handlers
-    from scitex_writer._mcp import (
+    # Import handlers from the internal handlers module
+    from scitex_writer._mcp.handlers import (
         get_project_info,
         list_document_types,
         list_figures,
