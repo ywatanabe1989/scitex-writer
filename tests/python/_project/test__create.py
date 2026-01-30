@@ -25,9 +25,7 @@ class TestEnsureProjectExistsExisting:
         project_dir = tmp_path / "my_paper"
         project_dir.mkdir()
 
-        with patch(
-            "scitex_writer._project._create.clone_writer_project"
-        ) as mock_clone:
+        with patch("scitex_writer._project._create.clone_writer_project") as mock_clone:
             ensure_project_exists(project_dir, "my_paper")
 
             mock_clone.assert_not_called()
@@ -143,9 +141,7 @@ class TestEnsureProjectExistsFailure:
         """Verify raises RuntimeError when clone returns False."""
         project_dir = tmp_path / "new_paper"
 
-        with patch(
-            "scitex_writer._project._create.clone_writer_project"
-        ) as mock_clone:
+        with patch("scitex_writer._project._create.clone_writer_project") as mock_clone:
             mock_clone.return_value = False
 
             with pytest.raises(RuntimeError, match="Could not create"):
@@ -155,9 +151,7 @@ class TestEnsureProjectExistsFailure:
         """Verify raises RuntimeError when directory not created after clone."""
         project_dir = tmp_path / "new_paper"
 
-        with patch(
-            "scitex_writer._project._create.clone_writer_project"
-        ) as mock_clone:
+        with patch("scitex_writer._project._create.clone_writer_project") as mock_clone:
             mock_clone.return_value = True
             # Don't create directory - simulate clone not creating it
 

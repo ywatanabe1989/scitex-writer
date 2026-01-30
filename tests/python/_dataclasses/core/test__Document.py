@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """Tests for scitex_writer._dataclasses.core._Document."""
 
-
 import pytest
 
 from scitex_writer._dataclasses.core import Document
