@@ -139,8 +139,9 @@ data/*
 **/*.ppt
 **/*.pptx
 **/*.txt
-# Exception: Allow requirements txt files for CI
+# Exception: Allow requirements txt files for CI and docs
 !scripts/installation/requirements/*.txt
+!docs/sphinx/requirements.txt
 # Exception: Allow wordcount placeholder files for template clone
 !*/contents/wordcounts/*.txt
 **/*.log
@@ -697,3 +698,4 @@ flycheck_*.el
 # Claude worktree symlink
 /fix-table
 GITIGNORED/
+docs/sphinx/_build/
