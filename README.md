@@ -13,11 +13,12 @@
 <p align="center">
   <a href="https://badge.fury.io/py/scitex-writer"><img src="https://badge.fury.io/py/scitex-writer.svg" alt="PyPI version"></a>
   <a href="https://pypi.org/project/scitex-writer/"><img src="https://img.shields.io/pypi/pyversions/scitex-writer.svg" alt="Python Versions"></a>
+  <a href="https://scitex-writer.readthedocs.io/"><img src="https://readthedocs.org/projects/scitex-writer/badge/?version=latest" alt="Documentation"></a>
   <a href="https://github.com/ywatanabe1989/scitex-writer/blob/main/LICENSE"><img src="https://img.shields.io/github/license/ywatanabe1989/scitex-writer" alt="License"></a>
 </p>
 
 <p align="center">
-  <a href="https://scitex.ai">scitex.ai</a> · <code>pip install scitex-writer</code>
+  <a href="https://scitex.ai">scitex.ai</a> · <a href="https://scitex-writer.readthedocs.io/">docs</a> · <code>pip install scitex-writer</code>
 </p>
 
 ---
