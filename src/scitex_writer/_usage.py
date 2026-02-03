@@ -21,7 +21,10 @@ Setup:
 
 <SCITEX_WRITER_ROOT> = Directory where compile.sh is located
 
-Project Structure:
+================================================================================
+Project Structure
+================================================================================
+
   <SCITEX_WRITER_ROOT>/
   ├── compile.sh           # Main compilation script
   ├── 00_shared/           # Shared metadata (title, authors, keywords, bib_files/)
@@ -29,18 +32,153 @@ Project Structure:
   ├── 02_supplementary/    # Supplementary materials
   └── 03_revision/         # Revision responses
 
-00_shared/bib_files/:
-  - Place .bib files here, they are AUTO-MERGED into bibliography.bib
-  - Smart deduplication by DOI and title+year
-  - Cite: \\cite{{AuthorYear}}
+================================================================================
+Content Files (01_manuscript/contents/)
+================================================================================
 
-01_manuscript/contents/:
-  - abstract.tex, introduction.tex, methods.tex, results.tex, discussion.tex
-  - figures/caption_and_media/ (01_figure.png + 01_figure.tex)
-  - tables/caption_and_media/ (01_table.csv + 01_table.tex)
+  abstract.tex        - Abstract text
+  introduction.tex    - Introduction section
+  methods.tex         - Methods section
+  results.tex         - Results section
+  discussion.tex      - Discussion section
+
+  Just write plain LaTeX content. No \\begin{{document}} needed.
+
+================================================================================
+Bibliography (00_shared/bib_files/)
+================================================================================
+
+  Workflow:
+    1. SAVE authentic .bib from reliable sources -> bib_files/<descriptive>.bib
+    2. COMPILE -> system auto-merges all .bib with smart deduplication
+    3. CITE -> use any key from any file in bib_files/
+
+  CRITICAL: NO SYNTHETIC/FAKE CITATIONS
+    - NEVER create non-existent bibliography entries
+    - NEVER hallucinate author names, titles, or DOIs
+    - ALL entries MUST be retrieved using scitex MCP tools:
+
+        scitex - crossref_search        # Search CrossRef (167M+ works)
+        scitex - crossref_search_by_doi # Lookup by DOI
+        scitex - openalex_search        # Search OpenAlex (280M+ works)
+        scitex - openalex_search_by_id  # Lookup by OpenAlex ID
+
+    - If unsure about a citation, DO NOT add it
+
+  Auto-Merge Features (battery-included):
+    - All .bib files in bib_files/ are merged automatically
+    - Smart deduplication by DOI and title+year
+    - No manual merge needed
+
+  IMPORTANT: BibTeX entries are SINGLE SOURCE OF TRUTH
+    - NEVER modify existing citation keys
+    - Use keys exactly as they appear in .bib files
+    - Check existing keys: grep -r "AuthorName" 00_shared/bib_files/
+
+  Directory Structure (keep clean):
+    00_shared/bib_files/
+    ├── bibliography.bib      # AUTO-GENERATED (do not edit)
+    ├── my_papers.bib         # Your own publications
+    ├── field_background.bib  # Core field references
+    ├── methods_refs.bib      # Methods/tools citations
+    └── related_work.bib      # Related work citations
+
+  Files to AVOID:
+    - enriched_*.bib, merged_*.bib, by_*.bib, *.json
+
+  How to Cite in LaTeX:
+    \\cite{{Smith2024_DeepLearning}}                    -> [1]
+    \\citep{{Smith2024_DeepLearning}}                  -> (Smith et al., 2024)
+    \\citet{{Smith2024_DeepLearning}}                  -> Smith et al. (2024)
+
+================================================================================
+Figures (01_manuscript/contents/figures/caption_and_media/)
+================================================================================
+
+  File Naming Convention (REQUIRED):
+    <NN>_<descriptive_name>.<ext>    - Image file
+    <NN>_<descriptive_name>.tex      - Caption file (MUST match image basename)
+
+  Example:
+    01_neural_network.png            - Image file
+    01_neural_network.tex            - Caption file
+
+  Caption File Format (01_neural_network.tex):
+    %% Figure caption
+    \\caption{{Architecture of the neural network model.}}
+    \\label{{fig:01_neural_network}}
+
+  Label Convention:
+    \\label{{fig:<filename_without_extension>}}
+    - Prefix: fig:
+    - Filename without extension (exactly as named)
+
+  How to Reference in Text:
+    Figure~\\ref{{fig:01_neural_network}}       -> Figure 1
+    Figure~\\ref{{fig:01_neural_network}}A      -> Figure 1A (for panels)
+
+  Supported Formats:
+    PNG, JPEG, PDF, SVG, TIFF, Mermaid (.mmd)
+    SVG/Mermaid auto-convert to PDF during compilation
+
+  Figure Style (REQUIRED for consistency):
+    import scitex as stx
+    stx.plt.load_style("SCITEX")
+    fig, ax = stx.plt.subplots(**stx.plt.presets.SCITEX_STYLE)
+
+    Or with figrecipe:
+    import figrecipe as fr
+    fr.load_style("SCITEX")
+
+  WARNING: Strict naming is REQUIRED for compilation
+    - Image and caption files MUST have identical basenames
+    - Label MUST match filename (fig:<filename>)
+    - Mismatched names cause compilation FAILURE
+
+================================================================================
+Tables (01_manuscript/contents/tables/caption_and_media/)
+================================================================================
+
+  File Naming Convention (REQUIRED):
+    <NN>_<descriptive_name>.csv      - Data file (CSV format)
+    <NN>_<descriptive_name>.tex      - Caption file (MUST match CSV basename)
+
+  Example:
+    01_performance_metrics.csv       - Data file
+    01_performance_metrics.tex       - Caption file
+
+  CSV Format:
+    Column1,Column2,Column3
+    Value1,Value2,Value3
+    Value4,Value5,Value6
+
+  Caption File Format (01_performance_metrics.tex):
+    %% Table caption
+    \\caption{{Performance metrics across experimental conditions.}}
+    \\label{{tab:01_performance_metrics}}
+
+  Label Convention:
+    \\label{{tab:<filename_without_extension>}}
+    - Prefix: tab:
+    - Filename without extension (exactly as named)
+
+  How to Reference in Text:
+    Table~\\ref{{tab:01_performance_metrics}}   -> Table 1
+
+  CSV auto-converts to LaTeX tabular during compilation.
+
+  WARNING: Strict naming is REQUIRED for compilation
+    - CSV and caption files MUST have identical basenames
+    - Label MUST match filename (tab:<filename>)
+    - Mismatched names cause compilation FAILURE
+
+================================================================================
+Three Interfaces
+================================================================================
 
 Python API:
   {import_example}
+  {alias}.usage()                        # Show this guide
   {alias}.compile.manuscript("./my-paper")
   {alias}.project.clone("./new-paper")
 
@@ -52,16 +190,144 @@ CLI:
 MCP Tool:
   writer_usage()                         # Returns this guide
 
-Compilation (BASH_ENV workaround for AI agents):
+================================================================================
+Compilation
+================================================================================
+
+Shell (BASH_ENV workaround for AI agents):
   env -u BASH_ENV /bin/bash -c '<SCITEX_WRITER_ROOT>/compile.sh manuscript --draft'
 
-Options: --draft, --no_figs, --no_tables, --no_diff, --dark_mode, --quiet
+Makefile (recommended):
+  make manuscript          # Compile manuscript
+  make supplementary       # Compile supplementary
+  make revision            # Compile revision
+  make all                 # Compile all documents
+  make draft               # Fast draft (skips bibliography)
 
-Output: 01_manuscript/manuscript.pdf, manuscript_diff.pdf
+  make manuscript-watch    # Watch manuscript
+  make supplementary-watch # Watch supplementary
+  make revision-watch      # Watch revision
+  make all-watch           # Watch all documents
 
-Highlighting for User Review:
+Watch Mode (auto-recompile on file changes):
+  ./compile.sh manuscript --watch
+  ./compile.sh -m -w --no_figs    # Watch with speed options
+
+Options:
+  --watch, -w   Auto-recompile on file changes (manuscript only)
+  --draft       Skip bibliography processing (faster)
+  --no_figs     Skip figure processing
+  --no_tables   Skip table processing
+  --no_diff     Skip diff generation
+  --dark_mode   Dark background for figures
+  --quiet       Suppress output
+
+Output:
+  01_manuscript/manuscript.pdf
+  01_manuscript/manuscript_diff.pdf (tracked changes)
+
+================================================================================
+Highlighting for User Review
+================================================================================
+
   \\hl{{[PLACEHOLDER: description]}}  - Content user must fill in
   \\hl{{[CHECK: reason]}}             - Claims/facts to verify
+
+================================================================================
+Supplementary Materials (02_supplementary/)
+================================================================================
+
+  Same structure as 01_manuscript/ but with S-prefix naming:
+
+  File Naming for Supplementary:
+    S1_descriptive_name.png          # Image file
+    S1_descriptive_name.tex          # Caption file
+    S1_descriptive_name.csv          # Table data
+
+  Label Convention for Supplementary:
+    \\label{{fig:S1_descriptive_name}}   # Supplementary Figure S1
+    \\label{{tab:S1_descriptive_name}}   # Supplementary Table S1
+
+  Cross-Referencing (Main -> Supplementary):
+    In 01_manuscript/contents/*.tex:
+      Supplementary Figure~\\ref{{fig:S1_descriptive_name}}
+      Supplementary Table~\\ref{{tab:S1_descriptive_name}}
+      (see Supplementary Methods for details)
+
+  Cross-Referencing (Supplementary -> Main):
+    In 02_supplementary/contents/*.tex:
+      (as described in the main text)
+      Figure~\\ref{{fig:01_neural_network}} in the main manuscript
+
+  Note: Cross-references work because of xr-hyper package setup
+        in base.tex with \\link command
+
+================================================================================
+Writing Guidelines
+================================================================================
+
+  Content Standards:
+    - Write coherent paragraphs, NOT bullet lists
+    - One claim per paragraph, topic sentence first
+    - All claims must have citations or evidence
+    - Follow IMRAD structure (Intro, Methods, Results, Discussion)
+
+  Citation Requirements:
+    - Every factual claim needs a citation
+    - Cite primary sources, not reviews (when possible)
+    - Verify all citation keys exist in bib_files/
+
+  Figure Requirements:
+    - Figures must be referenced in text before appearing
+    - Captions must be self-explanatory (reader understands without main text)
+    - Include panel labels (A, B, C) for multi-panel figures
+    - Define all abbreviations in caption
+
+  Table Requirements:
+    - Tables must be referenced in text before appearing
+    - Define abbreviations in caption or footnote
+    - Use consistent decimal places and units
+
+================================================================================
+Journal Specifications (MUST CHECK BEFORE WRITING)
+================================================================================
+
+  Word/Character Limits:
+    - Abstract: typically 150-300 words
+    - Main text: varies (3000-8000 words common)
+    - Check journal's "Instructions for Authors"
+
+  Figure/Table Limits:
+    - Many journals limit to 6-8 figures
+    - Combined figure+table limit may apply
+    - Excess goes to Supplementary Materials
+
+  Reference Limits:
+    - Some journals cap at 40-60 references
+    - Check if online-only references allowed
+
+  Section Requirements:
+    - Some journals require specific sections (e.g., "Data Availability")
+    - Author contributions format (CRediT taxonomy)
+    - Conflict of interest statement
+
+  Format Requirements:
+    - Line numbering (compile with --draft for this)
+    - Double spacing requirements
+    - Figure resolution (typically 300 DPI minimum)
+
+================================================================================
+Quality Checklist (Before Compilation)
+================================================================================
+
+  [ ] No placeholder text remaining (\\hl{{[PLACEHOLDER:...]}})
+  [ ] All \\hl{{[CHECK:...]}} items verified
+  [ ] All figures referenced in text: Figure~\\ref{{fig:...}}
+  [ ] All tables referenced in text: Table~\\ref{{tab:...}}
+  [ ] All citations exist in bib_files/: \\cite{{...}}
+  [ ] No bullet lists in main text (use paragraphs)
+  [ ] IMRAD sections complete and coherent
+  [ ] Captions are self-explanatory
 """
 
 

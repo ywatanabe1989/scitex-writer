@@ -8,6 +8,12 @@
 	manuscript \
 	supplementary \
 	revision \
+	watch \
+	all-watch \
+	manuscript-watch \
+	supplementary-watch \
+	revision-watch \
+	draft \
 	install \
 	develop \
 	test \
@@ -44,6 +50,30 @@ supplementary:
 revision:
 	@echo "Compiling revision responses..."
 	./compile.sh revision --quiet
+
+# Watch mode - auto-recompile on file changes
+watch: manuscript-watch
+
+all-watch:
+	@echo "Starting all-documents watch mode (Ctrl+C to stop)..."
+	./compile.sh all --watch
+
+manuscript-watch:
+	@echo "Starting manuscript watch mode (Ctrl+C to stop)..."
+	./compile.sh manuscript --watch
+
+supplementary-watch:
+	@echo "Starting supplementary watch mode (Ctrl+C to stop)..."
+	./compile.sh supplementary --watch
+
+revision-watch:
+	@echo "Starting revision watch mode (Ctrl+C to stop)..."
+	./compile.sh revision --watch
+
+# Draft mode - fast compilation (skips bibliography)
+draft:
+	@echo "Compiling manuscript (draft mode)..."
+	./compile.sh manuscript --draft --quiet
 
 # Python package targets
 install:
@@ -135,10 +165,18 @@ help:
 	@echo "Version: $(shell grep '^version = ' pyproject.toml | sed 's/version = "\(.*\)"/\1/' | head -1 | tr -d '\"')"
 	@echo ""
 	@echo "Document Compilation:"
-	@echo "  all              - Compile all documents (default)"
+	@echo "  all              - Compile all documents"
 	@echo "  manuscript       - Compile manuscript"
 	@echo "  supplementary    - Compile supplementary materials"
 	@echo "  revision         - Compile revision responses"
+	@echo "  draft            - Fast draft compilation (skips bibliography)"
+	@echo ""
+	@echo "Watch Mode (auto-recompile on changes):"
+	@echo "  watch            - Watch manuscript (alias)"
+	@echo "  all-watch        - Watch all documents"
+	@echo "  manuscript-watch - Watch manuscript"
+	@echo "  supplementary-watch - Watch supplementary"
+	@echo "  revision-watch   - Watch revision"
 	@echo ""
 	@echo "Python Package:"
 	@echo "  install          - Install scitex-writer package"
@@ -170,9 +208,10 @@ help:
 	@echo ""
 	@echo "Examples:"
 	@echo "  make manuscript         # Compile manuscript"
+	@echo "  make watch              # Watch and auto-recompile"
+	@echo "  make draft              # Fast draft compilation"
 	@echo "  make develop            # Install for development"
 	@echo "  make test               # Run tests"
-	@echo "  make update             # Update to latest version"
 	@echo "  make clean-all          # Clean everything"
 
 # Project usage guides
