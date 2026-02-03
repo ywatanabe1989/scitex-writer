@@ -38,6 +38,7 @@ from ._dataclasses import (
     RevisionTree,
     SupplementaryTree,
 )
+from ._usage import get_usage as usage
 
 # Import Writer class and dataclasses
 from .writer import Writer
@@ -47,6 +48,8 @@ __all__ = [
     # Branding
     "BRAND_NAME",
     "BRAND_ALIAS",
+    # Usage
+    "usage",
     # Modules
     "compile",
     "project",

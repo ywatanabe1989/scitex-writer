@@ -13,20 +13,21 @@ from __future__ import annotations
 
 from fastmcp import FastMCP
 
-from ._branding import get_mcp_instructions, get_mcp_server_name
+from ._branding import get_mcp_server_name
 from ._mcp.tools import register_all_tools
+from ._usage import get_usage
 
 # =============================================================================
 # FastMCP Server (with branding support)
 # =============================================================================
 
-mcp = FastMCP(name=get_mcp_server_name(), instructions=get_mcp_instructions())
+mcp = FastMCP(name=get_mcp_server_name(), instructions=get_usage())
 
 
 @mcp.tool()
 def usage() -> str:
     """[writer] Get usage guide for SciTeX Writer LaTeX manuscript compilation system."""
-    return get_mcp_instructions()
+    return get_usage()
 
 
 # Register all tools from modules
