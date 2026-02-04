@@ -19,7 +19,23 @@ import argparse
 import sys
 
 from .. import __version__
+from .._usage import get_usage
 from . import bib, compile, figures, guidelines, introspect, mcp, prompts, tables
+
+
+def _cmd_usage(args: argparse.Namespace) -> int:
+    """Print usage guide."""
+    print(get_usage())
+    return 0
+
+
+def _register_usage_command(subparsers) -> None:
+    """Register usage command."""
+    usage_parser = subparsers.add_parser(
+        "usage",
+        help="Show usage guide for scitex-writer",
+    )
+    usage_parser.set_defaults(func=_cmd_usage)
 
 
 def main() -> int:
@@ -48,6 +64,7 @@ def main() -> int:
 
     # Register top-level convenience commands
     introspect.register_list_python_apis(subparsers)
+    _register_usage_command(subparsers)
 
     args = parser.parse_args()
 
