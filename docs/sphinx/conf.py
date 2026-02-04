@@ -15,7 +15,7 @@ sys.path.insert(0, os.path.abspath("../../src"))
 project = "SciTeX Writer"
 copyright = "2025, Yusuke Watanabe"
 author = "Yusuke Watanabe"
-release = "2.5.0"
+release = "2.5.1"
 
 # -- General configuration ---------------------------------------------------
 
