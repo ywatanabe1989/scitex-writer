@@ -237,21 +237,29 @@ Highlighting for User Review
 Supplementary Materials (02_supplementary/)
 ================================================================================
 
-  Same structure as 01_manuscript/ but with S-prefix naming:
+  Same structure as 01_manuscript/.
 
-  File Naming for Supplementary:
-    S1_descriptive_name.png          # Image file
-    S1_descriptive_name.tex          # Caption file
-    S1_descriptive_name.csv          # Table data
+  IMPORTANT: File Naming Uses NUMERIC Prefixes (Same as Manuscript)
+    The preprocessing scripts require [0-9]* pattern for all document types.
+    Use numeric prefixes (01_, 02_, ...) for filenames, NOT S1_, S2_.
+
+  File Naming for Supplementary (REQUIRED):
+    01_descriptive_name.png          # Image file (numeric prefix)
+    01_descriptive_name.tex          # Caption file (must match)
+    01_descriptive_name.csv          # Table data (numeric prefix)
 
   Label Convention for Supplementary:
-    \\label{{fig:S1_descriptive_name}}   # Supplementary Figure S1
-    \\label{{tab:S1_descriptive_name}}   # Supplementary Table S1
+    Use S-prefix in LABELS only (not filenames) for clarity:
+    \\label{{fig:S01_descriptive_name}}  # Supplementary Figure S1
+    \\label{{tab:S01_descriptive_name}}  # Supplementary Table S1
+
+    Or keep numeric labels and add "Supplementary" in text references:
+    \\label{{fig:01_descriptive_name}}   # Referenced as "Supplementary Figure 1"
 
   Cross-Referencing (Main -> Supplementary):
     In 01_manuscript/contents/*.tex:
-      Supplementary Figure~\\ref{{fig:S1_descriptive_name}}
-      Supplementary Table~\\ref{{tab:S1_descriptive_name}}
+      Supplementary Figure~\\ref{{fig:S01_descriptive_name}}
+      Supplementary Table~\\ref{{tab:S01_descriptive_name}}
       (see Supplementary Methods for details)
 
   Cross-Referencing (Supplementary -> Main):
