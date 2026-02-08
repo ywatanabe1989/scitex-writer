@@ -11,6 +11,10 @@ NC := \033[0m
 	manuscript-compile \
 	supplementary-compile \
 	revision-compile \
+	manuscript \
+	supplementary \
+	revision \
+	all \
 	manuscript-draft \
 	supplementary-draft \
 	revision-draft \
@@ -61,6 +65,12 @@ supplementary-compile:
 revision-compile:
 	@echo "Compiling revision responses..."
 	./compile.sh revision --quiet
+
+# Backward-compatible aliases (referenced in README.md)
+manuscript: manuscript-compile
+supplementary: supplementary-compile
+revision: revision-compile
+all: manuscript-compile supplementary-compile revision-compile
 
 # ============================================================================
 # Draft mode - fast compilation (skips bibliography)
