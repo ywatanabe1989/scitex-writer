@@ -233,8 +233,9 @@ def _get_color_commands(color_mode: str) -> str:
     """Get LaTeX color commands for the specified color mode."""
     color_configs = {
         "light": "",
-        "dark": """% Dark mode styling
-\\pagecolor{black!95!white}
+        "dark": """% Dark mode styling - matches Monaco/VS Code editor (#1e1e1e)
+\\definecolor{MonacoBg}{HTML}{1E1E1E}
+\\pagecolor{MonacoBg}
 \\color{white}
 \\makeatletter
 \\@ifpackageloaded{hyperref}{%
