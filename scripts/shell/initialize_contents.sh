@@ -430,12 +430,13 @@ echo ""
 cd "$PROJECT_ROOT"
 if git rev-parse --is-inside-work-tree &>/dev/null; then
     TIMESTAMP=$(date +%Y%m%d-%H%M%S)
-    SNAPSHOT_TAG="snapshot/pre-init-${TIMESTAMP}"
+    DOC_LABEL="${DOC_FILTER:-all}"
+    SNAPSHOT_TAG="snapshot/pre-init-${DOC_LABEL}-${TIMESTAMP}"
 
     if git status --porcelain 2>/dev/null | grep -q .; then
         echo -e "${YELLOW}Uncommitted changes detected. Creating snapshot...${NC}"
         git add -A
-        git commit -m "snapshot: pre-init ${TIMESTAMP}" --no-verify --quiet
+        git commit -m "snapshot: pre-init-${DOC_LABEL} ${TIMESTAMP}" --no-verify --quiet
         echo -e "${GREEN}Snapshot committed.${NC}"
     fi
 

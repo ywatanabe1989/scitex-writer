@@ -23,10 +23,6 @@ NC := \033[0m
 	revision-init \
 	shared-init \
 	restore \
-	manuscript-restore \
-	supplementary-restore \
-	revision-restore \
-	shared-restore \
 	python-install \
 	python-develop \
 	python-test \
@@ -120,34 +116,6 @@ revision-init:
 restore:
 ifdef ID
 	@bash scripts/shell/restore_contents.sh "$(ID)"
-else
-	@bash scripts/shell/restore_contents.sh
-endif
-
-shared-restore:
-ifdef ID
-	@bash scripts/shell/restore_contents.sh "$(ID)" shared
-else
-	@bash scripts/shell/restore_contents.sh
-endif
-
-manuscript-restore:
-ifdef ID
-	@bash scripts/shell/restore_contents.sh "$(ID)" manuscript
-else
-	@bash scripts/shell/restore_contents.sh
-endif
-
-supplementary-restore:
-ifdef ID
-	@bash scripts/shell/restore_contents.sh "$(ID)" supplementary
-else
-	@bash scripts/shell/restore_contents.sh
-endif
-
-revision-restore:
-ifdef ID
-	@bash scripts/shell/restore_contents.sh "$(ID)" revision
 else
 	@bash scripts/shell/restore_contents.sh
 endif
@@ -275,11 +243,7 @@ help:
 	@echo ""
 	@printf "$(CYAN)🔙 Restoration:$(NC)\n"
 	@echo "  make restore                    List available snapshots"
-	@echo "  make restore ID=xxx             Restore all from snapshot"
-	@echo "  make manuscript-restore ID=xxx  Restore manuscript only"
-	@echo "  make supplementary-restore ID=xxx  Restore supplementary only"
-	@echo "  make revision-restore ID=xxx    Restore revision only"
-	@echo "  make shared-restore ID=xxx      Restore shared metadata only"
+	@echo "  make restore ID=xxx             Restore from snapshot"
 	@echo ""
 	@printf "$(CYAN)📦 Python Package:$(NC)\n"
 	@echo "  make python-install             Install package"
@@ -302,7 +266,7 @@ help:
 	@printf "$(CYAN)📋 Information:$(NC)\n"
 	@echo "  make status                     Show compilation status"
 	@echo "  make help                       Show this help message"
-	@echo "  make usage                  Show full project usage guide"
+	@echo "  make usage                      Show full project usage guide"
 
 # Project usage guides
 usage:
