@@ -20,7 +20,7 @@ def pdf_to_images(
     pdf_path: Union[str, Path],
     output_dir: Optional[Union[str, Path]] = None,
     pages: Optional[Union[int, List[int]]] = None,
-    dpi: int = 150,
+    dpi: int = 600,
     format: str = "png",
     prefix: str = "page",
 ) -> List[Dict[str, Any]]:
@@ -35,7 +35,7 @@ def pdf_to_images(
         Directory to save images. If None, uses temp directory.
     pages : int or list of int, optional
         Page(s) to render (0-indexed). If None, renders all pages.
-    dpi : int, default 150
+    dpi : int, default 600
         Resolution in DPI
     format : str, default 'png'
         Output format ('png', 'jpg', 'jpeg')

@@ -51,7 +51,7 @@ def register_tools(mcp: FastMCP) -> None:
         pdf_path: str,
         output_dir: Optional[str] = None,
         pages: Optional[Union[int, List[int]]] = None,
-        dpi: int = 150,
+        dpi: int = 600,
         format: Literal["png", "jpg"] = "png",
     ) -> dict:
         """[writer] Render PDF pages as images."""

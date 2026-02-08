@@ -176,7 +176,7 @@ def pdf_to_images(
     pdf_path: str,
     output_dir: _Optional[str] = None,
     pages: _Optional[_Union[int, _List[int]]] = None,
-    dpi: int = 150,
+    dpi: int = 600,
     format: _Literal["png", "jpg"] = "png",
 ) -> dict:
     """Render PDF pages as images.

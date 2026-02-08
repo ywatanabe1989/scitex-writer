@@ -2,30 +2,6 @@
 
 \section*{Supplementary Methods}
 
-This section provides detailed technical specifications and implementation details for the SciTeX Writer framework that were omitted from the main manuscript for brevity.
+Replace this with supplementary methods that provide additional detail beyond the main manuscript.
 
-\subsection*{Container Image Construction}
-
-The Docker and Singularity container images are built from a base TeX Live distribution, specifically using the \texttt{texlive/texlive:latest} official image. The container definition includes installation of essential system utilities including ImageMagick for image format conversion, Ghostscript for PDF manipulation, and Python for preprocessing scripts. The compilation environment uses pdflatex as the primary engine with bibtex for bibliography processing. The container image size is approximately 3.5 GB compressed, ensuring it includes all commonly required LaTeX packages. Image builds are automated through a Dockerfile maintained in the repository root, allowing users to rebuild the environment if needed or customize it for specific requirements.
-
-\subsection*{Compilation Command Reference}
-
-The compilation scripts provide extensive command-line options for customizing the build process. Supplementary Table~\ref{tab:S1_compilation_options} documents all available options including engine selection, draft mode, component skipping, and performance tuning parameters. The system supports three compilation engines with distinct performance characteristics (Supplementary Table~\ref{tab:S2_compilation_engines}): Tectonic for ultra-fast incremental builds, latexmk for reliable smart recompilation, and traditional 3-pass for maximum compatibility.
-
-Configuration parameters are specified in YAML files located in the \texttt{config/} directory. Supplementary Table~\ref{tab:S3_yaml_configuration} details the available settings including citation style selection, engine preferences, and verbosity controls. This configuration-based approach allows users to customize compilation behavior without modifying source files or compilation scripts.
-
-The bibliography system supports over 20 citation styles (Supplementary Table~\ref{tab:S5_citation_styles}) covering major academic disciplines including sciences, engineering, social sciences, and humanities. Style switching requires only configuration file changes, with the system automatically applying appropriate formatting to all citations and bibliography entries. The \texttt{make archive} command creates a timestamped copy of the current manuscript in the archive directory using the format \texttt{manuscript\_vXXX.tex} where XXX is an automatically incremented version number. The \texttt{make diff} target executes latexdiff between the current version and the most recent archived version, producing a PDF with color-coded additions and deletions.
-
-\subsection*{Preprocessing Pipeline Implementation}
-
-The preprocessing pipeline handles multiple asset types with format-specific processing. Supplementary Table~\ref{tab:S4_supported_formats} documents all supported file formats and auto-conversion capabilities. Figure preprocessing scans the \texttt{01\_manuscript/contents/figures/caption\_and\_media/} directory for image files and corresponding \texttt{.tex} caption files. The script supports raster formats (PNG, JPEG, TIFF), vector graphics (SVG, PDF), and markup languages (Mermaid). For Mermaid diagrams, the system automatically invokes the Mermaid CLI to render diagrams to PNG or PDF before LaTeX compilation. The script extracts caption text, determines the appropriate image file based on priority ordering, and generates LaTeX figure inclusion code using the \texttt{graphicx} package.
-
-Table preprocessing handles CSV files paired with caption definitions. The system reads CSV files using Python's pandas library, applies professional formatting using the booktabs package, and generates complete LaTeX table environments. Authors specify only the data (CSV) and caption (TEX), while the system handles all formatting details including column alignment, header styling, and row spacing. All generated figure and table code is concatenated into respective \texttt{FINAL.tex} files which are included by the main document. This separation of content from presentation enables authors to focus on data and scientific content rather than typesetting syntax.
-
-\subsection*{Version Control Integration}
-
-The framework integrates with Git through hook scripts that can optionally be installed to trigger automatic archiving upon commit. The \texttt{.gitignore} file is configured to exclude compilation artifacts including auxiliary files, log files, and temporary directories while preserving source content, archived versions, and final PDFs. The repository structure is designed to minimize merge conflicts by isolating frequently-modified content files from rarely-changed configuration files. Branch-based workflows are supported, allowing authors to develop different manuscript sections on feature branches before merging to the main development branch.
-
-\subsection*{Cross-Reference Management}
-
-The framework uses consistent labeling conventions for cross-references throughout the document. Figures use the prefix \texttt{fig:}, tables use \texttt{tab:}, sections use \texttt{sec:}, and equations use \texttt{eq:}. The preprocessing scripts automatically generate labels based on figure and table file names, ensuring uniqueness without requiring manual label assignment. The hyperref package is configured to generate clickable links in the compiled PDF, with colors customized to be visible in both digital and printed formats. Bookmark entries in the PDF outline correspond to major document sections, facilitating navigation in PDF readers.
+%%%% EOF

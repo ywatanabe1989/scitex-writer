@@ -2,30 +2,6 @@
 
 \section{Discussion}
 
-The SciTeX Writer framework addresses fundamental challenges in scientific manuscript preparation by combining containerized compilation, modular organization, and automated asset management into a cohesive workflow. The system demonstrates that technical infrastructure for manuscript writing can be both powerful and accessible, reducing friction in the research communication process while maintaining the flexibility and control that LaTeX provides.
-
-\subsection{Advantages of the Containerized Approach}
-
-The container-based compilation system represents a significant departure from traditional LaTeX workflows and offers substantial practical benefits. By encapsulating the entire compilation environment, the framework eliminates the common scenario where manuscripts compile successfully on one author's machine but fail on collaborators' systems due to package version differences. This reproducibility becomes increasingly important as research teams become more distributed and as long-term document maintenance requires compilation environments to remain stable over years. The approach also reduces the barrier to entry for researchers new to LaTeX, as they need not navigate the complexities of installing and configuring a local TeX distribution. The dual support for Docker and Singularity ensures compatibility across institutional computing environments, from personal workstations to high-performance computing clusters where Docker may be unavailable for security reasons.
-
-\subsection{Implications for Collaborative Writing}
-
-The modular architecture facilitates collaborative workflows in ways that traditional monolithic LaTeX documents cannot. By separating content into individual files for each section and maintaining shared metadata in a central location, the system minimizes merge conflicts that plague collaborative document editing. Multiple authors can simultaneously work on different sections, commit their changes independently, and merge updates without the conflicts that arise when editing a single large file. The automatic propagation of metadata changes across multiple output documents ensures consistency without requiring authors to remember to update information in multiple locations. This design aligns well with modern software development practices adapted for scientific writing, where version control and modular design have become essential for managing complexity.
-
-\subsection{Comparison with Existing Solutions}
-
-Compared to cloud-based platforms like Overleaf, SciTeX Writer offers greater control over the compilation environment and eliminates dependency on internet connectivity, which can be crucial for researchers working in bandwidth-limited environments or on sensitive projects requiring air-gapped systems. Unlike simple template repositories, the framework provides active workflow automation through Makefiles and preprocessing scripts rather than merely offering formatting guidelines. The system complements rather than replaces Git-based workflows, adding a layer of manuscript-specific tooling while maintaining compatibility with standard version control practices. Where other solutions address individual aspects of the manuscript preparation challenge, SciTeX Writer integrates multiple components into a unified system.
-
-\subsection{Limitations and Considerations}
-
-The framework requires users to have basic familiarity with command-line interfaces and Makefiles, which may present a learning curve for researchers accustomed to graphical editing environments. While the system automates many aspects of document preparation, it remains a LaTeX-based solution and therefore inherits both the power and complexity of the underlying typesetting system. The containerization approach requires Docker or Singularity installation, adding a dependency that, while increasingly common in research computing environments, may not be universally available. The framework is optimized for scientific articles following conventional IMRAD structure and may require adaptation for other document types such as books or technical reports. Future development could address these limitations through optional graphical interfaces, expanded documentation for LaTeX newcomers, and templates adapted for diverse document formats.
-
-\subsection{Future Directions and Extensibility}
-
-The modular design of SciTeX Writer enables natural extension points for additional functionality. Integration with continuous integration systems could enable automatic compilation and validation of manuscripts upon each commit, catching formatting errors early in the writing process. Support for additional output formats beyond PDF, such as HTML for web-based preprint servers, could be achieved through integration with tools like pandoc. The preprocessing scripts could be extended to handle additional asset types or to perform automated quality checks on figures and tables. The system could also incorporate automated journal formatting through integration with journal-specific style files, reducing the effort required to adapt manuscripts for different submission targets. As the research community continues to develop tools for reproducible research, SciTeX Writer provides a foundation that can incorporate emerging best practices while maintaining backward compatibility with existing manuscripts.
-
-\subsection{Conclusions}
-
-SciTeX Writer demonstrates that scientific manuscript preparation can be systematized without sacrificing flexibility or imposing rigid constraints on content. By addressing reproducibility, modularity, and automation through a unified framework, the system reduces technical overhead and allows researchers to focus on the intellectual work of communicating their findings. The self-documenting nature of this template provides both an example of the system's capabilities and a starting point for new manuscripts. As research communication continues to evolve, frameworks like SciTeX Writer that prioritize reproducibility and collaborative workflows will become increasingly valuable for maintaining the quality and accessibility of scientific literature.
+Replace this with your discussion. Interpret findings, compare with previous work, discuss limitations, and state conclusions.
 
 %%%% EOF

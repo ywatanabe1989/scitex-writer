@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.5.4] - 2026-02-09
+
+### Changed
+- refactor: Split monolithic `_mcp/handlers.py` (571 lines) into `handlers/` package
+  - `_project.py`: clone, info, PDF paths, document types
+  - `_compile.py`: manuscript, supplementary, revision compilation
+  - `_tables.py`: CSV/LaTeX table conversions
+  - `_figures.py`: pdf_to_images, list_figures, convert_figure
+- feat: Default DPI for `pdf_to_images` increased from 150 to 600
+
 ## [2.5.3] - 2026-02-08
 
 ### Changed

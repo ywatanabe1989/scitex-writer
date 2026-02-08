@@ -1,31 +1,43 @@
 # Makefile for SciTeX Writer
-# Usage: make [target]
+# Usage: make [target] [DOC=manuscript|supplementary|revision]
 # Author: ywatanabe
 # Dependencies: Python 3.8+, compile scripts, Apptainer containers
 
+GREEN := \033[0;32m
+CYAN := \033[0;36m
+NC := \033[0m
+
+# Document type argument (default: all)
+DOC ?=
+
 .PHONY: \
 	all \
+	compile \
 	manuscript \
 	supplementary \
 	revision \
-	watch \
 	all-watch \
 	manuscript-watch \
 	supplementary-watch \
 	revision-watch \
 	draft \
-	install \
-	develop \
-	test \
-	build \
-	upload \
-	update \
+	python-install \
+	python-develop \
+	python-test \
+	python-build \
+	python-upload \
+	python-upload-test \
+	python-update \
+	python-version \
 	clean \
 	clean-logs \
-	clean-cache \
+	clean-archive \
 	clean-compiled \
 	clean-python \
 	clean-all \
+	init \
+	initialize-contents \
+	restore \
 	help \
 	usage-all \
 	usage-manuscript \
@@ -36,9 +48,20 @@
 # Default target - show help instead of compiling
 .DEFAULT_GOAL := help
 
+# ============================================================================
+# Document compilation
+# ============================================================================
 all: manuscript supplementary revision
 
-# Document compilation targets
+# Generic compile target with DOC= support
+compile:
+ifdef DOC
+	@echo "Compiling $(DOC)..."
+	./compile.sh $(DOC) --quiet
+else
+	@$(MAKE) --no-print-directory all
+endif
+
 manuscript:
 	@echo "Compiling manuscript..."
 	./compile.sh manuscript --quiet
@@ -51,9 +74,19 @@ revision:
 	@echo "Compiling revision responses..."
 	./compile.sh revision --quiet
 
-# Watch mode - auto-recompile on file changes
-watch: manuscript-watch
+# Draft mode - fast compilation (skips bibliography)
+draft:
+ifdef DOC
+	@echo "Compiling $(DOC) (draft mode)..."
+	./compile.sh $(DOC) --draft --quiet
+else
+	@echo "Compiling manuscript (draft mode)..."
+	./compile.sh manuscript --draft --quiet
+endif
 
+# ============================================================================
+# Watch mode - auto-recompile on file changes
+# ============================================================================
 all-watch:
 	@echo "Starting all-documents watch mode (Ctrl+C to stop)..."
 	./compile.sh all --watch
@@ -70,48 +103,65 @@ revision-watch:
 	@echo "Starting revision watch mode (Ctrl+C to stop)..."
 	./compile.sh revision --watch
 
-# Draft mode - fast compilation (skips bibliography)
-draft:
-	@echo "Compiling manuscript (draft mode)..."
-	./compile.sh manuscript --draft --quiet
+# ============================================================================
+# Initialize and restore contents
+# ============================================================================
+init: initialize-contents
+initialize-contents:
+ifdef DOC
+	@bash scripts/shell/initialize_contents.sh $(DOC)
+else
+	@bash scripts/shell/initialize_contents.sh
+endif
 
+restore:
+ifdef ID
+	@bash scripts/shell/restore_contents.sh "$(ID)"
+else
+	@bash scripts/shell/restore_contents.sh
+endif
+
+# ============================================================================
 # Python package targets
-install:
+# ============================================================================
+python-install:
 	@echo "Installing scitex-writer..."
 	pip install .
 
-develop:
+python-develop:
 	@echo "Installing scitex-writer in development mode..."
 	pip install -e .
 
-test:
+python-test:
 	@echo "Running tests..."
 	pytest tests/ -v
 
-build:
+python-build:
 	@echo "Building distribution packages..."
 	python -m build
 
-upload:
+python-upload:
 	@echo "Uploading to PyPI..."
 	python -m twine upload dist/*
 
-upload-test:
+python-upload-test:
 	@echo "Uploading to Test PyPI..."
 	python -m twine upload --repository testpypi dist/*
 
-update:
+python-update:
 	@echo "Updating scitex-writer..."
 	./scripts/maintenance/update.sh
 
-version:
+python-version:
 	@echo "SciTeX Writer $(shell grep '^version = ' pyproject.toml | sed 's/version = "\(.*\)"/\1/' | head -1 | tr -d '\"')"
 
 demo-previews:
 	@echo "Generating demo preview images for README..."
 	./scripts/maintenance/generate_demo_previews.sh
 
+# ============================================================================
 # Cleaning targets
+# ============================================================================
 clean:
 	@echo "Cleaning temporary files..."
 	rm -f ./01_manuscript/*.{aux,log,bbl,blg,out,toc,fls,fdb_latexmk,synctex.gz}
@@ -149,7 +199,9 @@ clean-python:
 clean-all: clean clean-logs clean-archive clean-compiled clean-python
 	@echo "Deep cleaning all generated files..."
 
+# ============================================================================
 # Status and information
+# ============================================================================
 status:
 	@echo "=== Paper Compilation Status ==="
 	@echo "Manuscript PDF:     $(shell [ -f ./01_manuscript/manuscript.pdf ] && echo "✓ Available" || echo "✗ Missing")"
@@ -161,58 +213,54 @@ status:
 
 # Help target
 help:
-	@echo "SciTeX Writer - LaTeX Compilation System for Scientific Documents"
-	@echo "Version: $(shell grep '^version = ' pyproject.toml | sed 's/version = "\(.*\)"/\1/' | head -1 | tr -d '\"')"
 	@echo ""
-	@echo "Document Compilation:"
-	@echo "  all              - Compile all documents"
-	@echo "  manuscript       - Compile manuscript"
-	@echo "  supplementary    - Compile supplementary materials"
-	@echo "  revision         - Compile revision responses"
-	@echo "  draft            - Fast draft compilation (skips bibliography)"
+	@printf "$(GREEN)╔═══════════════════════════════════════════════════════╗$(NC)\n"
+	@printf "$(GREEN)║     SciTeX Writer v%-5s - LaTeX Manuscript System    ║$(NC)\n" "$(shell grep '^version = ' pyproject.toml | sed 's/version = "\(.*\)"/\1/' | head -1 | tr -d '\"')"
+	@printf "$(GREEN)╚═══════════════════════════════════════════════════════╝$(NC)\n"
 	@echo ""
-	@echo "Watch Mode (auto-recompile on changes):"
-	@echo "  watch            - Watch manuscript (alias)"
-	@echo "  all-watch        - Watch all documents"
-	@echo "  manuscript-watch - Watch manuscript"
-	@echo "  supplementary-watch - Watch supplementary"
-	@echo "  revision-watch   - Watch revision"
+	@printf "$(CYAN)🚀 Getting Started:$(NC)\n"
+	@echo "  make init                 Reset all contents to clean template"
+	@echo "  make init DOC=manuscript  Reset only manuscript contents"
+	@echo "  make restore              List available snapshots"
+	@echo "  make restore ID=xxx       Restore contents from a snapshot"
 	@echo ""
-	@echo "Python Package:"
-	@echo "  install          - Install scitex-writer package"
-	@echo "  develop          - Install in development mode"
-	@echo "  test             - Run tests"
-	@echo "  build            - Build distribution packages"
-	@echo "  upload           - Upload to PyPI"
-	@echo "  upload-test      - Upload to Test PyPI"
-	@echo "  update           - Update to latest version"
-	@echo "  version          - Show version"
-	@echo "  demo-previews    - Generate demo preview images for README"
+	@printf "$(CYAN)📄 Document Compilation:$(NC)\n"
+	@echo "  make all                  Compile all documents"
+	@echo "  make manuscript           Compile manuscript"
+	@echo "  make supplementary        Compile supplementary materials"
+	@echo "  make revision             Compile revision responses"
+	@echo "  make compile DOC=xxx      Compile specific document"
+	@echo "  make draft                Fast draft (manuscript, skips bib)"
+	@echo "  make draft DOC=xxx        Fast draft for specific document"
 	@echo ""
-	@echo "Cleaning:"
-	@echo "  clean            - Remove temporary LaTeX files"
-	@echo "  clean-logs       - Remove log files"
-	@echo "  clean-archive    - Remove archived versions"
-	@echo "  clean-compiled   - Remove compiled tex/pdf files"
-	@echo "  clean-python     - Remove Python build artifacts"
-	@echo "  clean-all        - Remove all generated files"
+	@printf "$(CYAN)🔄 Watch Mode (auto-recompile):$(NC)\n"
+	@echo "  make all-watch            Watch all documents"
+	@echo "  make manuscript-watch     Watch manuscript"
+	@echo "  make supplementary-watch  Watch supplementary"
+	@echo "  make revision-watch       Watch revision"
 	@echo ""
-	@echo "Information:"
-	@echo "  status           - Show compilation status"
-	@echo "  help             - Show this help message"
-	@echo "  usage-all        - Show full project usage guide"
-	@echo "  usage-manuscript - Show manuscript usage"
-	@echo "  usage-supplementary - Show supplementary usage"
-	@echo "  usage-revision   - Show revision usage"
-	@echo "  usage-shared     - Show shared files info"
+	@printf "$(CYAN)📦 Python Package:$(NC)\n"
+	@echo "  make python-install       Install scitex-writer package"
+	@echo "  make python-develop       Install in development mode"
+	@echo "  make python-test          Run tests"
+	@echo "  make python-build         Build distribution packages"
+	@echo "  make python-upload        Upload to PyPI"
+	@echo "  make python-upload-test   Upload to Test PyPI"
+	@echo "  make python-update        Update to latest version"
+	@echo "  make python-version       Show version"
 	@echo ""
-	@echo "Examples:"
-	@echo "  make manuscript         # Compile manuscript"
-	@echo "  make watch              # Watch and auto-recompile"
-	@echo "  make draft              # Fast draft compilation"
-	@echo "  make develop            # Install for development"
-	@echo "  make test               # Run tests"
-	@echo "  make clean-all          # Clean everything"
+	@printf "$(CYAN)🧹 Cleaning:$(NC)\n"
+	@echo "  make clean                Remove temporary LaTeX files"
+	@echo "  make clean-logs           Remove log files"
+	@echo "  make clean-archive        Remove archived versions"
+	@echo "  make clean-compiled       Remove compiled tex/pdf files"
+	@echo "  make clean-python         Remove Python build artifacts"
+	@echo "  make clean-all            Remove all generated files"
+	@echo ""
+	@printf "$(CYAN)📋 Information:$(NC)\n"
+	@echo "  make status               Show compilation status"
+	@echo "  make help                 Show this help message"
+	@echo "  make usage-all            Show full project usage guide"
 
 # Project usage guides
 usage-all:

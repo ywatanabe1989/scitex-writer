@@ -2,24 +2,6 @@
 
 \section*{Supplementary Results}
 
-This section presents additional validation results and performance benchmarks for the SciTeX Writer framework that support the findings presented in the main manuscript.
+Replace this with supplementary results and additional analyses.
 
-\subsection*{Compilation Performance Benchmarks}
-
-We measured compilation times across different system configurations to assess the performance characteristics of the containerized compilation system. On a reference system with 16 GB RAM and 8 CPU cores, compiling the complete manuscript including all preprocessing steps required approximately 12 seconds for the initial build and 4 seconds for subsequent incremental builds when only content changed. The container startup overhead added approximately 2 seconds to each compilation cycle. Compilation times scaled linearly with document length, with the preprocessing pipeline consuming approximately 30\% of total compilation time for documents with 10 or more figures. Parallel compilation of all three document types using \texttt{make all} completed in approximately 18 seconds, demonstrating efficient resource utilization through parallel processing.
-
-\subsection*{Cross-Platform Validation}
-
-To verify true cross-platform reproducibility, we compiled identical source files on six different system configurations spanning Ubuntu 20.04, macOS 13, Windows 11 with WSL2, CentOS 7, Arch Linux, and a high-performance computing cluster running RHEL 8. Binary comparison of the resulting PDFs using cryptographic hashing confirmed byte-for-byte identical outputs across all platforms when using the same container image version. This validation extends to different processor architectures, with successful compilation verified on both x86-64 and ARM64 systems. The only platform-specific difference observed was in container startup time, which varied from 1.5 seconds on native Linux to 3 seconds on macOS and WSL2 due to virtualization overhead.
-
-\subsection*{Figure Format Conversion Validation}
-
-The automatic figure processing system was validated with diverse input formats including PNG, JPEG, SVG, PDF, TIFF, and EPS files. Figure~\ref{fig:S1_example} demonstrates the system's handling of complex multi-panel figures with mixed formats. Conversion quality was assessed by comparing pixel-level differences between original and processed images. For lossless formats, the conversion preserved perfect fidelity. For JPEG inputs, recompression was avoided when possible to prevent quality degradation. SVG to PDF conversion maintained vector properties, ensuring infinite scalability. Processing times ranged from 0.1 seconds for simple PNG files to 2 seconds for complex SVG graphics with extensive path data.
-
-\subsection*{Collaborative Workflow Testing}
-
-We simulated collaborative editing scenarios by having multiple contributors simultaneously modify different manuscript sections in separate Git branches. The modular file structure successfully prevented merge conflicts in 94\% of test cases involving concurrent edits. The remaining 6\% of conflicts occurred when contributors modified shared elements in the \texttt{00\_shared/} directory, which is expected behavior. The shared metadata system correctly propagated changes across all three document types in 100\% of test cases. Version archiving and difference generation performed correctly across branch merges, maintaining complete history of document evolution.
-
-\subsection*{Scalability Analysis}
-
-We tested the framework's scalability by creating test documents ranging from minimal manuscripts with 2 figures and 3 tables to comprehensive documents with 50 figures, 30 tables, and over 100 pages of content. The system handled all document sizes without modification to configuration or structure. Memory consumption during compilation scaled linearly with document size, requiring approximately 500 MB for minimal documents and 2.5 GB for the largest test cases. The modular architecture maintained organizational clarity even for complex documents, with navigation and editing efficiency remaining constant across document sizes. Supplementary Table~\ref{tab:S1_example} provides detailed performance metrics across the tested range of document complexities.
+%%%% EOF

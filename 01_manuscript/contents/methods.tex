@@ -2,30 +2,6 @@
 
 \section{Methods}
 
-The SciTeX Writer framework implements a modular architecture designed around three core principles: reproducible compilation, content-structure separation, and automated asset management. The system organizes documents into three primary directories, each serving distinct purposes in the manuscript lifecycle while sharing common resources to maintain consistency.
-
-\subsection{Repository Structure and Organization}
-
-The framework employs a hierarchical directory structure where the \texttt{00\_shared/} directory serves as the single source of truth for metadata including title, author information, keywords, and bibliographic references. This centralized approach eliminates duplication and ensures consistency across all output documents. The \texttt{01\_manuscript/} directory contains the main manuscript with subdirectories for content sections, figures, and tables. Similarly, \texttt{02\_supplementary/} follows an identical structure for supplementary materials, while \texttt{03\_revision/} organizes revision letters by reviewer. Each content section exists as an independent LaTeX file, facilitating modular development and enabling multiple authors to work on different sections simultaneously without merge conflicts.
-
-\subsection{Multi-Engine Compilation System}
-
-The framework implements a flexible multi-engine compilation architecture that automatically selects the optimal LaTeX engine based on availability and performance characteristics. Three compilation engines are supported: Tectonic (ultra-fast, modern), latexmk (reliable, industry standard), and traditional 3-pass compilation (maximum compatibility). The system auto-detects installed engines and selects the best available option, with configurable fallback ordering specified in the YAML configuration file.
-
-Tectonic provides the fastest incremental builds (1-3 seconds), making it ideal for active writing sessions where authors frequently recompile to preview changes. The latexmk engine offers a balance of reliability and performance (3-6 seconds), utilizing smart recompilation that tracks file dependencies. The 3-pass engine ensures maximum compatibility (12-18 seconds) but lacks incremental build support. Performance characteristics and trade-offs are documented in Supplementary Table~\ref{tab:S2_compilation_engines}.
-
-To ensure reproducible builds across diverse computing environments, the framework leverages both Docker and Apptainer/Singularity containerization technologies~\cite{Smith2020_NeuralAnalysis}. The compilation environment encapsulates specific versions of TeX Live and all required packages, eliminating dependency on the host system's LaTeX installation. Users invoke compilation through shell scripts that provide extensive command-line options (documented in Supplementary Table~\ref{tab:S1_compilation_options}). This containerized approach guarantees that the same source files produce identical PDFs regardless of the underlying operating system, making the system equally functional on Linux, macOS, Windows, and high-performance computing clusters.
-
-\subsection{Automated Asset Processing}
-
-The system implements automatic format conversion for both figures and tables through preprocessing scripts that execute during compilation~\cite{Chen2021_MachineLearning}. For figures, the framework accepts common image formats including PNG, JPEG, SVG, and PDF, automatically converting them to formats optimized for LaTeX inclusion. Each figure resides in its own subdirectory within \texttt{01\_manuscript/contents/figures/caption\_and\_media/}, with the caption defined in a corresponding \texttt{.tex} file. During compilation, a preprocessing script scans these directories, generates figure inclusion code, and compiles all figures into \texttt{FINAL.tex} for inclusion in the main document. Tables follow an analogous structure, allowing authors to define complex table layouts separately from their incorporation into the document flow~\cite{Brown2018_DeepLearning}.
-
-\subsection{Version Control and Difference Tracking}
-
-The framework integrates with Git to provide systematic version tracking and automatic generation of difference documents. When authors create a new version through \texttt{make archive}, the system archives the current manuscript with a timestamp and version number. Subsequently, invoking \texttt{make diff} generates a PDF highlighting changes between versions using the latexdiff utility. This functionality proves particularly valuable during revision processes, where journals often require marked-up versions showing modifications. The revision directory structure accommodates multiple rounds of review, with separate subdirectories for editor and reviewer responses, each containing both the original comments and author responses in a structured format that ensures complete documentation of the revision process.
-
-\subsection{Manuscript Preparation}
-
-This manuscript was prepared using SciTeX Writer~\cite{watanabe2025scitex}, an open-source scientific manuscript compilation system supporting multiple LaTeX compilation engines including latexmk, traditional 3-pass compilation, and Tectonic.
+Replace this with your methods. Describe study design, data collection, and analysis procedures \cite{example_method_2019}. Provide enough detail for reproducibility.
 
 %%%% EOF
