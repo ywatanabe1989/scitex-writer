@@ -50,6 +50,10 @@ def compile_content(
     Returns:
         Dict with success status, output_pdf path, log, and any errors.
     """
+    # Sanitize section_name: strip .tex extension if present
+    if section_name.endswith(".tex"):
+        section_name = section_name[:-4]
+
     try:
         temp_dir = Path(tempfile.mkdtemp(prefix=f"scitex_content_{section_name}_"))
         tex_file = temp_dir / f"{section_name}.tex"
@@ -60,20 +64,20 @@ def compile_content(
         if is_complete_document:
             final_content = _inject_color_mode(latex_content, color_mode)
         else:
+            # Preview compilations don't include bibliography -
+            # individual sections can't resolve cross-references
             final_content = _create_content_document(
-                latex_content, color_mode, project_dir
+                latex_content, color_mode, project_dir, include_bib=False
             )
 
         tex_file.write_text(final_content, encoding="utf-8")
-
-        if project_dir:
-            _setup_bibliography(temp_dir, project_dir)
 
         cmd = [
             "latexmk",
             "-pdf",
             "-interaction=nonstopmode",
             "-halt-on-error",
+            "-bibtex-",
             f"-jobname={section_name}",
             str(tex_file),
         ]
@@ -88,13 +92,24 @@ def compile_content(
 
         log_content = _read_log_file(temp_dir, section_name)
 
+        # Copy PDF to project .preview/ directory if project_dir is provided
+        final_pdf_path = pdf_file
+        if result.returncode == 0 and pdf_file.exists() and project_dir:
+            preview_dir = _get_preview_dir(project_dir)
+            if preview_dir:
+                dest = preview_dir / pdf_file.name
+                import shutil
+
+                shutil.copy2(str(pdf_file), str(dest))
+                final_pdf_path = dest
+
         if not keep_aux:
             _cleanup_aux_files(temp_dir, section_name)
 
         if result.returncode == 0 and pdf_file.exists():
             return {
                 "success": True,
-                "output_pdf": str(pdf_file),
+                "output_pdf": str(final_pdf_path),
                 "temp_dir": str(temp_dir),
                 "color_mode": color_mode,
                 "log": log_content,
@@ -126,6 +141,29 @@ def compile_content(
             "success": False,
             "error": str(e),
         }
+
+
+def _has_bibliography(project_dir: str) -> bool:
+    """Check if bibliography files exist in the project."""
+    try:
+        project_path = resolve_project_path(project_dir)
+        bib_dir = project_path / "00_shared" / "bib_files"
+        if bib_dir.exists():
+            return any(bib_dir.glob("*.bib"))
+    except Exception:
+        pass
+    return False
+
+
+def _get_preview_dir(project_dir: str) -> Optional[Path]:
+    """Get or create the .preview directory in the project."""
+    try:
+        project_path = resolve_project_path(project_dir)
+        preview_dir = project_path / ".preview"
+        preview_dir.mkdir(parents=True, exist_ok=True)
+        return preview_dir
+    except Exception:
+        return None
 
 
 def _setup_bibliography(temp_dir: Path, project_dir: str) -> None:
@@ -227,11 +265,15 @@ def _get_color_commands(color_mode: str) -> str:
 
 
 def _create_content_document(
-    body_content: str, color_mode: str, project_dir: Optional[str]
+    body_content: str,
+    color_mode: str,
+    project_dir: Optional[str],
+    include_bib: bool = False,
 ) -> str:
     """Create a complete LaTeX document wrapping the body content."""
     color_commands = _get_color_commands(color_mode)
-    bib_line = "\\bibliography{bibliography}" if project_dir else ""
+    bib_line = "\\bibliography{bibliography}" if include_bib else ""
+    natbib_line = "\\usepackage[numbers]{natbib}" if include_bib else ""
 
     return f"""\\documentclass[11pt]{{article}}
 
@@ -244,7 +286,7 @@ def _create_content_document(
 \\usepackage{{graphicx}}
 \\usepackage{{booktabs}}
 \\usepackage{{hyperref}}
-\\usepackage[numbers]{{natbib}}
+{natbib_line}
 \\usepackage{{geometry}}
 \\geometry{{margin=1in}}
 \\usepackage{{pagecolor}}
