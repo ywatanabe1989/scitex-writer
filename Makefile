@@ -1,5 +1,5 @@
 # Makefile for SciTeX Writer
-# Usage: make [target] [DOC=manuscript|supplementary|revision]
+# Usage: make [target]
 # Author: ywatanabe
 # Dependencies: Python 3.8+, compile scripts, Apptainer containers
 
@@ -7,20 +7,26 @@ GREEN := \033[0;32m
 CYAN := \033[0;36m
 NC := \033[0m
 
-# Document type argument (default: all)
-DOC ?=
-
 .PHONY: \
-	all \
-	compile \
-	manuscript \
-	supplementary \
-	revision \
-	all-watch \
+	manuscript-compile \
+	supplementary-compile \
+	revision-compile \
+	manuscript-draft \
+	supplementary-draft \
+	revision-draft \
 	manuscript-watch \
 	supplementary-watch \
 	revision-watch \
-	draft \
+	init \
+	manuscript-init \
+	supplementary-init \
+	revision-init \
+	shared-init \
+	restore \
+	manuscript-restore \
+	supplementary-restore \
+	revision-restore \
+	shared-restore \
 	python-install \
 	python-develop \
 	python-test \
@@ -35,11 +41,8 @@ DOC ?=
 	clean-compiled \
 	clean-python \
 	clean-all \
-	init \
-	initialize-contents \
-	restore \
 	help \
-	usage-all \
+	usage \
 	usage-manuscript \
 	usage-supplementary \
 	usage-revision \
@@ -51,46 +54,36 @@ DOC ?=
 # ============================================================================
 # Document compilation
 # ============================================================================
-all: manuscript supplementary revision
-
-# Generic compile target with DOC= support
-compile:
-ifdef DOC
-	@echo "Compiling $(DOC)..."
-	./compile.sh $(DOC) --quiet
-else
-	@$(MAKE) --no-print-directory all
-endif
-
-manuscript:
+manuscript-compile:
 	@echo "Compiling manuscript..."
 	./compile.sh manuscript --quiet
 
-supplementary:
+supplementary-compile:
 	@echo "Compiling supplementary materials..."
 	./compile.sh supplementary --quiet
 
-revision:
+revision-compile:
 	@echo "Compiling revision responses..."
 	./compile.sh revision --quiet
 
+# ============================================================================
 # Draft mode - fast compilation (skips bibliography)
-draft:
-ifdef DOC
-	@echo "Compiling $(DOC) (draft mode)..."
-	./compile.sh $(DOC) --draft --quiet
-else
+# ============================================================================
+manuscript-draft:
 	@echo "Compiling manuscript (draft mode)..."
 	./compile.sh manuscript --draft --quiet
-endif
+
+supplementary-draft:
+	@echo "Compiling supplementary (draft mode)..."
+	./compile.sh supplementary --draft --quiet
+
+revision-draft:
+	@echo "Compiling revision (draft mode)..."
+	./compile.sh revision --draft --quiet
 
 # ============================================================================
 # Watch mode - auto-recompile on file changes
 # ============================================================================
-all-watch:
-	@echo "Starting all-documents watch mode (Ctrl+C to stop)..."
-	./compile.sh all --watch
-
 manuscript-watch:
 	@echo "Starting manuscript watch mode (Ctrl+C to stop)..."
 	./compile.sh manuscript --watch
@@ -104,19 +97,57 @@ revision-watch:
 	./compile.sh revision --watch
 
 # ============================================================================
-# Initialize and restore contents
+# Initialize contents to clean template
 # ============================================================================
-init: initialize-contents
-initialize-contents:
-ifdef DOC
-	@bash scripts/shell/initialize_contents.sh $(DOC)
-else
+init:
 	@bash scripts/shell/initialize_contents.sh
-endif
 
+shared-init:
+	@bash scripts/shell/initialize_contents.sh shared
+
+manuscript-init:
+	@bash scripts/shell/initialize_contents.sh manuscript
+
+supplementary-init:
+	@bash scripts/shell/initialize_contents.sh supplementary
+
+revision-init:
+	@bash scripts/shell/initialize_contents.sh revision
+
+# ============================================================================
+# Restore contents from snapshot
+# ============================================================================
 restore:
 ifdef ID
 	@bash scripts/shell/restore_contents.sh "$(ID)"
+else
+	@bash scripts/shell/restore_contents.sh
+endif
+
+shared-restore:
+ifdef ID
+	@bash scripts/shell/restore_contents.sh "$(ID)" shared
+else
+	@bash scripts/shell/restore_contents.sh
+endif
+
+manuscript-restore:
+ifdef ID
+	@bash scripts/shell/restore_contents.sh "$(ID)" manuscript
+else
+	@bash scripts/shell/restore_contents.sh
+endif
+
+supplementary-restore:
+ifdef ID
+	@bash scripts/shell/restore_contents.sh "$(ID)" supplementary
+else
+	@bash scripts/shell/restore_contents.sh
+endif
+
+revision-restore:
+ifdef ID
+	@bash scripts/shell/restore_contents.sh "$(ID)" revision
 else
 	@bash scripts/shell/restore_contents.sh
 endif
@@ -218,52 +249,63 @@ help:
 	@printf "$(GREEN)║     SciTeX Writer v%-5s - LaTeX Manuscript System    ║$(NC)\n" "$(shell grep '^version = ' pyproject.toml | sed 's/version = "\(.*\)"/\1/' | head -1 | tr -d '\"')"
 	@printf "$(GREEN)╚═══════════════════════════════════════════════════════╝$(NC)\n"
 	@echo ""
-	@printf "$(CYAN)🚀 Getting Started:$(NC)\n"
-	@echo "  make init                 Reset all contents to clean template"
-	@echo "  make init DOC=manuscript  Reset only manuscript contents"
-	@echo "  make restore              List available snapshots"
-	@echo "  make restore ID=xxx       Restore contents from a snapshot"
+	@printf "$(CYAN)🚀 Initialization:$(NC)\n"
+	@echo "  make init                       Reset all contents to template"
+	@echo "  make shared-init                Reset shared metadata only"
+	@echo "  make manuscript-init            Reset manuscript only"
+	@echo "  make supplementary-init         Reset supplementary only"
+	@echo "  make revision-init              Reset revision only"
 	@echo ""
-	@printf "$(CYAN)📄 Document Compilation:$(NC)\n"
-	@echo "  make all                  Compile all documents"
-	@echo "  make manuscript           Compile manuscript"
-	@echo "  make supplementary        Compile supplementary materials"
-	@echo "  make revision             Compile revision responses"
-	@echo "  make compile DOC=xxx      Compile specific document"
-	@echo "  make draft                Fast draft (manuscript, skips bib)"
-	@echo "  make draft DOC=xxx        Fast draft for specific document"
+	@printf "$(CYAN)🔧 Compilation:$(NC)\n"
 	@echo ""
-	@printf "$(CYAN)🔄 Watch Mode (auto-recompile):$(NC)\n"
-	@echo "  make all-watch            Watch all documents"
-	@echo "  make manuscript-watch     Watch manuscript"
-	@echo "  make supplementary-watch  Watch supplementary"
-	@echo "  make revision-watch       Watch revision"
+	@printf "  $(CYAN)📝 Full:$(NC)\n"
+	@echo "    make manuscript-compile       Compile manuscript"
+	@echo "    make supplementary-compile    Compile supplementary"
+	@echo "    make revision-compile         Compile revision"
+	@echo ""
+	@printf "  $(CYAN)⚡ Draft (skips bibliography):$(NC)\n"
+	@echo "    make manuscript-draft         Draft manuscript"
+	@echo "    make supplementary-draft      Draft supplementary"
+	@echo "    make revision-draft           Draft revision"
+	@echo ""
+	@printf "  $(CYAN)🔄 Watch (auto-recompile):$(NC)\n"
+	@echo "    make manuscript-watch         Watch manuscript"
+	@echo "    make supplementary-watch      Watch supplementary"
+	@echo "    make revision-watch           Watch revision"
+	@echo ""
+	@printf "$(CYAN)🔙 Restoration:$(NC)\n"
+	@echo "  make restore                    List available snapshots"
+	@echo "  make restore ID=xxx             Restore all from snapshot"
+	@echo "  make manuscript-restore ID=xxx  Restore manuscript only"
+	@echo "  make supplementary-restore ID=xxx  Restore supplementary only"
+	@echo "  make revision-restore ID=xxx    Restore revision only"
+	@echo "  make shared-restore ID=xxx      Restore shared metadata only"
 	@echo ""
 	@printf "$(CYAN)📦 Python Package:$(NC)\n"
-	@echo "  make python-install       Install scitex-writer package"
-	@echo "  make python-develop       Install in development mode"
-	@echo "  make python-test          Run tests"
-	@echo "  make python-build         Build distribution packages"
-	@echo "  make python-upload        Upload to PyPI"
-	@echo "  make python-upload-test   Upload to Test PyPI"
-	@echo "  make python-update        Update to latest version"
-	@echo "  make python-version       Show version"
+	@echo "  make python-install             Install package"
+	@echo "  make python-develop             Install in dev mode"
+	@echo "  make python-test                Run tests"
+	@echo "  make python-build               Build distributions"
+	@echo "  make python-upload              Upload to PyPI"
+	@echo "  make python-upload-test         Upload to Test PyPI"
+	@echo "  make python-update              Update to latest version"
+	@echo "  make python-version             Show version"
 	@echo ""
 	@printf "$(CYAN)🧹 Cleaning:$(NC)\n"
-	@echo "  make clean                Remove temporary LaTeX files"
-	@echo "  make clean-logs           Remove log files"
-	@echo "  make clean-archive        Remove archived versions"
-	@echo "  make clean-compiled       Remove compiled tex/pdf files"
-	@echo "  make clean-python         Remove Python build artifacts"
-	@echo "  make clean-all            Remove all generated files"
+	@echo "  make clean                      Remove temporary LaTeX files"
+	@echo "  make clean-logs                 Remove log files"
+	@echo "  make clean-archive              Remove archived versions"
+	@echo "  make clean-compiled             Remove compiled tex/pdf files"
+	@echo "  make clean-python               Remove Python build artifacts"
+	@echo "  make clean-all                  Remove all generated files"
 	@echo ""
 	@printf "$(CYAN)📋 Information:$(NC)\n"
-	@echo "  make status               Show compilation status"
-	@echo "  make help                 Show this help message"
-	@echo "  make usage-all            Show full project usage guide"
+	@echo "  make status                     Show compilation status"
+	@echo "  make help                       Show this help message"
+	@echo "  make usage                  Show full project usage guide"
 
 # Project usage guides
-usage-all:
+usage:
 	@./scripts/maintenance/show_usage.sh
 
 usage-manuscript:

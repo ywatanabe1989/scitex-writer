@@ -3,6 +3,7 @@
 # Timestamp: 2026-02-09
 # File: scripts/shell/restore_contents.sh
 # Purpose: Restore content files from a snapshot created by initialize_contents.sh
+# Usage: restore_contents.sh [snapshot-id] [doc-type]
 
 set -euo pipefail
 
@@ -17,17 +18,43 @@ NC='\033[0m'
 
 cd "$PROJECT_ROOT"
 
-# Content paths to restore
-CONTENT_PATHS=(
-    "00_shared/title.tex"
-    "00_shared/authors.tex"
-    "00_shared/keywords.tex"
-    "00_shared/journal_name.tex"
-    "00_shared/bib_files/"
-    "01_manuscript/contents/"
-    "02_supplementary/contents/"
-    "03_revision/contents/"
-)
+# Build content paths based on optional doc type filter
+get_content_paths() {
+    local filter="${1:-}"
+    case "$filter" in
+    shared)
+        echo "00_shared/title.tex"
+        echo "00_shared/authors.tex"
+        echo "00_shared/keywords.tex"
+        echo "00_shared/journal_name.tex"
+        echo "00_shared/bib_files/"
+        ;;
+    manuscript)
+        echo "01_manuscript/contents/"
+        ;;
+    supplementary)
+        echo "02_supplementary/contents/"
+        ;;
+    revision)
+        echo "03_revision/contents/"
+        ;;
+    "")
+        echo "00_shared/title.tex"
+        echo "00_shared/authors.tex"
+        echo "00_shared/keywords.tex"
+        echo "00_shared/journal_name.tex"
+        echo "00_shared/bib_files/"
+        echo "01_manuscript/contents/"
+        echo "02_supplementary/contents/"
+        echo "03_revision/contents/"
+        ;;
+    *)
+        echo "Unknown document type: ${filter}" >&2
+        echo "Valid: shared, manuscript, supplementary, revision" >&2
+        exit 1
+        ;;
+    esac
+}
 
 # --------------------------------------------------------------------------
 # No argument: list available snapshots
@@ -52,13 +79,15 @@ if [ $# -eq 0 ]; then
 
     echo ""
     echo "Usage: make restore ID=<snapshot-tag>"
+    echo "       make manuscript-restore ID=<snapshot-tag>"
     exit 0
 fi
 
 # --------------------------------------------------------------------------
-# With argument: restore from snapshot
+# With argument(s): restore from snapshot
 # --------------------------------------------------------------------------
 SNAPSHOT_ID="$1"
+DOC_FILTER="${2:-}"
 
 if ! git rev-parse "$SNAPSHOT_ID" &>/dev/null; then
     echo -e "${RED}Error: Snapshot '${SNAPSHOT_ID}' not found.${NC}"
@@ -66,9 +95,14 @@ if ! git rev-parse "$SNAPSHOT_ID" &>/dev/null; then
     exit 1
 fi
 
+mapfile -t CONTENT_PATHS < <(get_content_paths "$DOC_FILTER")
+
 echo -e "${YELLOW}=== Restore Contents from Snapshot ===${NC}"
 echo ""
 echo "Snapshot: ${SNAPSHOT_ID}"
+if [ -n "$DOC_FILTER" ]; then
+    echo "Target: ${DOC_FILTER}"
+fi
 echo "Restoring:"
 for p in "${CONTENT_PATHS[@]}"; do
     echo "  - ${p}"
