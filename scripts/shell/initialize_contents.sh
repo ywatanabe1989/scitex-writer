@@ -16,6 +16,22 @@ NC='\033[0m'
 
 DOC_FILTER="${1:-}"
 
+# Help
+if [[ "$DOC_FILTER" == "-h" || "$DOC_FILTER" == "--help" ]]; then
+    echo "Usage: $(basename "$0") [manuscript|supplementary|revision|shared]"
+    echo ""
+    echo "Reset content files to clean template placeholders."
+    echo "Creates a git snapshot before making changes."
+    echo ""
+    echo "Arguments:"
+    echo "  (none)          Reset all contents (shared + manuscript + supplementary + revision)"
+    echo "  shared          Reset shared metadata only (title, authors, keywords, bib)"
+    echo "  manuscript      Reset manuscript contents only"
+    echo "  supplementary   Reset supplementary contents only"
+    echo "  revision        Reset revision contents only"
+    exit 0
+fi
+
 # ============================================================================
 # Section functions
 # ============================================================================

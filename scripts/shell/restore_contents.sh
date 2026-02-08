@@ -18,6 +18,22 @@ NC='\033[0m'
 
 cd "$PROJECT_ROOT"
 
+# Help
+if [[ "${1:-}" == "-h" || "${1:-}" == "--help" ]]; then
+    echo "Usage: $(basename "$0") [snapshot-id]"
+    echo ""
+    echo "Restore content files from a snapshot created by 'make init'."
+    echo ""
+    echo "Arguments:"
+    echo "  (none)          List available snapshots"
+    echo "  snapshot-id     Restore all contents from the given snapshot"
+    echo ""
+    echo "Snapshot IDs include the doc type and timestamp, e.g.:"
+    echo "  snapshot/pre-init-manuscript-20260209-071700"
+    echo "  snapshot/pre-init-all-20260209-071700"
+    exit 0
+fi
+
 # Content paths to restore
 CONTENT_PATHS=(
     "00_shared/title.tex"
