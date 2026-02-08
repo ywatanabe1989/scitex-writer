@@ -102,17 +102,17 @@ def register_tools(mcp: FastMCP) -> None:
         """[writer] Compile raw LaTeX content to PDF with color mode support.
 
         Compiles provided LaTeX content to PDF. Supports color modes:
-        'light', 'dark', 'sepia', 'paper'.
+        'light' (default) or 'dark' (Monaco #1E1E1E bg, #D4D4D4 text).
         """
         from ..content import compile_content as _compile_content
 
         return _compile_content(
             latex_content,
-            project_dir,
-            color_mode,
-            name,
-            timeout,
-            keep_aux,
+            project_dir=project_dir,
+            color_mode=color_mode,
+            name=name,
+            timeout=timeout,
+            keep_aux=keep_aux,
         )
 
 
