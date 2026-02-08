@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.5.3] - 2026-02-08
+
+### Changed
+- refactor: Content compilation moved to proper shell/Python API/MCP architecture
+  - Business logic in `_compile/content.py`, MCP layer is thin wrapper
+  - Shell script `scripts/shell/compile_content.sh` for latexmk invocation
+  - Python document builder `scripts/python/compile_content_document.py`
+
+### Fixed
+- fix: Dark mode PDF uses Monaco colors (#1E1E1E bg, #D4D4D4 text)
+- fix: Preview compilation failures due to missing compile API
+- fix: Lazy-import MCP server to avoid pydantic/fastmcp conflicts at import time
+
 ## [2.2.1] - 2026-01-20
 
 ### Added
