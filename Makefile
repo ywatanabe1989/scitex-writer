@@ -41,6 +41,7 @@ NC := \033[0m
 	clean-compiled \
 	clean-python \
 	clean-all \
+	check \
 	help \
 	usage \
 	usage-manuscript \
@@ -209,6 +210,12 @@ clean-all: clean clean-logs clean-archive clean-compiled clean-python
 	@echo "Deep cleaning all generated files..."
 
 # ============================================================================
+# Validation
+# ============================================================================
+check:
+	@bash scripts/shell/check_project.sh
+
+# ============================================================================
 # Status and information
 # ============================================================================
 status:
@@ -274,6 +281,7 @@ help:
 	@echo "  make clean-all                  Remove all generated files"
 	@echo ""
 	@printf "$(CYAN)📋 Information:$(NC)\n"
+	@echo "  make check                      Validate project before compilation"
 	@echo "  make status                     Show compilation status"
 	@echo "  make help                       Show this help message"
 	@echo "  make usage                      Show full project usage guide"
