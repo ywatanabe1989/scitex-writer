@@ -108,6 +108,11 @@ BIBTEX
     rm -f "$PROJECT_ROOT/00_shared/bib_files/merged_all.bib"
     rm -f "$PROJECT_ROOT/00_shared/bib_files/enriched_all.bib"
     rm -f "$PROJECT_ROOT/00_shared/bib_files/enriched_all_v2.bib"
+    # Clean stale enrichment artifacts
+    rm -f "$PROJECT_ROOT/00_shared/bib_files/enrichment_summary.txt"
+    rm -f "$PROJECT_ROOT/00_shared/bib_files/enrichment_v2_summary.txt"
+    rm -f "$PROJECT_ROOT/00_shared/bib_files/FINAL_REPORT.md"
+    rm -f "$PROJECT_ROOT/00_shared/bib_files/cited_states.json"
 }
 
 init_manuscript() {
@@ -264,6 +269,9 @@ CSV
     rm -f "$D/figures/caption_and_media/jpg_for_compilation/"[0-9]*.jpg
     rm -f "$D/figures/compiled/"[0-9]*.tex
     rm -f "$D/tables/compiled/"[0-9]*.tex
+    # Clean stale hidden files
+    rm -f "$D/tables/.compiled.tex"
+    rm -rf "$D/tables/.tex/"
     rm -f "$PROJECT_ROOT/01_manuscript/manuscript.pdf"
     rm -f "$PROJECT_ROOT/01_manuscript/manuscript_diff.pdf"
 }
@@ -324,6 +332,8 @@ CSV
     rm -f "$FIG_DIR/jpg_for_compilation/"[0-9]*.jpg
     rm -f "$D/figures/compiled/"[0-9]*.tex
     rm -f "$D/tables/compiled/"[0-9]*.tex
+    # Clean stale hidden files
+    rm -rf "$D/tables/.tex/"
     rm -f "$PROJECT_ROOT/02_supplementary/supplementary.pdf"
     rm -f "$PROJECT_ROOT/02_supplementary/supplementary_diff.pdf"
 }
@@ -426,6 +436,8 @@ LATEX
 
     rm -f "$D/figures/compiled/"[0-9]*.tex
     rm -f "$D/tables/compiled/"[0-9]*.tex
+    # Clean stale hidden files
+    rm -rf "$D/tables/.tex/"
     rm -f "$PROJECT_ROOT/03_revision/revision.pdf"
 }
 
