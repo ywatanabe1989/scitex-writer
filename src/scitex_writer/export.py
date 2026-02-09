@@ -36,4 +36,6 @@ def manuscript(
     return _export_manuscript(project_dir, output_dir, format)
 
 
+__all__ = ["manuscript"]
+
 # EOF

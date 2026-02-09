@@ -106,6 +106,26 @@ get_yaml_array() {
     awk "/^$key:/{flag=1; next} /^[^ ]/{flag=0} flag && /^[[:space:]]*-/" "$file" | sed 's/^[[:space:]]*-[[:space:]]*//'
 }
 
+# Help flag
+if [[ "${1:-}" == "-h" || "${1:-}" == "--help" ]]; then
+    echo "Usage: $(basename "$0") [restart|wait]"
+    echo ""
+    echo "Watch manuscript source files and auto-recompile on changes."
+    echo ""
+    echo "Modes:"
+    echo "  restart    Kill running compilation on new changes (default)"
+    echo "  wait       Wait for current compilation to finish before restarting"
+    echo ""
+    echo "Options:"
+    echo "  -h, --help    Show this help"
+    echo ""
+    echo "Configuration:"
+    echo "  config/config_manuscript.yaml  (hot-recompile section)"
+    echo ""
+    echo "Requires inotify-tools for efficient watching (falls back to polling)."
+    exit 0
+fi
+
 # Load hot-recompile configuration
 # Note: YAML key uses "enabled" not "enable"
 HOT_RECOMPILE_ENABLED=$(awk '/^hot-recompile:/{flag=1} flag && /^[[:space:]]*enabled:/{print $2; exit}' "$CONFIG_FILE" | grep -o "true\|false")

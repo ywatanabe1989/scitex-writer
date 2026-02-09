@@ -64,7 +64,7 @@ cd my-paper && make manuscript   # or: ./compile.sh manuscript
 | 📜 **Shell/Make** | Direct compilation | `make manuscript`, `./compile.sh` |
 | 🐍 **Python API** | Human researchers | `import scitex_writer as sw` |
 | 🖥️ **CLI Commands** | Terminal users | `scitex-writer compile`, `scitex-writer bib` |
-| 🔧 **MCP Tools** | AI agents | 28 tools for Claude/GPT integration |
+| 🔧 **MCP Tools** | AI agents | 30 tools for Claude/GPT integration |
 
 <details>
 <summary><strong>📜 Shell Scripts / Make</strong></summary>
@@ -77,6 +77,7 @@ make manuscript              # Compile manuscript
 make supplementary           # Compile supplementary
 make revision                # Compile revision
 make all                     # Compile all documents
+make manuscript-export       # Package for arXiv submission
 make clean                   # Remove build artifacts
 
 # Shell scripts (direct)
@@ -102,6 +103,13 @@ sw.compile.manuscript("./my-paper")                    # Full compile
 sw.compile.manuscript("./my-paper", draft=True)       # Fast draft mode
 sw.compile.supplementary("./my-paper")
 sw.compile.revision("./my-paper", track_changes=True)
+```
+
+**Export** — arXiv Submission
+
+```python
+sw.export.manuscript("./my-paper")                     # arXiv-ready tarball
+sw.export.manuscript("./my-paper", output_dir="/tmp")  # Custom output dir
 ```
 
 **Tables/Figures/Bib** — CRUD Operations
@@ -154,6 +162,9 @@ scitex-writer compile manuscript --draft       # Fast single-pass
 scitex-writer compile supplementary            # Compile supplementary
 scitex-writer compile revision                 # Compile revision letter
 
+# Export - arXiv submission
+scitex-writer export manuscript               # Package for arXiv upload
+
 # Bibliography - Reference management
 scitex-writer bib list-files                   # List .bib files
 scitex-writer bib list-entries                 # List all entries
@@ -191,7 +202,7 @@ scitex-writer mcp start                        # Start MCP server
 </details>
 
 <details>
-<summary><strong>🔧 MCP Tools — 28 tools for AI Agents</strong></summary>
+<summary><strong>🔧 MCP Tools — 30 tools for AI Agents</strong></summary>
 
 <br>
 
@@ -200,12 +211,13 @@ Turn AI agents into autonomous manuscript compilers.
 | Category | Tools | Description |
 |----------|-------|-------------|
 | project | 4 | Clone, info, PDF paths, document types |
-| compile | 3 | Manuscript, supplementary, revision |
+| compile | 4 | Manuscript, supplementary, revision, content |
 | tables | 5 | CSV↔LaTeX, list/add/remove tables |
 | figures | 5 | Convert, render PDF, list/add/remove |
 | bib | 6 | List files/entries, CRUD, merge/dedupe |
 | guidelines | 3 | List, get, build with draft |
 | prompts | 1 | AI2 Asta prompt generation |
+| export | 1 | arXiv-ready tarball packaging |
 | usage | 1 | Project guide |
 
 **Claude Desktop** (`~/.config/Claude/claude_desktop_config.json`):

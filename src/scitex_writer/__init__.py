@@ -8,7 +8,7 @@
 Three Interfaces:
     - Python API: import scitex_writer as sw
     - CLI: scitex-writer <command>
-    - MCP: 29 tools for AI agents
+    - MCP: 30 tools for AI agents
 
 Modules:
     - compile: Compile manuscripts to PDF
@@ -53,6 +53,7 @@ __all__ = [
     "usage",
     # Modules
     "compile",
+    "export",
     "project",
     "tables",
     "figures",
