@@ -12,11 +12,12 @@ from fastmcp import FastMCP
 
 def register_all_tools(mcp: FastMCP) -> None:
     """Register all MCP tools with the server."""
-    from . import bib, compile, figures, guidelines, project, prompts, tables
+    from . import bib, compile, export, figures, guidelines, project, prompts, tables
 
     # Register tools from each module
     project.register_tools(mcp)
     compile.register_tools(mcp)
+    export.register_tools(mcp)
     tables.register_tools(mcp)
     figures.register_tools(mcp)
     bib.register_tools(mcp)

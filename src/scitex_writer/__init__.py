@@ -8,10 +8,11 @@
 Three Interfaces:
     - Python API: import scitex_writer as sw
     - CLI: scitex-writer <command>
-    - MCP: 28 tools for AI agents
+    - MCP: 29 tools for AI agents
 
 Modules:
     - compile: Compile manuscripts to PDF
+    - export: Export manuscript for arXiv submission
     - project: Clone, info, get_pdf
     - tables: List, add, remove, csv_to_latex
     - figures: List, add, remove, convert
@@ -30,7 +31,7 @@ except _PackageNotFoundError:
 
 # Branding support (set SCITEX_WRITER_BRAND and SCITEX_WRITER_ALIAS env vars before import)
 # Import modules for convenient access
-from . import bib, compile, figures, guidelines, project, prompts, tables
+from . import bib, compile, export, figures, guidelines, project, prompts, tables
 from ._branding import BRAND_ALIAS, BRAND_NAME
 from ._dataclasses import (
     CompilationResult,

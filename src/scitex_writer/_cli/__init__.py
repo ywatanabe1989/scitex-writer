@@ -20,7 +20,17 @@ import sys
 
 from .. import __version__
 from .._usage import get_usage
-from . import bib, compile, figures, guidelines, introspect, mcp, prompts, tables
+from . import (
+    bib,
+    compile,
+    export,
+    figures,
+    guidelines,
+    introspect,
+    mcp,
+    prompts,
+    tables,
+)
 
 
 def _cmd_usage(args: argparse.Namespace) -> int:
@@ -57,6 +67,7 @@ def main() -> int:
     guidelines_parser = guidelines.register_parser(subparsers)
     prompts_parser = prompts.register_parser(subparsers)
     compile_parser = compile.register_parser(subparsers)
+    export_parser = export.register_parser(subparsers)
     bib_parser = bib.register_parser(subparsers)
     tables_parser = tables.register_parser(subparsers)
     figures_parser = figures.register_parser(subparsers)
@@ -78,6 +89,7 @@ def main() -> int:
         "guidelines": guidelines_parser,
         "prompts": prompts_parser,
         "compile": compile_parser,
+        "export": export_parser,
         "bib": bib_parser,
         "tables": tables_parser,
         "figures": figures_parser,

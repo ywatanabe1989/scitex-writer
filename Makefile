@@ -41,6 +41,7 @@ NC := \033[0m
 	clean-compiled \
 	clean-python \
 	clean-all \
+	manuscript-export \
 	check \
 	help \
 	usage \
@@ -210,6 +211,13 @@ clean-all: clean clean-logs clean-archive clean-compiled clean-python
 	@echo "Deep cleaning all generated files..."
 
 # ============================================================================
+# Export
+# ============================================================================
+manuscript-export:
+	@echo "Exporting manuscript for arXiv submission..."
+	@bash scripts/shell/export_arxiv.sh
+
+# ============================================================================
 # Validation
 # ============================================================================
 check:
@@ -257,6 +265,9 @@ help:
 	@echo "    make manuscript-watch         Watch manuscript"
 	@echo "    make supplementary-watch      Watch supplementary"
 	@echo "    make revision-watch           Watch revision"
+	@echo ""
+	@printf "$(CYAN)📦 Export:$(NC)\n"
+	@echo "  make manuscript-export          Export manuscript for arXiv submission"
 	@echo ""
 	@printf "$(CYAN)🔙 Restoration:$(NC)\n"
 	@echo "  make restore                    List available snapshots"
