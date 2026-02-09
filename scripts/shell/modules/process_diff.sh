@@ -176,7 +176,10 @@ compile_diff_tex() {
 
     local engine="${SCITEX_WRITER_SELECTED_ENGINE:-latexmk}"
 
-    log_info "    Using engine: $engine"
+    # Set timeout for diff compilation to prevent infinite loops
+    # latexdiff output can cause latexmk to loop endlessly on complex changes
+    export SCITEX_WRITER_COMPILE_TIMEOUT="${SCITEX_WRITER_DIFF_TIMEOUT:-120}"
+    log_info "    Using engine: $engine (diff timeout: ${SCITEX_WRITER_COMPILE_TIMEOUT}s)"
 
     case "$engine" in
     tectonic)
@@ -193,6 +196,16 @@ compile_diff_tex() {
         compile_with_latexmk "$tex_file"
         ;;
     esac
+    local result=$?
+
+    unset SCITEX_WRITER_COMPILE_TIMEOUT
+
+    if [ $result -ne 0 ]; then
+        echo_warning "    Diff PDF not generated. Use --no_diff to skip."
+        echo_warning "    To increase timeout: export SCITEX_WRITER_DIFF_TIMEOUT=300"
+    fi
+
+    return $result
 }
 
 cleanup() {
