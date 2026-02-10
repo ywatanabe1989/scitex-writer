@@ -85,7 +85,7 @@ do_crop_tif=false
 do_force=false
 no_diff=false
 draft_mode=false
-dark_mode=false
+dark_mode=${SCITEX_WRITER_DARK_MODE:-false}
 
 # Colors for usage output
 GRAY='\033[0;90m'

@@ -74,7 +74,7 @@ do_crop_tif=false
 do_force=false
 no_diff=false
 draft_mode=false
-dark_mode=false
+dark_mode=${SCITEX_WRITER_DARK_MODE:-false}
 
 usage() {
     echo ""
