@@ -37,11 +37,17 @@ init_figures() {
     mkdir -p "$SCITEX_WRITER_FIGURE_CAPTION_MEDIA_DIR" 2>/dev/null
     mkdir -p "$SCITEX_WRITER_FIGURE_JPG_DIR" 2>/dev/null
     mkdir -p "$SCITEX_WRITER_FIGURE_COMPILED_DIR" 2>/dev/null
-    
+
+    # Clean compiled directory to prevent stale files on rename (Issue #41)
+    if [ -d "$SCITEX_WRITER_FIGURE_COMPILED_DIR" ]; then
+        echo_info "Cleaning compiled figures directory..."
+        rm -f "$SCITEX_WRITER_FIGURE_COMPILED_DIR"/*.tex
+    fi
+
     # Clean jpg_for_compilation directory
     if [ -d "$SCITEX_WRITER_FIGURE_JPG_DIR" ]; then
         echo_info "Cleaning jpg_for_compilation directory..."
-        rm -rf "$SCITEX_WRITER_FIGURE_JPG_DIR"/*
+        rm -rf "${SCITEX_WRITER_FIGURE_JPG_DIR:?}"/*
     fi
 }
 
