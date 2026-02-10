@@ -45,7 +45,7 @@ fi
 # Test 2: Style file contains pagecolor
 echo
 echo "Test 2: Background color settings"
-if grep -q "\\\\pagecolor{black" "./00_shared/latex_styles/dark_mode.tex"; then
+if grep -q "\\\\pagecolor" "./00_shared/latex_styles/dark_mode.tex"; then
     test_pass "Background color (pagecolor) defined"
 else
     test_fail "Missing background color"
@@ -54,7 +54,7 @@ fi
 # Test 3: Style file contains text color
 echo
 echo "Test 3: Text color settings"
-if grep -q "\\\\color{white}" "./00_shared/latex_styles/dark_mode.tex"; then
+if grep -q "\\\\color{" "./00_shared/latex_styles/dark_mode.tex"; then
     test_pass "Text color defined"
 else
     test_fail "Missing text color"

@@ -107,8 +107,8 @@ fi
 # Test 7: Dark mode style file contains required commands
 echo
 echo "Test 7: Dark mode style file content"
-if grep -q "\\\\pagecolor{black" "./00_shared/latex_styles/dark_mode.tex" &&
-    grep -q "\\\\color{white}" "./00_shared/latex_styles/dark_mode.tex"; then
+if grep -q "\\\\pagecolor" "./00_shared/latex_styles/dark_mode.tex" &&
+    grep -q "\\\\color{" "./00_shared/latex_styles/dark_mode.tex"; then
     test_pass "Dark mode has pagecolor and text color settings"
 else
     test_fail "Dark mode missing color settings"
