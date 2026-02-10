@@ -1,5 +1,5 @@
 <!-- ---
-!-- Timestamp: 2026-01-19 04:54:16
+!-- Timestamp: 2026-02-10 11:19:50
 !-- Author: ywatanabe
 !-- File: /home/ywatanabe/proj/scitex-writer/README.md
 !-- --- -->
@@ -427,7 +427,7 @@ Change citation style in `config/config_manuscript.yaml`:
 <p align="center">
   <a href="https://scitex.ai" target="_blank"><img src="docs/scitex-icon-navy-inverted.png" alt="SciTeX" width="40"/></a>
   <br>
-  AGPL-3.0 · ywatanabe@scitex.ai
+  AGPL-3.0
 </p>
 
 <!-- EOF -->
