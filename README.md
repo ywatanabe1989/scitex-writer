@@ -38,7 +38,11 @@ Part of the [SciTeX](https://scitex.ai) ecosystem — empowers both human resear
   <em>Light mode (default) and dark mode (<code>--dark-mode</code>)</em>
 </p>
 
-[Watch demo video](https://scitex.ai/demos/watch/scitex-writer/)
+<p align="center">
+  <a href="https://scitex.ai/demos/watch/scitex-writer/">
+    <img src="examples/scitex-writer-v2.2.0-demo-thumbnail.png" alt="Demo Video" width="600"/>
+  </a>
+</p>
 
 ## 📦 Installation
 
