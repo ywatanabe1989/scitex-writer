@@ -19,6 +19,7 @@ from __future__ import annotations
 from .._dataclasses import CompilationResult
 from ._compile_unified import compile
 from ._runner import run_compile
+from .content import compile_content
 from .manuscript import compile_manuscript
 from .revision import compile_revision
 from .supplementary import compile_supplementary
@@ -26,6 +27,7 @@ from .supplementary import compile_supplementary
 __all__ = [
     "compile",
     "run_compile",
+    "compile_content",
     "compile_manuscript",
     "compile_supplementary",
     "compile_revision",

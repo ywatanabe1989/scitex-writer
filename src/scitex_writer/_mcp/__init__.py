@@ -6,10 +6,20 @@
 """
 SciTeX Writer MCP module.
 
-Re-exports from _server.py.
+Lazy re-exports from _server.py to avoid importing fastmcp
+when only utility functions are needed (e.g., from Django).
 """
 
-from scitex_writer._server import mcp, run_server
+
+def __getattr__(name):
+    if name in ("mcp", "run_server"):
+        from scitex_writer._server import mcp, run_server
+
+        globals()["mcp"] = mcp
+        globals()["run_server"] = run_server
+        return globals()[name]
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+
 
 __all__ = [
     "mcp",

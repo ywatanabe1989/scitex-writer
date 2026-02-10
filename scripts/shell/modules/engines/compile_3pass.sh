@@ -50,6 +50,14 @@ compile_with_3pass() {
         return $ret
     }
 
+    # Optional timeout prefix (set by diff compilation to prevent infinite loops)
+    local timeout_prefix=""
+    if [ -n "${SCITEX_WRITER_COMPILE_TIMEOUT:-}" ]; then
+        timeout_prefix="timeout ${SCITEX_WRITER_COMPILE_TIMEOUT}"
+        echo_info "    Timeout: ${SCITEX_WRITER_COMPILE_TIMEOUT}s"
+        pdf_cmd="$timeout_prefix $pdf_cmd"
+    fi
+
     # Main compilation sequence
     local total_start=$(date +%s)
     local tex_basename=$(basename "${tex_file%.tex}")

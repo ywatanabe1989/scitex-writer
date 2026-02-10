@@ -63,9 +63,22 @@ compile_with_latexmk() {
 
     echo_info "    Running: latexmk [${#opts[@]} options] $(basename $tex_file)"
 
+    # Optional timeout (set by diff compilation to prevent infinite loops)
+    local timeout_prefix=""
+    if [ -n "${SCITEX_WRITER_COMPILE_TIMEOUT:-}" ]; then
+        timeout_prefix="timeout ${SCITEX_WRITER_COMPILE_TIMEOUT}"
+        echo_info "    Timeout: ${SCITEX_WRITER_COMPILE_TIMEOUT}s"
+    fi
+
     # Run latexmk with properly quoted array expansion
-    local output=$($latexmk_cmd "${opts[@]}" "$tex_file" 2>&1 | grep -v "gocryptfs not found")
+    local output=$($timeout_prefix $latexmk_cmd "${opts[@]}" "$tex_file" 2>&1 | grep -v "gocryptfs not found")
     local exit_code=$?
+
+    # Check for timeout (exit code 124)
+    if [ $exit_code -eq 124 ]; then
+        echo_warning "    Compilation timed out after ${SCITEX_WRITER_COMPILE_TIMEOUT}s"
+        return 1
+    fi
 
     local end=$(date +%s)
 
@@ -88,9 +101,9 @@ compile_with_latexmk() {
 
         # If in auto mode, signal to try fallback
         if [ "$SCITEX_WRITER_ENGINE" = "auto" ]; then
-            return 2  # Special code: try next engine
+            return 2 # Special code: try next engine
         else
-            return 1  # Fatal error
+            return 1 # Fatal error
         fi
     fi
 }

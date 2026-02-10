@@ -1,69 +1,57 @@
-# Bibliography Files - SciTeX Writer Project
+# Bibliography Files
 
-## 🎯 Quick Start
+All `.bib` files in this directory are automatically merged and deduplicated into `bibliography.bib` during compilation.
 
-**For LaTeX/BibTeX use:**
+## How It Works
+
+1. Place your `.bib` files here (any name except reserved ones below)
+2. During compilation, all `.bib` files are merged into `bibliography.bib`
+3. `bibliography.bib` is symlinked into the manuscript contents directory
+4. LaTeX uses `bibliography.bib` for citations
+
+## Adding References
+
+Add entries to any `.bib` file. Organize by topic if you like:
+
+```
+bib_files/
+├── bibliography.bib              # AUTO-GENERATED (merged output)
+├── .bibliography_cache.json      # Cache (auto-managed)
+├── my_papers.bib                 # Your own publications
+├── related_work.bib              # Related work references
+├── methods_refs.bib              # Methodology references
+└── README.md
+```
+
+## Reserved Filenames
+
+These are managed by the system -- do not edit manually:
+
+- `bibliography.bib` - merged output (overwritten each compilation)
+- `.bibliography_cache.json` - deduplication cache
+
+## Example Entry
+
+```bibtex
+@article{smith_neural_2023,
+  author  = {Smith, John and Doe, Jane},
+  title   = {Neural Network Analysis of EEG Signals},
+  journal = {Journal of Neuroscience Methods},
+  year    = {2023},
+  volume  = {400},
+  pages   = {1--15},
+  doi     = {10.1016/j.jneumeth.2023.001},
+}
+```
+
+## Citing in Manuscript
+
 ```latex
-\bibliography{enriched_all}
+Previous work \cite{smith_neural_2023} demonstrated...
 ```
 
-## 📁 Files Overview
+## Validation
 
-### Primary Bibliography (USE THIS)
-- **`enriched_all.bib`** (97 KB, 102 entries)
-  - Fully enriched with DOIs, abstracts, citations, impact factors
-  - Ready for publication use
-  - Updated: 2025-11-12
+Run `make check` to verify bibliography files exist before compilation.
 
-### Source Files (Individual collections)
-- `bibliography.bib` - Main collection (17 KB)
-- `related_work.bib` - Related work papers (13 KB)
-- `by_grok.bib`, `by_claude.bib`, `by_gpt5.bib`, `by_gemini.bib` - AI-curated
-- `field_background.bib` - Domain background papers
-- `methods_refs.bib` - Methodology references
-- `my_papers.bib` - Your publications
-- `scitex-system.bib` - SciTeX system reference
-
-### Processing Outputs
-- `merged_all.bib` - Deduplicated merge (66 KB)
-- `enriched_all_v2.bib` - Second-pass attempt (95 KB)
-- `enrichment_summary.txt` - Statistics
-- `enrichment_v2_summary.txt` - Second-pass statistics
-- `FINAL_REPORT.md` - Comprehensive analysis
-
-## 📊 Quality Metrics
-
-| Metric | Value |
-|--------|-------|
-| Total unique papers | 102 |
-| With DOI | 53 (52%) |
-| With abstract | 44 (43%) |
-| With citations | 21 (21%) |
-| Deduplication rate | 48% |
-
-## 🔄 Maintenance
-
-To update enrichment (e.g., refresh citation counts):
-```bash
-cd /home/ywatanabe/proj/scitex-writer/00_shared/bib_files
-python3 /home/ywatanabe/proj/scitex-writer/.tmp/enrich_second_pass.py
-```
-
-## 📝 Adding New Papers
-
-1. Add to appropriate source file (e.g., `related_work.bib`)
-2. Run merge and enrichment:
-```bash
-python3 /home/ywatanabe/proj/scitex-writer/.tmp/merge_and_enrich_bibtex.py
-```
-
-## 🏆 Top Journals by Impact Factor
-
-- Trends in Cognitive Sciences: 16.7 (Q1)
-- Genome Biology: 10.1 (Q1)
-- Research Integrity and Peer Review: 7.2 (Q1)
-- Patterns (Elsevier): 6.7
-- Electrochimica Acta: 5.5
-
----
-Generated: 2025-11-12 | Tool: scitex.scholar v2.0
+<!-- EOF -->

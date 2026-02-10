@@ -6,7 +6,7 @@
 ORIG_DIR="$(pwd)"
 THIS_DIR="$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)"
 LOG_PATH="$THIS_DIR/.$(basename $0).log"
-echo > "$LOG_PATH"
+echo >"$LOG_PATH"
 
 GIT_ROOT="$(git rev-parse --show-toplevel 2>/dev/null)"
 
@@ -34,7 +34,7 @@ touch "$LOG_PATH" >/dev/null 2>&1
 echo
 echo_info "Running ${BASH_SOURCE[0]}..."
 
-png2tif_all(){
+png2tif_all() {
     # Get convert command from 00_shared module
     local convert_cmd=$(get_cmd_convert "$ORIG_DIR")
 
@@ -44,11 +44,11 @@ png2tif_all(){
     fi
 
     find "$SCITEX_WRITER_FIGURE_CAPTION_MEDIA_DIR" -maxdepth 1 \
-         -name '.*.png' | \
-    parallel --no-notice --silent \
-        'in={}; out={.}.tif
-         '"$convert_cmd"' -density 300 -units PixelsPerInch "$in" "$out"
-         echo "    TIFF {#}/'"$(wc -l <<< "$(find "$SCITEX_WRITER_FIGURE_CAPTION_MEDIA_DIR" -maxdepth 1 -name '.*.png')")"' -> $out"'
+        -name '.*.png' |
+        parallel --no-notice --silent \
+            'in={}; out={.}.tif
+         '"$convert_cmd"' -density 600 -units PixelsPerInch "$in" "$out"
+         echo "    TIFF {#}/'"$(wc -l <<<"$(find "$SCITEX_WRITER_FIGURE_CAPTION_MEDIA_DIR" -maxdepth 1 -name '.*.png')")"' -> $out"'
 }
 
 png2tif_all 2>&1 | tee -a "$LOG_PATH"

@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Timestamp: 2026-01-27
+# Timestamp: 2026-02-08
 # File: tests/python/test_compile_content.py
 
 """Tests for scitex_writer compile.content functionality."""
 
 import shutil
+import subprocess
+import sys
 from pathlib import Path
 
 import pytest
@@ -14,8 +16,14 @@ import pytest
 class TestContentModule:
     """Test content module can be imported."""
 
-    def test_content_import(self):
-        """Test that content module can be imported."""
+    def test_content_import_from_compile_api(self):
+        """Test that compile_content is importable from _compile."""
+        from scitex_writer._compile.content import compile_content
+
+        assert callable(compile_content)
+
+    def test_content_import_from_mcp_wrapper(self):
+        """Test that _mcp.content thin wrapper works."""
         from scitex_writer._mcp.content import compile_content
 
         assert callable(compile_content)
@@ -27,85 +35,113 @@ class TestContentModule:
         assert callable(compile.content)
 
 
-class TestContentHelpers:
-    """Test content helper functions."""
+class TestDocumentBuilder:
+    """Test compile_content_document.py script functions."""
 
-    def test_get_color_commands_light(self):
-        """Test light mode returns empty string."""
-        from scitex_writer._mcp.content import _get_color_commands
+    @pytest.fixture
+    def scripts_dir(self):
+        """Get scripts directory."""
+        return Path(__file__).resolve().parents[2] / "scripts"
 
-        result = _get_color_commands("light")
-        assert result == ""
+    def test_document_builder_exists(self, scripts_dir):
+        """Test that the document builder script exists."""
+        builder = scripts_dir / "python" / "compile_content_document.py"
+        assert builder.exists()
 
-    def test_get_color_commands_dark(self):
-        """Test dark mode returns color commands."""
-        from scitex_writer._mcp.content import _get_color_commands
+    def test_shell_script_exists(self, scripts_dir):
+        """Test that the compile shell script exists."""
+        compiler = scripts_dir / "shell" / "compile_content.sh"
+        assert compiler.exists()
 
-        result = _get_color_commands("dark")
-        assert "pagecolor" in result
-        assert "black" in result
-        assert "white" in result
+    def test_document_builder_light_mode(self, scripts_dir, tmp_path):
+        """Test building a light mode document."""
+        builder = scripts_dir / "python" / "compile_content_document.py"
+        body_file = tmp_path / "body.tex"
+        body_file.write_text(r"\section{Test}" + "\n\nHello World\n")
+        output_file = tmp_path / "output.tex"
 
-    def test_get_color_commands_sepia(self):
-        """Test sepia mode returns color commands."""
-        from scitex_writer._mcp.content import _get_color_commands
+        result = subprocess.run(
+            [
+                sys.executable,
+                str(builder),
+                "--body-file",
+                str(body_file),
+                "--output",
+                str(output_file),
+                "--color-mode",
+                "light",
+            ],
+            capture_output=True,
+            text=True,
+        )
+        assert result.returncode == 0
+        content = output_file.read_text()
+        assert "\\documentclass" in content
+        assert "\\begin{document}" in content
+        assert "Hello World" in content
+        # Light mode should not have color commands
+        assert "MonacoBg" not in content
 
-        result = _get_color_commands("sepia")
-        assert "pagecolor" in result
-        assert "Sepia" in result
+    def test_document_builder_dark_mode(self, scripts_dir, tmp_path):
+        """Test building a dark mode document with Monaco colors."""
+        builder = scripts_dir / "python" / "compile_content_document.py"
+        body_file = tmp_path / "body.tex"
+        body_file.write_text("Dark mode test content\n")
+        output_file = tmp_path / "output.tex"
 
-    def test_get_color_commands_paper(self):
-        """Test paper mode returns empty string."""
-        from scitex_writer._mcp.content import _get_color_commands
+        result = subprocess.run(
+            [
+                sys.executable,
+                str(builder),
+                "--body-file",
+                str(body_file),
+                "--output",
+                str(output_file),
+                "--color-mode",
+                "dark",
+            ],
+            capture_output=True,
+            text=True,
+        )
+        assert result.returncode == 0
+        content = output_file.read_text()
+        assert "MonacoBg" in content
+        assert "1E1E1E" in content  # Monaco background
+        assert "MonacoFg" in content
+        assert "D4D4D4" in content  # Monaco foreground
+        assert "\\pagecolor{MonacoBg}" in content
+        assert "\\color{MonacoFg}" in content
 
-        result = _get_color_commands("paper")
-        assert result == ""
+    def test_document_builder_complete_document(self, scripts_dir, tmp_path):
+        """Test injecting color into a complete document."""
+        builder = scripts_dir / "python" / "compile_content_document.py"
+        body_file = tmp_path / "body.tex"
+        body_file.write_text(
+            "\\documentclass{article}\n\\begin{document}\nComplete doc\n\\end{document}\n"
+        )
+        output_file = tmp_path / "output.tex"
 
-    def test_get_color_commands_unknown(self):
-        """Test unknown mode returns empty string."""
-        from scitex_writer._mcp.content import _get_color_commands
-
-        result = _get_color_commands("unknown")
-        assert result == ""
-
-
-class TestContentDocumentCreation:
-    """Test content document creation."""
-
-    def test_create_content_document_basic(self):
-        """Test creating a basic content document."""
-        from scitex_writer._mcp.content import _create_content_document
-
-        body = r"\section{Test}\nThis is a test."
-        result = _create_content_document(body, "light", None)
-
-        assert "\\documentclass" in result
-        assert "\\begin{document}" in result
-        assert "\\end{document}" in result
-        assert body in result
-
-    def test_create_content_document_with_color(self):
-        """Test creating content document with dark mode."""
-        from scitex_writer._mcp.content import _create_content_document
-
-        body = "Test content"
-        result = _create_content_document(body, "dark", None)
-
-        assert "pagecolor" in result
-        assert "black" in result
-
-    def test_inject_color_mode_into_document(self):
-        """Test injecting color mode into existing document."""
-        from scitex_writer._mcp.content import _inject_color_mode
-
-        doc = r"\documentclass{article}\begin{document}Content\end{document}"
-        result = _inject_color_mode(doc, "dark")
-
-        assert "pagecolor" in result
-        # Color commands should be after \begin{document}
-        begin_doc_pos = result.find(r"\begin{document}")
-        pagecolor_pos = result.find("pagecolor")
-        assert pagecolor_pos > begin_doc_pos
+        result = subprocess.run(
+            [
+                sys.executable,
+                str(builder),
+                "--body-file",
+                str(body_file),
+                "--output",
+                str(output_file),
+                "--color-mode",
+                "dark",
+                "--complete-document",
+            ],
+            capture_output=True,
+            text=True,
+        )
+        assert result.returncode == 0
+        content = output_file.read_text()
+        # Should inject after \begin{document}
+        begin_pos = content.find("\\begin{document}")
+        monaco_pos = content.find("MonacoBg")
+        assert monaco_pos > begin_pos
 
 
 class TestContentCompilation:

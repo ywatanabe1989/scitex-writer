@@ -60,7 +60,7 @@ def find_content_area(image_path: str) -> Tuple[int, int, int, int]:
 
 def resize_image(
     img: np.ndarray,
-    target_dpi: int = 300,
+    target_dpi: int = 600,
     max_width: int = 2000,
     max_height: int = 2000,
     verbose: bool = False,
@@ -111,7 +111,7 @@ def crop_tif(
     output_path: Optional[str] = None,
     margin: int = 30,
     resize: bool = True,
-    target_dpi: int = 300,
+    target_dpi: int = 600,
     max_width: int = 2000,
     max_height: int = 2000,
     overwrite: bool = False,
@@ -202,7 +202,7 @@ def batch_crop_tifs(
     output_directory: Optional[str] = None,
     margin: int = 30,
     resize: bool = True,
-    target_dpi: int = 300,
+    target_dpi: int = 600,
     max_width: int = 2000,
     max_height: int = 2000,
     recursive: bool = False,
@@ -328,7 +328,7 @@ def main():
             "--no-resize", action="store_true", help="Disable automatic resizing"
         )
         subparser.add_argument(
-            "--dpi", type=int, default=300, help="Target DPI for resized images"
+            "--dpi", type=int, default=600, help="Target DPI for resized images"
         )
         subparser.add_argument(
             "--max-width", type=int, default=2000, help="Maximum width in pixels"

@@ -10,7 +10,7 @@ Automated figure processing pipeline for multi-panel figures, format conversions
    - Single figure: `01_demographic_data.jpg`
    - Multi-panel: `01a_demographic_data.jpg`, `01b_demographic_data.jpg`
 2. **Add caption**: Create `XX_description.tex` in same directory
-3. **Compile**: Run `./compile -m` (figures included by default)
+3. **Compile**: Run `make manuscript-compile` (figures included by default)
 4. **Reference**: Use `Figure~\ref{fig:XX_description}` in manuscript
 
 ## Directory Structure
@@ -124,19 +124,14 @@ Multi-Panel Figure Title
 
 ```bash
 # Default: includes figures
-./scripts/shell/compile_manuscript.sh
+make manuscript-compile
 
-# Skip figures
-./scripts/shell/compile_manuscript.sh --no_figs
+# Draft mode (skips bibliography)
+make manuscript-draft
 
-# With PowerPoint conversion (WSL)
-./scripts/shell/compile_manuscript.sh --ppt2tif
-
-# With automatic cropping
-./scripts/shell/compile_manuscript.sh --crop_tif
-
-# Quiet mode
-./scripts/shell/compile_manuscript.sh --quiet
+# Full compilation via compile.sh with options
+./compile.sh manuscript --no-figs
+./compile.sh manuscript --quiet
 ```
 
 ## Advanced Features
@@ -200,7 +195,7 @@ Data showing primary outcomes from the experiment.
 }' > caption_and_media/01_results.tex
 
 # 3. Compile
-./scripts/shell/compile_manuscript.sh
+make manuscript-compile
 ```
 
 ### Multi-Panel Figure
@@ -225,7 +220,7 @@ Comparative Analysis
 EOF
 
 # 3. Compile (auto-tiles panels)
-./scripts/shell/compile_manuscript.sh
+make manuscript-compile
 ```
 
 ## Technical Details

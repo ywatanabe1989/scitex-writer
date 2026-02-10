@@ -4,13 +4,15 @@
 %% Description: Dark mode styling for scientific manuscripts
 
 %% Dark mode configuration
-%% Background: dark gray (softer than pure black)
-%% Text: white
+%% Background: Monaco/VS Code editor (#1E1E1E)
+%% Text: VS Code default foreground (#D4D4D4)
 %% Figures: unchanged (preserve original colors)
 
-% Set page and text colors
-\pagecolor{black!95!white}  % Very dark gray background (softer on eyes)
-\color{white}               % White text
+% Set page and text colors - matches Monaco/VS Code dark theme
+\definecolor{MonacoBg}{HTML}{1E1E1E}
+\definecolor{MonacoFg}{HTML}{D4D4D4}
+\pagecolor{MonacoBg}
+\color{MonacoFg}
 
 % Adjust hyperlink colors for dark mode
 \hypersetup{

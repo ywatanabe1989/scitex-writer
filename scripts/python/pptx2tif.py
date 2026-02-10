@@ -61,7 +61,7 @@ def check_libreoffice_installed() -> bool:
 def convert_pptx_to_tif_libreoffice(
     input_path: str,
     output_dir: Optional[str] = None,
-    resolution: int = 300,
+    resolution: int = 600,
     verbose: bool = False,
 ) -> List[str]:
     """
@@ -161,7 +161,7 @@ def convert_pptx_to_tif_libreoffice(
 def convert_pptx_to_tif_python(
     input_path: str,
     output_dir: Optional[str] = None,
-    resolution: int = 300,
+    resolution: int = 600,
     verbose: bool = False,
 ) -> List[str]:
     """
@@ -238,7 +238,7 @@ def convert_pptx_to_tif(
     input_path: Union[str, Path],
     output_dir: Optional[Union[str, Path]] = None,
     method: str = "auto",
-    resolution: int = 300,
+    resolution: int = 600,
     crop_whitespace: bool = True,
     margin: int = 30,
     verbose: bool = False,
@@ -323,7 +323,7 @@ def batch_convert_pptx_to_tif(
     directory: Union[str, Path],
     output_dir: Optional[Union[str, Path]] = None,
     method: str = "auto",
-    resolution: int = 300,
+    resolution: int = 600,
     crop_whitespace: bool = True,
     margin: int = 30,
     recursive: bool = False,
@@ -457,7 +457,7 @@ def main():
         subparser.add_argument(
             "--resolution",
             type=int,
-            default=300,
+            default=600,
             help="Output image resolution (DPI)",
         )
         subparser.add_argument(

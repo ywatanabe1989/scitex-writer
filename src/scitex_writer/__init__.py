@@ -8,10 +8,11 @@
 Three Interfaces:
     - Python API: import scitex_writer as sw
     - CLI: scitex-writer <command>
-    - MCP: 28 tools for AI agents
+    - MCP: 30 tools for AI agents
 
 Modules:
     - compile: Compile manuscripts to PDF
+    - export: Export manuscript for arXiv submission
     - project: Clone, info, get_pdf
     - tables: List, add, remove, csv_to_latex
     - figures: List, add, remove, convert
@@ -26,11 +27,11 @@ from importlib.metadata import version as _version
 try:
     __version__ = _version("scitex-writer")
 except _PackageNotFoundError:
-    __version__ = "2.5.2"  # fallback for development
+    __version__ = "2.5.4"  # fallback for development
 
 # Branding support (set SCITEX_WRITER_BRAND and SCITEX_WRITER_ALIAS env vars before import)
 # Import modules for convenient access
-from . import bib, compile, figures, guidelines, project, prompts, tables
+from . import bib, compile, export, figures, guidelines, project, prompts, tables
 from ._branding import BRAND_ALIAS, BRAND_NAME
 from ._dataclasses import (
     CompilationResult,
@@ -52,6 +53,7 @@ __all__ = [
     "usage",
     # Modules
     "compile",
+    "export",
     "project",
     "tables",
     "figures",
