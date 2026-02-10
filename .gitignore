@@ -108,8 +108,9 @@ data/*
 # Archive files are auto-generated - rely on git for version history
 # No exceptions needed - archive files are always ignored
 
-# Logo files for README
+# Logo and preview files for README
 !docs/scitex-*.png
+!docs/demo-*.png
 
 # Main manuscript output PDFs (small, useful for collaborators)
 !01_manuscript/manuscript.pdf
