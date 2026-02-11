@@ -88,7 +88,9 @@ compile_figure_tex_files() {
         # Use [htbp] for all figures to allow flexible placement
         echo "\\begin{figure*}[htbp]" >>"$SCITEX_WRITER_FIGURE_COMPILED_FILE"
 
-        echo "    \\pdfbookmark[2]{Figure $figure_number}{.$figure_number}" >>"$SCITEX_WRITER_FIGURE_COMPILED_FILE"
+        local _fig_bookmark="Figure $figure_number"
+        [ -n "$figure_title" ] && _fig_bookmark="Figure $figure_number --- ${figure_title%.}"
+        echo "    \\pdfbookmark[2]{$_fig_bookmark}{.$figure_number}" >>"$SCITEX_WRITER_FIGURE_COMPILED_FILE"
         echo "    \\centering" >>"$SCITEX_WRITER_FIGURE_COMPILED_FILE"
         echo "    \\includegraphics[width=$width]{$image_path}" >>"$SCITEX_WRITER_FIGURE_COMPILED_FILE"
         echo "    $caption_content" >>"$SCITEX_WRITER_FIGURE_COMPILED_FILE"

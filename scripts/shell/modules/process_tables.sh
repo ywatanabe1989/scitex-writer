@@ -171,7 +171,16 @@ function csv2tex() {
             # Use csv2latex command - generate basic table structure
             # Note: csv2latex doesn't support captions or labels directly
             {
-                echo "\\pdfbookmark[2]{Table ${base_name#0}}{table_${base_name}}"
+                local _tbl_title=""
+                local _tbl_num="${base_name%%_*}"
+                if [ -f "$caption_file" ] || [ -L "$caption_file" ]; then
+                    _tbl_title=$(sed -n 's/.*\\textbf{\([^}]*\)}.*/\1/p' "$caption_file" | head -1)
+                    [ -z "$_tbl_title" ] && _tbl_title=$(sed -n 's/.*\\caption{\([^.]*\)\..*/\1/p' "$caption_file" | head -1)
+                fi
+                _tbl_title="${_tbl_title%.}"
+                local _tbl_bookmark="Table ${_tbl_num}"
+                [ -n "$_tbl_title" ] && _tbl_bookmark="Table ${_tbl_num} --- ${_tbl_title}"
+                echo "\\pdfbookmark[2]{${_tbl_bookmark}}{table_${base_name}}"
                 echo "\\begin{table}[htbp]"
                 echo "\\centering"
                 echo "\\footnotesize"
@@ -269,7 +278,15 @@ function csv2tex_single_fallback() {
     fi
 
     {
-        echo "\\pdfbookmark[2]{Table ${table_number#0}}{table_${base_name}}"
+        local _tbl_title=""
+        if [ -f "$caption_file" ] || [ -L "$caption_file" ]; then
+            _tbl_title=$(sed -n 's/.*\\textbf{\([^}]*\)}.*/\1/p' "$caption_file" | head -1)
+            [ -z "$_tbl_title" ] && _tbl_title=$(sed -n 's/.*\\caption{\([^.]*\)\..*/\1/p' "$caption_file" | head -1)
+        fi
+        _tbl_title="${_tbl_title%.}"
+        local _tbl_bookmark="Table ${table_number}"
+        [ -n "$_tbl_title" ] && _tbl_bookmark="Table ${table_number} --- ${_tbl_title}"
+        echo "\\pdfbookmark[2]{${_tbl_bookmark}}{table_${base_name}}"
         echo "\\begin{table}[htbp]"
         echo "\\centering"
         echo "$fontsize"
