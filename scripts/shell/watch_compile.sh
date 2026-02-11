@@ -178,7 +178,10 @@ compile_with_lock() {
         echo_info "$(date '+%H:%M:%S') - Starting compilation..."
         date +%s >"$compilation_start_file"
         cd "$PROJECT_ROOT"
-        ./compile -m
+        # Pass dark mode flag if env var is set
+        local dm_flag=""
+        [ "${SCITEX_WRITER_DARK_MODE}" = "true" ] && dm_flag="--dark-mode"
+        ./compile.sh -m $dm_flag
         local status=$?
         release_lock
         rm -f "$compilation_start_file"
