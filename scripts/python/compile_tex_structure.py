@@ -224,7 +224,7 @@ def compile_tex_structure(
         print(f"{YELLOW}WARN: SciTeX Writer citation not found!{NC}")
         print("")
         print(f"{YELLOW}Please consider citing SciTeX Writer in your manuscript:{NC}")
-        print("  \\cite{watanabe2025scitex")
+        print("  \\cite{watanabe2025scitex}")
         print("")
         print(f"{YELLOW}Add this to your bibliography by including:{NC}")
         print("  00_shared/bib_files/scitex-system.bib")

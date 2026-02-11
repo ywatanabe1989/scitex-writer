@@ -2,6 +2,15 @@
 %% Timestamp: "2025-09-30 18:03:32 (ywatanabe)"
 %% File: "/ssh:sp:/home/ywatanabe/proj/neurovista/paper/00_shared/latex_styles/formatting.tex"
 
+%% --- Journal name header (show journal name as-is, without "Preprint submitted to" prefix) ---
+\makeatletter
+\def\ps@pprintTitle{%
+  \def\@oddhead{\reset@font\footnotesize\itshape\@journal\hfill}%
+  \let\@evenhead\@oddhead
+  \def\@oddfoot{\reset@font\hfil\thepage\hfil}%
+  \let\@evenfoot\@oddfoot}
+\makeatother
+
 %% --- Image width ---
 \newlength{\imagewidth}
 \newlength{\imagescale}

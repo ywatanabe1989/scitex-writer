@@ -37,6 +37,8 @@ if [[ "${1:-}" == "-h" || "${1:-}" == "--help" ]]; then
     printf "  4. Caption content (\\\\caption{} required)\n"
     echo "  5. Bibliography files"
     printf "  6. Cross-references (\\\\ref{fig:*}, \\\\ref{tab:*})\n"
+    echo "  7. Float reference order (figures/tables referenced in sequence)"
+    printf "  8. References & citations (\\\\ref{}, \\\\cite{}, \\\\label{})\n"
     echo ""
     echo "Naming Rules:"
     echo "  Figures:  01_name.{jpg,png,tif,svg,...} + 01_name.tex (caption)"
@@ -376,81 +378,45 @@ check_bibliography() {
 }
 
 # --------------------------------------------------------------------------
-# 6. Cross-reference check
+# 6. Cross-reference check (sourced from module)
 # --------------------------------------------------------------------------
-check_crossrefs() {
-    local doc_dir="$1"
-    local doc_label="$2"
-    local content_dir="$doc_dir/contents"
-    local issues=()
+# shellcheck disable=SC1091
+source "$SCRIPT_DIR/modules/check_crossrefs.sh"
 
-    if [ ! -d "$content_dir" ]; then
-        log_pass "Cross-references ($doc_label) - no contents"
-        return
-    fi
-
-    # Collect existing figure IDs
-    local fig_ids=()
-    local fig_dir="$content_dir/figures/caption_and_media"
-    if [ -d "$fig_dir" ]; then
-        for f in "$fig_dir"/[0-9]*.tex; do
-            [ -e "$f" ] || continue
-            local base
-            base=$(basename "$f" .tex)
-            [[ "$base" =~ ^[0-9]+[a-zA-Z]_ ]] && continue
-            fig_ids+=("$base")
-        done
-    fi
-
-    # Collect existing table IDs
-    local tab_ids=()
-    local tbl_dir="$content_dir/tables/caption_and_media"
-    if [ -d "$tbl_dir" ]; then
-        for f in "$tbl_dir"/[0-9]*.tex; do
-            [ -e "$f" ] || continue
-            local base
-            base=$(basename "$f" .tex)
-            tab_ids+=("$base")
-        done
-    fi
-
-    # Scan content .tex files for references
-    for tex_file in "$content_dir"/*.tex; do
-        [ -e "$tex_file" ] || continue
-        local fname
-        fname=$(basename "$tex_file")
-
-        # Check figure references
-        while IFS= read -r ref; do
-            local found=false
-            for fid in "${fig_ids[@]:-}"; do
-                [[ "$fid" == "$ref" ]] && found=true && break
-            done
-            if ! $found; then
-                issues+=("$fname: \\ref{fig:$ref} - no matching figure")
-            fi
-        done < <(grep -oP '\\ref\{fig:([^}]+)\}' "$tex_file" 2>/dev/null | sed 's/\\ref{fig://;s/}//' || true)
-
-        # Check table references
-        while IFS= read -r ref; do
-            local found=false
-            for tid in "${tab_ids[@]:-}"; do
-                [[ "$tid" == "$ref" ]] && found=true && break
-            done
-            if ! $found; then
-                issues+=("$fname: \\ref{tab:$ref} - no matching table")
-            fi
-        done < <(grep -oP '\\ref\{tab:([^}]+)\}' "$tex_file" 2>/dev/null | sed 's/\\ref{tab://;s/}//' || true)
-    done
-
-    if [ ${#issues[@]} -eq 0 ]; then
-        log_pass "Cross-references ($doc_label)"
-    else
-        log_warn "Cross-references ($doc_label)"
-        for i in "${issues[@]}"; do
-            log_detail "$i"
-        done
-    fi
+# --------------------------------------------------------------------------
+# 7-8. Python-based checks (float order, references/citations)
+# --------------------------------------------------------------------------
+run_python_check() {
+    local script="$1"
+    [ -f "$script" ] && command -v python3 &>/dev/null || return 0
+    local output msg clean
+    output=$(python3 "$script" "$PROJECT_ROOT" 2>&1) || true
+    while IFS= read -r line; do
+        # Strip ANSI codes from Python output before re-wrapping
+        clean=$(printf '%s' "$line" | sed 's/\x1b\[[0-9;]*m//g')
+        case "$clean" in
+        *"[PASS]"*)
+            msg="${clean##*\[PASS\] }"
+            log_pass "$msg"
+            ;;
+        *"[FAIL]"*)
+            msg="${clean##*\[FAIL\] }"
+            log_fail "$msg"
+            ;;
+        *"[WARN]"*)
+            msg="${clean##*\[WARN\] }"
+            log_warn "$msg"
+            ;;
+        *"[INFO]"*)
+            msg="${clean##*\[INFO\] }"
+            echo -e "  ${DIM}[INFO] ${msg}${NC}"
+            ;;
+        "    "*)
+            msg="${clean#"${clean%%[! ]*}"}"
+            log_detail "$msg"
+            ;;
+        esac
+    done <<<"$output"
 }
 
 # --------------------------------------------------------------------------
@@ -474,6 +440,8 @@ for doc_dir in 01_manuscript 02_supplementary; do
 done
 
 check_bibliography
+run_python_check "$SCRIPT_DIR/../python/check_float_order.py"
+run_python_check "$SCRIPT_DIR/../python/check_references.py"
 
 # Summary
 echo ""

@@ -290,14 +290,12 @@ main() {
     ) &
     local tbl_pid=$!
 
-    (
-        "$PROJECT_ROOT/scripts/shell/modules/count_words.sh" >"$wrd_log" 2>&1
-        echo $? >"$temp_dir/wrd_exit"
-    ) &
-    local wrd_pid=$!
+    # Wait for figures and tables to finish before counting
+    wait $fig_pid $tbl_pid
 
-    # Wait for all parallel jobs
-    wait $fig_pid $tbl_pid $wrd_pid
+    # Run word count after figures/tables are ready (needs compiled files)
+    "$PROJECT_ROOT/scripts/shell/modules/count_words.sh" >"$wrd_log" 2>&1
+    echo $? >"$temp_dir/wrd_exit"
 
     # Display outputs only in verbose mode
     if [ "${SCITEX_LOG_LEVEL:-1}" -ge 2 ]; then
