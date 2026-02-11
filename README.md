@@ -1,5 +1,5 @@
 <!-- ---
-!-- Timestamp: 2026-02-10 11:19:50
+!-- Timestamp: 2026-02-11 10:59:18
 !-- Author: ywatanabe
 !-- File: /home/ywatanabe/proj/scitex-writer/README.md
 !-- --- -->
@@ -42,6 +42,9 @@ Part of the [SciTeX](https://scitex.ai) ecosystem — empowers both human resear
   <a href="https://scitex.ai/demos/watch/scitex-writer/">
     <img src="examples/scitex-writer-v2.2.0-demo-thumbnail.png" alt="Demo Video" width="600"/>
   </a>
+</p>
+<p align="center">
+  <em>Demo video with AI agent</em>
 </p>
 
 ## 📦 Installation
