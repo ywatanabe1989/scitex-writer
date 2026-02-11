@@ -1,7 +1,7 @@
 % ==============================================================================
-% SciTeX Writer 2.5.3 (https://scitex.ai)
+% SciTeX Writer 2.6.3 (https://scitex.ai)
 % LaTeX compilation engine: auto
-% Compiled: 2026-02-09 06:52:03
+% Compiled: 2026-02-11 18:23:39
 % Source: 01_manuscript/base.tex
 % ==============================================================================
 
@@ -18,8 +18,7 @@
 % File: ./01_manuscript/contents/latex_styles/columns.tex
 % ======================================================================
 %% -*- coding: utf-8 -*-
-%% Timestamp: "2025-09-30 18:04:38 (ywatanabe)"
-%% File: "/ssh:sp:/home/ywatanabe/proj/neurovista/paper/00_shared/latex_styles/columns.tex"
+%% File: 00_shared/latex_styles/columns.tex
 
 %% --- Columns ---
 %% \documentclass[final,3p,times,twocolumn]{elsarticle} %% Use it for submission
@@ -40,8 +39,7 @@
 % File: ./01_manuscript/contents/latex_styles/packages.tex
 % ======================================================================
 %% -*- coding: utf-8 -*-
-%% Timestamp: "2025-09-30 17:57:49 (ywatanabe)"
-%% File: "/ssh:sp:/home/ywatanabe/proj/neurovista/paper/00_shared/latex_styles/packages.tex"
+%% File: 00_shared/latex_styles/packages.tex
 %% -*- coding: utf-8 -*-
 %% Timestamp: "2025-09-27 16:01:16 (ywatanabe)"
 
@@ -105,8 +103,7 @@
 % File: ./01_manuscript/contents/latex_styles/linker.tex
 % ======================================================================
 %% -*- coding: utf-8 -*-
-%% Timestamp: "2025-09-30 18:04:19 (ywatanabe)"
-%% File: "/ssh:sp:/home/ywatanabe/proj/neurovista/paper/00_shared/latex_styles/linker.tex"
+%% File: 00_shared/latex_styles/linker.tex
 
 %% --- Linker for supplemtal material ---
 \usepackage{xr}
@@ -131,8 +128,16 @@
 % File: ./01_manuscript/contents/latex_styles/formatting.tex
 % ======================================================================
 %% -*- coding: utf-8 -*-
-%% Timestamp: "2025-09-30 18:03:32 (ywatanabe)"
-%% File: "/ssh:sp:/home/ywatanabe/proj/neurovista/paper/00_shared/latex_styles/formatting.tex"
+%% File: 00_shared/latex_styles/formatting.tex
+
+%% --- Journal name header (show journal name as-is, without "Preprint submitted to" prefix) ---
+\makeatletter
+\def\ps@pprintTitle{%
+  \def\@oddhead{\reset@font\footnotesize\itshape\@journal\hfill}%
+  \let\@evenhead\@oddhead
+  \def\@oddfoot{\reset@font\hfil\thepage\hfil}%
+  \let\@evenfoot\@oddfoot}
+\makeatother
 
 %% --- Image width ---
 \newlength{\imagewidth}
@@ -161,7 +166,7 @@
 \openin\wordcount=#1
 \read\wordcount to \thewordcount
 \closein\wordcount
-\thewordcount
+\begingroup\sisetup{round-mode=none}\num{\thewordcount}\endgroup%
 }
 
 %% --- Text highlighting ---
@@ -204,6 +209,72 @@
 %% ----------------------------------------
 %% START of DOCUMENT
 %% ----------------------------------------
+
+% Dark mode styling (inlined at compile time)
+%% -*- coding: utf-8 -*-
+%% Timestamp: "2025-11-10 01:30:00 (ywatanabe)"
+%% File: ./00_shared/latex_styles/dark_mode.tex
+%% Description: Dark mode styling for scientific manuscripts
+
+%% Dark mode configuration
+%% Background: Monaco/VS Code editor (#1E1E1E)
+%% Text: VS Code default foreground (#D4D4D4)
+%% Figures: unchanged (preserve original colors)
+
+% Set page and text colors - matches Monaco/VS Code dark theme
+\definecolor{MonacoBg}{HTML}{1E1E1E}
+\definecolor{MonacoFg}{HTML}{F0F0F0}
+\pagecolor{MonacoBg}
+\color{MonacoFg}
+
+% Link text colors for dark mode (colorlinks=true)
+\definecolor{DarkGreen}{HTML}{90C695}     % Internal links (Figure/Table): muted sage
+\definecolor{DarkCyan}{HTML}{87CEEB}      % Citations/references: sky blue
+\definecolor{DarkOrange}{HTML}{DEB887}    % External URLs: burlywood
+
+% Hyperlink colors set via hypersetup (injected after \begin{document})
+
+% Override hlref colorbox for dark mode (no yellow box on dark background)
+\renewcommand{\hlref}[1]{%
+  \ifnum\getrefnumber{#1}=0
+    {\color{DarkGreen}\ref*{#1}}%
+  \else
+    \ref{#1}%
+  \fi
+}
+
+% Section titles: same color as body text, just bold
+\titleformat{\section}
+  {\normalfont\Large\bfseries\color{MonacoFg}}{\thesection}{1em}{}
+\titleformat{\subsection}
+  {\normalfont\large\bfseries\color{MonacoFg}}{\thesubsection}{1em}{}
+\titleformat{\subsubsection}
+  {\normalfont\normalsize\bfseries\color{MonacoFg}}{\thesubsubsection}{1em}{}
+
+% Caption labels: same as body text, left-aligned
+\captionsetup{
+  labelfont={bf,color=MonacoFg},
+  textfont={color=MonacoFg},
+  justification=raggedright,
+  singlelinecheck=false
+}
+
+% Adjust table colors for dark mode
+\definecolor{lightgray}{gray}{0.2}  % Darker "light" gray for table rows
+
+% Override color commands to work well in dark mode
+\renewcommand{\REDENDS}{\color{white}}    % Reset to white instead of black
+\renewcommand{\GREENENDS}{\color{white}}  % Reset to white instead of black
+
+% Adjust highlight boxes for dark mode
+\newtcbox{\darkgreenhighlight}[1][]{on line,colframe=green!70!white,colback=green!20!black,boxrule=0pt,arc=0pt,boxsep=0pt,left=1pt,right=1pt,top=2pt,bottom=2pt,tcbox raise base}
+\newtcbox{\darkredhighlight}[1][]{on line,colframe=red!70!white,colback=red!20!black,boxrule=0pt,arc=0pt,boxsep=0pt,left=1pt,right=1pt,top=2pt,bottom=2pt,tcbox raise base}
+
+% Adjust soul highlighting for dark mode
+\sethlcolor{yellow!30!black}  % Darker yellow highlight
+
+%%%% EOF
+
 \begin{document}
 
 %% ----------------------------------------
@@ -280,6 +351,7 @@ Your Manuscript Title Here
 
 Replace this text with your manuscript abstract. Typically 150--250 words summarizing objectives, methods, key findings, and conclusions.
 
+\vspace{1em}
 \end{abstract}
 
 %%%% EOF
@@ -305,15 +377,17 @@ keyword one \sep keyword two \sep keyword three \sep keyword four \sep keyword f
 % File: ./01_manuscript/contents/wordcount.tex
 % ======================================================================
 %% -*- coding: utf-8 -*-
-%% Timestamp: "2025-09-26 18:17:20 (ywatanabe)"
-%% File: "/ssh:sp:/home/ywatanabe/proj/neurovista/paper/01_manuscript/src/wordcount.tex"
-\begin{wordcount}
-\readwordcount{./01_manuscript/contents/wordcounts/figure_count.txt} figures, \readwordcount{./01_manuscript/contents/wordcounts/table_count.txt} tables, \readwordcount{./01_manuscript/contents/wordcounts/abstract_count.txt} words for abstract, and \readwordcount{./01_manuscript/contents/wordcounts/imrd_count.txt} words for main text
-\end{wordcount}
-
-%% \begin{*wordcount}
-%% \readwordcount{./01_manuscript/contents/wordcounts/figure_count.txt} figures, \readwordcount{./01_manuscript/contents/wordcounts/table_count.txt} tables, \readwordcount{./01_manuscript/contents/wordcounts/abstract_count.txt} words for abstract, and \readwordcount{./01_manuscript/contents/wordcounts/imrd_count.txt} words for main text
-%% \end{*wordcount}
+%% File: 01_manuscript/contents/wordcount.tex
+\noindent\small
+\readwordcount{./01_manuscript/contents/wordcounts/figure_count.txt} figures,
+\readwordcount{./01_manuscript/contents/wordcounts/table_count.txt} tables,
+\readwordcount{./01_manuscript/contents/wordcounts/abstract_count.txt} words for abstract, and
+\readwordcount{./01_manuscript/contents/wordcounts/imrd_count.txt} words for main text
+(\readwordcount{./01_manuscript/contents/wordcounts/introduction_count.txt} for introduction,
+\readwordcount{./01_manuscript/contents/wordcounts/methods_count.txt} for methods,
+\readwordcount{./01_manuscript/contents/wordcounts/results_count.txt} for results,
+\readwordcount{./01_manuscript/contents/wordcounts/discussion_count.txt} for discussion)
+\normalsize
 
 %%%% EOF
 
@@ -397,8 +471,7 @@ Replace this with your discussion. Interpret findings, compare with previous wor
 % File: ./01_manuscript/contents/latex_styles/bibliography.tex
 % ======================================================================
 %% -*- coding: utf-8 -*-
-%% Timestamp: "2025-09-30 17:40:26 (ywatanabe)"
-%% File: "/ssh:sp:/home/ywatanabe/proj/neurovista/paper/00_shared/latex_styles/bibliography.tex"
+%% File: 00_shared/latex_styles/bibliography.tex
 
 %% ============================================================================
 %% BIBLIOGRAPHY STYLE CONFIGURATION
@@ -743,28 +816,32 @@ Disclose any use of generative AI tools here.
 % Auto-generated file containing all table inputs
 % Generated by gather_table_tex_files()
 
+% Table from: 01_example_table.tex
 
 % ======================================================================
-% File: ./01_manuscript/contents/tables/compiled/00_Tables_Header.tex
+% File: ./01_manuscript/contents/tables/compiled/01_example_table.tex
 % ======================================================================
-% Template table when no actual tables are present
+\pdfbookmark[2]{Table 1_example_table}{table_01_example_table}
 \begin{table}[htbp]
-    \centering
-      \caption{\textbf{Placeholder table demonstrating the table format for this manuscript template}\\
-    \smallskip
-    To add tables to your manuscript, place CSV files in \texttt{caption\_and\_media/} with format \texttt{XX\_description.csv}, create matching caption files \texttt{XX\_description.tex}, and reference in text using \texttt{Table\textasciitilde\textbackslash ref\{tab:XX\_description\}}. Example can be seen at \texttt{01\_seizure\_count.csv} with \texttt{01\_seizure\_count.tex}
-    }
-    \label{tab:0_Tables_Header}
-    \begin{tabular}{p{0.3\textwidth}p{0.6\textwidth}}
-        \toprule
-        \textbf{Step} & \textbf{Instructions} \\
-        \midrule
-        1. Add CSV & Place file like \texttt{01\_data.csv} in \texttt{caption\_and\_media/} \\
-        2. Add Caption & Create \texttt{01\_data.tex} with table caption \\
-        3. Compile & Run \texttt{./compile -m} to process tables \\
-        4. Reference & Use \texttt{\textbackslash ref\{tab:01\_data\}} in manuscript \\
-        \bottomrule
-    \end{tabular}
+\centering
+\footnotesize
+\begin{tabular}{|l|l|l|}
+\hline
+Category&Value&Description\\
+\hline
+Example A&1.00&Replace with your data\\
+\hline
+Example B&2.00&Replace with your data\\
+\hline
+Example C&3.00&Replace with your data\\
+\hline
+\end{tabular}
+%% Edit this file: 01_manuscript/contents/tables/caption_and_media/01_example_table.tex
+\caption{\textbf{Replace with your table title.}\\
+\smallskip
+Replace with your table legend text. Edit this caption at \texttt{01\_manuscript/contents/tables/caption\_and\_media/01\_example\_table.tex}.
+}
+\label{tab:01_example_table}
 \end{table}
 
 
@@ -788,13 +865,15 @@ Disclose any use of generative AI tools here.
 % This file includes all figure files in order
 
 % Figure 01
-\begin{figure*}[h!]
+\begin{figure*}[htbp]
     \pdfbookmark[2]{Figure 01}{.01}
     \centering
     \includegraphics[width=0.9\textwidth]{./01_manuscript/contents/figures/caption_and_media/jpg_for_compilation/01_example_figure.jpg}
-    \caption{Replace with your figure caption.}
+    \caption{\textbf{Replace with your figure title.}\\
+\smallskip
+Replace with your figure legend text. Edit this caption at \texttt{01\_manuscript/contents/figures/caption\_and\_media/01\_example\_figure.tex}.
+}
 \label{fig:01_example_figure}
-    \label{fig:01_example_figure}
 \end{figure*}
 
 % Figure 02
@@ -802,9 +881,11 @@ Disclose any use of generative AI tools here.
     \pdfbookmark[2]{Figure 02}{.02}
     \centering
     \includegraphics[width=0.9\textwidth]{./01_manuscript/contents/figures/caption_and_media/jpg_for_compilation/02_another_example.jpg}
-    \caption{Replace with your figure caption.}
+    \caption{\textbf{Replace with your figure title.}\\
+\smallskip
+Replace with your figure legend text. Edit this caption at \texttt{01\_manuscript/contents/figures/caption\_and\_media/02\_another\_example.tex}.
+}
 \label{fig:02_another_example}
-    \label{fig:02_another_example}
 \end{figure*}
 
 

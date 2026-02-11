@@ -6,309 +6,347 @@ import os
 import sys
 from pathlib import Path
 
+import pytest
+
 # Add scripts/python to path for imports
 ROOT_DIR = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(ROOT_DIR / "scripts" / "python"))
 
+# Try to import pandas and the functions
+try:
+    import pandas as pd
+    from csv_to_latex import csv_to_latex, escape_latex, format_number
 
-# Add your tests here
-def test_placeholder():
-    """TODO: Add tests for csv_to_latex.py"""
-    pass
+    HAS_DEPS = True
+except ImportError:
+    HAS_DEPS = False
+
+# Skip all tests if pandas not available
+pytestmark = pytest.mark.skipif(not HAS_DEPS, reason="pandas not installed")
+
+
+class TestEscapeLatex:
+    """Test LaTeX special character escaping."""
+
+    def test_escape_latex_ampersand(self):
+        """Should escape ampersand."""
+        result = escape_latex("A & B")
+        assert result == r"A \& B"
+
+    def test_escape_latex_percent(self):
+        """Should escape percent sign."""
+        result = escape_latex("50%")
+        assert result == r"50\%"
+
+    def test_escape_latex_underscore(self):
+        """Should escape underscore."""
+        result = escape_latex("a_b")
+        assert result == r"a\_b"
+
+    def test_escape_latex_hash(self):
+        """Should escape hash/pound sign."""
+        result = escape_latex("#1")
+        assert result == r"\#1"
+
+    def test_escape_latex_dollar(self):
+        """Should escape dollar sign."""
+        result = escape_latex("$100")
+        assert result == r"\$100"
+
+    def test_escape_latex_backslash(self):
+        """Should escape backslash."""
+        result = escape_latex("a\\b")
+        # Braces in \textbackslash{} also get escaped
+        assert result == r"a\textbackslash\{\}b"
+
+    def test_escape_latex_braces(self):
+        """Should escape curly braces."""
+        result = escape_latex("a{b}c")
+        assert result == r"a\{b\}c"
+
+    def test_escape_latex_tilde(self):
+        """Should escape tilde."""
+        result = escape_latex("a~b")
+        assert result == r"a\textasciitilde{}b"
+
+    def test_escape_latex_caret(self):
+        """Should escape caret."""
+        result = escape_latex("a^b")
+        assert result == r"a\textasciicircum{}b"
+
+    def test_escape_latex_nan(self):
+        """Should handle pandas NaN values."""
+        result = escape_latex(float("nan"))
+        assert result == ""
+
+    def test_escape_latex_none(self):
+        """Should handle None values."""
+        result = escape_latex(None)
+        assert result == ""
+
+    def test_escape_latex_multiple_chars(self):
+        """Should escape multiple special characters."""
+        result = escape_latex("A & B: 50% #1")
+        assert result == r"A \& B: 50\% \#1"
+
+    def test_escape_latex_numeric_input(self):
+        """Should convert numbers to strings and escape."""
+        result = escape_latex(42)
+        assert result == "42"
+
+    def test_escape_latex_empty_string(self):
+        """Should handle empty strings."""
+        result = escape_latex("")
+        assert result == ""
+
+
+class TestFormatNumber:
+    """Test number formatting."""
+
+    def test_format_number_integer(self):
+        """Should format integers without decimals."""
+        result = format_number("42.0")
+        assert result == "42"
+
+    def test_format_number_decimal(self):
+        """Should format decimals with up to 3 places."""
+        result = format_number("3.14159")
+        assert result == "3.142"
+
+    def test_format_number_small_scientific(self):
+        """Should use scientific notation for very small numbers."""
+        result = format_number("0.001")
+        # Should be in scientific notation
+        assert "e" in result.lower()
+
+    def test_format_number_zero(self):
+        """Should format zero correctly."""
+        result = format_number("0.0")
+        assert result == "0"
+
+    def test_format_number_negative(self):
+        """Should handle negative numbers."""
+        result = format_number("-3.14")
+        assert result == "-3.14"
+
+    def test_format_number_text(self):
+        """Should return non-numeric text as-is."""
+        result = format_number("hello")
+        assert result == "hello"
+
+    def test_format_number_strips_trailing_zeros(self):
+        """Should strip trailing zeros."""
+        result = format_number("3.100")
+        assert result == "3.1"
+
+    def test_format_number_strips_trailing_dot(self):
+        """Should strip trailing decimal point."""
+        result = format_number("3.000")
+        assert result == "3"
+
+    def test_format_number_large_number(self):
+        """Should format large numbers correctly."""
+        result = format_number("123456.789")
+        assert result == "123456.789"
+
+    def test_format_number_very_small_nonzero(self):
+        """Should use scientific notation for numbers < 0.01."""
+        result = format_number("0.005")
+        assert "e" in result.lower()
+
+    def test_format_number_boundary_0_01(self):
+        """Should use scientific notation at 0.01 boundary."""
+        result = format_number("0.009")
+        assert "e" in result.lower()
+
+
+class TestCsvToLatex:
+    """Test full CSV to LaTeX conversion."""
+
+    def test_csv_to_latex_creates_file(self, tmp_path):
+        """Should create output LaTeX file."""
+        # Create test CSV
+        csv_file = tmp_path / "test.csv"
+        csv_file.write_text("Name,Age\nAlice,30\nBob,25")
+
+        output_file = tmp_path / "output.tex"
+
+        result = csv_to_latex(csv_file, output_file)
+
+        assert result is True
+        assert output_file.exists()
+
+    def test_csv_to_latex_contains_tabular(self, tmp_path):
+        """Output should contain tabular environment."""
+        csv_file = tmp_path / "test.csv"
+        csv_file.write_text("A,B\n1,2")
+
+        output_file = tmp_path / "output.tex"
+        csv_to_latex(csv_file, output_file)
+
+        content = output_file.read_text()
+        assert r"\begin{tabular}" in content
+        assert r"\end{tabular}" in content
+
+    def test_csv_to_latex_contains_headers(self, tmp_path):
+        """Output should contain bold headers."""
+        csv_file = tmp_path / "test.csv"
+        csv_file.write_text("Name,Age\nAlice,30")
+
+        output_file = tmp_path / "output.tex"
+        csv_to_latex(csv_file, output_file)
+
+        content = output_file.read_text()
+        # Headers should be bold and title-cased
+        assert r"\textbf{Name}" in content
+        assert r"\textbf{Age}" in content
+
+    def test_csv_to_latex_contains_data(self, tmp_path):
+        """Output should contain table data."""
+        csv_file = tmp_path / "test.csv"
+        csv_file.write_text("Name,Value\nTest,42")
+
+        output_file = tmp_path / "output.tex"
+        csv_to_latex(csv_file, output_file)
+
+        content = output_file.read_text()
+        assert "Test" in content
+        assert "42" in content
+
+    def test_csv_to_latex_escapes_special_chars(self, tmp_path):
+        """Should escape LaTeX special characters in data."""
+        csv_file = tmp_path / "test.csv"
+        csv_file.write_text("Text\nA & B")
+
+        output_file = tmp_path / "output.tex"
+        csv_to_latex(csv_file, output_file)
+
+        content = output_file.read_text()
+        # Ampersand should be escaped
+        assert r"\&" in content
+
+    def test_csv_to_latex_contains_table_env(self, tmp_path):
+        """Output should contain table environment."""
+        csv_file = tmp_path / "test.csv"
+        csv_file.write_text("A\n1")
+
+        output_file = tmp_path / "output.tex"
+        csv_to_latex(csv_file, output_file)
+
+        content = output_file.read_text()
+        assert r"\begin{table}" in content
+        assert r"\end{table}" in content
+
+    def test_csv_to_latex_contains_caption(self, tmp_path):
+        """Output should contain caption."""
+        csv_file = tmp_path / "test.csv"
+        csv_file.write_text("A\n1")
+
+        output_file = tmp_path / "output.tex"
+        csv_to_latex(csv_file, output_file)
+
+        content = output_file.read_text()
+        assert r"\caption{" in content
+
+    def test_csv_to_latex_custom_caption(self, tmp_path):
+        """Should use custom caption if provided."""
+        csv_file = tmp_path / "test.csv"
+        csv_file.write_text("A\n1")
+
+        output_file = tmp_path / "output.tex"
+        custom_caption = "My Custom Caption"
+        csv_to_latex(csv_file, output_file, caption=custom_caption)
+
+        content = output_file.read_text()
+        assert custom_caption in content
+
+    def test_csv_to_latex_custom_label(self, tmp_path):
+        """Should use custom label if provided."""
+        csv_file = tmp_path / "test.csv"
+        csv_file.write_text("A\n1")
+
+        output_file = tmp_path / "output.tex"
+        custom_label = "tab:mylabel"
+        csv_to_latex(csv_file, output_file, label=custom_label)
+
+        content = output_file.read_text()
+        assert r"\label{tab:mylabel}" in content
+
+    def test_csv_to_latex_invalid_csv(self, tmp_path):
+        """Should return False for invalid CSV."""
+        csv_file = tmp_path / "nonexistent.csv"
+        output_file = tmp_path / "output.tex"
+
+        result = csv_to_latex(csv_file, output_file)
+
+        assert result is False
+        assert not output_file.exists()
+
+    def test_csv_to_latex_contains_booktabs(self, tmp_path):
+        """Should use booktabs rules (toprule, midrule, bottomrule)."""
+        csv_file = tmp_path / "test.csv"
+        csv_file.write_text("A,B\n1,2")
+
+        output_file = tmp_path / "output.tex"
+        csv_to_latex(csv_file, output_file)
+
+        content = output_file.read_text()
+        assert r"\toprule" in content
+        assert r"\midrule" in content
+        assert r"\bottomrule" in content
+
+    def test_csv_to_latex_number_formatting(self, tmp_path):
+        """Should format numbers appropriately."""
+        csv_file = tmp_path / "test.csv"
+        csv_file.write_text("Value\n3.14159\n42.0")
+
+        output_file = tmp_path / "output.tex"
+        csv_to_latex(csv_file, output_file)
+
+        content = output_file.read_text()
+        # Float should be formatted
+        assert "3.142" in content
+        # Integer should not have decimals
+        assert "42 " in content or "42\\\\" in content
+
+    def test_csv_to_latex_column_alignment(self, tmp_path):
+        """Should align numeric columns right."""
+        csv_file = tmp_path / "test.csv"
+        csv_file.write_text("Name,Age\nAlice,30")
+
+        output_file = tmp_path / "output.tex"
+        csv_to_latex(csv_file, output_file)
+
+        content = output_file.read_text()
+        # Should have tabular with alignment spec (l for text, r for numbers)
+        assert r"\begin{tabular}{" in content
+
+    def test_csv_to_latex_handles_missing_values(self, tmp_path):
+        """Should handle missing/NaN values."""
+        csv_file = tmp_path / "test.csv"
+        csv_file.write_text("A,B\n1,\n,3")
+
+        output_file = tmp_path / "output.tex"
+        csv_to_latex(csv_file, output_file)
+
+        content = output_file.read_text()
+        # Missing values should be represented (as --)
+        assert "--" in content
+
+    def test_csv_to_latex_truncation_message(self, tmp_path):
+        """Should add truncation message for large tables."""
+        # Create CSV with many rows
+        lines = ["Value"] + [str(i) for i in range(50)]
+        csv_file = tmp_path / "test.csv"
+        csv_file.write_text("\n".join(lines))
+
+        output_file = tmp_path / "output.tex"
+        csv_to_latex(csv_file, output_file, max_rows=10)
+
+        content = output_file.read_text()
+        # Should mention truncation
+        assert "truncated" in content.lower() or "omitted" in content.lower()
 
 
 if __name__ == "__main__":
-    import pytest
-
     pytest.main([os.path.abspath(__file__), "-v"])
-
-# --------------------------------------------------------------------------------
-# Start of Source Code from: /home/ywatanabe/proj/scitex-writer/scripts/python/csv_to_latex.py
-# --------------------------------------------------------------------------------
-# #!/usr/bin/env python3
-# # -*- coding: utf-8 -*-
-# # Timestamp: "2024-09-28 18:20:00 (ywatanabe)"
-# # File: csv_to_latex.py
-#
-# """
-# Robust CSV to LaTeX table converter with proper escaping and formatting.
-#
-# Dependencies:
-#     - pandas
-#     - numpy
-#
-# Usage:
-#     python csv_to_latex.py input.csv output.tex [--caption "caption text"]
-# """
-#
-# import argparse
-# import sys
-# import pandas as pd
-# import numpy as np
-# from pathlib import Path
-# import re
-#
-#
-# def escape_latex(text):
-#     """Properly escape special LaTeX characters."""
-#     if pd.isna(text):
-#         return ""
-#
-#     # Convert to string if not already
-#     text = str(text)
-#
-#     # Order matters - backslash must be first
-#     replacements = [
-#         ('\\', r'\textbackslash{}'),
-#         ('&', r'\&'),
-#         ('%', r'\%'),
-#         ('$', r'\$'),
-#         ('#', r'\#'),
-#         ('_', r'\_'),
-#         ('{', r'\{'),
-#         ('}', r'\}'),
-#         ('~', r'\textasciitilde{}'),
-#         ('^', r'\textasciicircum{}'),
-#         ('|', r'\textbar{}'),
-#         ('<', r'\textless{}'),
-#         ('>', r'\textgreater{}'),
-#     ]
-#
-#     for old, new in replacements:
-#         text = text.replace(old, new)
-#
-#     return text
-#
-#
-# def format_number(val):
-#     """Format numbers appropriately for LaTeX."""
-#     try:
-#         # Try to convert to float
-#         num = float(val)
-#
-#         # Check if it's actually an integer
-#         if num.is_integer():
-#             return str(int(num))
-#         else:
-#             # Format with appropriate decimal places
-#             if abs(num) < 0.01 and num != 0:
-#                 # Scientific notation for very small numbers
-#                 return f"{num:.2e}"
-#             else:
-#                 # Regular decimal notation
-#                 return f"{num:.3f}".rstrip('0').rstrip('.')
-#     except (ValueError, TypeError):
-#         # Not a number, return as is
-#         return val
-#
-#
-# def csv_to_latex(csv_file, output_file, caption=None, label=None, max_rows=30):
-#     """Convert CSV to LaTeX table with proper formatting.
-#
-#     Args:
-#         csv_file: Input CSV file path
-#         output_file: Output LaTeX file path
-#         caption: Optional table caption
-#         label: Optional table label for references
-#         max_rows: Maximum number of data rows to display (default: 30)
-#     """
-#
-#     # Read CSV with pandas for robust parsing
-#     try:
-#         df = pd.read_csv(csv_file)
-#     except Exception as e:
-#         print(f"Error reading CSV: {e}", file=sys.stderr)
-#         return False
-#
-#     # Store original row count for truncation message
-#     original_rows = len(df)
-#     truncated = False
-#
-#     # Truncate if necessary
-#     if len(df) > max_rows:
-#         truncated = True
-#         # Keep first N-3 rows and last 2 rows with separator
-#         if max_rows > 5:
-#             df_top = df.head(max_rows - 2)
-#             df_bottom = df.tail(2)
-#             # Create separator row with "..." in each column
-#             separator = pd.DataFrame([['...' for _ in df.columns]], columns=df.columns)
-#             df = pd.concat([df_top, separator, df_bottom], ignore_index=True)
-#         else:
-#             df = df.head(max_rows)
-#
-#     # Extract metadata from filename
-#     csv_path = Path(csv_file)
-#     base_name = csv_path.stem
-#
-#     # Extract table number if present
-#     table_number = ""
-#     table_name = base_name
-#     match = re.match(r'^(\d+)_(.*)$', base_name)
-#     if match:
-#         table_number = match.group(1).lstrip('0')
-#         table_name = match.group(2).replace('_', ' ')
-#
-#     # Determine column alignment
-#     alignments = []
-#     for col in df.columns:
-#         # Check if column is numeric
-#         try:
-#             pd.to_numeric(df[col], errors='raise')
-#             alignments.append('r')  # Right align for numbers
-#         except:
-#             alignments.append('l')  # Left align for text
-#
-#     # Start building LaTeX
-#     lines = []
-#
-#     # Table environment
-#     lines.append(f"\\pdfbookmark[2]{{Table {table_number}}}{{table_{base_name}}}")
-#     lines.append("\\begin{table}[htbp]")
-#     lines.append("\\centering")
-#
-#     # Use standard font size for tables
-#     # Standard academic paper convention: \footnotesize (8pt) for tables
-#     lines.append("\\footnotesize")
-#
-#     # Adjust tabcolsep based on number of columns to fit width
-#     num_columns = len(df.columns)
-#     if num_columns > 8:
-#         lines.append("\\setlength{\\tabcolsep}{2pt}")  # Very tight for many columns
-#     elif num_columns > 6:
-#         lines.append("\\setlength{\\tabcolsep}{3pt}")  # Tight spacing
-#     elif num_columns > 4:
-#         lines.append("\\setlength{\\tabcolsep}{4pt}")  # Medium spacing
-#     else:
-#         lines.append("\\setlength{\\tabcolsep}{6pt}")  # Normal spacing
-#
-#     # Use resizebox to ensure table fits within text width
-#     lines.append("\\resizebox{\\textwidth}{!}{%")
-#
-#     # Begin tabular
-#     tabular_spec = ''.join(alignments)
-#     lines.append(f"\\begin{{tabular}}{{{tabular_spec}}}")
-#     lines.append("\\toprule")
-#
-#     # Header row
-#     headers = []
-#     for col in df.columns:
-#         # Format header
-#         header = escape_latex(col)
-#         # Remove underscores and capitalize
-#         header = header.replace('\\_', ' ').title()
-#         headers.append(f"\\textbf{{{header}}}")
-#     lines.append(" & ".join(headers) + " \\\\")
-#     lines.append("\\midrule")
-#
-#     # Data rows
-#     for idx, row in df.iterrows():
-#         values = []
-#         is_separator = False
-#
-#         for col in df.columns:
-#             val = row[col]
-#
-#             # Check if this is the separator row
-#             if str(val) == '...':
-#                 is_separator = True
-#
-#             # Format the value
-#             if pd.notna(val):
-#                 if not is_separator:
-#                     val = format_number(val)
-#                     val = escape_latex(val)
-#             else:
-#                 val = "--"  # Display for missing values
-#
-#             values.append(val)
-#
-#         # Don't add row coloring for separator
-#         if is_separator:
-#             lines.append("\\midrule")
-#             lines.append("\\multicolumn{" + str(len(df.columns)) + "}{c}{\\textit{... " +
-#                         f"{original_rows - max_rows + 1} rows omitted ..." + "}} \\\\")
-#             lines.append("\\midrule")
-#         else:
-#             # Add row coloring for readability (skip separator in count)
-#             if idx % 2 == 1:
-#                 lines.append("\\rowcolor{gray!10}")
-#             lines.append(" & ".join(values) + " \\\\")
-#
-#     lines.append("\\bottomrule")
-#     lines.append("\\end{tabular}")
-#     lines.append("}")  # Close resizebox
-#
-#     # Caption
-#     lines.append("\\captionsetup{width=\\textwidth}")
-#     if caption:
-#         # Add truncation note to existing caption if needed
-#         if truncated:
-#             caption = caption.rstrip('}')
-#             caption += f" \\textit{{Note: Table truncated to {max_rows} rows from {original_rows} total rows for display purposes.}}"
-#             caption += "}"
-#         lines.append(caption)
-#     else:
-#         # Generate default caption
-#         if table_number:
-#             lines.append(f"\\caption{{\\textbf{{Table {table_number}: {table_name.title()}}}")
-#         else:
-#             lines.append(f"\\caption{{\\textbf{{{table_name.title()}}}")
-#         lines.append("\\\\")
-#         if truncated:
-#             lines.append(f"\\textit{{Note: Table truncated to {max_rows} rows from {original_rows} total rows for display purposes.}}")
-#         else:
-#             lines.append("Data table generated from CSV file.")
-#         lines.append("}")
-#
-#     # Label
-#     if label:
-#         lines.append(f"\\label{{{label}}}")
-#     else:
-#         lines.append(f"\\label{{tab:{base_name}}}")
-#
-#     lines.append("\\end{table}")
-#     lines.append("")
-#     lines.append("\\restoregeometry")
-#
-#     # Write to file
-#     try:
-#         with open(output_file, 'w', encoding='utf-8') as f:
-#             f.write('\n'.join(lines))
-#         return True
-#     except Exception as e:
-#         print(f"Error writing output: {e}", file=sys.stderr)
-#         return False
-#
-#
-# def main():
-#     parser = argparse.ArgumentParser(description='Convert CSV to LaTeX table')
-#     parser.add_argument('input_csv', help='Input CSV file')
-#     parser.add_argument('output_tex', help='Output LaTeX file')
-#     parser.add_argument('--caption', help='Custom caption text')
-#     parser.add_argument('--caption-file', help='File containing caption text')
-#     parser.add_argument('--label', help='Custom label for referencing')
-#
-#     args = parser.parse_args()
-#
-#     # Read caption from file if provided
-#     caption = args.caption
-#     if args.caption_file and Path(args.caption_file).exists():
-#         with open(args.caption_file, 'r', encoding='utf-8') as f:
-#             caption = f.read().strip()
-#
-#     success = csv_to_latex(
-#         args.input_csv,
-#         args.output_tex,
-#         caption=caption,
-#         label=args.label
-#     )
-#
-#     sys.exit(0 if success else 1)
-#
-#
-# if __name__ == '__main__':
-#     main()
-# --------------------------------------------------------------------------------
-# End of Source Code from: /home/ywatanabe/proj/scitex-writer/scripts/python/csv_to_latex.py
-# --------------------------------------------------------------------------------

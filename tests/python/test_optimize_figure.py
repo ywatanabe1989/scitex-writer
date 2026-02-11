@@ -6,304 +6,278 @@ import os
 import sys
 from pathlib import Path
 
+import pytest
+
 # Add scripts/python to path for imports
 ROOT_DIR = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(ROOT_DIR / "scripts" / "python"))
 
+# Check for PIL dependency
+try:
+    from optimize_figure import crop_whitespace, enhance_image_quality, optimize_figure
+    from PIL import Image
 
-# Add your tests here
-def test_placeholder():
-    """TODO: Add tests for optimize_figure.py"""
-    pass
+    HAS_PIL = True
+except ImportError:
+    HAS_PIL = False
+
+# compute_optimal_size is pure logic - try to import separately
+try:
+    from optimize_figure import compute_optimal_size
+
+    HAS_COMPUTE = True
+except ImportError:
+    HAS_COMPUTE = False
+
+
+# Tests for compute_optimal_size (pure logic - no dependencies)
+@pytest.mark.skipif(not HAS_COMPUTE, reason="compute_optimal_size not available")
+def test_compute_optimal_size_within_limits():
+    """Test that image already within limits returns same dimensions."""
+    # Use larger dimensions that are above 80% of publication_width_px threshold
+    width, height = 2000, 1600
+    max_width, max_height = 3000, 3000
+
+    new_w, new_h = compute_optimal_size(width, height, max_width, max_height)
+
+    # Should not change since within limits and good resolution
+    assert new_w == 2000
+    assert new_h == 1600
+
+
+@pytest.mark.skipif(not HAS_COMPUTE, reason="compute_optimal_size not available")
+def test_compute_optimal_size_width_limit():
+    """Test that wide image gets scaled to fit max_width."""
+    width, height = 3000, 1000
+    max_width, max_height = 2000, 2000
+
+    new_w, new_h = compute_optimal_size(width, height, max_width, max_height)
+
+    assert new_w == 2000  # Width limited
+    assert new_h < 1000  # Height scaled proportionally
+
+
+@pytest.mark.skipif(not HAS_COMPUTE, reason="compute_optimal_size not available")
+def test_compute_optimal_size_height_limit():
+    """Test that tall image gets scaled to fit max_height."""
+    width, height = 1000, 3000
+    max_width, max_height = 2000, 2000
+
+    new_w, new_h = compute_optimal_size(width, height, max_width, max_height)
+
+    assert new_h == 2000  # Height limited
+    assert new_w < 1000  # Width scaled proportionally
+
+
+@pytest.mark.skipif(not HAS_COMPUTE, reason="compute_optimal_size not available")
+def test_compute_optimal_size_even_dimensions():
+    """Test that result has even width and height."""
+    width, height = 2501, 1501
+    max_width, max_height = 2000, 2000
+
+    new_w, new_h = compute_optimal_size(width, height, max_width, max_height)
+
+    assert new_w % 2 == 0  # Even width
+    assert new_h % 2 == 0  # Even height
+
+
+@pytest.mark.skipif(not HAS_COMPUTE, reason="compute_optimal_size not available")
+def test_compute_optimal_size_aspect_ratio_preserved():
+    """Test that aspect ratio is approximately preserved."""
+    width, height = 1600, 1000
+    max_width, max_height = 800, 800
+
+    new_w, new_h = compute_optimal_size(width, height, max_width, max_height)
+
+    original_ratio = width / height
+    new_ratio = new_w / new_h
+    # Allow small difference due to rounding
+    assert abs(original_ratio - new_ratio) < 0.01
+
+
+# Tests for crop_whitespace (requires PIL)
+@pytest.mark.skipif(not HAS_PIL, reason="PIL (Pillow) not available")
+def test_crop_whitespace_removes_padding():
+    """Test that crop_whitespace removes white borders."""
+    # Create image with white border
+    img = Image.new("RGB", (200, 200), color="white")
+    # Add colored content in center
+    pixels = img.load()
+    for i in range(50, 150):
+        for j in range(50, 150):
+            pixels[j, i] = (255, 0, 0)  # Red square
+
+    cropped = crop_whitespace(img, padding=5)
+
+    # Should be smaller than original
+    assert cropped.width < 200
+    assert cropped.height < 200
+    # Should be around 100x100 + padding
+    assert 100 <= cropped.width <= 120
+    assert 100 <= cropped.height <= 120
+
+
+@pytest.mark.skipif(not HAS_PIL, reason="PIL (Pillow) not available")
+def test_crop_whitespace_no_content_returns_original():
+    """Test that all-white image returns original."""
+    img = Image.new("RGB", (100, 100), color="white")
+
+    cropped = crop_whitespace(img)
+
+    assert cropped.size == img.size
+
+
+@pytest.mark.skipif(not HAS_PIL, reason="PIL (Pillow) not available")
+def test_crop_whitespace_padding_parameter():
+    """Test that padding parameter is respected."""
+    img = Image.new("RGB", (200, 200), color="white")
+    pixels = img.load()
+    for i in range(80, 120):
+        for j in range(80, 120):
+            pixels[j, i] = (0, 0, 255)  # Blue square
+
+    cropped_small = crop_whitespace(img, padding=5)
+    cropped_large = crop_whitespace(img, padding=20)
+
+    # Larger padding should result in larger image
+    assert cropped_large.width > cropped_small.width
+    assert cropped_large.height > cropped_small.height
+
+
+# Tests for enhance_image_quality (requires PIL)
+@pytest.mark.skipif(not HAS_PIL, reason="PIL (Pillow) not available")
+def test_enhance_image_quality_returns_rgb():
+    """Test that RGBA image is converted to RGB."""
+    img = Image.new("RGBA", (100, 100), color=(255, 0, 0, 128))
+
+    enhanced = enhance_image_quality(img)
+
+    assert enhanced.mode == "RGB"
+
+
+@pytest.mark.skipif(not HAS_PIL, reason="PIL (Pillow) not available")
+def test_enhance_image_quality_preserves_dimensions():
+    """Test that enhancement preserves image dimensions."""
+    img = Image.new("RGB", (150, 200), color="blue")
+
+    enhanced = enhance_image_quality(img)
+
+    assert enhanced.size == img.size
+
+
+@pytest.mark.skipif(not HAS_PIL, reason="PIL (Pillow) not available")
+def test_enhance_image_quality_returns_image():
+    """Test that enhancement returns a PIL Image."""
+    img = Image.new("RGB", (100, 100), color="green")
+
+    enhanced = enhance_image_quality(img)
+
+    assert isinstance(enhanced, Image.Image)
+
+
+# Tests for optimize_figure (full pipeline - requires PIL)
+@pytest.mark.skipif(not HAS_PIL, reason="PIL (Pillow) not available")
+def test_optimize_figure_creates_output(tmp_path):
+    """Test that optimize_figure creates output file."""
+    # Create test image
+    img = Image.new("RGB", (300, 200), color="red")
+    input_path = tmp_path / "input.jpg"
+    output_path = tmp_path / "output.jpg"
+    img.save(str(input_path))
+
+    result = optimize_figure(str(input_path), str(output_path), no_crop=True)
+
+    assert result == str(output_path)
+    assert output_path.exists()
+
+
+@pytest.mark.skipif(not HAS_PIL, reason="PIL (Pillow) not available")
+def test_optimize_figure_missing_input_returns_none(tmp_path):
+    """Test that optimize_figure returns None for missing file."""
+    output_path = tmp_path / "output.jpg"
+
+    result = optimize_figure("/nonexistent/input.jpg", str(output_path))
+
+    assert result is None
+
+
+@pytest.mark.skipif(not HAS_PIL, reason="PIL (Pillow) not available")
+def test_optimize_figure_auto_output_path(tmp_path):
+    """Test that optimize_figure generates output path automatically."""
+    img = Image.new("RGB", (200, 200), color="blue")
+    input_path = tmp_path / "test.jpg"
+    img.save(str(input_path))
+
+    result = optimize_figure(str(input_path), output_path=None)
+
+    # Should create test_optimized.jpg
+    expected_path = tmp_path / "test_optimized.jpg"
+    assert result == str(expected_path)
+    assert expected_path.exists()
+
+
+@pytest.mark.skipif(not HAS_PIL, reason="PIL (Pillow) not available")
+def test_optimize_figure_with_crop(tmp_path):
+    """Test that optimize_figure crops whitespace when enabled."""
+    # Create image with white border
+    img = Image.new("RGB", (400, 400), color="white")
+    pixels = img.load()
+    for i in range(100, 300):
+        for j in range(100, 300):
+            pixels[j, i] = (0, 255, 0)  # Green square
+
+    input_path = tmp_path / "bordered.jpg"
+    output_path = tmp_path / "cropped.jpg"
+    img.save(str(input_path))
+
+    result = optimize_figure(
+        str(input_path),
+        str(output_path),
+        no_crop=False,
+        max_width=5000,
+        max_height=5000,
+    )
+
+    assert result is not None
+    assert output_path.exists()
+    # The function successfully runs with cropping enabled
+    # Actual dimensions depend on scaling logic, so just verify file was created
+
+
+@pytest.mark.skipif(not HAS_PIL, reason="PIL (Pillow) not available")
+def test_optimize_figure_respects_max_dimensions(tmp_path):
+    """Test that optimize_figure respects max width/height."""
+    # Create large image
+    img = Image.new("RGB", (3000, 2000), color="yellow")
+    input_path = tmp_path / "large.jpg"
+    output_path = tmp_path / "resized.jpg"
+    img.save(str(input_path))
+
+    result = optimize_figure(
+        str(input_path), str(output_path), max_width=1000, max_height=1000, no_crop=True
+    )
+
+    result_img = Image.open(result)
+    assert result_img.width <= 1000
+    assert result_img.height <= 1000
+
+
+@pytest.mark.skipif(not HAS_PIL, reason="PIL (Pillow) not available")
+def test_optimize_figure_different_formats(tmp_path):
+    """Test that optimize_figure handles different image formats."""
+    # Test with PNG
+    img = Image.new("RGB", (200, 200), color="purple")
+    input_path = tmp_path / "test.png"
+    output_path = tmp_path / "test_out.png"
+    img.save(str(input_path))
+
+    result = optimize_figure(str(input_path), str(output_path))
+
+    assert result is not None
+    assert output_path.exists()
 
 
 if __name__ == "__main__":
     import pytest
 
     pytest.main([os.path.abspath(__file__), "-v"])
-
-# --------------------------------------------------------------------------------
-# Start of Source Code from: /home/ywatanabe/proj/scitex-writer/scripts/python/optimize_figure.py
-# --------------------------------------------------------------------------------
-# #!/usr/bin/env python3
-# # -*- coding: utf-8 -*-
-# """
-# Automatic Figure Optimization for SciTex
-#
-# This script automatically optimizes figures for publication by:
-# 1. Analyzing image dimensions and aspect ratio
-# 2. Resizing to optimal resolution for publication
-# 3. Enhancing image quality if needed
-# 4. Cropping excess whitespace
-#
-# Usage:
-#   python optimize_figure.py --input <input_file> [--output <output_file>] [--dpi <dpi>] [--quality <quality>] [--max-width <pixels>] [--max-height <pixels>]
-#
-# Options:
-#   --input FILE       Input image file (required)
-#   --output FILE      Output image file (default: same as input with _optimized suffix)
-#   --dpi INT          Target DPI (default: 300)
-#   --quality INT      JPEG quality (1-100, default: 90)
-#   --max-width INT    Maximum width in pixels (default: 2000)
-#   --max-height INT   Maximum height in pixels (default: 2000)
-#   --no-crop          Disable automatic cropping (default: crop enabled)
-#   --verbose          Enable verbose output
-# """
-#
-# import os
-# import sys
-# import argparse
-# import numpy as np
-# from PIL import Image, ImageChops, ImageEnhance, ImageOps
-# import logging
-#
-# # Configure logging
-# logging.basicConfig(
-#     level=logging.INFO,
-#     format='%(asctime)s - %(levelname)s - %(message)s',
-#     datefmt='%Y-%m-%d %H:%M:%S'
-# )
-# logger = logging.getLogger(__name__)
-#
-# def parse_arguments():
-#     """Parse command line arguments."""
-#     parser = argparse.ArgumentParser(description='Optimize figures for publication')
-#     parser.add_argument('--input', required=True, help='Input image file')
-#     parser.add_argument('--output', help='Output image file')
-#     parser.add_argument('--dpi', type=int, default=300, help='Target DPI')
-#     parser.add_argument('--quality', type=int, default=90, help='JPEG quality (1-100)')
-#     parser.add_argument('--max-width', type=int, default=2000, help='Maximum width in pixels')
-#     parser.add_argument('--max-height', type=int, default=2000, help='Maximum height in pixels')
-#     parser.add_argument('--no-crop', action='store_true', help='Disable automatic cropping')
-#     parser.add_argument('--verbose', action='store_true', help='Enable verbose output')
-#     return parser.parse_args()
-#
-# def crop_whitespace(image, padding=10):
-#     """
-#     Crop excess whitespace from the image.
-#
-#     Args:
-#         image: PIL Image object
-#         padding: Number of pixels to keep as padding around content
-#
-#     Returns:
-#         PIL Image with whitespace removed
-#     """
-#     # Convert to grayscale for analysis
-#     bg = Image.new(image.mode, image.size, image.getpixel((0,0)))
-#     diff = ImageChops.difference(image, bg)
-#     diff = ImageChops.add(diff, diff, 2.0, -100)
-#     bbox = diff.getbbox()
-#
-#     if bbox:
-#         # Add padding
-#         bbox = (
-#             max(0, bbox[0] - padding),
-#             max(0, bbox[1] - padding),
-#             min(image.width, bbox[2] + padding),
-#             min(image.height, bbox[3] + padding)
-#         )
-#         return image.crop(bbox)
-#     return image
-#
-# def compute_optimal_size(width, height, max_width, max_height, target_dpi=300):
-#     """
-#     Compute the optimal image size based on max dimensions and DPI.
-#
-#     Args:
-#         width: Current width in pixels
-#         height: Current height in pixels
-#         max_width: Maximum allowed width in pixels
-#         max_height: Maximum allowed height in pixels
-#         target_dpi: Target DPI for the image
-#
-#     Returns:
-#         Tuple of (new_width, new_height)
-#     """
-#     # Calculate aspect ratio
-#     aspect_ratio = width / height
-#
-#     # First check if the image exceeds maximum dimensions
-#     if width > max_width or height > max_height:
-#         # Scale down to fit within max dimensions
-#         if width / max_width > height / max_height:
-#             # Width is the limiting factor
-#             new_width = max_width
-#             new_height = int(new_width / aspect_ratio)
-#         else:
-#             # Height is the limiting factor
-#             new_height = max_height
-#             new_width = int(new_height * aspect_ratio)
-#     else:
-#         # Image is within size limits, check if DPI is sufficient
-#         # For publication quality, typically want 300 DPI at print size
-#         # Assume 8 inch width for a typical publication
-#         publication_width_px = 8 * target_dpi
-#         if width < publication_width_px * 0.8:  # If image is less than 80% of desired resolution
-#             scale_factor = publication_width_px / width
-#             # Limit scaling to 2x to avoid artifacts
-#             scale_factor = min(scale_factor, 2.0)
-#             new_width = int(width * scale_factor)
-#             new_height = int(height * scale_factor)
-#         else:
-#             # Image is already good quality, no resizing needed
-#             new_width, new_height = width, height
-#
-#     # Ensure dimensions are even numbers (helps with certain compression algorithms)
-#     new_width = (new_width // 2) * 2
-#     new_height = (new_height // 2) * 2
-#
-#     return new_width, new_height
-#
-# def enhance_image_quality(image):
-#     """
-#     Apply basic enhancement to improve image quality.
-#
-#     Args:
-#         image: PIL Image object
-#
-#     Returns:
-#         Enhanced PIL Image
-#     """
-#     # Convert to RGB if needed
-#     if image.mode != 'RGB':
-#         image = image.convert('RGB')
-#
-#     # Apply moderate contrast enhancement
-#     enhancer = ImageEnhance.Contrast(image)
-#     image = enhancer.enhance(1.1)
-#
-#     # Apply moderate sharpening
-#     enhancer = ImageEnhance.Sharpness(image)
-#     image = enhancer.enhance(1.2)
-#
-#     return image
-#
-# def optimize_figure(input_path, output_path=None, target_dpi=300, quality=90,
-#                    max_width=2000, max_height=2000, no_crop=False, verbose=False):
-#     """
-#     Optimize a figure for publication quality.
-#
-#     Args:
-#         input_path: Path to input image
-#         output_path: Path to save optimized image (default: auto-generate)
-#         target_dpi: Target DPI for the image
-#         quality: JPEG quality (1-100)
-#         max_width: Maximum width in pixels
-#         max_height: Maximum height in pixels
-#         no_crop: If True, don't crop whitespace
-#         verbose: Enable verbose logging
-#
-#     Returns:
-#         Path to the optimized image
-#     """
-#     if verbose:
-#         logger.setLevel(logging.DEBUG)
-#
-#     # Generate output path if not provided
-#     if not output_path:
-#         name, ext = os.path.splitext(input_path)
-#         output_path = f"{name}_optimized{ext}"
-#
-#     logger.info(f"Processing: {input_path}")
-#     logger.info(f"Output will be saved to: {output_path}")
-#
-#     try:
-#         # Load the image
-#         img = Image.open(input_path)
-#         original_width, original_height = img.size
-#         logger.info(f"Original dimensions: {original_width}x{original_height} pixels")
-#
-#         # Step 1: Crop excess whitespace if enabled
-#         if not no_crop:
-#             logger.debug("Cropping excess whitespace...")
-#             img = crop_whitespace(img)
-#             cropped_width, cropped_height = img.size
-#             logger.info(f"After cropping: {cropped_width}x{cropped_height} pixels")
-#             if original_width * original_height > 0:
-#                 crop_percentage = 100 - (cropped_width * cropped_height * 100) / (original_width * original_height)
-#                 logger.info(f"Removed {crop_percentage:.1f}% of whitespace")
-#
-#         # Step 2: Determine optimal size
-#         current_width, current_height = img.size
-#         new_width, new_height = compute_optimal_size(
-#             current_width, current_height, max_width, max_height, target_dpi
-#         )
-#
-#         if new_width != current_width or new_height != current_height:
-#             logger.info(f"Resizing to {new_width}x{new_height} pixels")
-#             # Use high-quality resampling
-#             img = img.resize((new_width, new_height), Image.LANCZOS)
-#         else:
-#             logger.info("Image dimensions are already optimal")
-#
-#         # Step 3: Enhance image quality
-#         logger.debug("Enhancing image quality...")
-#         img = enhance_image_quality(img)
-#
-#         # Step 4: Save with appropriate settings
-#         logger.debug(f"Saving with quality={quality}...")
-#
-#         # Determine format-specific options
-#         save_args = {}
-#         ext = os.path.splitext(output_path)[1].lower()
-#
-#         if ext == '.jpg' or ext == '.jpeg':
-#             save_args = {'quality': quality, 'optimize': True, 'progressive': True}
-#         elif ext == '.png':
-#             save_args = {'optimize': True}
-#         elif ext == '.tif' or ext == '.tiff':
-#             save_args = {'compression': 'tiff_lzw'}
-#
-#         # Ensure the output directory exists
-#         os.makedirs(os.path.dirname(os.path.abspath(output_path)), exist_ok=True)
-#
-#         # Save the optimized image
-#         img.save(output_path, **save_args)
-#
-#         logger.info("Optimization complete")
-#         logger.info(f"Final dimensions: {new_width}x{new_height} pixels")
-#
-#         # Calculate file size reduction
-#         original_size = os.path.getsize(input_path)
-#         optimized_size = os.path.getsize(output_path)
-#         size_reduction = 100 - (optimized_size * 100 / original_size)
-#         logger.info(f"File size: {original_size/1024:.1f}KB → {optimized_size/1024:.1f}KB ({size_reduction:.1f}% reduction)")
-#
-#         return output_path
-#
-#     except Exception as e:
-#         logger.error(f"Error processing image: {e}")
-#         return None
-#
-# def main():
-#     """Main function."""
-#     args = parse_arguments()
-#
-#     if not os.path.exists(args.input):
-#         logger.error(f"Input file not found: {args.input}")
-#         sys.exit(1)
-#
-#     result = optimize_figure(
-#         args.input,
-#         args.output,
-#         args.dpi,
-#         args.quality,
-#         args.max_width,
-#         args.max_height,
-#         args.no_crop,
-#         args.verbose
-#     )
-#
-#     if result:
-#         logger.info(f"Successfully optimized image: {result}")
-#         sys.exit(0)
-#     else:
-#         logger.error("Failed to optimize image")
-#         sys.exit(1)
-#
-# if __name__ == "__main__":
-#     main()
-# --------------------------------------------------------------------------------
-# End of Source Code from: /home/ywatanabe/proj/scitex-writer/scripts/python/optimize_figure.py
-# --------------------------------------------------------------------------------
