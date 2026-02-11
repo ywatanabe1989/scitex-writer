@@ -6,7 +6,7 @@
 ORIG_DIR="$(pwd)"
 THIS_DIR="$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)"
 LOG_PATH="$THIS_DIR/.$(basename $0).log"
-echo > "$LOG_PATH"
+echo >"$LOG_PATH"
 
 GIT_ROOT="$(git rev-parse --show-toplevel 2>/dev/null)"
 
@@ -66,7 +66,7 @@ function init_tables() {
     mkdir -p "$SCITEX_WRITER_TABLE_DIR" >/dev/null
     mkdir -p "$SCITEX_WRITER_TABLE_CAPTION_MEDIA_DIR" >/dev/null
     mkdir -p "$SCITEX_WRITER_TABLE_COMPILED_DIR" >/dev/null
-    echo > "$SCITEX_WRITER_TABLE_COMPILED_FILE"
+    echo >"$SCITEX_WRITER_TABLE_COMPILED_FILE"
 }
 
 function xlsx2csv_convert() {
@@ -109,15 +109,14 @@ function ensure_caption() {
         if [ ! -f "$caption_file" ] && [ ! -L "$caption_file" ]; then
             echo_info "    Creating default caption for table $base_name"
             mkdir -p $(dirname "$caption_file")
-            cat > "$caption_file" << EOF
-\\caption{\\textbf{
-TABLE TITLE HERE
-}
+            local rel_path="${caption_file#./}"
+            local escaped_path="${rel_path//_/\\_}"
+            cat >"$caption_file" <<EOF
+%% Edit this file: $rel_path
+\\caption{\\textbf{TABLE TITLE HERE}\\\\
 \\smallskip
-\\
-\\text{
-TABLE CAPTION HERE.
-}}
+TABLE CAPTION HERE. Edit this caption at \\texttt{$escaped_path}.
+}
 EOF
         fi
     done
@@ -168,66 +167,68 @@ function csv2tex() {
         compiled_file="$SCITEX_WRITER_TABLE_COMPILED_DIR/${base_name}.tex"
 
         case "$use_method" in
-            csv2latex)
-                # Use csv2latex command - generate basic table structure
-                # Note: csv2latex doesn't support captions or labels directly
-                {
-                    echo "\\pdfbookmark[2]{Table ${base_name#0}}{table_${base_name}}"
-                    echo "\\begin{table}[htbp]"
-                    echo "\\centering"
-                    echo "\\footnotesize"
+        csv2latex)
+            # Use csv2latex command - generate basic table structure
+            # Note: csv2latex doesn't support captions or labels directly
+            {
+                echo "\\pdfbookmark[2]{Table ${base_name#0}}{table_${base_name}}"
+                echo "\\begin{table}[htbp]"
+                echo "\\centering"
+                echo "\\footnotesize"
 
-                    # Generate the tabular environment using csv2latex
-                    csv2latex --nohead --separator comma "$csv_file" 2>/dev/null
+                # Generate the tabular environment using csv2latex
+                csv2latex --nohead --separator comma "$csv_file" 2>/dev/null
 
-                    # Add caption if it exists
-                    if [ -f "$caption_file" ] || [ -L "$caption_file" ]; then
-                        cat "$caption_file"
-                    else
-                        echo "\\caption{Table ${base_name#0}: ${base_name#*_}}"
-                    fi
-
-                    # Add label
-                    echo "\\label{tab:${base_name}}"
-                    echo "\\end{table}"
-                } > "$compiled_file"
-
-                # Check if csv2latex succeeded (look for \begin{tabular} with single backslash)
-                if [ -s "$compiled_file" ] && grep -q "\\\\begin{tabular}" "$compiled_file" 2>/dev/null; then
-                    echo_success "    $compiled_file compiled (using csv2latex)"
-                else
-                    echo_warning "    csv2latex failed, trying fallback"
-                    csv2tex_single_fallback "$csv_file" "$compiled_file" "$caption_file"
-                fi
-                ;;
-
-            python|python_basic)
-                # Use our Python script
-                local caption_arg=""
+                # Add caption if it exists
                 if [ -f "$caption_file" ] || [ -L "$caption_file" ]; then
-                    temp_caption_file="/tmp/caption_${base_name}.txt"
-                    cat "$caption_file" > "$temp_caption_file"
-                    caption_arg="--caption-file $temp_caption_file"
+                    cat "$caption_file"
+                else
+                    echo "\\caption{Table ${base_name#0}: ${base_name#*_}}"
                 fi
 
-                if [ -f "./scripts/python/csv_to_latex.py" ]; then
-                    python3 ./scripts/python/csv_to_latex.py "$csv_file" "$compiled_file" $caption_arg
-                    if [ $? -eq 0 ]; then
-                        echo_success "    $compiled_file compiled (using Python)"
-                    else
-                        echo_warning "    Python processing failed, trying fallback"
-                        csv2tex_single_fallback "$csv_file" "$compiled_file" "$caption_file"
-                    fi
-                    [ -f "$temp_caption_file" ] && rm -f "$temp_caption_file"
+                # Add label only if caption doesn't already contain one
+                if ! grep -q '\\label{tab:' "$caption_file" 2>/dev/null; then
+                    echo "\\label{tab:${base_name}}"
+                fi
+                echo "\\end{table}"
+            } >"$compiled_file"
+
+            # Check if csv2latex succeeded (look for \begin{tabular} with single backslash)
+            if [ -s "$compiled_file" ] && grep -q "\\\\begin{tabular}" "$compiled_file" 2>/dev/null; then
+                echo_success "    $compiled_file compiled (using csv2latex)"
+            else
+                echo_warning "    csv2latex failed, trying fallback"
+                csv2tex_single_fallback "$csv_file" "$compiled_file" "$caption_file"
+            fi
+            ;;
+
+        python | python_basic)
+            # Use our Python script
+            local caption_arg=""
+            if [ -f "$caption_file" ] || [ -L "$caption_file" ]; then
+                temp_caption_file="/tmp/caption_${base_name}.txt"
+                cat "$caption_file" >"$temp_caption_file"
+                caption_arg="--caption-file $temp_caption_file"
+            fi
+
+            if [ -f "./scripts/python/csv_to_latex.py" ]; then
+                python3 ./scripts/python/csv_to_latex.py "$csv_file" "$compiled_file" $caption_arg
+                if [ $? -eq 0 ]; then
+                    echo_success "    $compiled_file compiled (using Python)"
                 else
+                    echo_warning "    Python processing failed, trying fallback"
                     csv2tex_single_fallback "$csv_file" "$compiled_file" "$caption_file"
                 fi
-                ;;
-
-            *)
-                # Use fallback AWK processing
+                [ -f "$temp_caption_file" ] && rm -f "$temp_caption_file"
+            else
                 csv2tex_single_fallback "$csv_file" "$compiled_file" "$caption_file"
-                ;;
+            fi
+            ;;
+
+        *)
+            # Use fallback AWK processing
+            csv2tex_single_fallback "$csv_file" "$compiled_file" "$caption_file"
+            ;;
         esac
     done
 }
@@ -253,7 +254,7 @@ function csv2tex_single_fallback() {
 
     # Basic AWK processing (existing code)
     num_columns=$(head -n 1 "$csv_file" | awk -F, '{print NF}')
-    num_rows=$(wc -l < "$csv_file")
+    num_rows=$(wc -l <"$csv_file")
     max_rows=30
 
     # Use standard font size for tables
@@ -262,7 +263,7 @@ function csv2tex_single_fallback() {
 
     # Check if truncation needed
     truncated=false
-    if [ $num_rows -gt $((max_rows + 1)) ]; then  # +1 for header
+    if [ $num_rows -gt $((max_rows + 1)) ]; then # +1 for header
         truncated=true
         rows_omitted=$((num_rows - max_rows - 1))
     fi
@@ -275,13 +276,13 @@ function csv2tex_single_fallback() {
 
         # Adjust tabcolsep based on number of columns to fit width
         if [ $num_columns -gt 8 ]; then
-            echo "\\setlength{\\tabcolsep}{2pt}"  # Very tight for many columns
+            echo "\\setlength{\\tabcolsep}{2pt}" # Very tight for many columns
         elif [ $num_columns -gt 6 ]; then
-            echo "\\setlength{\\tabcolsep}{3pt}"  # Tight spacing
+            echo "\\setlength{\\tabcolsep}{3pt}" # Tight spacing
         elif [ $num_columns -gt 4 ]; then
-            echo "\\setlength{\\tabcolsep}{4pt}"  # Medium spacing
+            echo "\\setlength{\\tabcolsep}{4pt}" # Medium spacing
         else
-            echo "\\setlength{\\tabcolsep}{6pt}"  # Normal spacing
+            echo "\\setlength{\\tabcolsep}{6pt}" # Normal spacing
         fi
 
         # Use resizebox to ensure table fits within text width
@@ -345,7 +346,7 @@ function csv2tex_single_fallback() {
 
         echo "\\bottomrule"
         echo "\\end{tabular}"
-        echo "}"  # Close resizebox
+        echo "}" # Close resizebox
 
         if [ -f "$caption_file" ] || [ -L "$caption_file" ]; then
             if [ "$truncated" = true ]; then
@@ -363,9 +364,12 @@ function csv2tex_single_fallback() {
             echo "}"
         fi
 
-        echo "\\label{tab:${base_name}}"
+        # Add label only if caption doesn't already contain one
+        if ! grep -q '\\label{tab:' "$caption_file" 2>/dev/null; then
+            echo "\\label{tab:${base_name}}"
+        fi
         echo "\\end{table}"
-    } > "$compiled_file"
+    } >"$compiled_file"
 
     echo_info "    $compiled_file compiled (using fallback)"
 }
@@ -385,7 +389,7 @@ function create_table_header() {
     # Create a header/template table when no real tables exist
     local header_file="$SCITEX_WRITER_TABLE_COMPILED_DIR/00_Tables_Header.tex"
 
-    cat > "$header_file" << 'EOF'
+    cat >"$header_file" <<'EOF'
 % Template table when no actual tables are present
 \begin{table}[htbp]
     \centering
@@ -412,17 +416,16 @@ EOF
 function gather_table_tex_files() {
     # Gather all table tex files into the final compiled file
     output_file="${SCITEX_WRITER_TABLE_COMPILED_FILE}"
-    rm -f "$output_file" > /dev/null 2>&1
-    echo "% Auto-generated file containing all table inputs" > "$output_file"
-    echo "% Generated by gather_table_tex_files()" >> "$output_file"
-    echo "" >> "$output_file"
+    rm -f "$output_file" >/dev/null 2>&1
+    echo "% Auto-generated file containing all table inputs" >"$output_file"
+    echo "% Generated by gather_table_tex_files()" >>"$output_file"
+    echo "" >>"$output_file"
 
     # First check if there are any real table files
     local table_files=($(find "$SCITEX_WRITER_TABLE_COMPILED_DIR" -maxdepth 1 -name "[0-9]*.tex" 2>/dev/null | grep -v "00_Tables_Header.tex" | sort))
     local has_real_tables=false
     if [ ${#table_files[@]} -gt 0 ]; then
         has_real_tables=true
-        # Don't add anything here - base.tex handles the section header and spacing
     fi
 
     # If no real tables, create the header/template
@@ -442,13 +445,13 @@ function gather_table_tex_files() {
 
             # For header template when no real tables exist
             if [[ "$basename" == "00_Tables_Header.tex" ]] && [ "$has_real_tables" = false ]; then
-                echo "\\input{$table_tex}" >> "$output_file"
+                echo "\\input{$table_tex}" >>"$output_file"
             else
                 # For real tables, input them directly
-                echo "% Table from: $basename" >> "$output_file"
-                echo "\\input{$table_tex}" >> "$output_file"
+                echo "% Table from: $basename" >>"$output_file"
+                echo "\\input{$table_tex}" >>"$output_file"
             fi
-            echo "" >> "$output_file"
+            echo "" >>"$output_file"
             table_count=$((table_count + 1))
         fi
     done
@@ -466,7 +469,7 @@ init_tables
 log_table_stage_end "Initializing tables"
 
 log_table_stage_start "Converting XLSX to CSV"
-xlsx2csv_convert  # Convert Excel files to CSV first
+xlsx2csv_convert # Convert Excel files to CSV first
 log_table_stage_end "Converting XLSX to CSV"
 
 log_table_stage_start "Ensuring captions exist"

@@ -1,5 +1,5 @@
 <!-- ---
-!-- Timestamp: 2026-02-10 11:19:50
+!-- Timestamp: 2026-02-11 10:59:18
 !-- Author: ywatanabe
 !-- File: /home/ywatanabe/proj/scitex-writer/README.md
 !-- --- -->
@@ -27,15 +27,25 @@
 
 Part of the [SciTeX](https://scitex.ai) ecosystem — empowers both human researchers and AI agents.
 
-## 🎬 Demo
+## Preview
 
 <p align="center">
-  <a href="https://scitex.ai/media/videos/scitex-writer-v2.2.0-demo.mp4">
-    <img src="examples/scitex-writer-v2.2.0-demo-thumbnail.png" alt="Demo Video Thumbnail" width="600"/>
-  </a>
+  <img src="docs/demo-manuscript-light.png" alt="Light Mode" width="380"/>
+  &nbsp;&nbsp;
+  <img src="docs/demo-manuscript-dark.png" alt="Dark Mode" width="380"/>
+</p>
+<p align="center">
+  <em>Light mode (default) and dark mode (<code>--dark-mode</code>)</em>
 </p>
 
-📄 Demo prompt and progress report ([org](examples/scitex-writer-v2.2.0-demo.org) | [pdf](examples/scitex-writer-v2.2.0-demo.pdf)) | [Manuscript output](examples/scitex-writer-v2.2.0-demo-manuscript.pdf) | [Revision output](examples/scitex-writer-v2.2.0-demo-revision.pdf)
+<p align="center">
+  <a href="https://scitex.ai/demos/watch/scitex-writer/">
+    <img src="examples/scitex-writer-v2.2.0-demo-thumbnail.png" alt="Demo Video" width="600"/>
+  </a>
+</p>
+<p align="center">
+  <em>Demo video with AI agent</em>
+</p>
 
 ## 📦 Installation
 
@@ -84,7 +94,11 @@ make clean                   # Remove build artifacts
 ./compile.sh manuscript --draft       # Fast single-pass
 ./compile.sh manuscript --no-figs     # Skip figures
 ./compile.sh manuscript --no-tables   # Skip tables
+./compile.sh manuscript --dark-mode   # Dark mode (Monaco theme)
 ./compile.sh manuscript --watch       # Hot-reload
+
+# Dark mode via environment variable
+SCITEX_WRITER_DARK_MODE=true make manuscript
 ```
 
 </details>
@@ -310,6 +324,7 @@ Turn AI agents into autonomous manuscript compilers.
 | **Built-in Templates** | Pre-configured manuscript, supplementary materials, and revision      |
 | **Bibliography**       | Multi-file with auto-deduplication, 20+ citation styles               |
 | **Assets**             | Parallel figure/table processing (PNG, PDF, SVG, Mermaid, CSV)        |
+| **Dark Mode**          | Monaco/VS Code dark theme for comfortable reading (`--dark-mode`)     |
 | **Multi-Engine**       | Auto-selects best engine (Tectonic 1-3s, latexmk 3-6s, 3-pass 12-18s) |
 | **Cross-Platform**     | Linux, macOS, WSL2, Docker, Singularity, HPC clusters                 |
 

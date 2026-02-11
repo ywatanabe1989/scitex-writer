@@ -27,7 +27,17 @@ from importlib.metadata import version as _version
 try:
     __version__ = _version("scitex-writer")
 except _PackageNotFoundError:
-    __version__ = "2.6.1"  # fallback for development
+    # Fallback: parse pyproject.toml (single source of truth)
+    from pathlib import Path as _Path
+
+    _pyproject = _Path(__file__).parent.parent.parent / "pyproject.toml"
+    __version__ = "0.0.0"
+    if _pyproject.exists():
+        with open(_pyproject) as _f:
+            for _line in _f:
+                if _line.startswith("version"):
+                    __version__ = _line.split("=")[1].strip().strip('"')
+                    break
 
 # Branding support (set SCITEX_WRITER_BRAND and SCITEX_WRITER_ALIAS env vars before import)
 # Import modules for convenient access

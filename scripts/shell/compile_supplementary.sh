@@ -74,7 +74,7 @@ do_crop_tif=false
 do_force=false
 no_diff=false
 draft_mode=false
-dark_mode=false
+dark_mode=${SCITEX_WRITER_DARK_MODE:-false}
 
 usage() {
     echo ""
@@ -256,14 +256,12 @@ main() {
     ) &
     local tbl_pid=$!
 
-    (
-        ./scripts/shell/modules/count_words.sh >"$wrd_log" 2>&1
-        echo $? >"$temp_dir/wrd_exit"
-    ) &
-    local wrd_pid=$!
+    # Wait for figures and tables to finish before counting
+    wait $fig_pid $tbl_pid
 
-    # Wait for all parallel jobs
-    wait $fig_pid $tbl_pid $wrd_pid
+    # Run word count after figures/tables are ready (needs compiled files)
+    ./scripts/shell/modules/count_words.sh >"$wrd_log" 2>&1
+    echo $? >"$temp_dir/wrd_exit"
 
     # Display outputs in order
     echo_info "  Figure Processing:"

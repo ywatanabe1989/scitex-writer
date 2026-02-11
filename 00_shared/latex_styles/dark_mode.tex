@@ -10,31 +10,40 @@
 
 % Set page and text colors - matches Monaco/VS Code dark theme
 \definecolor{MonacoBg}{HTML}{1E1E1E}
-\definecolor{MonacoFg}{HTML}{D4D4D4}
+\definecolor{MonacoFg}{HTML}{F0F0F0}
 \pagecolor{MonacoBg}
 \color{MonacoFg}
 
-% Adjust hyperlink colors for dark mode
-\hypersetup{
-    colorlinks=true,
-    linkcolor=cyan!80!white,      % Internal links: light cyan
-    citecolor=green!70!white,     % Citations: light green
-    filecolor=magenta!70!white,   % File links: light magenta
-    urlcolor=blue!60!white,       % URLs: light blue
+% Link text colors for dark mode (colorlinks=true)
+\definecolor{DarkGreen}{HTML}{90C695}     % Internal links (Figure/Table): muted sage
+\definecolor{DarkCyan}{HTML}{87CEEB}      % Citations/references: sky blue
+\definecolor{DarkOrange}{HTML}{DEB887}    % External URLs: burlywood
+
+% Hyperlink colors set via hypersetup (injected after \begin{document})
+
+% Override hlref colorbox for dark mode (no yellow box on dark background)
+\renewcommand{\hlref}[1]{%
+  \ifnum\getrefnumber{#1}=0
+    {\color{DarkGreen}\ref*{#1}}%
+  \else
+    \ref{#1}%
+  \fi
 }
 
-% Adjust section title colors
+% Section titles: same color as body text, just bold
 \titleformat{\section}
-  {\normalfont\Large\bfseries\color{cyan!80!white}}{\thesection}{1em}{}
+  {\normalfont\Large\bfseries\color{MonacoFg}}{\thesection}{1em}{}
 \titleformat{\subsection}
-  {\normalfont\large\bfseries\color{cyan!70!white}}{\thesubsection}{1em}{}
+  {\normalfont\large\bfseries\color{MonacoFg}}{\thesubsection}{1em}{}
 \titleformat{\subsubsection}
-  {\normalfont\normalsize\bfseries\color{cyan!60!white}}{\thesubsubsection}{1em}{}
+  {\normalfont\normalsize\bfseries\color{MonacoFg}}{\thesubsubsection}{1em}{}
 
-% Adjust caption colors
+% Caption labels: same as body text, left-aligned
 \captionsetup{
-  labelfont={bf,color=yellow!80!white},  % "Figure 1:" in yellow
-  textfont={color=white}                  % Caption text in white
+  labelfont={bf,color=MonacoFg},
+  textfont={color=MonacoFg},
+  justification=raggedright,
+  singlelinecheck=false
 }
 
 % Adjust table colors for dark mode

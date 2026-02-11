@@ -9,32 +9,31 @@ ensure_caption() {
         [ -e "$img_file" ] || continue
         local ext="${img_file##*.}"
         local filename=$(basename "$img_file")
-        
+
         # SKIP panel files - they should NOT have caption files
         # Panels are identified by pattern: ##[a-zA-Z]_* (e.g., 01a_, 02b_)
         if [[ "$filename" =~ ^[0-9]+[a-zA-Z]_ ]]; then
             echo_info "Skipping caption for panel: $filename"
             continue
         fi
-        
+
         local caption_tex_file="$SCITEX_WRITER_FIGURE_CAPTION_MEDIA_DIR/${filename%.$ext}.tex"
         local template_tex_file="$SCITEX_WRITER_FIGURE_CAPTION_MEDIA_DIR/templates/.00_template.tex"
-        
+
         if [ ! -f "$caption_tex_file" ] && [ ! -L "$caption_tex_file" ]; then
             if [ -f "$template_tex_file" ]; then
                 cp "$template_tex_file" "$caption_tex_file"
                 echo_info "Created caption from template: $caption_tex_file"
             else
                 # Create default caption template
-                cat <<EOF > "$caption_tex_file"
-%% -*- coding: utf-8 -*-
-%% Timestamp: "$(date +"%Y-%m-%d %H:%M:%S") ($(whoami))"
-%% File: "$caption_tex_file"
+                local rel_path="${caption_tex_file#./}"
+                local escaped_path="${rel_path//_/\\_}"
+                cat <<EOF >"$caption_tex_file"
+%% Edit this file: $rel_path
 \caption{\textbf{FIGURE TITLE HERE}\\\\
 \smallskip
-FIGURE LEGEND HERE.
+FIGURE LEGEND HERE. Edit this caption at \texttt{$escaped_path}.
 }
-% width=0.95\textwidth
 %%%% EOF
 EOF
                 echo_info "Created default caption: $caption_tex_file"
@@ -47,11 +46,11 @@ EOF
 cleanup_panel_captions() {
     echo_info "Cleaning up panel caption files..."
     local count=0
-    
+
     for tex_file in "$SCITEX_WRITER_FIGURE_CAPTION_MEDIA_DIR"/[0-9]*[a-zA-Z]_*.tex; do
         [ -e "$tex_file" ] || continue
         local filename=$(basename "$tex_file")
-        
+
         # Check if this is a panel caption file
         if [[ "$filename" =~ ^[0-9]+[a-zA-Z]_.*\.tex$ ]]; then
             echo_warning "Removing panel caption file: $filename"
@@ -59,7 +58,7 @@ cleanup_panel_captions() {
             ((count++))
         fi
     done
-    
+
     if [ $count -gt 0 ]; then
         echo_success "Removed $count panel caption files"
     fi
@@ -72,7 +71,7 @@ compile_legends() {
 
     # Create figures header file
     local figures_header_file="$SCITEX_WRITER_FIGURE_COMPILED_DIR/00_Figures_Header.tex"
-    cat > "$figures_header_file" << "EOF"
+    cat >"$figures_header_file" <<"EOF"
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% FIGURES
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -86,28 +85,28 @@ EOF
     for tex_file in "$SCITEX_WRITER_FIGURE_CAPTION_MEDIA_DIR"/[0-9]*.tex; do
         [ -e "$tex_file" ] || continue
         local filename=$(basename "$tex_file")
-        
+
         # Skip panel caption files if any still exist
         if [[ "$filename" =~ ^[0-9]+[a-zA-Z]_.*\.tex$ ]]; then
             continue
         fi
-        
+
         # Extract figure ID and create compiled version
         local base_name="${filename%.tex}"
         local figure_id="${base_name}"
-        
+
         # Create compiled caption
         local compiled_file="$SCITEX_WRITER_FIGURE_COMPILED_DIR/${figure_id}.tex"
-        
+
         # Copy the caption content with metadata
         {
             echo "% FIGURE METADATA - Figure ID ${figure_id}, Number ${figure_id}"
             echo "% FIGURE TYPE: Image"
             echo "% This is not a standalone LaTeX environment - it will be included by compile_figure_tex_files"
-            
+
             # Parse existing caption file
             cat "$tex_file" | grep -v "^%"
-        } > "$compiled_file"
+        } >"$compiled_file"
     done
 }
 

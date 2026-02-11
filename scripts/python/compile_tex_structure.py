@@ -224,7 +224,7 @@ def compile_tex_structure(
         print(f"{YELLOW}WARN: SciTeX Writer citation not found!{NC}")
         print("")
         print(f"{YELLOW}Please consider citing SciTeX Writer in your manuscript:{NC}")
-        print("  \\cite{watanabe2025scitex")
+        print("  \\cite{watanabe2025scitex}")
         print("")
         print(f"{YELLOW}Add this to your bibliography by including:{NC}")
         print("  00_shared/bib_files/scitex-system.bib")
@@ -286,15 +286,29 @@ def compile_tex_structure(
 
     # Inject dark mode styling if enabled
     if dark_mode:
-        # Find \begin{document} and insert dark mode style before it
-        dark_mode_injection = (
-            "\n% Dark mode styling (injected at compile time)\n"
-            "\\input{../00_shared/latex_styles/dark_mode.tex}\n"
+        # Read dark_mode.tex content and inline it (avoid \input path issues)
+        dark_mode_file = (
+            base_tex.parent.parent / "00_shared" / "latex_styles" / "dark_mode.tex"
         )
+        if dark_mode_file.exists():
+            with open(dark_mode_file, "r", encoding="utf-8") as f:
+                dark_mode_content = f.read()
+            dark_mode_injection = (
+                "\n% Dark mode styling (inlined at compile time)\n"
+                + dark_mode_content
+                + "\n"
+            )
+        else:
+            print(f"WARNING: Dark mode file not found: {dark_mode_file}")
+            dark_mode_injection = ""
 
-        expanded_content = expanded_content.replace(
-            r"\begin{document}", dark_mode_injection + r"\begin{document}"
-        )
+        if dark_mode_injection:
+            # Inject dark mode styling before \begin{document}
+            # Leave hyperref/link colors untouched (use document defaults)
+            expanded_content = expanded_content.replace(
+                r"\begin{document}",
+                dark_mode_injection + r"\begin{document}",
+            )
 
     # Write output
     try:

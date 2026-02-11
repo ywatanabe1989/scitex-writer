@@ -60,14 +60,14 @@ else
     test_fail "Missing text color"
 fi
 
-# Test 4: Hyperlink colors adjusted
+# Test 4: Dark mode defines Monaco colors
 echo
-echo "Test 4: Hyperlink colors for dark mode"
-if grep -q "hypersetup" "./00_shared/latex_styles/dark_mode.tex" &&
-    grep -q "linkcolor" "./00_shared/latex_styles/dark_mode.tex"; then
-    test_pass "Hyperlink colors adjusted for dark mode"
+echo "Test 4: Monaco color scheme defined"
+if grep -q "MonacoBg" "./00_shared/latex_styles/dark_mode.tex" &&
+    grep -q "MonacoFg" "./00_shared/latex_styles/dark_mode.tex"; then
+    test_pass "Monaco color scheme (MonacoBg/MonacoFg) defined"
 else
-    test_fail "Missing hyperlink color adjustments"
+    test_fail "Missing Monaco color scheme"
 fi
 
 # Test 5: Section title colors adjusted
@@ -122,9 +122,48 @@ else
     test_fail "Only $EXPORT_COUNT/3 scripts export DARK_MODE"
 fi
 
-# Test 10: Option parsing supports both formats
+# Test 10: Dark mode inlined into compiled TeX (not \input)
 echo
-echo "Test 10: Dark mode option parsing"
+echo "Test 10: Dark mode uses inlining (not \\input)"
+if grep -q "inline" "./scripts/python/compile_tex_structure.py"; then
+    test_pass "Dark mode uses inlining to avoid path issues"
+else
+    test_fail "Dark mode injection may use \\input (fragile with -output-directory)"
+fi
+
+# Test 11: Env var respected as default in compile scripts
+echo
+echo "Test 11: Compile scripts respect SCITEX_WRITER_DARK_MODE env var"
+ENV_COUNT=0
+for script in ./scripts/shell/compile_{manuscript,supplementary,revision}.sh; do
+    if grep -q 'SCITEX_WRITER_DARK_MODE:-false' "$script"; then
+        ENV_COUNT=$((ENV_COUNT + 1))
+    fi
+done
+
+if [ $ENV_COUNT -eq 3 ]; then
+    test_pass "All 3 scripts use env var as default for dark_mode"
+else
+    test_fail "Only $ENV_COUNT/3 scripts respect SCITEX_WRITER_DARK_MODE env var"
+fi
+
+# Test 12: Integration - dark mode content injected into compiled TeX
+echo
+echo "Test 12: Integration - dark mode injection into compiled TeX"
+TMPDIR=$(mktemp -d)
+SCITEX_WRITER_DARK_MODE=true python3 ./scripts/python/compile_tex_structure.py \
+    ./01_manuscript/base.tex "$TMPDIR/test_output.tex" --quiet --dark-mode 2>/dev/null
+if grep -q "MonacoBg" "$TMPDIR/test_output.tex" &&
+    grep -q "pagecolor" "$TMPDIR/test_output.tex"; then
+    test_pass "Dark mode content (MonacoBg, pagecolor) injected into compiled TeX"
+else
+    test_fail "Dark mode content missing from compiled TeX output"
+fi
+rm -rf "$TMPDIR"
+
+# Test 13: Option parsing supports both formats
+echo
+echo "Test 13: Dark mode option parsing"
 PARSE_COUNT=0
 for script in ./scripts/shell/compile_{manuscript,supplementary,revision}.sh; do
     # Check for the actual pattern: -dm | --dark-mode (with spaces)

@@ -75,7 +75,7 @@ no_figs=false
 no_tables=false
 do_verbose=false
 draft_mode=false
-dark_mode=false
+dark_mode=${SCITEX_WRITER_DARK_MODE:-false}
 
 usage() {
     echo ""
