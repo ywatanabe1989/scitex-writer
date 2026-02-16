@@ -18,13 +18,22 @@ from pathlib import Path
 from typing import Literal, Optional
 
 
-def _get_scripts_dir() -> Path:
-    """Get the scripts directory relative to the package root."""
-    # Package structure: src/scitex_writer/_compile/content.py
-    # Scripts at: scripts/shell/ and scripts/python/
+def _get_scripts_dir(project_dir: Optional[str] = None) -> Path:
+    """Get the scripts directory, preferring project directory if provided.
+
+    Search order:
+    1. project_dir/scripts/ (user's project - preferred)
+    2. repo/scripts/ (development mode)
+    3. package/_scripts/ (installed package fallback)
+    """
+    # First priority: project's own scripts directory
+    if project_dir:
+        proj_scripts = Path(project_dir) / "scripts"
+        if proj_scripts.exists() and (proj_scripts / "shell").exists():
+            return proj_scripts
+
+    # Fallback: package/development scripts
     pkg_dir = Path(__file__).resolve().parent.parent  # src/scitex_writer/
-    # In installed package, scripts are at the project root
-    # Try: project_root/scripts/ (development) or find via package data
     for candidate in [
         pkg_dir.parent.parent / "scripts",  # development: repo/scripts/
         pkg_dir / "_scripts",  # installed package fallback
@@ -75,7 +84,7 @@ def compile_content(
         name = name[:-4]
 
     try:
-        scripts_dir = _get_scripts_dir()
+        scripts_dir = _get_scripts_dir(project_dir)
         doc_builder = scripts_dir / "python" / "compile_content_document.py"
         compiler = scripts_dir / "shell" / "compile_content.sh"
 
