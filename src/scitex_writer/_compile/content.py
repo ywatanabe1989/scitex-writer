@@ -6,7 +6,7 @@
 """Content/preview compilation for LaTeX snippets.
 
 Compiles raw LaTeX content to PDF using the shell scripts layer:
-  scripts/python/compile_content_document.py → builds .tex document
+  scripts/python/tex_snippet2full.py → builds .tex document
   scripts/shell/compile_content.sh → compiles to PDF via latexmk
 """
 
@@ -19,27 +19,28 @@ from typing import Literal, Optional
 
 
 def _get_scripts_dir(project_dir: Optional[str] = None) -> Path:
-    """Get the scripts directory, preferring project directory if provided.
+    """Get the scripts directory, preferring package scripts over project.
 
     Search order:
-    1. project_dir/scripts/ (user's project - preferred)
-    2. repo/scripts/ (development mode)
-    3. package/_scripts/ (installed package fallback)
+    1. repo/scripts/ (development mode - always up to date)
+    2. package/_scripts/ (installed package fallback)
+    3. project_dir/scripts/ (user's project - may be from old template)
     """
-    # First priority: project's own scripts directory
-    if project_dir:
-        proj_scripts = Path(project_dir) / "scripts"
-        if proj_scripts.exists() and (proj_scripts / "shell").exists():
-            return proj_scripts
-
-    # Fallback: package/development scripts
+    # First priority: package/development scripts (always up to date)
     pkg_dir = Path(__file__).resolve().parent.parent  # src/scitex_writer/
     for candidate in [
         pkg_dir.parent.parent / "scripts",  # development: repo/scripts/
         pkg_dir / "_scripts",  # installed package fallback
     ]:
-        if candidate.exists():
+        if candidate.exists() and (candidate / "shell").exists():
             return candidate
+
+    # Fallback: project's own scripts directory (may be outdated clone)
+    if project_dir:
+        proj_scripts = Path(project_dir) / "scripts"
+        if proj_scripts.exists() and (proj_scripts / "shell").exists():
+            return proj_scripts
+
     raise FileNotFoundError("Cannot find scripts directory")
 
 
@@ -85,7 +86,7 @@ def compile_content(
 
     try:
         scripts_dir = _get_scripts_dir(project_dir)
-        doc_builder = scripts_dir / "python" / "compile_content_document.py"
+        doc_builder = scripts_dir / "python" / "tex_snippet2full.py"
         compiler = scripts_dir / "shell" / "compile_content.sh"
 
         temp_dir = Path(tempfile.mkdtemp(prefix=f"scitex_content_{name}_"))
