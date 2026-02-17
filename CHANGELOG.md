@@ -23,7 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - refactor: Content compilation moved to proper shell/Python API/MCP architecture
   - Business logic in `_compile/content.py`, MCP layer is thin wrapper
   - Shell script `scripts/shell/compile_content.sh` for latexmk invocation
-  - Python document builder `scripts/python/compile_content_document.py`
+  - Python document builder `scripts/python/tex_snippet2full.py`
 
 ### Fixed
 - fix: Dark mode PDF uses Monaco colors (#1E1E1E bg, #D4D4D4 text)

@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # Timestamp: 2026-02-08
-# File: scripts/python/compile_content_document.py
+# File: scripts/python/tex_snippet2full.py
 
 """Build a complete LaTeX document from body content with color mode support.
 
 Usage:
-    python compile_content_document.py --body-file body.tex --output out.tex --color-mode dark
-    python compile_content_document.py --body-text "\\section{Test}" --output out.tex
-    python compile_content_document.py --body-file full.tex --output out.tex --complete-document
+    python tex_snippet2full.py --body-file body.tex --output out.tex --color-mode dark
+    python tex_snippet2full.py --body-text "\\section{Test}" --output out.tex
+    python tex_snippet2full.py --body-file full.tex --output out.tex --complete-document
 """
 
 import argparse

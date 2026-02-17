@@ -36,7 +36,7 @@ class TestContentModule:
 
 
 class TestDocumentBuilder:
-    """Test compile_content_document.py script functions."""
+    """Test tex_snippet2full.py script functions."""
 
     @pytest.fixture
     def scripts_dir(self):
@@ -45,7 +45,7 @@ class TestDocumentBuilder:
 
     def test_document_builder_exists(self, scripts_dir):
         """Test that the document builder script exists."""
-        builder = scripts_dir / "python" / "compile_content_document.py"
+        builder = scripts_dir / "python" / "tex_snippet2full.py"
         assert builder.exists()
 
     def test_shell_script_exists(self, scripts_dir):
@@ -55,7 +55,7 @@ class TestDocumentBuilder:
 
     def test_document_builder_light_mode(self, scripts_dir, tmp_path):
         """Test building a light mode document."""
-        builder = scripts_dir / "python" / "compile_content_document.py"
+        builder = scripts_dir / "python" / "tex_snippet2full.py"
         body_file = tmp_path / "body.tex"
         body_file.write_text(r"\section{Test}" + "\n\nHello World\n")
         output_file = tmp_path / "output.tex"
@@ -84,7 +84,7 @@ class TestDocumentBuilder:
 
     def test_document_builder_dark_mode(self, scripts_dir, tmp_path):
         """Test building a dark mode document with Monaco colors."""
-        builder = scripts_dir / "python" / "compile_content_document.py"
+        builder = scripts_dir / "python" / "tex_snippet2full.py"
         body_file = tmp_path / "body.tex"
         body_file.write_text("Dark mode test content\n")
         output_file = tmp_path / "output.tex"
@@ -114,7 +114,7 @@ class TestDocumentBuilder:
 
     def test_document_builder_complete_document(self, scripts_dir, tmp_path):
         """Test injecting color into a complete document."""
-        builder = scripts_dir / "python" / "compile_content_document.py"
+        builder = scripts_dir / "python" / "tex_snippet2full.py"
         body_file = tmp_path / "body.tex"
         body_file.write_text(
             "\\documentclass{article}\n\\begin{document}\nComplete doc\n\\end{document}\n"
