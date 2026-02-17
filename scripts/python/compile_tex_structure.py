@@ -293,6 +293,16 @@ def compile_tex_structure(
         if dark_mode_file.exists():
             with open(dark_mode_file, "r", encoding="utf-8") as f:
                 dark_mode_content = f.read()
+            # Substitute colors from config env vars (DRY with config/*.yaml)
+            color_subs = {
+                "1E1E1E": os.getenv("SCITEX_WRITER_DARK_BG", "1E1E1E"),
+                "D4D4D4": os.getenv("SCITEX_WRITER_DARK_FG", "D4D4D4"),
+                "90C695": os.getenv("SCITEX_WRITER_DARK_LINK_INTERNAL", "90C695"),
+                "87CEEB": os.getenv("SCITEX_WRITER_DARK_LINK_CITATION", "87CEEB"),
+                "DEB887": os.getenv("SCITEX_WRITER_DARK_LINK_URL", "DEB887"),
+            }
+            for old_hex, new_hex in color_subs.items():
+                dark_mode_content = dark_mode_content.replace(old_hex, new_hex)
             dark_mode_injection = (
                 "\n% Dark mode styling (inlined at compile time)\n"
                 + dark_mode_content

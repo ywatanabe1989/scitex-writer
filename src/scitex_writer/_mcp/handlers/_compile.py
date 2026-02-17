@@ -19,7 +19,7 @@ def compile_manuscript(
     dark_mode: bool = False,
     quiet: bool = False,
     verbose: bool = False,
-    force: bool = False,
+    engine: str | None = None,
 ) -> dict:
     """Compile manuscript to PDF."""
     project_path = resolve_project_path(project_dir)
@@ -34,6 +34,7 @@ def compile_manuscript(
         dark_mode=dark_mode,
         quiet=quiet,
         verbose=verbose,
+        engine=engine,
     )
 
 
@@ -44,7 +45,9 @@ def compile_supplementary(
     no_tables: bool = False,
     no_diff: bool = False,
     draft: bool = False,
+    dark_mode: bool = False,
     quiet: bool = False,
+    engine: str | None = None,
 ) -> dict:
     """Compile supplementary materials to PDF."""
     project_path = resolve_project_path(project_dir)
@@ -56,7 +59,9 @@ def compile_supplementary(
         no_tables=no_tables,
         no_diff=no_diff,
         draft=draft,
+        dark_mode=dark_mode,
         quiet=quiet,
+        engine=engine,
     )
 
 
@@ -66,7 +71,9 @@ def compile_revision(
     timeout: int = 300,
     no_diff: bool = True,
     draft: bool = False,
+    dark_mode: bool = False,
     quiet: bool = False,
+    engine: str | None = None,
 ) -> dict:
     """Compile revision document to PDF."""
     project_path = resolve_project_path(project_dir)
@@ -76,8 +83,10 @@ def compile_revision(
         timeout=timeout,
         no_diff=no_diff,
         draft=draft,
+        dark_mode=dark_mode,
         quiet=quiet,
         track_changes=track_changes,
+        engine=engine,
     )
 
 

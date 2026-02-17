@@ -42,6 +42,7 @@ def manuscript(
     dark_mode: bool = False,
     quiet: bool = False,
     verbose: bool = False,
+    engine: str | None = None,
 ) -> dict:
     """Compile manuscript to PDF.
 
@@ -55,6 +56,7 @@ def manuscript(
         dark_mode: Enable dark mode output.
         quiet: Suppress output.
         verbose: Verbose output.
+        engine: LaTeX engine override ('tectonic', 'latexmk', '3pass').
 
     Returns:
         Dict with success status, pdf_path, and any errors.
@@ -69,6 +71,7 @@ def manuscript(
         dark_mode=dark_mode,
         quiet=quiet,
         verbose=verbose,
+        engine=engine,
     )
 
 
@@ -80,6 +83,7 @@ def supplementary(
     no_diff: bool = False,
     draft: bool = False,
     quiet: bool = False,
+    engine: str | None = None,
 ) -> dict:
     """Compile supplementary materials to PDF.
 
@@ -91,6 +95,7 @@ def supplementary(
         no_diff: Skip diff generation.
         draft: Fast single-pass compilation.
         quiet: Suppress output.
+        engine: LaTeX engine override ('tectonic', 'latexmk', '3pass').
 
     Returns:
         Dict with success status, pdf_path, and any errors.
@@ -103,6 +108,7 @@ def supplementary(
         no_diff=no_diff,
         draft=draft,
         quiet=quiet,
+        engine=engine,
     )
 
 
@@ -113,6 +119,7 @@ def revision(
     no_diff: bool = True,
     draft: bool = False,
     quiet: bool = False,
+    engine: str | None = None,
 ) -> dict:
     """Compile revision document to PDF.
 
@@ -123,6 +130,7 @@ def revision(
         no_diff: Skip diff generation.
         draft: Fast single-pass compilation.
         quiet: Suppress output.
+        engine: LaTeX engine override ('tectonic', 'latexmk', '3pass').
 
     Returns:
         Dict with success status, pdf_path, and any errors.
@@ -134,6 +142,7 @@ def revision(
         no_diff=no_diff,
         draft=draft,
         quiet=quiet,
+        engine=engine,
     )
 
 

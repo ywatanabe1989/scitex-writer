@@ -50,7 +50,7 @@ jobs:
 
     - name: Run tests with pytest
       run: |
-        pytest tests/python/ -v --tb=short --cov=scitex_writer --cov-report=term-missing
+        pytest tests/python/ -v --tb=short --cov=scitex_writer --cov-report=term-missing --cov-fail-under=40
 
     - name: Upload coverage
       if: matrix.python-version == '3.11'
