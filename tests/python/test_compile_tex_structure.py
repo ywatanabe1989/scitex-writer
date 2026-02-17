@@ -13,7 +13,7 @@ import pytest
 ROOT_DIR = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(ROOT_DIR / "scripts" / "python"))
 
-from compile_tex_structure import (
+from compile_tex_structure import (  # noqa: E402
     compile_tex_structure,
     expand_inputs,
     generate_signature,

@@ -14,7 +14,7 @@ sys.path.insert(0, str(ROOT_DIR / "scripts" / "python"))
 
 # Try to import bibtexparser and the functions
 try:
-    import bibtexparser
+    import bibtexparser  # noqa: F401
     from merge_bibliographies import (
         deduplicate_entries,
         get_doi,
