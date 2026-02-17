@@ -129,4 +129,11 @@ hot-recompile:
     - "./scripts/shell/modules/*.sh"
     - "./scripts/python/*.py"
 
+dark_mode:
+  background: "1E1E1E"        # Monaco/VS Code bg
+  foreground: "D4D4D4"        # VS Code default fg
+  link_internal: "90C695"     # Figure/Table refs (DarkGreen)
+  link_citation: "87CEEB"     # Citations (DarkCyan)
+  link_url: "DEB887"          # External URLs (DarkOrange)
+
 # EOF

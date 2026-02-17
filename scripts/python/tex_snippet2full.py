@@ -12,27 +12,34 @@ Usage:
 """
 
 import argparse
+import os
 import re
 import sys
 from pathlib import Path
 
-# Monaco/VS Code dark theme colors (single source of truth)
-MONACO_BG = "1E1E1E"
-MONACO_FG = "D4D4D4"
+# Dark theme colors from config env vars (DRY with config/*.yaml)
+MONACO_BG = os.environ.get("SCITEX_WRITER_DARK_BG", "1E1E1E")
+MONACO_FG = os.environ.get("SCITEX_WRITER_DARK_FG", "D4D4D4")
+LINK_INTERNAL = os.environ.get("SCITEX_WRITER_DARK_LINK_INTERNAL", "90C695")
+LINK_CITATION = os.environ.get("SCITEX_WRITER_DARK_LINK_CITATION", "87CEEB")
+LINK_URL = os.environ.get("SCITEX_WRITER_DARK_LINK_URL", "DEB887")
 
 DARK_MODE_COMMANDS = f"""\
 % Dark mode styling - matches Monaco/VS Code editor (#{MONACO_BG})
 \\definecolor{{MonacoBg}}{{HTML}}{{{MONACO_BG}}}
 \\definecolor{{MonacoFg}}{{HTML}}{{{MONACO_FG}}}
+\\definecolor{{DarkGreen}}{{HTML}}{{{LINK_INTERNAL}}}
+\\definecolor{{DarkCyan}}{{HTML}}{{{LINK_CITATION}}}
+\\definecolor{{DarkOrange}}{{HTML}}{{{LINK_URL}}}
 \\pagecolor{{MonacoBg}}
 \\color{{MonacoFg}}
 \\makeatletter
 \\@ifpackageloaded{{hyperref}}{{%
   \\hypersetup{{
     colorlinks=true,
-    linkcolor=cyan!80!white,
-    citecolor=green!70!white,
-    urlcolor=blue!60!white,
+    linkcolor=DarkGreen,
+    citecolor=DarkCyan,
+    urlcolor=DarkOrange,
   }}%
 }}{{}}
 \\makeatother"""

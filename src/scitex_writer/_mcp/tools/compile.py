@@ -58,6 +58,7 @@ def register_tools(mcp: FastMCP) -> None:
         no_tables: bool = False,
         no_diff: bool = False,
         draft: bool = False,
+        dark_mode: bool = False,
         quiet: bool = False,
     ) -> dict:
         """[writer] Compile supplementary materials LaTeX document to PDF."""
@@ -68,6 +69,7 @@ def register_tools(mcp: FastMCP) -> None:
             no_tables,
             no_diff,
             draft,
+            dark_mode,
             quiet,
         )
 
@@ -78,6 +80,7 @@ def register_tools(mcp: FastMCP) -> None:
         timeout: int = 300,
         no_diff: bool = True,
         draft: bool = False,
+        dark_mode: bool = False,
         quiet: bool = False,
     ) -> dict:
         """[writer] Compile revision document to PDF with optional change tracking."""
@@ -87,6 +90,7 @@ def register_tools(mcp: FastMCP) -> None:
             timeout,
             no_diff,
             draft,
+            dark_mode,
             quiet,
         )
 

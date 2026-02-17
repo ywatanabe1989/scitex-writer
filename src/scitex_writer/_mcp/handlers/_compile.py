@@ -44,6 +44,7 @@ def compile_supplementary(
     no_tables: bool = False,
     no_diff: bool = False,
     draft: bool = False,
+    dark_mode: bool = False,
     quiet: bool = False,
 ) -> dict:
     """Compile supplementary materials to PDF."""
@@ -56,6 +57,7 @@ def compile_supplementary(
         no_tables=no_tables,
         no_diff=no_diff,
         draft=draft,
+        dark_mode=dark_mode,
         quiet=quiet,
     )
 
@@ -66,6 +68,7 @@ def compile_revision(
     timeout: int = 300,
     no_diff: bool = True,
     draft: bool = False,
+    dark_mode: bool = False,
     quiet: bool = False,
 ) -> dict:
     """Compile revision document to PDF."""
@@ -76,6 +79,7 @@ def compile_revision(
         timeout=timeout,
         no_diff=no_diff,
         draft=draft,
+        dark_mode=dark_mode,
         quiet=quiet,
         track_changes=track_changes,
     )

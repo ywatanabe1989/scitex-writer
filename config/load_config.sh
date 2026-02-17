@@ -96,7 +96,12 @@ if command -v parallel &>/dev/null; then
         'SCITEX_WRITER_TABLE_COMPILED_DIR:.tables.compiled_dir' \
         'SCITEX_WRITER_TABLE_COMPILED_FILE:.tables.compiled_file' \
         'SCITEX_WRITER_WORDCOUNT_DIR:.misc.wordcount_dir' \
-        'SCITEX_WRITER_TREE_TXT:.misc.tree_txt')"
+        'SCITEX_WRITER_TREE_TXT:.misc.tree_txt' \
+        'SCITEX_WRITER_DARK_BG:.dark_mode.background' \
+        'SCITEX_WRITER_DARK_FG:.dark_mode.foreground' \
+        'SCITEX_WRITER_DARK_LINK_INTERNAL:.dark_mode.link_internal' \
+        'SCITEX_WRITER_DARK_LINK_CITATION:.dark_mode.link_citation' \
+        'SCITEX_WRITER_DARK_LINK_URL:.dark_mode.link_url')"
 else
     # Fallback: Sequential yq calls (slower but works without GNU parallel)
     echo_warning "    GNU parallel not found - using slower sequential config loading"
@@ -132,6 +137,11 @@ else
     export SCITEX_WRITER_TABLE_COMPILED_FILE="$(yq -r '.tables.compiled_file' "$CONFIG_FILE")"
     export SCITEX_WRITER_WORDCOUNT_DIR="$(yq -r '.misc.wordcount_dir' "$CONFIG_FILE")"
     export SCITEX_WRITER_TREE_TXT="$(yq -r '.misc.tree_txt' "$CONFIG_FILE")"
+    export SCITEX_WRITER_DARK_BG="$(yq -r '.dark_mode.background' "$CONFIG_FILE")"
+    export SCITEX_WRITER_DARK_FG="$(yq -r '.dark_mode.foreground' "$CONFIG_FILE")"
+    export SCITEX_WRITER_DARK_LINK_INTERNAL="$(yq -r '.dark_mode.link_internal' "$CONFIG_FILE")"
+    export SCITEX_WRITER_DARK_LINK_CITATION="$(yq -r '.dark_mode.link_citation' "$CONFIG_FILE")"
+    export SCITEX_WRITER_DARK_LINK_URL="$(yq -r '.dark_mode.link_url' "$CONFIG_FILE")"
 fi
 
 if [ "$CONFIG_LOADED" != "true" ]; then
