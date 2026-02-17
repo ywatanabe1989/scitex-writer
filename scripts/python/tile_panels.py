@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Timestamp: "2025-09-28 17:52:54 (ywatanabe)"
-# File: /ssh:sp:/home/ywatanabe/proj/neurovista/paper/scripts/python/tile_panels.py
+# File: scripts/python/tile_panels.py
 # ----------------------------------------
 from __future__ import annotations
 

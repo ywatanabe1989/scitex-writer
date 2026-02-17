@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Timestamp: "2025-05-06 20:20:52 (ywatanabe)"
-# File: /home/ywatanabe/proj/SciTex/manuscript/scripts/python/pptx2tif.py
+# File: scripts/python/pptx2tif.py
 # ----------------------------------------
 import os
 

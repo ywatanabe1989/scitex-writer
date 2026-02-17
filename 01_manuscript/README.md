@@ -1,7 +1,5 @@
 <!-- ---
-!-- Timestamp: 2025-09-27 15:35:10
-!-- Author: ywatanabe
-!-- File: /ssh:sp:/home/ywatanabe/proj/neurovista/paper/01_manuscript/README.md
+!-- File: 01_manuscript/README.md
 !-- --- -->
 
 # Manuscript

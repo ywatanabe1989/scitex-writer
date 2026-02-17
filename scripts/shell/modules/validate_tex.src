@@ -1,7 +1,6 @@
 #!/bin/bash
 # -*- coding: utf-8 -*-
-# Timestamp: "2025-09-27 00:14:01 (ywatanabe)"
-# File: /ssh:sp:/home/ywatanabe/proj/neurovista/paper/scripts/shell/modules/validate_tex.src
+# File: scripts/shell/modules/validate_tex.src
 
 THIS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # ---------------------------------------
@@ -78,7 +77,7 @@ validate_tex_file() {
     local preamble_file="$temp_dir/preamble.tex"
 
     # Create minimal preamble with all potentially needed packages
-    cat > "$preamble_file" <<EOF
+    cat >"$preamble_file" <<EOF
 \\documentclass{article}
 \\usepackage{booktabs}
 \\usepackage{makecell}
@@ -97,8 +96,8 @@ validate_tex_file() {
 EOF
 
     # Create a temporary complete file
-    cat "$preamble_file" "$tex_file" > "$temp_dir/${base_name}_complete.tex"
-    echo "\\end{document}" >> "$temp_dir/${base_name}_complete.tex"
+    cat "$preamble_file" "$tex_file" >"$temp_dir/${base_name}_complete.tex"
+    echo "\\end{document}" >>"$temp_dir/${base_name}_complete.tex"
 
     # Show content if requested
     if [ "$show_content" = "true" ]; then
@@ -118,11 +117,11 @@ EOF
         grep -A 2 -B 2 "^!" "$log_file" 2>/dev/null
         display_latex_error_advice "$log_file" "$tex_file"
         rm -rf "$temp_dir"
-        return 1  # Return non-zero to indicate failure
+        return 1 # Return non-zero to indicate failure
     fi
 
     rm -rf "$temp_dir"
-    return 0  # Return zero to indicate success
+    return 0 # Return zero to indicate success
 }
 
 # Exit immediately on fatal LaTeX errors
@@ -140,7 +139,7 @@ validate_tex_file_and_exit() {
 
 # Common LaTeX special characters that need escaping
 latex_escape_reference() {
-    cat << 'EOF'
+    cat <<'EOF'
 +----------------+---------------+-------------------------------------------+
 | Character      | LaTeX Escape  | Common Issues                             |
 +----------------+---------------+-------------------------------------------+
@@ -178,7 +177,6 @@ check_latex_available() {
     fi
     return 0
 }
-
 
 # Function to show LaTeX escape reference
 show_latex_escape_reference() {
