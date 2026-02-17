@@ -14,7 +14,7 @@ sys.path.insert(0, str(ROOT_DIR / "scripts" / "python"))
 
 # Try to import pandas and the functions
 try:
-    import pandas as pd
+    import pandas as pd  # noqa: F401
     from csv_to_latex import csv_to_latex, escape_latex, format_number
 
     HAS_DEPS = True

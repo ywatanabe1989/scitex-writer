@@ -10,7 +10,7 @@ from pathlib import Path
 ROOT_DIR = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(ROOT_DIR / "scripts" / "python"))
 
-from check_float_order import (
+from check_float_order import (  # noqa: E402
     check_order,
     extract_number_and_name,
     find_labels,

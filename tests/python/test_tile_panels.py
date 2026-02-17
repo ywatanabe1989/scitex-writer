@@ -12,8 +12,10 @@ import pytest
 ROOT_DIR = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(ROOT_DIR / "scripts" / "python"))
 
+pytest.importorskip("PIL")
+
 # calculate_layout is pure logic - no dependencies needed
-from tile_panels import calculate_layout, detect_panels
+from tile_panels import calculate_layout, detect_panels  # noqa: E402
 
 # Check for PIL dependency
 try:

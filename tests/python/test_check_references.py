@@ -10,7 +10,7 @@ from pathlib import Path
 ROOT_DIR = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(ROOT_DIR / "scripts" / "python"))
 
-from check_references import (
+from check_references import (  # noqa: E402
     collect_tex_files,
     extract_bib_keys,
     extract_citations,

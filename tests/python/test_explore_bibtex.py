@@ -11,7 +11,7 @@ from pathlib import Path
 ROOT_DIR = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(ROOT_DIR / "scripts" / "python"))
 
-import pytest
+import pytest  # noqa: E402
 
 
 # Re-implement key functions locally for testing
