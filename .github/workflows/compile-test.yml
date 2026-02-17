@@ -5,18 +5,22 @@ on:
     branches: [ main, develop ]
     paths:
       - '01_manuscript/**'
+      - '02_supplementary/**'
+      - '03_revision/**'
+      - '00_shared/**'
       - 'scripts/shell/**'
       - 'config/**'
-      - 'shared/**'
       - 'scripts/installation/requirements/**'
       - '.github/workflows/compile-test.yml'
   pull_request:
     branches: [ main, develop ]
     paths:
       - '01_manuscript/**'
+      - '02_supplementary/**'
+      - '03_revision/**'
+      - '00_shared/**'
       - 'scripts/shell/**'
       - 'config/**'
-      - 'shared/**'
       - 'scripts/installation/requirements/**'
       - '.github/workflows/compile-test.yml'
 
@@ -136,20 +140,13 @@ jobs:
         echo "Testing revision compilation..."
         ./compile.sh revision --no-figs --no-tables --draft
 
-        # Verify PDF was generated (or check expected location)
-        PDF_EXISTS=false
-        for pdf_path in "03_revision/revision.pdf" "03_revision/archive/"*.pdf; do
-          if [ -f "$pdf_path" ]; then
-            PDF_EXISTS=true
-            break
-          fi
-        done
-
-        if [ "$PDF_EXISTS" = false ]; then
-          echo "WARNING: Revision PDF not found (may not have revision content)"
-        else
-          echo "✓ Revision compilation successful"
+        # Verify PDF was generated
+        if [ ! -f "03_revision/revision.pdf" ]; then
+          echo "ERROR: revision.pdf not generated"
+          exit 1
         fi
+
+        echo "✓ Revision compilation successful"
 
     - name: Upload compiled PDFs
       uses: actions/upload-artifact@v4
