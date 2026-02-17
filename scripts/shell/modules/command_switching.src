@@ -1,7 +1,6 @@
 #!/bin/bash
 # -*- coding: utf-8 -*-
-# Timestamp: "2025-11-11 07:18:17 (ywatanabe)"
-# File: /home/ywatanabe/proj/scitex-writer/scripts/shell/modules/command_switching.src
+# File: scripts/shell/modules/command_switching.src
 
 THIS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # ---------------------------------------
@@ -9,7 +8,6 @@ THIS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # 1. Native Commands - If available do not build containers at all
 # 2. Singularity
 # 3. Docker
-
 
 # Shared module for resolving LaTeX-related commands
 # Provides functions to get commands for pdflatex, bibtex, latexdiff, etc.
@@ -42,9 +40,9 @@ setup_latex_container() {
         mkdir -p "$(dirname $SCITEX_WRITER_TEXLIVE_APPTAINER_SIF)"
 
         # Try Apptainer first, then Singularity
-        if command -v apptainer &> /dev/null; then
+        if command -v apptainer &>/dev/null; then
             apptainer pull "$SCITEX_WRITER_TEXLIVE_APPTAINER_SIF" docker://texlive/texlive:latest >/dev/null 2>&1
-        elif command -v singularity &> /dev/null; then
+        elif command -v singularity &>/dev/null; then
             singularity pull "$SCITEX_WRITER_TEXLIVE_APPTAINER_SIF" docker://texlive/texlive:latest >/dev/null 2>&1
         else
             return 1
@@ -70,9 +68,9 @@ get_container_runtime() {
     fi
 
     # Check once and cache
-    if command -v apptainer &> /dev/null; then
+    if command -v apptainer &>/dev/null; then
         _CACHED_CONTAINER_RUNTIME="apptainer"
-    elif command -v singularity &> /dev/null; then
+    elif command -v singularity &>/dev/null; then
         _CACHED_CONTAINER_RUNTIME="singularity"
     else
         _CACHED_CONTAINER_RUNTIME=""
@@ -87,7 +85,7 @@ load_texlive_module() {
     # Use cache if available
     if [ "$_MODULE_CACHE_CHECKED" = true ]; then
         if [ "$_CACHED_MODULE_AVAILABLE" = "true" ]; then
-            module load texlive &> /dev/null
+            module load texlive &>/dev/null
             return 0
         else
             return 1
@@ -95,10 +93,10 @@ load_texlive_module() {
     fi
 
     # Check once and cache
-    if command -v module &> /dev/null && module avail texlive &> /dev/null 2>&1; then
+    if command -v module &>/dev/null && module avail texlive &>/dev/null 2>&1; then
         _CACHED_MODULE_AVAILABLE="true"
         _MODULE_CACHE_CHECKED=true
-        module load texlive &> /dev/null
+        module load texlive &>/dev/null
         return 0
     else
         _CACHED_MODULE_AVAILABLE="false"
@@ -114,15 +112,15 @@ get_cmd_pdflatex() {
     local abs_dir=$(realpath "$working_dir")
 
     # First choice: Native pdflatex (fastest)
-    if command -v pdflatex &> /dev/null; then
-        if pdflatex --version &> /dev/null 2>&1; then
+    if command -v pdflatex &>/dev/null; then
+        if pdflatex --version &>/dev/null 2>&1; then
             echo "pdflatex"
             return 0
         fi
     fi
 
     # Second choice: Module system (HPC)
-    if load_texlive_module && command -v pdflatex &> /dev/null; then
+    if load_texlive_module && command -v pdflatex &>/dev/null; then
         echo "pdflatex"
         return 0
     fi
@@ -144,15 +142,15 @@ get_cmd_bibtex() {
     local abs_dir=$(realpath "$working_dir")
 
     # First choice: Native bibtex (fastest)
-    if command -v bibtex &> /dev/null; then
-        if bibtex --version &> /dev/null 2>&1; then
+    if command -v bibtex &>/dev/null; then
+        if bibtex --version &>/dev/null 2>&1; then
             echo "bibtex"
             return 0
         fi
     fi
 
     # Second choice: Module system (HPC)
-    if load_texlive_module && command -v bibtex &> /dev/null; then
+    if load_texlive_module && command -v bibtex &>/dev/null; then
         echo "bibtex"
         return 0
     fi
@@ -178,13 +176,13 @@ get_cmd_latexdiff() {
         echo "latexdiff"
         return 0
     fi
-    if command -v latexdiff &> /dev/null; then
+    if command -v latexdiff &>/dev/null; then
         echo "latexdiff"
         return 0
     fi
 
     # Second choice: Module system (HPC)
-    if load_texlive_module && command -v latexdiff &> /dev/null; then
+    if load_texlive_module && command -v latexdiff &>/dev/null; then
         echo "latexdiff"
         return 0
     fi
@@ -206,13 +204,13 @@ get_cmd_texcount() {
     local abs_dir=$(realpath "$working_dir")
 
     # First choice: Native texcount (fastest)
-    if command -v texcount &> /dev/null && texcount --version &> /dev/null 2>&1; then
+    if command -v texcount &>/dev/null && texcount --version &>/dev/null 2>&1; then
         echo "texcount"
         return 0
     fi
 
     # Second choice: Module system (HPC)
-    if load_texlive_module && command -v texcount &> /dev/null; then
+    if load_texlive_module && command -v texcount &>/dev/null; then
         echo "texcount"
         return 0
     fi
@@ -234,13 +232,13 @@ get_cmd_latexmk() {
     local abs_dir=$(realpath "$working_dir")
 
     # First choice: Native latexmk (fastest)
-    if command -v latexmk &> /dev/null && latexmk -version &> /dev/null 2>&1; then
+    if command -v latexmk &>/dev/null && latexmk -version &>/dev/null 2>&1; then
         echo "latexmk"
         return 0
     fi
 
     # Second choice: Module system (HPC)
-    if load_texlive_module && command -v latexmk &> /dev/null; then
+    if load_texlive_module && command -v latexmk &>/dev/null; then
         echo "latexmk"
         return 0
     fi
@@ -262,7 +260,7 @@ get_cmd_tectonic() {
     local abs_dir=$(realpath "$working_dir")
 
     # First choice: Native tectonic (fastest)
-    if command -v tectonic &> /dev/null && tectonic --version &> /dev/null 2>&1; then
+    if command -v tectonic &>/dev/null && tectonic --version &>/dev/null 2>&1; then
         echo "tectonic"
         return 0
     fi
@@ -298,9 +296,9 @@ setup_tectonic_container() {
 
         # Try Apptainer first, then Singularity
         # Using official Tectonic Docker image
-        if command -v apptainer &> /dev/null; then
+        if command -v apptainer &>/dev/null; then
             apptainer pull "$SCITEX_WRITER_TECTONIC_APPTAINER_SIF" docker://tectonic/tectonic:latest >/dev/null 2>&1
-        elif command -v singularity &> /dev/null; then
+        elif command -v singularity &>/dev/null; then
             singularity pull "$SCITEX_WRITER_TECTONIC_APPTAINER_SIF" docker://tectonic/tectonic:latest >/dev/null 2>&1
         else
             return 1
@@ -336,9 +334,9 @@ setup_mermaid_container() {
         mkdir -p "$(dirname $SCITEX_WRITER_MERMAID_APPTAINER_SIF)"
 
         # Try Apptainer first, then Singularity
-        if command -v apptainer &> /dev/null; then
+        if command -v apptainer &>/dev/null; then
             apptainer pull "$SCITEX_WRITER_MERMAID_APPTAINER_SIF" docker://minlag/mermaid-cli:latest >/dev/null 2>&1
-        elif command -v singularity &> /dev/null; then
+        elif command -v singularity &>/dev/null; then
             singularity pull "$SCITEX_WRITER_MERMAID_APPTAINER_SIF" docker://minlag/mermaid-cli:latest >/dev/null 2>&1
         else
             return 1
@@ -361,9 +359,9 @@ get_cmd_mmdc() {
     local abs_dir=$(realpath "$working_dir")
 
     # First choice: Native mmdc (fastest and most compatible)
-    if command -v mmdc &> /dev/null; then
+    if command -v mmdc &>/dev/null; then
         # Test if mmdc works (don't require puppeteer check, it's too slow)
-        if mmdc --version &> /dev/null 2>&1; then
+        if mmdc --version &>/dev/null 2>&1; then
             echo "mmdc"
             return 0
         fi
@@ -385,7 +383,7 @@ get_cmd_mmdc() {
     fi
 
     # Third choice: Suggest installation
-    if command -v npm &> /dev/null; then
+    if command -v npm &>/dev/null; then
         echo_info "    mmdc not found, consider: npm install -g @mermaid-js/mermaid-cli"
     fi
 
@@ -423,9 +421,9 @@ setup_imagemagick_container() {
         mkdir -p "$(dirname $SCITEX_WRITER_IMAGEMAGICK_APPTAINER_SIF)"
 
         # Try Apptainer first, then Singularity
-        if command -v apptainer &> /dev/null; then
+        if command -v apptainer &>/dev/null; then
             apptainer pull "$SCITEX_WRITER_IMAGEMAGICK_APPTAINER_SIF" docker://dpokidov/imagemagick:latest >/dev/null 2>&1
-        elif command -v singularity &> /dev/null; then
+        elif command -v singularity &>/dev/null; then
             singularity pull "$SCITEX_WRITER_IMAGEMAGICK_APPTAINER_SIF" docker://dpokidov/imagemagick:latest >/dev/null 2>&1
         else
             return 1
@@ -449,10 +447,10 @@ get_cmd_convert() {
     local abs_dir=$(realpath "$working_dir")
 
     # First choice: Native magick (ImageMagick v7+) or convert (v6)
-    if command -v magick &> /dev/null; then
-        echo "magick"  # In v7, just use 'magick' not 'magick convert'
+    if command -v magick &>/dev/null; then
+        echo "magick" # In v7, just use 'magick' not 'magick convert'
         return 0
-    elif command -v convert &> /dev/null; then
+    elif command -v convert &>/dev/null; then
         echo "convert"
         return 0
     fi
@@ -466,12 +464,12 @@ get_cmd_convert() {
     fi
 
     # Third choice: Module system (rare for ImageMagick)
-    if command -v module &> /dev/null && module avail imagemagick &> /dev/null 2>&1; then
-        module load imagemagick &> /dev/null
-        if command -v magick &> /dev/null; then
+    if command -v module &>/dev/null && module avail imagemagick &>/dev/null 2>&1; then
+        module load imagemagick &>/dev/null
+        if command -v magick &>/dev/null; then
             echo "magick"
             return 0
-        elif command -v convert &> /dev/null; then
+        elif command -v convert &>/dev/null; then
             echo "convert"
             return 0
         fi

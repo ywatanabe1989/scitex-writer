@@ -1,7 +1,5 @@
 <!-- ---
-!-- Timestamp: 2026-01-19 05:16:50
-!-- Author: ywatanabe
-!-- File: /home/ywatanabe/proj/scitex-writer/scripts/README.md
+!-- File: scripts/README.md
 !-- --- -->
 
 # Scripts

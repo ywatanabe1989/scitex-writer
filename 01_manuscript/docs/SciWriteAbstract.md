@@ -1,7 +1,5 @@
 <!-- ---
-!-- Timestamp: 2025-09-22 05:58:40
-!-- Author: ywatanabe
-!-- File: /home/ywatanabe/.emacs.d/lisp/genai/templates/SciWriteAbstract.md
+!-- File: 01_manuscript/docs/SciWriteAbstract.md
 !-- --- -->
 
 <!-- ---

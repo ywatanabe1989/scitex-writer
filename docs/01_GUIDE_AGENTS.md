@@ -21,15 +21,15 @@ Use symlinks to maintain single source of truth (don't copy):
 
 ```bash
 # Link figures
-ln -s ~/proj/neurovista/scripts/analysis/output/fig1.png \
+ln -s ~/proj/my-research/scripts/analysis/output/fig1.png \
       01_manuscript/contents/figures/caption_and_media/.01_seizure_prediction.png
 
 # Link tables
-ln -s ~/proj/neurovista/data/results/performance.csv \
+ln -s ~/proj/my-research/data/results/performance.csv \
       01_manuscript/contents/tables/caption_and_media/.01_performance.csv
 
 # Link diagrams
-ln -s ~/proj/neurovista/docs/workflow.mmd \
+ln -s ~/proj/my-research/docs/workflow.mmd \
       01_manuscript/contents/figures/caption_and_media/.02_workflow.mmd
 ```
 
@@ -209,7 +209,7 @@ Requirements:
 - Use LaTeX formatting
 - Include references to Figure 1 and Table 1
 - 500-700 words
-- Research context: neurovista patient dataset
+- Research context: your research dataset
 
 Structure:
 - Motivate the problem (2 paragraphs)

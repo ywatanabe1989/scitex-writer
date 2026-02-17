@@ -329,6 +329,117 @@ class Writer:
             progress_callback=progress_callback,
         )
 
+    def get_section(self, section_name: str, doc_type: str = "manuscript"):
+        """Get a DocumentSection by name and document type.
+
+        Parameters
+        ----------
+        section_name : str
+            Section name (e.g., 'abstract', 'introduction', 'title').
+        doc_type : str
+            Document type: 'shared', 'manuscript', 'supplementary', or 'revision'.
+
+        Returns
+        -------
+        DocumentSection
+            Section object with .read(), .write(), .commit(), .history(), .diff().
+
+        Raises
+        ------
+        ValueError
+            If doc_type is unknown or section_name not found.
+        """
+        doc_map = {
+            "shared": self.shared,
+            "manuscript": self.manuscript,
+            "supplementary": self.supplementary,
+            "revision": self.revision,
+        }
+        if doc_type not in doc_map:
+            raise ValueError(
+                f"Unknown doc_type: {doc_type}. Valid: {list(doc_map.keys())}"
+            )
+
+        doc = doc_map[doc_type]
+        if doc_type == "shared":
+            if not hasattr(doc, section_name):
+                raise ValueError(
+                    f"Section '{section_name}' not in shared. "
+                    f"Available: {self._list_sections(doc)}"
+                )
+            return getattr(doc, section_name)
+        else:
+            if not hasattr(doc.contents, section_name):
+                raise ValueError(
+                    f"Section '{section_name}' not in {doc_type}. "
+                    f"Available: {self._list_sections(doc.contents)}"
+                )
+            return getattr(doc.contents, section_name)
+
+    def read_section(self, section_name: str, doc_type: str = "manuscript") -> str:
+        """Read a section's content as string.
+
+        Parameters
+        ----------
+        section_name : str
+            Section name (e.g., 'abstract', 'introduction').
+        doc_type : str
+            Document type: 'shared', 'manuscript', 'supplementary', or 'revision'.
+
+        Returns
+        -------
+        str
+            Section content. Empty string if section file is empty or missing.
+
+        Examples
+        --------
+        >>> writer = Writer(Path("my_paper"))
+        >>> text = writer.read_section("abstract")
+        >>> text = writer.read_section("title", "shared")
+        """
+        section = self.get_section(section_name, doc_type)
+        content = section.read()
+        if isinstance(content, list):
+            content = "\n".join(content)
+        return content or ""
+
+    def write_section(
+        self, section_name: str, content: str, doc_type: str = "manuscript"
+    ) -> bool:
+        """Write content to a section.
+
+        Parameters
+        ----------
+        section_name : str
+            Section name (e.g., 'abstract', 'introduction').
+        content : str
+            Content to write.
+        doc_type : str
+            Document type: 'shared', 'manuscript', 'supplementary', or 'revision'.
+
+        Returns
+        -------
+        bool
+            True if write succeeded.
+
+        Examples
+        --------
+        >>> writer = Writer(Path("my_paper"))
+        >>> writer.write_section("abstract", "New abstract text.")
+        True
+        """
+        section = self.get_section(section_name, doc_type)
+        return section.write(content)
+
+    def _list_sections(self, tree_or_contents) -> list:
+        """List available section names from a tree or contents object."""
+        return [
+            attr
+            for attr in dir(tree_or_contents)
+            if not attr.startswith("_")
+            and hasattr(getattr(tree_or_contents, attr, None), "path")
+        ]
+
     def watch(self, on_compile: Optional[Callable] = None) -> None:
         """Auto-recompile on file changes."""
         watch_manuscript(self.project_dir, on_compile=on_compile)

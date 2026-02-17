@@ -1,7 +1,5 @@
 <!-- ---
-!-- Timestamp: 2025-09-28 18:42:06
-!-- Author: ywatanabe
-!-- File: /ssh:sp:/home/ywatanabe/proj/neurovista/paper/scripts/shell/modules/README.md
+!-- File: scripts/shell/modules/README.md
 !-- --- -->
 
 ## Figure conversion cascade

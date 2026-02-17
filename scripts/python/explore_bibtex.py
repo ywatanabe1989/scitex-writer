@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Timestamp: "2025-09-30 21:37:02 (ywatanabe)"
-# File: /ssh:sp:/home/ywatanabe/proj/neurovista/paper/scripts/python/explore_bibtex.py
+# File: scripts/python/explore_bibtex.py
 # ----------------------------------------
 from __future__ import annotations
 

@@ -6,7 +6,7 @@
 ORIG_DIR="$(pwd)"
 THIS_DIR="$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)"
 LOG_PATH="$THIS_DIR/.$(basename $0).log"
-echo > "$LOG_PATH"
+echo >"$LOG_PATH"
 
 GIT_ROOT="$(git rev-parse --show-toplevel 2>/dev/null)"
 
@@ -53,7 +53,7 @@ convert_pptx_to_tif() {
     local output_file_win=$(wslpath -w "$output_file")
     local script_dir="$(dirname "$(realpath "$0")")"
     local ps_script="./scripts/powershell/pptx2tiff.ps1"
-    local powershell=/home/ywatanabe/.win-bin/powershell.exe
+    local powershell="${SCITEX_WRITER_POWERSHELL:-$(command -v powershell.exe 2>/dev/null || echo "powershell.exe")}"
 
     echo -e "\nConverting ${input_file}...\n"
 
@@ -96,21 +96,21 @@ main() {
 
     while [[ $# -gt 0 ]]; do
         case $1 in
-            -i|--input)
-                input_file="$2"
-                shift 2
-                ;;
-            -o|--output)
-                output_file="$2"
-                shift 2
-                ;;
-            -h|--help)
-                usage
-                ;;
-            *)
-                echo "Unknown option: $1"
-                usage
-                ;;
+        -i | --input)
+            input_file="$2"
+            shift 2
+            ;;
+        -o | --output)
+            output_file="$2"
+            shift 2
+            ;;
+        -h | --help)
+            usage
+            ;;
+        *)
+            echo "Unknown option: $1"
+            usage
+            ;;
         esac
     done
 
@@ -126,9 +126,9 @@ main() {
     convert_pptx_to_tif "$input_file" "$output_file"
 }
 
-{ main "$@" ; } 2>&1 | tee "$LOG_PATH"
+{ main "$@"; } 2>&1 | tee "$LOG_PATH"
 
 # Usage:
-# ./scripts/shell/modules/pptx2tif.sh -i /home/ywatanabe/proj/ripple-wm/paper/manuscript/contents/figures/contents/.10_vswr_jump.pptx
+# ./scripts/shell/modules/pptx2tif.sh -i /path/to/figure.pptx
 
 # EOF
