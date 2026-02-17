@@ -34,20 +34,20 @@ def register_tools(mcp: FastMCP) -> None:
         dark_mode: bool = False,
         quiet: bool = False,
         verbose: bool = False,
-        force: bool = False,
+        engine: str | None = None,
     ) -> dict:
         """[writer] Compile manuscript LaTeX document to PDF."""
         return _compile_manuscript(
             project_dir,
-            timeout,
-            no_figs,
-            no_tables,
-            no_diff,
-            draft,
-            dark_mode,
-            quiet,
-            verbose,
-            force,
+            timeout=timeout,
+            no_figs=no_figs,
+            no_tables=no_tables,
+            no_diff=no_diff,
+            draft=draft,
+            dark_mode=dark_mode,
+            quiet=quiet,
+            verbose=verbose,
+            engine=engine,
         )
 
     @mcp.tool()
@@ -60,17 +60,19 @@ def register_tools(mcp: FastMCP) -> None:
         draft: bool = False,
         dark_mode: bool = False,
         quiet: bool = False,
+        engine: str | None = None,
     ) -> dict:
         """[writer] Compile supplementary materials LaTeX document to PDF."""
         return _compile_supplementary(
             project_dir,
-            timeout,
-            no_figs,
-            no_tables,
-            no_diff,
-            draft,
-            dark_mode,
-            quiet,
+            timeout=timeout,
+            no_figs=no_figs,
+            no_tables=no_tables,
+            no_diff=no_diff,
+            draft=draft,
+            dark_mode=dark_mode,
+            quiet=quiet,
+            engine=engine,
         )
 
     @mcp.tool()
@@ -82,16 +84,18 @@ def register_tools(mcp: FastMCP) -> None:
         draft: bool = False,
         dark_mode: bool = False,
         quiet: bool = False,
+        engine: str | None = None,
     ) -> dict:
         """[writer] Compile revision document to PDF with optional change tracking."""
         return _compile_revision(
             project_dir,
-            track_changes,
-            timeout,
-            no_diff,
-            draft,
-            dark_mode,
-            quiet,
+            track_changes=track_changes,
+            timeout=timeout,
+            no_diff=no_diff,
+            draft=draft,
+            dark_mode=dark_mode,
+            quiet=quiet,
+            engine=engine,
         )
 
     @mcp.tool()

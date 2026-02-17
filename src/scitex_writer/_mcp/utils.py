@@ -31,6 +31,7 @@ def run_compile_script(
     quiet: bool = False,
     verbose: bool = False,
     track_changes: bool = False,
+    engine: str | None = None,
 ) -> dict:
     """Run compile.sh script with specified options."""
     compile_script = project_dir / "compile.sh"
@@ -61,6 +62,13 @@ def run_compile_script(
     if track_changes and doc_type == "revision":
         cmd.append("--track_changes")
 
+    # Set engine via environment variable (compile.sh reads SCITEX_WRITER_ENGINE)
+    import os
+
+    env = os.environ.copy()
+    if engine:
+        env["SCITEX_WRITER_ENGINE"] = engine
+
     try:
         result = subprocess.run(
             cmd,
@@ -68,6 +76,7 @@ def run_compile_script(
             capture_output=True,
             text=True,
             timeout=timeout,
+            env=env,
         )
 
         # Determine output PDF path

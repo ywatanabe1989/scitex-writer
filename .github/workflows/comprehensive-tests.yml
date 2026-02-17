@@ -172,7 +172,7 @@ jobs:
         echo "=========================================="
         echo "✓ All Compilation Tests Passed!"
         echo "=========================================="
-        echo "  ✓ Shell script tests (30 tests)"
+        echo "  ✓ Shell script tests"
         echo "  ✓ Full compilation with PDF validation"
         echo "  ✓ Fast mode compilation"
         echo "  ✓ Ultra-fast mode compilation"

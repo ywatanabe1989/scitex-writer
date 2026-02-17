@@ -55,9 +55,9 @@ class TestToolRegistration:
         from scitex_writer._mcp import mcp
 
         tool_count = len(mcp._tool_manager._tools)
-        # 28 tools: usage, project (4), compile (3), tables (5), figures (5),
-        # bib (6), guidelines (3), prompts (1)
-        assert tool_count >= 20  # At least 20 tools expected
+        # 30 tools: usage(1), project(4), compile(4), tables(5), figures(5),
+        # bib(6), guidelines(3), prompts(1), export(1)
+        assert tool_count >= 28
 
 
 class TestUsageTool:
