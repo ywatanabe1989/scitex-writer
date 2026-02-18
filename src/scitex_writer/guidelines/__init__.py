@@ -26,13 +26,13 @@ Custom guidelines via environment variables:
 import os as _os
 from pathlib import Path as _Path
 
-# Available sections
-SECTIONS = ["abstract", "introduction", "methods", "discussion", "proofread"]
+# Available sections (internal)
+_SECTIONS = ["abstract", "introduction", "methods", "discussion", "proofread"]
 
 # Default data directory
 _DEFAULT_DIR = _Path(__file__).parent
 
-__all__ = ["SECTIONS", "get", "build", "list_sections", "get_source"]
+__all__ = ["get", "build", "list_sections"]
 
 
 def _get_path(section: str) -> _Path:
@@ -64,9 +64,9 @@ def get(section: str) -> str:
     """
     section = section.lower().strip()
 
-    if section not in SECTIONS:
+    if section not in _SECTIONS:
         raise ValueError(
-            f"Unknown section: '{section}'. Available: {', '.join(SECTIONS)}"
+            f"Unknown section: '{section}'. Available: {', '.join(_SECTIONS)}"
         )
 
     path = _get_path(section)
@@ -94,10 +94,10 @@ def build(section: str, draft: str, placeholder: str = "PLACEHOLDER") -> str:
 
 def list_sections() -> list[str]:
     """List available sections."""
-    return SECTIONS.copy()
+    return _SECTIONS.copy()
 
 
-def get_source(section: str) -> dict[str, str]:
+def _get_source(section: str) -> dict[str, str]:
     """Get info about where guidelines are loaded from."""
     section = section.lower().strip()
 

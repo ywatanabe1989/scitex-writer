@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- feat: Standalone GUI editor (`scitex-writer gui`, `sw.gui()`)
+  - Browser-based LaTeX editor with CodeMirror 5 (syntax highlighting, search, fold)
+  - pdf.js PDF preview with page navigation and zoom controls
+  - File tree sidebar with project structure
+  - One-click compilation (manuscript/supplementary/revision)
+  - Bibliography browser with click-to-insert citations
+  - Dark/light mode toggle (matches scitex-cloud colors)
+  - Resizable panels, file tabs with unsaved indicator
+  - Docker support (`Dockerfile.gui`, `docker-compose.gui.yml`)
+  - Flask as optional dependency: `pip install scitex-writer[editor]`
+
 ## [2.5.4] - 2026-02-09
 
 ### Changed

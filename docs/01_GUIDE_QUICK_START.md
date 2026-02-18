@@ -41,6 +41,10 @@ SciTeX/
 
 # Debug mode with verbose output
 ./compile_manuscript --debug
+
+# Launch GUI editor (browser-based)
+pip install scitex-writer[editor]   # Install Flask dependency (once)
+scitex-writer gui                   # Opens browser with editor + PDF preview
 ```
 
 ## Content Files

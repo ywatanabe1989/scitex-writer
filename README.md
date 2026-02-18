@@ -65,14 +65,50 @@ git clone https://github.com/ywatanabe1989/scitex-writer.git my-paper
 cd my-paper && make manuscript   # or: ./compile.sh manuscript
 ```
 
-## Four Interfaces
+## Five Interfaces
 
 | Interface | For | Description |
 |-----------|-----|-------------|
 | 📜 **Shell/Make** | Direct compilation | `make manuscript`, `./compile.sh` |
 | 🐍 **Python API** | Human researchers | `import scitex_writer as sw` |
 | 🖥️ **CLI Commands** | Terminal users | `scitex-writer compile`, `scitex-writer bib` |
+| 🌐 **GUI Editor** | Visual editing | `scitex-writer gui` - browser-based editor |
 | 🔧 **MCP Tools** | AI agents | 30 tools for Claude/GPT integration |
+
+<details>
+<summary><strong>🌐 GUI Editor</strong></summary>
+
+<br>
+
+Standalone browser-based editor with file tree, LaTeX editor, PDF preview, and compilation controls.
+
+<p align="center">
+  <img src="docs/demo-gui-light.png" alt="GUI Light Mode" width="380"/>
+  &nbsp;&nbsp;
+  <img src="docs/demo-gui-dark.png" alt="GUI Dark Mode" width="380"/>
+</p>
+
+```bash
+# Install Flask dependency
+pip install scitex-writer[editor]
+
+# Launch GUI (opens browser automatically)
+scitex-writer gui                    # Current directory
+scitex-writer gui ./my-paper         # Specific project
+scitex-writer gui --port 8080        # Custom port
+
+# Python API
+import scitex_writer as sw
+sw.gui("./my-paper")
+
+# Docker
+docker build -f scripts/containers/Dockerfile.gui -t scitex-writer-gui .
+docker run --rm -p 5050:5050 -v $(pwd):/workspace scitex-writer-gui
+```
+
+**Features**: CodeMirror LaTeX editor, pdf.js PDF preview, file tabs, compilation controls, bibliography browser, dark/light mode, resizable panels.
+
+</details>
 
 <details>
 <summary><strong>📜 Shell Scripts / Make</strong></summary>
@@ -158,6 +194,13 @@ from scitex_writer import generate_asta
 result = generate_asta("./my-paper", search_type="related")
 ```
 
+**GUI** — Browser-based Editor
+
+```python
+sw.gui("./my-paper")                              # Launch editor
+sw.gui("./my-paper", port=8080, dark_mode=True)  # Custom options
+```
+
 </details>
 
 <details>
@@ -209,6 +252,11 @@ scitex-writer mcp list-tools                   # List all MCP tools (markdown)
 scitex-writer mcp doctor                       # Check server health
 scitex-writer mcp installation                 # Show Claude Desktop config
 scitex-writer mcp start                        # Start MCP server
+
+# GUI - Browser-based editor
+scitex-writer gui                              # Launch editor (current dir)
+scitex-writer gui ./my-paper                   # Open specific project
+scitex-writer gui --port 8080 --no-browser     # Custom port, no auto-open
 ```
 
 </details>
@@ -322,6 +370,7 @@ Turn AI agents into autonomous manuscript compilers.
 | **Built-in Templates** | Pre-configured manuscript, supplementary materials, and revision      |
 | **Bibliography**       | Multi-file with auto-deduplication, 20+ citation styles               |
 | **Assets**             | Parallel figure/table processing (PNG, PDF, SVG, Mermaid, CSV)        |
+| **GUI Editor**         | Browser-based editor with PDF preview (`scitex-writer gui`)           |
 | **Dark Mode**          | Monaco/VS Code dark theme for comfortable reading (`--dark-mode`)     |
 | **Multi-Engine**       | Auto-selects best engine (Tectonic 1-3s, latexmk 3-6s, 3-pass 12-18s) |
 | **Cross-Platform**     | Linux, macOS, WSL2, Docker, Singularity, HPC clusters                 |

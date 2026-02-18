@@ -1,0 +1,67 @@
+# SciTeX Writer GUI - Docker Container
+# Browser-based LaTeX editor with PDF preview and compilation
+#
+# Build:
+#   docker build -f scripts/containers/Dockerfile.gui -t scitex-writer-gui .
+#
+# Run (mount your project directory):
+#   docker run --rm -p 5050:5050 -v $(pwd):/workspace scitex-writer-gui
+#
+# Run with custom port:
+#   docker run --rm -p 8080:8080 -v $(pwd):/workspace scitex-writer-gui --port 8080
+#
+# Run without auto-opening browser:
+#   docker run --rm -p 5050:5050 -v $(pwd):/workspace scitex-writer-gui --no-browser
+
+FROM ubuntu:24.04
+
+LABEL maintainer="SciTeX Writer Project"
+LABEL description="Browser-based LaTeX editor with compilation"
+
+ENV DEBIAN_FRONTEND=noninteractive
+ENV LANG=C.UTF-8
+ENV LC_ALL=C.UTF-8
+
+# Install LaTeX + Python
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    texlive-latex-base \
+    texlive-latex-extra \
+    texlive-fonts-recommended \
+    texlive-fonts-extra \
+    texlive-science \
+    texlive-bibtex-extra \
+    texlive-publishers \
+    latexdiff \
+    ghostscript \
+    imagemagick \
+    python3 \
+    python3-pip \
+    python3-venv \
+    wget \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install yq
+RUN wget -qO /usr/local/bin/yq \
+    https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 \
+    && chmod +x /usr/local/bin/yq
+
+RUN python3 -m pip install --upgrade pip --break-system-packages
+
+# Install scitex-writer with editor support
+COPY . /tmp/scitex-writer
+RUN pip3 install --no-cache-dir --break-system-packages \
+    "/tmp/scitex-writer[editor]" \
+    && rm -rf /tmp/scitex-writer
+
+WORKDIR /workspace
+
+# Expose default port
+EXPOSE 5050
+
+# Health check via Flask ping endpoint
+HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=2 \
+    CMD python3 -c "import urllib.request; urllib.request.urlopen('http://127.0.0.1:5050/ping')" || exit 1
+
+# Launch GUI editor, bind to 0.0.0.0 for Docker networking
+ENTRYPOINT ["scitex-writer", "gui", "--host", "0.0.0.0", "--no-browser", "/workspace"]
+CMD []

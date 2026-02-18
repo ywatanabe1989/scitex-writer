@@ -49,6 +49,30 @@ scitex_writer.figures
    :undoc-members:
    :show-inheritance:
 
+scitex_writer.export
+~~~~~~~~~~~~~~~~~~~~
+
+.. automodule:: scitex_writer.export
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+scitex_writer.guidelines
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. automodule:: scitex_writer.guidelines
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+scitex_writer.prompts
+~~~~~~~~~~~~~~~~~~~~~
+
+.. automodule:: scitex_writer.prompts
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 scitex_writer.writer
 ~~~~~~~~~~~~~~~~~~~~
 

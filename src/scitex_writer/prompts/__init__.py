@@ -18,13 +18,12 @@ Usage::
 For IMRAD writing guidelines, use scitex_writer.guidelines instead.
 """
 
-from ._ai2 import generate_ai2_prompt
+from ._ai2 import generate_ai2_prompt as _generate_ai2_prompt
 
-# Convenience alias
-generate_asta = generate_ai2_prompt
+# Public alias
+generate_asta = _generate_ai2_prompt
 
 __all__ = [
-    "generate_ai2_prompt",
     "generate_asta",
 ]
 

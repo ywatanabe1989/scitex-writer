@@ -31,7 +31,7 @@ def register_tools(mcp: FastMCP) -> None:
         """
         from scitex_writer import prompts
 
-        result = prompts.generate_ai2_prompt(
+        result = prompts.generate_asta(
             Path(project_path).resolve(),
             search_type=search_type,
         )

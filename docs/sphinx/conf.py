@@ -15,7 +15,14 @@ sys.path.insert(0, os.path.abspath("../../src"))
 project = "SciTeX Writer"
 copyright = "2025, Yusuke Watanabe"
 author = "Yusuke Watanabe"
-release = "2.5.2"
+
+# Dynamic version from pyproject.toml
+try:
+    from importlib.metadata import version as _get_version
+
+    release = _get_version("scitex-writer")
+except Exception:
+    release = "0.0.0"
 
 # -- General configuration ---------------------------------------------------
 

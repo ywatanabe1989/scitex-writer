@@ -13,6 +13,7 @@ Subcommands:
     bib        - Bibliography management
     tables     - Table management
     figures    - Figure management
+    gui        - Browser-based editor
 """
 
 import argparse
@@ -25,6 +26,7 @@ from . import (
     compile,
     export,
     figures,
+    gui,
     guidelines,
     introspect,
     mcp,
@@ -71,6 +73,7 @@ def main() -> int:
     bib_parser = bib.register_parser(subparsers)
     tables_parser = tables.register_parser(subparsers)
     figures_parser = figures.register_parser(subparsers)
+    gui_parser = gui.register_parser(subparsers)
     introspect.register_parser(subparsers)
 
     # Register top-level convenience commands
@@ -93,6 +96,7 @@ def main() -> int:
         "bib": bib_parser,
         "tables": tables_parser,
         "figures": figures_parser,
+        "gui": gui_parser,
     }
 
     if args.command in parsers:
