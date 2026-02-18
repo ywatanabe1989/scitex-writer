@@ -94,4 +94,4 @@ Start the MCP server for AI agent integration:
 
     scitex-writer mcp start
 
-This exposes 28 tools for manuscript management via the Model Context Protocol.
+This exposes 30 tools for manuscript management via the Model Context Protocol.

@@ -3,7 +3,7 @@
 SciTeX Writer - LaTeX Manuscript Compilation
 =============================================
 
-**SciTeX Writer** is a LaTeX manuscript compilation system designed for scientific documents. It provides three interfaces: Python API, CLI, and MCP server for AI agents.
+**SciTeX Writer** is a LaTeX manuscript compilation system designed for scientific documents. It provides four interfaces: Python API, CLI, GUI editor, and MCP server for AI agents.
 
 .. toctree::
    :maxdepth: 2
@@ -21,7 +21,8 @@ SciTeX Writer - LaTeX Manuscript Compilation
 Key Features
 ------------
 
-- **Three Interfaces**: Python API, CLI commands, and MCP server (28 tools)
+- **Four Interfaces**: Python API, CLI, GUI editor, and MCP server (30 tools)
+- **GUI Editor**: Browser-based LaTeX editor with PDF preview (``scitex-writer gui``)
 - **Container-based Compilation**: Consistent LaTeX compilation across environments
 - **Document Types**: Manuscript, Supplementary, and Revision documents
 - **Bibliography Management**: BibTeX handling with list, add, remove, merge operations

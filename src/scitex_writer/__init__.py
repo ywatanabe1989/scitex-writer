@@ -5,9 +5,10 @@
 
 """SciTeX Writer - LaTeX manuscript compilation system with MCP server.
 
-Three Interfaces:
+Four Interfaces:
     - Python API: import scitex_writer as sw
     - CLI: scitex-writer <command>
+    - GUI: scitex-writer gui (browser-based editor)
     - MCP: 30 tools for AI agents
 
 Modules:
@@ -19,6 +20,7 @@ Modules:
     - bib: List, add, remove, merge
     - guidelines: IMRAD writing tips
     - prompts: AI2 Asta integration
+    - gui: Browser-based editor (requires Flask)
 """
 
 from importlib.metadata import PackageNotFoundError as _PackageNotFoundError
@@ -39,19 +41,16 @@ except _PackageNotFoundError:
                     __version__ = _line.split("=")[1].strip().strip('"')
                     break
 
-# Branding support (set SCITEX_WRITER_BRAND and SCITEX_WRITER_ALIAS env vars before import)
 # Import modules for convenient access
 from . import bib, compile, export, figures, guidelines, project, prompts, tables
-from ._branding import BRAND_ALIAS, BRAND_NAME
-from ._dataclasses import (
-    CompilationResult,
-    ManuscriptTree,
-    RevisionTree,
-    SupplementaryTree,
-)
+from ._branding import BRAND_ALIAS as _BRAND_ALIAS
+from ._branding import BRAND_NAME as _BRAND_NAME
+from ._dataclasses import CompilationResult as _CompilationResult
+from ._dataclasses import ManuscriptTree as _ManuscriptTree
+from ._dataclasses import RevisionTree as _RevisionTree
+from ._dataclasses import SupplementaryTree as _SupplementaryTree
+from ._editor import gui
 from ._usage import get_usage as usage
-
-# Import Writer class and dataclasses
 from .writer import Writer
 
 
@@ -87,10 +86,6 @@ def ensure_workspace(project_dir, git_strategy="child", **kwargs):
 
 __all__ = [
     "__version__",
-    # Branding
-    "BRAND_NAME",
-    "BRAND_ALIAS",
-    # Usage
     "usage",
     # Modules
     "compile",
@@ -104,11 +99,8 @@ __all__ = [
     # Writer class
     "Writer",
     "ensure_workspace",
-    # Dataclasses
-    "CompilationResult",
-    "ManuscriptTree",
-    "SupplementaryTree",
-    "RevisionTree",
+    # GUI
+    "gui",
 ]
 
 # EOF

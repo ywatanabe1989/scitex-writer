@@ -29,6 +29,12 @@ For development:
 
     pip install -e ".[dev]"
 
+With GUI editor (requires Flask):
+
+.. code-block:: bash
+
+    pip install scitex-writer[editor]
+
 Docker Setup
 ------------
 

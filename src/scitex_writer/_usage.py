@@ -173,7 +173,7 @@ Tables (01_manuscript/contents/tables/caption_and_media/)
     - Mismatched names cause compilation FAILURE
 
 ================================================================================
-Three Interfaces
+Four Interfaces
 ================================================================================
 
 Python API:
@@ -181,11 +181,16 @@ Python API:
   {alias}.usage()                        # Show this guide
   {alias}.compile.manuscript("./my-paper")
   {alias}.project.clone("./new-paper")
+  {alias}.gui("./my-paper")             # Launch GUI editor
 
 CLI:
   scitex-writer usage                    # Show this guide
   scitex-writer compile manuscript .     # Compile manuscript
   scitex-writer mcp list-tools           # List MCP tools
+  scitex-writer gui                      # Launch GUI editor
+
+GUI (pip install scitex-writer[editor]):
+  scitex-writer gui ./my-paper           # Browser-based editor
 
 MCP Tool:
   writer_usage()                         # Returns this guide

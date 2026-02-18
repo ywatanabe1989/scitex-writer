@@ -12,7 +12,7 @@ from pathlib import Path
 
 def cmd_asta(args: argparse.Namespace) -> int:
     """Generate AI2 Asta prompt from manuscript."""
-    from ..prompts import generate_ai2_prompt
+    from ..prompts import generate_asta
 
     project_path = Path(args.project).resolve()
 
@@ -20,7 +20,7 @@ def cmd_asta(args: argparse.Namespace) -> int:
         print(f"Error: Project path not found: {project_path}", file=sys.stderr)
         return 1
 
-    result = generate_ai2_prompt(project_path, search_type=args.type)
+    result = generate_asta(project_path, search_type=args.type)
 
     if not result["success"]:
         print(f"Error: {result['error']}", file=sys.stderr)

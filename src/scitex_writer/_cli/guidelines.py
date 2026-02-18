@@ -12,10 +12,10 @@ from pathlib import Path
 
 def cmd_guidelines(args: argparse.Namespace) -> int:
     """Get IMRAD writing guidelines for a section."""
-    from ..guidelines import build, get, get_source
+    from ..guidelines import _get_source, build, get
 
     try:
-        source = get_source(args.section)
+        source = _get_source(args.section)
 
         if args.info:
             print(f"Section: {args.section}")
@@ -46,10 +46,10 @@ def cmd_guidelines(args: argparse.Namespace) -> int:
 
 def cmd_list(args: argparse.Namespace) -> int:
     """List available guidelines sections."""
-    from ..guidelines import SECTIONS
+    from ..guidelines import _SECTIONS
 
     print("Available sections:")
-    for section in SECTIONS:
+    for section in _SECTIONS:
         print(f"  - {section}")
     return 0
 

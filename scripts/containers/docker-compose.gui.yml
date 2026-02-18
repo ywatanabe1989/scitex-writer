@@ -1,0 +1,18 @@
+# SciTeX Writer GUI - Docker Compose
+#
+# Usage:
+#   cd /path/to/your/manuscript
+#   docker compose -f /path/to/scitex-writer/scripts/containers/docker-compose.gui.yml up
+#
+# Then open http://localhost:5050 in your browser.
+
+services:
+  writer-gui:
+    build:
+      context: ../..
+      dockerfile: scripts/containers/Dockerfile.gui
+    ports:
+      - "${SCITEX_GUI_PORT:-5050}:5050"
+    volumes:
+      - ${SCITEX_PROJECT_DIR:-.}:/workspace
+    restart: unless-stopped
