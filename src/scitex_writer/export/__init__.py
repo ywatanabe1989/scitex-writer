@@ -25,14 +25,8 @@ Usage::
 """
 
 from .._mcp.handlers import export_manuscript as _export_manuscript
-from ._arxiv_categories import ARXIV_CATEGORIES as _ARXIV_CATEGORIES
-from ._arxiv_categories import CATEGORY_KEYWORDS as _CATEGORY_KEYWORDS
 from ._arxiv_categories import suggest_categories
 from ._arxiv_cleaner import ArxivLatexCleaner as _ArxivLatexCleaner
-from ._arxiv_compliance import check_compliance as _check_compliance
-from ._arxiv_compliance import check_latex_structure as _check_latex_structure
-from ._arxiv_packager import package_submission as _package_submission
-from ._arxiv_packager import validate_file_types as _validate_file_types
 
 
 def manuscript(

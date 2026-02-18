@@ -92,6 +92,13 @@ testpaths = ["tests"]
 python_files = ["test_*.py"]
 addopts = "-v --tb=short"
 
+[tool.coverage.run]
+omit = [
+    "src/scitex_writer/_editor/*",
+    "src/scitex_writer/_mcp/handlers/*",
+    "src/scitex_writer/_mcp/tools/*",
+]
+
 [tool.ruff]
 line-length = 88
 target-version = "py310"

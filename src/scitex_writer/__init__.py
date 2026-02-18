@@ -43,12 +43,6 @@ except _PackageNotFoundError:
 
 # Import modules for convenient access
 from . import bib, compile, export, figures, guidelines, project, prompts, tables
-from ._branding import BRAND_ALIAS as _BRAND_ALIAS
-from ._branding import BRAND_NAME as _BRAND_NAME
-from ._dataclasses import CompilationResult as _CompilationResult
-from ._dataclasses import ManuscriptTree as _ManuscriptTree
-from ._dataclasses import RevisionTree as _RevisionTree
-from ._dataclasses import SupplementaryTree as _SupplementaryTree
 from ._editor import gui
 from ._usage import get_usage as usage
 from .writer import Writer
