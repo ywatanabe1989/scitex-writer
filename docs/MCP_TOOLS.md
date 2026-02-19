@@ -1,4 +1,4 @@
-# SciTeX Writer MCP Tools (30 total)
+# SciTeX Writer MCP Tools (36 total)
 
 Model Context Protocol tools for AI agent integration.
 
@@ -37,6 +37,21 @@ scitex-writer mcp installation  # Show Claude Desktop config
 | `writer_list_figures` | List all figures in a writer project |
 | `writer_pdf_to_images` | Render PDF pages as images |
 | `writer_remove_figure` | Remove a figure (image + caption) |
+
+### claim (6 tools)
+| Tool | Description |
+|------|-------------|
+| `writer_add_claim` | Add or update a scientific claim (statistic, value, citation, figure, table) |
+| `writer_format_claim` | Render a claim as a formatted string (nature/apa/plain style) |
+| `writer_get_claim` | Get details for a single claim |
+| `writer_list_claims` | List all claims with status and previews |
+| `writer_remove_claim` | Delete a claim by ID |
+| `writer_render_claims` | Generate claims_rendered.tex for LaTeX compilation |
+
+### export (1 tool)
+| Tool | Description |
+|------|-------------|
+| `writer_export_manuscript` | Export manuscript for arXiv submission |
 
 ### general (1 tool)
 | Tool | Description |

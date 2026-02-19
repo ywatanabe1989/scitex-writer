@@ -44,6 +44,18 @@ except _PackageNotFoundError:
 
 # Import modules for convenient access
 from . import bib, claim, compile, export, figures, guidelines, project, prompts, tables
+from ._dataclasses import (
+    CompilationResult as _CompilationResult,
+)
+from ._dataclasses import (
+    ManuscriptTree as _ManuscriptTree,
+)
+from ._dataclasses import (
+    RevisionTree as _RevisionTree,
+)
+from ._dataclasses import (
+    SupplementaryTree as _SupplementaryTree,
+)
 from ._editor import gui
 from ._usage import get_usage as usage
 from .writer import Writer
