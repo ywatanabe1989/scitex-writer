@@ -4,6 +4,8 @@
 
 """CSS styles for the Writer GUI."""
 
+from ._styles_claims import CLAIMS_STYLES as _CLAIMS
+
 
 def build_styles() -> str:
     """Build inline CSS styles.
@@ -13,7 +15,15 @@ def build_styles() -> str:
     str
         Complete <style> block.
     """
-    return "<style>\n" + _RESET + _THEME_VARS + _LAYOUT + _COMPONENTS + "</style>"
+    return (
+        "<style>\n"
+        + _RESET
+        + _THEME_VARS
+        + _LAYOUT
+        + _COMPONENTS
+        + _CLAIMS
+        + "</style>"
+    )
 
 
 _RESET = """

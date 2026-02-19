@@ -70,6 +70,7 @@ class WriterEditor:
         app.config["MAX_CONTENT_LENGTH"] = 16 * 1024 * 1024  # 16MB max
 
         from ._routes_bib import register_bib_routes
+        from ._routes_claim import register_claim_routes
         from ._routes_compile import register_compile_routes
         from ._routes_core import register_core_routes
         from ._routes_files import register_file_routes
@@ -78,6 +79,7 @@ class WriterEditor:
         register_file_routes(app, self)
         register_compile_routes(app, self)
         register_bib_routes(app, self)
+        register_claim_routes(app, self)
 
         return app
 

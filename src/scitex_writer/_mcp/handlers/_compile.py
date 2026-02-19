@@ -9,6 +9,18 @@ from __future__ import annotations
 from ..utils import resolve_project_path, run_compile_script
 
 
+def _auto_render_claims(project_path) -> None:
+    """Render claims_rendered.tex if claims.json exists (silent, best-effort)."""
+    claims_json = project_path / "00_shared" / "claims.json"
+    if claims_json.exists():
+        try:
+            from ._claim import render_claims
+
+            render_claims(str(project_path))
+        except Exception:
+            pass  # Never block compilation due to claims rendering
+
+
 def compile_manuscript(
     project_dir: str,
     timeout: int = 300,
@@ -23,6 +35,7 @@ def compile_manuscript(
 ) -> dict:
     """Compile manuscript to PDF."""
     project_path = resolve_project_path(project_dir)
+    _auto_render_claims(project_path)
     return run_compile_script(
         project_path,
         "manuscript",
@@ -51,6 +64,7 @@ def compile_supplementary(
 ) -> dict:
     """Compile supplementary materials to PDF."""
     project_path = resolve_project_path(project_dir)
+    _auto_render_claims(project_path)
     return run_compile_script(
         project_path,
         "supplementary",
@@ -77,6 +91,7 @@ def compile_revision(
 ) -> dict:
     """Compile revision document to PDF."""
     project_path = resolve_project_path(project_dir)
+    _auto_render_claims(project_path)
     return run_compile_script(
         project_path,
         "revision",

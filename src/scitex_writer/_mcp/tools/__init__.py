@@ -12,7 +12,17 @@ from fastmcp import FastMCP
 
 def register_all_tools(mcp: FastMCP) -> None:
     """Register all MCP tools with the server."""
-    from . import bib, compile, export, figures, guidelines, project, prompts, tables
+    from . import (
+        bib,
+        claim,
+        compile,
+        export,
+        figures,
+        guidelines,
+        project,
+        prompts,
+        tables,
+    )
 
     # Register tools from each module
     project.register_tools(mcp)
@@ -23,6 +33,7 @@ def register_all_tools(mcp: FastMCP) -> None:
     bib.register_tools(mcp)
     guidelines.register_tools(mcp)
     prompts.register_tools(mcp)
+    claim.register_tools(mcp)
 
 
 __all__ = ["register_all_tools"]

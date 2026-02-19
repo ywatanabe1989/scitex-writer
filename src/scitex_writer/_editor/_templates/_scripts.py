@@ -4,6 +4,7 @@
 
 """JavaScript for the Writer GUI."""
 
+from ._scripts_claims import CLAIMS_SCRIPTS
 from ._scripts_editor import EDITOR_SCRIPTS
 from ._scripts_ui import UI_SCRIPTS
 
@@ -20,6 +21,7 @@ def build_scripts() -> str:
         "<script>\n(function() {\n'use strict';\n"
         + EDITOR_SCRIPTS
         + UI_SCRIPTS
+        + CLAIMS_SCRIPTS
         + "\n})();\n</script>"
     )
 

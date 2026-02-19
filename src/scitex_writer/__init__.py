@@ -9,9 +9,10 @@ Four Interfaces:
     - Python API: import scitex_writer as sw
     - CLI: scitex-writer <command>
     - GUI: scitex-writer gui (browser-based editor)
-    - MCP: 30 tools for AI agents
+    - MCP: 36 tools for AI agents
 
 Modules:
+    - claim: Traceable scientific assertions (stats, figures, citations)
     - compile: Compile manuscripts to PDF
     - export: Export manuscript for arXiv submission
     - project: Clone, info, get_pdf
@@ -42,7 +43,7 @@ except _PackageNotFoundError:
                     break
 
 # Import modules for convenient access
-from . import bib, compile, export, figures, guidelines, project, prompts, tables
+from . import bib, claim, compile, export, figures, guidelines, project, prompts, tables
 from ._editor import gui
 from ._usage import get_usage as usage
 from .writer import Writer
@@ -82,6 +83,7 @@ __all__ = [
     "__version__",
     "usage",
     # Modules
+    "claim",
     "compile",
     "export",
     "project",
