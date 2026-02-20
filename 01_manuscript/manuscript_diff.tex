@@ -1,24 +1,28 @@
 % ==============================================================================
 %DIF LATEXDIFF DIFFERENCE FILE
-%DIF DEL /home/ywatanabe/.cache/tmp/tmp.mjXWBat6eU.tex   Wed Feb 11 18:39:04 2026
-%DIF ADD ./01_manuscript/manuscript.tex                  Wed Feb 11 18:39:00 2026
+%DIF DEL /home/ywatanabe/.cache/tmp/tmp.vgRXhzLBLT.tex   Wed Feb 18 21:02:10 2026
+%DIF ADD ./01_manuscript/manuscript.tex                  Wed Feb 18 21:01:57 2026
 %DIF 2c2
-%DIF < % SciTeX Writer 2.5.3 (https://scitex.ai)
+%DIF < % SciTeX Writer 2.6.3 (https://scitex.ai)
 %DIF -------
-% SciTeX Writer 2.6.4 (https://scitex.ai) %DIF > 
+% SciTeX Writer 2.6.7 (https://scitex.ai) %DIF > 
 %DIF -------
 % LaTeX compilation engine: auto
 %DIF 4c4
-%DIF < % Compiled: 2026-02-09 06:52:03
+%DIF < % Compiled: 2026-02-11 18:23:39
 %DIF -------
-% Compiled: 2026-02-11 18:39:00 %DIF > 
+% Compiled: 2026-02-18 21:01:57 %DIF > 
 %DIF -------
 % Source: 01_manuscript/base.tex
 % ==============================================================================
 
 %% -*- coding: utf-8 -*-
-%% Timestamp: "2025-09-27 22:21:42 (ywatanabe)"
-%% File: "01_manuscript/base.tex"
+%DIF 9-10c9
+%DIF < %% Timestamp: "2025-09-27 22:21:42 (ywatanabe)"
+%DIF < %% File: "/ssh:sp:/home/ywatanabe/proj/neurovista/paper/01_manuscript/base.tex"
+%DIF -------
+%% File: 01_manuscript/base.tex %DIF > 
+%DIF -------
 \UseRawInputEncoding
 
 %% ----------------------------------------
@@ -29,12 +33,7 @@
 % File: ./01_manuscript/contents/latex_styles/columns.tex
 % ======================================================================
 %% -*- coding: utf-8 -*-
-%DIF 21-22c21
-%DIF < %% Timestamp: "2025-09-30 18:04:38 (ywatanabe)"
-%DIF < %% File: "00_shared/latex_styles/columns.tex"
-%DIF -------
-%% File: 00_shared/latex_styles/columns.tex %DIF > 
-%DIF -------
+%% File: 00_shared/latex_styles/columns.tex
 
 %% --- Columns ---
 %% \documentclass[final,3p,times,twocolumn]{elsarticle} %% Use it for submission
@@ -55,12 +54,7 @@
 % File: ./01_manuscript/contents/latex_styles/packages.tex
 % ======================================================================
 %% -*- coding: utf-8 -*-
-%DIF 43-44c42
-%DIF < %% Timestamp: "2025-09-30 17:57:49 (ywatanabe)"
-%DIF < %% File: "00_shared/latex_styles/packages.tex"
-%DIF -------
-%% File: 00_shared/latex_styles/packages.tex %DIF > 
-%DIF -------
+%% File: 00_shared/latex_styles/packages.tex
 %% -*- coding: utf-8 -*-
 %% Timestamp: "2025-09-27 16:01:16 (ywatanabe)"
 
@@ -124,12 +118,7 @@
 % File: ./01_manuscript/contents/latex_styles/linker.tex
 % ======================================================================
 %% -*- coding: utf-8 -*-
-%DIF 108-109c106
-%DIF < %% Timestamp: "2025-09-30 18:04:19 (ywatanabe)"
-%DIF < %% File: "00_shared/latex_styles/linker.tex"
-%DIF -------
-%% File: 00_shared/latex_styles/linker.tex %DIF > 
-%DIF -------
+%% File: 00_shared/latex_styles/linker.tex
 
 %% --- Linker for supplemtal material ---
 \usepackage{xr}
@@ -154,21 +143,16 @@
 % File: ./01_manuscript/contents/latex_styles/formatting.tex
 % ======================================================================
 %% -*- coding: utf-8 -*-
-%DIF 134-135c131-140
-%DIF < %% Timestamp: "2025-09-30 18:03:32 (ywatanabe)"
-%DIF < %% File: "00_shared/latex_styles/formatting.tex"
-%DIF -------
-%% File: 00_shared/latex_styles/formatting.tex %DIF > 
- %DIF > 
-%% --- Journal name header (show journal name as-is, without "Preprint submitted to" prefix) --- %DIF > 
-\makeatletter %DIF > 
-\def\ps@pprintTitle{% %DIF > 
-  \def\@oddhead{\reset@font\footnotesize\itshape\@journal\hfill}% %DIF > 
-  \let\@evenhead\@oddhead %DIF > 
-  \def\@oddfoot{\reset@font\hfil\thepage\hfil}% %DIF > 
-  \let\@evenfoot\@oddfoot} %DIF > 
-\makeatother %DIF > 
-%DIF -------
+%% File: 00_shared/latex_styles/formatting.tex
+
+%% --- Journal name header (show journal name as-is, without "Preprint submitted to" prefix) ---
+\makeatletter
+\def\ps@pprintTitle{%
+  \def\@oddhead{\reset@font\footnotesize\itshape\@journal\hfill}%
+  \let\@evenhead\@oddhead
+  \def\@oddfoot{\reset@font\hfil\thepage\hfil}%
+  \let\@evenfoot\@oddfoot}
+\makeatother
 
 %% --- Image width ---
 \newlength{\imagewidth}
@@ -197,11 +181,7 @@
 \openin\wordcount=#1
 \read\wordcount to \thewordcount
 \closein\wordcount
-%DIF 164c169
-%DIF < \thewordcount
-%DIF -------
-\begingroup\sisetup{round-mode=none}\num{\thewordcount}\endgroup% %DIF > 
-%DIF -------
+\begingroup\sisetup{round-mode=none}\num{\thewordcount}\endgroup%
 }
 
 %% --- Text highlighting ---
@@ -244,39 +224,43 @@
 %% ----------------------------------------
 %% START of DOCUMENT
 %% ----------------------------------------
- %DIF > 
-% Dark mode styling (inlined at compile time) %DIF > 
-%% -*- coding: utf-8 -*- %DIF > 
-%% Timestamp: "2025-11-10 01:30:00 (ywatanabe)" %DIF > 
-%% File: ./00_shared/latex_styles/dark_mode.tex %DIF > 
-%% Description: Dark mode styling for scientific manuscripts %DIF > 
- %DIF > 
-%% Dark mode configuration %DIF > 
-%% Background: Monaco/VS Code editor (#1E1E1E) %DIF > 
-%% Text: VS Code default foreground (#D4D4D4) %DIF > 
-%% Figures: unchanged (preserve original colors) %DIF > 
- %DIF > 
-% Set page and text colors - matches Monaco/VS Code dark theme %DIF > 
-\definecolor{MonacoBg}{HTML}{1E1E1E} %DIF > 
-\definecolor{MonacoFg}{HTML}{F0F0F0} %DIF > 
-\pagecolor{MonacoBg} %DIF > 
-\color{MonacoFg} %DIF > 
- %DIF > 
-% Link text colors for dark mode (colorlinks=true) %DIF > 
-\definecolor{DarkGreen}{HTML}{90C695}     % Internal links (Figure/Table): muted sage %DIF > 
-\definecolor{DarkCyan}{HTML}{87CEEB}      % Citations/references: sky blue %DIF > 
-\definecolor{DarkOrange}{HTML}{DEB887}    % External URLs: burlywood %DIF > 
- %DIF > 
+
+% Dark mode styling (inlined at compile time)
+%% -*- coding: utf-8 -*-
+%% Timestamp: "2025-11-10 01:30:00 (ywatanabe)"
+%% File: ./00_shared/latex_styles/dark_mode.tex
+%% Description: Dark mode styling for scientific manuscripts
+
+%% Dark mode configuration
+%% Background: Monaco/VS Code editor (#1E1E1E)
+%% Text: VS Code default foreground (#D4D4D4)
+%% Figures: unchanged (preserve original colors)
+
+% Set page and text colors - matches Monaco/VS Code dark theme
+\definecolor{MonacoBg}{HTML}{1E1E1E}
+%DIF 226c225
+%DIF < \definecolor{MonacoFg}{HTML}{F0F0F0}
+%DIF -------
+\definecolor{MonacoFg}{HTML}{D4D4D4} %DIF > 
+%DIF -------
+\pagecolor{MonacoBg}
+\color{MonacoFg}
+
+% Link text colors for dark mode (colorlinks=true)
+\definecolor{DarkGreen}{HTML}{90C695}     % Internal links (Figure/Table): muted sage
+\definecolor{DarkCyan}{HTML}{87CEEB}      % Citations/references: sky blue
+\definecolor{DarkOrange}{HTML}{DEB887}    % External URLs: burlywood
+
 
 %% =============================================================================
 %% Diff Document Metadata (Auto-generated)
 %% =============================================================================
-%% Comparison: vdb461fa → va57befd+
-%% Generated: 2026-02-11 18:39:05
-%% User: Author <your.email@institution.edu>
+%% Comparison: v513391d → v721a65c+
+%% Generated: 2026-02-18 21:02:11
+%% User: Yusuke Watanabe <ywatanabe@scitex.ai>
 %% Document: manuscript
-%% Git commit: a57befd
-%% Git branch: main
+%% Git commit: 721a65c
+%% Git branch: develop
 %% =============================================================================
 
 
@@ -287,56 +271,56 @@
     \fancyhf{}
     \renewcommand{\headrulewidth}{0.4pt}
     \renewcommand{\footrulewidth}{0.4pt}
-    \fancyhead[L]{\small\textit{Diff: vdb461fa → va57befd+}}
+    \fancyhead[L]{\small\textit{Diff: v513391d → v721a65c+}}
     \fancyhead[R]{\small\textit{manuscript}}
-    \fancyfoot[L]{\small Generated: 2026-02-11 18:39}
+    \fancyfoot[L]{\small Generated: 2026-02-18 21:02}
     \fancyfoot[C]{\small Page \thepage\ of \pageref{LastPage}}
-    \fancyfoot[R]{\small Author}
+    \fancyfoot[R]{\small Yusuke Watanabe}
 }
 
 \AtBeginDocument{\pagestyle{diffstyle}}
-% Hyperlink colors set via hypersetup (injected after \begin{document}) %DIF > 
- %DIF > 
-% Override hlref colorbox for dark mode (no yellow box on dark background) %DIF > 
-\renewcommand{\hlref}[1]{% %DIF > 
-  \ifnum\getrefnumber{#1}=0 %DIF > 
-    {\color{DarkGreen}\ref*{#1}}% %DIF > 
-  \else %DIF > 
-    \ref{#1}% %DIF > 
-  \fi %DIF > 
-} %DIF > 
- %DIF > 
-% Section titles: same color as body text, just bold %DIF > 
-\titleformat{\section} %DIF > 
-  {\normalfont\Large\bfseries\color{MonacoFg}}{\thesection}{1em}{} %DIF > 
-\titleformat{\subsection} %DIF > 
-  {\normalfont\large\bfseries\color{MonacoFg}}{\thesubsection}{1em}{} %DIF > 
-\titleformat{\subsubsection} %DIF > 
-  {\normalfont\normalsize\bfseries\color{MonacoFg}}{\thesubsubsection}{1em}{} %DIF > 
- %DIF > 
-% Caption labels: same as body text, left-aligned %DIF > 
-\captionsetup{ %DIF > 
-  labelfont={bf,color=MonacoFg}, %DIF > 
-  textfont={color=MonacoFg}, %DIF > 
-  justification=raggedright, %DIF > 
-  singlelinecheck=false %DIF > 
-} %DIF > 
- %DIF > 
-% Adjust table colors for dark mode %DIF > 
-\definecolor{lightgray}{gray}{0.2}  % Darker "light" gray for table rows %DIF > 
- %DIF > 
-% Override color commands to work well in dark mode %DIF > 
-\renewcommand{\REDENDS}{\color{white}}    % Reset to white instead of black %DIF > 
-\renewcommand{\GREENENDS}{\color{white}}  % Reset to white instead of black %DIF > 
- %DIF > 
-% Adjust highlight boxes for dark mode %DIF > 
-\newtcbox{\darkgreenhighlight}[1][]{on line,colframe=green!70!white,colback=green!20!black,boxrule=0pt,arc=0pt,boxsep=0pt,left=1pt,right=1pt,top=2pt,bottom=2pt,tcbox raise base} %DIF > 
-\newtcbox{\darkredhighlight}[1][]{on line,colframe=red!70!white,colback=red!20!black,boxrule=0pt,arc=0pt,boxsep=0pt,left=1pt,right=1pt,top=2pt,bottom=2pt,tcbox raise base} %DIF > 
- %DIF > 
-% Adjust soul highlighting for dark mode %DIF > 
-\sethlcolor{yellow!30!black}  % Darker yellow highlight %DIF > 
- %DIF > 
-%%%% EOF %DIF > 
+% Hyperlink colors set via hypersetup (injected after \begin{document})
+
+% Override hlref colorbox for dark mode (no yellow box on dark background)
+\renewcommand{\hlref}[1]{%
+  \ifnum\getrefnumber{#1}=0
+    {\color{DarkGreen}\ref*{#1}}%
+  \else
+    \ref{#1}%
+  \fi
+}
+
+% Section titles: same color as body text, just bold
+\titleformat{\section}
+  {\normalfont\Large\bfseries\color{MonacoFg}}{\thesection}{1em}{}
+\titleformat{\subsection}
+  {\normalfont\large\bfseries\color{MonacoFg}}{\thesubsection}{1em}{}
+\titleformat{\subsubsection}
+  {\normalfont\normalsize\bfseries\color{MonacoFg}}{\thesubsubsection}{1em}{}
+
+% Caption labels: same as body text, left-aligned
+\captionsetup{
+  labelfont={bf,color=MonacoFg},
+  textfont={color=MonacoFg},
+  justification=raggedright,
+  singlelinecheck=false
+}
+
+% Adjust table colors for dark mode
+\definecolor{lightgray}{gray}{0.2}  % Darker "light" gray for table rows
+
+% Override color commands to work well in dark mode
+\renewcommand{\REDENDS}{\color{white}}    % Reset to white instead of black
+\renewcommand{\GREENENDS}{\color{white}}  % Reset to white instead of black
+
+% Adjust highlight boxes for dark mode
+\newtcbox{\darkgreenhighlight}[1][]{on line,colframe=green!70!white,colback=green!20!black,boxrule=0pt,arc=0pt,boxsep=0pt,left=1pt,right=1pt,top=2pt,bottom=2pt,tcbox raise base}
+\newtcbox{\darkredhighlight}[1][]{on line,colframe=red!70!white,colback=red!20!black,boxrule=0pt,arc=0pt,boxsep=0pt,left=1pt,right=1pt,top=2pt,bottom=2pt,tcbox raise base}
+
+% Adjust soul highlighting for dark mode
+\sethlcolor{yellow!30!black}  % Darker yellow highlight
+
+%%%% EOF
 %DIF PREAMBLE EXTENSION ADDED BY LATEXDIFF
 %DIF CULINECHBAR PREAMBLE %DIF PREAMBLE
 \RequirePackage[normalem]{ulem} %DIF PREAMBLE
@@ -424,12 +408,12 @@
 %% =============================================================================
 %% Diff Document Metadata (Auto-generated)
 %% =============================================================================
-%% Comparison: vdb461fa → va57befd+
-%% Generated: 2026-02-11 18:39:05
-%% User: Author <your.email@institution.edu>
+%% Comparison: v513391d → v721a65c+
+%% Generated: 2026-02-18 21:02:11
+%% User: Yusuke Watanabe <ywatanabe@scitex.ai>
 %% Document: manuscript
-%% Git commit: a57befd
-%% Git branch: main
+%% Git commit: 721a65c
+%% Git branch: develop
 %% =============================================================================
 
 
@@ -509,8 +493,8 @@ Your Manuscript Title Here
 
 Replace this text with your manuscript abstract. Typically 150--250 words summarizing objectives, methods, key findings, and conclusions.
 
-\DIFaddbegin \vspace{1em}
-\DIFaddend \end{abstract}
+\vspace{1em}
+\end{abstract}
 
 %%%% EOF
 
@@ -535,29 +519,17 @@ keyword one \sep keyword two \sep keyword three \sep keyword four \sep keyword f
 % File: ./01_manuscript/contents/wordcount.tex
 % ======================================================================
 %% -*- coding: utf-8 -*-
-%DIF < % Timestamp: "2025-09-26 18:17:20 (ywatanabe)"
-%DIF < % File: "01_manuscript/src/wordcount.tex"
-\DIFdelbegin %DIFDELCMD < \begin{wordcount}
-%DIFDELCMD < %%%
-\DIFdelend %DIF > % File: 01_manuscript/contents/wordcount.tex
-\DIFaddbegin \noindent\small
-\DIFaddend \readwordcount{./01_manuscript/contents/wordcounts/figure_count.txt} figures,
+%% File: 01_manuscript/contents/wordcount.tex
+\noindent\small
+\readwordcount{./01_manuscript/contents/wordcounts/figure_count.txt} figures,
 \readwordcount{./01_manuscript/contents/wordcounts/table_count.txt} tables,
 \readwordcount{./01_manuscript/contents/wordcounts/abstract_count.txt} words for abstract, and
 \readwordcount{./01_manuscript/contents/wordcounts/imrd_count.txt} words for main text
-\DIFdelbegin %DIFDELCMD < \end{wordcount}
-%DIFDELCMD < 
-
-%DIFDELCMD < %%%
-%DIF < % \begin{*wordcount}
-%DIF < % \readwordcount{./01_manuscript/contents/wordcounts/figure_count.txt} figures, \readwordcount{./01_manuscript/contents/wordcounts/table_count.txt} tables, \readwordcount{./01_manuscript/contents/wordcounts/abstract_count.txt} words for abstract, and \readwordcount{./01_manuscript/contents/wordcounts/imrd_count.txt} words for main text
-%DIF < % \end{*wordcount}
-\DIFdelend \DIFaddbegin \DIFadd{(}\readwordcount{./01_manuscript/contents/wordcounts/introduction_count.txt} \DIFadd{for introduction,
-}\readwordcount{./01_manuscript/contents/wordcounts/methods_count.txt} \DIFadd{for methods,
-}\readwordcount{./01_manuscript/contents/wordcounts/results_count.txt} \DIFadd{for results,
-}\readwordcount{./01_manuscript/contents/wordcounts/discussion_count.txt} \DIFadd{for discussion)
-}\normalsize
-\DIFaddend 
+(\readwordcount{./01_manuscript/contents/wordcounts/introduction_count.txt} for introduction,
+\readwordcount{./01_manuscript/contents/wordcounts/methods_count.txt} for methods,
+\readwordcount{./01_manuscript/contents/wordcounts/results_count.txt} for results,
+\readwordcount{./01_manuscript/contents/wordcounts/discussion_count.txt} for discussion)
+\normalsize
 
 %%%% EOF
 
@@ -641,9 +613,7 @@ Replace this with your discussion. Interpret findings, compare with previous wor
 % File: ./01_manuscript/contents/latex_styles/bibliography.tex
 % ======================================================================
 %% -*- coding: utf-8 -*-
-%DIF < % Timestamp: "2025-09-30 17:40:26 (ywatanabe)"
-%DIF < % File: "00_shared/latex_styles/bibliography.tex"
-%DIF > % File: 00_shared/latex_styles/bibliography.tex
+%% File: 00_shared/latex_styles/bibliography.tex
 
 %% ============================================================================
 %% BIBLIOGRAPHY STYLE CONFIGURATION
@@ -988,67 +958,35 @@ Disclose any use of generative AI tools here.
 % Auto-generated file containing all table inputs
 % Generated by gather_table_tex_files()
 
-%DIF >  Table from: 01_example_table.tex
-\DIFaddbegin 
+% Table from: 01_example_table.tex
 
-\DIFaddend % ======================================================================
-%DIF <  File: ./01_manuscript/contents/tables/compiled/00_Tables_Header.tex
-%DIF >  File: ./01_manuscript/contents/tables/compiled/01_example_table.tex
 % ======================================================================
-%DIF <  Template table when no actual tables are present
-\DIFaddbegin \pdfbookmark[2]{Table 1_example_table}{table_01_example_table}
+% File: ./01_manuscript/contents/tables/compiled/01_example_table.tex
+% ======================================================================
+\DIFdelbegin %DIFDELCMD < \pdfbookmark[2]{Table 1_example_table}{table_01_example_table}
+%DIFDELCMD < %%%
+\DIFdelend \DIFaddbegin \pdfbookmark[2]{Table 01 --- Replace with your table title}{table_01_example_table}
 \DIFaddend \begin{table}[htbp]
 \centering
-\DIFdelbeginFL %DIFDELCMD < \caption{%
-{%DIFAUXCMD
-\textbf{\DIFdelFL{Placeholder table demonstrating the table format for this manuscript template}}%DIFAUXCMD
-%DIFDELCMD < \\
-%DIFDELCMD <     \smallskip
-%DIFDELCMD <     %%%
-\DIFdelFL{To add tables to your manuscript, place CSV files in }\texttt{\DIFdelFL{caption\_and\_media/}} %DIFAUXCMD
-\DIFdelFL{with format }\texttt{\DIFdelFL{XX\_description.csv}}%DIFAUXCMD
-\DIFdelFL{, create matching caption files }\texttt{\DIFdelFL{XX\_description.tex}}%DIFAUXCMD
-\DIFdelFL{, and reference in text using }\texttt{\DIFdelFL{Table\textasciitilde\textbackslash ref\{tab:XX\_description\}}}%DIFAUXCMD
-\DIFdelFL{. Example can be seen at }\texttt{\DIFdelFL{01\_seizure\_count.csv}} %DIFAUXCMD
-\DIFdelFL{with }\texttt{\DIFdelFL{01\_seizure\_count.tex}}
-    %DIFAUXCMD
-}
-    %DIFAUXCMD
-%DIFDELCMD < \label{tab:0_Tables_Header}
-%DIFDELCMD <     \begin{tabular}{p{0.3\textwidth}p{0.6\textwidth}}
-%DIFDELCMD <         \toprule
-%DIFDELCMD <         %%%
-\textbf{\DIFdelFL{Step}} %DIFAUXCMD
-\DIFdelendFL \DIFaddbeginFL \footnotesize
+\footnotesize
 \begin{tabular}{|l|l|l|}
 \hline
-\DIFaddFL{Category}\DIFaddendFL &\DIFdelbeginFL \textbf{\DIFdelFL{Instructions}} %DIFAUXCMD
-%DIFDELCMD < \\
-%DIFDELCMD <         \midrule
-%DIFDELCMD <         %%%
-\DIFdelFL{1. Add CSV }\DIFdelendFL \DIFaddbeginFL \DIFaddFL{Value}\DIFaddendFL &\DIFdelbeginFL \DIFdelFL{Place file like }\texttt{\DIFdelFL{01\_data.csv}} %DIFAUXCMD
-\DIFdelFL{in }\texttt{\DIFdelFL{caption\_and\_media/}} %DIFAUXCMD
-\DIFdelendFL \DIFaddbeginFL \DIFaddFL{Description}\DIFaddendFL \\
-\DIFdelbeginFL \DIFdelFL{2. Add Caption }\DIFdelendFL \DIFaddbeginFL \hline
-\DIFaddFL{Example A}\DIFaddendFL &\DIFdelbeginFL \DIFdelFL{Create }\texttt{\DIFdelFL{01\_data.tex}} %DIFAUXCMD
-\DIFdelFL{with table caption }\DIFdelendFL \DIFaddbeginFL \DIFaddFL{1.00}&\DIFaddFL{Replace with your data}\DIFaddendFL \\
-\DIFdelbeginFL \DIFdelFL{3. Compile }\DIFdelendFL \DIFaddbeginFL \hline
-\DIFaddFL{Example B}\DIFaddendFL &\DIFdelbeginFL \DIFdelFL{Run }\texttt{\DIFdelFL{./compile -m}} %DIFAUXCMD
-\DIFdelFL{to process tables }\DIFdelendFL \DIFaddbeginFL \DIFaddFL{2.00}&\DIFaddFL{Replace with your data}\DIFaddendFL \\
-\DIFdelbeginFL \DIFdelFL{4. Reference }\DIFdelendFL \DIFaddbeginFL \hline
-\DIFaddFL{Example C}\DIFaddendFL &\DIFdelbeginFL \DIFdelFL{Use }\texttt{\DIFdelFL{\textbackslash ref\{tab:01\_data\}}} %DIFAUXCMD
-\DIFdelFL{in manuscript }\DIFdelendFL \DIFaddbeginFL \DIFaddFL{3.00}&\DIFaddFL{Replace with your data}\DIFaddendFL \\
-\DIFdelbeginFL %DIFDELCMD < \bottomrule
-%DIFDELCMD <     %%%
-\DIFdelendFL \DIFaddbeginFL \hline
-\DIFaddendFL \end{tabular}
-%DIF > % Edit this file: 01_manuscript/contents/tables/caption_and_media/01_example_table.tex
-\DIFaddbeginFL \caption{\textbf{\DIFaddFL{Replace with your table title.}}\\
+Category&Value&Description\\
+\hline
+Example A&1.00&Replace with your data\\
+\hline
+Example B&2.00&Replace with your data\\
+\hline
+Example C&3.00&Replace with your data\\
+\hline
+\end{tabular}
+%% Edit this file: 01_manuscript/contents/tables/caption_and_media/01_example_table.tex
+\caption{\textbf{Replace with your table title.}\\
 \smallskip
-\DIFaddFL{Replace with your table legend text. Edit this caption at }\texttt{\DIFaddFL{01\_manuscript/contents/tables/caption\_and\_media/01\_example\_table.tex}}\DIFaddFL{.
-}}
+Replace with your table legend text. Edit this caption at \texttt{01\_manuscript/contents/tables/caption\_and\_media/01\_example\_table.tex}.
+}
 \label{tab:01_example_table}
-\DIFaddendFL \end{table}
+\end{table}
 
 
 
@@ -1071,33 +1009,31 @@ Disclose any use of generative AI tools here.
 % This file includes all figure files in order
 
 % Figure 01
-\DIFdelbegin %DIFDELCMD < \begin{figure*}[h!]
+\begin{figure*}[htbp]
+    \DIFdelbeginFL %DIFDELCMD < \pdfbookmark[2]{Figure 01}{.01}
 %DIFDELCMD <     %%%
-\DIFdelendFL \DIFaddbeginFL \begin{figure*}[htbp]
-    \DIFaddendFL \pdfbookmark[2]{Figure 01}{.01}
-    \centering
+\DIFdelendFL \DIFaddbeginFL \pdfbookmark[2]{Figure 01 --- Replace with your figure title}{.01}
+    \DIFaddendFL \centering
     \includegraphics[width=0.9\textwidth]{./01_manuscript/contents/figures/caption_and_media/jpg_for_compilation/01_example_figure.jpg}
-    \caption{\DIFaddbeginFL \textbf{\DIFaddFL{Replace with your figure title.}}\\
+    \caption{\textbf{Replace with your figure title.}\\
 \smallskip
-\DIFaddendFL Replace with your figure \DIFaddbeginFL \DIFaddFL{legend text. Edit this }\DIFaddendFL caption \DIFaddbeginFL \DIFaddFL{at }\texttt{\DIFaddFL{01\_manuscript/contents/figures/caption\_and\_media/01\_example\_figure.tex}}\DIFaddendFL .
+Replace with your figure legend text. Edit this caption at \texttt{01\_manuscript/contents/figures/caption\_and\_media/01\_example\_figure.tex}.
 }
 \label{fig:01_example_figure}
-\DIFdelbeginFL %DIFDELCMD < \label{fig:01_example_figure}
-%DIFDELCMD < %%%
-\DIFdelendFL \end{figure*}
+\end{figure*}
 
 % Figure 02
 \begin{figure*}[htbp]
-    \pdfbookmark[2]{Figure 02}{.02}
-    \centering
-    \includegraphics[width=0.9\textwidth]{./01_manuscript/contents/figures/caption_and_media/jpg_for_compilation/02_another_example.jpg}
-    \caption{\DIFaddbeginFL \textbf{\DIFaddFL{Replace with your figure title.}}\\
-\smallskip
-\DIFaddendFL Replace with your figure \DIFaddbeginFL \DIFaddFL{legend text. Edit this }\DIFaddendFL caption \DIFaddbeginFL \DIFaddFL{at }\texttt{\DIFaddFL{01\_manuscript/contents/figures/caption\_and\_media/02\_another\_example.tex}}\DIFaddendFL .
-}
-\DIFdelbeginFL %DIFDELCMD < \label{fig:02_another_example}
+    \DIFdelbeginFL %DIFDELCMD < \pdfbookmark[2]{Figure 02}{.02}
 %DIFDELCMD <     %%%
-\DIFdelendFL \label{fig:02_another_example}
+\DIFdelendFL \DIFaddbeginFL \pdfbookmark[2]{Figure 02 --- Replace with your figure title}{.02}
+    \DIFaddendFL \centering
+    \includegraphics[width=0.9\textwidth]{./01_manuscript/contents/figures/caption_and_media/jpg_for_compilation/02_another_example.jpg}
+    \caption{\textbf{Replace with your figure title.}\\
+\smallskip
+Replace with your figure legend text. Edit this caption at \texttt{01\_manuscript/contents/figures/caption\_and\_media/02\_another\_example.tex}.
+}
+\label{fig:02_another_example}
 \end{figure*}
 
 

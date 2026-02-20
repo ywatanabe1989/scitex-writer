@@ -25,6 +25,8 @@ document.addEventListener('DOMContentLoaded', function() {
     setupToolbar();
     setupKeyboard();
     setupPreviewTabs();
+    loadClaims();
+    initClaims();
 });
 
 // ===== File Tree =====

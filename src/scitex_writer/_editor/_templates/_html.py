@@ -84,6 +84,7 @@ def build_html_body(project_dir: str = "") -> str:
             <div class="preview-tabs">
                 <button class="preview-tab active" data-view="pdf">PDF</button>
                 <button class="preview-tab" data-view="bib">Bibliography</button>
+                <button class="preview-tab" data-view="claims">Claims</button>
             </div>
             <div class="preview-actions">
                 <button id="btn-refresh-pdf" class="btn btn-icon btn-sm"
@@ -116,6 +117,60 @@ def build_html_body(project_dir: str = "") -> str:
                     <div class="loading">Loading bibliography...</div>
                 </div>
             </div>
+            <!-- Claims view -->
+            <div class="preview-view" id="claims-view">
+                <div class="claims-toolbar">
+                    <button class="btn btn-sm btn-secondary"
+                            id="btn-refresh-claims" title="Reload claims">&#8635; Refresh</button>
+                    <button class="btn btn-sm btn-secondary"
+                            id="btn-render-claims" title="Regenerate claims_rendered.tex">
+                        &#9881; Render .tex
+                    </button>
+                    <span id="claims-count" class="claims-count"></span>
+                </div>
+                <div class="claims-list" id="claims-list">
+                    <div class="loading">Loading claims...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Claim hover tooltip -->
+<div id="claim-tooltip" class="claim-tooltip" style="display:none;">
+    <div class="claim-tooltip-header">
+        <span id="ct-id" class="ct-id"></span>
+        <span id="ct-type" class="ct-type-badge"></span>
+        <button id="ct-close" class="ct-close" title="Close">&times;</button>
+    </div>
+    <div class="claim-tooltip-body">
+        <div class="ct-section">
+            <div class="ct-label">Nature</div>
+            <div id="ct-nature" class="ct-value ct-latex"></div>
+        </div>
+        <div class="ct-section">
+            <div class="ct-label">APA</div>
+            <div id="ct-apa" class="ct-value ct-latex"></div>
+        </div>
+        <div class="ct-section">
+            <div class="ct-label">Plain</div>
+            <div id="ct-plain" class="ct-value"></div>
+        </div>
+        <div id="ct-context-section" class="ct-section" style="display:none;">
+            <div class="ct-label">Context</div>
+            <div id="ct-context" class="ct-value ct-muted"></div>
+        </div>
+        <div id="ct-provenance-section" class="ct-section" style="display:none;">
+            <div class="ct-label">Provenance</div>
+            <div id="ct-provenance" class="ct-value ct-muted ct-mono"></div>
+        </div>
+    </div>
+    <div id="ct-chain-section" class="claim-tooltip-chain" style="display:none;">
+        <div class="ct-label ct-chain-label">Verification Chain
+            <span id="ct-clew-badge" class="ct-clew-badge"></span>
+        </div>
+        <div id="ct-chain-diagram" class="ct-chain-diagram">
+            <div class="ct-chain-loading">Loading chain...</div>
         </div>
     </div>
 </div>

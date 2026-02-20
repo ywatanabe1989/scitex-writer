@@ -18,6 +18,7 @@ from ._styles import build_styles
 
 _CM_CDN = "https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16"
 _PDF_CDN = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174"
+_MERMAID_CDN = "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"
 
 
 def _build_head_links() -> str:
@@ -48,6 +49,8 @@ def _build_head_links() -> str:
         lines.append(f'<script src="{cm}/{f}"></script>')
     lines.append("<!-- pdf.js -->")
     lines.append(f'<script src="{_PDF_CDN}/pdf.min.js"></script>')
+    lines.append("<!-- Mermaid.js (claim chain diagrams) -->")
+    lines.append(f'<script src="{_MERMAID_CDN}"></script>')
     return "\n".join(lines)
 
 
