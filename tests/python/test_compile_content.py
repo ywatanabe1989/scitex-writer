@@ -278,8 +278,12 @@ class TestMcpToolRegistration:
 
         from scitex_writer._mcp import mcp
 
-        tools = asyncio.run(mcp.get_tools())
-        assert "writer_compile_content" in tools
+        try:
+            tools = asyncio.run(mcp.get_tools())
+            tool_names = list(tools.keys())
+        except AttributeError:
+            tool_names = [t.name for t in asyncio.run(mcp._list_tools())]
+        assert "writer_compile_content" in tool_names
 
 
 # EOF
