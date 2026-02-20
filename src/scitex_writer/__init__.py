@@ -55,18 +55,10 @@ from . import (
     tables,
     update,
 )
-from ._dataclasses import (
-    CompilationResult as _CompilationResult,
-)
-from ._dataclasses import (
-    ManuscriptTree as _ManuscriptTree,
-)
-from ._dataclasses import (
-    RevisionTree as _RevisionTree,
-)
-from ._dataclasses import (
-    SupplementaryTree as _SupplementaryTree,
-)
+from ._dataclasses import CompilationResult as _CompilationResult  # noqa: F401
+from ._dataclasses import ManuscriptTree as _ManuscriptTree  # noqa: F401
+from ._dataclasses import RevisionTree as _RevisionTree  # noqa: F401
+from ._dataclasses import SupplementaryTree as _SupplementaryTree  # noqa: F401
 from ._editor import gui
 from ._usage import get_usage as usage
 from .writer import Writer

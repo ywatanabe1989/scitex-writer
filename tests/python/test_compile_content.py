@@ -274,10 +274,12 @@ class TestMcpToolRegistration:
 
     def test_compile_content_tool_registered(self):
         """Test that compile_content tool is registered with MCP."""
+        import asyncio
+
         from scitex_writer._mcp import mcp
 
-        tool_names = [t.name for t in mcp._tool_manager._tools.values()]
-        assert "writer_compile_content" in tool_names
+        tools = asyncio.run(mcp.get_tools())
+        assert "writer_compile_content" in tools
 
 
 # EOF

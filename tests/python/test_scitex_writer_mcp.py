@@ -45,19 +45,23 @@ class TestToolRegistration:
 
     def test_usage_tool_registered(self):
         """Test that usage tool is registered with MCP."""
+        import asyncio
+
         from scitex_writer._mcp import mcp
 
-        tool_names = [t.name for t in mcp._tool_manager._tools.values()]
-        assert "usage" in tool_names
+        tools = asyncio.run(mcp.get_tools())
+        assert "usage" in tools
 
     def test_tool_count(self):
         """Test that expected number of tools are registered."""
+        import asyncio
+
         from scitex_writer._mcp import mcp
 
-        tool_count = len(mcp._tool_manager._tools)
-        # 30 tools: usage(1), project(4), compile(4), tables(5), figures(5),
-        # bib(6), guidelines(3), prompts(1), export(1)
-        assert tool_count >= 28
+        tools = asyncio.run(mcp.get_tools())
+        # 30+ tools: usage(1), project(4), compile(4), tables(5), figures(5),
+        # bib(6), guidelines(3), prompts(1), export(1), claim(6), update(1)
+        assert len(tools) >= 28
 
 
 class TestUsageTool:
@@ -65,12 +69,14 @@ class TestUsageTool:
 
     def test_usage_returns_instructions(self):
         """Test usage tool returns instructions."""
+        import asyncio
+
         from scitex_writer._branding import get_mcp_instructions
         from scitex_writer._mcp import mcp
 
-        tool = mcp._tool_manager._tools.get("usage")
-        assert tool is not None
-        result = tool.fn()
+        tools = asyncio.run(mcp.get_tools())
+        assert "usage" in tools
+        result = tools["usage"].fn()
         assert result == get_mcp_instructions()
 
 
