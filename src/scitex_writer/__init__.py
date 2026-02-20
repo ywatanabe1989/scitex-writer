@@ -43,7 +43,18 @@ except _PackageNotFoundError:
                     break
 
 # Import modules for convenient access
-from . import bib, claim, compile, export, figures, guidelines, project, prompts, tables
+from . import (
+    bib,
+    claim,
+    compile,
+    export,
+    figures,
+    guidelines,
+    project,
+    prompts,
+    tables,
+    update,
+)
 from ._dataclasses import (
     CompilationResult as _CompilationResult,
 )
@@ -104,6 +115,7 @@ __all__ = [
     "bib",
     "guidelines",
     "prompts",
+    "update",
     # Writer class
     "Writer",
     "ensure_workspace",

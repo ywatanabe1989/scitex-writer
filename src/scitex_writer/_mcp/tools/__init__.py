@@ -22,6 +22,7 @@ def register_all_tools(mcp: FastMCP) -> None:
         project,
         prompts,
         tables,
+        update,
     )
 
     # Register tools from each module
@@ -34,6 +35,7 @@ def register_all_tools(mcp: FastMCP) -> None:
     guidelines.register_tools(mcp)
     prompts.register_tools(mcp)
     claim.register_tools(mcp)
+    update.register_tools(mcp)
 
 
 __all__ = ["register_all_tools"]

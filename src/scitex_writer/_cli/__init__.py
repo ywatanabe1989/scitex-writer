@@ -32,6 +32,7 @@ from . import (
     mcp,
     prompts,
     tables,
+    update,
 )
 
 
@@ -74,6 +75,7 @@ def main() -> int:
     tables_parser = tables.register_parser(subparsers)
     figures_parser = figures.register_parser(subparsers)
     gui_parser = gui.register_parser(subparsers)
+    update_parser = update.register_parser(subparsers)
     introspect.register_parser(subparsers)
 
     # Register top-level convenience commands
@@ -97,6 +99,7 @@ def main() -> int:
         "tables": tables_parser,
         "figures": figures_parser,
         "gui": gui_parser,
+        "update": update_parser,
     }
 
     if args.command in parsers:
