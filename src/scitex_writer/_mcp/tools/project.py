@@ -5,7 +5,6 @@
 
 """Project management MCP tools."""
 
-
 from typing import Literal, Optional
 
 from fastmcp import FastMCP

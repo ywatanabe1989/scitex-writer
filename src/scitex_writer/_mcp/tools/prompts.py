@@ -5,7 +5,6 @@
 
 """Prompts MCP tools."""
 
-
 from pathlib import Path
 
 from fastmcp import FastMCP

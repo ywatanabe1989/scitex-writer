@@ -5,7 +5,6 @@
 
 """Figure MCP tools."""
 
-
 import shutil
 from pathlib import Path
 from typing import List, Literal, Optional, Union

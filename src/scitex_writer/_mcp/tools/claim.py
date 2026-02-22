@@ -4,7 +4,6 @@
 
 """Claim MCP tools — traceable scientific assertions in LaTeX manuscripts."""
 
-
 from typing import Any, Dict, Optional
 
 from fastmcp import FastMCP

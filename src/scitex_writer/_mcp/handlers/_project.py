@@ -4,7 +4,6 @@
 
 """Project management handlers: clone, info, PDF paths, document types."""
 
-
 import shutil
 import subprocess
 from typing import Literal, Optional

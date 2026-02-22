@@ -5,7 +5,6 @@
 
 """Table MCP tools."""
 
-
 from typing import Literal, Optional
 
 from fastmcp import FastMCP
@@ -69,9 +68,9 @@ def register_tools(mcp: FastMCP) -> None:
                     {
                         "name": csv_file.stem,
                         "csv_path": str(csv_file),
-                        "caption_path": str(caption_file)
-                        if caption_file.exists()
-                        else None,
+                        "caption_path": (
+                            str(caption_file) if caption_file.exists() else None
+                        ),
                         "has_caption": caption_file.exists(),
                     }
                 )

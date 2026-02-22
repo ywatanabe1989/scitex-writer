@@ -4,7 +4,6 @@
 
 """MCP tool: update project engine files."""
 
-
 from typing import Optional
 
 from fastmcp import FastMCP

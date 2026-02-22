@@ -8,7 +8,6 @@
 Thin wrapper delegating to _compile.content for business logic.
 """
 
-
 from typing import Literal, Optional
 
 from .._compile.content import compile_content as _compile_content

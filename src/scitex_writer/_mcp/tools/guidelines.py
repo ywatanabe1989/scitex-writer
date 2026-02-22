@@ -5,7 +5,6 @@
 
 """Guidelines MCP tools."""
 
-
 from fastmcp import FastMCP
 
 

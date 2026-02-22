@@ -4,7 +4,6 @@
 
 """Table conversion handlers: CSV to LaTeX, LaTeX to CSV."""
 
-
 import re
 from pathlib import Path
 from typing import Optional

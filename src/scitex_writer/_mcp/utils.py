@@ -5,7 +5,6 @@
 
 """Utility functions for SciTeX Writer MCP handlers."""
 
-
 import subprocess
 from pathlib import Path
 
@@ -89,25 +88,31 @@ def run_compile_script(
         if result.returncode == 0:
             return {
                 "success": True,
-                "output_pdf": str(output_pdf)
-                if output_pdf and output_pdf.exists()
-                else None,
+                "output_pdf": (
+                    str(output_pdf) if output_pdf and output_pdf.exists() else None
+                ),
                 "exit_code": result.returncode,
-                "stdout": result.stdout[-2000:]
-                if len(result.stdout) > 2000
-                else result.stdout,
+                "stdout": (
+                    result.stdout[-2000:]
+                    if len(result.stdout) > 2000
+                    else result.stdout
+                ),
                 "message": f"{doc_type.title()} compiled successfully",
             }
         else:
             return {
                 "success": False,
                 "exit_code": result.returncode,
-                "stdout": result.stdout[-2000:]
-                if len(result.stdout) > 2000
-                else result.stdout,
-                "stderr": result.stderr[-2000:]
-                if len(result.stderr) > 2000
-                else result.stderr,
+                "stdout": (
+                    result.stdout[-2000:]
+                    if len(result.stdout) > 2000
+                    else result.stdout
+                ),
+                "stderr": (
+                    result.stderr[-2000:]
+                    if len(result.stderr) > 2000
+                    else result.stderr
+                ),
                 "error": f"Compilation failed with exit code {result.returncode}",
             }
 

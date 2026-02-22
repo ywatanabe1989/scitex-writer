@@ -5,7 +5,6 @@
 
 """Bibliography MCP tools."""
 
-
 import re
 from typing import Optional
 

@@ -13,7 +13,6 @@ Usage in LaTeX (after render_claims is called before compile):
     \\stxclaim[plain]{group_comparison}    % plain text
 """
 
-
 import json
 import re
 from pathlib import Path
