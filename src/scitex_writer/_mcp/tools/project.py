@@ -5,7 +5,6 @@
 
 """Project management MCP tools."""
 
-from __future__ import annotations
 
 from typing import Literal, Optional
 

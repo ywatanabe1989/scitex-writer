@@ -8,7 +8,6 @@
 Thin wrapper delegating to _compile.content for business logic.
 """
 
-from __future__ import annotations
 
 from typing import Literal, Optional
 

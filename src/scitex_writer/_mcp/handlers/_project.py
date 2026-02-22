@@ -4,7 +4,6 @@
 
 """Project management handlers: clone, info, PDF paths, document types."""
 
-from __future__ import annotations
 
 import shutil
 import subprocess

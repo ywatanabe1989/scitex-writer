@@ -5,8 +5,6 @@
 
 """MCP tool registration for SciTeX Writer."""
 
-from __future__ import annotations
-
 from fastmcp import FastMCP
 
 
@@ -19,6 +17,7 @@ def register_all_tools(mcp: FastMCP) -> None:
         export,
         figures,
         guidelines,
+        migration,
         project,
         prompts,
         tables,
@@ -36,6 +35,7 @@ def register_all_tools(mcp: FastMCP) -> None:
     prompts.register_tools(mcp)
     claim.register_tools(mcp)
     update.register_tools(mcp)
+    migration.register_tools(mcp)
 
 
 __all__ = ["register_all_tools"]

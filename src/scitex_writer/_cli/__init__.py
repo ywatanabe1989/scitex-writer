@@ -30,6 +30,7 @@ from . import (
     guidelines,
     introspect,
     mcp,
+    migration,
     prompts,
     tables,
     update,
@@ -76,6 +77,7 @@ def main() -> int:
     figures_parser = figures.register_parser(subparsers)
     gui_parser = gui.register_parser(subparsers)
     update_parser = update.register_parser(subparsers)
+    migration_parser = migration.register_parser(subparsers)
     introspect.register_parser(subparsers)
 
     # Register top-level convenience commands
@@ -100,6 +102,7 @@ def main() -> int:
         "figures": figures_parser,
         "gui": gui_parser,
         "update": update_parser,
+        "migration": migration_parser,
     }
 
     if args.command in parsers:

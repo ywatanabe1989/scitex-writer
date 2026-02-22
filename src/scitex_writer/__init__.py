@@ -9,12 +9,13 @@ Four Interfaces:
     - Python API: import scitex_writer as sw
     - CLI: scitex-writer <command>
     - GUI: scitex-writer gui (browser-based editor)
-    - MCP: 36 tools for AI agents
+    - MCP: 38 tools for AI agents
 
 Modules:
     - claim: Traceable scientific assertions (stats, figures, citations)
     - compile: Compile manuscripts to PDF
     - export: Export manuscript for arXiv submission
+    - migration: Import from / export to external platforms (Overleaf)
     - project: Clone, info, get_pdf
     - tables: List, add, remove, csv_to_latex
     - figures: List, add, remove, convert
@@ -50,6 +51,7 @@ from . import (
     export,
     figures,
     guidelines,
+    migration,
     project,
     prompts,
     tables,
@@ -107,6 +109,7 @@ __all__ = [
     "bib",
     "guidelines",
     "prompts",
+    "migration",
     "update",
     # Writer class
     "Writer",

@@ -5,7 +5,6 @@
 
 """Utility functions for SciTeX Writer MCP handlers."""
 
-from __future__ import annotations
 
 import subprocess
 from pathlib import Path

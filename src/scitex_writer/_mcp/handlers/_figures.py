@@ -4,7 +4,6 @@
 
 """Figure handlers: pdf_to_images, list_figures, convert_figure."""
 
-from __future__ import annotations
 
 import tempfile
 from pathlib import Path

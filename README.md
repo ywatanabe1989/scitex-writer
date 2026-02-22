@@ -73,7 +73,7 @@ cd my-paper && make manuscript   # or: ./compile.sh manuscript
 | 🐍 **Python API** | Human researchers | `import scitex_writer as sw` |
 | 🖥️ **CLI Commands** | Terminal users | `scitex-writer compile`, `scitex-writer bib` |
 | 🌐 **GUI Editor** | Visual editing | `scitex-writer gui` - browser-based editor |
-| 🔧 **MCP Tools** | AI agents | 30 tools for Claude/GPT integration |
+| 🔧 **MCP Tools** | AI agents | 38 tools for Claude/GPT integration |
 
 <details>
 <summary><strong>🌐 GUI Editor</strong></summary>
@@ -262,7 +262,7 @@ scitex-writer gui --port 8080 --no-browser     # Custom port, no auto-open
 </details>
 
 <details>
-<summary><strong>🔧 MCP Tools — 30 tools for AI Agents</strong></summary>
+<summary><strong>🔧 MCP Tools — 38 tools for AI Agents</strong></summary>
 
 <br>
 
@@ -278,7 +278,9 @@ Turn AI agents into autonomous manuscript compilers.
 | guidelines | 3 | List, get, build with draft |
 | prompts | 1 | AI2 Asta prompt generation |
 | export | 1 | arXiv-ready tarball packaging |
-| usage | 1 | Project guide |
+| claim | 6 | Traceable scientific assertions |
+| migration | 2 | Overleaf import/export |
+| update | 1 | Template update from upstream |
 
 **Claude Desktop** (`~/.config/Claude/claude_desktop_config.json`):
 

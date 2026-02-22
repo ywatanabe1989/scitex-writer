@@ -4,7 +4,6 @@
 
 """Compilation handlers: manuscript, supplementary, revision."""
 
-from __future__ import annotations
 
 from ..utils import resolve_project_path, run_compile_script
 

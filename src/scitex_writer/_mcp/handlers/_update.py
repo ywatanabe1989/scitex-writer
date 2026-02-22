@@ -4,7 +4,6 @@
 
 """Update handler: refresh engine files while preserving user content."""
 
-from __future__ import annotations
 
 import shutil
 import subprocess
