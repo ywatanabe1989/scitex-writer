@@ -21,7 +21,7 @@ SciTeX Writer - LaTeX Manuscript Compilation
 Key Features
 ------------
 
-- **Four Interfaces**: Python API, CLI, GUI editor, and MCP server (30 tools)
+- **Five Interfaces**: Shell/Make, Python API, CLI, GUI editor, and MCP server (38 tools)
 - **GUI Editor**: Browser-based LaTeX editor with PDF preview (``scitex-writer gui``)
 - **Container-based Compilation**: Consistent LaTeX compilation across environments
 - **Document Types**: Manuscript, Supplementary, and Revision documents
