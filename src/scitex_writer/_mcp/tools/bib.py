@@ -5,7 +5,6 @@
 
 """Bibliography MCP tools."""
 
-from __future__ import annotations
 
 import re
 from typing import Optional

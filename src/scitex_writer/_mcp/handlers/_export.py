@@ -4,7 +4,6 @@
 
 """Export handlers: arXiv manuscript packaging."""
 
-from __future__ import annotations
 
 import subprocess
 

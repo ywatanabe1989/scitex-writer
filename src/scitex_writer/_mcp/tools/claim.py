@@ -4,7 +4,6 @@
 
 """Claim MCP tools — traceable scientific assertions in LaTeX manuscripts."""
 
-from __future__ import annotations
 
 from typing import Any, Dict, Optional
 
