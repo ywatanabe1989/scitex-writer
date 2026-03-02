@@ -90,7 +90,7 @@ def ensure_workspace(project_dir, git_strategy="child", **kwargs):
     from pathlib import Path
 
     writer_path = Path(project_dir) / "scitex" / "writer"
-    if writer_path.exists():
+    if writer_path.exists() and any(writer_path.iterdir()):
         return writer_path
     Writer(str(writer_path), git_strategy=git_strategy, **kwargs)
     return writer_path
