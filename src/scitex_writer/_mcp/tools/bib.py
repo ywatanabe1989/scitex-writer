@@ -18,7 +18,7 @@ def register_tools(mcp: FastMCP) -> None:
 
     @mcp.tool()
     def writer_list_bibfiles(project_dir: str) -> dict:
-        """[writer] List all bibliography files in the project."""
+        """List all bibliography files in the project."""
         try:
             project_path = resolve_project_path(project_dir)
             bib_dir = project_path / "00_shared" / "bib_files"
@@ -45,7 +45,7 @@ def register_tools(mcp: FastMCP) -> None:
 
     @mcp.tool()
     def writer_list_bibentries(project_dir: str, bibfile: Optional[str] = None) -> dict:
-        """[writer] List all BibTeX entries in the project or specific file."""
+        """List all BibTeX entries in the project or specific file."""
         try:
             project_path = resolve_project_path(project_dir)
             bib_dir = project_path / "00_shared" / "bib_files"
@@ -80,7 +80,7 @@ def register_tools(mcp: FastMCP) -> None:
 
     @mcp.tool()
     def writer_get_bibentry(project_dir: str, citation_key: str) -> dict:
-        """[writer] Get a specific BibTeX entry by citation key."""
+        """Get a specific BibTeX entry by citation key."""
         try:
             project_path = resolve_project_path(project_dir)
             bib_dir = project_path / "00_shared" / "bib_files"
@@ -115,7 +115,7 @@ def register_tools(mcp: FastMCP) -> None:
         bibfile: str = "custom.bib",
         deduplicate: bool = True,
     ) -> dict:
-        """[writer] Add a BibTeX entry to a bibliography file.
+        """Add a BibTeX entry to a bibliography file.
 
         Args:
             project_dir: Path to project
@@ -169,7 +169,7 @@ def register_tools(mcp: FastMCP) -> None:
         project_dir: str,
         citation_key: str,
     ) -> dict:
-        """[writer] Remove a BibTeX entry by citation key."""
+        """Remove a BibTeX entry by citation key."""
         try:
             project_path = resolve_project_path(project_dir)
             bib_dir = project_path / "00_shared" / "bib_files"
@@ -206,7 +206,7 @@ def register_tools(mcp: FastMCP) -> None:
         output_file: str = "bibliography.bib",
         deduplicate: bool = True,
     ) -> dict:
-        """[writer] Merge all .bib files into one, with optional deduplication.
+        """Merge all .bib files into one, with optional deduplication.
 
         Deduplication is done by citation key (first occurrence wins).
         """

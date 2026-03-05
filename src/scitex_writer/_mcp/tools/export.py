@@ -18,7 +18,7 @@ def register_tools(mcp: FastMCP) -> None:
         output_dir: str | None = None,
         format: str = "arxiv",
     ) -> dict:
-        """[writer] Export manuscript as arXiv-ready tarball."""
+        """Export manuscript as arXiv-ready tarball."""
         return _export_manuscript(project_dir, output_dir, format)
 
 

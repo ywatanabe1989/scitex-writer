@@ -43,7 +43,7 @@ def register_tools(mcp: FastMCP) -> None:
         output_hash: Optional[str] = None,
         test: Optional[str] = None,
     ) -> dict:
-        """[writer] Add or update a claim in 00_shared/claims.json.
+        """Add or update a claim in 00_shared/claims.json.
 
         Claims are traceable scientific assertions — statistics, values, citations —
         stored as structured objects instead of hardcoded magic numbers.
@@ -79,7 +79,7 @@ def register_tools(mcp: FastMCP) -> None:
 
     @mcp.tool()
     def writer_list_claims(project_dir: str) -> dict:
-        """[writer] List all claims in the project.
+        """List all claims in the project.
 
         Returns each claim's ID, type, context, and a nature-style preview.
         """
@@ -87,7 +87,7 @@ def register_tools(mcp: FastMCP) -> None:
 
     @mcp.tool()
     def writer_get_claim(project_dir: str, claim_id: str) -> dict:
-        """[writer] Get full details of a specific claim including all style renderings.
+        """Get full details of a specific claim including all style renderings.
 
         Returns the raw claim data and rendered previews for nature, apa, and plain styles.
         """
@@ -95,7 +95,7 @@ def register_tools(mcp: FastMCP) -> None:
 
     @mcp.tool()
     def writer_remove_claim(project_dir: str, claim_id: str) -> dict:
-        """[writer] Remove a claim from 00_shared/claims.json.
+        """Remove a claim from 00_shared/claims.json.
 
         Note: Re-run writer_render_claims after removal to update claims_rendered.tex.
         """
@@ -107,7 +107,7 @@ def register_tools(mcp: FastMCP) -> None:
         claim_id: str,
         style: str = "nature",
     ) -> dict:
-        """[writer] Render a claim as a formatted LaTeX string.
+        """Render a claim as a formatted LaTeX string.
 
         style options:
           - nature: p < 0.001, standard journal format (default)
@@ -118,7 +118,7 @@ def register_tools(mcp: FastMCP) -> None:
 
     @mcp.tool()
     def writer_render_claims(project_dir: str) -> dict:
-        """[writer] Generate 00_shared/claims_rendered.tex from claims.json.
+        """Generate 00_shared/claims_rendered.tex from claims.json.
 
         This file defines the \\stxclaim[style]{id} LaTeX macro and all claim
         renderings. It is included automatically in the manuscript preamble

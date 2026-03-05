@@ -18,7 +18,7 @@ def register_tools(mcp: FastMCP) -> None:
         project_path: str = ".",
         search_type: str = "related",
     ) -> str:
-        """[writer] Generate AI2 Asta prompt for finding related papers or collaborators.
+        """Generate AI2 Asta prompt for finding related papers or collaborators.
 
         Args:
             project_path: Path to scitex-writer project (default: current directory)

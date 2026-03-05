@@ -26,7 +26,7 @@ mcp = FastMCP(name=get_mcp_server_name(), instructions=get_usage())
 
 @mcp.tool()
 def usage() -> str:
-    """[writer] Get usage guide for SciTeX Writer LaTeX manuscript compilation system."""
+    """Get usage guide for SciTeX Writer LaTeX manuscript compilation system."""
     return get_usage()
 
 

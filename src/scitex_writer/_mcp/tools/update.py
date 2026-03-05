@@ -22,7 +22,7 @@ def register_tools(mcp: FastMCP) -> None:
         dry_run: bool = False,
         force: bool = False,
     ) -> dict:
-        """[writer] Update engine files of a scitex-writer project to the latest version.
+        """Update engine files of a scitex-writer project to the latest version.
 
         Replaces build scripts, LaTeX styles, and base LaTeX templates with the
         latest version from the installed scitex-writer package.  If branch or tag

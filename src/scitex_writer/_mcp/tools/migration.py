@@ -20,7 +20,7 @@ def register_tools(mcp: FastMCP) -> None:
         dry_run: bool = False,
         force: bool = False,
     ) -> dict:
-        """[writer] Import an Overleaf ZIP export into a scitex-writer project.
+        """Import an Overleaf ZIP export into a scitex-writer project.
 
         Analyzes the Overleaf project structure, maps sections to IMRAD format,
         and creates a complete scitex-writer project with figures, bibliography,
@@ -43,7 +43,7 @@ def register_tools(mcp: FastMCP) -> None:
         output_path: Optional[str] = None,
         dry_run: bool = False,
     ) -> dict:
-        """[writer] Export a scitex-writer project as Overleaf-compatible ZIP.
+        """Export a scitex-writer project as Overleaf-compatible ZIP.
 
         Flattens the project structure into a format uploadable to Overleaf,
         with a single main.tex, images directory, and merged bibliography.

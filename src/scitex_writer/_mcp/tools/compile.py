@@ -34,7 +34,7 @@ def register_tools(mcp: FastMCP) -> None:
         verbose: bool = False,
         engine: str | None = None,
     ) -> dict:
-        """[writer] Compile manuscript LaTeX document to PDF."""
+        """Compile manuscript LaTeX document to PDF."""
         return _compile_manuscript(
             project_dir,
             timeout=timeout,
@@ -60,7 +60,7 @@ def register_tools(mcp: FastMCP) -> None:
         quiet: bool = False,
         engine: str | None = None,
     ) -> dict:
-        """[writer] Compile supplementary materials LaTeX document to PDF."""
+        """Compile supplementary materials LaTeX document to PDF."""
         return _compile_supplementary(
             project_dir,
             timeout=timeout,
@@ -84,7 +84,7 @@ def register_tools(mcp: FastMCP) -> None:
         quiet: bool = False,
         engine: str | None = None,
     ) -> dict:
-        """[writer] Compile revision document to PDF with optional change tracking."""
+        """Compile revision document to PDF with optional change tracking."""
         return _compile_revision(
             project_dir,
             track_changes=track_changes,
@@ -105,7 +105,7 @@ def register_tools(mcp: FastMCP) -> None:
         timeout: int = 60,
         keep_aux: bool = False,
     ) -> dict:
-        """[writer] Compile raw LaTeX content to PDF with color mode support.
+        """Compile raw LaTeX content to PDF with color mode support.
 
         Compiles provided LaTeX content to PDF. Supports color modes:
         'light' (default) or 'dark' (Monaco #1E1E1E bg, #D4D4D4 text).
