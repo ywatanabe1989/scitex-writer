@@ -4,7 +4,6 @@
 
 """Update handler: refresh engine files while preserving user content."""
 
-
 import shutil
 import subprocess
 import tempfile

@@ -4,7 +4,6 @@
 
 """Export handlers: arXiv manuscript packaging."""
 
-
 import subprocess
 
 from ..utils import resolve_project_path
@@ -48,20 +47,26 @@ def export_manuscript(
                 "success": True,
                 "tarball_path": tarball_path,
                 "message": "Manuscript exported for arXiv",
-                "stdout": result.stdout[-2000:]
-                if len(result.stdout) > 2000
-                else result.stdout,
+                "stdout": (
+                    result.stdout[-2000:]
+                    if len(result.stdout) > 2000
+                    else result.stdout
+                ),
             }
         else:
             return {
                 "success": False,
                 "exit_code": result.returncode,
-                "stdout": result.stdout[-2000:]
-                if len(result.stdout) > 2000
-                else result.stdout,
-                "stderr": result.stderr[-2000:]
-                if len(result.stderr) > 2000
-                else result.stderr,
+                "stdout": (
+                    result.stdout[-2000:]
+                    if len(result.stdout) > 2000
+                    else result.stdout
+                ),
+                "stderr": (
+                    result.stderr[-2000:]
+                    if len(result.stderr) > 2000
+                    else result.stderr
+                ),
                 "error": f"Export failed with exit code {result.returncode}",
             }
 

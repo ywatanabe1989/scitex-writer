@@ -705,3 +705,5 @@ flycheck_*.el
 /fix-table
 GITIGNORED/
 docs/sphinx/_build/
+01_manuscript/manuscript.pdf
+01_manuscript/manuscript_diff.pdf

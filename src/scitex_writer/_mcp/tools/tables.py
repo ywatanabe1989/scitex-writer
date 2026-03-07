@@ -5,7 +5,6 @@
 
 """Table MCP tools."""
 
-
 from typing import Literal, Optional
 
 from fastmcp import FastMCP
@@ -26,7 +25,7 @@ def register_tools(mcp: FastMCP) -> None:
         label: Optional[str] = None,
         longtable: bool = False,
     ) -> dict:
-        """[writer] Convert CSV file to LaTeX table format."""
+        """Convert CSV file to LaTeX table format."""
         return _csv_to_latex(csv_path, output_path, caption, label, longtable)
 
     @mcp.tool()
@@ -35,7 +34,7 @@ def register_tools(mcp: FastMCP) -> None:
         output_path: Optional[str] = None,
         table_index: int = 0,
     ) -> dict:
-        """[writer] Convert LaTeX table to CSV format."""
+        """Convert LaTeX table to CSV format."""
         return _latex_to_csv(latex_path, output_path, table_index)
 
     @mcp.tool()
@@ -43,7 +42,7 @@ def register_tools(mcp: FastMCP) -> None:
         project_dir: str,
         doc_type: Literal["manuscript", "supplementary", "revision"] = "manuscript",
     ) -> dict:
-        """[writer] List all tables in a writer project."""
+        """List all tables in a writer project."""
         try:
             project_path = resolve_project_path(project_dir)
             doc_dirs = {
@@ -69,9 +68,9 @@ def register_tools(mcp: FastMCP) -> None:
                     {
                         "name": csv_file.stem,
                         "csv_path": str(csv_file),
-                        "caption_path": str(caption_file)
-                        if caption_file.exists()
-                        else None,
+                        "caption_path": (
+                            str(caption_file) if caption_file.exists() else None
+                        ),
                         "has_caption": caption_file.exists(),
                     }
                 )
@@ -89,7 +88,7 @@ def register_tools(mcp: FastMCP) -> None:
         label: Optional[str] = None,
         doc_type: Literal["manuscript", "supplementary"] = "manuscript",
     ) -> dict:
-        """[writer] Add a new table (CSV + caption) to the project."""
+        """Add a new table (CSV + caption) to the project."""
         try:
             project_path = resolve_project_path(project_dir)
             doc_dirs = {
@@ -129,7 +128,7 @@ def register_tools(mcp: FastMCP) -> None:
         name: str,
         doc_type: Literal["manuscript", "supplementary"] = "manuscript",
     ) -> dict:
-        """[writer] Remove a table (CSV + caption) from the project."""
+        """Remove a table (CSV + caption) from the project."""
         try:
             project_path = resolve_project_path(project_dir)
             doc_dirs = {

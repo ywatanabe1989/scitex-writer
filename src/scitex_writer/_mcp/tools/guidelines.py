@@ -5,7 +5,6 @@
 
 """Guidelines MCP tools."""
 
-
 from fastmcp import FastMCP
 
 
@@ -14,7 +13,7 @@ def register_tools(mcp: FastMCP) -> None:
 
     @mcp.tool()
     def writer_guideline_list() -> str:
-        """[writer] List available IMRAD writing guideline sections.
+        """List available IMRAD writing guideline sections.
 
         Returns list of sections: abstract, introduction, methods, discussion, proofread.
         """
@@ -27,7 +26,7 @@ def register_tools(mcp: FastMCP) -> None:
 
     @mcp.tool()
     def writer_guideline_get(section: str) -> str:
-        """[writer] Get IMRAD writing guideline for a manuscript section.
+        """Get IMRAD writing guideline for a manuscript section.
 
         Args:
             section: Section name (abstract, introduction, methods, discussion, proofread)
@@ -46,7 +45,7 @@ def register_tools(mcp: FastMCP) -> None:
 
     @mcp.tool()
     def writer_guideline_build(section: str, draft: str) -> str:
-        """[writer] Build editing prompt by combining guideline with draft text.
+        """Build editing prompt by combining guideline with draft text.
 
         Args:
             section: Section name (abstract, introduction, methods, discussion, proofread)

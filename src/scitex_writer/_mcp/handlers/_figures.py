@@ -4,7 +4,6 @@
 
 """Figure handlers: pdf_to_images, list_figures, convert_figure."""
 
-
 import tempfile
 from pathlib import Path
 from typing import List, Literal, Optional, Union

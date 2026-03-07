@@ -5,7 +5,6 @@
 
 """Figure MCP tools."""
 
-
 import shutil
 from pathlib import Path
 from typing import List, Literal, Optional, Union
@@ -32,7 +31,7 @@ def register_tools(mcp: FastMCP) -> None:
         project_dir: str,
         extensions: Optional[List[str]] = None,
     ) -> dict:
-        """[writer] List all figures in a writer project directory."""
+        """List all figures in a writer project directory."""
         return _list_figures(project_dir, extensions)
 
     @mcp.tool()
@@ -42,7 +41,7 @@ def register_tools(mcp: FastMCP) -> None:
         dpi: int = 300,
         quality: int = 95,
     ) -> dict:
-        """[writer] Convert figure between formats (e.g., PDF to PNG)."""
+        """Convert figure between formats (e.g., PDF to PNG)."""
         return _convert_figure(input_path, output_path, dpi, quality)
 
     @mcp.tool()
@@ -53,7 +52,7 @@ def register_tools(mcp: FastMCP) -> None:
         dpi: int = 600,
         format: Literal["png", "jpg"] = "png",
     ) -> dict:
-        """[writer] Render PDF pages as images."""
+        """Render PDF pages as images."""
         return _pdf_to_images(pdf_path, output_dir, pages, dpi, format)
 
     @mcp.tool()
@@ -65,7 +64,7 @@ def register_tools(mcp: FastMCP) -> None:
         label: Optional[str] = None,
         doc_type: Literal["manuscript", "supplementary"] = "manuscript",
     ) -> dict:
-        """[writer] Add a figure (copy image + create caption) to the project."""
+        """Add a figure (copy image + create caption) to the project."""
         try:
             project_path = resolve_project_path(project_dir)
             doc_dirs = {
@@ -109,7 +108,7 @@ def register_tools(mcp: FastMCP) -> None:
         name: str,
         doc_type: Literal["manuscript", "supplementary"] = "manuscript",
     ) -> dict:
-        """[writer] Remove a figure (image + caption) from the project."""
+        """Remove a figure (image + caption) from the project."""
         try:
             project_path = resolve_project_path(project_dir)
             doc_dirs = {

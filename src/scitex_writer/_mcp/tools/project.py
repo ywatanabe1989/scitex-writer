@@ -5,7 +5,6 @@
 
 """Project management MCP tools."""
 
-
 from typing import Literal, Optional
 
 from fastmcp import FastMCP
@@ -34,12 +33,12 @@ def register_tools(mcp: FastMCP) -> None:
         branch: Optional[str] = None,
         tag: Optional[str] = None,
     ) -> dict:
-        """[writer] Create a new LaTeX manuscript project from template."""
+        """Create a new LaTeX manuscript project from template."""
         return _clone_project(project_dir, git_strategy, branch, tag)
 
     @mcp.tool()
     def writer_get_project_info(project_dir: str) -> dict:
-        """[writer] Get writer project structure and status information."""
+        """Get writer project structure and status information."""
         return _get_project_info(project_dir)
 
     @mcp.tool()
@@ -47,12 +46,12 @@ def register_tools(mcp: FastMCP) -> None:
         project_dir: str,
         doc_type: Literal["manuscript", "supplementary", "revision"] = "manuscript",
     ) -> dict:
-        """[writer] Get path to compiled PDF for a document type."""
+        """Get path to compiled PDF for a document type."""
         return _get_pdf(project_dir, doc_type)
 
     @mcp.tool()
     def writer_list_document_types() -> dict:
-        """[writer] List available document types in a writer project."""
+        """List available document types in a writer project."""
         return _list_document_types()
 
 

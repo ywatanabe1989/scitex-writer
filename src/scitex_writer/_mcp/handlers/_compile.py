@@ -4,7 +4,6 @@
 
 """Compilation handlers: manuscript, supplementary, revision."""
 
-
 from ..utils import resolve_project_path, run_compile_script
 
 
