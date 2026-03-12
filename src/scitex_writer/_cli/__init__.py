@@ -84,6 +84,14 @@ def main() -> int:
     introspect.register_list_python_apis(subparsers)
     _register_usage_command(subparsers)
 
+    # docs — reusable mixin from scitex_dev
+    try:
+        from scitex_dev.cli import register_docs_subcommand
+
+        register_docs_subcommand(subparsers, package="scitex-writer")
+    except ImportError:
+        pass
+
     args = parser.parse_args()
 
     # Handle command dispatch

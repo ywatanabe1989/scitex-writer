@@ -78,6 +78,9 @@ all = [
 [project.scripts]
 scitex-writer = "scitex_writer._cli:main"
 
+[project.entry-points."scitex_dev.docs"]
+scitex-writer = "scitex_writer"
+
 [project.urls]
 Homepage = "https://github.com/ywatanabe1989/scitex-writer"
 Documentation = "https://scitex-writer.readthedocs.io"
