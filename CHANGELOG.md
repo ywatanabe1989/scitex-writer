@@ -7,6 +7,56 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.9.0] - 2026-03-14
+
+### Added
+- feat: Wire `docs` subcommand into scitex-writer via scitex_dev mixin
+
+### Fixed
+- fix: Use public FastMCP 3.x API instead of removed `_tool_manager`
+- fix: Update Result schema docs from `next_steps` to `hints_on_error`
+
+### Changed
+- chore: Gitignore pre-built `_docs/` directory
+
+## [2.8.1] - 2026-03-12
+
+### Added
+- feat: CLA, CONTRIBUTING.md, and CLA Assistant workflow
+
+### Fixed
+- fix: Check directory has content before skipping clone in `ensure_workspace()`
+
+### Changed
+- refactor: Remove 39 `[writer]` docstring tag prefixes from MCP tools
+- chore: Gitignore manuscript PDFs
+
+## [2.8.0] - 2026-03-10
+
+### Added
+- feat: Overleaf migration tools (import/export)
+
+### Fixed
+- fix: Remove `from __future__ import annotations` from MCP tool files
+
+## [2.7.2] - 2026-03-08
+
+### Added
+- feat: Claim feature — traceable scientific assertions
+- feat: Update command and version stamps
+
+### Fixed
+- fix: Audit fixes — hide internal dataclasses, add claim tests, update docs
+- fix: Resolve CI failures — noqa for internal imports, update FastMCP tool API
+
+## [2.7.1] - 2026-03-06
+
+### Fixed
+- fix: Remove stale `export.py` and exclude MCP handlers from coverage
+- fix: Resolve CI failures — remove unused imports, exclude editor from coverage
+
+## [2.7.0] - 2026-03-04
+
 ### Added
 - feat: Standalone GUI editor (`scitex-writer gui`, `sw.gui()`)
   - Browser-based LaTeX editor with CodeMirror 5 (syntax highlighting, search, fold)
@@ -18,6 +68,75 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Resizable panels, file tabs with unsaved indicator
   - Docker support (`Dockerfile.gui`, `docker-compose.gui.yml`)
   - Flask as optional dependency: `pip install scitex-writer[editor]`
+
+### Changed
+- refactor: Minimize Python API surface
+
+## [2.6.7] - 2026-03-02
+
+### Added
+- feat: DRY dark mode colors via config, add `dark_mode` to all MCP tools
+
+### Fixed
+- fix: Audit findings — engine bug, broken examples, coverage threshold
+
+## [2.6.6] - 2026-02-28
+
+### Changed
+- refactor: Rename `compile_content_document` → `tex_snippet2full`
+
+### Fixed
+- fix: Add `.gitkeep` to `03_revision/contents/tables/` for CI compilation
+- ci: Add all three doc types to compilation CI tests
+
+## [2.6.5] - 2026-02-26
+
+### Added
+- feat: `ensure_workspace()` for lazy writer workspace creation
+- feat: Descriptive titles for PDF bookmarks
+
+### Fixed
+- fix: Use project scripts directory for content compilation
+- ci: Update actions/setup-python to v5, add Python 3.13 to test matrix
+- fix: Resolve CI lint errors and PIL import failure in tests
+
+## [2.6.4] - 2026-02-22
+
+### Added
+- feat: Validation checks for pre-compilation
+- ci: PyPI publish workflow on GitHub release
+
+### Fixed
+- fix: Compilation bugs and template improvements
+- fix: Watch mode respects `SCITEX_WRITER_DARK_MODE` env var
+
+## [2.6.2] - 2026-02-18
+
+### Fixed
+- fix: Dark mode compilation and env var passthrough (Issue #43)
+- fix: Clean compiled figures directory before regeneration (Issue #41)
+
+### Changed
+- chore: Parse `pyproject.toml` as single source of truth for version
+
+## [2.6.1] - 2026-02-16
+
+### Fixed
+- fix: Update dark mode tests to match Monaco color scheme
+
+## [2.6.0] - 2026-02-14
+
+### Added
+- feat: arXiv export feature (`make manuscript-export`)
+- feat: `make check` for pre-compilation validation
+- feat: Backward-compatible Makefile aliases for README targets
+
+### Fixed
+- fix: Audit fixes — add export to `__all__`, help to watch script, update README
+- fix: Add timeout to diff compilation to prevent infinite loops
+
+### Changed
+- refactor: Prefix pattern for Makefile targets, update DPI to 600
 
 ## [2.5.4] - 2026-02-09
 
@@ -143,7 +262,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Restructured project for better modularity
 - Separated configuration from scripts
 
-[Unreleased]: https://github.com/ywatanabe1989/scitex-writer/compare/v2.2.0...HEAD
+[Unreleased]: https://github.com/ywatanabe1989/scitex-writer/compare/v2.9.0...HEAD
+[2.9.0]: https://github.com/ywatanabe1989/scitex-writer/compare/v2.8.1...v2.9.0
+[2.8.1]: https://github.com/ywatanabe1989/scitex-writer/compare/v2.8.0...v2.8.1
+[2.8.0]: https://github.com/ywatanabe1989/scitex-writer/compare/v2.7.2...v2.8.0
+[2.7.2]: https://github.com/ywatanabe1989/scitex-writer/compare/v2.7.1...v2.7.2
+[2.7.1]: https://github.com/ywatanabe1989/scitex-writer/compare/v2.7.0...v2.7.1
+[2.7.0]: https://github.com/ywatanabe1989/scitex-writer/compare/v2.6.7...v2.7.0
+[2.6.7]: https://github.com/ywatanabe1989/scitex-writer/compare/v2.6.6...v2.6.7
+[2.6.6]: https://github.com/ywatanabe1989/scitex-writer/compare/v2.6.5...v2.6.6
+[2.6.5]: https://github.com/ywatanabe1989/scitex-writer/compare/v2.6.4...v2.6.5
+[2.6.4]: https://github.com/ywatanabe1989/scitex-writer/compare/v2.6.2...v2.6.4
+[2.6.2]: https://github.com/ywatanabe1989/scitex-writer/compare/v2.6.1...v2.6.2
+[2.6.1]: https://github.com/ywatanabe1989/scitex-writer/compare/v2.6.0...v2.6.1
+[2.6.0]: https://github.com/ywatanabe1989/scitex-writer/compare/v2.5.4...v2.6.0
+[2.5.4]: https://github.com/ywatanabe1989/scitex-writer/compare/v2.5.3...v2.5.4
+[2.5.3]: https://github.com/ywatanabe1989/scitex-writer/compare/v2.2.1...v2.5.3
+[2.2.1]: https://github.com/ywatanabe1989/scitex-writer/compare/v2.2.0...v2.2.1
 [2.2.0]: https://github.com/ywatanabe1989/scitex-writer/compare/v2.1.0...v2.2.0
 [2.1.0]: https://github.com/ywatanabe1989/scitex-writer/compare/v2.0.0-rc4...v2.1.0
 [2.0.0-rc4]: https://github.com/ywatanabe1989/scitex-writer/compare/v2.0.0-rc3...v2.0.0-rc4
