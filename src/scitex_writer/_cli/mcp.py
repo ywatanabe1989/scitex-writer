@@ -112,7 +112,7 @@ def _format_tool_signature(tool, compact: bool = False, indent: str = "  ") -> s
     # All MCP tools return a standardized Result envelope
     ret_type = (
         f" -> {_style('Result', 'magenta')}"
-        f"{_style('{success, data, error, next_steps}', 'yellow')}"
+        f"{_style('{success, data, error, hints_on_error}', 'yellow')}"
     )
 
     # Function name in green
@@ -179,7 +179,7 @@ def cmd_list_tools(args: argparse.Namespace) -> int:
 
     print(_style("SciTeX Writer MCP: scitex-writer", "cyan", bold=True))
     print(f"Tools: {total} ({len(modules)} modules)")
-    print("Returns: Result{success, data, error, error_code, context, next_steps}")
+    print("Returns: Result{success, data, error, error_code, context, hints_on_error}")
     print()
 
     for module in sorted(modules.keys()):
