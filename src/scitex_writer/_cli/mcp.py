@@ -88,9 +88,6 @@ def _style(text: str, fg: str = None, bold: bool = False) -> str:
 
 def _format_tool_signature(tool, compact: bool = False, indent: str = "  ") -> str:
     """Format tool as Python-like function signature with colors."""
-    import inspect
-    import re
-
     params = []
     if hasattr(tool, "parameters") and tool.parameters:
         schema = tool.parameters
@@ -112,28 +109,11 @@ def _format_tool_signature(tool, compact: bool = False, indent: str = "  ") -> s
                 def_s = _style("= None", "yellow")
                 params.append(f"{name_s}: {type_s} {def_s}")
 
-    # Get return type with dict keys from docstring
-    ret_type = ""
-    if hasattr(tool, "fn") and tool.fn:
-        try:
-            sig = inspect.signature(tool.fn)
-            if sig.return_annotation != inspect.Parameter.empty:
-                ret = sig.return_annotation
-                ret_name = ret.__name__ if hasattr(ret, "__name__") else str(ret)
-                # Extract return dict keys from docstring
-                keys = []
-                if tool.description and "Returns" in tool.description:
-                    match = re.search(
-                        r"Returns\s*[-]+\s*\w+\s*(.+?)(?:Raises|Examples|Notes|\Z)",
-                        tool.description,
-                        re.DOTALL,
-                    )
-                    if match:
-                        keys = re.findall(r"'([a-z_]+)'", match.group(1))
-                keys_s = _style(f"{{{', '.join(keys)}}}", "yellow") if keys else ""
-                ret_type = f" -> {_style(ret_name, 'magenta')}{keys_s}"
-        except Exception:
-            pass
+    # All MCP tools return a standardized Result envelope
+    ret_type = (
+        f" -> {_style('Result', 'magenta')}"
+        f"{_style('{success, data, error, hints_on_error}', 'yellow')}"
+    )
 
     # Function name in green
     name_s = _style(tool.name, "green")
@@ -154,7 +134,11 @@ def cmd_list_tools(args: argparse.Namespace) -> int:
     module_filter = getattr(args, "module", None)
     as_json = getattr(args, "json", False)
 
-    tools = list(mcp._tool_manager._tools.keys())
+    import asyncio
+
+    tool_objs = asyncio.run(mcp.list_tools())
+    tool_map = {t.name: t for t in tool_objs}
+    tools = list(tool_map.keys())
     total = len(tools)
 
     # Group by logical module
@@ -177,8 +161,11 @@ def cmd_list_tools(args: argparse.Namespace) -> int:
     if as_json:
         import json
 
+        from scitex_dev.types import RESULT_SCHEMA
+
         output = {
             "name": "scitex-writer",
+            "result_envelope": RESULT_SCHEMA,
             "total": sum(len(t) for t in modules.values()),
             "modules": {},
         }
@@ -191,13 +178,15 @@ def cmd_list_tools(args: argparse.Namespace) -> int:
         return 0
 
     print(_style("SciTeX Writer MCP: scitex-writer", "cyan", bold=True))
-    print(f"Tools: {total} ({len(modules)} modules)\n")
+    print(f"Tools: {total} ({len(modules)} modules)")
+    print("Returns: Result{success, data, error, error_code, context, hints_on_error}")
+    print()
 
     for module in sorted(modules.keys()):
         mod_tools = sorted(modules[module])
         print(_style(f"{module}: {len(mod_tools)} tools", "green", bold=True))
         for tool_name in mod_tools:
-            tool_obj = mcp._tool_manager._tools.get(tool_name)
+            tool_obj = tool_map.get(tool_name)
 
             if verbose == 0:
                 # Names only
@@ -255,9 +244,11 @@ def cmd_doctor(args: argparse.Namespace) -> int:
         checks.append(("fastmcp", False, "not installed"))
 
     try:
+        import asyncio
+
         from .._mcp import mcp
 
-        tool_count = len(mcp._tool_manager._tools)
+        tool_count = len(asyncio.run(mcp.list_tools()))
         checks.append(("MCP server", True, f"{tool_count} tools"))
     except Exception as e:
         checks.append(("MCP server", False, str(e)))
