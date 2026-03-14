@@ -26,6 +26,14 @@ Custom guidelines via environment variables:
 import os as _os
 from pathlib import Path as _Path
 
+try:
+    from scitex_dev.decorators import supports_return_as as _supports_return_as
+except ImportError:
+
+    def _supports_return_as(fn):
+        return fn
+
+
 # Available sections (internal)
 _SECTIONS = ["abstract", "introduction", "methods", "discussion", "proofread"]
 
@@ -49,6 +57,7 @@ def _get_path(section: str) -> _Path:
     return _DEFAULT_DIR / f"{section}_.md"
 
 
+@_supports_return_as
 def get(section: str) -> str:
     """Get writing guidelines for a manuscript section.
 
@@ -77,6 +86,7 @@ def get(section: str) -> str:
     return path.read_text(encoding="utf-8")
 
 
+@_supports_return_as
 def build(section: str, draft: str, placeholder: str = "PLACEHOLDER") -> str:
     """Build a prompt from guidelines and user draft.
 
@@ -92,6 +102,7 @@ def build(section: str, draft: str, placeholder: str = "PLACEHOLDER") -> str:
     return template.replace(placeholder, draft)
 
 
+@_supports_return_as
 def list_sections() -> list[str]:
     """List available sections."""
     return _SECTIONS.copy()

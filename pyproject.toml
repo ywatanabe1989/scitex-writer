@@ -23,6 +23,7 @@ keywords = [
     "paper",
     "mcp",
     "mcp-server",
+    "scitex",
 ]
 classifiers = [
     "Development Status :: 4 - Beta",
@@ -40,6 +41,7 @@ classifiers = [
 ]
 dependencies = [
     "fastmcp>=2.0.0",
+    "scitex-dev>=0.1.0",
 ]
 
 [project.optional-dependencies]

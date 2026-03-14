@@ -31,7 +31,15 @@ from ._mcp.handlers import list_figures as _list_figures
 from ._mcp.handlers import pdf_to_images as _pdf_to_images
 from ._mcp.utils import resolve_project_path as _resolve_project_path
 
+try:
+    from scitex_dev.decorators import supports_return_as as _supports_return_as
+except ImportError:
 
+    def _supports_return_as(fn):
+        return fn
+
+
+@_supports_return_as
 def list(
     project_dir: str,
     extensions: _Optional[_List[str]] = None,
@@ -48,6 +56,7 @@ def list(
     return _list_figures(project_dir, extensions)
 
 
+@_supports_return_as
 def add(
     project_dir: str,
     name: str,
@@ -105,6 +114,7 @@ def add(
         return {"success": False, "error": str(e)}
 
 
+@_supports_return_as
 def remove(
     project_dir: str,
     name: str,
@@ -152,6 +162,7 @@ def remove(
         return {"success": False, "error": str(e)}
 
 
+@_supports_return_as
 def convert(
     input_path: str,
     output_path: str,
@@ -172,6 +183,7 @@ def convert(
     return _convert_figure(input_path, output_path, dpi, quality)
 
 
+@_supports_return_as
 def pdf_to_images(
     pdf_path: str,
     output_dir: _Optional[str] = None,

@@ -26,7 +26,15 @@ from ._mcp.handlers import csv_to_latex as _csv_to_latex
 from ._mcp.handlers import latex_to_csv as _latex_to_csv
 from ._mcp.utils import resolve_project_path as _resolve_project_path
 
+try:
+    from scitex_dev.decorators import supports_return_as as _supports_return_as
+except ImportError:
 
+    def _supports_return_as(fn):
+        return fn
+
+
+@_supports_return_as
 def list(
     project_dir: str,
     doc_type: _Literal["manuscript", "supplementary", "revision"] = "manuscript",
@@ -77,6 +85,7 @@ def list(
         return {"success": False, "error": str(e)}
 
 
+@_supports_return_as
 def add(
     project_dir: str,
     name: str,
@@ -130,6 +139,7 @@ def add(
         return {"success": False, "error": str(e)}
 
 
+@_supports_return_as
 def remove(
     project_dir: str,
     name: str,
@@ -175,6 +185,7 @@ def remove(
         return {"success": False, "error": str(e)}
 
 
+@_supports_return_as
 def csv_to_latex(
     csv_path: str,
     output_path: _Optional[str] = None,
@@ -197,6 +208,7 @@ def csv_to_latex(
     return _csv_to_latex(csv_path, output_path, caption, label, longtable)
 
 
+@_supports_return_as
 def latex_to_csv(
     latex_path: str,
     output_path: _Optional[str] = None,
