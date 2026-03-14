@@ -28,7 +28,15 @@ from .._mcp.handlers import export_manuscript as _export_manuscript
 from ._arxiv_categories import suggest_categories
 from ._arxiv_cleaner import ArxivLatexCleaner as _ArxivLatexCleaner
 
+try:
+    from scitex_dev.decorators import supports_return_as as _supports_return_as
+except ImportError:
 
+    def _supports_return_as(fn):
+        return fn
+
+
+@_supports_return_as
 def manuscript(
     project_dir: str,
     output_dir: str | None = None,
@@ -47,6 +55,7 @@ def manuscript(
     return _export_manuscript(project_dir, output_dir, format)
 
 
+@_supports_return_as
 def clean_latex(latex_content: str) -> str:
     """Clean LaTeX content for arXiv compliance.
 
@@ -59,6 +68,8 @@ def clean_latex(latex_content: str) -> str:
     cleaner = _ArxivLatexCleaner()
     return cleaner.clean_latex_for_arxiv(latex_content)
 
+
+suggest_categories = _supports_return_as(suggest_categories)
 
 __all__ = [
     "manuscript",

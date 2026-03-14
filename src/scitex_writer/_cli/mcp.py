@@ -125,6 +125,23 @@ def _format_tool_signature(tool, compact: bool = False, indent: str = "  ") -> s
         return f"{indent}{name_s}(\n{params_str}\n{indent}){ret_type}"
 
 
+def _format_param_names(tool, indent: str = "    ") -> str:
+    """Format parameter names only (no types), for -vv level."""
+    if not hasattr(tool, "parameters") or not tool.parameters:
+        return ""
+    props = tool.parameters.get("properties", {})
+    required = tool.parameters.get("required", [])
+    if not props:
+        return ""
+    parts = []
+    for name in props:
+        name_s = _style(name, "white", bold=True)
+        if name not in required:
+            name_s += _style("?", "yellow")
+        parts.append(name_s)
+    return f"{indent}params: {', '.join(parts)}"
+
+
 def cmd_list_tools(args: argparse.Namespace) -> int:
     """List all available MCP tools (figrecipe-compatible format)."""
     from .._mcp import mcp
@@ -189,30 +206,26 @@ def cmd_list_tools(args: argparse.Namespace) -> int:
             tool_obj = tool_map.get(tool_name)
 
             if verbose == 0:
-                # Names only
+                # Names only (default)
                 print(f"  {tool_name}")
             elif verbose == 1:
-                # Signatures
-                sig = (
-                    _format_tool_signature(tool_obj, compact=compact)
-                    if tool_obj
-                    else f"  {tool_name}"
-                )
-                print(sig)
-            elif verbose == 2:
-                # Signature + one-line description
-                sig = (
-                    _format_tool_signature(tool_obj, compact=compact)
-                    if tool_obj
-                    else f"  {tool_name}"
-                )
-                print(sig)
+                # -v: Name + one-line description
+                print(f"  {tool_name}")
                 if tool_obj and tool_obj.description:
                     desc = tool_obj.description.split("\n")[0].strip()
-                    print(f"    {desc}")
-                print()
+                    print(f"    {_style(desc, 'yellow')}")
+            elif verbose == 2:
+                # -vv: Name + one-line description + parameter names
+                print(f"  {tool_name}")
+                if tool_obj and tool_obj.description:
+                    desc = tool_obj.description.split("\n")[0].strip()
+                    print(f"    {_style(desc, 'yellow')}")
+                if tool_obj:
+                    param_line = _format_param_names(tool_obj)
+                    if param_line:
+                        print(param_line)
             else:
-                # Signature + full description
+                # -vvv: Full detail -- signature with types + full description
                 sig = (
                     _format_tool_signature(tool_obj, compact=compact)
                     if tool_obj
@@ -298,10 +311,13 @@ def register_parser(subparsers) -> argparse.ArgumentParser:
     mcp_help = """MCP (Model Context Protocol) server commands.
 
 Quick start:
-  scitex-writer mcp list-tools    # List all tools
-  scitex-writer mcp doctor        # Check server health
-  scitex-writer mcp installation  # Show Claude Desktop installation guide
-  scitex-writer mcp start         # Start MCP server
+  scitex-writer mcp list-tools          # List tool names by module
+  scitex-writer mcp list-tools -v       # + one-line descriptions
+  scitex-writer mcp list-tools -vv      # + parameter names
+  scitex-writer mcp list-tools -vvv     # Full signatures, types, docs
+  scitex-writer mcp doctor              # Check server health
+  scitex-writer mcp installation        # Show Claude Desktop installation guide
+  scitex-writer mcp start               # Start MCP server
 """
     mcp_parser = subparsers.add_parser(
         "mcp",
@@ -319,14 +335,14 @@ Quick start:
     lst = mcp_sub.add_parser(
         "list-tools",
         help="List all available MCP tools",
-        description="Verbosity: (none) names, -v signatures, -vv +description, -vvv full",
+        description="Verbosity: (none) names, -v +desc, -vv +params, -vvv full",
     )
     lst.add_argument(
         "-v",
         "--verbose",
         action="count",
         default=0,
-        help="Verbosity: -v sig, -vv +desc, -vvv full",
+        help="Verbosity: -v desc, -vv +params, -vvv full",
     )
     lst.add_argument(
         "-c", "--compact", action="store_true", help="Compact signatures (single line)"

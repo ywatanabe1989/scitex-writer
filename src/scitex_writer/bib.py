@@ -27,7 +27,15 @@ from typing import Optional as _Optional
 
 from ._mcp.utils import resolve_project_path as _resolve_project_path
 
+try:
+    from scitex_dev.decorators import supports_return_as as _supports_return_as
+except ImportError:
 
+    def _supports_return_as(fn):
+        return fn
+
+
+@_supports_return_as
 def list_files(project_dir: str) -> dict:
     """List all bibliography files in the project.
 
@@ -62,6 +70,7 @@ def list_files(project_dir: str) -> dict:
         return {"success": False, "error": str(e)}
 
 
+@_supports_return_as
 def list_entries(project_dir: str, bibfile: _Optional[str] = None) -> dict:
     """List all BibTeX entries in the project or specific file.
 
@@ -102,6 +111,7 @@ def list_entries(project_dir: str, bibfile: _Optional[str] = None) -> dict:
         return {"success": False, "error": str(e)}
 
 
+@_supports_return_as
 def get(project_dir: str, citation_key: str) -> dict:
     """Get a specific BibTeX entry by citation key.
 
@@ -136,6 +146,7 @@ def get(project_dir: str, citation_key: str) -> dict:
         return {"success": False, "error": str(e)}
 
 
+@_supports_return_as
 def add(
     project_dir: str,
     bibtex_entry: str,
@@ -192,6 +203,7 @@ def add(
         return {"success": False, "error": str(e)}
 
 
+@_supports_return_as
 def remove(project_dir: str, citation_key: str) -> dict:
     """Remove a BibTeX entry by citation key.
 
@@ -228,6 +240,7 @@ def remove(project_dir: str, citation_key: str) -> dict:
         return {"success": False, "error": str(e)}
 
 
+@_supports_return_as
 def merge(
     project_dir: str,
     output_file: str = "bibliography.bib",

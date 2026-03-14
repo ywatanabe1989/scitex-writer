@@ -31,7 +31,15 @@ from ._mcp.handlers import compile_manuscript as _compile_manuscript
 from ._mcp.handlers import compile_revision as _compile_revision
 from ._mcp.handlers import compile_supplementary as _compile_supplementary
 
+try:
+    from scitex_dev.decorators import supports_return_as as _supports_return_as
+except ImportError:
 
+    def _supports_return_as(fn):
+        return fn
+
+
+@_supports_return_as
 def manuscript(
     project_dir: str,
     timeout: int = 300,
@@ -75,6 +83,7 @@ def manuscript(
     )
 
 
+@_supports_return_as
 def supplementary(
     project_dir: str,
     timeout: int = 300,
@@ -112,6 +121,7 @@ def supplementary(
     )
 
 
+@_supports_return_as
 def revision(
     project_dir: str,
     track_changes: bool = False,
@@ -146,6 +156,7 @@ def revision(
     )
 
 
+@_supports_return_as
 def content(
     latex_content: str,
     project_dir: str | None = None,

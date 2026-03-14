@@ -26,7 +26,15 @@ from ._mcp.handlers import get_pdf as _get_pdf
 from ._mcp.handlers import get_project_info as _get_project_info
 from ._mcp.handlers import list_document_types as _list_document_types
 
+try:
+    from scitex_dev.decorators import supports_return_as as _supports_return_as
+except ImportError:
 
+    def _supports_return_as(fn):
+        return fn
+
+
+@_supports_return_as
 def clone(
     project_dir: str,
     git_strategy: Literal["child", "parent", "origin", "none"] = "child",
@@ -51,6 +59,7 @@ def clone(
     return _clone_project(project_dir, git_strategy, branch, tag)
 
 
+@_supports_return_as
 def info(project_dir: str) -> dict:
     """Get writer project information.
 
@@ -63,6 +72,7 @@ def info(project_dir: str) -> dict:
     return _get_project_info(project_dir)
 
 
+@_supports_return_as
 def get_pdf(
     project_dir: str,
     doc_type: Literal["manuscript", "supplementary", "revision"] = "manuscript",
@@ -79,6 +89,7 @@ def get_pdf(
     return _get_pdf(project_dir, doc_type)
 
 
+@_supports_return_as
 def list_document_types() -> dict:
     """List available document types.
 

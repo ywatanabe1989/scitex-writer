@@ -8,6 +8,8 @@
   </a>
 </p>
 
+# SciTeX Writer
+
 <p align="center">
   <a href="https://badge.fury.io/py/scitex-writer"><img src="https://badge.fury.io/py/scitex-writer.svg" alt="PyPI version"></a>
   <a href="https://pypi.org/project/scitex-writer/"><img src="https://img.shields.io/pypi/pyversions/scitex-writer.svg" alt="Python Versions"></a>
@@ -45,7 +47,7 @@ Part of the [SciTeX](https://scitex.ai) ecosystem — empowers both human resear
   <em>Demo video with AI agent</em>
 </p>
 
-## 📦 Installation
+## Installation
 
 ```bash
 # LaTeX dependencies (Ubuntu/Debian)
@@ -65,82 +67,36 @@ git clone https://github.com/ywatanabe1989/scitex-writer.git my-paper
 cd my-paper && make manuscript   # or: ./compile.sh manuscript
 ```
 
-## Five Interfaces
+## Problem
+
+LaTeX compilation for scientific manuscripts is painful:
+
+- **Environment inconsistency** — "It compiles on my machine" is not a solution when collaborating across Linux, macOS, WSL2, and HPC clusters.
+- **Manual figure conversion** — Converting between PNG, SVG, PDF, Mermaid, and TIFF formats by hand wastes time and introduces errors.
+- **No version tracking** — Generating tracked-change diffs between revisions requires manual `latexdiff` invocations and careful file management.
+- **Fragmented tooling** — Separate workflows for compilation, bibliography management, table formatting, and submission packaging.
+- **AI agents cannot help** — Without a programmatic interface, AI assistants have no way to compile or manage manuscripts.
+
+## Solution
+
+SciTeX Writer solves each of these problems:
+
+- **Container-based reproducible compilation** — Consistent builds across all platforms via Docker, Singularity, or native installation with automatic engine selection (Tectonic, latexmk, or 3-pass).
+- **Automatic asset conversion** — Figures and tables are converted in parallel from source formats (PNG, SVG, comma-separated values (CSV), Mermaid) to LaTeX-ready output.
+- **Built-in version tracking with diff generation** — Every compilation archives the previous version and generates a `latexdiff` document automatically.
+- **Unified interface** — One tool for compilation, bibliography deduplication, figure/table management, and arXiv export packaging.
+- **39 Model Context Protocol (MCP) tools for AI agents** — AI assistants can compile, edit, and manage manuscripts programmatically.
+
+## Three Interfaces
 
 | Interface | For | Description |
 |-----------|-----|-------------|
-| 📜 **Shell/Make** | Direct compilation | `make manuscript`, `./compile.sh` |
-| 🐍 **Python API** | Human researchers | `import scitex_writer as sw` |
-| 🖥️ **CLI Commands** | Terminal users | `scitex-writer compile`, `scitex-writer bib` |
-| 🌐 **GUI Editor** | Visual editing | `scitex-writer gui` - browser-based editor |
-| 🔧 **MCP Tools** | AI agents | 38 tools for Claude/GPT integration |
+| **Python API** | Human researchers | `import scitex_writer as sw` |
+| **Command-Line Interface (CLI) Commands** | Terminal users | `scitex-writer compile`, `scitex-writer bib` |
+| **MCP Tools** | AI agents | 39 tools for Claude/GPT integration |
 
 <details>
-<summary><strong>🌐 GUI Editor</strong></summary>
-
-<br>
-
-Standalone browser-based editor with file tree, LaTeX editor, PDF preview, and compilation controls.
-
-<p align="center">
-  <img src="docs/demo-gui-light.png" alt="GUI Light Mode" width="380"/>
-  &nbsp;&nbsp;
-  <img src="docs/demo-gui-dark.png" alt="GUI Dark Mode" width="380"/>
-</p>
-
-```bash
-# Install Flask dependency
-pip install scitex-writer[editor]
-
-# Launch GUI (opens browser automatically)
-scitex-writer gui                    # Current directory
-scitex-writer gui ./my-paper         # Specific project
-scitex-writer gui --port 8080        # Custom port
-
-# Python API
-import scitex_writer as sw
-sw.gui("./my-paper")
-
-# Docker
-docker build -f scripts/containers/Dockerfile.gui -t scitex-writer-gui .
-docker run --rm -p 5050:5050 -v $(pwd):/workspace scitex-writer-gui
-```
-
-**Features**: CodeMirror LaTeX editor, pdf.js PDF preview, file tabs, compilation controls, bibliography browser, dark/light mode, resizable panels.
-
-</details>
-
-<details>
-<summary><strong>📜 Shell Scripts / Make</strong></summary>
-
-<br>
-
-```bash
-# Make commands (recommended)
-make manuscript              # Compile manuscript
-make supplementary           # Compile supplementary
-make revision                # Compile revision
-make all                     # Compile all documents
-make manuscript-export       # Package for arXiv submission
-make clean                   # Remove build artifacts
-
-# Shell scripts (direct)
-./compile.sh manuscript --draft       # Fast single-pass
-./compile.sh manuscript --no-figs     # Skip figures
-./compile.sh manuscript --no-tables   # Skip tables
-./compile.sh manuscript --dark-mode   # Dark mode (Monaco theme)
-./compile.sh manuscript --watch       # Hot-reload
-
-# Dark mode via environment variable
-SCITEX_WRITER_DARK_MODE=true make manuscript
-```
-
-</details>
-
-<details>
-<summary><strong>🐍 Python API</strong></summary>
-
-<br>
+<summary><strong>Python API</strong></summary>
 
 **Compile** — Build PDFs
 
@@ -160,7 +116,7 @@ sw.export.manuscript("./my-paper")                     # arXiv-ready tarball
 sw.export.manuscript("./my-paper", output_dir="/tmp")  # Custom output dir
 ```
 
-**Tables/Figures/Bib** — CRUD Operations
+**Tables/Figures/Bib** — Create, Read, Update, Delete (CRUD) Operations
 
 ```python
 # Tables
@@ -179,7 +135,7 @@ sw.bib.add("./my-paper", "@article{Smith2024, title={...}}")
 sw.bib.merge("./my-paper")  # Merge + deduplicate
 ```
 
-**Guidelines** — IMRAD Writing Tips
+**Guidelines** — Introduction, Methods, Results, and Discussion (IMRAD) Writing Tips
 
 ```python
 sw.get_guideline("abstract")
@@ -204,9 +160,7 @@ sw.gui("./my-paper", port=8080, dark_mode=True)  # Custom options
 </details>
 
 <details>
-<summary><strong>🖥️ CLI Commands</strong></summary>
-
-<br>
+<summary><strong>CLI Commands</strong></summary>
 
 ```bash
 scitex-writer --help                           # Show all commands
@@ -228,7 +182,7 @@ scitex-writer bib add '@article{...}'          # Add entry
 scitex-writer bib remove Smith2024             # Remove entry
 scitex-writer bib merge                        # Merge and deduplicate
 
-# Tables - CSV↔LaTeX management
+# Tables - CSV to LaTeX management
 scitex-writer tables list                      # List tables
 scitex-writer tables add results data.csv "Caption"
 scitex-writer tables remove results
@@ -262,9 +216,7 @@ scitex-writer gui --port 8080 --no-browser     # Custom port, no auto-open
 </details>
 
 <details>
-<summary><strong>🔧 MCP Tools — 38 tools for AI Agents</strong></summary>
-
-<br>
+<summary><strong>MCP Tools — 39 tools for AI Agents</strong></summary>
 
 Turn AI agents into autonomous manuscript compilers.
 
@@ -272,7 +224,7 @@ Turn AI agents into autonomous manuscript compilers.
 |----------|-------|-------------|
 | project | 4 | Clone, info, PDF paths, document types |
 | compile | 4 | Manuscript, supplementary, revision, content |
-| tables | 5 | CSV↔LaTeX, list/add/remove tables |
+| tables | 5 | CSV to LaTeX, list/add/remove tables |
 | figures | 5 | Convert, render PDF, list/add/remove |
 | bib | 6 | List files/entries, CRUD, merge/dedupe |
 | guidelines | 3 | List, get, build with draft |
@@ -295,7 +247,43 @@ Turn AI agents into autonomous manuscript compilers.
 }
 ```
 
-→ **[Full MCP tool reference](./docs/MCP_TOOLS.md)**
+> **[Full MCP tool reference](./docs/MCP_TOOLS.md)**
+
+</details>
+
+<details>
+<summary><strong>Additional Interfaces</strong></summary>
+
+**Shell Scripts / Make** — Direct compilation without Python.
+
+```bash
+make manuscript              # Compile manuscript
+make supplementary           # Compile supplementary
+make revision                # Compile revision
+make all                     # Compile all documents
+make manuscript-export       # Package for arXiv submission
+make clean                   # Remove build artifacts
+./compile.sh manuscript --draft       # Fast single-pass
+./compile.sh manuscript --no-figs     # Skip figures
+./compile.sh manuscript --dark-mode   # Dark mode (Monaco theme)
+./compile.sh manuscript --watch       # Hot-reload
+SCITEX_WRITER_DARK_MODE=true make manuscript
+```
+
+**GUI Editor** — Standalone browser-based editor with file tree, PDF preview, and compilation controls.
+
+<p align="center">
+  <img src="docs/demo-gui-light.png" alt="GUI Light Mode" width="380"/>
+  &nbsp;&nbsp;
+  <img src="docs/demo-gui-dark.png" alt="GUI Dark Mode" width="380"/>
+</p>
+
+```bash
+pip install scitex-writer[editor]
+scitex-writer gui                    # Current directory
+scitex-writer gui ./my-paper         # Specific project
+scitex-writer gui --port 8080        # Custom port
+```
 
 </details>
 
@@ -305,58 +293,23 @@ Turn AI agents into autonomous manuscript compilers.
 ```
 ./scitex-writer/
 ├── 00_shared/                  # Shared resources across all documents
-│   ├── title.tex               # Manuscript title
-│   ├── authors.tex             # Author names and affiliations
-│   ├── keywords.tex            # Keywords for the manuscript
-│   ├── journal_name.tex        # Target journal name
+│   ├── title.tex / authors.tex / keywords.tex / journal_name.tex
 │   ├── bib_files/              # Multiple .bib files (auto-merged and deduplicated)
 │   ├── latex_styles/           # Common LaTeX configurations
 │   └── templates/              # LaTeX document templates
-│
 ├── 01_manuscript/              # Main manuscript
-│   ├── contents/               # Modular content sections
-│   │   ├── abstract.tex
-│   │   ├── introduction.tex
-│   │   ├── methods.tex
-│   │   ├── results.tex
-│   │   ├── discussion.tex
+│   ├── contents/               # abstract, introduction, methods, results, discussion
 │   │   ├── figures/            # Figure captions + media
 │   │   └── tables/             # Table captions + CSV data
 │   ├── archive/                # Version history (gitignored)
 │   ├── manuscript.tex          # Compiled LaTeX
 │   ├── manuscript_diff.tex     # Change-tracked version
 │   └── manuscript.pdf          # Output PDF
-│
-├── 02_supplementary/           # Supplementary materials
-│   ├── contents/               # Supplementary content sections
-│   │   ├── supplementary_methods.tex
-│   │   ├── supplementary_results.tex
-│   │   ├── figures/            # Supplementary figures
-│   │   └── tables/             # Supplementary tables
-│   ├── archive/                # Version history (gitignored)
-│   ├── supplementary.tex       # Compiled LaTeX
-│   └── supplementary.pdf       # Output PDF
-│
+├── 02_supplementary/           # Supplementary materials (same structure)
 ├── 03_revision/                # Revision response letter
-│   ├── contents/               # Reviewer responses
-│   │   ├── editor/             # E_01_comments.tex, E_01_response.tex
-│   │   ├── reviewer1/          # R1_01_comments.tex, R1_01_response.tex
-│   │   └── reviewer2/          # R2_01_comments.tex, R2_01_response.tex
-│   ├── archive/                # Version history (gitignored)
-│   ├── revision.tex            # Compiled LaTeX
-│   └── revision.pdf            # Output PDF
-│
-├── config/                     # Configuration files
-│   └── config_manuscript.yaml  # Citation style, engine settings
-│
-└── scripts                     # Compilation scripts
-    ├── containers/             # Container image builds (Apptainer/Singularity)
-    ├── installation/           # Environment setup and dependency installation
-    ├── maintenance/            # Repository maintenance (usage, update, demos)
-    ├── powershell/             # Windows PowerShell scripts
-    ├── python/                 # Python utilities
-    └── shell/                  # Core compilation scripts
-    
+│   └── contents/               # editor/, reviewer1/, reviewer2/
+├── config/                     # config_manuscript.yaml
+└── scripts/                    # containers, installation, shell, python
 ```
 
 </details>
@@ -485,6 +438,17 @@ Change citation style in `config/config_manuscript.yaml`:
 | [Architecture](docs/02_ARCHITECTURE_IMPLEMENTATION.md) | Technical details |
 
 </details>
+
+## Part of SciTeX
+
+SciTeX Writer is part of [SciTeX](https://scitex.ai). When used inside the orchestrator package `scitex`, synergy between modules enables end-to-end scientific workflows — from data analysis through publication-ready manuscripts.
+
+The SciTeX ecosystem follows the **Four Freedoms** for researchers, inspired by [the Free Software Definition](https://www.gnu.org/philosophy/free-sw.en.html):
+
+0. **Use** — Run the software for any research purpose
+1. **Study** — Examine how it works and adapt it to your needs
+2. **Share** — Distribute copies to fellow researchers
+3. **Improve** — Enhance the software and share improvements with the community
 
 ---
 

@@ -122,9 +122,9 @@ Figures (01_manuscript/contents/figures/caption_and_media/)
     SVG/Mermaid auto-convert to PDF during compilation
 
   Figure Style (REQUIRED for consistency):
-    import scitex as stx
-    stx.plt.load_style("SCITEX")
-    fig, ax = stx.plt.subplots(**stx.plt.presets.SCITEX_STYLE)
+    import scitex
+    scitex.plt.load_style("SCITEX")
+    fig, ax = scitex.plt.subplots(**scitex.plt.presets.SCITEX_STYLE)
 
     Or with figrecipe:
     import figrecipe as fr

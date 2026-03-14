@@ -52,6 +52,16 @@ def _register_usage_command(subparsers) -> None:
     usage_parser.set_defaults(func=_cmd_usage)
 
 
+def _print_help_recursive(parser, subparsers_map) -> None:
+    """Print help for the main parser and all subcommands."""
+    parser.print_help()
+    print()
+    for name in sorted(subparsers_map):
+        print(f"=== {name} ===")
+        subparsers_map[name].print_help()
+        print()
+
+
 def main() -> int:
     """Main CLI entry point."""
     parser = argparse.ArgumentParser(
@@ -63,6 +73,12 @@ def main() -> int:
         "--version",
         action="version",
         version=f"%(prog)s {__version__}",
+    )
+    parser.add_argument(
+        "--help-recursive",
+        action="store_true",
+        default=False,
+        help="Show help for all commands and subcommands",
     )
     subparsers = parser.add_subparsers(dest="command", title="Commands")
 
@@ -91,6 +107,15 @@ def main() -> int:
         register_docs_subcommand(subparsers, package="scitex-writer")
     except ImportError:
         pass
+
+    # Handle --help-recursive before parse_args to avoid requiring a subcommand
+    if "--help-recursive" in sys.argv:
+        all_subparsers = {}
+        for action in parser._subparsers._actions:
+            if isinstance(action, argparse._SubParsersAction):
+                all_subparsers.update(action.choices)
+        _print_help_recursive(parser, all_subparsers)
+        return 0
 
     args = parser.parse_args()
 
