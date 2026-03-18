@@ -100,7 +100,7 @@ def main() -> int:
     introspect.register_list_python_apis(subparsers)
     _register_usage_command(subparsers)
 
-    # docs — reusable mixin from scitex_dev
+    # Docs subcommand (from scitex-dev)
     try:
         from scitex_dev.cli import register_docs_subcommand
 
