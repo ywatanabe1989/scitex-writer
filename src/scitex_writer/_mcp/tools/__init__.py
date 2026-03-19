@@ -20,6 +20,7 @@ def register_all_tools(mcp: FastMCP) -> None:
         migration,
         project,
         prompts,
+        skills,
         tables,
         update,
     )
@@ -36,6 +37,7 @@ def register_all_tools(mcp: FastMCP) -> None:
     claim.register_tools(mcp)
     update.register_tools(mcp)
     migration.register_tools(mcp)
+    skills.register_tools(mcp)
 
 
 __all__ = ["register_all_tools"]
