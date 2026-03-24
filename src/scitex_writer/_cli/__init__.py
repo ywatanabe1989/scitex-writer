@@ -108,6 +108,14 @@ def main() -> int:
     except ImportError:
         pass
 
+    # Skills subcommand (from scitex-dev)
+    try:
+        from scitex_dev.cli import register_skills_subcommand
+
+        register_skills_subcommand(subparsers, package="scitex-writer")
+    except ImportError:
+        pass
+
     # Handle --help-recursive before parse_args to avoid requiring a subcommand
     if "--help-recursive" in sys.argv:
         all_subparsers = {}
