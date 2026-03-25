@@ -1,5 +1,4 @@
 ---
-name: bibliography
 description: BibTeX management — add, list, merge, enrich bibliography entries.
 ---
 

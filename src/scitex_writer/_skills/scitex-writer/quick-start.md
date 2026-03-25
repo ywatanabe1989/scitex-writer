@@ -1,5 +1,4 @@
 ---
-name: quick-start
 description: Basic manuscript workflow — create project, add content, compile PDF.
 ---
 

@@ -1,5 +1,4 @@
 ---
-name: figures-and-tables
 description: Add, list, and manage figures and tables in manuscripts.
 ---
 

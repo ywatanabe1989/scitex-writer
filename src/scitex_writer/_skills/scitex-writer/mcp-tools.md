@@ -1,5 +1,4 @@
 ---
-name: mcp-tools
 description: MCP tools for AI agents — manuscript compilation, bibliography, figures, tables, claims.
 ---
 

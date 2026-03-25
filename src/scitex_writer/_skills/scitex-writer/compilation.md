@@ -1,5 +1,4 @@
 ---
-name: compilation
 description: Compile manuscript, supplementary, and revision documents to PDF.
 ---
 
