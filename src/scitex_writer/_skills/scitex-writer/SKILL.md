@@ -1,5 +1,4 @@
 ---
-name: scitex-writer
 description: LaTeX manuscript compilation with bibliography, figures, tables, claims tracking, and journal guideline enforcement.
 allowed-tools: mcp__scitex__writer_*
 ---
