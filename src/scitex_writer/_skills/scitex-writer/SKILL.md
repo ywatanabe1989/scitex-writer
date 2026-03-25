@@ -17,6 +17,17 @@ LaTeX manuscript compilation framework for scientific papers.
 - [cli-reference.md](cli-reference.md) — CLI commands
 - [mcp-tools.md](mcp-tools.md) — MCP tools for AI agents
 
+## Scientific Writing
+
+- [writing-attitude.md](writing-attitude.md) — Evidence requirements, critical analysis, scientific standards
+- [writing-figures-stats.md](writing-figures-stats.md) — Figure rules, statistical reporting, document format
+- [writing-proofreading.md](writing-proofreading.md) — Proofreading corrections, language rules, formatting
+- [writing-abstract.md](writing-abstract.md) — Abstract template with 7-section structure
+- [writing-introduction.md](writing-introduction.md) — Introduction template with 8-section structure
+- [writing-methods.md](writing-methods.md) — Methods template with reproducibility guidelines
+- [writing-discussion.md](writing-discussion.md) — Discussion template with 5-section structure
+- [writing-mermaid.md](writing-mermaid.md) — Academic mermaid diagram style guide
+
 ## CLI
 
 ```bash
