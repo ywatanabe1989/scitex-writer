@@ -17,7 +17,7 @@ from ._export import export_manuscript
 from ._figures import convert_figure, list_figures, pdf_to_images
 from ._project import clone_project, get_pdf, get_project_info, list_document_types
 from ._tables import csv_to_latex, latex_to_csv
-from ._update import update_project
+from ._update import update_project  # noqa: F401 -- now a package
 
 __all__ = [
     "add_claim",

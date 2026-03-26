@@ -74,6 +74,20 @@ def cmd_remove(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_archive(args: argparse.Namespace) -> int:
+    """Move a figure to legacy/ instead of deleting."""
+    from .. import figures
+
+    result = figures.archive(args.project, args.name, args.doc_type)
+    if not result["success"]:
+        print(f"Error: {result['error']}", file=sys.stderr)
+        return 1
+
+    for entry in result["archived"]:
+        print(f"Archived: {entry['from']} -> {entry['to']}")
+    return 0
+
+
 def register_parser(subparsers) -> argparse.ArgumentParser:
     """Register figures subcommand parser."""
     figures_help = """Figure management.
@@ -81,7 +95,8 @@ def register_parser(subparsers) -> argparse.ArgumentParser:
 Quick start:
   scitex-writer figures list                 # List figures
   scitex-writer figures add fig01 plot.png "Results plot"
-  scitex-writer figures remove fig01
+  scitex-writer figures remove fig01         # Delete permanently
+  scitex-writer figures archive fig01        # Move to legacy/
 """
     parser = subparsers.add_parser(
         "figures",
@@ -125,6 +140,18 @@ Quick start:
         choices=["manuscript", "supplementary"],
     )
     r.set_defaults(func=cmd_remove)
+
+    # archive
+    ar = sub.add_parser("archive", help="Move figure to legacy/")
+    ar.add_argument("name", help="Figure name")
+    ar.add_argument("-p", "--project", default=".", help="Project path")
+    ar.add_argument(
+        "-t",
+        "--doc-type",
+        default="manuscript",
+        choices=["manuscript", "supplementary"],
+    )
+    ar.set_defaults(func=cmd_archive)
 
     return parser
 
