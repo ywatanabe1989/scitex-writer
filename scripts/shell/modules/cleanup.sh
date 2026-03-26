@@ -6,7 +6,7 @@
 ORIG_DIR="$(pwd)"
 THIS_DIR="$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)"
 LOG_PATH="$THIS_DIR/.$(basename $0).log"
-echo > "$LOG_PATH"
+echo >"$LOG_PATH"
 
 GIT_ROOT="$(git rev-parse --show-toplevel 2>/dev/null)"
 
@@ -47,10 +47,10 @@ function cleanup() {
     find "$SCITEX_WRITER_ROOT_DIR" -type f -name "#*#" -exec rm {} \;
 
     # Move files with these extensions to LOG_DIR
-    for ext in log out bbl blg spl dvi toc bak stderr stdout aux fls fdb_latexmk synctex.gz cb cb2; do
+    for ext in log out bbl blg spl dvi toc bak stderr stdout aux fls fdb_latexmk cb cb2; do
         find "$SCITEX_WRITER_ROOT_DIR" -maxdepth 1 -type f -name "*.$ext" -exec mv {} $LOG_DIR/ \; 2>/dev/null
     done
-    
+
     # Remove progress.log files (from parallel commands)
     find "$SCITEX_WRITER_ROOT_DIR" -name "progress.log" -type f -delete 2>/dev/null
 

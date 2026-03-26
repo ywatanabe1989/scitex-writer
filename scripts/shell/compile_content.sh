@@ -184,7 +184,7 @@ fi
 
 # Cleanup auxiliary files
 if [ "$KEEP_AUX" = false ]; then
-    for ext in aux log fls fdb_latexmk synctex.gz out bbl blg toc lof lot; do
+    for ext in aux log fls fdb_latexmk out bbl blg toc lof lot; do
         rm -f "$OUTPUT_DIR/$JOB_NAME.$ext"
     done
     log_info "Cleaned auxiliary files"
