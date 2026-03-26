@@ -108,48 +108,29 @@ def register_tools(mcp: FastMCP) -> None:
         name: str,
         doc_type: Literal["manuscript", "supplementary"] = "manuscript",
     ) -> dict:
-        """Remove a figure (image + caption) from the project."""
-        try:
-            project_path = resolve_project_path(project_dir)
-            doc_dirs = {
-                "manuscript": project_path / "01_manuscript",
-                "supplementary": project_path / "02_supplementary",
-            }
-            doc_dir = doc_dirs.get(doc_type)
-            if not doc_dir:
-                return {"success": False, "error": f"Invalid doc_type: {doc_type}"}
+        """Remove a figure (image + caption) from the project.
 
-            fig_dir = doc_dir / "contents" / "figures" / "caption_and_media"
-            caption_path = fig_dir / f"{name}.tex"
+        Removes all associated files including those in subdirectories
+        (jpg_for_compilation/, mermaid_originals/).
+        """
+        from scitex_writer.figures import remove
 
-            removed = []
-            # Remove all image files with this name
-            for ext in [
-                ".png",
-                ".jpg",
-                ".jpeg",
-                ".pdf",
-                ".tif",
-                ".tiff",
-                ".eps",
-                ".svg",
-            ]:
-                img_path = fig_dir / f"{name}{ext}"
-                if img_path.exists():
-                    img_path.unlink()
-                    removed.append(str(img_path))
+        return remove(project_dir, name, doc_type)
 
-            # Remove caption
-            if caption_path.exists():
-                caption_path.unlink()
-                removed.append(str(caption_path))
+    @mcp.tool()
+    def writer_archive_figure(
+        project_dir: str,
+        name: str,
+        doc_type: Literal["manuscript", "supplementary"] = "manuscript",
+    ) -> dict:
+        """Move a figure to legacy/ instead of deleting.
 
-            if not removed:
-                return {"success": False, "error": f"Figure not found: {name}"}
+        Moves all associated files (tex, images, mermaid sources) from
+        caption_and_media/ to legacy/, preserving them for potential reuse.
+        """
+        from scitex_writer.figures import archive
 
-            return {"success": True, "removed": removed}
-        except Exception as e:
-            return {"success": False, "error": str(e)}
+        return archive(project_dir, name, doc_type)
 
 
 # EOF

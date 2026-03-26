@@ -129,34 +129,24 @@ def register_tools(mcp: FastMCP) -> None:
         doc_type: Literal["manuscript", "supplementary"] = "manuscript",
     ) -> dict:
         """Remove a table (CSV + caption) from the project."""
-        try:
-            project_path = resolve_project_path(project_dir)
-            doc_dirs = {
-                "manuscript": project_path / "01_manuscript",
-                "supplementary": project_path / "02_supplementary",
-            }
-            doc_dir = doc_dirs.get(doc_type)
-            if not doc_dir:
-                return {"success": False, "error": f"Invalid doc_type: {doc_type}"}
+        from scitex_writer.tables import remove
 
-            table_dir = doc_dir / "contents" / "tables" / "caption_and_media"
-            csv_path = table_dir / f"{name}.csv"
-            caption_path = table_dir / f"{name}.tex"
+        return remove(project_dir, name, doc_type)
 
-            removed = []
-            if csv_path.exists():
-                csv_path.unlink()
-                removed.append(str(csv_path))
-            if caption_path.exists():
-                caption_path.unlink()
-                removed.append(str(caption_path))
+    @mcp.tool()
+    def writer_archive_table(
+        project_dir: str,
+        name: str,
+        doc_type: Literal["manuscript", "supplementary"] = "manuscript",
+    ) -> dict:
+        """Move a table to legacy/ instead of deleting.
 
-            if not removed:
-                return {"success": False, "error": f"Table not found: {name}"}
+        Moves CSV and caption files from caption_and_media/ to legacy/,
+        preserving them for potential reuse or supplementary materials.
+        """
+        from scitex_writer.tables import archive
 
-            return {"success": True, "removed": removed}
-        except Exception as e:
-            return {"success": False, "error": str(e)}
+        return archive(project_dir, name, doc_type)
 
 
 # EOF
