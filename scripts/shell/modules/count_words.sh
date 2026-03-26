@@ -6,7 +6,7 @@
 ORIG_DIR="$(pwd)"
 THIS_DIR="$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)"
 LOG_PATH="$THIS_DIR/.$(basename $0).log"
-echo > "$LOG_PATH"
+echo >"$LOG_PATH"
 
 GIT_ROOT="$(git rev-parse --show-toplevel 2>/dev/null)"
 
@@ -52,9 +52,9 @@ _count_elements() {
     if [[ -n $(find "$dir" -name "$pattern" 2>/dev/null) ]]; then
         # Count files matching pattern, excluding *_Header.tex and FINAL.tex
         count=$(ls "$dir"/$pattern 2>/dev/null | grep -v "_Header.tex" | grep -v "FINAL.tex" | wc -l)
-        echo $count > "$output_file"
+        echo $count >"$output_file"
     else
-        echo "0" > "$output_file"
+        echo "0" >"$output_file"
     fi
 }
 
@@ -71,7 +71,7 @@ _count_words() {
         return 1
     fi
 
-    eval "$TEXCOUNT_CMD \"$input_file\" -inc -1 -sum 2> >(grep -v 'gocryptfs not found' >&2)" > "$output_file"
+    eval "$TEXCOUNT_CMD \"$input_file\" -inc -1 -sum 2> >(grep -v 'gocryptfs not found' >&2)" >"$output_file"
 }
 
 count_tables() {
@@ -88,7 +88,7 @@ count_IMRaD() {
         if [ -e "$section_tex" ]; then
             _count_words "$section_tex" "$SCITEX_WRITER_WORDCOUNT_DIR/${section}_count.txt"
         else
-            echo 0 > "$SCITEX_WRITER_WORDCOUNT_DIR/${section}_count.txt"
+            echo 0 >"$SCITEX_WRITER_WORDCOUNT_DIR/${section}_count.txt"
         fi
     done
 
@@ -100,30 +100,45 @@ count_IMRaD() {
             imrd_total=$((imrd_total + count))
         fi
     done
-    echo "$imrd_total" > "$SCITEX_WRITER_WORDCOUNT_DIR/imrd_count.txt"
+    echo "$imrd_total" >"$SCITEX_WRITER_WORDCOUNT_DIR/imrd_count.txt"
+}
+
+_fmt_number() {
+    # Format number with comma separators (e.g., 1234 -> 1,234)
+    printf "%'d" "$1" 2>/dev/null || echo "$1"
 }
 
 display_counts() {
-    local fig_count=$(cat "$SCITEX_WRITER_WORDCOUNT_DIR/figure_count.txt" 2>/dev/null || echo 0)
-    local tab_count=$(cat "$SCITEX_WRITER_WORDCOUNT_DIR/table_count.txt" 2>/dev/null || echo 0)
-    local abs_count=$(cat "$SCITEX_WRITER_WORDCOUNT_DIR/abstract_count.txt" 2>/dev/null || echo 0)
-    local imrd_count=$(cat "$SCITEX_WRITER_WORDCOUNT_DIR/imrd_count.txt" 2>/dev/null || echo 0)
-    
+    local fig_count
+    local tab_count
+    local abs_count
+    local imrd_count
+    local intro_count
+    local meth_count
+    local res_count
+    local disc_count
+    fig_count=$(cat "$SCITEX_WRITER_WORDCOUNT_DIR/figure_count.txt" 2>/dev/null || echo 0)
+    tab_count=$(cat "$SCITEX_WRITER_WORDCOUNT_DIR/table_count.txt" 2>/dev/null || echo 0)
+    abs_count=$(cat "$SCITEX_WRITER_WORDCOUNT_DIR/abstract_count.txt" 2>/dev/null || echo 0)
+    imrd_count=$(cat "$SCITEX_WRITER_WORDCOUNT_DIR/imrd_count.txt" 2>/dev/null || echo 0)
+    intro_count=$(cat "$SCITEX_WRITER_WORDCOUNT_DIR/introduction_count.txt" 2>/dev/null || echo 0)
+    meth_count=$(cat "$SCITEX_WRITER_WORDCOUNT_DIR/methods_count.txt" 2>/dev/null || echo 0)
+    res_count=$(cat "$SCITEX_WRITER_WORDCOUNT_DIR/results_count.txt" 2>/dev/null || echo 0)
+    disc_count=$(cat "$SCITEX_WRITER_WORDCOUNT_DIR/discussion_count.txt" 2>/dev/null || echo 0)
+
     echo_success "    Word counts updated:"
-    echo_success "      Figures: $fig_count"
-    echo_success "      Tables: $tab_count"
-    
+
     # For supplementary, don't show abstract if it doesn't exist
     if [ "$SCITEX_WRITER_DOC_TYPE" = "supplementary" ]; then
+        echo_success "      $fig_count figures, $tab_count tables"
         if [ "$abs_count" -gt 0 ]; then
-            echo_success "      Abstract: $abs_count words"
+            echo_success "      $(_fmt_number "$abs_count") words for abstract"
         fi
         if [ "$imrd_count" -gt 0 ]; then
-            echo_success "      Supplementary text: $imrd_count words"
+            echo_success "      $(_fmt_number "$imrd_count") words for supplementary text"
         fi
     else
-        echo_success "      Abstract: $abs_count words"
-        echo_success "      Main text (IMRD): $imrd_count words"
+        echo_success "      $fig_count figures, $tab_count tables, $(_fmt_number "$abs_count") words for abstract, and $(_fmt_number "$imrd_count") words for main text ($(_fmt_number "$intro_count") for introduction, $(_fmt_number "$meth_count") for methods, $(_fmt_number "$res_count") for results, $(_fmt_number "$disc_count") for discussion)"
     fi
 }
 
