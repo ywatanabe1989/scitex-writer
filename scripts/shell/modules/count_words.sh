@@ -105,7 +105,8 @@ count_IMRaD() {
 
 _fmt_number() {
     # Format number with comma separators (e.g., 1234 -> 1,234)
-    printf "%'d" "$1" 2>/dev/null || echo "$1"
+    # Portable: uses sed instead of locale-dependent printf %'d
+    echo "$1" | sed -E ':a;s/([0-9])([0-9]{3})(,|$)/\1,\2\3/;ta'
 }
 
 display_counts() {
