@@ -27,6 +27,7 @@ LaTeX manuscript compilation framework for scientific papers.
 - [writing-methods.md](writing-methods.md) — Methods template with reproducibility guidelines
 - [writing-discussion.md](writing-discussion.md) — Discussion template with 5-section structure
 - [writing-mermaid.md](writing-mermaid.md) — Academic mermaid diagram style guide
+- [audit-paper.md](audit-paper.md) — Comprehensive pre-submission manuscript audit
 
 ## CLI
 
