@@ -95,9 +95,6 @@ Issues = "https://github.com/ywatanabe1989/scitex-writer/issues"
 [tool.hatch.build.targets.wheel]
 packages = ["src/scitex_writer"]
 
-[tool.hatch.build.targets.wheel.force-include]
-"src/scitex_writer/_skills" = "scitex_writer/_skills"
-
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
