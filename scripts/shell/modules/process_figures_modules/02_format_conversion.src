@@ -82,11 +82,11 @@ png2jpg() {
                 temp_copy_needed=true
             fi
 
-            # Convert to JPG
+            # Convert to JPG (flatten alpha onto white background)
             if command -v magick >/dev/null 2>&1; then
-                magick "$work_png_file" -quality 95 "$jpg_file"
+                magick "$work_png_file" -background white -flatten -quality 95 "$jpg_file"
             else
-                convert "$work_png_file" -quality 95 "$jpg_file"
+                convert "$work_png_file" -background white -flatten -quality 95 "$jpg_file"
             fi
 
             # Clean up temp file if created

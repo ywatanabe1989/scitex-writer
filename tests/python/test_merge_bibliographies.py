@@ -18,6 +18,7 @@ try:
     from merge_bibliographies import (
         deduplicate_entries,
         get_doi,
+        merge_bibtex_files,
         merge_entries,
         normalize_title,
     )
@@ -347,6 +348,86 @@ class TestDeduplicateEntries:
         unique, stats = deduplicate_entries(entries)
 
         assert len(unique) == 1
+
+
+class TestMergeBibtexFilesOutputPath:
+    """Test output path handling in merge_bibtex_files (issue #68)."""
+
+    def _create_bib_file(self, path, key="test2024", title="Test Title"):
+        """Helper to create a minimal .bib file."""
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(
+            f"@article{{{key},\n  title = {{{title}}},\n  author = {{Author}},\n  year = {{2024}},\n}}\n"
+        )
+
+    def test_relative_filename_joins_with_bib_dir(self, tmp_path):
+        """'-o bibliography.bib' should output inside bib_dir."""
+        bib_dir = tmp_path / "bib_files"
+        bib_dir.mkdir()
+        self._create_bib_file(bib_dir / "refs.bib")
+
+        merge_bibtex_files(bib_dir, output_file="merged.bib", verbose=False, force=True)
+
+        assert (bib_dir / "merged.bib").exists()
+
+    def test_full_path_with_input_dir_prefix_no_double(self, tmp_path):
+        """Full path output should NOT be joined again with bib_dir."""
+        bib_dir = tmp_path / "bib_files"
+        bib_dir.mkdir()
+        self._create_bib_file(bib_dir / "refs.bib")
+
+        # Pass full path as output (the bug scenario from issue #68)
+        output = str(bib_dir / "merged.bib")
+        merge_bibtex_files(bib_dir, output_file=output, verbose=False, force=True)
+
+        # File should exist at the specified path
+        assert Path(output).exists()
+        # Should NOT have created a nested path like bib_files/bib_files/merged.bib
+        nested = bib_dir / "bib_files" / "merged.bib"
+        assert not nested.exists()
+
+    def test_absolute_output_path(self, tmp_path):
+        """Absolute output path should be used as-is."""
+        bib_dir = tmp_path / "bib_files"
+        bib_dir.mkdir()
+        self._create_bib_file(bib_dir / "refs.bib")
+
+        out_dir = tmp_path / "output"
+        out_dir.mkdir()
+        output = str(out_dir / "merged.bib")
+
+        merge_bibtex_files(bib_dir, output_file=output, verbose=False, force=True)
+
+        assert Path(output).exists()
+
+    def test_subdirectory_output_path(self, tmp_path):
+        """'-o subdir/merged.bib' should use path as-is (not join with bib_dir)."""
+        bib_dir = tmp_path / "bib_files"
+        bib_dir.mkdir()
+        self._create_bib_file(bib_dir / "refs.bib")
+
+        out_dir = tmp_path / "subdir"
+        out_dir.mkdir()
+        output = str(out_dir / "merged.bib")
+
+        merge_bibtex_files(bib_dir, output_file=output, verbose=False, force=True)
+
+        assert Path(output).exists()
+
+    def test_output_excludes_itself_from_input(self, tmp_path):
+        """Output file should not be included as input even with full path."""
+        bib_dir = tmp_path / "bib_files"
+        bib_dir.mkdir()
+        self._create_bib_file(bib_dir / "refs.bib", key="ref2024", title="Reference")
+        # Pre-create the output file in the same dir
+        self._create_bib_file(bib_dir / "merged.bib", key="old2024", title="Old")
+
+        merge_bibtex_files(bib_dir, output_file="merged.bib", verbose=False, force=True)
+
+        content = (bib_dir / "merged.bib").read_text()
+        assert "ref2024" in content
+        # Should not contain old entry from previous merged.bib
+        assert "old2024" not in content
 
 
 if __name__ == "__main__":

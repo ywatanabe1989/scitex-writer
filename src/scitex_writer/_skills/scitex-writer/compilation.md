@@ -63,6 +63,25 @@ If undefined citations persist after one compile, the BibTeX pass ordering may n
 | `SCITEX_WRITER_VERBOSE_BIBTEX` | `false` | Show BibTeX output |
 | `SCITEX_WRITER_VERBOSE_PDFLATEX` | `false` | Show pdflatex output |
 
+## Updating Downstream Projects
+
+Sync a downstream project with the latest scitex-writer template:
+
+```bash
+scitex-writer update                    # update current directory
+scitex-writer update ~/proj/my-paper    # update specific project
+scitex-writer update --dry-run          # preview changes only
+scitex-writer update --tag v2.8.0       # update to specific version
+```
+
+## SyncTeX Support
+
+Compilation uses `-synctex=1` to generate `.synctex.gz` files alongside the PDF, enabling editor-PDF synchronization (forward lookup from `.tex` line to PDF position).
+
+## Word Count
+
+The compile output includes word counts with comma-separated formatting and per-section breakdown.
+
 ## Common Issues
 
 **Figures still appearing after removal**: The compile script auto-discovers `.tex` files from `caption_and_media/`. Move ALL files (`.tex`, `.jpg`, `.png`, `.mmd`) to `legacy/`, including those in `jpg_for_compilation/` and `mermaid_originals/` subdirectories. See [figures-and-tables.md](figures-and-tables.md).

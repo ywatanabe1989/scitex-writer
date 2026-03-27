@@ -35,7 +35,7 @@ LaTeX manuscript compilation framework for scientific papers. Compiles manuscrip
 |-------|-------------|
 | [writing-attitude.md](writing-attitude.md) | Evidence requirements, critical analysis, scientific standards |
 | [writing-figures-stats.md](writing-figures-stats.md) | Figure rules (axes, ranges, labels), statistical reporting (effect sizes, FDR correction) |
-| [writing-proofreading.md](writing-proofreading.md) | Language rules, formatting, common corrections |
+| [writing-proofreading.md](writing-proofreading.md) | Language rules, formatting, common corrections, anti-patterns (AP1-AP9), tone, hedging, transitions, terminology |
 | [writing-abstract.md](writing-abstract.md) | 7-section structure: intro, background, problem, main result, comparisons, context, perspective |
 | [writing-introduction.md](writing-introduction.md) | 8-section structure: opening, importance, knowledge/gaps, limitations, hypothesis, methods, results, significance |
 | [writing-methods.md](writing-methods.md) | Reproducibility-focused; passive voice; procedures others can replicate |
