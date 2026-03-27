@@ -5,6 +5,14 @@ allowed-tools: mcp__scitex__writer_*
 
 # scitex-writer
 
+## Installation
+
+```bash
+pip install scitex-writer
+# Development:
+pip install -e /home/ywatanabe/proj/scitex-writer
+```
+
 LaTeX manuscript compilation framework for scientific papers. Compiles manuscripts, supplementary materials, and revision documents with tracked changes. Manages bibliography (BibTeX merge, DOI dedup, enrichment), figures/tables (auto-discovery from `caption_and_media/`, CSV-to-LaTeX conversion), and verifiable claims linked to session hashes via `sw.claim.add()`.
 
 ## Sub-skills
