@@ -65,6 +65,27 @@ The purpose of the methods section in a scientific paper is to provide a detaile
 - Describe correction methods for multiple comparisons
 - Include software packages and versions used for analysis
 
+## Methods Discipline: Methodology Over Motivation
+
+Methods sections describe *what* the system does and *how* it works, not *why*.
+
+### AP10: Motivation in Methods
+
+| DO NOT (motivation/argumentation) | DO (methodological description) |
+|---|---|
+| "Prior approaches have seen limited adoption because they imposed..." | "The system addresses these through three structural conditions..." |
+| "This division of labor contributes to addressing peer review capacity..." | "Machines verify computation; reviewers assess scientific judgment." |
+
+- Brief context (1 sentence) is acceptable to frame a design choice
+- "Why" arguments belong in Introduction (problem statement) or Discussion (interpretation)
+- If a Methods sentence starts with "Prior approaches..." or "This addresses the problem of...", it likely belongs elsewhere
+
+### AP11: Verbose Ethical Considerations in Methods
+
+- Ethical considerations should state facts (what the system does/doesn't do), not argue positions
+- Keep to 3-4 factual sentences: what the system verifies, what it cannot, licensing, data governance
+- Avoid restating Discussion points about limitations and philosophy
+
 ## Usage
 
 Provide your methods draft text below. The revision will be returned in a LaTeX code block.
