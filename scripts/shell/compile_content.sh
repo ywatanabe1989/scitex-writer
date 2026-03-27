@@ -152,6 +152,7 @@ log_info "Compiling content: $JOB_NAME (color_mode=$COLOR_MODE)"
 # Run latexmk (no bibliography processing for content/preview)
 timeout "$TIMEOUT" latexmk \
     -pdf \
+    -synctex=1 \
     -interaction=nonstopmode \
     -halt-on-error \
     -bibtex- \
