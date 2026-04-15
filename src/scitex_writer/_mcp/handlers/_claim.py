@@ -125,12 +125,70 @@ def _format_statistic(value: Dict, style: str) -> str:
 
 
 def _format_value(value: Dict, style: str) -> str:
-    """Format a value claim."""
-    v = value.get("value", "")
-    unit = value.get("unit", "")
-    if unit:
-        return f"{v} {unit}" if style == "plain" else f"${v}$ {unit}"
-    return str(v)
+    """Format a value claim.
+
+    Supported shapes (checked in order):
+
+    1. ``{"template_<style>": "...", ...}`` — per-style format string,
+       rendered with ``template.format(**value)``. ``<style>`` is one of
+       ``nature``, ``apa``, ``plain``. Lets a single claim carry three
+       differently-typeset renderings (useful when math goes into
+       ``$...$`` for nature/apa but stays plain for ``plain`` style).
+
+    2. ``{"template": "...", ...}`` — single style-agnostic format
+       string, rendered with ``template.format(**value)``. Takes the
+       whole value dict as keyword args, so compound claims like
+       ``{"n_sig": 73, "n_tot": 240, "frac": 0.304, ...}`` can pack a
+       rich rendering into one claim ID without exploding the JSON into
+       atomic sub-claims.
+
+    3. ``{"value": X, "unit": Y}`` (legacy single-value shape) — renders
+       as ``X Y`` (plain) or ``$X$ Y`` (nature/apa). Unit optional.
+
+    4. Any other dict — falls back to ``key=val, key=val, ...`` so the
+       claim is at least visible in the rendered tex and users can spot
+       that they need to add a ``template``.
+
+    Parameters
+    ----------
+    value : dict
+        The claim's value payload.
+    style : str
+        One of the FORMAT_STYLES constants (nature, apa, plain).
+    """
+    if not isinstance(value, dict):
+        return str(value)
+
+    # (1) per-style template
+    per_style = value.get(f"template_{style}")
+    if isinstance(per_style, str):
+        try:
+            return per_style.format(**value)
+        except (KeyError, IndexError, ValueError):
+            pass
+
+    # (2) single shared template
+    template = value.get("template")
+    if isinstance(template, str):
+        try:
+            return template.format(**value)
+        except (KeyError, IndexError, ValueError):
+            pass
+
+    # (3) legacy single-value shape
+    if "value" in value:
+        v = value.get("value", "")
+        unit = value.get("unit", "")
+        if unit:
+            return f"{v} {unit}" if style == "plain" else f"${v}$ {unit}"
+        return str(v)
+
+    # (4) fallback — flat key=val dump
+    return ", ".join(
+        f"{k}={v}"
+        for k, v in value.items()
+        if not (isinstance(k, str) and k.startswith("template"))
+    )
 
 
 def _format_citation(value: Dict, style: str) -> str:
