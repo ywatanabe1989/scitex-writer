@@ -1,5 +1,5 @@
 ---
-description: Scientific writing proofreading guidelines including language rules, formatting, common corrections, anti-patterns (AP1-AP9), respectful tone, hedging, transitions, and terminology conventions.
+description: Scientific writing proofreading guidelines including language rules, formatting, common corrections, anti-patterns (AP1-AP9, AP12), respectful tone, hedging, transitions, and terminology conventions.
 ---
 
 # Scientific Writing Proofreading Guidelines
@@ -160,6 +160,35 @@ Mix punctuation variety — do not use 4+ em-dashes in one sentence:
 
 ### AP9: Future-Proofing Counts
 Use `N+` suffix for numbers that grow (e.g., "300+ MCP tools", "187+ built-in Skills").
+
+### AP12: Repeating Key Expressions Across Sections
+
+When a concept is central to the paper, the same word or phrase tends to appear in every section. This weakens the prose and makes it feel formulaic.
+
+**Rule.** Key expressions should appear at most 2–3 times in the full manuscript. Establish the concept in one section (usually Introduction), then vary the expression elsewhere.
+
+**Example: "byproduct"**
+
+*Before (5 uses):* Introduction "a byproduct of productive work", Introduction "a byproduct of convenience", Abstract "building verification as a byproduct", Discussion "embedded as a byproduct of", Discussion "building...as a byproduct".
+
+*After (2 uses, both in Introduction):* "a byproduct of productive work" (establishes concept), "a byproduct of convenience" (reinforces for Clew). Abstract → "generating verification automatically". Discussion → "emerges naturally from" / "simultaneously constructing".
+
+**Substitution patterns.**
+
+| Overused | Alternatives |
+|---|---|
+| "as a byproduct" | "emerges naturally from", "generating X automatically", "simultaneously constructing", "without additional effort" |
+| "was not designed to" | "does not yet", "targets X rather than Y", "focuses on X" |
+| "hash-based verification" | "cryptographic integrity checks", "content-addressable tracking", "SHA-256 chains" |
+| "human-navigable" | "reviewer-accessible", "structured audit trail", "inspectable" |
+
+**How to apply.**
+1. After drafting, grep for key terms and count occurrences.
+2. Keep 2 uses maximum per distinctive phrase across the full manuscript.
+3. Vary at section boundaries (intro → methods → results → discussion).
+4. The Introduction establishes terminology; other sections can paraphrase.
+
+**Relation to other APs.** Extends AP4 (word repetition at paragraph boundaries) to manuscript-wide scope. Complements AP7 (overusing signature terms like "meta-demonstration").
 
 ## Placeholder Command for Draft Content
 

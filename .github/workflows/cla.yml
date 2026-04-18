@@ -15,6 +15,9 @@ permissions:
 jobs:
   CLAssistant:
     runs-on: ubuntu-latest
+    if: |
+      (github.event_name == 'issue_comment' && github.event.issue.pull_request) ||
+      github.event_name == 'pull_request_target'
     steps:
       - name: CLA Assistant
         uses: contributor-assistant/github-action@v2.6.1
