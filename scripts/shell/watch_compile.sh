@@ -5,12 +5,14 @@
 
 # Hot-recompile script with file watching and lock management
 
+# shellcheck disable=SC2034  # ORIG_DIR retained for symmetry with module header
 ORIG_DIR="$(pwd)"
-THIS_DIR="$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)"
+THIS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # Allow override via environment variable for moved projects
 PROJECT_ROOT="${PROJECT_ROOT:-$(cd "$THIS_DIR/../.." && pwd)}"
 
 # Colors for output
+# shellcheck disable=SC2034  # GIT_ROOT retained for symmetry with module header
 GIT_ROOT="$(git rev-parse --show-toplevel 2>/dev/null)"
 
 GRAY='\033[0;90m'
@@ -33,7 +35,8 @@ WATCH_PID_FILE="$PROJECT_ROOT/.watch.pid"
 # Function to check if compilation is locked
 is_locked() {
     if [ -f "$LOCK_FILE" ]; then
-        local lock_pid=$(cat "$LOCK_FILE" 2>/dev/null)
+        local lock_pid
+        lock_pid=$(cat "$LOCK_FILE" 2>/dev/null)
         # Check if the process is still running
         if [ -n "$lock_pid" ] && kill -0 "$lock_pid" 2>/dev/null; then
             return 0 # Locked and process is running
@@ -71,7 +74,8 @@ acquire_lock() {
 # Function to release lock
 release_lock() {
     if [ -f "$LOCK_FILE" ]; then
-        local lock_pid=$(cat "$LOCK_FILE" 2>/dev/null)
+        local lock_pid
+        lock_pid=$(cat "$LOCK_FILE" 2>/dev/null)
         if [ "$lock_pid" = "$$" ]; then
             rm -f "$LOCK_FILE"
         fi
@@ -140,13 +144,15 @@ compile_with_lock() {
 
     # Check if compilation is running
     if is_locked; then
-        local lock_pid=$(cat "$LOCK_FILE" 2>/dev/null)
+        local lock_pid
+        lock_pid=$(cat "$LOCK_FILE" 2>/dev/null)
 
         if [ "$COMPILE_MODE" = "restart" ]; then
             # Check how long compilation has been running
             if [ -f "$compilation_start_file" ]; then
-                local start_time=$(cat "$compilation_start_file")
-                local current_time=$(date +%s)
+                local start_time current_time
+                start_time=$(cat "$compilation_start_file")
+                current_time=$(date +%s)
                 local elapsed=$((current_time - start_time))
 
                 if [ $elapsed -lt 3 ]; then
@@ -177,11 +183,11 @@ compile_with_lock() {
     if acquire_lock; then
         echo_info "$(date '+%H:%M:%S') - Starting compilation..."
         date +%s >"$compilation_start_file"
-        cd "$PROJECT_ROOT"
+        cd "$PROJECT_ROOT" || return 1
         # Pass dark mode flag if env var is set
         local dm_flag=""
         [ "${SCITEX_WRITER_DARK_MODE}" = "true" ] && dm_flag="--dark-mode"
-        ./compile.sh -m $dm_flag
+        ./compile.sh -m "$dm_flag"
         local status=$?
         release_lock
         rm -f "$compilation_start_file"
@@ -189,23 +195,27 @@ compile_with_lock() {
         if [ $status -eq 0 ]; then
             echo_success "$(date '+%H:%M:%S') - Compilation successful"
             # Load configuration to get environment variables
+            # shellcheck source=/dev/null
             source ./config/load_config.sh manuscript >/dev/null 2>&1
 
             # Update symlink to latest archive version (prevents viewing corrupted PDFs during compilation)
             local archive_dir="${SCITEX_WRITER_VERSIONS_DIR}"
-            local latest_archive=$(ls -1 "$archive_dir"/${SCITEX_WRITER_DOC_TYPE}_v[0-9]*.pdf 2>/dev/null | grep -v "_diff.pdf" | sort -V | tail -1)
+            local latest_archive
+            latest_archive=$(find "$archive_dir" -maxdepth 1 -name "${SCITEX_WRITER_DOC_TYPE}_v[0-9]*.pdf" 2>/dev/null | grep -v "_diff.pdf" | sort -V | tail -1)
 
             if [ -n "$latest_archive" ]; then
                 # Create relative symlink to archive
-                cd "${SCITEX_WRITER_ROOT_DIR}"
-                ln -sf "archive/$(basename "$latest_archive")" "${SCITEX_WRITER_DOC_TYPE}-latest.pdf"
-                cd - >/dev/null
+                (
+                    cd "${SCITEX_WRITER_ROOT_DIR}" || exit 1
+                    ln -sf "archive/$(basename "$latest_archive")" "${SCITEX_WRITER_DOC_TYPE}-latest.pdf"
+                )
                 echo_info "    Symlink updated: ${SCITEX_WRITER_DOC_TYPE}-latest.pdf -> archive/$(basename "$latest_archive")"
             else
                 # Fallback if no archive exists
-                cd "${SCITEX_WRITER_ROOT_DIR}"
-                ln -sf "${SCITEX_WRITER_DOC_TYPE}.pdf" "${SCITEX_WRITER_DOC_TYPE}-latest.pdf"
-                cd - >/dev/null
+                (
+                    cd "${SCITEX_WRITER_ROOT_DIR}" || exit 1
+                    ln -sf "${SCITEX_WRITER_DOC_TYPE}.pdf" "${SCITEX_WRITER_DOC_TYPE}-latest.pdf"
+                )
                 echo_info "    Symlink updated: ${SCITEX_WRITER_DOC_TYPE}-latest.pdf -> ${SCITEX_WRITER_DOC_TYPE}.pdf (no archive yet)"
             fi
         else
@@ -221,7 +231,8 @@ compile_with_lock() {
 # Function to get list of files to watch from config
 get_watch_files() {
     # Read watch patterns from YAML config
-    local patterns=$(awk '/^  watching_files:/,/^[^ ]/' "$CONFIG_FILE" |
+    local patterns
+    patterns=$(awk '/^  watching_files:/,/^[^ ]/' "$CONFIG_FILE" |
         grep '^[[:space:]]*-' |
         sed 's/^[[:space:]]*-[[:space:]]*//' |
         sed 's/"//g')
@@ -234,12 +245,17 @@ get_watch_files() {
         # Expand the pattern (handles wildcards)
         if [[ "$pattern" == *"**"* ]]; then
             # Handle recursive patterns
-            local base_dir=$(echo "$pattern" | sed 's/\/\*\*.*//')
-            local file_pattern=$(echo "$pattern" | sed 's/.*\*\*\///')
+            local base_dir file_pattern
+            base_dir=$(echo "$pattern" | sed 's/\/\*\*.*//')
+            file_pattern=$(echo "$pattern" | sed 's/.*\*\*\///')
             find "$PROJECT_ROOT/$base_dir" -type f -name "$file_pattern" 2>/dev/null
         elif [[ "$pattern" == *"*"* ]]; then
             # Handle simple wildcards
-            ls $PROJECT_ROOT/$pattern 2>/dev/null
+            # shellcheck disable=SC2206  # Intentional word-splitting of the glob result
+            local matches=("$PROJECT_ROOT"/$pattern)
+            for m in "${matches[@]}"; do
+                [ -e "$m" ] && echo "$m"
+            done
         else
             # Direct file
             [ -f "$PROJECT_ROOT/$pattern" ] && echo "$PROJECT_ROOT/$pattern"
@@ -259,7 +275,8 @@ main() {
     fi
 
     # Count files being watched
-    local watch_count=$(get_watch_files | wc -l)
+    local watch_count
+    watch_count=$(get_watch_files | wc -l)
 
     echo_success "==========================================
 Hot-Recompile Watch Mode Started
@@ -271,7 +288,7 @@ Stable PDF: $STABLE_LINK
 
 For rsync: rsync -avL $STABLE_LINK remote:/path/
            (The -L flag follows symlinks)
-  
+
 Press Ctrl+C to stop
 =========================================="
 

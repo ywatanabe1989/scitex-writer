@@ -39,16 +39,19 @@ COMPILATION_START_TIME=$(date +%s)
 log_stage_start() {
     local stage_name="$1"
     STAGE_START_TIME=$(date +%s)
-    local timestamp=$(date '+%H:%M:%S')
+    local timestamp
+    timestamp=$(date '+%H:%M:%S')
     echo_info "[$timestamp] Starting: $stage_name"
 }
 
 log_stage_end() {
     local stage_name="$1"
-    local end_time=$(date +%s)
+    local end_time
+    end_time=$(date +%s)
     local elapsed=$((end_time - STAGE_START_TIME))
     local total_elapsed=$((end_time - COMPILATION_START_TIME))
-    local timestamp=$(date '+%H:%M:%S')
+    local timestamp
+    timestamp=$(date '+%H:%M:%S')
     echo_success "[$timestamp] Completed: $stage_name (${elapsed}s elapsed, ${total_elapsed}s total)"
 }
 
@@ -63,7 +66,7 @@ source ./config/load_config.sh "$SCITEX_WRITER_DOC_TYPE"
 echo
 
 # Log
-touch $LOG_PATH >/dev/null 2>&1
+touch "$LOG_PATH" >/dev/null 2>&1
 mkdir -p "$LOG_DIR" && touch "$SCITEX_WRITER_GLOBAL_LOG_FILE"
 
 # Shell options
@@ -166,7 +169,8 @@ usage() {
 parse_arguments() {
     while [[ "$#" -gt 0 ]]; do
         # Normalize option: replace underscores with hyphens for matching
-        local normalized_opt=$(echo "$1" | tr '_' '-')
+        local normalized_opt
+        normalized_opt=$(echo "$1" | tr '_' '-')
 
         case $normalized_opt in
         -h | --help) usage ;;
@@ -209,8 +213,7 @@ parse_arguments() {
 
     # 1. Check dependencies
     log_stage_start "Dependency Check"
-    ./scripts/shell/modules/check_dependancy_commands.sh
-    if [ $? -ne 0 ]; then
+    if ! ./scripts/shell/modules/check_dependancy_commands.sh; then
         echo -e "${RED}ERRO: Dependency check failed${NC}"
         exit 1
     fi
@@ -252,16 +255,17 @@ parse_arguments() {
 
         # Check for comment/response pairs with simplified naming (supporting descriptive suffixes)
         local found_files=0
-        for comment_file in "$dir"/${prefix}_*_comments*.tex; do
+        for comment_file in "$dir"/"${prefix}"_*_comments*.tex; do
             if [ -f "$comment_file" ]; then
                 # Extract the base ID (e.g., E_01, R1_02)
-                local base_id=$(echo "$(basename $comment_file)" | sed -E "s/(${prefix}_[0-9]+)_comments.*/\1/")
+                local base_id
+                base_id=$(basename "$comment_file" | sed -E "s/(${prefix}_[0-9]+)_comments.*/\1/")
 
                 # Look for corresponding response file (may have different description)
                 local response_found=false
-                for response_file in "$dir"/${base_id}_response*.tex; do
+                for response_file in "$dir"/"${base_id}"_response*.tex; do
                     if [ -f "$response_file" ]; then
-                        echo -e "${GREEN}    ✓ $(basename $comment_file) & $(basename $response_file)${NC}"
+                        echo -e "${GREEN}    ✓ $(basename "$comment_file") & $(basename "$response_file")${NC}"
                         found_files=$((found_files + 1))
                         response_found=true
                         break
@@ -269,7 +273,7 @@ parse_arguments() {
                 done
 
                 if [ "$response_found" = false ]; then
-                    echo -e "${YELLOW}    ⚠ Missing response for: $(basename $comment_file)${NC}"
+                    echo -e "${YELLOW}    ⚠ Missing response for: $(basename "$comment_file")${NC}"
                 fi
             fi
         done
@@ -317,10 +321,10 @@ parse_arguments() {
 
     # Display outputs in order
     echo_info "  Figure Processing:"
-    cat "$fig_log" | sed 's/^/    /'
+    sed 's/^/    /' "$fig_log"
 
     echo_info "  Table Processing:"
-    cat "$tbl_log" | sed 's/^/    /'
+    sed 's/^/    /' "$tbl_log"
 
     # Check exit codes
     fig_exit=$(cat "$temp_dir/fig_exit")
