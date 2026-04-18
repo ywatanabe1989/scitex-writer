@@ -2,20 +2,19 @@
 # -*- coding: utf-8 -*-
 """Standalone local-dev launcher for the writer editor.
 
-Bootstraps Django with minimal `scitex_writer._django.settings` and serves
-the editor on localhost. Cloud deployments do NOT use this — they mount
-`scitex_writer._django.urls` into their own Django project.
+Delegates to `scitex_app._standalone.run_standalone`, which pre-wires
+scitex-ui static assets + the workspace shell so the same local server
+looks like scitex.ai/apps/writer.
 
-This is what `scitex-writer gui` invokes.
+Cloud deployments do NOT use this — they mount `scitex_writer._django.urls`
+into their own Django project.
 """
 
 from __future__ import annotations
 
 import os
 import socket
-import sys
 import threading
-import time
 import webbrowser
 from pathlib import Path
 
@@ -38,47 +37,59 @@ def run(
     host: str = "127.0.0.1",
     open_browser: bool = True,
     desktop: bool = False,
+    hot_reload: bool = False,
 ) -> None:
-    """Launch the Django editor server locally."""
+    """Launch the Django editor server locally.
+
+    Tries `scitex_app._standalone.run_standalone` first (gets the full
+    workspace shell from scitex-ui). Falls back to a bare runserver
+    bootstrap if scitex-app is not installed.
+    """
     project_path = Path(project_dir).resolve()
     if not project_path.exists():
         raise FileNotFoundError(f"Project directory not found: {project_path}")
 
     os.environ["WRITER_WORKING_DIR"] = str(project_path)
+    os.environ["SCITEX_WORKING_DIR"] = str(project_path)
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "scitex_writer._django.settings")
 
-    import django
-
-    django.setup()
-
     port = _find_available_port(host, port)
-    url = f"http://{host}:{port}"
-    print(f"SciTeX Writer GUI: {url}")
+    print(f"SciTeX Writer GUI: http://{host}:{port}")
     print(f"Project: {project_path}")
     print("Press Ctrl+C to stop")
 
+    try:
+        import django
+
+        django.setup()
+
+        from django.core.management import call_command
+
+        call_command("migrate", "--run-syncdb", verbosity=0)
+
+        from scitex_app._standalone import run_standalone
+
+        run_standalone(
+            app_module="scitex_writer._django",
+            port=port,
+            host=host,
+            open_browser=open_browser,
+            hot_reload=hot_reload,
+            working_dir=str(project_path),
+            desktop=desktop,
+        )
+        return
+    except ImportError:
+        pass
+
+    # Fallback: no scitex-app available, run bare Django
+    import django
+
+    django.setup()
+    from django.core.management import call_command
+
     if open_browser and not desktop:
-        threading.Timer(1.0, webbrowser.open, args=[url]).start()
+        threading.Timer(1.0, webbrowser.open, args=[f"http://{host}:{port}"]).start()
 
-    from django.core.management import execute_from_command_line
-
-    if desktop:
-        try:
-            import webview  # type: ignore
-
-            def _serve():
-                time.sleep(0.3)
-                execute_from_command_line(
-                    [sys.argv[0], "runserver", f"{host}:{port}", "--noreload"]
-                )
-
-            threading.Thread(target=_serve, daemon=True).start()
-            webview.create_window("SciTeX Writer", url, width=1400, height=900)
-            webview.start()
-            return
-        except ImportError:
-            print("pywebview not installed. Falling back to browser mode.")
-
-    execute_from_command_line(
-        [sys.argv[0], "runserver", f"{host}:{port}", "--noreload"]
-    )
+    noreload = [] if hot_reload else ["--noreload"]
+    call_command("runserver", f"{host}:{port}", *noreload)

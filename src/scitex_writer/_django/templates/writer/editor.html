@@ -1,77 +1,50 @@
+{% extends "scitex_ui/standalone_shell.html" %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="en"
-      data-theme="{% if dark_mode %}dark{% else %}light{% endif %}">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>SciTeX Writer</title>
-        <link rel="stylesheet"
-              href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
-        <link rel="stylesheet"
-              href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/fold/foldgutter.min.css">
-        <link rel="stylesheet"
-              href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/dialog/dialog.min.css">
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/stex/stex.min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/edit/matchbrackets.min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/edit/closebrackets.min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/fold/foldcode.min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/fold/foldgutter.min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/fold/brace-fold.min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/search/search.min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/search/searchcursor.min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/search/jump-to-line.min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/dialog/dialog.min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
-        <link rel="stylesheet" href="{% static 'writer/css/editor.css' %}">
-    </head>
-    <body data-api-base="{{ api_base|default:'/' }}">
-        <header class="toolbar">
-            <div class="toolbar-left">
-                <span class="logo">SciTeX Writer</span>
+{% block extra_css %}
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/fold/foldgutter.min.css">
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/dialog/dialog.min.css">
+    <link rel="stylesheet" href="{% static 'writer/css/editor.css' %}">
+{% endblock %}
+{% block worktree_title_full %}Project files{% endblock %}
+{% block worktree_data_attrs %}data-working-dir="{{ project_dir|default:'' }}"{% endblock %}
+{% block app_content %}
+    <div class="writer-app"
+         data-api-base="{{ api_base|default:'/' }}"
+         data-project-dir="{{ project_dir|default:'' }}">
+        <!-- Writer-specific toolbar -->
+        <header class="writer-toolbar">
+            <div class="writer-toolbar-left">
+                <span class="writer-logo"><i class="fas fa-file-alt"></i> Writer</span>
                 <select id="doc-type-select" title="Document type">
                     <option value="manuscript">Manuscript</option>
                     <option value="supplementary">Supplementary</option>
                     <option value="revision">Revision</option>
                 </select>
             </div>
-            <div class="toolbar-center">
+            <div class="writer-toolbar-center">
                 <span id="current-file" class="current-file">No file open</span>
                 <span id="save-status" class="save-status"></span>
             </div>
-            <div class="toolbar-right">
+            <div class="writer-toolbar-right">
                 <button id="btn-compile"
                         class="btn btn-primary"
-                        title="Compile (Ctrl+Shift+B)">Compile</button>
+                        title="Compile (Ctrl+Shift+B)">
+                    <i class="fas fa-hammer"></i> Compile
+                </button>
                 <button id="btn-toggle-log"
                         class="btn btn-secondary"
-                        title="Toggle compilation log">Log</button>
-                <button id="btn-toggle-theme"
-                        class="btn btn-icon"
-                        title="Toggle dark/light mode">
-                    <span id="theme-icon">&#9789;</span>
+                        title="Toggle compilation log">
+                    <i class="fas fa-terminal"></i> Log
                 </button>
             </div>
         </header>
-        <div class="workspace">
-            <aside class="sidebar" id="sidebar">
-                <div class="sidebar-header">
-                    <span class="sidebar-title">Files</span>
-                    <button id="btn-collapse-sidebar"
-                            class="btn btn-icon btn-sm"
-                            title="Collapse sidebar">&#9664;</button>
-                </div>
-                <div class="file-tree" id="file-tree">
-                    <div class="loading">Loading...</div>
-                </div>
-            </aside>
-            <div class="resizer"
-                 id="sidebar-resizer"
-                 data-target="sidebar"
-                 data-direction="left"></div>
-            <div class="editor-panel" id="editor-panel">
+        <!-- Editor + preview split -->
+        <div class="writer-split">
+            <div class="writer-editor-pane" id="editor-panel">
                 <div class="file-tabs" id="file-tabs"></div>
                 <div class="editor-container" id="editor-container">
                     <div class="welcome-message" id="welcome-message">
@@ -81,11 +54,8 @@
                     </div>
                 </div>
             </div>
-            <div class="resizer"
-                 id="preview-resizer"
-                 data-target="preview-panel"
-                 data-direction="right"></div>
-            <div class="preview-panel" id="preview-panel">
+            <div class="writer-split-resizer" id="writer-split-resizer"></div>
+            <div class="writer-preview-pane" id="preview-panel">
                 <div class="preview-header">
                     <div class="preview-tabs">
                         <button class="preview-tab active" data-view="pdf">PDF</button>
@@ -93,7 +63,9 @@
                         <button class="preview-tab" data-view="claims">Claims</button>
                     </div>
                     <div class="preview-actions">
-                        <button id="btn-refresh-pdf" class="btn btn-icon btn-sm" title="Refresh PDF">&#8635;</button>
+                        <button id="btn-refresh-pdf" class="btn btn-icon btn-sm" title="Refresh PDF">
+                            <i class="fas fa-sync"></i>
+                        </button>
                     </div>
                 </div>
                 <div class="preview-content" id="preview-content">
@@ -124,10 +96,14 @@
                         <div class="claims-toolbar">
                             <button class="btn btn-sm btn-secondary"
                                     id="btn-refresh-claims"
-                                    title="Reload claims">&#8635; Refresh</button>
+                                    title="Reload claims">
+                                <i class="fas fa-sync"></i> Refresh
+                            </button>
                             <button class="btn btn-sm btn-secondary"
                                     id="btn-render-claims"
-                                    title="Regenerate claims_rendered.tex">&#9881; Render .tex</button>
+                                    title="Regenerate claims_rendered.tex">
+                                <i class="fas fa-cog"></i> Render .tex
+                            </button>
                             <span id="claims-count" class="claims-count"></span>
                         </div>
                         <div class="claims-list" id="claims-list">
@@ -137,6 +113,7 @@
                 </div>
             </div>
         </div>
+        <!-- Claim hover tooltip (floats above everything) -->
         <div id="claim-tooltip" class="claim-tooltip u-hidden">
             <div class="claim-tooltip-header">
                 <span id="ct-id" class="ct-id"></span>
@@ -175,6 +152,7 @@
                 </div>
             </div>
         </div>
+        <!-- Compilation log drawer -->
         <div class="log-panel u-hidden" id="log-panel">
             <div class="log-header">
                 <span>Compilation Log</span>
@@ -182,6 +160,21 @@
             </div>
             <pre class="log-content" id="log-content"></pre>
         </div>
-        <script src="{% static 'writer/js/editor.js' %}"></script>
-    </body>
-</html>
+    </div>
+{% endblock %}
+{% block extra_js %}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/stex/stex.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/edit/matchbrackets.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/edit/closebrackets.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/fold/foldcode.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/fold/foldgutter.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/fold/brace-fold.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/search/search.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/search/searchcursor.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/search/jump-to-line.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/dialog/dialog.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+    <script src="{% static 'writer/js/editor.js' %}"></script>
+{% endblock %}
