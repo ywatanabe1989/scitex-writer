@@ -46,6 +46,7 @@ except _PackageNotFoundError:
 # Import modules for convenient access
 from . import (
     bib,
+    checks,
     claim,
     compile,
     export,
@@ -100,6 +101,7 @@ __all__ = [
     "__version__",
     "usage",
     # Modules
+    "checks",
     "claim",
     "compile",
     "export",
