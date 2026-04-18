@@ -14,6 +14,8 @@ import { getFile, saveFile, projectInfo } from "./api";
 import type { SectionEntry } from "./api";
 import { SectionTabs } from "./sections";
 import { countWords, mountToolbar } from "./toolbar";
+import { PDFViewer } from "./pdf-viewer";
+import { CompileController } from "./compile";
 
 const SAVE_DEBOUNCE_MS = 800;
 
@@ -50,11 +52,38 @@ async function bootstrap(): Promise<void> {
 
   // Toolbar wiring
   const tabsEl = root.querySelector<HTMLElement>("#section-tabs");
-  const sections = tabsEl ? new SectionTabs(tabsEl, loadSection) : null;
+  const sections = tabsEl
+    ? new SectionTabs(tabsEl, (section) => {
+        void loadSection(section);
+      })
+    : null;
+
+  // PDF viewer
+  const pdfContainer = root.querySelector<HTMLElement>("#pdf-container");
+  const pdf = pdfContainer ? new PDFViewer({ container: pdfContainer }) : null;
+  pdf?.renderPlaceholder();
+
+  // Compile controller
+  const compile = pdf
+    ? new CompileController({
+        lamp: root.querySelector<HTMLElement>("#compile-lamp"),
+        logContent: root.querySelector<HTMLElement>("#log-content"),
+        logPanel: root.querySelector<HTMLElement>("#log-panel"),
+        toggleLogBtn: root.querySelector<HTMLElement>("#btn-toggle-log"),
+        closeLogBtn: root.querySelector<HTMLElement>("#btn-close-log"),
+        compileBtn: root.querySelector<HTMLElement>("#btn-compile"),
+        modeToggleBtn: root.querySelector<HTMLElement>("#btn-compile-mode"),
+        pdf,
+        getDocType: () =>
+          root.querySelector<HTMLSelectElement>("#doc-type-select")?.value ||
+          "manuscript",
+      })
+    : null;
 
   const toolbar = mountToolbar(root, {
     onDocType: async (docType) => {
       await sections?.load(docType);
+      await pdf?.load(docType);
     },
     onFontSize: (size) => {
       editor.getEditor()?.updateOptions({ fontSize: size });
@@ -63,6 +92,32 @@ async function bootstrap(): Promise<void> {
       // scitex-ui's theme observer handles Monaco — nothing else needed
     },
   });
+
+  root
+    .querySelector<HTMLElement>("#btn-refresh-pdf")
+    ?.addEventListener("click", async () => {
+      const dt =
+        root.querySelector<HTMLSelectElement>("#doc-type-select")?.value ||
+        "manuscript";
+      await pdf?.load(dt);
+    });
+
+  root
+    .querySelector<HTMLElement>("#btn-pdf-zoom-in")
+    ?.addEventListener("click", () => pdf?.setZoom(0.1));
+  root
+    .querySelector<HTMLElement>("#btn-pdf-zoom-out")
+    ?.addEventListener("click", () => pdf?.setZoom(-0.1));
+  root
+    .querySelector<HTMLElement>("#btn-pdf-fit")
+    ?.addEventListener("click", () => pdf?.setFitWidth());
+
+  // silence unused warnings until richer use in PR5+
+  void compile;
+
+  // Declare state BEFORE any loadSection trigger (TDZ guard).
+  let currentPath: string | null = null;
+  let saveTimer: number | null = null;
 
   // Initial load: discover doc types then load the first section of the first type
   let info: Awaited<ReturnType<typeof projectInfo>>;
@@ -76,9 +131,7 @@ async function bootstrap(): Promise<void> {
   const docSelect = root.querySelector<HTMLSelectElement>("#doc-type-select");
   if (docSelect) docSelect.value = initialDocType;
   await sections?.load(initialDocType);
-
-  let currentPath: string | null = null;
-  let saveTimer: number | null = null;
+  await pdf?.load(initialDocType);
 
   async function loadSection(section: SectionEntry): Promise<void> {
     try {

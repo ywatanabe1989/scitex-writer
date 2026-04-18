@@ -1145,3 +1145,51 @@ select:focus {
   height: 100%;
   min-height: 400px;
 }
+
+/* PR4: status lamp + PDF viewer chrome */
+.writer-lamp {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--text-muted);
+  flex: 0 0 auto;
+}
+.writer-lamp.lamp-idle {
+  background: #888;
+}
+.writer-lamp.lamp-compiling {
+  background: var(--warning);
+  animation: lamp-pulse 1s infinite alternate;
+}
+.writer-lamp.lamp-ok {
+  background: var(--success);
+}
+.writer-lamp.lamp-error {
+  background: var(--danger);
+}
+@keyframes lamp-pulse {
+  from { opacity: 0.4; }
+  to { opacity: 1; }
+}
+
+#btn-compile-mode.active-full {
+  background: var(--accent);
+  color: white;
+  border-color: var(--accent);
+}
+
+.pdf-viewer-host {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 16px;
+  align-items: center;
+  background: var(--bg-secondary);
+  min-height: 100%;
+}
+.pdf-page-canvas {
+  background: white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  max-width: 100%;
+}

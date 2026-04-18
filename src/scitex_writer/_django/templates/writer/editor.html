@@ -40,6 +40,10 @@
                 <span id="save-status" class="save-status"></span>
             </div>
             <div class="writer-toolbar-right">
+                <span id="compile-lamp" class="writer-lamp lamp-idle" title="Idle"></span>
+                <button id="btn-compile-mode"
+                        class="btn btn-secondary"
+                        title="Compile mode: Preview (draft) or Full">Preview</button>
                 <button id="btn-compile"
                         class="btn btn-primary"
                         title="Compile (Ctrl+Shift+B)">
@@ -70,6 +74,15 @@
                         <button class="preview-tab" data-view="claims">Claims</button>
                     </div>
                     <div class="preview-actions">
+                        <button id="btn-pdf-zoom-out" class="btn btn-icon btn-sm" title="Zoom out">
+                            <i class="fas fa-search-minus"></i>
+                        </button>
+                        <button id="btn-pdf-fit" class="btn btn-icon btn-sm" title="Fit width">
+                            <i class="fas fa-arrows-alt-h"></i>
+                        </button>
+                        <button id="btn-pdf-zoom-in" class="btn btn-icon btn-sm" title="Zoom in">
+                            <i class="fas fa-search-plus"></i>
+                        </button>
                         <button id="btn-refresh-pdf" class="btn btn-icon btn-sm" title="Refresh PDF">
                             <i class="fas fa-sync"></i>
                         </button>
@@ -96,6 +109,13 @@
                     </div>
                 </div>
             </div>
+        </div>
+        <div class="log-panel u-hidden" id="log-panel">
+            <div class="log-header">
+                <span>Compilation Log</span>
+                <button id="btn-close-log" class="btn btn-icon btn-sm">&times;</button>
+            </div>
+            <pre class="log-content" id="log-content"></pre>
         </div>
     </div>
 {% endblock %}

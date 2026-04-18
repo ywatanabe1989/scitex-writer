@@ -10,7 +10,8 @@
   },
   "dependencies": {
     "@scitex/ui": "file:../../../../../scitex-ui",
-    "monaco-editor": "^0.45.0"
+    "monaco-editor": "^0.45.0",
+    "pdfjs-dist": "^4.10.38"
   },
   "devDependencies": {
     "typescript": "^5.5.0",
