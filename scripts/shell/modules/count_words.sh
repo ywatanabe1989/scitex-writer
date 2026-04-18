@@ -31,10 +31,12 @@ echo_header() { echo_info "=== $1 ==="; }
 # ---------------------------------------
 
 # Configurations
-source ./config/load_config.sh $SCITEX_WRITER_DOC_TYPE
+# shellcheck source=/dev/null
+source ./config/load_config.sh "$SCITEX_WRITER_DOC_TYPE"
 
 # Source the 00_shared command switching module
-source "$(dirname ${BASH_SOURCE[0]})/command_switching.src"
+# shellcheck source=/dev/null
+source "$(dirname "${BASH_SOURCE[0]}")/command_switching.src"
 
 # Logging
 touch "$LOG_PATH" >/dev/null 2>&1
@@ -42,8 +44,8 @@ echo
 log_info "Running $0 ..."
 
 init() {
-    rm -f $SCITEX_WRITER_WORDCOUNT_DIR/*.txt
-    mkdir -p $SCITEX_WRITER_WORDCOUNT_DIR
+    rm -f "$SCITEX_WRITER_WORDCOUNT_DIR"/*.txt
+    mkdir -p "$SCITEX_WRITER_WORDCOUNT_DIR"
 }
 
 _count_elements() {
@@ -52,9 +54,20 @@ _count_elements() {
     local output_file="$3"
 
     if [[ -n $(find "$dir" -maxdepth 1 -name "$pattern" 2>/dev/null) ]]; then
-        # Count files matching pattern, excluding *_Header.tex and FINAL.tex
-        count=$(ls "$dir"/$pattern 2>/dev/null | grep -v "_Header.tex" | grep -v "FINAL.tex" | wc -l)
-        echo $count >"$output_file"
+        # Count files matching pattern, excluding *_Header.tex and FINAL.tex.
+        # Iterate via bash glob rather than `ls | grep` so filenames with
+        # unusual characters still count correctly (SC2010).
+        local _match
+        local count=0
+        shopt -s nullglob
+        for _match in "$dir"/$pattern; do
+            case "$(basename "$_match")" in
+            *_Header.tex | FINAL.tex) continue ;;
+            esac
+            count=$((count + 1))
+        done
+        shopt -u nullglob
+        echo "$count" >"$output_file"
     else
         echo "0" >"$output_file"
     fi

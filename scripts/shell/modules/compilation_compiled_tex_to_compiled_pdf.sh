@@ -33,11 +33,15 @@ echo_header() { echo_info "=== $1 ==="; }
 # ---------------------------------------
 
 # Configurations
-source ./config/load_config.sh $SCITEX_WRITER_DOC_TYPE
+# shellcheck source=/dev/null
+source ./config/load_config.sh "$SCITEX_WRITER_DOC_TYPE"
 
 # Source engine implementations (use absolute paths to avoid directory confusion)
+# shellcheck source=/dev/null
 source "${ENGINES_DIR}/compile_tectonic.sh"
+# shellcheck source=/dev/null
 source "${ENGINES_DIR}/compile_latexmk.sh"
+# shellcheck source=/dev/null
 source "${ENGINES_DIR}/compile_3pass.sh"
 
 # Logging
@@ -118,10 +122,20 @@ cleanup() {
         # Create/update stable symlink to latest archive version (prevents corruption during compilation)
         local latest_path="${SCITEX_WRITER_ROOT_DIR}/${SCITEX_WRITER_DOC_TYPE}-latest.pdf"
 
-        # Find the latest archived version (highest version number)
+        # Find the latest archived version (highest version number).
+        # Glob directly + filter _diff.pdf via bash so we avoid `ls | grep` (SC2010).
         local archive_dir="${SCITEX_WRITER_VERSIONS_DIR}"
-        local latest_archive
-        latest_archive=$(ls -1 "$archive_dir"/${SCITEX_WRITER_DOC_TYPE}_v[0-9]*.pdf 2>/dev/null | grep -v "_diff.pdf" | sort -V | tail -1)
+        local latest_archive=""
+        local _cand
+        local _candidates=()
+        for _cand in "$archive_dir"/"${SCITEX_WRITER_DOC_TYPE}"_v[0-9]*.pdf; do
+            [ -e "$_cand" ] || continue
+            case "$_cand" in *_diff.pdf) continue ;; esac
+            _candidates+=("$_cand")
+        done
+        if [ ${#_candidates[@]} -gt 0 ]; then
+            latest_archive=$(printf '%s\n' "${_candidates[@]}" | sort -V | tail -1)
+        fi
 
         if [ -n "$latest_archive" ]; then
             # Create relative symlink to archive

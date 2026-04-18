@@ -1,6 +1,12 @@
 #!/bin/bash
 # -*- coding: utf-8 -*-
 # File: scripts/shell/modules/command_switching.src
+# shellcheck disable=SC2034,SC2120,SC2155
+# SC2034 (THIS_DIR): exported for symmetry with other modules.
+# SC2120 (get_cmd_*): optional working_dir arg defaults to pwd; no caller
+#   passes it today but the signature is part of the public contract.
+# SC2155 (local x=$(cmd)): these cmds (pwd, realpath, basename) do not
+#   fail in any scenario we care about; splitting adds clutter.
 
 THIS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # ---------------------------------------
