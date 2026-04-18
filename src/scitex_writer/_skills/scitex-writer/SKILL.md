@@ -25,7 +25,7 @@ LaTeX manuscript compilation framework for scientific papers. Compiles manuscrip
 | [compilation.md](compilation.md) | Compile manuscript/supplementary/revision; clean compile after bib changes; env vars (dark mode, draft mode) |
 | [bibliography.md](bibliography.md) | BibTeX management: add, list, merge, enrich; DOI dedup; clean aux for resolution |
 | [figures-and-tables.md](figures-and-tables.md) | Figure/table lifecycle: add, remove (must move ALL files from caption_and_media/), move to supplementary |
-| [claims.md](claims.md) | Verifiable claims: `sw.claim.add()` with session ID + output hash; render via `\stxclaim{}` |
+| [claims.md](claims.md) | Verifiable claims: `sw.claim.add()` with session ID + output hash; render via `\vclaim{}` |
 | [cli-reference.md](cli-reference.md) | CLI commands reference |
 | [mcp-tools.md](mcp-tools.md) | MCP tools for AI agents |
 

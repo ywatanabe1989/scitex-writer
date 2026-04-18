@@ -310,7 +310,7 @@ class TestClaimRender:
         )
         sc.render(project_dir=project_dir)
         tex = (Path(project_dir) / "00_shared" / "claims_rendered.tex").read_text()
-        assert "\\stxclaim" in tex
+        assert "\\vclaim" in tex
         assert "mystat" in tex  # sanitized ID (underscores removed)
 
     def test_render_all_styles(self, tmp_path):

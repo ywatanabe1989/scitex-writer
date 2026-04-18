@@ -8,9 +8,9 @@ Claims are traceable scientific assertions — statistics, values, citations, fi
 references — stored as structured objects instead of magic numbers.
 
 Usage in LaTeX (after render_claims is called before compile):
-    \\stxclaim{group_comparison}           % nature style (default)
-    \\stxclaim[apa]{group_comparison}      % APA style
-    \\stxclaim[plain]{group_comparison}    % plain text
+    \\vclaim{group_comparison}           % nature style (default)
+    \\vclaim[apa]{group_comparison}      % APA style
+    \\vclaim[plain]{group_comparison}    % plain text
 """
 
 import json
@@ -248,7 +248,7 @@ def add_claim(
     project_dir : str
         Path to the scitex-writer project directory.
     claim_id : str
-        Unique identifier (e.g., "group_comparison"). Used in \\stxclaim{id}.
+        Unique identifier (e.g., "group_comparison"). Used in \\vclaim{id}.
     claim_type : str
         One of: statistic, value, citation, figure, table.
     value : dict
@@ -301,7 +301,7 @@ def add_claim(
             "claim_id": claim_id,
             "claim_type": claim_type,
             "previews": previews,
-            "latex_usage": f"\\stxclaim{{{claim_id}}}",
+            "latex_usage": f"\\vclaim{{{claim_id}}}",
         }
     except Exception as e:
         return {"success": False, "error": str(e)}
@@ -375,7 +375,7 @@ def get_claim(project_dir: str, claim_id: str) -> Dict:
             "claim_id": claim_id,
             "claim": claim,
             "previews": previews,
-            "latex_usage": f"\\stxclaim{{{claim_id}}}",
+            "latex_usage": f"\\vclaim{{{claim_id}}}",
         }
     except Exception as e:
         return {"success": False, "error": str(e)}
@@ -458,7 +458,7 @@ def render_claims(project_dir: str) -> Dict:
     """Render all claims to 00_shared/claims_rendered.tex.
 
     This is called automatically before compilation when claims.json exists.
-    The generated file defines the \\stxclaim{id} LaTeX macro and all claim
+    The generated file defines the \\vclaim{id} LaTeX macro and all claim
     renderings for all styles.
 
     Parameters
@@ -483,11 +483,11 @@ def render_claims(project_dir: str) -> Dict:
             "",
             "\\makeatletter",
             "",
-            "%% \\stxclaim[style]{id} — render a claim inline",
-            "\\@ifundefined{stxclaim}{%",
-            "  \\newcommand{\\stxclaim}[2][nature]{%",
-            "    \\@ifundefined{stx@claim@#2@#1}{[\\texttt{claim:#2}]}{%",
-            "      \\csname stx@claim@#2@#1\\endcsname}%",
+            "%% \\vclaim[style]{id} — render a claim inline",
+            "\\@ifundefined{vclaim}{%",
+            "  \\newcommand{\\vclaim}[2][nature]{%",
+            "    \\@ifundefined{v@claim@#2@#1}{[\\texttt{claim:#2}]}{%",
+            "      \\csname v@claim@#2@#1\\endcsname}%",
             "  }%",
             "}{}",
             "",
@@ -507,7 +507,7 @@ def render_claims(project_dir: str) -> Dict:
             )
             for style in FORMAT_STYLES:
                 rendered = _render_claim(claim, style)
-                macro_name = f"stx@claim@{safe_id}@{style}"
+                macro_name = f"v@claim@{safe_id}@{style}"
                 lines.append(f"\\@namedef{{{macro_name}}}{{{rendered}}}")
             lines.append("")
 
