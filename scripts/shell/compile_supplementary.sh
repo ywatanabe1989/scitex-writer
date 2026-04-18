@@ -39,16 +39,19 @@ COMPILATION_START_TIME=$(date +%s)
 log_stage_start() {
     local stage_name="$1"
     STAGE_START_TIME=$(date +%s)
-    local timestamp=$(date '+%H:%M:%S')
+    local timestamp
+    timestamp=$(date '+%H:%M:%S')
     echo_info "[$timestamp] Starting: $stage_name"
 }
 
 log_stage_end() {
     local stage_name="$1"
-    local end_time=$(date +%s)
+    local end_time
+    end_time=$(date +%s)
     local elapsed=$((end_time - STAGE_START_TIME))
     local total_elapsed=$((end_time - COMPILATION_START_TIME))
-    local timestamp=$(date '+%H:%M:%S')
+    local timestamp
+    timestamp=$(date '+%H:%M:%S')
     echo_success "[$timestamp] Completed: $stage_name (${elapsed}s elapsed, ${total_elapsed}s total)"
 }
 
@@ -58,7 +61,7 @@ source ./config/load_config.sh "$SCITEX_WRITER_DOC_TYPE"
 echo
 
 # Log
-touch $LOG_PATH >/dev/null 2>&1
+touch "$LOG_PATH" >/dev/null 2>&1
 mkdir -p "$LOG_DIR" && touch "$SCITEX_WRITER_GLOBAL_LOG_FILE"
 
 # Shell options
@@ -71,7 +74,7 @@ no_figs=false
 no_tables=false
 do_verbose=false
 do_crop_tif=false
-do_force=false
+export do_force=false # Reserved for force-rebuild logic; exported so --force flag is visible to sub-scripts
 no_diff=false
 draft_mode=false
 dark_mode=${SCITEX_WRITER_DARK_MODE:-false}
@@ -169,7 +172,8 @@ usage() {
 parse_arguments() {
     while [[ "$#" -gt 0 ]]; do
         # Normalize option: replace underscores with hyphens for matching
-        local normalized_opt=$(echo "$1" | tr '_' '-')
+        local normalized_opt
+        normalized_opt=$(echo "$1" | tr '_' '-')
 
         case $normalized_opt in
         -h | --help) usage ;;
@@ -233,12 +237,15 @@ main() {
     log_stage_end "Citation Style"
 
     # Run independent processing in parallel for speed
-    local parallel_start=$(date +%s)
-    local timestamp=$(date '+%H:%M:%S')
+    local parallel_start
+    parallel_start=$(date +%s)
+    local timestamp
+    timestamp=$(date '+%H:%M:%S')
     echo_info "[$timestamp] Starting: Parallel Processing (Figures, Tables, Word Count)"
 
     # Create temp files for parallel job outputs
-    local temp_dir=$(mktemp -d)
+    local temp_dir
+    temp_dir=$(mktemp -d)
     local fig_log="$temp_dir/figures.log"
     local tbl_log="$temp_dir/tables.log"
     local wrd_log="$temp_dir/words.log"
@@ -265,18 +272,19 @@ main() {
 
     # Display outputs in order
     echo_info "  Figure Processing:"
-    cat "$fig_log" | sed 's/^/    /'
+    sed 's/^/    /' "$fig_log"
 
     echo_info "  Table Processing:"
-    cat "$tbl_log" | sed 's/^/    /'
+    sed 's/^/    /' "$tbl_log"
 
     echo_info "  Word Count:"
-    cat "$wrd_log" | sed 's/^/    /'
+    sed 's/^/    /' "$wrd_log"
 
     # Check exit codes
-    local fig_exit=$(cat "$temp_dir/fig_exit")
-    local tbl_exit=$(cat "$temp_dir/tbl_exit")
-    local wrd_exit=$(cat "$temp_dir/wrd_exit")
+    local fig_exit tbl_exit wrd_exit
+    fig_exit=$(cat "$temp_dir/fig_exit")
+    tbl_exit=$(cat "$temp_dir/tbl_exit")
+    wrd_exit=$(cat "$temp_dir/wrd_exit")
 
     rm -rf "$temp_dir"
 
@@ -286,7 +294,8 @@ main() {
         exit 1
     fi
 
-    local parallel_end=$(date +%s)
+    local parallel_end
+    parallel_end=$(date +%s)
     local parallel_elapsed=$((parallel_end - parallel_start))
     local total_elapsed=$((parallel_end - COMPILATION_START_TIME))
     timestamp=$(date '+%H:%M:%S')
@@ -329,7 +338,8 @@ main() {
     # Logging
     echo
 
-    local final_time=$(date +%s)
+    local final_time
+    final_time=$(date +%s)
     local total_compilation_time=$((final_time - COMPILATION_START_TIME))
     echo_success "===================================================="
     echo_success "TOTAL COMPILATION TIME: ${total_compilation_time}s"

@@ -106,7 +106,7 @@ function buildClaimCard(claim) {
                     'title="Inspect claim + chain">&#128270; Inspect</button>' +
             '<button class="btn btn-sm claim-btn-insert" ' +
                     'data-id="' + escapeHtml(claim.claim_id) + '" ' +
-                    'title="Insert \\stxclaim{id} at cursor">&#8628; Insert</button>' +
+                    'title="Insert \\vclaim{id} at cursor">&#8628; Insert</button>' +
         '</div>';
 
     // Inspect button → show tooltip panel inline (expanded card)
@@ -115,11 +115,11 @@ function buildClaimCard(claim) {
         showInspectPanel(id, card);
     });
 
-    // Insert button → paste \stxclaim{id} into editor
+    // Insert button → paste \vclaim{id} into editor
     card.querySelector('.claim-btn-insert').addEventListener('click', function() {
         var id = this.getAttribute('data-id');
         if (state.editor) {
-            state.editor.replaceSelection('\\stxclaim{' + id + '}');
+            state.editor.replaceSelection('\\vclaim{' + id + '}');
             state.editor.focus();
         }
     });
@@ -218,8 +218,8 @@ var _tooltipTimer = null;
 var _activeTooltipId = null;
 
 function findClaimIdAtPos(line, ch) {
-    // Match \stxclaim{id} or \stxclaim[style]{id}
-    var re = /\\stxclaim(?:\[[^\]]*\])?\{([^}]+)\}/g;
+    // Match \vclaim{id} or \vclaim[style]{id}
+    var re = /\\vclaim(?:\[[^\]]*\])?\{([^}]+)\}/g;
     var match;
     while ((match = re.exec(line)) !== null) {
         if (ch >= match.index && ch <= match.index + match[0].length) {

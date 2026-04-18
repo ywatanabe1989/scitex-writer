@@ -46,6 +46,7 @@ except _PackageNotFoundError:
 # Import modules for convenient access
 from . import (
     bib,
+    checks,
     claim,
     compile,
     export,
@@ -67,7 +68,7 @@ from .writer import Writer
 
 
 def ensure_workspace(project_dir, git_strategy="child", **kwargs):
-    """Ensure writer workspace exists at {project_dir}/scitex/writer/.
+    """Ensure writer workspace exists at {project_dir}/.scitex/writer/.
 
     If the directory already exists, returns the path without modification.
     If not, clones the full scitex-writer template.
@@ -76,7 +77,7 @@ def ensure_workspace(project_dir, git_strategy="child", **kwargs):
     ----------
     project_dir : str or Path
         Root project directory. Writer workspace will be at
-        ``{project_dir}/scitex/writer/``.
+        ``{project_dir}/.scitex/writer/`` (hidden, dotfile convention).
     git_strategy : str, optional
         Git initialization strategy ('child', 'parent', 'origin', None).
     **kwargs
@@ -89,7 +90,7 @@ def ensure_workspace(project_dir, git_strategy="child", **kwargs):
     """
     from pathlib import Path
 
-    writer_path = Path(project_dir) / "scitex" / "writer"
+    writer_path = Path(project_dir) / ".scitex" / "writer"
     if writer_path.exists() and any(writer_path.iterdir()):
         return writer_path
     Writer(str(writer_path), git_strategy=git_strategy, **kwargs)
@@ -100,6 +101,7 @@ __all__ = [
     "__version__",
     "usage",
     # Modules
+    "checks",
     "claim",
     "compile",
     "export",

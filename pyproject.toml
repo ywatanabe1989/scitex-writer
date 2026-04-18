@@ -4,10 +4,10 @@ build-backend = "hatchling.build"
 
 [project]
 name = "scitex-writer"
-version = "2.10.1"
+version = "2.14.1"
 description = "LaTeX manuscript compilation system for scientific documents with MCP server"
 readme = "README.md"
-license = "AGPL-3.0"
+license = "AGPL-3.0-only"
 requires-python = ">=3.10"
 authors = [
     { name = "Yusuke Watanabe", email = "ywatanabe@scitex.ai" },
@@ -94,9 +94,6 @@ Issues = "https://github.com/ywatanabe1989/scitex-writer/issues"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/scitex_writer"]
-
-[tool.hatch.build.targets.wheel.force-include]
-"src/scitex_writer/skills" = "scitex_writer/skills"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

@@ -12,12 +12,20 @@ Performance: O(n) instead of O(n²).
 import argparse
 import os
 import re
+import sys
 from datetime import datetime
 from pathlib import Path
-from typing import Set
+from typing import Optional, Set
+
+sys.path.insert(0, str(Path(__file__).parent))
+from _build_id import (  # noqa: E402
+    generate_build_id,
+    inject_build_metadata,
+    register_build,
+)
 
 
-def generate_signature(source_file: Path = None) -> str:
+def generate_signature(source_file: Path = None, build_id: Optional[str] = None) -> str:
     """
     Generate compilation signature comment block.
 
@@ -55,6 +63,9 @@ def generate_signature(source_file: Path = None) -> str:
 % LaTeX compilation engine: {engine}
 % Compiled: {timestamp}
 """
+
+    if build_id:
+        signature += f"% Build ID: build:{build_id}\n"
 
     if source_file:
         signature += f"% Source: {source_file}\n"
@@ -194,11 +205,19 @@ def compile_tex_structure(
         if tectonic_mode:
             print("Tectonic mode: enabled (disabling incompatible packages)")
 
+    # Generate per-compilation build ID (#77)
+    build_id = generate_build_id()
+    if verbose:
+        print(f"Build ID: build:{build_id}")
+
     # Expand all inputs recursively
     expanded_content = expand_inputs(base_tex)
 
-    # Prepend signature
-    signature = generate_signature(source_file=base_tex)
+    # Inject PDF metadata + \scitexBuildID macro before \begin{document}
+    expanded_content = inject_build_metadata(expanded_content, build_id)
+
+    # Prepend signature (now includes Build ID line)
+    signature = generate_signature(source_file=base_tex, build_id=build_id)
     expanded_content = signature + expanded_content
 
     # Check for SciTeX citation
@@ -330,6 +349,11 @@ def compile_tex_structure(
             line_count = len(expanded_content.split("\n"))
             print(f"✓ Compiled: {line_count} lines")
             print(f"  Output: {output_tex}")
+
+        # Record the build (#77). doc_type is derived from the
+        # SCITEX_WRITER_DOC_TYPE env var that compile.sh sets.
+        doc_type = os.getenv("SCITEX_WRITER_DOC_TYPE", "unknown")
+        register_build(build_id, doc_type, output_tex)
 
         return True
 

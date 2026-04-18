@@ -4,12 +4,14 @@
 # File: ./scripts/shell/modules/compilation_compiled_tex_to_compiled_pdf.sh
 # Main compilation orchestrator - delegates to engine-specific modules
 
+# shellcheck disable=SC2034  # ORIG_DIR exported from standard module header
 ORIG_DIR="$(pwd)"
-THIS_DIR="$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)"
+THIS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ENGINES_DIR="${THIS_DIR}/engines"
-LOG_PATH="$THIS_DIR/.$(basename $0).log"
-echo > "$LOG_PATH"
+LOG_PATH="$THIS_DIR/.$(basename "$0").log"
+echo >"$LOG_PATH"
 
+# shellcheck disable=SC2034  # GIT_ROOT exported from standard module header
 GIT_ROOT="$(git rev-parse --show-toplevel 2>/dev/null)"
 
 GRAY='\033[0;90m'
@@ -31,11 +33,15 @@ echo_header() { echo_info "=== $1 ==="; }
 # ---------------------------------------
 
 # Configurations
-source ./config/load_config.sh $SCITEX_WRITER_DOC_TYPE
+# shellcheck source=/dev/null
+source ./config/load_config.sh "$SCITEX_WRITER_DOC_TYPE"
 
 # Source engine implementations (use absolute paths to avoid directory confusion)
+# shellcheck source=/dev/null
 source "${ENGINES_DIR}/compile_tectonic.sh"
+# shellcheck source=/dev/null
 source "${ENGINES_DIR}/compile_latexmk.sh"
+# shellcheck source=/dev/null
 source "${ENGINES_DIR}/compile_3pass.sh"
 
 # Logging
@@ -53,20 +59,20 @@ compiled_tex_to_pdf() {
 
     # Dispatch to engine-specific implementation
     case "$engine" in
-        tectonic)
-            compile_with_tectonic "$tex_file"
-            ;;
-        latexmk)
-            compile_with_latexmk "$tex_file"
-            ;;
-        3pass)
-            compile_with_3pass "$tex_file"
-            ;;
-        *)
-            echo_error "    Unknown compilation engine: $engine"
-            echo_info "    Falling back to 3-pass compilation"
-            compile_with_3pass "$tex_file"
-            ;;
+    tectonic)
+        compile_with_tectonic "$tex_file"
+        ;;
+    latexmk)
+        compile_with_latexmk "$tex_file"
+        ;;
+    3pass)
+        compile_with_3pass "$tex_file"
+        ;;
+    *)
+        echo_error "    Unknown compilation engine: $engine"
+        echo_info "    Falling back to 3-pass compilation"
+        compile_with_3pass "$tex_file"
+        ;;
     esac
 
     local ret=$?
@@ -82,6 +88,8 @@ compiled_tex_to_pdf() {
 }
 
 cleanup() {
+    local compile_result=${1:-1}
+
     # Use fallback if SCITEX_WRITER_COMPILED_PDF is not set or empty
     local pdf_file="${SCITEX_WRITER_COMPILED_PDF}"
     if [ -z "$pdf_file" ]; then
@@ -89,7 +97,8 @@ cleanup() {
     fi
 
     # PDF is generated in LOG_DIR, move to final location
-    local pdf_basename=$(basename "$pdf_file")
+    local pdf_basename
+    pdf_basename=$(basename "$pdf_file")
     local pdf_in_logs="${LOG_DIR}/${pdf_basename}"
 
     if [ -f "$pdf_in_logs" ]; then
@@ -98,23 +107,42 @@ cleanup() {
         log_info "    Moved PDF: $pdf_in_logs -> $pdf_file"
     fi
 
+    if [ "$compile_result" -ne 0 ]; then
+        echo_error "    PDF compilation failed (exit code: $compile_result)"
+        # Remove stale PDF from previous compilation to avoid false positive
+        [ -f "$pdf_file" ] && rm -f "$pdf_file"
+        return 1
+    fi
+
     if [ -f "$pdf_file" ]; then
-        local size=$(du -h "$pdf_file" | cut -f1)
+        local size
+        size=$(du -h "$pdf_file" | cut -f1)
         echo_success "    $pdf_file ready (${size})"
 
         # Create/update stable symlink to latest archive version (prevents corruption during compilation)
         local latest_path="${SCITEX_WRITER_ROOT_DIR}/${SCITEX_WRITER_DOC_TYPE}-latest.pdf"
 
-        # Find the latest archived version (highest version number)
+        # Find the latest archived version (highest version number).
+        # Glob directly + filter _diff.pdf via bash so we avoid `ls | grep` (SC2010).
         local archive_dir="${SCITEX_WRITER_VERSIONS_DIR}"
-        local latest_archive=$(ls -1 "$archive_dir"/${SCITEX_WRITER_DOC_TYPE}_v[0-9]*.pdf 2>/dev/null | grep -v "_diff.pdf" | sort -V | tail -1)
+        local latest_archive=""
+        local _cand
+        local _candidates=()
+        for _cand in "$archive_dir"/"${SCITEX_WRITER_DOC_TYPE}"_v[0-9]*.pdf; do
+            [ -e "$_cand" ] || continue
+            case "$_cand" in *_diff.pdf) continue ;; esac
+            _candidates+=("$_cand")
+        done
+        if [ ${#_candidates[@]} -gt 0 ]; then
+            latest_archive=$(printf '%s\n' "${_candidates[@]}" | sort -V | tail -1)
+        fi
 
         if [ -n "$latest_archive" ]; then
             # Create relative symlink to archive
             ln -sf "archive/$(basename "$latest_archive")" "$latest_path"
             echo_success "    Symlink updated: $latest_path -> archive/$(basename "$latest_archive")"
         else
-            # Fallback to current PDF if no archive exists
+            # User-confirmed fallback: current PDF if no archive exists yet
             ln -sf "$(basename "$pdf_file")" "$latest_path"
             echo_success "    Symlink updated: $latest_path -> $(basename "$pdf_file") (no archive yet)"
         fi
@@ -122,21 +150,15 @@ cleanup() {
 
         sleep 1
     else
-        echo_error "    $pdf_file was not created"
-
-        local log_file="${pdf_file%.pdf}.log"
-        if [ -f "$log_file" ]; then
-            echo_error "    LaTeX errors:"
-            grep "^!" "$log_file" 2>/dev/null | head -5
-        fi
-
+        echo_error "    $pdf_file was not created despite successful compilation"
         return 1
     fi
 }
 
 main() {
     compiled_tex_to_pdf
-    cleanup
+    local compile_result=$?
+    cleanup "$compile_result"
 }
 
 main

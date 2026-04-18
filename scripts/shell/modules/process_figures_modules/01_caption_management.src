@@ -8,7 +8,8 @@ ensure_caption() {
     for img_file in "$SCITEX_WRITER_FIGURE_CAPTION_MEDIA_DIR"/[0-9]*.{tif,tiff,jpg,jpeg,png,svg,mmd,pptx}; do
         [ -e "$img_file" ] || continue
         local ext="${img_file##*.}"
-        local filename=$(basename "$img_file")
+        local filename
+        filename=$(basename "$img_file")
 
         # SKIP panel files - they should NOT have caption files
         # Panels are identified by pattern: ##[a-zA-Z]_* (e.g., 01a_, 02b_)
@@ -49,7 +50,8 @@ cleanup_panel_captions() {
 
     for tex_file in "$SCITEX_WRITER_FIGURE_CAPTION_MEDIA_DIR"/[0-9]*[a-zA-Z]_*.tex; do
         [ -e "$tex_file" ] || continue
-        local filename=$(basename "$tex_file")
+        local filename
+        filename=$(basename "$tex_file")
 
         # Check if this is a panel caption file
         if [[ "$filename" =~ ^[0-9]+[a-zA-Z]_.*\.tex$ ]]; then
@@ -84,7 +86,8 @@ EOF
     # Process captions for compiled directory
     for tex_file in "$SCITEX_WRITER_FIGURE_CAPTION_MEDIA_DIR"/[0-9]*.tex; do
         [ -e "$tex_file" ] || continue
-        local filename=$(basename "$tex_file")
+        local filename
+        filename=$(basename "$tex_file")
 
         # Skip panel caption files if any still exist
         if [[ "$filename" =~ ^[0-9]+[a-zA-Z]_.*\.tex$ ]]; then

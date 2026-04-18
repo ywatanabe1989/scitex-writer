@@ -20,26 +20,24 @@ def project(
 ) -> dict:
     """Update engine files in an existing scitex-writer project.
 
-    Replaces build scripts, LaTeX styles, and base templates with the latest
-    version from the installed scitex-writer package (or GitHub if branch/tag
-    is specified).  User content is never modified.
+    Syncs source code, build scripts, and templates from the installed
+    scitex-writer package (or GitHub if branch/tag is specified).
+    User content is never modified.
 
-    Engine files updated:
-        - scripts/                    (all shell scripts)
+    Files synced:
+        - src/scitex_writer/          (Python source code)
+        - scripts/                    (shell compilation scripts)
+        - compile.sh                  (main compile entry point)
         - 00_shared/latex_styles/     (LaTeX style files)
-        - 01_manuscript/base.tex
-        - 02_supplementary/base.tex
-        - 03_revision/base.tex
-        - compile.sh
+        - 01_manuscript/base.tex, 02_supplementary/base.tex, etc.
         - Makefile
 
     User content preserved (never touched):
-        - 00_shared/authors.tex, title.tex, keywords.tex, journal_name.tex
-        - 00_shared/bib_files/bibliography.bib
-        - 00_shared/claims.json
+        - 00_shared/ (authors, title, keywords, bibliography, claims)
         - 01_manuscript/contents/
         - 02_supplementary/contents/
         - 03_revision/contents/
+        - GITIGNORED/, config/
 
     Parameters
     ----------
@@ -51,14 +49,19 @@ def project(
         Pull from a specific template tag/version. Triggers GitHub clone.
     dry_run : bool
         If True, report what would change without modifying any files.
+    force : bool
+        If True, skip the uncommitted-changes git safety check.
 
     Returns
     -------
     dict
         - success (bool)
-        - updated_paths (list[str])
-        - skipped_paths (list[str])
-        - preserved_paths (list[str])
+        - version (str): package version
+        - modified (list[str]): files that differ
+        - added (list[str]): new files
+        - unchanged (list[str]): identical files
+        - backup_dir (str or None): path to backup
+        - updated_paths (list[str]): legacy compat (modified + added)
         - dry_run (bool)
         - message (str)
         - error (str, only on failure)

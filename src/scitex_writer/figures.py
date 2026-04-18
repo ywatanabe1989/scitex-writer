@@ -114,6 +114,37 @@ def add(
         return {"success": False, "error": str(e)}
 
 
+def _find_all_figure_files(fig_dir: _Path, name: str) -> list:
+    """Find all files associated with a figure name across all subdirectories."""
+    files = []
+    extensions = [
+        ".tex",
+        ".png",
+        ".jpg",
+        ".jpeg",
+        ".pdf",
+        ".tif",
+        ".tiff",
+        ".eps",
+        ".svg",
+        ".mmd",
+    ]
+    # Base directory
+    for ext in extensions:
+        p = fig_dir / f"{name}{ext}"
+        if p.exists() or p.is_symlink():
+            files.append(p)
+    # Subdirectories: jpg_for_compilation, mermaid_originals
+    for subdir_name in ["jpg_for_compilation", "mermaid_originals"]:
+        subdir = fig_dir / subdir_name
+        if subdir.is_dir():
+            for ext in extensions:
+                p = subdir / f"{name}{ext}"
+                if p.exists() or p.is_symlink():
+                    files.append(p)
+    return files
+
+
 @_supports_return_as
 def remove(
     project_dir: str,
@@ -121,6 +152,9 @@ def remove(
     doc_type: _Literal["manuscript", "supplementary"] = "manuscript",
 ) -> dict:
     """Remove a figure (image + caption) from the project.
+
+    Removes all associated files including those in subdirectories
+    (jpg_for_compilation/, mermaid_originals/).
 
     Args:
         project_dir: Path to scitex-writer project.
@@ -141,23 +175,66 @@ def remove(
             return {"success": False, "error": f"Invalid doc_type: {doc_type}"}
 
         fig_dir = doc_dir / "contents" / "figures" / "caption_and_media"
-        caption_path = fig_dir / f"{name}.tex"
+        all_files = _find_all_figure_files(fig_dir, name)
 
         removed = []
-        for ext in [".png", ".jpg", ".jpeg", ".pdf", ".tif", ".tiff", ".eps", ".svg"]:
-            img_path = fig_dir / f"{name}{ext}"
-            if img_path.exists():
-                img_path.unlink()
-                removed.append(str(img_path))
-
-        if caption_path.exists():
-            caption_path.unlink()
-            removed.append(str(caption_path))
+        for p in all_files:
+            p.unlink()
+            removed.append(str(p))
 
         if not removed:
             return {"success": False, "error": f"Figure not found: {name}"}
 
         return {"success": True, "removed": removed}
+    except Exception as e:
+        return {"success": False, "error": str(e)}
+
+
+@_supports_return_as
+def archive(
+    project_dir: str,
+    name: str,
+    doc_type: _Literal["manuscript", "supplementary"] = "manuscript",
+) -> dict:
+    """Move a figure to legacy/ instead of deleting.
+
+    Moves all associated files (tex, images, mermaid sources) from
+    caption_and_media/ to legacy/, preserving them for potential reuse.
+
+    Args:
+        project_dir: Path to scitex-writer project.
+        name: Figure name (without extension).
+        doc_type: Document type.
+
+    Returns:
+        Dict with archived file paths.
+    """
+    try:
+        project_path = _resolve_project_path(project_dir)
+        doc_dirs = {
+            "manuscript": project_path / "01_manuscript",
+            "supplementary": project_path / "02_supplementary",
+        }
+        doc_dir = doc_dirs.get(doc_type)
+        if not doc_dir:
+            return {"success": False, "error": f"Invalid doc_type: {doc_type}"}
+
+        fig_dir = doc_dir / "contents" / "figures" / "caption_and_media"
+        legacy_dir = doc_dir / "contents" / "figures" / "legacy"
+        legacy_dir.mkdir(parents=True, exist_ok=True)
+
+        all_files = _find_all_figure_files(fig_dir, name)
+
+        archived = []
+        for p in all_files:
+            dest = legacy_dir / p.name
+            _shutil.move(str(p), str(dest))
+            archived.append({"from": str(p), "to": str(dest)})
+
+        if not archived:
+            return {"success": False, "error": f"Figure not found: {name}"}
+
+        return {"success": True, "archived": archived}
     except Exception as e:
         return {"success": False, "error": str(e)}
 

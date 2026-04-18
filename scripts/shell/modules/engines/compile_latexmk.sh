@@ -36,6 +36,7 @@ compile_with_latexmk() {
     local -a opts=(
         -pdf
         -bibtex
+        -synctex=1
         -interaction=nonstopmode
         -file-line-error
         "-output-directory=$LOG_DIR"

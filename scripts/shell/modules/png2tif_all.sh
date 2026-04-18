@@ -3,11 +3,13 @@
 # Timestamp: "2025-09-27 00:29:33 (ywatanabe)"
 # File: ./paper/scripts/shell/modules/png2tif_all.sh
 
+# shellcheck disable=SC2034  # ORIG_DIR exported from standard module header
 ORIG_DIR="$(pwd)"
-THIS_DIR="$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)"
-LOG_PATH="$THIS_DIR/.$(basename $0).log"
+THIS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+LOG_PATH="$THIS_DIR/.$(basename "$0").log"
 echo >"$LOG_PATH"
 
+# shellcheck disable=SC2034  # GIT_ROOT exported from standard module header
 GIT_ROOT="$(git rev-parse --show-toplevel 2>/dev/null)"
 
 GRAY='\033[0;90m'
@@ -24,10 +26,12 @@ echo_header() { echo_info "=== $1 ==="; }
 # ---------------------------------------
 
 # Configurations
-source ./config/load_config.sh $SCITEX_WRITER_DOC_TYPE
+# shellcheck source=/dev/null
+source ./config/load_config.sh "$SCITEX_WRITER_DOC_TYPE"
 
 # Source the 00_shared command module
-source "$(dirname ${BASH_SOURCE[0]})/command_switching.src"
+# shellcheck source=/dev/null
+source "$(dirname "${BASH_SOURCE[0]}")/command_switching.src"
 
 # Logging
 touch "$LOG_PATH" >/dev/null 2>&1
@@ -36,13 +40,15 @@ echo_info "Running ${BASH_SOURCE[0]}..."
 
 png2tif_all() {
     # Get convert command from 00_shared module
-    local convert_cmd=$(get_cmd_convert "$ORIG_DIR")
+    local convert_cmd
+    convert_cmd=$(get_cmd_convert "$ORIG_DIR")
 
     if [ -z "$convert_cmd" ]; then
         echo_error "No ImageMagick installation found (native, module, or container)"
         return 1
     fi
 
+    # shellcheck disable=SC2016  # "$in"/"$out" are expanded by GNU parallel's child shell, not the local shell
     find "$SCITEX_WRITER_FIGURE_CAPTION_MEDIA_DIR" -maxdepth 1 \
         -name '.*.png' |
         parallel --no-notice --silent \

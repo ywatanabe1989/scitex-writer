@@ -7,6 +7,7 @@
 THIS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # Source command switching module for engine detection
+# shellcheck source=/dev/null
 source "${THIS_DIR}/command_switching.src"
 
 # Auto-detect best available engine
@@ -30,26 +31,26 @@ verify_engine() {
     local engine="$1"
 
     case "$engine" in
-        tectonic)
-            get_cmd_tectonic >/dev/null 2>&1
-            return $?
-            ;;
-        latexmk)
-            # Need both latexmk and pdflatex
-            get_cmd_latexmk >/dev/null 2>&1 && \
+    tectonic)
+        get_cmd_tectonic >/dev/null 2>&1
+        return $?
+        ;;
+    latexmk)
+        # Need both latexmk and pdflatex
+        get_cmd_latexmk >/dev/null 2>&1 &&
             get_cmd_pdflatex >/dev/null 2>&1
-            return $?
-            ;;
-        3pass)
-            # Need pdflatex and bibtex
-            get_cmd_pdflatex >/dev/null 2>&1 && \
+        return $?
+        ;;
+    3pass)
+        # Need pdflatex and bibtex
+        get_cmd_pdflatex >/dev/null 2>&1 &&
             get_cmd_bibtex >/dev/null 2>&1
-            return $?
-            ;;
-        *)
-            echo_error "Unknown engine: $engine"
-            return 1
-            ;;
+        return $?
+        ;;
+    *)
+        echo_error "Unknown engine: $engine"
+        return 1
+        ;;
     esac
 }
 
@@ -58,15 +59,15 @@ get_engine_info() {
     local engine="$1"
 
     case "$engine" in
-        tectonic)
-            echo "🔄 Tectonic (Reproducible, 4-5s per compile)"
-            ;;
-        latexmk)
-            echo "⚡ latexmk (Smart incremental, 3s)"
-            ;;
-        3pass)
-            echo "🔒 3-pass (Guaranteed correctness, 6-7s)"
-            ;;
+    tectonic)
+        echo "🔄 Tectonic (Reproducible, 4-5s per compile)"
+        ;;
+    latexmk)
+        echo "⚡ latexmk (Smart incremental, 3s)"
+        ;;
+    3pass)
+        echo "🔒 3-pass (Guaranteed correctness, 6-7s)"
+        ;;
     esac
 }
 
@@ -75,21 +76,23 @@ get_engine_version() {
     local engine="$1"
 
     case "$engine" in
-        tectonic)
-            local cmd=$(get_cmd_tectonic)
-            if [ -n "$cmd" ]; then
-                $cmd --version 2>&1 | head -1 | grep -oP '\d+\.\d+\.\d+'
-            fi
-            ;;
-        latexmk)
-            local cmd=$(get_cmd_latexmk)
-            if [ -n "$cmd" ]; then
-                $cmd -version 2>&1 | head -1 | grep -oP '\d+\.\d+'
-            fi
-            ;;
-        3pass)
-            echo "native"
-            ;;
+    tectonic)
+        local cmd
+        cmd=$(get_cmd_tectonic)
+        if [ -n "$cmd" ]; then
+            $cmd --version 2>&1 | head -1 | grep -oP '\d+\.\d+\.\d+'
+        fi
+        ;;
+    latexmk)
+        local cmd
+        cmd=$(get_cmd_latexmk)
+        if [ -n "$cmd" ]; then
+            $cmd -version 2>&1 | head -1 | grep -oP '\d+\.\d+'
+        fi
+        ;;
+    3pass)
+        echo "native"
+        ;;
     esac
 }
 
@@ -100,8 +103,10 @@ list_available_engines() {
 
     for engine in tectonic latexmk 3pass; do
         if verify_engine "$engine" >/dev/null 2>&1; then
-            local version=$(get_engine_version "$engine")
-            local info=$(get_engine_info "$engine")
+            local version
+            version=$(get_engine_version "$engine")
+            local info
+            info=$(get_engine_info "$engine")
             printf "  ✓ %-10s (%-10s) %s\n" "$engine" "$version" "$info"
         else
             printf "  ✗ %-10s (not available)\n" "$engine"

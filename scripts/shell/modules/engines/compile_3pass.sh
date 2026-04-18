@@ -25,7 +25,7 @@ compile_with_3pass() {
     fi
 
     # Add compilation options (use configured LOG_DIR for clean separation)
-    pdf_cmd="$pdf_cmd -output-directory=$LOG_DIR -shell-escape -interaction=nonstopmode -file-line-error"
+    pdf_cmd="$pdf_cmd -output-directory=$LOG_DIR -shell-escape -interaction=nonstopmode -file-line-error -synctex=1"
 
     # Helper function for timed execution
     run_pass() {

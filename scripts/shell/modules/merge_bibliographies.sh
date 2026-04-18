@@ -37,6 +37,10 @@ elif [ "$bib_file_count" -eq 0 ]; then
     # No separate .bib files, check if main bibliography.bib exists
     if [ ! -f "$BIB_DIR/$BIB_OUTPUT" ]; then
         echo_warning "No bibliography files found in $BIB_DIR"
+        echo_warning "→ Fix: place a \`bibliography.bib\` in \`$BIB_DIR\`,"
+        echo_warning "       or drop multiple \`*.bib\` files in that directory to be auto-merged."
+        echo_warning "→ Why: without a bib file, \\cite{...} keys in the manuscript cannot resolve"
+        echo_warning "       and scitex-scholar cannot run verification."
     fi
 fi
 

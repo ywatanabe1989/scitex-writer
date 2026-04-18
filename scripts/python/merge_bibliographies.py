@@ -231,11 +231,15 @@ def merge_bibtex_files(
         True if successful
     """
     bib_dir = Path(bib_dir)
-    output_path = bib_dir / output_file
+    output_file_path = Path(output_file)
+    if output_file_path.is_absolute() or str(output_file_path.parent) != ".":
+        output_path = output_file_path
+    else:
+        output_path = bib_dir / output_file
     cache_file = bib_dir / ".bibliography_cache.json"
 
     # Find all .bib files except the output file
-    bib_files = [f for f in bib_dir.glob("*.bib") if f.name != output_file]
+    bib_files = [f for f in bib_dir.glob("*.bib") if f.name != output_path.name]
 
     if not bib_files:
         if verbose:
@@ -292,7 +296,7 @@ def merge_bibtex_files(
     cache_data = {
         "input_hash": input_hash,
         "input_files": [f.name for f in sorted(bib_files, key=lambda x: x.name)],
-        "output_file": output_file,
+        "output_file": str(output_path),
         "stats": stats,
     }
     save_cache(cache_file, cache_data)

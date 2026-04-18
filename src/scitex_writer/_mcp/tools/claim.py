@@ -49,7 +49,7 @@ def register_tools(mcp: FastMCP) -> None:
         stored as structured objects instead of hardcoded magic numbers.
 
         After adding claims, use writer_render_claims (or recompile) to generate
-        the LaTeX macro file. Then use \\stxclaim{claim_id} in your manuscript.
+        the LaTeX macro file. Then use \\vclaim{claim_id} in your manuscript.
 
         claim_type options:
           - statistic: value={t, df, p, d} or {F, df1, df2, p, eta2} or {r, p}
@@ -120,7 +120,7 @@ def register_tools(mcp: FastMCP) -> None:
     def writer_render_claims(project_dir: str) -> dict:
         """Generate 00_shared/claims_rendered.tex from claims.json.
 
-        This file defines the \\stxclaim[style]{id} LaTeX macro and all claim
+        This file defines the \\vclaim[style]{id} LaTeX macro and all claim
         renderings. It is included automatically in the manuscript preamble
         (via \\IfFileExists in packages.tex) and is regenerated before each compile.
 

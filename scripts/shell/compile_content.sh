@@ -152,6 +152,7 @@ log_info "Compiling content: $JOB_NAME (color_mode=$COLOR_MODE)"
 # Run latexmk (no bibliography processing for content/preview)
 timeout "$TIMEOUT" latexmk \
     -pdf \
+    -synctex=1 \
     -interaction=nonstopmode \
     -halt-on-error \
     -bibtex- \
@@ -184,7 +185,7 @@ fi
 
 # Cleanup auxiliary files
 if [ "$KEEP_AUX" = false ]; then
-    for ext in aux log fls fdb_latexmk synctex.gz out bbl blg toc lof lot; do
+    for ext in aux log fls fdb_latexmk out bbl blg toc lof lot; do
         rm -f "$OUTPUT_DIR/$JOB_NAME.$ext"
     done
     log_info "Cleaned auxiliary files"

@@ -29,7 +29,8 @@ compile_figure_tex_files() {
     # Handle figure tex files
     for fig_tex in $(find "$SCITEX_WRITER_FIGURE_COMPILED_DIR" -maxdepth 1 \( -name "[0-9]*.tex" \) | sort); do
         [ -e "$fig_tex" ] || continue
-        local basename=$(basename "$fig_tex")
+        local basename
+        basename=$(basename "$fig_tex")
 
         # Skip the header file completely if we have real figures
         if [[ "$basename" == "00_Figures_Header.tex" ]]; then
@@ -47,6 +48,7 @@ compile_figure_tex_files() {
         local figure_title=""
         local image_path=""
         local width="0.9\\textwidth"
+        # shellcheck disable=SC2034  # figure_type retained for template-level dispatch
         local figure_type="image"
         local caption_content=""
 
@@ -111,7 +113,7 @@ handle_figure_visibility() {
     else
         # Optional: Run Python optimizer on generated JPGs
         optimize_figures_with_python "$no_figs"
-        [[ -n $(find "$SCITEX_WRITER_FIGURE_JPG_DIR" -name "*.jpg") ]] && _toggle_figures enable || _toggle_figures disable
+        [[ -n $(find "$SCITEX_WRITER_FIGURE_JPG_DIR" -maxdepth 1 -name "*.jpg") ]] && _toggle_figures enable || _toggle_figures disable
     fi
 }
 
@@ -169,7 +171,8 @@ check_and_create_placeholders() {
 
     for caption_file in "$SCITEX_WRITER_FIGURE_CAPTION_MEDIA_DIR"/[0-9]*_*.tex; do
         [ -e "$caption_file" ] || continue
-        local base_name=$(basename "$caption_file" .tex)
+        local base_name
+        base_name=$(basename "$caption_file" .tex)
 
         # Skip panel captions
         if [[ "$base_name" =~ ^[0-9]+[a-z]_ ]]; then

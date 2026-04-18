@@ -87,13 +87,14 @@ SciTeX Writer solves each of these problems:
 - **Unified interface** — One tool for compilation, bibliography deduplication, figure/table management, and arXiv export packaging.
 - **39 Model Context Protocol (MCP) tools for AI agents** — AI assistants can compile, edit, and manage manuscripts programmatically.
 
-## Three Interfaces
+## Four Interfaces
 
 | Interface | For | Description |
 |-----------|-----|-------------|
 | **Python API** | Human researchers | `import scitex_writer as sw` |
 | **Command-Line Interface (CLI) Commands** | Terminal users | `scitex-writer compile`, `scitex-writer bib` |
 | **MCP Tools** | AI agents | 39 tools for Claude/GPT integration |
+| **Skills** | AI agent discovery | Workflow guides for capabilities and patterns |
 
 <details>
 <summary><strong>Python API</strong></summary>
@@ -248,6 +249,39 @@ Turn AI agents into autonomous manuscript compilers.
 ```
 
 > **[Full MCP tool reference](./docs/MCP_TOOLS.md)**
+
+</details>
+
+<details>
+<summary><strong>Skills — for AI Agent Discovery</strong></summary>
+
+<br>
+
+Skills provide workflow-oriented guides that AI agents query to discover capabilities and usage patterns.
+
+```bash
+scitex-writer skills list              # List available skill pages
+scitex-writer skills get SKILL         # Show main skill page
+scitex-dev skills export --package scitex-writer  # Export to Claude Code
+```
+
+| Skill | Content |
+|-------|---------|
+| `quick-start` | Basic manuscript workflow |
+| `compilation` | Compile manuscript, supplementary, revision |
+| `bibliography` | BibTeX management, enrichment |
+| `figures-and-tables` | Figure/table insertion and conversion |
+| `claims` | Claim tracking and rendering |
+| `cli-reference` | CLI commands |
+| `mcp-tools` | MCP tools for AI agents |
+| `writing-attitude` | Evidence requirements, scientific standards |
+| `writing-figures-stats` | Figure rules, statistical reporting |
+| `writing-proofreading` | Proofreading corrections, language rules |
+| `writing-abstract` | Abstract template with 7-section structure |
+| `writing-introduction` | Introduction template with 8-section structure |
+| `writing-methods` | Methods template with reproducibility guidelines |
+| `writing-discussion` | Discussion template with 5-section structure |
+| `audit-paper` | Comprehensive pre-submission manuscript audit |
 
 </details>
 

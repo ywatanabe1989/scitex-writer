@@ -25,9 +25,9 @@ Usage::
     sw.claim.render("./my-paper")
 
 In LaTeX (after render):
-    \\stxclaim{group_comparison}           % nature style: t(34) = 4.23, p < 0.001, d = 0.87
-    \\stxclaim[apa]{group_comparison}      % APA style:    t(34) = 4.23, p < .001, Cohen's d = 0.87
-    \\stxclaim[plain]{group_comparison}    % plain text:   t(34) = 4.23, p < 0.001, d = 0.87
+    \\vclaim{group_comparison}           % nature style: t(34) = 4.23, p < 0.001, d = 0.87
+    \\vclaim[apa]{group_comparison}      % APA style:    t(34) = 4.23, p < .001, Cohen's d = 0.87
+    \\vclaim[plain]{group_comparison}    % plain text:   t(34) = 4.23, p < 0.001, d = 0.87
 """
 
 from ._mcp.handlers._claim import add_claim as _add_claim

@@ -71,6 +71,10 @@ DOCUMENT TYPES:
     supplementary, -s     Compile supplementary (= ./scripts/shell/compile_supplementary.sh)
     revision, -r          Compile revision (= ./scripts/shell/compile_revision.sh)
 
+BUILD INSPECTION:
+    builds [-n N]         List recent build IDs embedded in PDFs
+    show <BUILD_ID>       Show metadata for a specific build ID (or prefix)
+
 GLOBAL OPTIONS:
     -h, --help           Show this help message
     --help-recursive     Show help for all commands recursively
@@ -173,6 +177,18 @@ while [ $# -gt 0 ]; do
     revision | -r)
         DOC_TYPE="revision"
         shift
+        ;;
+    builds)
+        # Inspect the build registry (#77). Delegates to manage_builds.py.
+        shift
+        exec python3 "$PROJECT_ROOT/scripts/python/manage_builds.py" \
+            --project-root "$PROJECT_ROOT" list "$@"
+        ;;
+    show)
+        # Show one build by ID or prefix (#77).
+        shift
+        exec python3 "$PROJECT_ROOT/scripts/python/manage_builds.py" \
+            --project-root "$PROJECT_ROOT" show "$@"
         ;;
     -w | --watch)
         WATCH_MODE=true

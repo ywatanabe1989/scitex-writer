@@ -25,7 +25,7 @@ echo_warning() { echo -e "${YELLOW}WARN: $1${NC}"; }
 echo_error() { echo -e "${RED}ERRO: $1${NC}"; }
 
 # Load configuration
-# shellcheck source=../../../config/load_config.sh
+# shellcheck source=/dev/null
 source ./config/load_config.sh "$SCITEX_WRITER_DOC_TYPE"
 
 touch "$LOG_PATH" >/dev/null 2>&1

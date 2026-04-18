@@ -19,6 +19,7 @@ Usage::
     result = sw.tables.csv_to_latex("data.csv", "table.tex")
 """
 
+import shutil as _shutil
 from typing import Literal as _Literal
 from typing import Optional as _Optional
 
@@ -181,6 +182,55 @@ def remove(
             return {"success": False, "error": f"Table not found: {name}"}
 
         return {"success": True, "removed": removed}
+    except Exception as e:
+        return {"success": False, "error": str(e)}
+
+
+@_supports_return_as
+def archive(
+    project_dir: str,
+    name: str,
+    doc_type: _Literal["manuscript", "supplementary"] = "manuscript",
+) -> dict:
+    """Move a table to legacy/ instead of deleting.
+
+    Moves CSV and caption files from caption_and_media/ to legacy/,
+    preserving them for potential reuse or supplementary materials.
+
+    Args:
+        project_dir: Path to scitex-writer project.
+        name: Table name (without extension).
+        doc_type: Document type.
+
+    Returns:
+        Dict with archived file paths.
+    """
+    try:
+        project_path = _resolve_project_path(project_dir)
+        doc_dirs = {
+            "manuscript": project_path / "01_manuscript",
+            "supplementary": project_path / "02_supplementary",
+        }
+        doc_dir = doc_dirs.get(doc_type)
+        if not doc_dir:
+            return {"success": False, "error": f"Invalid doc_type: {doc_type}"}
+
+        table_dir = doc_dir / "contents" / "tables" / "caption_and_media"
+        legacy_dir = doc_dir / "contents" / "tables" / "legacy"
+        legacy_dir.mkdir(parents=True, exist_ok=True)
+
+        archived = []
+        for ext in [".csv", ".tex"]:
+            src = table_dir / f"{name}{ext}"
+            if src.exists():
+                dest = legacy_dir / src.name
+                _shutil.move(str(src), str(dest))
+                archived.append({"from": str(src), "to": str(dest)})
+
+        if not archived:
+            return {"success": False, "error": f"Table not found: {name}"}
+
+        return {"success": True, "archived": archived}
     except Exception as e:
         return {"success": False, "error": str(e)}
 

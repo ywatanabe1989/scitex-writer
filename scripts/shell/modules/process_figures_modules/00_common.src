@@ -4,6 +4,7 @@
 # Common utilities and initialization for figure processing
 
 # Color codes for output
+# shellcheck disable=SC2034  # GIT_ROOT exported from standard module header
 GIT_ROOT="$(git rev-parse --show-toplevel 2>/dev/null)"
 
 GRAY='\033[0;90m'

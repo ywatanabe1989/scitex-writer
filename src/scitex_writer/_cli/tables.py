@@ -74,6 +74,20 @@ def cmd_remove(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_archive(args: argparse.Namespace) -> int:
+    """Move a table to legacy/ instead of deleting."""
+    from .. import tables
+
+    result = tables.archive(args.project, args.name, args.doc_type)
+    if not result["success"]:
+        print(f"Error: {result['error']}", file=sys.stderr)
+        return 1
+
+    for entry in result["archived"]:
+        print(f"Archived: {entry['from']} -> {entry['to']}")
+    return 0
+
+
 def register_parser(subparsers) -> argparse.ArgumentParser:
     """Register tables subcommand parser."""
     tables_help = """Table management.
@@ -81,7 +95,8 @@ def register_parser(subparsers) -> argparse.ArgumentParser:
 Quick start:
   scitex-writer tables list                  # List tables
   scitex-writer tables add results data.csv "Results summary"
-  scitex-writer tables remove results
+  scitex-writer tables remove results        # Delete permanently
+  scitex-writer tables archive results       # Move to legacy/
 """
     parser = subparsers.add_parser(
         "tables",
@@ -128,6 +143,18 @@ Quick start:
         choices=["manuscript", "supplementary"],
     )
     r.set_defaults(func=cmd_remove)
+
+    # archive
+    ar = sub.add_parser("archive", help="Move table to legacy/")
+    ar.add_argument("name", help="Table name")
+    ar.add_argument("-p", "--project", default=".", help="Project path")
+    ar.add_argument(
+        "-t",
+        "--doc-type",
+        default="manuscript",
+        choices=["manuscript", "supplementary"],
+    )
+    ar.set_defaults(func=cmd_archive)
 
     return parser
 

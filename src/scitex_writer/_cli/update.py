@@ -34,22 +34,40 @@ def cmd_update(args: argparse.Namespace) -> int:
     for w in result.get("warnings", []):
         print(f"Warning: {w}", file=sys.stderr)
 
-    # Report
+    # Header
+    mode = " (dry run)" if args.dry_run else ""
+    version = result.get("version", "unknown")
+    print(f"\nSciTeX Writer Update{mode}")
+    print(f"Package version: {version}")
+    print(f"Project: {project}\n")
+
+    # File listing with M/A/= markers
+    modified = result.get("modified", [])
+    added = result.get("added", [])
+    unchanged = result.get("unchanged", [])
+
+    if modified or added or unchanged:
+        print("Files to update:" if args.dry_run else "Files updated:")
+        for p in modified:
+            print(f"  M {p} (modified)")
+        for p in added:
+            print(f"  A {p} (new)")
+        for p in unchanged:
+            print(f"  = {p} (unchanged)")
+        print()
+
+    print(f"  {len(modified)} modified, {len(added)} new, {len(unchanged)} unchanged")
+
+    # Backup info
+    backup_dir = result.get("backup_dir")
+    if backup_dir:
+        print(f"\n  Backup: {backup_dir}")
+
     if args.dry_run:
-        print("Dry run — no files modified.\n")
+        print("\nRun without --dry-run to apply changes.")
+    elif modified or added:
+        print(f"\nReview changes: git -C {project} diff")
 
-    if result["updated_paths"]:
-        verb = "Would update" if args.dry_run else "Updated"
-        print(f"{verb}:")
-        for p in result["updated_paths"]:
-            print(f"  {p}")
-
-    if result.get("missing_paths"):
-        print("\nNot found in source (skipped):")
-        for p in result["missing_paths"]:
-            print(f"  {p}")
-
-    print(f"\n{result['message']}")
     return 0
 
 
@@ -59,9 +77,9 @@ def register_parser(subparsers) -> argparse.ArgumentParser:
         "update",
         help="Update engine files of a scitex-writer project",
         description=(
-            "Update build scripts, LaTeX styles, and base templates to the latest "
-            "version while preserving all user content (manuscript text, bibliography, "
-            "figures, tables, and metadata)."
+            "Update source code, build scripts, and templates to the latest "
+            "version while preserving all user content (manuscript text, "
+            "bibliography, figures, tables, and metadata)."
         ),
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog=(

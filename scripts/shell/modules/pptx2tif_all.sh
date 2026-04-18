@@ -3,11 +3,13 @@
 # Timestamp: "2025-09-27 00:15:04 (ywatanabe)"
 # File: ./paper/scripts/shell/modules/pptx2tif_all.sh
 
+# shellcheck disable=SC2034  # ORIG_DIR exported from standard module header
 ORIG_DIR="$(pwd)"
-THIS_DIR="$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)"
-LOG_PATH="$THIS_DIR/.$(basename $0).log"
-echo > "$LOG_PATH"
+THIS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+LOG_PATH="$THIS_DIR/.$(basename "$0").log"
+echo >"$LOG_PATH"
 
+# shellcheck disable=SC2034  # GIT_ROOT exported from standard module header
 GIT_ROOT="$(git rev-parse --show-toplevel 2>/dev/null)"
 
 GRAY='\033[0;90m'
@@ -24,7 +26,8 @@ echo_header() { echo_info "=== $1 ==="; }
 # ---------------------------------------
 
 # Configurations
-source ./config/load_config.sh $SCITEX_WRITER_DOC_TYPE
+# shellcheck source=/dev/null
+source ./config/load_config.sh "$SCITEX_WRITER_DOC_TYPE"
 
 # Logging
 touch "$LOG_PATH" >/dev/null 2>&1
@@ -32,10 +35,12 @@ echo
 echo_info "Running ${BASH_SOURCE[0]}..."
 
 # PowerPoint to TIF
-total=$(ls "$SCITEX_WRITER_FIGURE_CAPTION_MEDIA_DIR"/.*.pptx | wc -l)
-ls "$SCITEX_WRITER_FIGURE_CAPTION_MEDIA_DIR"/.*.pptx | \
-parallel --no-notice --silent \
-    './scripts/shell/modules/pptx2tif_single.sh -i "$(realpath {})" -o "$(realpath {.}.tif)"; \
+total=$(find "$SCITEX_WRITER_FIGURE_CAPTION_MEDIA_DIR" -maxdepth 1 -name '.*.pptx' | wc -l)
+export total
+# shellcheck disable=SC2016  # $total is expanded by GNU parallel's child shell
+find "$SCITEX_WRITER_FIGURE_CAPTION_MEDIA_DIR" -maxdepth 1 -name '.*.pptx' |
+    parallel --no-notice --silent \
+        './scripts/shell/modules/pptx2tif_single.sh -i "$(realpath {})" -o "$(realpath {.}.tif)"; \
     echo "Processed: {#}/$total"'
 
 # EOF

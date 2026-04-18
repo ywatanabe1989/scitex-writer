@@ -26,10 +26,10 @@ echo_success() { echo -e "${GREEN}SUCC: $1${NC}"; }
 echo_warning() { echo -e "${YELLOW}WARN: $1${NC}"; }
 echo_error() { echo -e "${RED}ERRO: $1${NC}"; }
 
-# shellcheck source=../../../config/load_config.sh
+# shellcheck source=/dev/null
 source ./config/load_config.sh "$SCITEX_WRITER_DOC_TYPE"
 
-# shellcheck source=./command_switching.src
+# shellcheck source=/dev/null
 source "$(dirname "${BASH_SOURCE[0]}")/command_switching.src"
 
 touch "$LOG_PATH" >/dev/null 2>&1
@@ -137,7 +137,7 @@ take_diff_tex() {
     # Run latexdiff
     $latexdiff_cmd \
         --encoding=utf8 \
-        --type=CULINECHBAR \
+        --type=UNDERLINE \
         --disable-citation-markup \
         --append-safecmd="cite,cite,citet" \
         "$previous_tex" "$SCITEX_WRITER_COMPILED_TEX" 2> >(grep -v 'gocryptfs not found' | grep -v 'Wide character in print' >&2) >"$SCITEX_WRITER_DIFF_TEX"
@@ -150,7 +150,7 @@ take_diff_tex() {
 
         # Add signature with git commit metadata
         if [ -f "./scripts/shell/modules/add_diff_signature.sh" ]; then
-            # shellcheck source=./add_diff_signature.sh
+            # shellcheck source=/dev/null
             source ./scripts/shell/modules/add_diff_signature.sh
             add_diff_signature "$SCITEX_WRITER_DIFF_TEX" "$old_hash" "$new_hash"
         fi
@@ -167,11 +167,11 @@ compile_diff_tex() {
 
     local tex_file="$SCITEX_WRITER_DIFF_TEX"
 
-    # shellcheck source=./engines/compile_tectonic.sh
+    # shellcheck source=/dev/null
     source "${ENGINES_DIR}/compile_tectonic.sh"
-    # shellcheck source=./engines/compile_latexmk.sh
+    # shellcheck source=/dev/null
     source "${ENGINES_DIR}/compile_latexmk.sh"
-    # shellcheck source=./engines/compile_3pass.sh
+    # shellcheck source=/dev/null
     source "${ENGINES_DIR}/compile_3pass.sh"
 
     local engine="${SCITEX_WRITER_SELECTED_ENGINE:-latexmk}"
@@ -209,6 +209,7 @@ compile_diff_tex() {
 }
 
 cleanup() {
+    local compile_result=${1:-1}
     local pdf_basename
     pdf_basename=$(basename "$SCITEX_WRITER_DIFF_PDF")
     local pdf_in_logs="${LOG_DIR}/${pdf_basename}"
@@ -218,25 +219,34 @@ cleanup() {
         echo_info "    Moved PDF: $pdf_in_logs -> $SCITEX_WRITER_DIFF_PDF"
     fi
 
+    if [ "$compile_result" -ne 0 ]; then
+        echo_error "    Diff PDF compilation failed (exit code: $compile_result)"
+        # Remove stale PDF from previous compilation to avoid false positive
+        [ -f "$SCITEX_WRITER_DIFF_PDF" ] && rm -f "$SCITEX_WRITER_DIFF_PDF"
+        return 1
+    fi
+
     if [ -f "$SCITEX_WRITER_DIFF_PDF" ]; then
         local size
         size=$(du -h "$SCITEX_WRITER_DIFF_PDF" | cut -f1)
         echo_success "    $SCITEX_WRITER_DIFF_PDF ready (${size})"
         sleep 1
     else
-        echo_warning "    $SCITEX_WRITER_DIFF_PDF not created"
+        echo_error "    $SCITEX_WRITER_DIFF_PDF not created despite successful compilation"
+        return 1
     fi
 }
 
 main() {
-    local start_time
+    local start_time compile_result=1
     start_time=$(date +%s)
 
     if take_diff_tex; then
         compile_diff_tex
+        compile_result=$?
     fi
 
-    cleanup
+    cleanup $compile_result
     echo_info "    Total time: $(($(date +%s) - start_time))s"
 }
 
