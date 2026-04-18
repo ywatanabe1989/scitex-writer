@@ -104,7 +104,7 @@ main() {
 
     # Report results
     local compiled_count
-    compiled_count=$(find "$SCITEX_WRITER_FIGURE_COMPILED_DIR" -name "[0-9]*.tex" 2>/dev/null | wc -l)
+    compiled_count=$(find "$SCITEX_WRITER_FIGURE_COMPILED_DIR" -maxdepth 1 -name "[0-9]*.tex" 2>/dev/null | wc -l)
     if [ "$no_figs" = false ] && [ "$compiled_count" -gt 0 ]; then
         echo_success "$compiled_count figures compiled"
     fi

@@ -26,12 +26,19 @@ NC='\033[0m' # No Color
 
 echo_success() { echo -e "${GREEN}SUCC: $1${NC}"; }
 echo_warning() { echo -e "${YELLOW}WARN: $1${NC}"; }
-echo_error() { echo -e "${RED}ERRO: $1${NC}"; exit 1; }
+echo_error() {
+    echo -e "${RED}ERRO: $1${NC}"
+    exit 1
+}
 
 # Check if SCITEX_WRITER_CITATION_STYLE is set
 if [ -z "${SCITEX_WRITER_CITATION_STYLE:-}" ]; then
     echo_warning "SCITEX_WRITER_CITATION_STYLE not set, skipping citation style update"
     echo_warning "Using default style in 00_shared/latex_styles/bibliography.tex"
+    echo_warning "→ Fix (if you want a different style): add to config/config_manuscript.yaml:"
+    echo_warning "      citation_style: \"nature\"    # or ieee, apa, unsrtnat, etc."
+    echo_warning "→ Why: journals have required styles (Nature = \"nature\", IEEE = \"ieee\");"
+    echo_warning "       running the wrong style means reformatting at the submission stage."
     exit 0
 fi
 

@@ -156,6 +156,10 @@ function csv2tex() {
         echo_info "    Using Python (basic) for table processing"
     else
         echo_warning "    Using fallback AWK processing for tables"
+        echo_warning "    → Fix: install pandas for richer formatting: \`pip install pandas\`"
+        echo_warning "    → Or install csv2latex: \`apt install csv2latex\` (Debian/Ubuntu)"
+        echo_warning "    → Why: AWK fallback produces minimal output without column"
+        echo_warning "           renames, number precision, or row striping."
     fi
 
     # Process each CSV file
@@ -452,7 +456,7 @@ function gather_table_tex_files() {
 
     # Count available tables
     table_count=0
-    for table_tex in $(find "$SCITEX_WRITER_TABLE_COMPILED_DIR" -name "[0-9]*.tex" 2>/dev/null | sort); do
+    for table_tex in $(find "$SCITEX_WRITER_TABLE_COMPILED_DIR" -maxdepth 1 -name "[0-9]*.tex" 2>/dev/null | sort); do
         if [ -f "$table_tex" ] || [ -L "$table_tex" ]; then
             # Skip header if we have real tables
             local basename=$(basename "$table_tex")
@@ -475,6 +479,10 @@ function gather_table_tex_files() {
 
     if [ $table_count -eq 0 ]; then
         echo_warning "    No tables were found to compile."
+        echo_warning "    → Fix: place \`XX_name.csv\` (data) + \`XX_name.tex\` (caption) in"
+        echo_warning "           \`$SCITEX_WRITER_TABLE_CAPTION_MEDIA_DIR\`."
+        echo_warning "    → Why: tables rendered at compile time from CSV are chain-verifiable;"
+        echo_warning "           inline \\begin{table} blocks are NOT (data is invisible to Clew)."
     else
         echo_success "    $table_count tables compiled"
     fi

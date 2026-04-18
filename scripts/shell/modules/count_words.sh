@@ -49,7 +49,7 @@ _count_elements() {
     local pattern="$2"
     local output_file="$3"
 
-    if [[ -n $(find "$dir" -name "$pattern" 2>/dev/null) ]]; then
+    if [[ -n $(find "$dir" -maxdepth 1 -name "$pattern" 2>/dev/null) ]]; then
         # Count files matching pattern, excluding *_Header.tex and FINAL.tex
         count=$(ls "$dir"/$pattern 2>/dev/null | grep -v "_Header.tex" | grep -v "FINAL.tex" | wc -l)
         echo $count >"$output_file"

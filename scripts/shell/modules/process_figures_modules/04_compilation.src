@@ -111,7 +111,7 @@ handle_figure_visibility() {
     else
         # Optional: Run Python optimizer on generated JPGs
         optimize_figures_with_python "$no_figs"
-        [[ -n $(find "$SCITEX_WRITER_FIGURE_JPG_DIR" -name "*.jpg") ]] && _toggle_figures enable || _toggle_figures disable
+        [[ -n $(find "$SCITEX_WRITER_FIGURE_JPG_DIR" -maxdepth 1 -name "*.jpg") ]] && _toggle_figures enable || _toggle_figures disable
     fi
 }
 
