@@ -17,9 +17,9 @@ def cmd_gui(args: argparse.Namespace) -> int:
         return 1
 
     try:
-        from .._editor import gui
+        from .._django._server import run as _run_editor
 
-        gui(
+        _run_editor(
             project_dir=str(project),
             port=args.port,
             host=args.host,

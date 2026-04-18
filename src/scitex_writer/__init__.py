@@ -22,7 +22,7 @@ Modules:
     - bib: List, add, remove, merge
     - guidelines: IMRAD writing tips
     - prompts: AI2 Asta integration
-    - gui: Browser-based editor (requires Flask)
+    - gui: Browser-based editor (Django)
 """
 
 from importlib.metadata import PackageNotFoundError as _PackageNotFoundError
@@ -62,7 +62,7 @@ from ._dataclasses import CompilationResult as _CompilationResult  # noqa: F401
 from ._dataclasses import ManuscriptTree as _ManuscriptTree  # noqa: F401
 from ._dataclasses import RevisionTree as _RevisionTree  # noqa: F401
 from ._dataclasses import SupplementaryTree as _SupplementaryTree  # noqa: F401
-from ._editor import gui
+from ._django._server import run as gui
 from ._usage import get_usage as usage
 from .writer import Writer
 
