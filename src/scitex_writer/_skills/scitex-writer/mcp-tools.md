@@ -37,3 +37,5 @@ description: MCP tools for AI agents — manuscript compilation, bibliography, f
 | `writer_csv_to_latex` | CSV to LaTeX table |
 | `writer_latex_to_csv` | LaTeX table to CSV |
 | `writer_pdf_to_images` | PDF to image conversion |
+| `writer_check_references` | Validate `\ref{}` / `\cite{}` / `\label{}` before compile (issue #45) |
+| `writer_check_float_order` | Validate — or `fix=True` renumber — figure/table reference order (issue #44) |
