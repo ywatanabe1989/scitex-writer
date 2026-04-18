@@ -26,10 +26,12 @@ echo_header() { echo_info "=== $1 ==="; }
 # ---------------------------------------
 
 # Configurations
-source ./config/load_config.sh $SCITEX_WRITER_DOC_TYPE
+# shellcheck source=/dev/null
+source ./config/load_config.sh "$SCITEX_WRITER_DOC_TYPE"
 
 # Source the 00_shared command module
-source "$(dirname ${BASH_SOURCE[0]})/command_switching.src"
+# shellcheck source=/dev/null
+source "$(dirname "${BASH_SOURCE[0]}")/command_switching.src"
 
 # Logging
 touch "$LOG_PATH" >/dev/null 2>&1
@@ -46,6 +48,7 @@ png2tif_all() {
         return 1
     fi
 
+    # shellcheck disable=SC2016  # "$in"/"$out" are expanded by GNU parallel's child shell, not the local shell
     find "$SCITEX_WRITER_FIGURE_CAPTION_MEDIA_DIR" -maxdepth 1 \
         -name '.*.png' |
         parallel --no-notice --silent \

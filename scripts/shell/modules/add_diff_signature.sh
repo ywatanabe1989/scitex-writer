@@ -89,7 +89,7 @@ add_diff_signature() {
 
 \\AtBeginDocument{\\pagestyle{diffstyle}}
 EOF
-            tail -n +$begin_doc_line "$diff_tex_file"
+            tail -n +"$begin_doc_line" "$diff_tex_file"
         } >"$temp_file"
 
         mv "$temp_file" "$diff_tex_file"

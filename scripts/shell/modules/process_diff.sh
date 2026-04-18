@@ -26,10 +26,10 @@ echo_success() { echo -e "${GREEN}SUCC: $1${NC}"; }
 echo_warning() { echo -e "${YELLOW}WARN: $1${NC}"; }
 echo_error() { echo -e "${RED}ERRO: $1${NC}"; }
 
-# shellcheck source=../../../config/load_config.sh
+# shellcheck source=/dev/null
 source ./config/load_config.sh "$SCITEX_WRITER_DOC_TYPE"
 
-# shellcheck source=./command_switching.src
+# shellcheck source=/dev/null
 source "$(dirname "${BASH_SOURCE[0]}")/command_switching.src"
 
 touch "$LOG_PATH" >/dev/null 2>&1
@@ -150,7 +150,7 @@ take_diff_tex() {
 
         # Add signature with git commit metadata
         if [ -f "./scripts/shell/modules/add_diff_signature.sh" ]; then
-            # shellcheck source=./add_diff_signature.sh
+            # shellcheck source=/dev/null
             source ./scripts/shell/modules/add_diff_signature.sh
             add_diff_signature "$SCITEX_WRITER_DIFF_TEX" "$old_hash" "$new_hash"
         fi
@@ -167,11 +167,11 @@ compile_diff_tex() {
 
     local tex_file="$SCITEX_WRITER_DIFF_TEX"
 
-    # shellcheck source=./engines/compile_tectonic.sh
+    # shellcheck source=/dev/null
     source "${ENGINES_DIR}/compile_tectonic.sh"
-    # shellcheck source=./engines/compile_latexmk.sh
+    # shellcheck source=/dev/null
     source "${ENGINES_DIR}/compile_latexmk.sh"
-    # shellcheck source=./engines/compile_3pass.sh
+    # shellcheck source=/dev/null
     source "${ENGINES_DIR}/compile_3pass.sh"
 
     local engine="${SCITEX_WRITER_SELECTED_ENGINE:-latexmk}"

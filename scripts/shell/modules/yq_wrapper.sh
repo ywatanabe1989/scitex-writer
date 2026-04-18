@@ -25,7 +25,7 @@ log_debug() {
 }
 
 detect_yq_type() {
-    if ! command -v yq &> /dev/null; then
+    if ! command -v yq &>/dev/null; then
         log_error "yq not found. Please install yq first."
         log_error "  Go version: https://github.com/mikefarah/yq"
         log_error "  Or run: requirements/install.sh --yq-only"
@@ -79,18 +79,18 @@ yq_set() {
     log_debug "Setting $path = \"$value\" in $file"
 
     case "$yq_type" in
-        go)
-            yq eval -i "${path} = \"${value}\"" "$file"
-            ;;
-        python)
-            local temp_file="${file}.tmp.$$"
-            yq -y "${path} = \"${value}\"" "$file" > "$temp_file"
-            mv "$temp_file" "$file"
-            ;;
-        *)
-            log_error "Unknown yq type: $yq_type"
-            return 1
-            ;;
+    go)
+        yq eval -i "${path} = \"${value}\"" "$file"
+        ;;
+    python)
+        local temp_file="${file}.tmp.$$"
+        yq -y "${path} = \"${value}\"" "$file" >"$temp_file"
+        mv "$temp_file" "$file"
+        ;;
+    *)
+        log_error "Unknown yq type: $yq_type"
+        return 1
+        ;;
     esac
 }
 
@@ -115,16 +115,16 @@ yq_get() {
     log_debug "Getting $path from $file"
 
     case "$yq_type" in
-        go)
-            yq eval "$path" "$file"
-            ;;
-        python)
-            yq -r "$path" "$file"
-            ;;
-        *)
-            log_error "Unknown yq type: $yq_type"
-            return 1
-            ;;
+    go)
+        yq eval "$path" "$file"
+        ;;
+    python)
+        yq -r "$path" "$file"
+        ;;
+    *)
+        log_error "Unknown yq type: $yq_type"
+        return 1
+        ;;
     esac
 }
 
@@ -149,18 +149,18 @@ yq_delete() {
     log_debug "Deleting $path from $file"
 
     case "$yq_type" in
-        go)
-            yq eval -i "del(${path})" "$file"
-            ;;
-        python)
-            local temp_file="${file}.tmp.$$"
-            yq -y "del(${path})" "$file" > "$temp_file"
-            mv "$temp_file" "$file"
-            ;;
-        *)
-            log_error "Unknown yq type: $yq_type"
-            return 1
-            ;;
+    go)
+        yq eval -i "del(${path})" "$file"
+        ;;
+    python)
+        local temp_file="${file}.tmp.$$"
+        yq -y "del(${path})" "$file" >"$temp_file"
+        mv "$temp_file" "$file"
+        ;;
+    *)
+        log_error "Unknown yq type: $yq_type"
+        return 1
+        ;;
     esac
 }
 
@@ -186,31 +186,32 @@ yq_merge() {
     log_debug "Merging $file1 and $file2"
 
     case "$yq_type" in
-        go)
-            if [[ -n "$output" ]]; then
-                yq eval-all '. as $item ireduce ({}; . * $item)' "$file1" "$file2" > "$output"
-            else
-                yq eval-all '. as $item ireduce ({}; . * $item)' "$file1" "$file2"
-            fi
-            ;;
-        python)
-            log_warn "Merge operation not fully supported with Python yq"
-            log_warn "Consider installing Go-based yq: requirements/install.sh --yq-only"
-            if [[ -n "$output" ]]; then
-                yq -y -s '.[0] * .[1]' "$file1" "$file2" > "$output"
-            else
-                yq -y -s '.[0] * .[1]' "$file1" "$file2"
-            fi
-            ;;
-        *)
-            log_error "Unknown yq type: $yq_type"
-            return 1
-            ;;
+    go)
+        # shellcheck disable=SC2016  # $item here is yq's variable, not a shell variable
+        if [[ -n "$output" ]]; then
+            yq eval-all '. as $item ireduce ({}; . * $item)' "$file1" "$file2" >"$output"
+        else
+            yq eval-all '. as $item ireduce ({}; . * $item)' "$file1" "$file2"
+        fi
+        ;;
+    python)
+        log_warn "Merge operation not fully supported with Python yq"
+        log_warn "Consider installing Go-based yq: requirements/install.sh --yq-only"
+        if [[ -n "$output" ]]; then
+            yq -y -s '.[0] * .[1]' "$file1" "$file2" >"$output"
+        else
+            yq -y -s '.[0] * .[1]' "$file1" "$file2"
+        fi
+        ;;
+    *)
+        log_error "Unknown yq type: $yq_type"
+        return 1
+        ;;
     esac
 }
 
 show_usage() {
-    cat << EOF
+    cat <<EOF
 Usage: $0 <command> <args...>
 
 Universal yq wrapper - works with both Python and Go versions of yq
@@ -237,42 +238,42 @@ EOF
 
 main() {
     case "${1:-}" in
-        set)
-            shift
-            yq_set "$@"
-            ;;
-        get)
-            shift
-            yq_get "$@"
-            ;;
-        delete|del)
-            shift
-            yq_delete "$@"
-            ;;
-        merge)
-            shift
-            yq_merge "$@"
-            ;;
-        detect)
-            local yq_type
-            yq_type=$(detect_yq_type) || exit $?
-            echo "Detected yq type: $yq_type"
-            yq --version
-            ;;
-        -h|--help|help)
-            show_usage
-            exit 0
-            ;;
-        "")
-            log_error "No command specified"
-            show_usage
-            exit 1
-            ;;
-        *)
-            log_error "Unknown command: $1"
-            show_usage
-            exit 1
-            ;;
+    set)
+        shift
+        yq_set "$@"
+        ;;
+    get)
+        shift
+        yq_get "$@"
+        ;;
+    delete | del)
+        shift
+        yq_delete "$@"
+        ;;
+    merge)
+        shift
+        yq_merge "$@"
+        ;;
+    detect)
+        local yq_type
+        yq_type=$(detect_yq_type) || exit $?
+        echo "Detected yq type: $yq_type"
+        yq --version
+        ;;
+    -h | --help | help)
+        show_usage
+        exit 0
+        ;;
+    "")
+        log_error "No command specified"
+        show_usage
+        exit 1
+        ;;
+    *)
+        log_error "Unknown command: $1"
+        show_usage
+        exit 1
+        ;;
     esac
 }
 

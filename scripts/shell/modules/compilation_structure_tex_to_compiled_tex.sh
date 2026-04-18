@@ -31,7 +31,8 @@ echo_header() { echo_info "=== $1 ==="; }
 # ---------------------------------------
 
 # Configurations
-source ./config/load_config.sh $SCITEX_WRITER_DOC_TYPE
+# shellcheck source=/dev/null
+source ./config/load_config.sh "$SCITEX_WRITER_DOC_TYPE"
 
 # Logging
 touch "$LOG_PATH" >/dev/null 2>&1

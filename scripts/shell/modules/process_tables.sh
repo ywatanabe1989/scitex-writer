@@ -3,6 +3,10 @@
 # Timestamp: "2026-01-19 02:59:33 (ywatanabe)"
 # File: ./scripts/shell/modules/process_tables.sh
 
+# Literal LaTeX backslashes are written via "\\…" in echo throughout this
+# module; SC2028's "echo may not expand escape sequences" is a false positive
+# for that pattern here.
+# shellcheck disable=SC2028
 # shellcheck disable=SC2034  # ORIG_DIR exported from standard module header
 ORIG_DIR="$(pwd)"
 THIS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -59,7 +63,8 @@ log_table_stage_end() {
 }
 
 # Configurations
-source ./config/load_config.sh $SCITEX_WRITER_DOC_TYPE
+# shellcheck source=/dev/null
+source ./config/load_config.sh "$SCITEX_WRITER_DOC_TYPE"
 
 # Logging
 touch "$LOG_PATH" >/dev/null 2>&1
@@ -87,8 +92,7 @@ function xlsx2csv_convert() {
             # Convert only if CSV doesn't exist or is older than Excel file
             if [ ! -f "$csv_file" ] || [ "$xlsx_file" -nt "$csv_file" ]; then
                 echo_info "    Converting $xlsx_file to CSV..."
-                xlsx2csv "$xlsx_file" "$csv_file"
-                if [ $? -eq 0 ]; then
+                if xlsx2csv "$xlsx_file" "$csv_file"; then
                     echo_success "    Created $csv_file from Excel"
                 else
                     echo_warning "    Failed to convert $xlsx_file"
@@ -139,10 +143,10 @@ function check_csv_for_special_chars() {
     problems=$(grep -n "$problem_chars" "$csv_file" 2>/dev/null || echo "")
     if [ -n "$problems" ]; then
         echo_warn "    Potential LaTeX special characters found in $csv_file:"
-        echo -e ${YELLOW}
+        echo -e "${YELLOW}"
         echo "$problems" | head -5
         echo "These may need proper LaTeX escaping."
-        echo -e ${NC}
+        echo -e "${NC}"
     fi
 }
 
@@ -225,16 +229,15 @@ function csv2tex() {
 
         python | python_basic)
             # Use our Python script
-            local caption_arg=""
+            local -a caption_arg=()
             if [ -f "$caption_file" ] || [ -L "$caption_file" ]; then
                 temp_caption_file="/tmp/caption_${base_name}.txt"
                 cat "$caption_file" >"$temp_caption_file"
-                caption_arg="--caption-file $temp_caption_file"
+                caption_arg=(--caption-file "$temp_caption_file")
             fi
 
             if [ -f "./scripts/python/csv_to_latex.py" ]; then
-                python3 ./scripts/python/csv_to_latex.py "$csv_file" "$compiled_file" $caption_arg
-                if [ $? -eq 0 ]; then
+                if python3 ./scripts/python/csv_to_latex.py "$csv_file" "$compiled_file" "${caption_arg[@]}"; then
                     echo_success "    $compiled_file compiled (using Python)"
                 else
                     echo_warning "    Python processing failed, trying fallback"
@@ -284,7 +287,7 @@ function csv2tex_single_fallback() {
 
     # Check if truncation needed
     truncated=false
-    if [ $num_rows -gt $((max_rows + 1)) ]; then # +1 for header
+    if [ "$num_rows" -gt $((max_rows + 1)) ]; then # +1 for header
         truncated=true
         rows_omitted=$((num_rows - max_rows - 1))
     fi
@@ -304,11 +307,11 @@ function csv2tex_single_fallback() {
         echo "$fontsize"
 
         # Adjust tabcolsep based on number of columns to fit width
-        if [ $num_columns -gt 8 ]; then
+        if [ "$num_columns" -gt 8 ]; then
             echo "\\setlength{\\tabcolsep}{2pt}" # Very tight for many columns
-        elif [ $num_columns -gt 6 ]; then
+        elif [ "$num_columns" -gt 6 ]; then
             echo "\\setlength{\\tabcolsep}{3pt}" # Tight spacing
-        elif [ $num_columns -gt 4 ]; then
+        elif [ "$num_columns" -gt 4 ]; then
             echo "\\setlength{\\tabcolsep}{4pt}" # Medium spacing
         else
             echo "\\setlength{\\tabcolsep}{6pt}" # Normal spacing
@@ -380,7 +383,7 @@ function csv2tex_single_fallback() {
         if [ -f "$caption_file" ] || [ -L "$caption_file" ]; then
             if [ "$truncated" = true ]; then
                 # Add truncation note to caption
-                cat "$caption_file" | sed 's/}$//'
+                sed 's/}$//' "$caption_file"
                 echo "\\textit{Note: Table truncated to $max_rows rows from $num_rows total rows for display purposes.}}"
             else
                 cat "$caption_file"

@@ -31,7 +31,8 @@ echo_header() { echo_info "=== $1 ==="; }
 # ---------------------------------------
 
 # Configurations
-source ./config/load_config.sh $SCITEX_WRITER_DOC_TYPE
+# shellcheck source=/dev/null
+source ./config/load_config.sh "$SCITEX_WRITER_DOC_TYPE"
 
 # Logging
 touch "$LOG_PATH" >/dev/null 2>&1
@@ -40,7 +41,7 @@ log_info "Running ${BASH_SOURCE[0]}..."
 
 function cleanup() {
     # Ensure logging directory
-    mkdir -p $LOG_DIR
+    mkdir -p "$LOG_DIR"
 
     # Remove all bak files from the repository (recursive by design; bypass local find guard)
     command find "$SCITEX_WRITER_ROOT_DIR" -type f -name "*bak*" -exec rm {} \;
@@ -50,14 +51,14 @@ function cleanup() {
 
     # Move files with these extensions to LOG_DIR
     for ext in log out bbl blg spl dvi toc bak stderr stdout aux fls fdb_latexmk cb cb2; do
-        find "$SCITEX_WRITER_ROOT_DIR" -maxdepth 1 -type f -name "*.$ext" -exec mv {} $LOG_DIR/ \; 2>/dev/null
+        find "$SCITEX_WRITER_ROOT_DIR" -maxdepth 1 -type f -name "*.$ext" -exec mv {} "$LOG_DIR"/ \; 2>/dev/null
     done
 
     # Remove progress.log files (from parallel commands; recursive by design; bypass local find guard)
     command find "$SCITEX_WRITER_ROOT_DIR" -name "progress.log" -type f -delete 2>/dev/null
 
     echo_info "    Removing versioned files from current directory..."
-    rm -f *_v*.pdf *_v*.tex 2>/dev/null
+    rm -f ./*_v*.pdf ./*_v*.tex 2>/dev/null
 }
 
 # Main

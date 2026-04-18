@@ -29,9 +29,11 @@ echo_header() { echo_info "=== $1 ==="; }
 # Don't clear log at start - timing info will be appended
 
 # Configurations
+# shellcheck source=/dev/null
 source ./config/load_config.sh "$SCITEX_WRITER_DOC_TYPE"
 
 # Source the 00_shared LaTeX commands module
+# shellcheck source=/dev/null
 source "$(dirname "${BASH_SOURCE[0]}")/command_switching.src"
 log_info "Running ${BASH_SOURCE[0]}..."
 

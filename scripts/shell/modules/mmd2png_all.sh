@@ -26,26 +26,29 @@ echo_header() { echo_info "=== $1 ==="; }
 # ---------------------------------------
 
 # Configurations
-source ./config/load_config.sh $SCITEX_WRITER_DOC_TYPE
+# shellcheck source=/dev/null
+source ./config/load_config.sh "$SCITEX_WRITER_DOC_TYPE"
 
 # Source the 00_shared commands module for mmdc
-source "$(dirname ${BASH_SOURCE[0]})/command_switching.src"
+# shellcheck source=/dev/null
+source "$(dirname "${BASH_SOURCE[0]}")/command_switching.src"
 
 # Override echo_xxx functions
-source ./config/load_config.sh $SCITEX_WRITER_DOC_TYPE
+# shellcheck source=/dev/null
+source ./config/load_config.sh "$SCITEX_WRITER_DOC_TYPE"
 
 # Logging
 touch "$LOG_PATH" >/dev/null 2>&1
 echo
 echo_info "Running ${BASH_SOURCE[0]}..."
 
-mmd2png(){
+mmd2png() {
     # Early exit if no .mmd files (saves ~30s container setup time)
     # Check for both hidden (.*.mmd) and numbered ([0-9]*.mmd) files
     local n_hidden
-    n_hidden=$(ls "$SCITEX_WRITER_FIGURE_CAPTION_MEDIA_DIR"/.*.mmd 2>/dev/null | wc -l)
+    n_hidden=$(find "$SCITEX_WRITER_FIGURE_CAPTION_MEDIA_DIR" -maxdepth 1 -name '.*.mmd' 2>/dev/null | wc -l)
     local n_numbered
-    n_numbered=$(ls "$SCITEX_WRITER_FIGURE_CAPTION_MEDIA_DIR"/[0-9]*.mmd 2>/dev/null | wc -l)
+    n_numbered=$(find "$SCITEX_WRITER_FIGURE_CAPTION_MEDIA_DIR" -maxdepth 1 -name '[0-9]*.mmd' 2>/dev/null | wc -l)
     local n_mmd_files
     n_mmd_files=$((n_hidden + n_numbered))
 
@@ -73,7 +76,7 @@ mmd2png(){
         jpg_file="$SCITEX_WRITER_FIGURE_JPG_DIR/$(basename "${mmd_file%.mmd}.jpg")"
 
         echo_info "    Converting $(basename "$mmd_file") to PNG..."
-        eval "$mmdc_cmd -i \"$mmd_file\" -o \"$png_file\"" > /dev/null 2>&1
+        eval "$mmdc_cmd -i \"$mmd_file\" -o \"$png_file\"" >/dev/null 2>&1
 
         if [ -f "$png_file" ]; then
             echo_success "    Created: $(basename "$png_file")"
