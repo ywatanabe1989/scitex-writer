@@ -29,9 +29,17 @@ jobs:
           https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
         sudo chmod +x /usr/local/bin/yq
 
-        # Install tectonic (for tectonic integration tests)
-        curl -fsSL https://drop-sh.fullyjustified.net | sh
-        sudo mv tectonic /usr/local/bin/
+        # Install tectonic (for tectonic integration tests).
+        # Pinned to 0.15.0: the drop-sh installer currently ships 0.16.9,
+        # which regressed on our manuscript template (issue #78). Local
+        # 0.15.0 compiles cleanly; revisit the pin when 0.16.x fix lands.
+        TECTONIC_VERSION="0.15.0"
+        TECTONIC_ARCH="x86_64-unknown-linux-musl"
+        TECTONIC_URL="https://github.com/tectonic-typesetting/tectonic/releases/download/tectonic%40${TECTONIC_VERSION}/tectonic-${TECTONIC_VERSION}-${TECTONIC_ARCH}.tar.gz"
+        curl -fsSL "$TECTONIC_URL" -o /tmp/tectonic.tar.gz
+        tar -xzf /tmp/tectonic.tar.gz -C /tmp
+        sudo mv /tmp/tectonic /usr/local/bin/
+        tectonic --version
 
         # Install Python dependencies
         python3 -m pip install --upgrade pip
