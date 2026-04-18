@@ -1,12 +1,6 @@
 {% extends "scitex_ui/standalone_shell.html" %}
 {% load static %}
 {% block extra_css %}
-    <link rel="stylesheet"
-          href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
-    <link rel="stylesheet"
-          href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/fold/foldgutter.min.css">
-    <link rel="stylesheet"
-          href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/dialog/dialog.min.css">
     <link rel="stylesheet" href="{% static 'writer/css/editor.css' %}">
 {% endblock %}
 {% block worktree_title_full %}Project files{% endblock %}
@@ -15,18 +9,34 @@
     <div class="writer-app"
          data-api-base="{{ api_base|default:'/' }}"
          data-project-dir="{{ project_dir|default:'' }}">
-        <!-- Writer-specific toolbar -->
         <header class="writer-toolbar">
             <div class="writer-toolbar-left">
-                <span class="writer-logo"><i class="fas fa-file-alt"></i> Writer</span>
-                <select id="doc-type-select" title="Document type">
+                <select id="doc-type-select" class="writer-select" title="Document type">
                     <option value="manuscript">Manuscript</option>
                     <option value="supplementary">Supplementary</option>
                     <option value="revision">Revision</option>
                 </select>
+                <div id="section-tabs" class="writer-section-tabs"></div>
             </div>
             <div class="writer-toolbar-center">
-                <span id="current-file" class="current-file">No file open</span>
+                <span id="word-count" class="word-count">0 words</span>
+                <select id="font-size-select"
+                        class="writer-select writer-select-sm"
+                        title="Font size">
+                    <option value="12">12px</option>
+                    <option value="13">13px</option>
+                    <option value="14" selected>14px</option>
+                    <option value="15">15px</option>
+                    <option value="16">16px</option>
+                    <option value="18">18px</option>
+                    <option value="20">20px</option>
+                </select>
+                <button id="btn-toggle-theme"
+                        class="btn btn-icon"
+                        title="Toggle dark/light mode">
+                    <i class="fas fa-moon"></i>
+                </button>
+                <span id="current-file" class="current-file"></span>
                 <span id="save-status" class="save-status"></span>
             </div>
             <div class="writer-toolbar-right">
@@ -42,15 +52,12 @@
                 </button>
             </div>
         </header>
-        <!-- Editor + preview split -->
         <div class="writer-split">
             <div class="writer-editor-pane" id="editor-panel">
-                <div class="file-tabs" id="file-tabs"></div>
                 <div class="editor-container" id="editor-container">
                     <div class="welcome-message" id="welcome-message">
                         <h2>SciTeX Writer</h2>
-                        <p>Select a file from the sidebar to begin editing.</p>
-                        <p class="hint">Project: {{ project_dir }}</p>
+                        <p>Loading editor…</p>
                     </div>
                 </div>
             </div>
@@ -75,106 +82,23 @@
                                 <p>No PDF available.</p>
                                 <p class="hint">Click Compile to generate.</p>
                             </div>
-                            <canvas id="pdf-canvas" class="u-hidden"></canvas>
-                            <div class="pdf-controls u-hidden" id="pdf-controls">
-                                <button id="btn-pdf-prev" class="btn btn-sm">&larr; Prev</button>
-                                <span id="pdf-page-info">1 / 1</span>
-                                <button id="btn-pdf-next" class="btn btn-sm">Next &rarr;</button>
-                                <button id="btn-pdf-zoom-out" class="btn btn-sm">-</button>
-                                <span id="pdf-zoom-level">100%</span>
-                                <button id="btn-pdf-zoom-in" class="btn btn-sm">+</button>
-                                <button id="btn-pdf-fit" class="btn btn-sm">Fit</button>
-                            </div>
                         </div>
                     </div>
                     <div class="preview-view" id="bib-view">
                         <div class="bib-list" id="bib-list">
-                            <div class="loading">Loading bibliography...</div>
+                            <div class="loading">Loading bibliography…</div>
                         </div>
                     </div>
                     <div class="preview-view" id="claims-view">
-                        <div class="claims-toolbar">
-                            <button class="btn btn-sm btn-secondary"
-                                    id="btn-refresh-claims"
-                                    title="Reload claims">
-                                <i class="fas fa-sync"></i> Refresh
-                            </button>
-                            <button class="btn btn-sm btn-secondary"
-                                    id="btn-render-claims"
-                                    title="Regenerate claims_rendered.tex">
-                                <i class="fas fa-cog"></i> Render .tex
-                            </button>
-                            <span id="claims-count" class="claims-count"></span>
-                        </div>
                         <div class="claims-list" id="claims-list">
-                            <div class="loading">Loading claims...</div>
+                            <div class="loading">Loading claims…</div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-        <!-- Claim hover tooltip (floats above everything) -->
-        <div id="claim-tooltip" class="claim-tooltip u-hidden">
-            <div class="claim-tooltip-header">
-                <span id="ct-id" class="ct-id"></span>
-                <span id="ct-type" class="ct-type-badge"></span>
-                <button id="ct-close" class="ct-close" title="Close">&times;</button>
-            </div>
-            <div class="claim-tooltip-body">
-                <div class="ct-section">
-                    <div class="ct-label">Nature</div>
-                    <div id="ct-nature" class="ct-value ct-latex"></div>
-                </div>
-                <div class="ct-section">
-                    <div class="ct-label">APA</div>
-                    <div id="ct-apa" class="ct-value ct-latex"></div>
-                </div>
-                <div class="ct-section">
-                    <div class="ct-label">Plain</div>
-                    <div id="ct-plain" class="ct-value"></div>
-                </div>
-                <div id="ct-context-section" class="ct-section u-hidden">
-                    <div class="ct-label">Context</div>
-                    <div id="ct-context" class="ct-value ct-muted"></div>
-                </div>
-                <div id="ct-provenance-section" class="ct-section u-hidden">
-                    <div class="ct-label">Provenance</div>
-                    <div id="ct-provenance" class="ct-value ct-muted ct-mono"></div>
-                </div>
-            </div>
-            <div id="ct-chain-section" class="claim-tooltip-chain u-hidden">
-                <div class="ct-label ct-chain-label">
-                    Verification Chain
-                    <span id="ct-clew-badge" class="ct-clew-badge"></span>
-                </div>
-                <div id="ct-chain-diagram" class="ct-chain-diagram">
-                    <div class="ct-chain-loading">Loading chain...</div>
-                </div>
-            </div>
-        </div>
-        <!-- Compilation log drawer -->
-        <div class="log-panel u-hidden" id="log-panel">
-            <div class="log-header">
-                <span>Compilation Log</span>
-                <button id="btn-close-log" class="btn btn-icon btn-sm">&times;</button>
-            </div>
-            <pre class="log-content" id="log-content"></pre>
         </div>
     </div>
 {% endblock %}
 {% block extra_js %}
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/stex/stex.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/edit/matchbrackets.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/edit/closebrackets.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/fold/foldcode.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/fold/foldgutter.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/fold/brace-fold.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/search/search.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/search/searchcursor.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/search/jump-to-line.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/dialog/dialog.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
-    <script src="{% static 'writer/js/editor.js' %}"></script>
+    <script type="module" src="{% static 'writer/assets/index.js' %}"></script>
 {% endblock %}
