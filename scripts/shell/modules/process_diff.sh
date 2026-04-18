@@ -137,7 +137,7 @@ take_diff_tex() {
     # Run latexdiff
     $latexdiff_cmd \
         --encoding=utf8 \
-        --type=CULINECHBAR \
+        --type=UNDERLINE \
         --disable-citation-markup \
         --append-safecmd="cite,cite,citet" \
         "$previous_tex" "$SCITEX_WRITER_COMPILED_TEX" 2> >(grep -v 'gocryptfs not found' | grep -v 'Wide character in print' >&2) >"$SCITEX_WRITER_DIFF_TEX"
@@ -209,6 +209,7 @@ compile_diff_tex() {
 }
 
 cleanup() {
+    local compile_result=${1:-1}
     local pdf_basename
     pdf_basename=$(basename "$SCITEX_WRITER_DIFF_PDF")
     local pdf_in_logs="${LOG_DIR}/${pdf_basename}"
@@ -218,25 +219,34 @@ cleanup() {
         echo_info "    Moved PDF: $pdf_in_logs -> $SCITEX_WRITER_DIFF_PDF"
     fi
 
+    if [ "$compile_result" -ne 0 ]; then
+        echo_error "    Diff PDF compilation failed (exit code: $compile_result)"
+        # Remove stale PDF from previous compilation to avoid false positive
+        [ -f "$SCITEX_WRITER_DIFF_PDF" ] && rm -f "$SCITEX_WRITER_DIFF_PDF"
+        return 1
+    fi
+
     if [ -f "$SCITEX_WRITER_DIFF_PDF" ]; then
         local size
         size=$(du -h "$SCITEX_WRITER_DIFF_PDF" | cut -f1)
         echo_success "    $SCITEX_WRITER_DIFF_PDF ready (${size})"
         sleep 1
     else
-        echo_warning "    $SCITEX_WRITER_DIFF_PDF not created"
+        echo_error "    $SCITEX_WRITER_DIFF_PDF not created despite successful compilation"
+        return 1
     fi
 }
 
 main() {
-    local start_time
+    local start_time compile_result=1
     start_time=$(date +%s)
 
     if take_diff_tex; then
         compile_diff_tex
+        compile_result=$?
     fi
 
-    cleanup
+    cleanup $compile_result
     echo_info "    Total time: $(($(date +%s) - start_time))s"
 }
 

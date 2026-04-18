@@ -109,7 +109,8 @@ load_texlive_module() {
 # Priority: 1. Native → 2. Singularity → 3. Docker
 get_cmd_pdflatex() {
     local working_dir="${1:-$(pwd)}"
-    local abs_dir=$(realpath "$working_dir")
+    local abs_dir
+    abs_dir=$(realpath "$working_dir")
 
     # First choice: Native pdflatex (fastest)
     if command -v pdflatex &>/dev/null; then
@@ -126,7 +127,8 @@ get_cmd_pdflatex() {
     fi
 
     # Third choice: Singularity/Apptainer (reproducible)
-    local runtime=$(get_container_runtime)
+    local runtime
+    runtime=$(get_container_runtime)
     if [ -n "$runtime" ] && setup_latex_container; then
         echo "$runtime exec --bind ${abs_dir}:${abs_dir} --pwd ${abs_dir} $SCITEX_WRITER_TEXLIVE_APPTAINER_SIF pdflatex"
         return 0
@@ -139,7 +141,8 @@ get_cmd_pdflatex() {
 # Priority: 1. Native → 2. Module → 3. Singularity
 get_cmd_bibtex() {
     local working_dir="${1:-$(pwd)}"
-    local abs_dir=$(realpath "$working_dir")
+    local abs_dir
+    abs_dir=$(realpath "$working_dir")
 
     # First choice: Native bibtex (fastest)
     if command -v bibtex &>/dev/null; then
@@ -156,7 +159,8 @@ get_cmd_bibtex() {
     fi
 
     # Third choice: Singularity/Apptainer (reproducible)
-    local runtime=$(get_container_runtime)
+    local runtime
+    runtime=$(get_container_runtime)
     if [ -n "$runtime" ] && setup_latex_container; then
         echo "$runtime exec --bind ${abs_dir}:${abs_dir} --pwd ${abs_dir} $SCITEX_WRITER_TEXLIVE_APPTAINER_SIF bibtex"
         return 0
@@ -169,7 +173,8 @@ get_cmd_bibtex() {
 # Priority: 1. Native → 2. Module → 3. Singularity
 get_cmd_latexdiff() {
     local working_dir="${1:-$(pwd)}"
-    local abs_dir=$(realpath "$working_dir")
+    local abs_dir
+    abs_dir=$(realpath "$working_dir")
 
     # First choice: Native latexdiff (fastest)
     if [ -x "/usr/bin/latexdiff" ] || [ -x "/usr/local/bin/latexdiff" ]; then
@@ -188,7 +193,8 @@ get_cmd_latexdiff() {
     fi
 
     # Third choice: Singularity/Apptainer (reproducible)
-    local runtime=$(get_container_runtime)
+    local runtime
+    runtime=$(get_container_runtime)
     if [ -n "$runtime" ] && setup_latex_container; then
         echo "$runtime exec --bind ${abs_dir}:${abs_dir} --pwd ${abs_dir} $SCITEX_WRITER_TEXLIVE_APPTAINER_SIF latexdiff"
         return 0
@@ -201,7 +207,8 @@ get_cmd_latexdiff() {
 # Priority: 1. Native → 2. Module → 3. Singularity
 get_cmd_texcount() {
     local working_dir="${1:-$(pwd)}"
-    local abs_dir=$(realpath "$working_dir")
+    local abs_dir
+    abs_dir=$(realpath "$working_dir")
 
     # First choice: Native texcount (fastest)
     if command -v texcount &>/dev/null && texcount --version &>/dev/null 2>&1; then
@@ -216,7 +223,8 @@ get_cmd_texcount() {
     fi
 
     # Third choice: Singularity/Apptainer (reproducible)
-    local runtime=$(get_container_runtime)
+    local runtime
+    runtime=$(get_container_runtime)
     if [ -n "$runtime" ] && setup_latex_container; then
         echo "$runtime exec --bind ${abs_dir}:${abs_dir} --pwd ${abs_dir} $SCITEX_WRITER_TEXLIVE_APPTAINER_SIF texcount"
         return 0
@@ -229,7 +237,8 @@ get_cmd_texcount() {
 # Priority: 1. Native → 2. Module → 3. Singularity
 get_cmd_latexmk() {
     local working_dir="${1:-$(pwd)}"
-    local abs_dir=$(realpath "$working_dir")
+    local abs_dir
+    abs_dir=$(realpath "$working_dir")
 
     # First choice: Native latexmk (fastest)
     if command -v latexmk &>/dev/null && latexmk -version &>/dev/null 2>&1; then
@@ -244,7 +253,8 @@ get_cmd_latexmk() {
     fi
 
     # Third choice: Singularity/Apptainer (reproducible)
-    local runtime=$(get_container_runtime)
+    local runtime
+    runtime=$(get_container_runtime)
     if [ -n "$runtime" ] && setup_latex_container; then
         echo "$runtime exec --bind ${abs_dir}:${abs_dir} --pwd ${abs_dir} $SCITEX_WRITER_TEXLIVE_APPTAINER_SIF latexmk"
         return 0
@@ -257,7 +267,8 @@ get_cmd_latexmk() {
 # Priority: 1. Native → 2. Container (Tectonic has its own Docker image)
 get_cmd_tectonic() {
     local working_dir="${1:-$(pwd)}"
-    local abs_dir=$(realpath "$working_dir")
+    local abs_dir
+    abs_dir=$(realpath "$working_dir")
 
     # First choice: Native tectonic (fastest)
     if command -v tectonic &>/dev/null && tectonic --version &>/dev/null 2>&1; then
@@ -266,7 +277,8 @@ get_cmd_tectonic() {
     fi
 
     # Second choice: Container (Apptainer/Singularity with official Tectonic image)
-    local runtime=$(get_container_runtime)
+    local runtime
+    runtime=$(get_container_runtime)
     if [ -n "$runtime" ] && setup_tectonic_container; then
         echo "$runtime exec --bind ${abs_dir}:${abs_dir} --pwd ${abs_dir} $SCITEX_WRITER_TECTONIC_APPTAINER_SIF tectonic"
         return 0
@@ -356,7 +368,8 @@ setup_mermaid_container() {
 # Get mmdc command with fallbacks
 get_cmd_mmdc() {
     local working_dir="${1:-$(pwd)}"
-    local abs_dir=$(realpath "$working_dir")
+    local abs_dir
+    abs_dir=$(realpath "$working_dir")
 
     # First choice: Native mmdc (fastest and most compatible)
     if command -v mmdc &>/dev/null; then
@@ -368,7 +381,8 @@ get_cmd_mmdc() {
     fi
 
     # Second choice: Container (Apptainer/Singularity)
-    local runtime=$(get_container_runtime)
+    local runtime
+    runtime=$(get_container_runtime)
     if [ -n "$runtime" ] && setup_mermaid_container; then
         # Use puppeteer config if it exists, otherwise run without it
         local project_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../../" && pwd)"
@@ -392,8 +406,10 @@ get_cmd_mmdc() {
 
 # Check if LaTeX commands are available
 check_latex_commands_available() {
-    local pdflatex_cmd=$(get_cmd_pdflatex)
-    local bibtex_cmd=$(get_cmd_bibtex)
+    local pdflatex_cmd
+    pdflatex_cmd=$(get_cmd_pdflatex)
+    local bibtex_cmd
+    bibtex_cmd=$(get_cmd_bibtex)
 
     if [ -z "$pdflatex_cmd" ] || [ -z "$bibtex_cmd" ]; then
         return 1
@@ -444,7 +460,8 @@ setup_imagemagick_container() {
 # Priority: 1. Native → 2. Singularity → 3. Module
 get_cmd_convert() {
     local working_dir="${1:-$(pwd)}"
-    local abs_dir=$(realpath "$working_dir")
+    local abs_dir
+    abs_dir=$(realpath "$working_dir")
 
     # First choice: Native magick (ImageMagick v7+) or convert (v6)
     if command -v magick &>/dev/null; then
@@ -456,7 +473,8 @@ get_cmd_convert() {
     fi
 
     # Second choice: Container (Apptainer/Singularity)
-    local runtime=$(get_container_runtime)
+    local runtime
+    runtime=$(get_container_runtime)
     if [ -n "$runtime" ] && setup_imagemagick_container; then
         # Container likely has v7, so use magick to avoid deprecation warning
         echo "$runtime exec --bind ${abs_dir}:${abs_dir} --pwd ${abs_dir} $SCITEX_WRITER_IMAGEMAGICK_APPTAINER_SIF magick 2>/dev/null"

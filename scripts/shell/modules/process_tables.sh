@@ -3,11 +3,13 @@
 # Timestamp: "2026-01-19 02:59:33 (ywatanabe)"
 # File: ./scripts/shell/modules/process_tables.sh
 
+# shellcheck disable=SC2034  # ORIG_DIR exported from standard module header
 ORIG_DIR="$(pwd)"
-THIS_DIR="$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)"
-LOG_PATH="$THIS_DIR/.$(basename $0).log"
+THIS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+LOG_PATH="$THIS_DIR/.$(basename "$0").log"
 echo >"$LOG_PATH"
 
+# shellcheck disable=SC2034  # GIT_ROOT exported from standard module header
 GIT_ROOT="$(git rev-parse --show-toplevel 2>/dev/null)"
 
 GRAY='\033[0;90m'
@@ -41,14 +43,18 @@ log_info() {
 TABLE_STAGE_START=0
 log_table_stage_start() {
     TABLE_STAGE_START=$(date +%s)
-    local timestamp=$(date '+%H:%M:%S')
+    local timestamp
+    timestamp=$(date '+%H:%M:%S')
     echo_info "  [$timestamp] $1"
 }
 
 log_table_stage_end() {
-    local end=$(date +%s)
-    local elapsed=$((end - TABLE_STAGE_START))
-    local timestamp=$(date '+%H:%M:%S')
+    local end
+    end=$(date +%s)
+    local elapsed
+    elapsed=$((end - TABLE_STAGE_START))
+    local timestamp
+    timestamp=$(date '+%H:%M:%S')
     echo_success "  [$timestamp] $1 (${elapsed}s)"
 }
 
@@ -96,7 +102,8 @@ function ensure_caption() {
     # Create default captions for any table without one
     for csv_file in "$SCITEX_WRITER_TABLE_CAPTION_MEDIA_DIR"/[0-9]*.csv; do
         [ -e "$csv_file" ] || continue
-        local base_name=$(basename "$csv_file" .csv)
+        local base_name
+        base_name=$(basename "$csv_file" .csv)
         # Extract table number from filename like 01_seizure_count
         local table_number=""
         if [[ "$base_name" =~ ^([0-9]+)_ ]]; then
@@ -108,7 +115,7 @@ function ensure_caption() {
 
         if [ ! -f "$caption_file" ] && [ ! -L "$caption_file" ]; then
             echo_info "    Creating default caption for table $base_name"
-            mkdir -p $(dirname "$caption_file")
+            mkdir -p "$(dirname "$caption_file")"
             local rel_path="${caption_file#./}"
             local escaped_path="${rel_path//_/\\_}"
             cat >"$caption_file" <<EOF
@@ -128,7 +135,8 @@ function check_csv_for_special_chars() {
     # Check CSV file for potential problematic characters
     local csv_file="$1"
     local problem_chars="[&%$#_{}^~\\|<>]"
-    local problems=$(grep -n "$problem_chars" "$csv_file" 2>/dev/null || echo "")
+    local problems
+    problems=$(grep -n "$problem_chars" "$csv_file" 2>/dev/null || echo "")
     if [ -n "$problems" ]; then
         echo_warn "    Potential LaTeX special characters found in $csv_file:"
         echo -e ${YELLOW}
@@ -459,7 +467,8 @@ function gather_table_tex_files() {
     for table_tex in $(find "$SCITEX_WRITER_TABLE_COMPILED_DIR" -maxdepth 1 -name "[0-9]*.tex" 2>/dev/null | sort); do
         if [ -f "$table_tex" ] || [ -L "$table_tex" ]; then
             # Skip header if we have real tables
-            local basename=$(basename "$table_tex")
+            local basename
+            basename=$(basename "$table_tex")
             if [[ "$basename" == "00_Tables_Header.tex" ]] && [ "$has_real_tables" = true ]; then
                 continue
             fi

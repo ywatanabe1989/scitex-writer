@@ -3,11 +3,13 @@
 # Timestamp: "2025-09-28 17:55:24 (ywatanabe)"
 # File: ./paper/scripts/shell/modules/mmd2png_all.sh
 
+# shellcheck disable=SC2034  # ORIG_DIR exported from standard module header
 ORIG_DIR="$(pwd)"
-THIS_DIR="$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)"
-LOG_PATH="$THIS_DIR/.$(basename $0).log"
-echo > "$LOG_PATH"
+THIS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+LOG_PATH="$THIS_DIR/.$(basename "$0").log"
+echo >"$LOG_PATH"
 
+# shellcheck disable=SC2034  # GIT_ROOT exported from standard module header
 GIT_ROOT="$(git rev-parse --show-toplevel 2>/dev/null)"
 
 GRAY='\033[0;90m'
@@ -40,9 +42,12 @@ echo_info "Running ${BASH_SOURCE[0]}..."
 mmd2png(){
     # Early exit if no .mmd files (saves ~30s container setup time)
     # Check for both hidden (.*.mmd) and numbered ([0-9]*.mmd) files
-    local n_hidden=$(ls "$SCITEX_WRITER_FIGURE_CAPTION_MEDIA_DIR"/.*.mmd 2>/dev/null | wc -l)
-    local n_numbered=$(ls "$SCITEX_WRITER_FIGURE_CAPTION_MEDIA_DIR"/[0-9]*.mmd 2>/dev/null | wc -l)
-    local n_mmd_files=$((n_hidden + n_numbered))
+    local n_hidden
+    n_hidden=$(ls "$SCITEX_WRITER_FIGURE_CAPTION_MEDIA_DIR"/.*.mmd 2>/dev/null | wc -l)
+    local n_numbered
+    n_numbered=$(ls "$SCITEX_WRITER_FIGURE_CAPTION_MEDIA_DIR"/[0-9]*.mmd 2>/dev/null | wc -l)
+    local n_mmd_files
+    n_mmd_files=$((n_hidden + n_numbered))
 
     if [[ $n_mmd_files -eq 0 ]]; then
         echo_info "    No .mmd files found in $SCITEX_WRITER_FIGURE_CAPTION_MEDIA_DIR"
@@ -52,7 +57,8 @@ mmd2png(){
     echo_info "    Found $n_mmd_files .mmd files ($n_hidden hidden, $n_numbered numbered)"
 
     # Get mmdc command only if we have files to process
-    local mmdc_cmd=$(get_cmd_mmdc "$ORIG_DIR")
+    local mmdc_cmd
+    mmdc_cmd=$(get_cmd_mmdc "$ORIG_DIR")
 
     if [ -z "$mmdc_cmd" ]; then
         echo_warn "    mmdc not found (native or container)"
@@ -73,7 +79,8 @@ mmd2png(){
             echo_success "    Created: $(basename "$png_file")"
 
             # Convert PNG to JPG using ImageMagick (with container fallback)
-            local convert_cmd=$(get_cmd_convert "$ORIG_DIR")
+            local convert_cmd
+            convert_cmd=$(get_cmd_convert "$ORIG_DIR")
             if [ -n "$convert_cmd" ]; then
                 echo_info "    Converting to JPG..."
                 eval "$convert_cmd \"$png_file\" \"$jpg_file\"" 2>/dev/null

@@ -11,7 +11,8 @@ pptx2tif() {
     echo_info "Step 1: Converting PPTX to PDF..."
     for pptx_file in "$SCITEX_WRITER_FIGURE_CAPTION_MEDIA_DIR"/[0-9]*.pptx; do
         [ -e "$pptx_file" ] || continue
-        local base_name=$(basename "$pptx_file" .pptx)
+        local base_name
+        base_name=$(basename "$pptx_file" .pptx)
         local pdf_file="$SCITEX_WRITER_FIGURE_CAPTION_MEDIA_DIR/${base_name}.pdf"
 
         if [ ! -f "$pdf_file" ] || [ "$pptx_file" -nt "$pdf_file" ]; then
@@ -23,7 +24,8 @@ pptx2tif() {
     echo_info "Step 2: Converting PDF to TIF..."
     for pdf_file in "$SCITEX_WRITER_FIGURE_CAPTION_MEDIA_DIR"/[0-9]*.pdf; do
         [ -e "$pdf_file" ] || continue
-        local base_name=$(basename "$pdf_file" .pdf)
+        local base_name
+        base_name=$(basename "$pdf_file" .pdf)
         local tif_file="$SCITEX_WRITER_FIGURE_CAPTION_MEDIA_DIR/${base_name}.tif"
 
         if [ ! -f "$tif_file" ] || [ "$pdf_file" -nt "$tif_file" ]; then
@@ -38,7 +40,8 @@ tif2png() {
     echo_info "Step 3: Converting TIF/TIFF to PNG..."
     for tif_file in "$SCITEX_WRITER_FIGURE_CAPTION_MEDIA_DIR"/[0-9]*.{tif,tiff}; do
         [ -e "$tif_file" ] || continue
-        local base_name=$(basename "$tif_file" | sed 's/\.\(tif\|tiff\)$//')
+        local base_name
+        base_name=$(basename "$tif_file" | sed 's/\.\(tif\|tiff\)$//')
         local png_file="$SCITEX_WRITER_FIGURE_CAPTION_MEDIA_DIR/${base_name}.png"
 
         if [ ! -f "$png_file" ] || [ "$tif_file" -nt "$png_file" ]; then
@@ -66,7 +69,8 @@ png2jpg() {
 
     for png_file in "$SCITEX_WRITER_FIGURE_CAPTION_MEDIA_DIR"/[0-9]*.png; do
         [ -e "$png_file" ] || continue
-        local base_name=$(basename "$png_file" .png)
+        local base_name
+        base_name=$(basename "$png_file" .png)
         local jpg_file="$SCITEX_WRITER_FIGURE_CAPTION_MEDIA_DIR/${base_name}.jpg"
 
         if [ ! -f "$jpg_file" ] || [ "$png_file" -nt "$jpg_file" ]; then
@@ -130,7 +134,8 @@ copy_composed_jpg_files() {
 
     # First, create composed figures from panels
     for base_pattern in $(ls "$SCITEX_WRITER_FIGURE_CAPTION_MEDIA_DIR"/[0-9]*[a-z]_*.jpg 2>/dev/null | sed 's/[a-z]_.*//' | sort -u); do
-        local base_name=$(basename "$base_pattern")
+        local base_name
+        base_name=$(basename "$base_pattern")
         local composed_file="$SCITEX_WRITER_FIGURE_CAPTION_MEDIA_DIR/${base_name}.jpg"
 
         # Check if we have panels for this figure
@@ -152,7 +157,8 @@ copy_composed_jpg_files() {
 
     for jpg_file in "$SCITEX_WRITER_FIGURE_CAPTION_MEDIA_DIR"/[0-9]*.jpg; do
         [ -e "$jpg_file" ] || continue
-        local filename=$(basename "$jpg_file")
+        local filename
+        filename=$(basename "$jpg_file")
 
         # Skip panel files
         if [[ "$filename" =~ ^[0-9]+[a-z]_.*\.jpg$ ]]; then

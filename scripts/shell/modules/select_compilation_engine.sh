@@ -76,13 +76,15 @@ get_engine_version() {
 
     case "$engine" in
         tectonic)
-            local cmd=$(get_cmd_tectonic)
+            local cmd
+            cmd=$(get_cmd_tectonic)
             if [ -n "$cmd" ]; then
                 $cmd --version 2>&1 | head -1 | grep -oP '\d+\.\d+\.\d+'
             fi
             ;;
         latexmk)
-            local cmd=$(get_cmd_latexmk)
+            local cmd
+            cmd=$(get_cmd_latexmk)
             if [ -n "$cmd" ]; then
                 $cmd -version 2>&1 | head -1 | grep -oP '\d+\.\d+'
             fi
@@ -100,8 +102,10 @@ list_available_engines() {
 
     for engine in tectonic latexmk 3pass; do
         if verify_engine "$engine" >/dev/null 2>&1; then
-            local version=$(get_engine_version "$engine")
-            local info=$(get_engine_info "$engine")
+            local version
+            version=$(get_engine_version "$engine")
+            local info
+            info=$(get_engine_info "$engine")
             printf "  ✓ %-10s (%-10s) %s\n" "$engine" "$version" "$info"
         else
             printf "  ✗ %-10s (not available)\n" "$engine"

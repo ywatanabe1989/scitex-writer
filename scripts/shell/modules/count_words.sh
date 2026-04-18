@@ -3,11 +3,13 @@
 # Timestamp: "2025-09-26 10:52:54 (ywatanabe)"
 # File: ./paper/scripts/shell/modules/count_words.sh
 
+# shellcheck disable=SC2034  # ORIG_DIR exported from standard module header
 ORIG_DIR="$(pwd)"
-THIS_DIR="$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)"
-LOG_PATH="$THIS_DIR/.$(basename $0).log"
+THIS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+LOG_PATH="$THIS_DIR/.$(basename "$0").log"
 echo >"$LOG_PATH"
 
+# shellcheck disable=SC2034  # GIT_ROOT exported from standard module header
 GIT_ROOT="$(git rev-parse --show-toplevel 2>/dev/null)"
 
 GRAY='\033[0;90m'
@@ -96,7 +98,8 @@ count_IMRaD() {
     local imrd_total=0
     for section in introduction methods results discussion; do
         if [ -f "$SCITEX_WRITER_WORDCOUNT_DIR/${section}_count.txt" ]; then
-            local count=$(cat "$SCITEX_WRITER_WORDCOUNT_DIR/${section}_count.txt" 2>/dev/null || echo 0)
+            local count
+            count=$(cat "$SCITEX_WRITER_WORDCOUNT_DIR/${section}_count.txt" 2>/dev/null || echo 0)
             imrd_total=$((imrd_total + count))
         fi
     done

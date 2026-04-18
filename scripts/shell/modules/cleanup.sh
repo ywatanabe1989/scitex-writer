@@ -3,11 +3,13 @@
 # Timestamp: "2025-09-27 16:35:00 (ywatanabe)"
 # File: ./paper/scripts/shell/modules/cleanup.sh
 
+# shellcheck disable=SC2034  # ORIG_DIR exported from standard module header
 ORIG_DIR="$(pwd)"
-THIS_DIR="$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)"
-LOG_PATH="$THIS_DIR/.$(basename $0).log"
+THIS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+LOG_PATH="$THIS_DIR/.$(basename "$0").log"
 echo >"$LOG_PATH"
 
+# shellcheck disable=SC2034  # GIT_ROOT exported from standard module header
 GIT_ROOT="$(git rev-parse --show-toplevel 2>/dev/null)"
 
 GRAY='\033[0;90m'

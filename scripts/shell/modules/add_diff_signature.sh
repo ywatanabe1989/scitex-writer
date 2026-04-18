@@ -5,7 +5,7 @@
 # Description: Add metadata signature to diff TeX files
 
 # Logging functions (if not already defined)
-if ! command -v echo_info &> /dev/null; then
+if ! command -v echo_info &>/dev/null; then
     GRAY='\033[0;90m'
     GREEN='\033[0;32m'
     YELLOW='\033[0;33m'
@@ -30,7 +30,8 @@ add_diff_signature() {
     echo_info "    Adding signature to diff document..."
 
     # Create signature block
-    local signature="
+    local signature
+    signature="
 %% =============================================================================
 %% Diff Document Metadata (Auto-generated)
 %% =============================================================================
@@ -54,7 +55,7 @@ add_diff_signature() {
             print sig
         }
         { print }
-    ' "$diff_tex_file" > "$temp_file"
+    ' "$diff_tex_file" >"$temp_file"
 
     mv "$temp_file" "$diff_tex_file"
 
@@ -64,13 +65,14 @@ add_diff_signature() {
     local temp_file="${diff_tex_file}.tmp"
 
     # Find the line number of \begin{document}
-    local begin_doc_line=$(grep -n '\\begin{document}' "$diff_tex_file" | head -1 | cut -d: -f1)
+    local begin_doc_line
+    begin_doc_line=$(grep -n '\\begin{document}' "$diff_tex_file" | head -1 | cut -d: -f1)
 
     if [ -n "$begin_doc_line" ]; then
         # Insert signature before \begin{document}
         {
             head -n $((begin_doc_line - 1)) "$diff_tex_file"
-            cat << EOF
+            cat <<EOF
 \\usepackage{fancyhdr}
 \\usepackage{lastpage}
 
@@ -88,7 +90,7 @@ add_diff_signature() {
 \\AtBeginDocument{\\pagestyle{diffstyle}}
 EOF
             tail -n +$begin_doc_line "$diff_tex_file"
-        } > "$temp_file"
+        } >"$temp_file"
 
         mv "$temp_file" "$diff_tex_file"
     fi

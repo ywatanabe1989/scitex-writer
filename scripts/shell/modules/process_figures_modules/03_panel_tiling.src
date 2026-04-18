@@ -50,7 +50,8 @@ auto_tile_panels() {
     local base_names=()
     for panel_file in "$SCITEX_WRITER_FIGURE_JPG_DIR"/[0-9]*[a-z]_*.jpg; do
         [ -e "$panel_file" ] || continue
-        local base_name=$(basename "$panel_file" | sed 's/[a-z]_.*//')
+        local base_name
+        base_name=$(basename "$panel_file" | sed 's/[a-z]_.*//')
         
         # Add to array if not already present
         if [[ ! " ${base_names[@]} " =~ " ${base_name} " ]]; then
@@ -145,7 +146,8 @@ check_panels_for_tiling() {
     # Check each main figure for missing composed version
     for caption_file in "$SCITEX_WRITER_FIGURE_CAPTION_MEDIA_DIR"/[0-9]*_*.tex; do
         [ -e "$caption_file" ] || continue
-        local base_name=$(basename "$caption_file" .tex)
+        local base_name
+        base_name=$(basename "$caption_file" .tex)
         
         # Skip if this is a panel caption (shouldn't exist, but check anyway)
         if [[ "$base_name" =~ ^[0-9]+[a-z]_ ]]; then

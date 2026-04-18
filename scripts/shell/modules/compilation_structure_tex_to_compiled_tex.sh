@@ -3,11 +3,13 @@
 # Timestamp: "2025-09-26 18:00:21 (ywatanabe)"
 # File: ./paper/scripts/shell/modules/compilation_structure_tex_to_compiled_tex.sh
 
+# shellcheck disable=SC2034  # ORIG_DIR exported from standard module header
 ORIG_DIR="$(pwd)"
-THIS_DIR="$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)"
-LOG_PATH="$THIS_DIR/.$(basename $0).log"
-echo > "$LOG_PATH"
+THIS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+LOG_PATH="$THIS_DIR/.$(basename "$0").log"
+echo >"$LOG_PATH"
 
+# shellcheck disable=SC2034  # GIT_ROOT exported from standard module header
 GIT_ROOT="$(git rev-parse --show-toplevel 2>/dev/null)"
 
 GRAY='\033[0;90m'

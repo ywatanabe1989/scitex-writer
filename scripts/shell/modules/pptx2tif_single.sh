@@ -3,11 +3,13 @@
 # Timestamp: "2025-09-26 10:53:55 (ywatanabe)"
 # File: ./paper/scripts/shell/modules/pptx2tif_single.sh
 
+# shellcheck disable=SC2034  # ORIG_DIR exported from standard module header
 ORIG_DIR="$(pwd)"
-THIS_DIR="$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)"
-LOG_PATH="$THIS_DIR/.$(basename $0).log"
+THIS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+LOG_PATH="$THIS_DIR/.$(basename "$0").log"
 echo >"$LOG_PATH"
 
+# shellcheck disable=SC2034  # GIT_ROOT exported from standard module header
 GIT_ROOT="$(git rev-parse --show-toplevel 2>/dev/null)"
 
 GRAY='\033[0;90m'
@@ -49,9 +51,13 @@ convert_pptx_to_tif() {
     local input_file="$1"
     local output_file="$2"
 
-    local input_file_win=$(wslpath -w "$input_file")
-    local output_file_win=$(wslpath -w "$output_file")
-    local script_dir="$(dirname "$(realpath "$0")")"
+    local input_file_win
+    input_file_win=$(wslpath -w "$input_file")
+    local output_file_win
+    output_file_win=$(wslpath -w "$output_file")
+    # shellcheck disable=SC2034  # script_dir retained for diagnostic context
+    local script_dir
+    script_dir="$(dirname "$(realpath "$0")")"
     local ps_script="./scripts/powershell/pptx2tiff.ps1"
     local powershell="${SCITEX_WRITER_POWERSHELL:-$(command -v powershell.exe 2>/dev/null || echo "powershell.exe")}"
 

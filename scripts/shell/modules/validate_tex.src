@@ -34,7 +34,8 @@ display_latex_error_advice() {
 
     if grep -q "Runaway argument" "$error_log"; then
         message="${message}- Missing brace error: Check for unbalanced '{' and '}' characters\n"
-        local brackets=$(grep -n -o "[{}]" "$input_file" | sort -n)
+        local brackets
+        brackets=$(grep -n -o "[{}]" "$input_file" | sort -n)
         local count=0
         echo "$brackets" | while read -r line; do
             char=$(echo "$line" | cut -d: -f2)
@@ -71,8 +72,10 @@ display_latex_error_advice() {
 validate_tex_file() {
     local tex_file="$1"
     local show_content="${2:-false}"
-    local temp_dir=$(mktemp -d)
-    local base_name=$(basename "$tex_file" .tex)
+    local temp_dir
+    temp_dir=$(mktemp -d)
+    local base_name
+    base_name=$(basename "$tex_file" .tex)
     local log_file="$temp_dir/${base_name}_complete.log"
     local preamble_file="$temp_dir/preamble.tex"
 
