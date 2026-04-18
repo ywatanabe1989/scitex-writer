@@ -15,9 +15,14 @@ permissions:
 jobs:
   CLAssistant:
     runs-on: ubuntu-latest
+    # Robust gate: the `github.event.issue.pull_request` field has proven
+    # unreliable on closed-issue comments — the action still fires and errors
+    # with "Could not resolve to a PullRequest". PR URLs always contain
+    # `/pull/`; non-PR issue URLs contain `/issues/`. Use the URL shape
+    # instead.
     if: |
-      (github.event_name == 'issue_comment' && github.event.issue.pull_request) ||
-      github.event_name == 'pull_request_target'
+      github.event_name == 'pull_request_target' ||
+      (github.event_name == 'issue_comment' && contains(github.event.issue.html_url, '/pull/'))
     steps:
       - name: CLA Assistant
         uses: contributor-assistant/github-action@v2.6.1
