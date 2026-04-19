@@ -31,7 +31,7 @@ import tempfile
 from pathlib import Path
 
 import pytest
-from django.test import Client, RequestFactory
+from django.test import RequestFactory
 
 from scitex_writer._django import views
 
@@ -207,8 +207,6 @@ def test_no_working_dir_returns_400():
 
 
 def test_editor_page_renders(project_dir):
-    client = Client()
-    # Editor page goes through editor_page view directly
     rf = RequestFactory()
     request = rf.get(f"/?working_dir={project_dir}")
     resp = views.editor_page(request)
