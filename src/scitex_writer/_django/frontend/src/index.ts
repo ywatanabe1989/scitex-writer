@@ -17,6 +17,7 @@ import { countWords, mountToolbar } from "./toolbar";
 import { PDFViewer } from "./pdf-viewer";
 import { CompileController } from "./compile";
 import { InsertPanel } from "./insert-panel";
+import { DetailsPanel } from "./details-panel";
 
 const SAVE_DEBOUNCE_MS = 800;
 
@@ -50,6 +51,14 @@ async function bootstrap(): Promise<void> {
     tabSize: 2,
   });
   await editor.initialize();
+
+  // Force layout once after the shell has stabilised — automaticLayout
+  // via ResizeObserver misses the initial container-size flip when
+  // shell panes are hidden via CSS after Monaco init. Without this,
+  // line numbers render at the wrong Y offset.
+  requestAnimationFrame(() => {
+    editor.getEditor()?.layout();
+  });
 
   // Toolbar wiring
   const tabsEl = root.querySelector<HTMLElement>("#section-tabs");
@@ -116,6 +125,11 @@ async function bootstrap(): Promise<void> {
 
   // silence unused warnings until richer use later
   void compile;
+
+  // Details right panel (Compilation / Overleaf / Prism / Project / Shortcuts)
+  const detailsEl = root.querySelector<HTMLElement>("#details-panel");
+  const details = detailsEl ? new DetailsPanel(detailsEl) : null;
+  void details;
 
   // Insert panel (cite/fig/table/history icon bar)
   const insertBar = root.querySelector<HTMLElement>("#insert-bar");

@@ -1495,3 +1495,107 @@ body:has(.writer-app) .workspace-three-col > .ws-module-pane {
 .claim-tooltip-chain.u-hidden {
   display: none !important;
 }
+
+/* Details right panel — matches scitex.ai sliders-icon Details column */
+.details-pane {
+  width: 260px;
+  min-width: 200px;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-secondary);
+  border-left: 1px solid var(--border-color);
+  flex-shrink: 0;
+  overflow: hidden;
+}
+.details-header {
+  padding: 8px 12px;
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--text-primary);
+  background: var(--bg-tertiary);
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.details-body {
+  flex: 1;
+  overflow: auto;
+  padding: 4px 0;
+}
+.details-section {
+  border-bottom: 1px solid var(--border-light);
+}
+.details-section-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 8px 12px;
+  background: transparent;
+  color: var(--text-primary);
+  border: none;
+  cursor: pointer;
+  font-size: 13px;
+  text-align: left;
+}
+.details-section-toggle:hover {
+  background: var(--hover-bg);
+}
+.details-section-title {
+  flex: 1;
+}
+.details-chevron {
+  transition: transform 0.15s;
+  opacity: 0.6;
+  font-size: 10px;
+}
+.details-section.open .details-chevron {
+  transform: rotate(90deg);
+}
+.details-section-body {
+  padding: 4px 12px 10px;
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+.details-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 3px 0;
+  word-break: break-word;
+}
+.details-row kbd {
+  padding: 1px 6px;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  border-radius: 3px;
+  font-size: 11px;
+  color: var(--text-primary);
+}
+.details-hint {
+  margin: 4px 0 0 0;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+.details-mono {
+  font-family: "Consolas", "Monaco", monospace;
+  font-size: 11px;
+  text-align: right;
+}
+.details-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  vertical-align: middle;
+  margin-right: 4px;
+}
+.details-wip-badge {
+  font-size: 10px;
+  padding: 1px 6px;
+  border-radius: 10px;
+  background: var(--warning);
+  color: var(--bg-primary);
+  font-weight: 600;
+}
