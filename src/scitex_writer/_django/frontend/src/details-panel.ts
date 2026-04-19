@@ -46,6 +46,15 @@ export class DetailsPanel {
     this.render();
   }
 
+  openSection(id: SectionId): void {
+    this.open.add(id);
+    this.saveOpenState();
+    this.render();
+    this.container
+      .querySelector<HTMLElement>(`[data-id="${id}"]`)
+      ?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
   private async loadProject(): Promise<void> {
     try {
       this.project = await projectInfo();

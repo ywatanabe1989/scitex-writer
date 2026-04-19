@@ -98,6 +98,13 @@ async function bootstrap(): Promise<void> {
       })
     : null;
 
+  // Keyboard shortcut icon → expand the Shortcuts section in Details
+  root
+    .querySelector<HTMLElement>("#btn-show-shortcuts")
+    ?.addEventListener("click", () => {
+      details?.openSection("shortcuts");
+    });
+
   // Download PDF
   root
     .querySelector<HTMLElement>("#btn-pdf-download")
