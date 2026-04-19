@@ -206,6 +206,43 @@ def test_no_working_dir_returns_400():
     assert resp.status_code == 400
 
 
+def test_figures(project_dir):
+    rf = RequestFactory()
+    project_path = Path(project_dir)
+    fig_dir = (
+        project_path / "01_manuscript" / "contents" / "figures" / "caption_and_media"
+    )
+    fig_dir.mkdir(parents=True)
+    (fig_dir / "01_example.tex").write_text(
+        r"\begin{figure}\label{fig:example}\end{figure}"
+    )
+    request = rf.get(f"/api/figures?doc_type=manuscript&working_dir={project_dir}")
+    resp = views.api_dispatch(request, "api/figures")
+    assert resp.status_code == 200
+    data = json.loads(resp.content)
+    assert data["doc_type"] == "manuscript"
+    assert any(f["name"] == "01_example" for f in data["figures"])
+    assert data["figures"][0]["label"] == "fig:example"
+
+
+def test_tables(project_dir):
+    rf = RequestFactory()
+    project_path = Path(project_dir)
+    tbl_dir = (
+        project_path / "01_manuscript" / "contents" / "tables" / "caption_and_media"
+    )
+    tbl_dir.mkdir(parents=True)
+    (tbl_dir / "01_results.tex").write_text(
+        r"\begin{table}\label{tab:results}\end{table}"
+    )
+    request = rf.get(f"/api/tables?doc_type=manuscript&working_dir={project_dir}")
+    resp = views.api_dispatch(request, "api/tables")
+    assert resp.status_code == 200
+    data = json.loads(resp.content)
+    assert any(t["name"] == "01_results" for t in data["tables"])
+    assert data["tables"][0]["label"] == "tab:results"
+
+
 def test_editor_page_renders(project_dir):
     rf = RequestFactory()
     request = rf.get(f"/?working_dir={project_dir}")

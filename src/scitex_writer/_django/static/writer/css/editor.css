@@ -1193,3 +1193,107 @@ select:focus {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
   max-width: 100%;
 }
+
+/* PR5: insert icon-bar + side panel (Cite/Fig/Table/History) */
+.insert-bar {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  width: 56px;
+  padding: 6px 2px;
+  background: var(--bg-tertiary);
+  border-left: 1px solid var(--border-color);
+  border-right: 1px solid var(--border-color);
+  flex-shrink: 0;
+}
+.insert-bar-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 6px 2px;
+  background: transparent;
+  color: var(--text-secondary);
+  border: 1px solid transparent;
+  border-radius: 4px;
+  font-size: 10px;
+  cursor: pointer;
+}
+.insert-bar-btn i {
+  font-size: 14px;
+}
+.insert-bar-btn:hover {
+  background: var(--hover-bg);
+  color: var(--text-primary);
+}
+.insert-bar-btn.active {
+  background: var(--accent-bg);
+  color: var(--accent);
+  border-color: var(--accent);
+}
+.insert-panel {
+  width: 280px;
+  min-width: 200px;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-secondary);
+  border-right: 1px solid var(--border-color);
+  flex-shrink: 0;
+  overflow: hidden;
+}
+.insert-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--text-primary);
+  border-bottom: 1px solid var(--border-color);
+  background: var(--bg-tertiary);
+}
+.insert-count {
+  font-weight: 400;
+  color: var(--text-muted);
+  font-size: 12px;
+}
+.insert-panel-body {
+  flex: 1;
+  overflow: auto;
+  padding: 4px 0;
+}
+.insert-panel-empty,
+.insert-panel-error {
+  padding: 12px;
+  color: var(--text-muted);
+  font-size: 13px;
+}
+.insert-panel-error {
+  color: var(--danger);
+}
+.insert-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 6px 12px;
+  cursor: pointer;
+  border-bottom: 1px solid var(--border-light);
+}
+.insert-item:hover {
+  background: var(--hover-bg);
+}
+.insert-item-label {
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--text-primary);
+}
+.insert-item-sub {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+.insert-item-snippet {
+  font-family: "Consolas", "Monaco", monospace;
+  font-size: 11px;
+  color: var(--accent);
+  word-break: break-all;
+}

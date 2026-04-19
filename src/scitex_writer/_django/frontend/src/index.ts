@@ -16,6 +16,7 @@ import { SectionTabs } from "./sections";
 import { countWords, mountToolbar } from "./toolbar";
 import { PDFViewer } from "./pdf-viewer";
 import { CompileController } from "./compile";
+import { InsertPanel } from "./insert-panel";
 
 const SAVE_DEBOUNCE_MS = 800;
 
@@ -84,6 +85,7 @@ async function bootstrap(): Promise<void> {
     onDocType: async (docType) => {
       await sections?.load(docType);
       await pdf?.load(docType);
+      insert?.invalidate(docType);
     },
     onFontSize: (size) => {
       editor.getEditor()?.updateOptions({ fontSize: size });
@@ -112,8 +114,35 @@ async function bootstrap(): Promise<void> {
     .querySelector<HTMLElement>("#btn-pdf-fit")
     ?.addEventListener("click", () => pdf?.setFitWidth());
 
-  // silence unused warnings until richer use in PR5+
+  // silence unused warnings until richer use later
   void compile;
+
+  // Insert panel (cite/fig/table/history icon bar)
+  const insertBar = root.querySelector<HTMLElement>("#insert-bar");
+  const insertPanel = root.querySelector<HTMLElement>("#insert-panel");
+  const insert =
+    insertBar && insertPanel
+      ? new InsertPanel({
+          bar: insertBar,
+          panel: insertPanel,
+          getDocType: () =>
+            root.querySelector<HTMLSelectElement>("#doc-type-select")?.value ||
+            "manuscript",
+          insertAtCursor: (snippet) => {
+            const mEditor = editor.getEditor();
+            if (!mEditor) return;
+            const selection = mEditor.getSelection();
+            mEditor.executeEdits("insert-panel", [
+              {
+                range: selection,
+                text: snippet,
+                forceMoveMarkers: true,
+              },
+            ]);
+            mEditor.focus();
+          },
+        })
+      : null;
 
   // Declare state BEFORE any loadSection trigger (TDZ guard).
   let currentPath: string | null = null;

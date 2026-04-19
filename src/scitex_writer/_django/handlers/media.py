@@ -1,0 +1,73 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""Figures + tables handlers — list scitex-writer's caption_and_media files.
+
+A figure/table "entry" in a scitex-writer project is a `.tex` file under
+`{doc}/contents/figures/caption_and_media/` or the parallel `tables/`
+directory. The compile script auto-discovers them; the writer UI needs the
+same list to populate the insert-figure / insert-table panels.
+"""
+
+from __future__ import annotations
+
+from pathlib import Path
+
+from django.http import JsonResponse
+
+
+def _list_media(project_dir: Path, doc_type: str, kind: str) -> list[dict]:
+    """kind: 'figures' | 'tables'."""
+    doc_map = {
+        "manuscript": "01_manuscript",
+        "supplementary": "02_supplementary",
+        "revision": "03_revision",
+    }
+    doc_root = project_dir / doc_map.get(doc_type, "01_manuscript")
+    media_dir = doc_root / "contents" / kind / "caption_and_media"
+    if not media_dir.exists():
+        return []
+
+    entries = []
+    for tex in sorted(media_dir.glob("*.tex")):
+        label = _extract_label(tex)
+        entries.append(
+            {
+                "name": tex.stem,
+                "path": str(tex.relative_to(project_dir)),
+                "label": label,
+                "insert": f"\\ref{{{label}}}" if label else f"\\ref{{{tex.stem}}}",
+            }
+        )
+    return entries
+
+
+def _extract_label(tex_path: Path) -> str | None:
+    """Parse `\\label{...}` out of the .tex file."""
+    try:
+        text = tex_path.read_text(encoding="utf-8", errors="ignore")
+    except OSError:
+        return None
+    import re
+
+    match = re.search(r"\\label\{([^}]+)\}", text)
+    return match.group(1) if match else None
+
+
+def handle_figures(request, project):
+    doc_type = request.GET.get("doc_type", "manuscript")
+    return JsonResponse(
+        {
+            "doc_type": doc_type,
+            "figures": _list_media(project.project_dir, doc_type, "figures"),
+        }
+    )
+
+
+def handle_tables(request, project):
+    doc_type = request.GET.get("doc_type", "manuscript")
+    return JsonResponse(
+        {
+            "doc_type": doc_type,
+            "tables": _list_media(project.project_dir, doc_type, "tables"),
+        }
+    )
