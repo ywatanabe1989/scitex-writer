@@ -45,7 +45,7 @@ async function bootstrap(): Promise<void> {
     value: "% Loading…",
     lineNumbers: "on",
     wordWrap: "on",
-    minimap: false,
+    minimap: true,
     fontSize: 14,
     tabSize: 2,
   });

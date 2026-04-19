@@ -1,7 +1,7 @@
 /**
- * Section tabs — render the doc-type's .tex sections as clickable tabs.
- * Mirrors the cloud writer_app's section navigation: "1. Abstract",
- * "2. Introduction", etc. Selecting a tab loads that file into the editor.
+ * Section dropdown — render the doc-type's .tex sections as a <select>,
+ * matching the scitex.ai/apps/writer layout: two adjacent dropdowns, one
+ * for doc type, one for section. Selecting loads the file into the editor.
  */
 
 import type { SectionEntry } from "./api";
@@ -12,12 +12,20 @@ type SectionSelectHandler = (section: SectionEntry) => void;
 export class SectionTabs {
   private container: HTMLElement;
   private onSelect: SectionSelectHandler;
+  private select: HTMLSelectElement;
   private active: SectionEntry | null = null;
   private sections: SectionEntry[] = [];
 
   constructor(container: HTMLElement, onSelect: SectionSelectHandler) {
     this.container = container;
     this.onSelect = onSelect;
+
+    this.select = document.createElement("select");
+    this.select.className = "writer-select writer-section-select";
+    this.select.title = "Section";
+    this.select.addEventListener("change", () => this.handleChange());
+    this.container.innerHTML = "";
+    this.container.appendChild(this.select);
   }
 
   async load(docType: string): Promise<void> {
@@ -29,31 +37,30 @@ export class SectionTabs {
       this.sections = [];
     }
     this.render();
-    if (this.sections.length > 0) this.select(this.sections[0]);
+    if (this.sections.length > 0) this.chooseSection(this.sections[0]);
   }
 
   private render(): void {
-    this.container.innerHTML = "";
+    this.select.innerHTML = "";
     this.sections.forEach((section, index) => {
-      const btn = document.createElement("button");
-      btn.className = "writer-section-tab";
-      btn.dataset.path = section.path;
-      btn.textContent = `${index + 1}. ${humanize(section.name)}`;
-      btn.addEventListener("click", () => this.select(section));
-      if (this.active && this.active.path === section.path) {
-        btn.classList.add("active");
-      }
-      this.container.appendChild(btn);
+      const option = document.createElement("option");
+      option.value = section.path;
+      option.textContent = `${index + 1}. ${humanize(section.name)}`;
+      this.select.appendChild(option);
     });
+    if (this.active) {
+      this.select.value = this.active.path;
+    }
   }
 
-  private select(section: SectionEntry): void {
+  private handleChange(): void {
+    const section = this.sections.find((s) => s.path === this.select.value);
+    if (section) this.chooseSection(section);
+  }
+
+  private chooseSection(section: SectionEntry): void {
     this.active = section;
-    this.container
-      .querySelectorAll<HTMLElement>(".writer-section-tab")
-      .forEach((el) => {
-        el.classList.toggle("active", el.dataset.path === section.path);
-      });
+    this.select.value = section.path;
     this.onSelect(section);
   }
 }

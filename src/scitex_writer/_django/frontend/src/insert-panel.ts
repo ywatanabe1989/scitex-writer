@@ -7,7 +7,7 @@
 import { bibEntries, listFigures, listTables } from "./api";
 import type { BibEntry, MediaEntry } from "./api";
 
-export type InsertPaneId = "cite" | "fig" | "table" | "history";
+export type InsertPaneId = "cite" | "fig" | "table" | "collab" | "history";
 
 interface PanelOptions {
   bar: HTMLElement;
@@ -64,6 +64,9 @@ export class InsertPanel {
         break;
       case "table":
         void this.renderTable();
+        break;
+      case "collab":
+        this.renderCollab();
         break;
       case "history":
         this.renderHistory();
@@ -143,6 +146,38 @@ export class InsertPanel {
       <div class="insert-panel-header">Version history</div>
       <div class="insert-panel-body">
         <p class="insert-panel-empty">Git history integration lands in a later PR.</p>
+      </div>
+    `;
+  }
+
+  private renderCollab(): void {
+    this.opts.panel.innerHTML = `
+      <div class="insert-panel-header">Real-time collaboration</div>
+      <div class="insert-panel-body insert-panel-info">
+        <p><strong>Not supported in this local instance.</strong></p>
+        <p>
+          Collaboration (operational transforms, presence, inline comments)
+          requires a cloud backend with auth, WebSocket consumers, and a
+          shared project store.
+        </p>
+        <p>
+          Two ways to use it:
+        </p>
+        <ul>
+          <li>
+            Public hosted instance &mdash;
+            <a href="https://scitex.ai/apps/writer/" target="_blank" rel="noreferrer">
+              scitex.ai/apps/writer/
+            </a>
+          </li>
+          <li>
+            Self-host &mdash; the
+            <a href="https://github.com/ywatanabe1989/scitex-cloud" target="_blank" rel="noreferrer">
+              scitex-cloud
+            </a>
+            backend is AGPL-3.0 and runnable on your own infrastructure.
+          </li>
+        </ul>
       </div>
     `;
   }
