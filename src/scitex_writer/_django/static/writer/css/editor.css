@@ -1438,3 +1438,21 @@ select:focus {
 .dag-container svg {
   max-width: 100%;
 }
+
+/* PR8-inline: Writer runs standalone locally — the shell's AI / worktree /
+ * viewer panes have no content in this mode. Hide them so the writer
+ * content gets the full viewport. The module pane (where .writer-app mounts)
+ * expands to fill the row.
+ * Cloud deployments override this — their own shell JS populates the panes,
+ * so they surround the writer with nav/AI/file-tree there.
+ */
+body:has(.writer-app) .workspace-three-col > .ws-ai-pane,
+body:has(.writer-app) .workspace-three-col > .ws-worktree-pane,
+body:has(.writer-app) .workspace-three-col > .ws-viewer-pane,
+body:has(.writer-app) .workspace-three-col > .ws-apps-pane {
+  display: none;
+}
+body:has(.writer-app) .workspace-three-col > .ws-module-pane {
+  flex: 1 1 auto;
+  width: 100%;
+}
