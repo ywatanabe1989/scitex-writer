@@ -1599,3 +1599,40 @@ body:has(.writer-app) .workspace-three-col > .ws-module-pane {
   color: var(--bg-primary);
   font-weight: 600;
 }
+
+/* Theme toggle — colored, unambiguous icon (addresses cross-ecosystem
+ * "sun looks like gear" concern noted in GITIGNORED notes; ideal home
+ * for this style is scitex-ui but propagating locally first for visual
+ * verification).
+ */
+#btn-toggle-theme.theme-dark {
+  color: #f5b86a;
+}
+#btn-toggle-theme.theme-light {
+  color: #4a6fa5;
+}
+#btn-toggle-theme:hover {
+  transform: rotate(180deg);
+  transition: transform 0.3s ease;
+}
+
+/* Curtain-like slide transitions for the insert panel (Cite/Fig/Table) */
+.insert-panel {
+  transition:
+    width 0.18s ease,
+    min-width 0.18s ease,
+    padding 0.18s ease,
+    opacity 0.15s ease;
+  will-change: width;
+}
+.insert-panel.u-hidden {
+  /* override u-hidden's display:none with animated collapse */
+  display: flex !important;
+  width: 0 !important;
+  min-width: 0 !important;
+  padding: 0 !important;
+  opacity: 0;
+  overflow: hidden;
+  border-right-width: 0;
+  pointer-events: none;
+}

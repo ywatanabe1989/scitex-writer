@@ -31,11 +31,27 @@ export function mountToolbar(
   );
 
   const themeBtn = root.querySelector<HTMLButtonElement>("#btn-toggle-theme");
+  const syncThemeIcon = () => {
+    if (!themeBtn) return;
+    const mode =
+      document.documentElement.dataset.theme === "dark" ? "dark" : "light";
+    const icon = themeBtn.querySelector<HTMLElement>("i");
+    if (icon) {
+      // fa-circle-half-stroke unambiguously signals a toggle — avoids the
+      // "sun icon looks like a gear" readability issue with fa-sun.
+      icon.className = "fas fa-circle-half-stroke";
+    }
+    themeBtn.classList.toggle("theme-dark", mode === "dark");
+    themeBtn.classList.toggle("theme-light", mode === "light");
+    themeBtn.title = `Theme: ${mode} (click to switch)`;
+  };
+  syncThemeIcon();
   themeBtn?.addEventListener("click", () => {
     const html = document.documentElement;
     const next = html.dataset.theme === "dark" ? "light" : "dark";
     html.dataset.theme = next;
     localStorage.setItem("scitex-theme", next);
+    syncThemeIcon();
     callbacks.onTheme(next);
   });
 

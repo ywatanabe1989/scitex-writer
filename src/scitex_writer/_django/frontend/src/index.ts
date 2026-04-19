@@ -250,6 +250,16 @@ async function bootstrap(): Promise<void> {
       void flushSave();
     }
   });
+
+  // Shell sets body.no-transition to prevent FOUC jitter; it normally
+  // strips the class after JS loads, but standalone mode doesn't run
+  // that code path. Remove it on next paint so our curtain-slide
+  // transitions (insert-panel, details-pane, theme icon rotate) can run.
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      document.body.classList.remove("no-transition");
+    });
+  });
 }
 
 void bootstrap();
