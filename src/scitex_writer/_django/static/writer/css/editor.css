@@ -1482,3 +1482,16 @@ body:has(.writer-app) .workspace-three-col > .ws-module-pane {
 .insert-panel-info a:hover {
   color: var(--accent-hover);
 }
+
+/* u-hidden must beat panel-specific display: flex (source order clash fix) */
+.u-hidden,
+.insert-panel.u-hidden,
+.log-panel.u-hidden,
+.claim-tooltip.u-hidden,
+.viewer-popup.u-hidden,
+.pdf-controls.u-hidden,
+#pdf-canvas.u-hidden,
+.ct-section.u-hidden,
+.claim-tooltip-chain.u-hidden {
+  display: none !important;
+}
