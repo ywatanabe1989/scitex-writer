@@ -73,7 +73,12 @@ async function bootstrap(): Promise<void> {
   const pdf = pdfContainer ? new PDFViewer({ container: pdfContainer }) : null;
   pdf?.renderPlaceholder();
 
-  // Compile controller
+  // Details right panel (Compilation / Overleaf / Prism / Project / Shortcuts)
+  const detailsEl = root.querySelector<HTMLElement>("#details-panel");
+  const details = detailsEl ? new DetailsPanel(detailsEl) : null;
+
+  // Compile controller — pushes lamp status into the Details panel so
+  // Compilation-Preview / Compilation-Full show live status dots.
   const compile = pdf
     ? new CompileController({
         lamp: root.querySelector<HTMLElement>("#compile-lamp"),
@@ -87,8 +92,30 @@ async function bootstrap(): Promise<void> {
         getDocType: () =>
           root.querySelector<HTMLSelectElement>("#doc-type-select")?.value ||
           "manuscript",
+        onStatusChange: (mode, status) => {
+          details?.setCompileStatus(mode, status);
+        },
       })
     : null;
+
+  // Download PDF
+  root
+    .querySelector<HTMLElement>("#btn-pdf-download")
+    ?.addEventListener("click", () => {
+      const docType =
+        root.querySelector<HTMLSelectElement>("#doc-type-select")?.value ||
+        "manuscript";
+      const a = document.createElement("a");
+      a.href =
+        `/api/pdf?doc_type=${encodeURIComponent(docType)}` +
+        `&working_dir=${encodeURIComponent(
+          (root as HTMLElement).dataset.projectDir || "",
+        )}&download=1&t=${Date.now()}`;
+      a.download = `${docType}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+    });
 
   const toolbar = mountToolbar(root, {
     onDocType: async (docType) => {
@@ -125,11 +152,6 @@ async function bootstrap(): Promise<void> {
 
   // silence unused warnings until richer use later
   void compile;
-
-  // Details right panel (Compilation / Overleaf / Prism / Project / Shortcuts)
-  const detailsEl = root.querySelector<HTMLElement>("#details-panel");
-  const details = detailsEl ? new DetailsPanel(detailsEl) : null;
-  void details;
 
   // Insert panel (cite/fig/table/history icon bar)
   const insertBar = root.querySelector<HTMLElement>("#insert-bar");

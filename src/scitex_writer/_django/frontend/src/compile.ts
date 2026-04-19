@@ -25,6 +25,8 @@ interface CompileOptions {
   modeToggleBtn: HTMLElement | null;
   pdf: PDFViewer;
   getDocType: () => string;
+  /** Optional observer — Details panel subscribes to live lamp state. */
+  onStatusChange?: (mode: CompileMode, status: LampStatus) => void;
 }
 
 export class CompileController {
@@ -43,10 +45,16 @@ export class CompileController {
   private wireEvents(): void {
     this.opts.compileBtn?.addEventListener("click", () => void this.compile());
     this.opts.toggleLogBtn?.addEventListener("click", () => this.toggleLog());
-    this.opts.closeLogBtn?.addEventListener("click", () => this.setLogOpen(false));
+    this.opts.closeLogBtn?.addEventListener("click", () =>
+      this.setLogOpen(false),
+    );
     this.opts.modeToggleBtn?.addEventListener("click", () => this.toggleMode());
     window.addEventListener("keydown", (event) => {
-      if ((event.ctrlKey || event.metaKey) && event.shiftKey && event.key === "B") {
+      if (
+        (event.ctrlKey || event.metaKey) &&
+        event.shiftKey &&
+        event.key === "B"
+      ) {
         event.preventDefault();
         void this.compile();
       }
@@ -74,7 +82,8 @@ export class CompileController {
     if (this.polling) window.clearTimeout(this.polling);
     const tick = async () => {
       try {
-        const status = await apiGet<CompileStatusResponse>("api/compile/status");
+        const status =
+          await apiGet<CompileStatusResponse>("api/compile/status");
         if (status.log) this.setLog(status.log);
         if (status.compiling) {
           this.polling = window.setTimeout(tick, 800);
@@ -99,17 +108,19 @@ export class CompileController {
   private updateLamp(status: LampStatus): void {
     this.status = status;
     const lamp = this.opts.lamp;
-    if (!lamp) return;
-    lamp.className = `writer-lamp lamp-${status}`;
-    const title =
-      status === "compiling"
-        ? "Compiling…"
-        : status === "ok"
-          ? "Last compile: success"
-          : status === "error"
-            ? "Last compile: error"
-            : "Idle";
-    lamp.title = title;
+    if (lamp) {
+      lamp.className = `writer-lamp lamp-${status}`;
+      const title =
+        status === "compiling"
+          ? "Compiling…"
+          : status === "ok"
+            ? "Last compile: success"
+            : status === "error"
+              ? "Last compile: error"
+              : "Idle";
+      lamp.title = title;
+    }
+    this.opts.onStatusChange?.(this.mode, status);
   }
 
   private setLog(text: string): void {

@@ -88,9 +88,10 @@ def handle_pdf(request, project):
     if not pdf_path.exists():
         return JsonResponse({"error": "PDF not found. Compile first."}, status=404)
 
+    as_attachment = request.GET.get("download") in ("1", "true")
     return FileResponse(
         open(pdf_path, "rb"),
         content_type="application/pdf",
         filename=f"{doc_type}.pdf",
-        as_attachment=False,
+        as_attachment=as_attachment,
     )
