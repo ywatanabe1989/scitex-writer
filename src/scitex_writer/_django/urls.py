@@ -10,5 +10,6 @@ app_name = "writer"
 
 urlpatterns = [
     path("", views.editor_page, name="editor"),
+    path("viewer/", views.viewer_page, name="viewer"),
     path("<path:endpoint>", views.api_dispatch, name="api"),
 ]

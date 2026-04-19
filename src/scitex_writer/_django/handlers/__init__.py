@@ -15,6 +15,7 @@ from .compile import handle_compile, handle_compile_status, handle_pdf
 from .core import handle_ping, handle_project_info
 from .files import handle_file, handle_list_files, handle_sections
 from .media import handle_figures, handle_tables
+from .viewer import handle_citation, handle_claims_metadata, handle_dag
 
 # Endpoints where method on the same path selects a different handler are
 # handled by the dispatcher itself; the map below resolves exact endpoint
@@ -43,6 +44,10 @@ HANDLERS = {
     # Media
     "api/figures":            (handle_figures,        ("GET",)),
     "api/tables":             (handle_tables,         ("GET",)),
+
+    # Viewer (claims overlay + DAG + citation verification)
+    "api/claims-metadata":    (handle_claims_metadata, ("GET",)),
+    "api/dag":                (handle_dag,            ("GET",)),
 
     # Claims (non-parameterized)
     "api/claims":             (None,                  ("GET", "POST")),  # dispatched by method

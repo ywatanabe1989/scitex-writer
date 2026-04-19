@@ -20,6 +20,7 @@ from django.views.decorators.csrf import csrf_exempt
 from .handlers import (
     HANDLERS,
     handle_add_claim,
+    handle_citation,
     handle_claim_chain,
     handle_get_claim,
     handle_list_claims,
@@ -116,4 +117,30 @@ def api_dispatch(request, endpoint):
                 logger.exception("[Writer] claim chain %s", parts[0])
                 return JsonResponse({"error": str(exc)}, status=500)
 
+    # Parameterized: api/citation/<cite_key>
+    if endpoint.startswith("api/citation/"):
+        cite_key = endpoint[len("api/citation/") :].strip("/")
+        if cite_key:
+            try:
+                return handle_citation(request, project, cite_key)
+            except Exception as exc:
+                logger.exception("[Writer] citation %s", cite_key)
+                return JsonResponse({"error": str(exc)}, status=500)
+
     return JsonResponse({"error": f"Unknown endpoint: {endpoint}"}, status=404)
+
+
+def viewer_page(request):
+    """Serve the read-only viewer (PDF + claim overlays + DAG)."""
+    project = _get_project(request)
+    project_dir = str(project.project_dir) if project else ""
+    html = render_to_string(
+        "writer/viewer.html",
+        {
+            "app_name": "writer",
+            "app_label": "SciTeX Writer — Viewer",
+            "project_dir": project_dir,
+        },
+        request=request,
+    )
+    return HttpResponse(html)

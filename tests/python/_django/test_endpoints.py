@@ -243,6 +243,45 @@ def test_tables(project_dir):
     assert data["tables"][0]["label"] == "tab:results"
 
 
+def test_claims_metadata(project_dir):
+    rf = RequestFactory()
+    (Path(project_dir) / "00_shared").mkdir(exist_ok=True)
+    (Path(project_dir) / "00_shared" / "claims.json").write_text(
+        '{"version":"1.0","claims":{}}'
+    )
+    resp = _call(rf, "GET", "api/claims-metadata", project_dir)
+    assert resp.status_code == 200
+    data = json.loads(resp.content)
+    assert data["success"] is True
+    assert data["count"] == 0
+
+
+def test_dag_requires_target(project_dir):
+    rf = RequestFactory()
+    resp = _call(rf, "GET", "api/dag", project_dir)
+    assert resp.status_code == 400
+
+
+def test_citation_unverifiable_without_scholar(project_dir):
+    rf = RequestFactory()
+    request = rf.get(f"/api/citation/foo2024?working_dir={project_dir}")
+    resp = views.api_dispatch(request, "api/citation/foo2024")
+    assert resp.status_code == 200
+    data = json.loads(resp.content)
+    assert data["cite_key"] == "foo2024"
+    assert data["state"] in {"VERIFIED", "UNVERIFIABLE", "CONTRADICTED"}
+
+
+def test_viewer_page_renders(project_dir):
+    rf = RequestFactory()
+    request = rf.get(f"/viewer/?working_dir={project_dir}")
+    resp = views.viewer_page(request)
+    assert resp.status_code == 200
+    body = resp.content.decode()
+    assert "Writer — Viewer" in body
+    assert "viewer-claims-pane" in body
+
+
 def test_editor_page_renders(project_dir):
     rf = RequestFactory()
     request = rf.get(f"/?working_dir={project_dir}")
