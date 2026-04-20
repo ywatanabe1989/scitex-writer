@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.16.1] - 2026-04-21
+
+### Fixed
+- **CI: missing deps.** v2.16.0 green-lit by local tests but failed CI because three dependencies were implicit (worked via `pip install -e` sibling discovery on dev machines, not on CI):
+  - `Pillow` — core (thumbnail service); added to `dependencies`.
+  - `scitex-ui>=0.1.0` — core (editor + viewer templates extend `scitex_ui/standalone_shell.html`); added to `dependencies`.
+  - `scitex-logging` — removed as an implicit dep by switching `_ports/workspace.py` + `_ports/thumbnails.py` to stdlib `logging`.
+- **Lint F401.** `handle_citation` is imported for parametric URL dispatch in `views.py` but ruff (correctly) flagged it as unused; added to `__all__`.
+
+No API change — same behaviour as 2.16.0 on machines where the implicit deps happened to be on PATH.
+
 ## [2.16.0] - 2026-04-21
 
 Closes scitex-cloud **#133** — Living Paper (interactive claim verification). Writer-side implementation; since 2.15.0 made local and cloud share one editor, the feature lands entirely in writer.
