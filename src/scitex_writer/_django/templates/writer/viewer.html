@@ -1,7 +1,24 @@
 {% extends "scitex_ui/standalone_shell.html" %}
 {% load static %}
 {% block extra_css %}
-    <link rel="icon" type="image/png" href="{% static 'writer/favicon.png' %}">
+    <link rel="icon"
+          type="image/svg+xml"
+          href="{% static 'writer/favicon.svg' %}">
+    <link rel="icon"
+          type="image/png"
+          sizes="16x16"
+          href="{% static 'writer/favicon-16x16.png' %}">
+    <link rel="icon"
+          type="image/png"
+          sizes="32x32"
+          href="{% static 'writer/favicon-32x32.png' %}">
+    <link rel="icon"
+          type="image/png"
+          sizes="192x192"
+          href="{% static 'writer/favicon-192x192.png' %}">
+    <link rel="apple-touch-icon"
+          sizes="180x180"
+          href="{% static 'writer/favicon-180x180.png' %}">
     <link rel="stylesheet" href="{% static 'writer/assets/index.css' %}">
     <link rel="stylesheet" href="{% static 'writer/css/editor.css' %}">
 {% endblock %}
