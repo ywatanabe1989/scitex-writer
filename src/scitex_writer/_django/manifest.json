@@ -1,0 +1,29 @@
+{
+  "name": "writer_app",
+  "slug": "writer",
+  "label": "Writer",
+  "version": "0.1.0",
+  "icon": "fas fa-file-alt",
+  "subtitle": "LaTeX manuscript editor with PDF preview and verifiable claims",
+  "about": "Edit, compile, and verify scientific manuscripts. File tree, CodeMirror LaTeX editor, PDF preview via pdf.js, one-click compile for manuscript/supplementary/revision, bibliography browser, and claim-chain visualization via scitex-clew.",
+  "description": "SciTeX Writer is a browser-based LaTeX editor for scitex-writer projects. It compiles manuscripts, supplementary materials, and revisions with tracked changes; manages bibliography files; and renders verifiable claims (\\vclaim) with clickable provenance chains back to the source session.",
+  "author": "ywatanabe",
+  "license": "AGPL-3.0",
+  "capabilities": [
+    "Edit LaTeX manuscripts with syntax highlighting",
+    "One-click compile to PDF (manuscript/supplementary/revision)",
+    "Bibliography browser with entry counts",
+    "Verifiable claims with Clew verification chains",
+    "Dark/light theme"
+  ],
+  "allowed_extensions": [".tex", ".bib", ".md", ".csv", ".yaml", ".yml", ".json"],
+  "wip": false,
+  "standalone": true,
+  "standalone_command": "scitex-writer gui",
+  "standalone_port": 5050,
+  "frontend_type": "vanilla",
+  "embedded_package": true,
+  "dependencies": {
+    "python": ["scitex-writer", "django"]
+  }
+}
