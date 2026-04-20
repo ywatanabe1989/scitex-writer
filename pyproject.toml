@@ -58,6 +58,12 @@ editor = [
 desktop = [
     "pywebview>=4.0.0",
 ]
+scholar = [
+    # Optional bridge: enables enriched citation cards and library-browse tab
+    # in the editor. Writer source guards usage with SCHOLAR_AVAILABLE; the UI
+    # degrades gracefully when this extra is not installed.
+    "scitex-scholar>=0.1.0",
+]
 docs = [
     "sphinx>=7.0",
     "sphinx-rtd-theme>=2.0",

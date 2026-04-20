@@ -15,6 +15,12 @@ from .compile import handle_compile, handle_compile_status, handle_pdf
 from .core import handle_ping, handle_project_info
 from .files import handle_file, handle_list_files, handle_sections
 from .media import handle_figures, handle_tables
+from .scholar import (
+    handle_scholar_add_to_manuscript,
+    handle_scholar_enrich,
+    handle_scholar_library,
+    handle_scholar_status,
+)
 from .viewer import handle_citation, handle_claims_metadata, handle_dag
 
 # Endpoints where method on the same path selects a different handler are
@@ -48,6 +54,12 @@ HANDLERS = {
     # Viewer (claims overlay + DAG + citation verification)
     "api/claims-metadata":    (handle_claims_metadata, ("GET",)),
     "api/dag":                (handle_dag,            ("GET",)),
+
+    # Scholar bridge (optional; degrades when scitex-scholar absent)
+    "api/scholar/status":            (handle_scholar_status,            ("GET",)),
+    "api/scholar/library":           (handle_scholar_library,           ("GET",)),
+    "api/scholar/enrich":            (handle_scholar_enrich,            ("POST",)),
+    "api/scholar/add-to-manuscript": (handle_scholar_add_to_manuscript, ("POST",)),
 
     # Claims (non-parameterized)
     "api/claims":             (None,                  ("GET", "POST")),  # dispatched by method

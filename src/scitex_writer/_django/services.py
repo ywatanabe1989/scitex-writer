@@ -58,6 +58,10 @@ def get_or_create_project(project_dir: str) -> ProjectState:
     state = ProjectState(project_dir=path)
     _project_cache[key] = (state, time.time())
     logger.info("[Writer] Created project state for %s", path)
+
+    from scitex_writer._ports.workspace import ensure_scholar_library_link
+
+    ensure_scholar_library_link(path)
     return state
 
 
