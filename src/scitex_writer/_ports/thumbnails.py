@@ -27,9 +27,22 @@ logger = logging.getLogger(__name__)
 
 
 # Extensions we can thumbnail, in preference order (highest quality first).
-IMAGE_EXTS = (".png", ".jpg", ".jpeg", ".gif", ".webp", ".bmp", ".tiff")
+IMAGE_EXTS = (
+    ".png",
+    ".jpg",
+    ".jpeg",
+    ".jfif",
+    ".gif",
+    ".webp",
+    ".bmp",
+    ".tiff",
+    ".tif",
+    ".ico",
+    ".heic",
+    ".avif",
+)
 VECTOR_EXTS = (".svg", ".pdf", ".eps", ".ps")
-DATA_EXTS = (".csv", ".tsv", ".xlsx")
+DATA_EXTS = (".csv", ".tsv", ".xlsx", ".xls", ".ods")
 
 THUMB_EDGE = 256
 
@@ -94,7 +107,7 @@ def _render_thumbnail(source: Path, target: Path) -> None:
     elif ext == ".svg":
         _render_svg(source, target)
     elif ext in DATA_EXTS:
-        _render_data_placeholder(source, target)
+        _render_data_preview(source, target)
     else:
         _render_placeholder(source, target, label=ext.strip(".").upper())
 
@@ -156,8 +169,88 @@ def _render_svg(source: Path, target: Path) -> None:
     _render_placeholder(source, target, label="SVG")
 
 
-def _render_data_placeholder(source: Path, target: Path) -> None:
-    _render_placeholder(source, target, label=source.suffix.strip(".").upper())
+def _render_data_preview(source: Path, target: Path) -> None:
+    """Render a CSV/TSV/XLSX/ODS as a styled 5-row table preview.
+
+    Port of scitex-cloud's `generate_table_thumbnail`: pandas reads the
+    top-left 5×4 corner, matplotlib renders to PNG. Falls back to a
+    text placeholder if pandas/matplotlib are unavailable or the file
+    can't be parsed.
+    """
+    try:
+        import matplotlib
+
+        matplotlib.use("Agg")
+        import matplotlib.pyplot as plt
+        import pandas as pd
+    except ImportError:
+        _render_placeholder(source, target, label=source.suffix.strip(".").upper())
+        return
+
+    ext = source.suffix.lower()
+    try:
+        if ext == ".csv":
+            df = pd.read_csv(source, nrows=5)
+        elif ext == ".tsv":
+            df = pd.read_csv(source, sep="\t", nrows=5)
+        elif ext in (".xlsx", ".xls"):
+            df = pd.read_excel(source, nrows=5)
+        elif ext == ".ods":
+            df = pd.read_excel(source, engine="odf", nrows=5)
+        else:
+            _render_placeholder(source, target, label=source.suffix.strip(".").upper())
+            return
+    except Exception as exc:
+        logger.warning("Table preview failed for %s: %s", source, exc)
+        _render_placeholder(source, target, label=source.suffix.strip(".").upper())
+        return
+
+    if df is None or df.empty:
+        _render_placeholder(source, target, label="EMPTY")
+        return
+
+    if len(df.columns) > 4:
+        df = df.iloc[:, :4]
+        df["..."] = "..."
+
+    df = df.map(lambda x: str(x)[:15] + "…" if len(str(x)) > 15 else str(x))
+
+    fig, ax = plt.subplots(figsize=(5, 3), facecolor="white")
+    ax.axis("tight")
+    ax.axis("off")
+
+    table = ax.table(
+        cellText=df.values,
+        colLabels=df.columns,
+        cellLoc="center",
+        loc="center",
+        bbox=[0, 0, 1, 1],
+    )
+    table.auto_set_font_size(False)
+    table.set_fontsize(9)
+    table.scale(1, 2)
+
+    for (row, _col), cell in table.get_celld().items():
+        cell.set_edgecolor("#cccccc")
+        cell.set_linewidth(1)
+        cell.PAD = 0.05
+        if row == 0:
+            cell.set_facecolor("#4A90E2")
+            cell.set_text_props(weight="bold", color="white", size=9)
+        else:
+            cell.set_facecolor("#f8f9fa" if row % 2 == 0 else "white")
+            cell.set_text_props(size=8)
+
+    fig.savefig(
+        target,
+        format="png",
+        dpi=120,
+        bbox_inches="tight",
+        pad_inches=0.15,
+        facecolor="white",
+        edgecolor="none",
+    )
+    plt.close(fig)
 
 
 def _render_placeholder(source: Path, target: Path, label: str) -> None:
