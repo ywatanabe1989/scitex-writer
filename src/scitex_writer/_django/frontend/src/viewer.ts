@@ -4,8 +4,14 @@
  * Bundled by Vite to `static/writer/assets/viewer.js`.
  */
 
+import {
+  type ClaimRow,
+  loadClaims,
+  renderClaimDetails,
+  renderClaimsList,
+  renderDagFor,
+} from "./claims-list";
 import { PDFViewer } from "./pdf-viewer";
-import { apiGet, API_BASE, PROJECT_DIR } from "./api";
 
 declare global {
   interface Window {
@@ -17,27 +23,6 @@ declare global {
       ) => Promise<{ svg: string; bindFunctions?: (el: Element) => void }>;
     };
   }
-}
-
-interface ClaimRow {
-  claim_id: string;
-  type: string;
-  context?: string;
-  preview_nature?: string;
-  has_provenance: boolean;
-  verification?: { state: string; error?: string };
-}
-
-interface ClaimsMetadataResponse {
-  success: boolean;
-  count: number;
-  claims: ClaimRow[];
-}
-
-interface DagResponse {
-  success: boolean;
-  mermaid?: string;
-  error?: string;
 }
 
 async function bootstrap(): Promise<void> {
@@ -74,7 +59,9 @@ async function bootstrap(): Promise<void> {
   const claims = await loadClaims();
   if (badge)
     badge.textContent = `${claims.length} claim${claims.length === 1 ? "" : "s"}`;
-  renderClaimsList(claimsList, claims, async (claim) => {
+
+  if (!claimsList) return;
+  renderClaimsList(claimsList, claims, async (claim: ClaimRow) => {
     if (popup && popupTitle && popupBody) {
       popupTitle.textContent = claim.claim_id;
       popupBody.innerHTML = renderClaimDetails(claim);
@@ -82,102 +69,6 @@ async function bootstrap(): Promise<void> {
     }
     if (dagContainer) await renderDagFor(claim, dagContainer);
   });
-}
-
-async function loadClaims(): Promise<ClaimRow[]> {
-  try {
-    const response = await apiGet<ClaimsMetadataResponse>(
-      "api/claims-metadata",
-    );
-    return response.claims || [];
-  } catch (err) {
-    console.error("[viewer] loadClaims failed", err);
-    return [];
-  }
-}
-
-function renderClaimsList(
-  container: HTMLElement | null,
-  claims: ClaimRow[],
-  onSelect: (claim: ClaimRow) => void,
-): void {
-  if (!container) return;
-  if (claims.length === 0) {
-    container.innerHTML = `<p class="insert-panel-empty">No claims registered.</p>`;
-    return;
-  }
-  container.innerHTML = claims
-    .map(
-      (claim) => `
-      <div class="viewer-claim-row" data-claim-id="${escapeAttr(claim.claim_id)}">
-        <div class="viewer-claim-header">
-          <span class="viewer-claim-id">${escapeHtml(claim.claim_id)}</span>
-          ${verificationBadge(claim)}
-        </div>
-        <div class="viewer-claim-preview">${escapeHtml(claim.preview_nature || "")}</div>
-        <div class="viewer-claim-context">${escapeHtml(claim.context || "")}</div>
-      </div>`,
-    )
-    .join("");
-  container
-    .querySelectorAll<HTMLElement>(".viewer-claim-row")
-    .forEach((row) => {
-      row.addEventListener("click", () => {
-        const id = row.dataset.claimId;
-        const claim = claims.find((c) => c.claim_id === id);
-        if (claim) onSelect(claim);
-      });
-    });
-}
-
-function verificationBadge(claim: ClaimRow): string {
-  const state = claim.verification?.state || "UNKNOWN";
-  return `<span class="viewer-claim-badge badge-${state.toLowerCase()}">${escapeHtml(state)}</span>`;
-}
-
-function renderClaimDetails(claim: ClaimRow): string {
-  const rows = [
-    ["Type", claim.type],
-    ["Context", claim.context || "—"],
-    ["Preview", claim.preview_nature || "—"],
-    ["State", claim.verification?.state || "UNKNOWN"],
-  ];
-  return rows
-    .map(
-      ([label, value]) => `
-      <div class="viewer-popup-row">
-        <div class="viewer-popup-label">${escapeHtml(label)}</div>
-        <div class="viewer-popup-value">${escapeHtml(value)}</div>
-      </div>`,
-    )
-    .join("");
-}
-
-async function renderDagFor(
-  claim: ClaimRow,
-  container: HTMLElement,
-): Promise<void> {
-  container.innerHTML = `<p class="insert-panel-empty">Loading DAG…</p>`;
-  const url =
-    `api/dag?claim=${encodeURIComponent(claim.claim_id)}` +
-    `&working_dir=${encodeURIComponent(PROJECT_DIR)}`;
-  try {
-    const response = await fetch(API_BASE + url);
-    const data = (await response.json()) as DagResponse;
-    if (!data.success || !data.mermaid) {
-      container.innerHTML = `<p class="insert-panel-error">${escapeHtml(data.error || "No DAG available.")}</p>`;
-      return;
-    }
-    const mermaid = window.mermaid;
-    if (!mermaid) {
-      container.innerHTML = `<pre>${escapeHtml(data.mermaid)}</pre>`;
-      return;
-    }
-    const { svg } = await mermaid.render(`dag-${Date.now()}`, data.mermaid);
-    container.innerHTML = svg;
-  } catch (err) {
-    container.innerHTML = `<p class="insert-panel-error">DAG load failed: ${escapeHtml(String(err))}</p>`;
-  }
 }
 
 function wirePdfControls(root: HTMLElement, pdf: PDFViewer | null): void {
@@ -204,18 +95,6 @@ function wireTabs(root: HTMLElement): void {
         .forEach((v) => v.classList.toggle("active", v.id === `${view}-view`));
     });
   });
-}
-
-function escapeHtml(text: string): string {
-  return text
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;");
-}
-
-function escapeAttr(text: string): string {
-  return escapeHtml(text).replace(/'/g, "&#39;");
 }
 
 void bootstrap();

@@ -19,6 +19,7 @@ import { CompileController } from "./compile";
 import { InsertPanel } from "./insert-panel";
 import { DetailsPanel } from "./details-panel";
 import { registerCiteProviders } from "./cite-completion";
+import { ClaimsTab } from "./claims-tab";
 import {
   cyclePdfThemeMode,
   getPdfThemeMode,
@@ -249,6 +250,56 @@ async function bootstrap(): Promise<void> {
   // Declare state BEFORE any loadSection trigger (TDZ guard).
   let currentPath: string | null = null;
   let saveTimer: number | null = null;
+
+  // Claims tab (Living Paper #133): render claim cards with verification
+  // badges + DAG; clicking "Find in source" searches the current file for
+  // \vclaim{<id>} and reveals that Monaco line.
+  const claimsMount = root.querySelector<HTMLElement>("#claims-list");
+  const claimsTab = claimsMount
+    ? new ClaimsTab({
+        mount: claimsMount,
+        onJumpToClaim: (claimId) => {
+          const mEditor = editor.getEditor();
+          if (!mEditor) return;
+          const model = mEditor.getModel();
+          if (!model) return;
+          const matches = model.findMatches(
+            `\\vclaim{${claimId}}`,
+            false,
+            false,
+            true,
+            null,
+            false,
+          ) as Array<{ range: unknown }>;
+          if (matches.length === 0) return;
+          const range = (matches[0] as { range: { startLineNumber: number } })
+            .range;
+          mEditor.revealLineInCenter(range.startLineNumber);
+          mEditor.setPosition({
+            lineNumber: range.startLineNumber,
+            column: 1,
+          });
+          mEditor.focus();
+        },
+      })
+    : null;
+
+  // Populate when the Claims tab is first opened (lazy — avoids blocking
+  // editor boot on the claims-metadata + clew-verify round-trip).
+  let claimsLoaded = false;
+  root
+    .querySelector<HTMLElement>('.preview-tab[data-view="claims"]')
+    ?.addEventListener("click", () => {
+      if (!claimsLoaded && claimsTab) {
+        claimsLoaded = true;
+        void claimsTab.render();
+      }
+    });
+
+  // After compile, invalidate so the next Claims-tab open re-fetches.
+  compile?.onAfterCompile?.(() => {
+    if (claimsLoaded) void claimsTab?.refresh();
+  });
 
   // Initial load: discover doc types then load the first section of the first type
   let info: Awaited<ReturnType<typeof projectInfo>>;
