@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "scitex-writer"
-version = "2.14.1"
+version = "2.15.0"
 description = "LaTeX manuscript compilation system for scientific documents with MCP server"
 readme = "README.md"
 license = "AGPL-3.0-only"
@@ -62,7 +62,13 @@ scholar = [
     # Optional bridge: enables enriched citation cards and library-browse tab
     # in the editor. Writer source guards usage with SCHOLAR_AVAILABLE; the UI
     # degrades gracefully when this extra is not installed.
-    "scitex-scholar>=0.1.0",
+    # Min version 1.2.1 — writer's bridge relies on:
+    #   - v1.1.0 `scitex-scholar link-project-tree` CLI + MASTER layout
+    #   - v1.1.0 `db build`/`db lookup`/`db list` (index.db SELECT path)
+    #   - v1.1.2 atomic metadata.json writes (no partial reads)
+    #   - v1.2.0 `db dedupe` (clean-before-index workflow)
+    #   - v1.2.1 empty-DOI → NULL normalization (unblocks `db build`)
+    "scitex-scholar>=1.2.1",
 ]
 docs = [
     "sphinx>=7.0",

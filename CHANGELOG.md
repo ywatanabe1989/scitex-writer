@@ -7,6 +7,57 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.15.0] - 2026-04-21
+
+Closes issue **#82** — Flask `_editor` app fully ported to Django `_django`, rich cloud-feature parity, optional scholar bridge, and a generic thumbnail service. 28 commits since 2.14.1.
+
+### Added
+- **Django editor** (`scitex_writer._django`) — port of the retired Flask `_editor` app with the same API surface and Flask removed entirely. Uses `scitex-ui`'s `standalone_shell.html` for the three-column workspace shell and `scitex-app`'s `run_standalone()` for the dev server. (#84, #85)
+- **Monaco LaTeX editor** via Vite bundling, with LaTeX syntax highlighting, section tabs, and automatic layout on shell-pane show/hide. (#86)
+- **PDF preview + compile UI** in the editor, including log drawer, lamp status, and Preview / Full compile modes. (#87)
+- **Insert icon-bar** (Cite / Fig / Table / Collab / History) + figures & tables API handlers. (#88)
+- **Viewer module** (`/viewer/` route) — claims overlay, DAG render, and citation hover. Unblocks Living Paper integration. (#89)
+- **Rich citation panel** ported from scitex-cloud — multi-select via Ctrl/Cmd-click, drag into Monaco to insert `\cite{k1,k2}`, Monaco `\cite{}` completion + hover provider that renders scholar metadata. (#90)
+- **Scholar bridge** (`scitex_writer._ports.scholar`) — **optional** one-way consumer of `scitex-scholar>=1.2.1`. `SCHOLAR_AVAILABLE` flag; resolves DOIs via `index.db` SELECT when present (fast path), MASTER-scan fallback. `SCHOLAR` extras: `pip install scitex-writer[scholar]`. Writer works without scholar installed — UI degrades to bare bib cards. (#90)
+- **Scholar Django endpoints**: `api/scholar/{status,library,enrich,add-to-manuscript}` + `api/bib/entries` now returns nested `scholar` metadata when a DOI matches a MASTER entry. (#90)
+- **Workspace port** (`scitex_writer._ports.workspace`) — idempotent `<project>/00_shared/scholar/library → ~/.scitex/scholar/library/` symlink. Called from `get_or_create_project`. (#90)
+- **Scholar shell-out** (`scitex_writer._ports.scholar_cli`) — Enrich button always visible; shells out to `scitex-scholar` CLI (or `python -m scitex_scholar`), shows install hint when neither is on PATH. (#90)
+- **Generic thumbnail service** (`scitex_writer._ports.thumbnails`) — Pillow-based image thumbs (PNG/JPG/JPEG/JFIF/GIF/WEBP/BMP/TIFF/TIF/ICO/HEIC/AVIF), `pdftoppm` for PDF, `rsvg-convert` for SVG, pandas+matplotlib preview (styled blue header + zebra rows) for CSV/TSV/XLSX/XLS/ODS. Cache-keyed by `sha1(abs_path + mtime)` under `00_shared/thumbnails/{figures,tables}/`. No figrecipe coupling — aggregates any media files discovered under `caption_and_media/`. (#90)
+- **`api/thumbnail` handler** + `media_path` / `media_ext` / `thumbnail_url` on figure/table API responses. Insert panel now renders a thumbnail grid when entries have them. (#90)
+- **PDF theme toggle** in the PDF pane (auto / light / dark) — cycles through three states persisted in localStorage; independent of the editor UI theme so authors can preview a light PDF while editing in dark mode. (#90)
+- **Dark-mode compile wiring** — editor theme drives `compile(..., dark_mode=True/False)`, which injects `00_shared/latex_styles/dark_mode.tex`. Figures explicitly preserved. (#90)
+- **Details right panel** — sections for Compilation (Preview / Full), Overleaf, Prism (OpenAI), Project, and Shortcuts. Compilation section shows live status dots from the compile controller. (#90)
+- **Favicon set** — 16 / 32 / 64 / 180 / 192 / 512 px PNGs + an SVG wrapper embedding the 512 px source. Tagged with `sizes=` so browsers self-select. (#90)
+- **Keyboard-shortcut icon** in toolbar that expands the Shortcuts section in Details. (#90)
+- **Download-PDF button** in the PDF toolbar. (#90)
+- **Section dropdown** next to the doc-type dropdown; **Collab tab** with self-host hint pointing at scitex-cloud (AGPL-3.0). (#90)
+- **`pyproject.toml` optional-dependency** `[scholar]` pinning `scitex-scholar>=1.2.1`. (#90)
+- **`_ports/` test suite** — 27 unit tests covering scholar bridge (DB-preferred + MASTER fallback, dangling symlink, case-insensitive DOI lookup), thumbnails (image + CSV + placeholder + cache-key invalidation), scholar_cli shell-out, and workspace symlink semantics. (#90)
+- **Ported 9 cleanup/lint commits** from upstream shell-script work (#79 followups). Drops 100% of shellcheck warnings in `scripts/shell/**`.
+
+### Changed
+- **Flask removed.** `scitex_writer._editor` is gone; all editor behaviour now lives in `scitex_writer._django`. (#84)
+- Editor template now loads Vite-built `assets/index.css` so Monaco styles apply correctly. Previously relied on an inlined CSS block that diverged from the bundled output. (#90)
+- `.u-hidden` class now beats panel-specific `display: flex` via `!important` — insert/details panels stay hidden when toggled off regardless of panel-local rules. (#90)
+- Standalone shell hides empty shell panes (Console, Files, Viewer) so the writer editor gets the full viewport. Re-shows them in cloud mode where those panes are populated. (#90)
+- Compile API request now includes `dark_mode: bool`; `ProjectState.dark_mode` persisted per-project as the fallback.
+- Citation cache invalidated after Enrich / Add-to-manuscript — Monaco `\cite{}` autocomplete no longer shows stale entries for up to 60 s after a library update.
+- Drag-and-drop uses a custom `application/x-scitex-cite` MIME in addition to text/plain, so arbitrary text drops don't trigger the cite-insert path.
+- `claims_rendered.tex` emits portable `\providecommand` + `##` tokens so users can `\input{}` without colliding with existing definitions.
+- Renamed `\stxclaim` → `\vclaim` (debrand to "verifiable-claim").
+- CLA workflow `issue_comment` trigger now gated on URL shape rather than `issue.pull_request` — fixes spurious CI failures.
+
+### Fixed
+- `.u-hidden` specificity on shell-composed panels (#90).
+- `lint(F841)`: drop unused `Client` import in `_django` test suite (#84).
+- `ensure_workspace()` now creates `.scitex/writer/` as a hidden dotfile dir.
+- `merge_bibliographies` output-path handling (absolute paths + subdirs + self-exclusion).
+- Word-count formatting: comma separators + per-section breakdown; uses portable `sed` rather than locale-dependent `printf`.
+- `find` calls in shell scripts bounded with `-maxdepth 1`; deep walks use explicit `command find` override.
+- SPDX license identifier normalized to `AGPL-3.0-only`.
+
+
+
 ## [2.9.0] - 2026-03-14
 
 ### Added
