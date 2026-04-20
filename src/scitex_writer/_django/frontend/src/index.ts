@@ -18,6 +18,7 @@ import { PDFViewer } from "./pdf-viewer";
 import { CompileController } from "./compile";
 import { InsertPanel } from "./insert-panel";
 import { DetailsPanel } from "./details-panel";
+import { registerCiteProviders } from "./cite-completion";
 
 const SAVE_DEBOUNCE_MS = 800;
 
@@ -31,6 +32,7 @@ async function bootstrap(): Promise<void> {
   // Monaco needs LaTeX registered before we create any editor
   const monaco = await waitForMonaco();
   registerLatexLanguage(monaco);
+  registerCiteProviders(monaco);
 
   const editorContainer = root.querySelector<HTMLElement>("#editor-container");
   if (!editorContainer) return;
@@ -186,6 +188,37 @@ async function bootstrap(): Promise<void> {
           },
         })
       : null;
+
+  // Citation drop: drag a card into the Monaco host → insert at drop position.
+  host.addEventListener("dragover", (e) => {
+    if (e.dataTransfer?.types.includes("text/plain")) {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = "copy";
+    }
+  });
+  host.addEventListener("drop", (e) => {
+    const payload = e.dataTransfer?.getData("text/plain");
+    if (!payload || !payload.startsWith("\\cite")) return;
+    e.preventDefault();
+    const mEditor = editor.getEditor();
+    if (!mEditor) return;
+    const target = mEditor.getTargetAtClientPoint?.(e.clientX, e.clientY);
+    const position = target?.position || mEditor.getPosition();
+    if (!position) return;
+    mEditor.executeEdits("cite-drop", [
+      {
+        range: {
+          startLineNumber: position.lineNumber,
+          endLineNumber: position.lineNumber,
+          startColumn: position.column,
+          endColumn: position.column,
+        },
+        text: payload,
+        forceMoveMarkers: true,
+      },
+    ]);
+    mEditor.focus();
+  });
 
   // Declare state BEFORE any loadSection trigger (TDZ guard).
   let currentPath: string | null = null;

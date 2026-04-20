@@ -89,10 +89,73 @@ export function projectInfo(): Promise<ProjectInfo> {
   return apiGet<ProjectInfo>("api/project-info");
 }
 
+export interface ScholarMeta {
+  paper_id: string | null;
+  title: string | null;
+  authors: string[] | null;
+  year: number | null;
+  abstract: string | null;
+  doi: string | null;
+  arxiv_id: string | null;
+  pmid: string | null;
+  journal: string | null;
+  short_journal: string | null;
+  impact_factor: number | null;
+  citation_count: number | null;
+  is_open_access: boolean | null;
+  oa_url: string | null;
+}
+
 export interface BibEntry {
   citation_key: string;
   entry_type: string;
   bibfile: string;
+  doi: string | null;
+  title: string | null;
+  scholar?: ScholarMeta;
+}
+
+export interface ScholarStatus {
+  scholar_importable: boolean;
+  scholar_cli_on_path: boolean;
+  library_root: string | null;
+  index_db_present: boolean;
+}
+export interface ScholarLibraryEntry {
+  paper_id: string;
+  doi: string | null;
+  arxiv_id: string | null;
+  pmid: string | null;
+  title: string | null;
+  year: number | null;
+  venue: string | null;
+  is_oa?: boolean | null;
+}
+export interface ScholarLibraryResponse {
+  entries: ScholarLibraryEntry[];
+  count: number;
+  offset?: number;
+  reason?: string;
+}
+
+export function scholarStatus(): Promise<ScholarStatus> {
+  return apiGet<ScholarStatus>("api/scholar/status");
+}
+export function scholarLibrary(
+  limit = 200,
+  offset = 0,
+): Promise<ScholarLibraryResponse> {
+  return apiGet<ScholarLibraryResponse>(
+    `api/scholar/library?limit=${limit}&offset=${offset}`,
+  );
+}
+export function scholarEnrich(): Promise<{ ok: boolean; log: string }> {
+  return apiPost("api/scholar/enrich", {});
+}
+export function scholarAddToManuscript(
+  paperId: string,
+): Promise<{ ok: boolean; citation_key?: string; error?: string }> {
+  return apiPost("api/scholar/add-to-manuscript", { paper_id: paperId });
 }
 export interface BibEntriesResponse {
   entries: BibEntry[];

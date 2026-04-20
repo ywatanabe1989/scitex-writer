@@ -4,8 +4,9 @@
  * the cursor in Monaco.
  */
 
-import { bibEntries, listFigures, listTables } from "./api";
-import type { BibEntry, MediaEntry } from "./api";
+import { listFigures, listTables } from "./api";
+import type { MediaEntry } from "./api";
+import { CitationsPanel } from "./citations-panel";
 
 export type InsertPaneId = "cite" | "fig" | "table" | "collab" | "history";
 
@@ -19,7 +20,7 @@ interface PanelOptions {
 export class InsertPanel {
   private opts: PanelOptions;
   private active: InsertPaneId | null = null;
-  private bibCache: BibEntry[] | null = null;
+  private citationsPanel: CitationsPanel | null = null;
   private figCache: Record<string, MediaEntry[]> = {};
   private tableCache: Record<string, MediaEntry[]> = {};
 
@@ -80,23 +81,18 @@ export class InsertPanel {
   }
 
   private async renderCite(): Promise<void> {
-    this.setLoading("Bibliography");
-    if (!this.bibCache) {
-      try {
-        this.bibCache = (await bibEntries()).entries;
-      } catch (err) {
-        this.setError(`Failed to load bibliography: ${err}`);
-        return;
-      }
-    }
-    this.renderList(
-      "Bibliography",
-      this.bibCache.map((entry) => ({
-        label: entry.citation_key,
-        sub: `${entry.entry_type} · ${entry.bibfile}`,
-        insert: `\\cite{${entry.citation_key}}`,
-      })),
+    this.opts.panel.innerHTML = `<div class="insert-panel-body" id="citations-panel-mount"></div>`;
+    const mount = this.opts.panel.querySelector<HTMLElement>(
+      "#citations-panel-mount",
     );
+    if (!mount) return;
+    if (!this.citationsPanel) {
+      this.citationsPanel = new CitationsPanel({ container: mount });
+    } else {
+      // Re-attach to a fresh container (panel was rebuilt).
+      (this.citationsPanel as unknown as { el: HTMLElement }).el = mount;
+    }
+    await this.citationsPanel.render();
   }
 
   private async renderFig(): Promise<void> {
