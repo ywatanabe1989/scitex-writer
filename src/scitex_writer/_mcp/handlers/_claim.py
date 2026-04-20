@@ -509,10 +509,22 @@ def render_claims(project_dir: str) -> Dict:
             lines.append(
                 f"%% {claim_id} ({claim_type}){': ' + context if context else ''}"
             )
+            # First rendering in the document creates a named PDF destination
+            # via \hypertarget{vclaim-<id>}{…} — Living Paper (#133) uses this
+            # so PDF.js can locate claim text for hover popups. Subsequent
+            # calls don't re-emit the target (hyperref would warn on dup);
+            # instead we use a one-shot flag per claim.
+            flag = f"v@claim@{safe_id}@anchored"
             for style in FORMAT_STYLES:
                 rendered = _render_claim(claim, style)
                 macro_name = f"v@claim@{safe_id}@{style}"
-                lines.append(f"\\@namedef{{{macro_name}}}{{{rendered}}}")
+                wrapped = (
+                    f"\\expandafter\\ifx\\csname {flag}\\endcsname\\relax"
+                    f"\\global\\@namedef{{{flag}}}{{}}"
+                    f"\\hypertarget{{vclaim-{safe_id}}}{{{rendered}}}"
+                    f"\\else {rendered}\\fi"
+                )
+                lines.append(f"\\@namedef{{{macro_name}}}{{{wrapped}}}")
             lines.append("")
 
         lines.append("\\makeatother")

@@ -34,6 +34,12 @@ export class CompileController {
   private mode: CompileMode = "preview";
   private polling: number | null = null;
   private status: LampStatus = "idle";
+  private afterCompileListeners: Array<(success: boolean) => void> = [];
+
+  /** Subscribe to "compile finished" (success or error). */
+  public onAfterCompile(cb: (success: boolean) => void): void {
+    this.afterCompileListeners.push(cb);
+  }
 
   constructor(opts: CompileOptions) {
     this.opts = opts;
@@ -98,6 +104,13 @@ export class CompileController {
         } else if (status.result?.error) {
           this.setLog(status.result.error);
           this.setLogOpen(true);
+        }
+        for (const cb of this.afterCompileListeners) {
+          try {
+            cb(success);
+          } catch (err) {
+            console.error("[compile] afterCompile listener failed", err);
+          }
         }
       } catch (err) {
         this.setLog(String(err));

@@ -341,6 +341,49 @@ class TestClaimRender:
         tex_path = Path(project_dir) / "00_shared" / "claims_rendered.tex"
         assert tex_path.exists()
 
+    def test_render_emits_hypertarget_for_living_paper(self, tmp_path):
+        """Each claim's rendered output wraps in \\hypertarget{vclaim-<id>}{…}
+        so PDF.js can locate claim text for Living Paper hover popups (#133).
+        The target is emitted once per claim via a one-shot flag so repeat
+        \\vclaim{id} calls don't warn about duplicate destinations."""
+        import scitex_writer.claim as sc
+
+        project_dir = _make_project(tmp_path)
+        sc.add(
+            project_dir=project_dir,
+            claim_id="group_comparison",
+            claim_type="statistic",
+            value={"t": 4.23, "df": 34, "p": 0.00032, "d": 0.87},
+        )
+        sc.render(project_dir=project_dir)
+        tex = (Path(project_dir) / "00_shared" / "claims_rendered.tex").read_text()
+        # Hypertarget name uses the sanitized id
+        assert "\\hypertarget{vclaim-groupcomparison}" in tex
+        # One-shot flag (sanitized id)
+        assert "v@claim@groupcomparison@anchored" in tex
+        # Macros for all three styles still exist
+        for style in ("nature", "apa", "plain"):
+            assert f"v@claim@groupcomparison@{style}" in tex
+
+    def test_render_hypertarget_not_re_emitted_after_first_call(self, tmp_path):
+        """The one-shot flag pattern should let multiple \\vclaim{id} calls
+        expand without re-emitting the same named destination."""
+        import scitex_writer.claim as sc
+
+        project_dir = _make_project(tmp_path)
+        sc.add(
+            project_dir=project_dir,
+            claim_id="x",
+            claim_type="value",
+            value={"number": 42, "unit": "Hz"},
+        )
+        sc.render(project_dir=project_dir)
+        tex = (Path(project_dir) / "00_shared" / "claims_rendered.tex").read_text()
+        # The guarded expansion pattern
+        assert "\\expandafter\\ifx\\csname v@claim@x@anchored\\endcsname\\relax" in tex
+        # Global flag-setter so second call sees \relax absent
+        assert "\\global\\@namedef{v@claim@x@anchored}" in tex
+
 
 class TestClaimPublicApi:
     """Test that scitex_writer.claim exposes the correct public interface."""
