@@ -14,7 +14,7 @@ from .claim import (
 from .compile import handle_compile, handle_compile_status, handle_pdf
 from .core import handle_ping, handle_project_info
 from .files import handle_file, handle_list_files, handle_sections
-from .media import handle_figures, handle_tables
+from .media import handle_figures, handle_tables, handle_thumbnail
 from .scholar import (
     handle_scholar_add_to_manuscript,
     handle_scholar_enrich,
@@ -50,6 +50,7 @@ HANDLERS = {
     # Media
     "api/figures":            (handle_figures,        ("GET",)),
     "api/tables":             (handle_tables,         ("GET",)),
+    "api/thumbnail":          (handle_thumbnail,      ("GET",)),
 
     # Viewer (claims overlay + DAG + citation verification)
     "api/claims-metadata":    (handle_claims_metadata, ("GET",)),

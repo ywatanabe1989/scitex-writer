@@ -19,6 +19,12 @@ import { CompileController } from "./compile";
 import { InsertPanel } from "./insert-panel";
 import { DetailsPanel } from "./details-panel";
 import { registerCiteProviders } from "./cite-completion";
+import {
+  cyclePdfThemeMode,
+  getPdfThemeMode,
+  pdfThemeIcon,
+  pdfThemeLabel,
+} from "./pdf-theme";
 
 const SAVE_DEBOUNCE_MS = 800;
 
@@ -158,6 +164,22 @@ async function bootstrap(): Promise<void> {
   root
     .querySelector<HTMLElement>("#btn-pdf-fit")
     ?.addEventListener("click", () => pdf?.setFitWidth());
+
+  // PDF theme override (auto / light / dark) — separate from UI theme.
+  const pdfThemeBtn = root.querySelector<HTMLElement>("#btn-pdf-theme");
+  if (pdfThemeBtn) {
+    const syncBtn = () => {
+      const mode = getPdfThemeMode();
+      const icon = pdfThemeBtn.querySelector<HTMLElement>("i");
+      if (icon) icon.className = `fas ${pdfThemeIcon(mode)}`;
+      pdfThemeBtn.setAttribute("title", pdfThemeLabel(mode));
+    };
+    syncBtn();
+    pdfThemeBtn.addEventListener("click", () => {
+      cyclePdfThemeMode();
+      syncBtn();
+    });
+  }
 
   // silence unused warnings until richer use later
   void compile;

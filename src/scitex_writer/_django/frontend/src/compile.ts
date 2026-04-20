@@ -67,13 +67,11 @@ export class CompileController {
     this.updateLamp("compiling");
     this.setLog("");
     try {
-      // Compile the PDF using the UI's current theme — users who edit in
-      // dark mode expect a dark-backgrounded PDF output.
-      const darkMode = document.documentElement.dataset.theme === "dark";
+      const { effectivePdfDarkMode } = await import("./pdf-theme");
       await apiPost("api/compile", {
         doc_type: docType,
         draft: this.mode === "preview",
-        dark_mode: darkMode,
+        dark_mode: effectivePdfDarkMode(),
       });
       this.pollStatus(docType);
     } catch (err) {

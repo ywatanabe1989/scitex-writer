@@ -170,6 +170,9 @@ export interface MediaEntry {
   path: string;
   label: string | null;
   insert: string;
+  media_path?: string | null;
+  media_ext?: string | null;
+  thumbnail_url?: string | null;
 }
 export interface FiguresResponse {
   doc_type: string;

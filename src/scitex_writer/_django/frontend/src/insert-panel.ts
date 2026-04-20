@@ -112,6 +112,8 @@ export class InsertPanel {
         label: figure.name,
         sub: figure.label ? `\\ref{${figure.label}}` : "",
         insert: figure.insert,
+        thumbnail_url: figure.thumbnail_url,
+        media_ext: figure.media_ext,
       })),
     );
   }
@@ -133,6 +135,8 @@ export class InsertPanel {
         label: table.name,
         sub: table.label ? `\\ref{${table.label}}` : "",
         insert: table.insert,
+        thumbnail_url: table.thumbnail_url,
+        media_ext: table.media_ext,
       })),
     );
   }
@@ -194,7 +198,13 @@ export class InsertPanel {
 
   private renderList(
     title: string,
-    items: Array<{ label: string; sub: string; insert: string }>,
+    items: Array<{
+      label: string;
+      sub: string;
+      insert: string;
+      thumbnail_url?: string | null;
+      media_ext?: string | null;
+    }>,
   ): void {
     if (items.length === 0) {
       this.opts.panel.innerHTML = `
@@ -203,19 +213,30 @@ export class InsertPanel {
       `;
       return;
     }
+    const anyThumbnail = items.some((i) => i.thumbnail_url);
     const listHtml = items
-      .map(
-        (item, index) => `
-        <div class="insert-item" data-index="${index}" data-insert="${escapeAttr(item.insert)}">
-          <div class="insert-item-label">${escapeHtml(item.label)}</div>
-          <div class="insert-item-sub">${escapeHtml(item.sub)}</div>
-          <div class="insert-item-snippet">${escapeHtml(item.insert)}</div>
-        </div>`,
-      )
+      .map((item, index) => {
+        const thumb = item.thumbnail_url
+          ? `<img class="insert-item-thumb" src="${escapeAttr(item.thumbnail_url)}" alt="" loading="lazy" />`
+          : anyThumbnail
+            ? `<div class="insert-item-thumb insert-item-thumb--empty">${escapeHtml((item.media_ext || "").toUpperCase().replace(".", ""))}</div>`
+            : "";
+        return `
+        <div class="insert-item ${anyThumbnail ? "insert-item--thumb" : ""}"
+             data-index="${index}"
+             data-insert="${escapeAttr(item.insert)}">
+          ${thumb}
+          <div class="insert-item-meta">
+            <div class="insert-item-label">${escapeHtml(item.label)}</div>
+            <div class="insert-item-sub">${escapeHtml(item.sub)}</div>
+            <div class="insert-item-snippet">${escapeHtml(item.insert)}</div>
+          </div>
+        </div>`;
+      })
       .join("");
     this.opts.panel.innerHTML = `
       <div class="insert-panel-header">${title}<span class="insert-count">${items.length}</span></div>
-      <div class="insert-panel-body">${listHtml}</div>
+      <div class="insert-panel-body insert-panel-body--${anyThumbnail ? "grid" : "list"}">${listHtml}</div>
     `;
     this.opts.panel
       .querySelectorAll<HTMLElement>(".insert-item")

@@ -1302,6 +1302,66 @@ select:focus {
   word-break: break-all;
 }
 
+/* Thumbnail grid for figures / tables */
+.insert-panel-body--grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 8px;
+  padding: 8px;
+}
+.insert-item--thumb {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 6px;
+  background: var(--bg-2, #f8f8f8);
+  border: 1px solid var(--border, #ddd);
+  border-radius: 6px;
+  cursor: pointer;
+  transition:
+    border-color 0.1s,
+    box-shadow 0.1s;
+}
+.insert-item--thumb:hover {
+  border-color: var(--accent, #2a6bc9);
+  box-shadow: 0 0 0 2px rgba(42, 107, 201, 0.15);
+}
+.insert-item-thumb {
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: contain;
+  background: #fff;
+  border-radius: 4px;
+}
+.insert-item-thumb--empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-secondary, #888);
+  font-size: 11px;
+  font-family: "Consolas", "Monaco", monospace;
+}
+.insert-item--thumb .insert-item-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.insert-item--thumb .insert-item-label {
+  font-size: 12px;
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.insert-item--thumb .insert-item-sub,
+.insert-item--thumb .insert-item-snippet {
+  font-size: 10px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 /* Citations panel (scholar-aware) */
 .citations-panel {
   display: flex;

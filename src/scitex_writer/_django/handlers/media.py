@@ -11,8 +11,14 @@ same list to populate the insert-figure / insert-table panels.
 from __future__ import annotations
 
 from pathlib import Path
+from urllib.parse import quote
 
-from django.http import JsonResponse
+from django.http import FileResponse, Http404, JsonResponse
+
+from scitex_writer._ports.thumbnails import (
+    ensure_thumbnail,
+    find_media_for_stem,
+)
 
 
 def _list_media(project_dir: Path, doc_type: str, kind: str) -> list[dict]:
@@ -30,12 +36,23 @@ def _list_media(project_dir: Path, doc_type: str, kind: str) -> list[dict]:
     entries = []
     for tex in sorted(media_dir.glob("*.tex")):
         label = _extract_label(tex)
+        media = find_media_for_stem(media_dir, tex.stem)
+        thumb_url: str | None = None
+        if media is not None:
+            try:
+                media_rel = media.resolve().relative_to(project_dir.resolve())
+                thumb_url = f"/api/thumbnail?kind={kind}&path={quote(str(media_rel))}"
+            except ValueError:
+                thumb_url = None
         entries.append(
             {
                 "name": tex.stem,
                 "path": str(tex.relative_to(project_dir)),
                 "label": label,
                 "insert": f"\\ref{{{label}}}" if label else f"\\ref{{{tex.stem}}}",
+                "media_path": str(media.relative_to(project_dir)) if media else None,
+                "media_ext": media.suffix.lower() if media else None,
+                "thumbnail_url": thumb_url,
             }
         )
     return entries
@@ -71,3 +88,22 @@ def handle_tables(request, project):
             "tables": _list_media(project.project_dir, doc_type, "tables"),
         }
     )
+
+
+def handle_thumbnail(request, project):
+    """Serve a cached thumbnail PNG for a project-relative media path."""
+    kind = request.GET.get("kind", "figures")
+    rel = request.GET.get("path", "")
+    if kind not in ("figures", "tables") or not rel:
+        raise Http404("bad thumbnail request")
+    source = (project.project_dir / rel).resolve()
+    try:
+        source.relative_to(project.project_dir.resolve())
+    except ValueError:
+        raise Http404("path escapes project")
+    if not source.is_file():
+        raise Http404("source missing")
+    thumb = ensure_thumbnail(project.project_dir, kind, source)
+    if thumb is None or not thumb.is_file():
+        raise Http404("thumbnail unavailable")
+    return FileResponse(thumb.open("rb"), content_type="image/png")
