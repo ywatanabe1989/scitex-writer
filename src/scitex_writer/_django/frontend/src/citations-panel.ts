@@ -27,6 +27,7 @@ import {
   scholarStatus,
   type ScholarStatus,
 } from "./api";
+import { invalidateCitationCache } from "./cite-completion";
 
 type CiteTab = "manuscript" | "library";
 
@@ -138,6 +139,7 @@ export class CitationsPanel {
           // Invalidate caches; re-fetch.
           this.manuscriptEntries = null;
           this.libraryEntries = null;
+          invalidateCitationCache();
           await this.renderActiveTab();
           this.showEnrichHint("Enrichment finished.", "success");
         } else {
@@ -358,6 +360,9 @@ export class CitationsPanel {
       this.selected.has(key) && this.selected.size > 1
         ? `\\cite{${Array.from(this.selected).join(",")}}`
         : `\\cite{${key}}`;
+    // Custom MIME lets Monaco-drop filter by source; text/plain kept as a
+    // fallback so dropping into other text fields still works.
+    e.dataTransfer.setData("application/x-scitex-cite", payload);
     e.dataTransfer.setData("text/plain", payload);
     e.dataTransfer.effectAllowed = "copy";
     card.classList.add("dragging");
@@ -377,6 +382,7 @@ export class CitationsPanel {
       if (res.ok) {
         btn.innerHTML = `<i class="fas fa-check"></i>`;
         this.manuscriptEntries = null;
+        invalidateCitationCache();
       } else {
         btn.innerHTML = `<i class="fas fa-exclamation-triangle"></i>`;
         console.error("add-to-manuscript failed:", res.error);

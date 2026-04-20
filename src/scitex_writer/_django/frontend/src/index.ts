@@ -212,14 +212,18 @@ async function bootstrap(): Promise<void> {
       : null;
 
   // Citation drop: drag a card into the Monaco host → insert at drop position.
+  // Only accept our own custom MIME type so arbitrary text drops (e.g. a
+  // paragraph from another tab) don't go through this path.
+  const CITE_MIME = "application/x-scitex-cite";
   host.addEventListener("dragover", (e) => {
-    if (e.dataTransfer?.types.includes("text/plain")) {
+    if (e.dataTransfer?.types.includes(CITE_MIME)) {
       e.preventDefault();
       e.dataTransfer.dropEffect = "copy";
     }
   });
   host.addEventListener("drop", (e) => {
-    const payload = e.dataTransfer?.getData("text/plain");
+    if (!e.dataTransfer?.types.includes(CITE_MIME)) return;
+    const payload = e.dataTransfer.getData(CITE_MIME);
     if (!payload || !payload.startsWith("\\cite")) return;
     e.preventDefault();
     const mEditor = editor.getEditor();
