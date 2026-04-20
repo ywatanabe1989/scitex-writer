@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.16.0] - 2026-04-21
+
+Closes scitex-cloud **#133** — Living Paper (interactive claim verification). Writer-side implementation; since 2.15.0 made local and cloud share one editor, the feature lands entirely in writer.
+
+### Added
+- **Claims tab in editor's PDF pane** — populates the previously-empty `#claims-view` with the same claim cards the viewer shows. Click a card → inline detail pane + DAG rendering; click "Find in source" → Monaco reveals the `\vclaim{<id>}` line. Lazy-loaded on first tab open; refreshes after each compile.
+- **`claims-list.ts`** — shared module for claim cards, verification badges, and DAG rendering. Used by both editor and viewer so they stay consistent.
+- **`onAfterCompile(cb)`** hook on `CompileController` — lets downstream UI (currently Claims tab) refresh after a successful or failed compile.
+
+### Changed
+- **`\vclaim` macro emits `\hypertarget{vclaim-<id>}{…}`** on first expansion (via a one-shot flag). PDF.js can now locate claim text for future hover-popup work. Subsequent `\vclaim{id}` calls skip the anchor to avoid hyperref's duplicate-destination warning.
+- Mermaid CDN script now loaded in `editor.html` alongside `viewer.html`, so DAG rendering works in both contexts.
+
+### Out of scope (per #133)
+- PDF text-layer hover popups (needs SyncTeX positional mapping — deferred per the issue body).
+- Static `claims_metadata.json` sidecar for external PDF readers — the live `api/claims-metadata` endpoint serves the editor/viewer UX; sidecar is a follow-up portability item.
+- Real-time verification re-runs from the popup.
+
 ## [2.15.0] - 2026-04-21
 
 Closes issue **#82** — Flask `_editor` app fully ported to Django `_django`, rich cloud-feature parity, optional scholar bridge, and a generic thumbnail service. 28 commits since 2.14.1.
