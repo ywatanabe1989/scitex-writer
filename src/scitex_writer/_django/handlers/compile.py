@@ -10,18 +10,18 @@ import threading
 from django.http import FileResponse, JsonResponse
 
 
-def _do_compile(project, doc_type: str, draft: bool) -> None:
+def _do_compile(project, doc_type: str, draft: bool, dark_mode: bool) -> None:
     from scitex_writer import compile as sw_compile
 
-    project.dark_mode = project.dark_mode
     project_str = str(project.project_dir)
+    kwargs = {"draft": draft, "dark_mode": dark_mode, "quiet": True}
     try:
         if doc_type == "manuscript":
-            result = sw_compile.manuscript(project_str, draft=draft, quiet=True)
+            result = sw_compile.manuscript(project_str, **kwargs)
         elif doc_type == "supplementary":
-            result = sw_compile.supplementary(project_str, draft=draft, quiet=True)
+            result = sw_compile.supplementary(project_str, **kwargs)
         elif doc_type == "revision":
-            result = sw_compile.revision(project_str, draft=draft, quiet=True)
+            result = sw_compile.revision(project_str, **kwargs)
         else:
             result = {"success": False, "error": f"Unknown doc_type: {doc_type}"}
 
@@ -50,17 +50,25 @@ def handle_compile(request, project):
 
     doc_type = data.get("doc_type", "manuscript")
     draft = bool(data.get("draft", False))
+    # Dark mode from request body (current UI theme) falls back to
+    # ProjectState.dark_mode which is persisted per-project.
+    dark_mode = bool(data.get("dark_mode", project.dark_mode))
+    project.dark_mode = dark_mode
 
     project._compiling = True
     project._compile_log = ""
     project._compile_result = None
 
     thread = threading.Thread(
-        target=_do_compile, args=(project, doc_type, draft), daemon=True
+        target=_do_compile,
+        args=(project, doc_type, draft, dark_mode),
+        daemon=True,
     )
     thread.start()
 
-    return JsonResponse({"status": "started", "doc_type": doc_type})
+    return JsonResponse(
+        {"status": "started", "doc_type": doc_type, "dark_mode": dark_mode}
+    )
 
 
 def handle_compile_status(request, project):
