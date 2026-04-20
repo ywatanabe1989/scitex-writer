@@ -10,11 +10,10 @@ machine — that's fine; consumers handle dangling symlinks.
 
 from __future__ import annotations
 
+import logging
 from pathlib import Path
 
-from scitex_logging import getLogger
-
-logger = getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 
 def ensure_scholar_library_link(project_dir: Path) -> Path | None:

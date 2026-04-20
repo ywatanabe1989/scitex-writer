@@ -71,6 +71,7 @@ HANDLERS = {
 __all__ = [
     "HANDLERS",
     "handle_add_claim",
+    "handle_citation",  # dispatched parametrically by views.api_dispatch
     "handle_claim_chain",
     "handle_get_claim",
     "handle_list_claims",
