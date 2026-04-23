@@ -1,68 +1,64 @@
 ---
+name: scitex-writer
 description: LaTeX manuscript compilation with bibliography, figures, tables, claims tracking, and journal guideline enforcement.
 allowed-tools: mcp__scitex__writer_*
 ---
 
 # scitex-writer
 
-## Installation
+LaTeX manuscript compilation framework. Compiles manuscripts,
+supplementary materials, and revisions with tracked changes. Manages
+bibliography (BibTeX merge, DOI dedup, enrichment), figures/tables
+(auto-discovery from `caption_and_media/`, CSV-to-LaTeX), and verifiable
+claims linked to session hashes via `sw.claim.add()`.
 
-```bash
-pip install scitex-writer
-# Development:
-pip install -e /home/ywatanabe/proj/scitex-writer
+## Installation & import (two equivalent paths)
+
+The same module is reachable via two install paths. Both forms work at
+runtime; which one a user has depends on their install choice.
+
+```python
+# Standalone — pip install scitex-writer
+import scitex_writer as sw
+sw.compile_manuscript(...)
+
+# Umbrella — pip install scitex
+import scitex.writer as sw
+sw.compile_manuscript(...)
 ```
 
-LaTeX manuscript compilation framework for scientific papers. Compiles manuscripts, supplementary materials, and revision documents with tracked changes. Manages bibliography (BibTeX merge, DOI dedup, enrichment), figures/tables (auto-discovery from `caption_and_media/`, CSV-to-LaTeX conversion), and verifiable claims linked to session hashes via `sw.claim.add()`.
+`pip install scitex-writer` alone does NOT expose the `scitex` namespace;
+`import scitex.writer` raises `ModuleNotFoundError`. To use the
+`scitex.writer` form, also `pip install scitex`.
 
-## Sub-skills
+See [../../general/02_interface-python-api.md] for the ecosystem-wide
+rule and empirical verification table.
 
-### Manuscript Management
+## Core / interfaces
 
-| Skill | Description |
-|-------|-------------|
-| [quick-start.md](quick-start.md) | Basic workflow: create project, add content, compile PDF |
-| [compilation.md](compilation.md) | Compile manuscript/supplementary/revision; clean compile after bib changes; env vars (dark mode, draft mode) |
-| [bibliography.md](bibliography.md) | BibTeX management: add, list, merge, enrich; DOI dedup; clean aux for resolution |
-| [figures-and-tables.md](figures-and-tables.md) | Figure/table lifecycle: add, remove (must move ALL files from caption_and_media/), move to supplementary |
-| [claims.md](claims.md) | Verifiable claims: `sw.claim.add()` with session ID + output hash; render via `\vclaim{}` |
-| [cli-reference.md](cli-reference.md) | CLI commands reference |
-| [mcp-tools.md](mcp-tools.md) | MCP tools for AI agents |
+- [01_quick-start.md](01_quick-start.md) — basic workflow: create project, add content, compile PDF
+- [02_cli-reference.md](02_cli-reference.md) — CLI commands reference
+- [03_mcp-tools.md](03_mcp-tools.md) — MCP tools for AI agents
 
-### Scientific Writing Guidelines
+## Workflows
 
-| Skill | Description |
-|-------|-------------|
-| [writing-attitude.md](writing-attitude.md) | Evidence requirements, critical analysis, scientific standards |
-| [writing-figures-stats.md](writing-figures-stats.md) | Figure rules (axes, ranges, labels), statistical reporting (effect sizes, FDR correction) |
-| [writing-proofreading.md](writing-proofreading.md) | Language rules, formatting, common corrections, anti-patterns (AP1-AP9), tone, hedging, transitions, terminology |
-| [writing-abstract.md](writing-abstract.md) | 7-section structure: intro, background, problem, main result, comparisons, context, perspective |
-| [writing-introduction.md](writing-introduction.md) | 8-section structure: opening, importance, knowledge/gaps, limitations, hypothesis, methods, results, significance |
-| [writing-methods.md](writing-methods.md) | Reproducibility-focused; passive voice; procedures others can replicate |
-| [writing-discussion.md](writing-discussion.md) | 5-section structure: key findings, comparison, supporting evidence, limitations, implications |
-| [writing-mermaid.md](writing-mermaid.md) | Academic mermaid diagram style guide |
-| [audit-paper.md](audit-paper.md) | Pre-submission audit: number consistency, citation verification, figure-text alignment |
+- [10_compilation.md](10_compilation.md) — compile manuscript/supplementary/revision, env vars
+- [11_bibliography.md](11_bibliography.md) — BibTeX add/list/merge/enrich, DOI dedup
+- [12_figures-and-tables.md](12_figures-and-tables.md) — figure/table lifecycle, supplementary moves
+- [13_claims.md](13_claims.md) — verifiable claims with session hash + `\vclaim{}` rendering
+- [14_manuscript-workflow.md](14_manuscript-workflow.md) — end-to-end manuscript workflow
+- [15_audit-paper.md](15_audit-paper.md) — pre-submission audit: numbers, citations, figure-text alignment
 
-## Key Patterns
+## Scientific writing standards
 
-**Figure removal**: The compile script auto-discovers `.tex` files from `caption_and_media/`. To remove a figure, move ALL files (`.tex`, `.jpg`, `.png`, `.mmd`) to `legacy/`, including `jpg_for_compilation/` and `mermaid_originals/` subdirectories. See [figures-and-tables.md](figures-and-tables.md).
+- [20_writing-attitude.md](20_writing-attitude.md) — evidence requirements, critical analysis
+- [21_writing-proofreading.md](21_writing-proofreading.md) — language rules, anti-patterns, tone, hedging
+- [22_writing-figures-stats.md](22_writing-figures-stats.md) — figure rules, stats reporting (effect sizes, FDR)
+- [23_writing-mermaid.md](23_writing-mermaid.md) — academic mermaid diagram style guide
 
-**Bibliography clean compile**: After adding/removing BibTeX entries, run `rm -f logs/manuscript.{aux,bbl,blg}` before recompile. See [compilation.md](compilation.md).
+## Section templates
 
-**Claims as first-class objects**: Every manuscript claim (statistic, figure, table) can be tied to a session hash, enabling Clew backward verification from manuscript to source data.
-
-## MCP Tools
-
-| Tool | Description |
-|------|-------------|
-| `writer_compile_manuscript` | Compile LaTeX manuscript to PDF |
-| `writer_compile_content` | Compile content sections |
-| `writer_compile_supplementary` | Compile supplementary materials |
-| `writer_compile_revision` | Compile revision with tracked changes |
-| `writer_add_figure` | Add figure to manuscript |
-| `writer_add_table` | Add table to manuscript |
-| `writer_add_bibentry` | Add bibliography entry |
-| `writer_add_claim` | Add verifiable claim |
-| `writer_render_claims` | Render claims to LaTeX |
-| `writer_export_manuscript` | Export for submission |
-| `writer_export_overleaf` | Export to Overleaf format |
+- [30_writing-abstract.md](30_writing-abstract.md) — 7-section abstract structure
+- [31_writing-introduction.md](31_writing-introduction.md) — 8-section introduction structure
+- [32_writing-methods.md](32_writing-methods.md) — reproducibility-focused methods, passive voice
+- [33_writing-discussion.md](33_writing-discussion.md) — 5-section discussion structure
