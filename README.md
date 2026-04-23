@@ -27,6 +27,15 @@
 
 Part of the [SciTeX](https://scitex.ai) ecosystem — empowers both human researchers and AI agents.
 
+## Problem and Solution
+
+
+| # | Problem | Solution |
+|---|---------|----------|
+| 1 | **LaTeX compilation is fragile** -- bib, figs, tables, cross-refs, supplement each have their own failure mode | **`scitex writer compile`** -- one command runs bibtex → latex → bibtex → latex twice; handles supplement + revision diffs |
+| 2 | **Figures drift from manuscript** -- author renumbers a figure; half the references go stale; `\ref{}` silently prints `??` | **Reference check + float-order audit** -- `writer_check_references` + `writer_check_float_order` catch dangling `\ref{}` before submission |
+| 3 | **Manuscript claims uncheckable** -- a paper asserts "t(58) = 2.34, p = .021"; reviewer has no way to verify | **Clew-backed claims** -- `writer_add_claim` binds each assertion to a source session + file hash; `writer_render_claims` exposes the verification DAG |
+
 ## Preview
 
 <p align="center">
