@@ -1,3 +1,4 @@
+<!-- TODO: Split per checklist §4 (currently 11 KB) -->
 ---
 description: Discussion section writing template with 5-section structure, annotated example, and style rules for scientific manuscripts.
 ---

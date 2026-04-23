@@ -1,3 +1,4 @@
+<!-- TODO: Split per checklist §4 (currently 11 KB) -->
 ---
 description: Introduction writing template with 8-section structure, style rules, and annotated example for scientific manuscripts.
 ---

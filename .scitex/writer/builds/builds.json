@@ -1,0 +1,256 @@
+{
+  "builds": [
+    {
+      "build_id": "ba5d1f",
+      "doc_type": "manuscript",
+      "git_commit": "5fdec853e870",
+      "git_dirty": true,
+      "timestamp": "2026-04-18T10:35:57Z",
+      "output_tex": "/tmp/test_build_id.tex",
+      "engine": "auto"
+    },
+    {
+      "build_id": "ab931b",
+      "doc_type": "manuscript",
+      "git_commit": "5fdec853e870",
+      "git_dirty": true,
+      "timestamp": "2026-04-18T10:37:45Z",
+      "output_tex": "01_manuscript/manuscript.tex",
+      "engine": "auto"
+    },
+    {
+      "build_id": "ccd170",
+      "doc_type": "manuscript",
+      "git_commit": "5fdec853e870",
+      "git_dirty": true,
+      "timestamp": "2026-04-18T10:45:26Z",
+      "output_tex": "01_manuscript/manuscript.tex",
+      "engine": "auto"
+    },
+    {
+      "build_id": "75a20e",
+      "doc_type": "unknown",
+      "git_commit": "ca682eecda77",
+      "git_dirty": true,
+      "timestamp": "2026-04-18T17:02:39Z",
+      "output_tex": "/home/ywatanabe/.cache/tmp/pytest-of-ywatanabe/pytest-546/test_compile_tex_structure_cre0/output.tex",
+      "engine": "auto"
+    },
+    {
+      "build_id": "44d4dd",
+      "doc_type": "unknown",
+      "git_commit": "ca682eecda77",
+      "git_dirty": true,
+      "timestamp": "2026-04-18T17:02:39Z",
+      "output_tex": "/home/ywatanabe/.cache/tmp/pytest-of-ywatanabe/pytest-546/test_compile_tex_structure_con0/output.tex",
+      "engine": "auto"
+    },
+    {
+      "build_id": "c7b78a",
+      "doc_type": "unknown",
+      "git_commit": "ca682eecda77",
+      "git_dirty": true,
+      "timestamp": "2026-04-18T17:02:39Z",
+      "output_tex": "/home/ywatanabe/.cache/tmp/pytest-of-ywatanabe/pytest-546/test_compile_tex_structure_exp0/output.tex",
+      "engine": "auto"
+    },
+    {
+      "build_id": "721c97",
+      "doc_type": "unknown",
+      "git_commit": "ca682eecda77",
+      "git_dirty": true,
+      "timestamp": "2026-04-18T17:02:39Z",
+      "output_tex": "/home/ywatanabe/.cache/tmp/pytest-of-ywatanabe/pytest-546/test_compile_tex_structure_cre1/nested/dir/output.tex",
+      "engine": "auto"
+    },
+    {
+      "build_id": "8ea493",
+      "doc_type": "unknown",
+      "git_commit": "ca682eecda77",
+      "git_dirty": true,
+      "timestamp": "2026-04-18T17:02:39Z",
+      "output_tex": "/home/ywatanabe/.cache/tmp/pytest-of-ywatanabe/pytest-546/test_tectonic_mode_comments_ou0/output.tex",
+      "engine": "auto"
+    },
+    {
+      "build_id": "59c626",
+      "doc_type": "unknown",
+      "git_commit": "ca682eecda77",
+      "git_dirty": true,
+      "timestamp": "2026-04-18T17:02:40Z",
+      "output_tex": "/home/ywatanabe/.cache/tmp/pytest-of-ywatanabe/pytest-546/test_tectonic_mode_comments_ou1/output.tex",
+      "engine": "auto"
+    },
+    {
+      "build_id": "631f1b",
+      "doc_type": "unknown",
+      "git_commit": "ca682eecda77",
+      "git_dirty": true,
+      "timestamp": "2026-04-18T17:02:40Z",
+      "output_tex": "/home/ywatanabe/.cache/tmp/pytest-of-ywatanabe/pytest-546/test_dark_mode_injection0/01_manuscript/output.tex",
+      "engine": "auto"
+    },
+    {
+      "build_id": "202328",
+      "doc_type": "unknown",
+      "git_commit": "5bbe3a93de3d",
+      "git_dirty": true,
+      "timestamp": "2026-04-19T08:14:11Z",
+      "output_tex": "/home/ywatanabe/.cache/tmp/pytest-of-ywatanabe/pytest-549/test_compile_tex_structure_cre0/output.tex",
+      "engine": "auto"
+    },
+    {
+      "build_id": "2d0f0a",
+      "doc_type": "unknown",
+      "git_commit": "5bbe3a93de3d",
+      "git_dirty": true,
+      "timestamp": "2026-04-19T08:14:11Z",
+      "output_tex": "/home/ywatanabe/.cache/tmp/pytest-of-ywatanabe/pytest-549/test_compile_tex_structure_con0/output.tex",
+      "engine": "auto"
+    },
+    {
+      "build_id": "c05a87",
+      "doc_type": "unknown",
+      "git_commit": "5bbe3a93de3d",
+      "git_dirty": true,
+      "timestamp": "2026-04-19T08:14:11Z",
+      "output_tex": "/home/ywatanabe/.cache/tmp/pytest-of-ywatanabe/pytest-549/test_compile_tex_structure_exp0/output.tex",
+      "engine": "auto"
+    },
+    {
+      "build_id": "9e7428",
+      "doc_type": "unknown",
+      "git_commit": "5bbe3a93de3d",
+      "git_dirty": true,
+      "timestamp": "2026-04-19T08:14:11Z",
+      "output_tex": "/home/ywatanabe/.cache/tmp/pytest-of-ywatanabe/pytest-549/test_compile_tex_structure_cre1/nested/dir/output.tex",
+      "engine": "auto"
+    },
+    {
+      "build_id": "2080a7",
+      "doc_type": "unknown",
+      "git_commit": "5bbe3a93de3d",
+      "git_dirty": true,
+      "timestamp": "2026-04-19T08:14:11Z",
+      "output_tex": "/home/ywatanabe/.cache/tmp/pytest-of-ywatanabe/pytest-549/test_tectonic_mode_comments_ou0/output.tex",
+      "engine": "auto"
+    },
+    {
+      "build_id": "c25dfe",
+      "doc_type": "unknown",
+      "git_commit": "5bbe3a93de3d",
+      "git_dirty": true,
+      "timestamp": "2026-04-19T08:14:11Z",
+      "output_tex": "/home/ywatanabe/.cache/tmp/pytest-of-ywatanabe/pytest-549/test_tectonic_mode_comments_ou1/output.tex",
+      "engine": "auto"
+    },
+    {
+      "build_id": "ee0e83",
+      "doc_type": "unknown",
+      "git_commit": "5bbe3a93de3d",
+      "git_dirty": true,
+      "timestamp": "2026-04-19T08:14:11Z",
+      "output_tex": "/home/ywatanabe/.cache/tmp/pytest-of-ywatanabe/pytest-549/test_dark_mode_injection0/01_manuscript/output.tex",
+      "engine": "auto"
+    },
+    {
+      "build_id": "651650",
+      "doc_type": "manuscript",
+      "git_commit": "5bbe3a93de3d",
+      "git_dirty": true,
+      "timestamp": "2026-04-19T08:33:54Z",
+      "output_tex": "01_manuscript/manuscript.tex",
+      "engine": "auto"
+    },
+    {
+      "build_id": "8ef22c",
+      "doc_type": "manuscript",
+      "git_commit": "e0856b744fc9",
+      "git_dirty": true,
+      "timestamp": "2026-04-19T09:26:20Z",
+      "output_tex": "01_manuscript/manuscript.tex",
+      "engine": "auto"
+    },
+    {
+      "build_id": "bba9ab",
+      "doc_type": "manuscript",
+      "git_commit": "67e886b1a7b2",
+      "git_dirty": true,
+      "timestamp": "2026-04-20T09:29:35Z",
+      "output_tex": "01_manuscript/manuscript.tex",
+      "engine": "auto"
+    },
+    {
+      "build_id": "7b64a4",
+      "doc_type": "manuscript",
+      "git_commit": "67e886b1a7b2",
+      "git_dirty": true,
+      "timestamp": "2026-04-20T09:34:28Z",
+      "output_tex": "01_manuscript/manuscript.tex",
+      "engine": "auto"
+    },
+    {
+      "build_id": "3764c5",
+      "doc_type": "unknown",
+      "git_commit": "964ff66e4443",
+      "git_dirty": true,
+      "timestamp": "2026-04-20T22:09:24Z",
+      "output_tex": "/home/ywatanabe/.cache/tmp/pytest-of-ywatanabe/pytest-608/test_compile_tex_structure_cre0/output.tex",
+      "engine": "auto"
+    },
+    {
+      "build_id": "8d53f2",
+      "doc_type": "unknown",
+      "git_commit": "964ff66e4443",
+      "git_dirty": true,
+      "timestamp": "2026-04-20T22:09:24Z",
+      "output_tex": "/home/ywatanabe/.cache/tmp/pytest-of-ywatanabe/pytest-608/test_compile_tex_structure_con0/output.tex",
+      "engine": "auto"
+    },
+    {
+      "build_id": "f2193c",
+      "doc_type": "unknown",
+      "git_commit": "964ff66e4443",
+      "git_dirty": true,
+      "timestamp": "2026-04-20T22:09:24Z",
+      "output_tex": "/home/ywatanabe/.cache/tmp/pytest-of-ywatanabe/pytest-608/test_compile_tex_structure_exp0/output.tex",
+      "engine": "auto"
+    },
+    {
+      "build_id": "799649",
+      "doc_type": "unknown",
+      "git_commit": "964ff66e4443",
+      "git_dirty": true,
+      "timestamp": "2026-04-20T22:09:24Z",
+      "output_tex": "/home/ywatanabe/.cache/tmp/pytest-of-ywatanabe/pytest-608/test_compile_tex_structure_cre1/nested/dir/output.tex",
+      "engine": "auto"
+    },
+    {
+      "build_id": "5a4af6",
+      "doc_type": "unknown",
+      "git_commit": "964ff66e4443",
+      "git_dirty": true,
+      "timestamp": "2026-04-20T22:09:24Z",
+      "output_tex": "/home/ywatanabe/.cache/tmp/pytest-of-ywatanabe/pytest-608/test_tectonic_mode_comments_ou0/output.tex",
+      "engine": "auto"
+    },
+    {
+      "build_id": "6fea4a",
+      "doc_type": "unknown",
+      "git_commit": "964ff66e4443",
+      "git_dirty": true,
+      "timestamp": "2026-04-20T22:09:24Z",
+      "output_tex": "/home/ywatanabe/.cache/tmp/pytest-of-ywatanabe/pytest-608/test_tectonic_mode_comments_ou1/output.tex",
+      "engine": "auto"
+    },
+    {
+      "build_id": "aa31f7",
+      "doc_type": "unknown",
+      "git_commit": "964ff66e4443",
+      "git_dirty": true,
+      "timestamp": "2026-04-20T22:09:24Z",
+      "output_tex": "/home/ywatanabe/.cache/tmp/pytest-of-ywatanabe/pytest-608/test_dark_mode_injection0/01_manuscript/output.tex",
+      "engine": "auto"
+    }
+  ]
+}

@@ -1,3 +1,4 @@
+<!-- TODO: Split per checklist §4 (currently 10 KB) -->
 ---
 description: Scientific writing proofreading guidelines including language rules, formatting, common corrections, anti-patterns (AP1-AP9, AP12), respectful tone, hedging, transitions, and terminology conventions.
 ---
