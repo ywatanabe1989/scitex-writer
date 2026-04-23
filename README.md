@@ -139,9 +139,9 @@ sw.bib.merge("./my-paper")  # Merge + deduplicate
 **Guidelines** — Introduction, Methods, Results, and Discussion (IMRAD) Writing Tips
 
 ```python
-sw.get_guideline("abstract")
-sw.build_guideline("abstract", draft="Your draft...")
-sw.list_guidelines()  # ['abstract', 'introduction', 'methods', 'discussion', 'proofread']
+sw.guidelines.get("abstract")
+sw.guidelines.build("abstract", draft="Your draft...")
+sw.guidelines.list_sections()  # ['abstract', 'introduction', 'methods', 'discussion', 'proofread']
 ```
 
 **Prompts** — AI2 Asta
