@@ -13,7 +13,7 @@ def register_tools(mcp: FastMCP) -> None:
 
     @mcp.tool()
     def writer_skills_list() -> dict:
-        """List available skill pages for scitex-writer."""
+        """Enumerate every scitex-writer skill page — covering manuscript compilation (LaTeX build, PDF export), BibTeX management (merge/dedupe/enrich), figure and table reference workflows, revision cycles, and Overleaf import/export. Drop-in replacement for manually browsing `~/.claude/skills/scitex/scitex-writer/`. Use when the user asks "what scitex-writer skills are there?", "list writer skill pages", "show me the writer docs index", or is looking for guidance before compiling a manuscript, wrangling citations, or handling revisions."""
         try:
             from scitex_dev.skills import list_skills
 
@@ -24,7 +24,7 @@ def register_tools(mcp: FastMCP) -> None:
 
     @mcp.tool()
     def writer_skills_get(name: str = None) -> dict:
-        """Get a skill page for scitex-writer. Without name, returns main SKILL.md."""
+        """Fetch the full markdown of a scitex-writer skill page — manuscript compilation, BibTeX management, figure/table refs, revision workflows, or Overleaf sync — or the main SKILL.md overview when `name` is omitted. Drop-in replacement for `cat ~/.claude/skills/scitex/scitex-writer/<name>.md`. Use when the user asks "show me the writer skill for X", "how do I compile a manuscript with scitex-writer?", "read the bib workflow doc", "open scitex-writer SKILL.md", or needs authoritative guidance before invoking writer_* tools."""
         try:
             from scitex_dev.skills import get_skill
 
