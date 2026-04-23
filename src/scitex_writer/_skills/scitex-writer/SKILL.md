@@ -20,11 +20,11 @@ runtime; which one a user has depends on their install choice.
 ```python
 # Standalone — pip install scitex-writer
 import scitex_writer as sw
-sw.compile_manuscript(...)
+sw.CompilationResult(...)
 
 # Umbrella — pip install scitex
 import scitex.writer as sw
-sw.compile_manuscript(...)
+sw.CompilationResult(...)
 ```
 
 `pip install scitex-writer` alone does NOT expose the `scitex` namespace;
