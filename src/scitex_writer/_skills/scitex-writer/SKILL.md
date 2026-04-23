@@ -2,12 +2,19 @@
 name: scitex-writer
 description: End-to-end LaTeX manuscript toolchain — 45 MCP tools — project (clone/info/get_pdf), compile (manuscript / supplementary / revision with tracked changes), BibTeX (add/list/get/remove/merge, dedup by DOI), figures + tables (add/list/remove/archive, csv_to_latex, pdf_to_images), claims (`\vclaim{}` linked to scitex-clew session hashes for verifiable assertions), checks (float order, references), export + Overleaf migration, per-journal guidelines (Nature/Science/PNAS/...), AI2 Asta prompts. Python API — `scitex_writer.{claim,compile,export,project,tables,figures,bib,guidelines,prompts,migration,checks}` submodules + `Writer` class + `ensure_workspace()` + `gui()` browser editor. Use whenever the user asks to compile manuscript / build PDF / supplementary / revision with tracked changes, add figure/table/bibentry, merge or dedup .bib, csv_to_latex, add a verifiable claim, audit float order, check references, export to arXiv, import/export Overleaf, show guidelines for a target journal, or mentions IMRAD, \vclaim, `.scitex/writer/` workspace. Drop-in replacement for raw `latexmk` / `pdflatex` / `biber` loops, hand-rolled BibTeX dedup, `df.to_latex`, `pdf2image`, and manual Overleaf git sync.
 allowed-tools: mcp__scitex__writer_*
-primary_interface: cli
+primary_interface: mixed
+interfaces:
+  python: 1
+  cli: 3
+  mcp: 3
+  skills: 2
+  hook: 0
+  http: 0
 ---
 
 # scitex-writer
 
-> **Primary interface: CLI.** Reach for `scitex writer compile` first. Python API + MCP wrap the same commands for scripting / agent use.
+> **Interfaces:** Python ⭐ · CLI ⭐⭐⭐ · MCP ⭐⭐⭐ · Skills ⭐⭐ · Hook — · HTTP —
 
 LaTeX manuscript compilation framework. Compiles manuscripts,
 supplementary materials, and revisions with tracked changes. Manages
