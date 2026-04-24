@@ -60,3 +60,8 @@ CSV-to-LaTeX), and verifiable claims linked to session hashes.
 - [33_writing-discussion.md](33_writing-discussion.md) — 5-section discussion template
 - [34_writing-introduction-example.md](34_writing-introduction-example.md) — intro section tags + example
 - [35_writing-discussion-example.md](35_writing-discussion-example.md) — discussion section tags + example
+
+
+## Environment
+
+- [40_env-vars.md](40_env-vars.md) — SCITEX_* env vars read by scitex-writer at runtime
