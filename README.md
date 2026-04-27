@@ -10,6 +10,17 @@
 
 # SciTeX Writer
 
+<!-- scitex-badges:start -->
+[![PyPI](https://img.shields.io/pypi/v/scitex-writer.svg)](https://pypi.org/project/scitex-writer/)
+[![Python](https://img.shields.io/pypi/pyversions/scitex-writer.svg)](https://pypi.org/project/scitex-writer/)
+[![Tests](https://github.com/ywatanabe1989/scitex-writer/actions/workflows/test.yml/badge.svg)](https://github.com/ywatanabe1989/scitex-writer/actions/workflows/test.yml)
+[![Install Test](https://github.com/ywatanabe1989/scitex-writer/actions/workflows/install-test.yml/badge.svg)](https://github.com/ywatanabe1989/scitex-writer/actions/workflows/install-test.yml)
+[![Coverage](https://codecov.io/gh/ywatanabe1989/scitex-writer/graph/badge.svg)](https://codecov.io/gh/ywatanabe1989/scitex-writer)
+[![Docs](https://readthedocs.org/projects/scitex-writer/badge/?version=latest)](https://scitex-writer.readthedocs.io/en/latest/)
+[![License: AGPL v3](https://img.shields.io/badge/license-AGPL_v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
+<!-- scitex-badges:end -->
+
+
 <p align="center">
   <a href="https://badge.fury.io/py/scitex-writer"><img src="https://badge.fury.io/py/scitex-writer.svg" alt="PyPI version"></a>
   <a href="https://pypi.org/project/scitex-writer/"><img src="https://img.shields.io/pypi/pyversions/scitex-writer.svg" alt="Python Versions"></a>
