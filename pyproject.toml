@@ -54,29 +54,18 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+desktop = [
+    "pywebview>=4.0.0",
+]
+editor = []
+scholar = [
+    "scitex-scholar>=1.2.1",
+]
 dev = [
     "pytest>=7.0.0",
     "pytest-cov>=4.0.0",
     "pytest-xdist>=3.0.0",
     "pre-commit>=3.5.0",
-]
-editor = [
-    # Django is now a core dep; this group kept for backwards-compat of `[editor]` extra
-]
-desktop = [
-    "pywebview>=4.0.0",
-]
-scholar = [
-    # Optional bridge: enables enriched citation cards and library-browse tab
-    # in the editor. Writer source guards usage with SCHOLAR_AVAILABLE; the UI
-    # degrades gracefully when this extra is not installed.
-    # Min version 1.2.1 — writer's bridge relies on:
-    #   - v1.1.0 `scitex-scholar link-project-tree` CLI + MASTER layout
-    #   - v1.1.0 `db build`/`db lookup`/`db list` (index.db SELECT path)
-    #   - v1.1.2 atomic metadata.json writes (no partial reads)
-    #   - v1.2.0 `db dedupe` (clean-before-index workflow)
-    #   - v1.2.1 empty-DOI → NULL normalization (unblocks `db build`)
-    "scitex-scholar>=1.2.1",
 ]
 docs = [
     "sphinx>=7.0",
@@ -86,17 +75,9 @@ docs = [
     "sphinx-autodoc-typehints>=1.25",
 ]
 all = [
-    # dev
-    "pytest>=7.0.0",
-    "pytest-cov>=4.0.0",
-    "pytest-xdist>=3.0.0",
-    "pre-commit>=3.5.0",
-    # docs
-    "sphinx>=7.0",
-    "sphinx-rtd-theme>=2.0",
-    "myst-parser>=2.0",
-    "sphinx-copybutton>=0.5",
-    "sphinx-autodoc-typehints>=1.25",
+    "scitex-writer[desktop]",
+    "scitex-writer[editor]",
+    "scitex-writer[scholar]",
 ]
 
 [project.scripts]
