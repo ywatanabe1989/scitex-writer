@@ -10,15 +10,12 @@ Usage: python examples/03_python_api.py
 
 from pathlib import Path
 
-import scitex
+import scitex_writer as sw
 
 
-@scitex.session
 def main():
     """Demonstrate scitex-writer Python API."""
     print("=== Example 03: Python API ===")
-
-    import scitex_writer as sw
 
     project_dir = str(Path(__file__).parent.parent)
 
