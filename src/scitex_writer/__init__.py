@@ -25,6 +25,8 @@ Modules:
     - gui: Browser-based editor (Django)
 """
 
+from __future__ import annotations
+
 from importlib.metadata import PackageNotFoundError as _PackageNotFoundError
 from importlib.metadata import version as _version
 
@@ -35,7 +37,7 @@ except _PackageNotFoundError:
     from pathlib import Path as _Path
 
     _pyproject = _Path(__file__).parent.parent.parent / "pyproject.toml"
-    __version__ = "0.0.0"
+    __version__ = "0.0.0+local"
     if _pyproject.exists():
         with open(_pyproject) as _f:
             for _line in _f:
