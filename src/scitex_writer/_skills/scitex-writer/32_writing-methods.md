@@ -1,5 +1,7 @@
 ---
 description: Methods section writing template with style rules and reproducibility guidelines for scientific manuscripts.
+name: writing-methods
+tags: [scitex-writer, scitex-package]
 ---
 
 # Scientific Methods Writing Guidelines

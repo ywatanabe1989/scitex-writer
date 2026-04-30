@@ -1,5 +1,7 @@
 ---
 description: Scientific writing proofreading guidelines — role, general rules, formatting, language rules, common corrections, and section-specific guidelines (title/abstract/introduction/methods/results/discussion).
+name: writing-proofreading
+tags: [scitex-writer, scitex-package]
 ---
 
 # Scientific Writing Proofreading Guidelines

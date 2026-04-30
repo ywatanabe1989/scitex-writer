@@ -1,5 +1,7 @@
 ---
 description: Compile manuscript, supplementary, and revision documents to PDF.
+name: compilation
+tags: [scitex-writer, scitex-package]
 ---
 
 # Compilation

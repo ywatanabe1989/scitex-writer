@@ -1,5 +1,7 @@
 ---
 description: Basic manuscript workflow — create project, add content, compile PDF.
+name: quick-start
+tags: [scitex-writer, scitex-package]
 ---
 
 # Quick Start

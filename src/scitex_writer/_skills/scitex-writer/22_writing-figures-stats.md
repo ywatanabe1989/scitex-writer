@@ -1,5 +1,7 @@
 ---
 description: Figure rules, statistical reporting standards, and document formatting guidelines for scientific manuscripts.
+name: writing-figures-stats
+tags: [scitex-writer, scitex-package]
 ---
 
 # Figures, Statistics, and Document Format

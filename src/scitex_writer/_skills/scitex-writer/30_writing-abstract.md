@@ -1,5 +1,7 @@
 ---
 description: Abstract writing template with 7-section structure, tense rules, and examples for scientific manuscripts.
+name: writing-abstract
+tags: [scitex-writer, scitex-package]
 ---
 
 # Scientific Abstract Writing Guidelines

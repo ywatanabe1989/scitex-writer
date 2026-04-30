@@ -1,5 +1,7 @@
 ---
 description: Evidence requirements, critical analysis, and scientific standards for manuscript writing.
+name: writing-attitude
+tags: [scitex-writer, scitex-package]
 ---
 
 # Scientific Writing Attitude

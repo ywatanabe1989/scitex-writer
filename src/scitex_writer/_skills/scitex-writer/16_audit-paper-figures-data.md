@@ -1,3 +1,9 @@
+---
+name: audit-paper-figures-data
+description: COMPREHENSIVE ACADEMIC MANUSCRIPT AUDIT — FIGURES, VARIABLES, AND DATA
+tags: [scitex-writer, scitex-package]
+---
+
 COMPREHENSIVE ACADEMIC MANUSCRIPT AUDIT — FIGURES, VARIABLES, AND DATA
 
 Continuation of [15_audit-paper.md](15_audit-paper.md). Sections 3–5 of the audit.

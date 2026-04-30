@@ -1,5 +1,7 @@
 ---
 description: Scientific writing proofreading style — respectful tone, hedging, transitional words, terminology conventions, anti-patterns (AP1-AP9, AP12), placeholder command, and usage.
+name: writing-proofreading-style
+tags: [scitex-writer, scitex-package]
 ---
 
 # Scientific Writing Proofreading — Style, Tone, and Anti-Patterns
