@@ -1,5 +1,7 @@
 ---
 description: Introduction writing — section tags, annotated well-written example, and usage for scientific manuscripts.
+name: writing-introduction-example
+tags: [scitex-writer, scitex-package]
 ---
 
 # Scientific Introduction — Section Tags and Example

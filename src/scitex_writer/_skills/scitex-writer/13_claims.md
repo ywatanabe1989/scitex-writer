@@ -1,5 +1,7 @@
 ---
 description: Verifiable claims — add, track, render claims linked to evidence.
+name: claims
+tags: [scitex-writer, scitex-package]
 ---
 
 # Claims

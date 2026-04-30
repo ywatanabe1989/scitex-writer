@@ -1,5 +1,7 @@
 ---
 description: MCP tools for AI agents — manuscript compilation, bibliography, figures, tables, claims.
+name: mcp-tools
+tags: [scitex-writer, scitex-package]
 ---
 
 # MCP Tools
