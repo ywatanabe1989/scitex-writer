@@ -6,17 +6,17 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>scitex_writer &mdash; SciTeX Writer v2.8.1</title>
+  <title>scitex_writer &mdash; SciTeX Writer v2.16.2</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
-      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
 
   
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=cd87aae0"></script>
-      <script src="../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../_static/documentation_options.js?v=0b9cbfd2"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
       <script src="../_static/copybutton.js?v=f281be69"></script>
     <script src="../_static/js/theme.js"></script>
@@ -70,36 +70,27 @@
 <li class="toctree-l2"><a class="reference internal" href="#scitex_writer.Writer"><code class="docutils literal notranslate"><span class="pre">Writer</span></code></a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#scitex_writer.Writer.__init__"><code class="docutils literal notranslate"><span class="pre">Writer.__init__()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#scitex_writer.Writer._attach_or_create_project"><code class="docutils literal notranslate"><span class="pre">Writer._attach_or_create_project()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#scitex_writer.Writer._list_sections"><code class="docutils literal notranslate"><span class="pre">Writer._list_sections()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#scitex_writer.Writer._verify_project_structure"><code class="docutils literal notranslate"><span class="pre">Writer._verify_project_structure()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#scitex_writer.Writer.compile_manuscript"><code class="docutils literal notranslate"><span class="pre">Writer.compile_manuscript()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#scitex_writer.Writer.compile_revision"><code class="docutils literal notranslate"><span class="pre">Writer.compile_revision()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#scitex_writer.Writer.compile_supplementary"><code class="docutils literal notranslate"><span class="pre">Writer.compile_supplementary()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#scitex_writer.Writer.delete"><code class="docutils literal notranslate"><span class="pre">Writer.delete()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#scitex_writer.Writer.get_pdf"><code class="docutils literal notranslate"><span class="pre">Writer.get_pdf()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#scitex_writer.Writer.compile_revision"><code class="docutils literal notranslate"><span class="pre">Writer.compile_revision()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#scitex_writer.Writer.get_section"><code class="docutils literal notranslate"><span class="pre">Writer.get_section()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#scitex_writer.Writer.read_section"><code class="docutils literal notranslate"><span class="pre">Writer.read_section()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#scitex_writer.Writer.watch"><code class="docutils literal notranslate"><span class="pre">Writer.watch()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#scitex_writer.Writer.write_section"><code class="docutils literal notranslate"><span class="pre">Writer.write_section()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#scitex_writer.Writer._list_sections"><code class="docutils literal notranslate"><span class="pre">Writer._list_sections()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#scitex_writer.Writer.watch"><code class="docutils literal notranslate"><span class="pre">Writer.watch()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#scitex_writer.Writer.get_pdf"><code class="docutils literal notranslate"><span class="pre">Writer.get_pdf()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#scitex_writer.Writer.delete"><code class="docutils literal notranslate"><span class="pre">Writer.delete()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#scitex_writer.ensure_workspace"><code class="docutils literal notranslate"><span class="pre">ensure_workspace()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#scitex_writer.gui"><code class="docutils literal notranslate"><span class="pre">gui()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="#scitex_writer._CompilationResult"><code class="docutils literal notranslate"><span class="pre">_CompilationResult</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="#scitex_writer._ManuscriptTree"><code class="docutils literal notranslate"><span class="pre">_ManuscriptTree</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="#scitex_writer._PackageNotFoundError"><code class="docutils literal notranslate"><span class="pre">_PackageNotFoundError</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="#scitex_writer._RevisionTree"><code class="docutils literal notranslate"><span class="pre">_RevisionTree</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="#scitex_writer._SupplementaryTree"><code class="docutils literal notranslate"><span class="pre">_SupplementaryTree</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="#scitex_writer._version"><code class="docutils literal notranslate"><span class="pre">_version()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#submodules">Submodules</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#module-scitex_writer.compile">scitex_writer.compile</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#scitex_writer.compile.manuscript"><code class="docutils literal notranslate"><span class="pre">manuscript()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#scitex_writer.compile.supplementary"><code class="docutils literal notranslate"><span class="pre">supplementary()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#scitex_writer.compile.revision"><code class="docutils literal notranslate"><span class="pre">revision()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#scitex_writer.compile.content"><code class="docutils literal notranslate"><span class="pre">content()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#scitex_writer.compile._compile_manuscript"><code class="docutils literal notranslate"><span class="pre">_compile_manuscript()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#scitex_writer.compile._compile_revision"><code class="docutils literal notranslate"><span class="pre">_compile_revision()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#scitex_writer.compile._compile_supplementary"><code class="docutils literal notranslate"><span class="pre">_compile_supplementary()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#module-scitex_writer.project">scitex_writer.project</a><ul>
@@ -107,10 +98,6 @@
 <li class="toctree-l4"><a class="reference internal" href="#scitex_writer.project.info"><code class="docutils literal notranslate"><span class="pre">info()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#scitex_writer.project.get_pdf"><code class="docutils literal notranslate"><span class="pre">get_pdf()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#scitex_writer.project.list_document_types"><code class="docutils literal notranslate"><span class="pre">list_document_types()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#scitex_writer.project._clone_project"><code class="docutils literal notranslate"><span class="pre">_clone_project()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#scitex_writer.project._get_pdf"><code class="docutils literal notranslate"><span class="pre">_get_pdf()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#scitex_writer.project._get_project_info"><code class="docutils literal notranslate"><span class="pre">_get_project_info()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#scitex_writer.project._list_document_types"><code class="docutils literal notranslate"><span class="pre">_list_document_types()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#module-scitex_writer.bib">scitex_writer.bib</a><ul>
@@ -120,7 +107,6 @@
 <li class="toctree-l4"><a class="reference internal" href="#scitex_writer.bib.add"><code class="docutils literal notranslate"><span class="pre">add()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#scitex_writer.bib.remove"><code class="docutils literal notranslate"><span class="pre">remove()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#scitex_writer.bib.merge"><code class="docutils literal notranslate"><span class="pre">merge()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#scitex_writer.bib._resolve_project_path"><code class="docutils literal notranslate"><span class="pre">_resolve_project_path()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#module-scitex_writer.tables">scitex_writer.tables</a><ul>
@@ -129,9 +115,6 @@
 <li class="toctree-l4"><a class="reference internal" href="#scitex_writer.tables.remove"><code class="docutils literal notranslate"><span class="pre">remove()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#scitex_writer.tables.csv_to_latex"><code class="docutils literal notranslate"><span class="pre">csv_to_latex()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#scitex_writer.tables.latex_to_csv"><code class="docutils literal notranslate"><span class="pre">latex_to_csv()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#scitex_writer.tables._csv_to_latex"><code class="docutils literal notranslate"><span class="pre">_csv_to_latex()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#scitex_writer.tables._latex_to_csv"><code class="docutils literal notranslate"><span class="pre">_latex_to_csv()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#scitex_writer.tables._resolve_project_path"><code class="docutils literal notranslate"><span class="pre">_resolve_project_path()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#module-scitex_writer.figures">scitex_writer.figures</a><ul>
@@ -140,38 +123,26 @@
 <li class="toctree-l4"><a class="reference internal" href="#scitex_writer.figures.remove"><code class="docutils literal notranslate"><span class="pre">remove()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#scitex_writer.figures.convert"><code class="docutils literal notranslate"><span class="pre">convert()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#scitex_writer.figures.pdf_to_images"><code class="docutils literal notranslate"><span class="pre">pdf_to_images()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#scitex_writer.figures._Path"><code class="docutils literal notranslate"><span class="pre">_Path</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#scitex_writer.figures._convert_figure"><code class="docutils literal notranslate"><span class="pre">_convert_figure()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#scitex_writer.figures._list_figures"><code class="docutils literal notranslate"><span class="pre">_list_figures()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#scitex_writer.figures._pdf_to_images"><code class="docutils literal notranslate"><span class="pre">_pdf_to_images()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#scitex_writer.figures._resolve_project_path"><code class="docutils literal notranslate"><span class="pre">_resolve_project_path()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#module-scitex_writer.export">scitex_writer.export</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#scitex_writer.export.manuscript"><code class="docutils literal notranslate"><span class="pre">manuscript()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#scitex_writer.export.clean_latex"><code class="docutils literal notranslate"><span class="pre">clean_latex()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#scitex_writer.export.suggest_categories"><code class="docutils literal notranslate"><span class="pre">suggest_categories()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#scitex_writer.export._ArxivLatexCleaner"><code class="docutils literal notranslate"><span class="pre">_ArxivLatexCleaner</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#scitex_writer.export._export_manuscript"><code class="docutils literal notranslate"><span class="pre">_export_manuscript()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#module-scitex_writer.guidelines">scitex_writer.guidelines</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#scitex_writer.guidelines.get"><code class="docutils literal notranslate"><span class="pre">get()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#scitex_writer.guidelines.build"><code class="docutils literal notranslate"><span class="pre">build()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#scitex_writer.guidelines.list_sections"><code class="docutils literal notranslate"><span class="pre">list_sections()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#scitex_writer.guidelines._Path"><code class="docutils literal notranslate"><span class="pre">_Path</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#scitex_writer.guidelines._get_path"><code class="docutils literal notranslate"><span class="pre">_get_path()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#scitex_writer.guidelines._get_source"><code class="docutils literal notranslate"><span class="pre">_get_source()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#module-scitex_writer.prompts">scitex_writer.prompts</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#scitex_writer.prompts.generate_asta"><code class="docutils literal notranslate"><span class="pre">generate_asta()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#scitex_writer.prompts._generate_ai2_prompt"><code class="docutils literal notranslate"><span class="pre">_generate_ai2_prompt()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#module-scitex_writer.writer">scitex_writer.writer</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#scitex_writer.writer.Writer"><code class="docutils literal notranslate"><span class="pre">Writer</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#scitex_writer.writer._find_git_root"><code class="docutils literal notranslate"><span class="pre">_find_git_root()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -226,7 +197,7 @@
 <li><p>bib: List, add, remove, merge</p></li>
 <li><p>guidelines: IMRAD writing tips</p></li>
 <li><p>prompts: AI2 Asta integration</p></li>
-<li><p>gui: Browser-based editor (requires Flask)</p></li>
+<li><p>gui: Browser-based editor (Django)</p></li>
 </ul>
 </dd>
 </dl>
@@ -246,7 +217,7 @@
 
 <dl class="py class">
 <dt class="sig sig-object py" id="scitex_writer.Writer">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">scitex_writer.</span></span><span class="sig-name descname"><span class="pre">Writer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">project_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">git_strategy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'child'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">branch</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tag</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scitex_writer/writer.html#Writer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#scitex_writer.Writer" title="Link to this definition"></a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">scitex_writer.</span></span><span class="sig-name descname"><span class="pre">Writer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">project_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">git_strategy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'child'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">branch</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tag</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scitex_writer/writer.html#Writer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#scitex_writer.Writer" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>LaTeX manuscript compiler.</p>
 <dl class="py method">
@@ -289,17 +260,6 @@ If None, clones the default branch. Mutually exclusive with branch.</p></li>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Path</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="scitex_writer.Writer._list_sections">
-<span class="sig-name descname"><span class="pre">_list_sections</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tree_or_contents</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scitex_writer/writer.html#Writer._list_sections"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#scitex_writer.Writer._list_sections" title="Link to this definition"></a></dt>
-<dd><p>List available section names from a tree or contents object.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a></span></p>
 </dd>
 </dl>
 </dd></dl>
@@ -352,38 +312,6 @@ If None, clones the default branch. Mutually exclusive with branch.</p></li>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="scitex_writer.Writer.compile_revision">
-<span class="sig-name descname"><span class="pre">compile_revision</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">track_changes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">300</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_callback</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">progress_callback</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scitex_writer/writer.html#Writer.compile_revision"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#scitex_writer.Writer.compile_revision" title="Link to this definition"></a></dt>
-<dd><p>Compile revision document with optional change tracking and live callbacks.</p>
-<p>Runs scripts/shell/compile_revision.sh with configured settings.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>track_changes</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a><em>, </em><em>optional</em>) – Enable change tracking in compiled PDF (default: False).</p></li>
-<li><p><strong>timeout</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>, </em><em>optional</em>) – Maximum compilation time in seconds (default: 300).</p></li>
-<li><p><strong>log_callback</strong> (<em>callable</em><em>, </em><em>optional</em>) – Called with each log line.</p></li>
-<li><p><strong>progress_callback</strong> (<em>callable</em><em>, </em><em>optional</em>) – Called with progress updates.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>With success status, PDF path, and errors/warnings.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>CompilationResult</p>
-</dd>
-</dl>
-<div class="admonition-examples admonition">
-<p class="admonition-title">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">writer</span> <span class="o">=</span> <span class="n">Writer</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;my_paper&quot;</span><span class="p">))</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">result</span> <span class="o">=</span> <span class="n">writer</span><span class="o">.</span><span class="n">compile_revision</span><span class="p">(</span><span class="n">track_changes</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="k">if</span> <span class="n">result</span><span class="o">.</span><span class="n">success</span><span class="p">:</span>
-<span class="gp">... </span>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Revision PDF: </span><span class="si">{</span><span class="n">result</span><span class="o">.</span><span class="n">output_pdf</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
-</dd></dl>
-
-<dl class="py method">
 <dt class="sig sig-object py" id="scitex_writer.Writer.compile_supplementary">
 <span class="sig-name descname"><span class="pre">compile_supplementary</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">300</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_callback</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">progress_callback</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scitex_writer/writer.html#Writer.compile_supplementary"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#scitex_writer.Writer.compile_supplementary" title="Link to this definition"></a></dt>
 <dd><p>Compile supplementary materials to PDF with optional live callbacks.</p>
@@ -415,25 +343,35 @@ If None, clones the default branch. Mutually exclusive with branch.</p></li>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="scitex_writer.Writer.delete">
-<span class="sig-name descname"><span class="pre">delete</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scitex_writer/writer.html#Writer.delete"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#scitex_writer.Writer.delete" title="Link to this definition"></a></dt>
-<dd><p>Delete project directory (Delete).</p>
+<dt class="sig sig-object py" id="scitex_writer.Writer.compile_revision">
+<span class="sig-name descname"><span class="pre">compile_revision</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">track_changes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">300</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_callback</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">progress_callback</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scitex_writer/writer.html#Writer.compile_revision"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#scitex_writer.Writer.compile_revision" title="Link to this definition"></a></dt>
+<dd><p>Compile revision document with optional change tracking and live callbacks.</p>
+<p>Runs scripts/shell/compile_revision.sh with configured settings.</p>
 <dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>track_changes</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a><em>, </em><em>optional</em>) – Enable change tracking in compiled PDF (default: False).</p></li>
+<li><p><strong>timeout</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>, </em><em>optional</em>) – Maximum compilation time in seconds (default: 300).</p></li>
+<li><p><strong>log_callback</strong> (<em>callable</em><em>, </em><em>optional</em>) – Called with each log line.</p></li>
+<li><p><strong>progress_callback</strong> (<em>callable</em><em>, </em><em>optional</em>) – Called with progress updates.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>With success status, PDF path, and errors/warnings.</p>
+</dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a></span></p>
+<dd class="field-odd"><p>CompilationResult</p>
 </dd>
 </dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="scitex_writer.Writer.get_pdf">
-<span class="sig-name descname"><span class="pre">get_pdf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">doc_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'manuscript'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scitex_writer/writer.html#Writer.get_pdf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#scitex_writer.Writer.get_pdf" title="Link to this definition"></a></dt>
-<dd><p>Get output PDF path (Read).</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.14)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code></a>]</span></p>
-</dd>
-</dl>
+<div class="admonition-examples admonition">
+<p class="admonition-title">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">writer</span> <span class="o">=</span> <span class="n">Writer</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;my_paper&quot;</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">result</span> <span class="o">=</span> <span class="n">writer</span><span class="o">.</span><span class="n">compile_revision</span><span class="p">(</span><span class="n">track_changes</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">if</span> <span class="n">result</span><span class="o">.</span><span class="n">success</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Revision PDF: </span><span class="si">{</span><span class="n">result</span><span class="o">.</span><span class="n">output_pdf</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
 </dd></dl>
 
 <dl class="py method">
@@ -488,17 +426,6 @@ If None, clones the default branch. Mutually exclusive with branch.</p></li>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="scitex_writer.Writer.watch">
-<span class="sig-name descname"><span class="pre">watch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">on_compile</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scitex_writer/writer.html#Writer.watch"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#scitex_writer.Writer.watch" title="Link to this definition"></a></dt>
-<dd><p>Auto-recompile on file changes.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></span></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
 <dt class="sig sig-object py" id="scitex_writer.Writer.write_section">
 <span class="sig-name descname"><span class="pre">write_section</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">section_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">content</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">doc_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'manuscript'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scitex_writer/writer.html#Writer.write_section"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#scitex_writer.Writer.write_section" title="Link to this definition"></a></dt>
 <dd><p>Write content to a section.</p>
@@ -527,19 +454,63 @@ If None, clones the default branch. Mutually exclusive with branch.</p></li>
 </div>
 </dd></dl>
 
+<dl class="py method">
+<dt class="sig sig-object py" id="scitex_writer.Writer._list_sections">
+<span class="sig-name descname"><span class="pre">_list_sections</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tree_or_contents</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scitex_writer/writer.html#Writer._list_sections"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#scitex_writer.Writer._list_sections" title="Link to this definition"></a></dt>
+<dd><p>List available section names from a tree or contents object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="scitex_writer.Writer.watch">
+<span class="sig-name descname"><span class="pre">watch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">on_compile</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scitex_writer/writer.html#Writer.watch"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#scitex_writer.Writer.watch" title="Link to this definition"></a></dt>
+<dd><p>Auto-recompile on file changes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="scitex_writer.Writer.get_pdf">
+<span class="sig-name descname"><span class="pre">get_pdf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">doc_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'manuscript'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scitex_writer/writer.html#Writer.get_pdf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#scitex_writer.Writer.get_pdf" title="Link to this definition"></a></dt>
+<dd><p>Get output PDF path (Read).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.14)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code></a>]</span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="scitex_writer.Writer.delete">
+<span class="sig-name descname"><span class="pre">delete</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scitex_writer/writer.html#Writer.delete"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#scitex_writer.Writer.delete" title="Link to this definition"></a></dt>
+<dd><p>Delete project directory (Delete).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a></span></p>
+</dd>
+</dl>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="scitex_writer.ensure_workspace">
 <span class="sig-prename descclassname"><span class="pre">scitex_writer.</span></span><span class="sig-name descname"><span class="pre">ensure_workspace</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">project_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">git_strategy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'child'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scitex_writer.html#ensure_workspace"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#scitex_writer.ensure_workspace" title="Link to this definition"></a></dt>
-<dd><p>Ensure writer workspace exists at {project_dir}/scitex/writer/.</p>
+<dd><p>Ensure writer workspace exists at {project_dir}/.scitex/writer/.</p>
 <p>If the directory already exists, returns the path without modification.
 If not, clones the full scitex-writer template.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>project_dir</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em> or </em><em>Path</em>) – Root project directory. Writer workspace will be at
-<code class="docutils literal notranslate"><span class="pre">{project_dir}/scitex/writer/</span></code>.</p></li>
+<code class="docutils literal notranslate"><span class="pre">{project_dir}/.scitex/writer/</span></code> (hidden, dotfile convention).</p></li>
 <li><p><strong>git_strategy</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><em>optional</em>) – Git initialization strategy (‘child’, ‘parent’, ‘origin’, None).</p></li>
 <li><p><strong>**kwargs</strong> – Forwarded to Writer constructor (branch, tag, etc.).</p></li>
 </ul>
@@ -555,65 +526,14 @@ If not, clones the full scitex-writer template.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="scitex_writer.gui">
-<span class="sig-prename descclassname"><span class="pre">scitex_writer.</span></span><span class="sig-name descname"><span class="pre">gui</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">project_dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'.'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">port</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5050</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">host</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'127.0.0.1'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">open_browser</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">desktop</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scitex_writer/_editor.html#gui"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#scitex_writer.gui" title="Link to this definition"></a></dt>
-<dd><p>Launch interactive GUI editor for a scitex-writer project.</p>
+<span class="sig-prename descclassname"><span class="pre">scitex_writer.</span></span><span class="sig-name descname"><span class="pre">gui</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">project_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">port</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5050</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">host</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'127.0.0.1'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">open_browser</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">desktop</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hot_reload</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#scitex_writer.gui" title="Link to this definition"></a></dt>
+<dd><p>Launch the Django editor server locally.</p>
+<p>Tries <cite>scitex_app._standalone.run_standalone</cite> first (gets the full
+workspace shell from scitex-ui). Falls back to a bare runserver
+bootstrap if scitex-app is not installed.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>project_dir</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Path to scitex-writer project directory (default: current directory).</p></li>
-<li><p><strong>port</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Flask server port (default: 5050).</p></li>
-<li><p><strong>host</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Host to bind (default: 127.0.0.1).</p></li>
-<li><p><strong>open_browser</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>) – Whether to open browser automatically (default: True).</p></li>
-<li><p><strong>desktop</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>) – Launch as native desktop window using pywebview (default: False).</p></li>
-</ul>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></span></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="scitex_writer._CompilationResult">
-<span class="sig-prename descclassname"><span class="pre">scitex_writer.</span></span><span class="sig-name descname"><span class="pre">_CompilationResult</span></span><a class="headerlink" href="#scitex_writer._CompilationResult" title="Link to this definition"></a></dt>
-<dd><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">CompilationResult</span></code></p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="scitex_writer._ManuscriptTree">
-<span class="sig-prename descclassname"><span class="pre">scitex_writer.</span></span><span class="sig-name descname"><span class="pre">_ManuscriptTree</span></span><a class="headerlink" href="#scitex_writer._ManuscriptTree" title="Link to this definition"></a></dt>
-<dd><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">ManuscriptTree</span></code></p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="scitex_writer._PackageNotFoundError">
-<span class="sig-prename descclassname"><span class="pre">scitex_writer.</span></span><span class="sig-name descname"><span class="pre">_PackageNotFoundError</span></span><a class="headerlink" href="#scitex_writer._PackageNotFoundError" title="Link to this definition"></a></dt>
-<dd><p>alias of <a class="reference external" href="https://docs.python.org/3/library/importlib.metadata.html#importlib.metadata.PackageNotFoundError" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">PackageNotFoundError</span></code></a></p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="scitex_writer._RevisionTree">
-<span class="sig-prename descclassname"><span class="pre">scitex_writer.</span></span><span class="sig-name descname"><span class="pre">_RevisionTree</span></span><a class="headerlink" href="#scitex_writer._RevisionTree" title="Link to this definition"></a></dt>
-<dd><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">RevisionTree</span></code></p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="scitex_writer._SupplementaryTree">
-<span class="sig-prename descclassname"><span class="pre">scitex_writer.</span></span><span class="sig-name descname"><span class="pre">_SupplementaryTree</span></span><a class="headerlink" href="#scitex_writer._SupplementaryTree" title="Link to this definition"></a></dt>
-<dd><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">SupplementaryTree</span></code></p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="scitex_writer._version">
-<span class="sig-prename descclassname"><span class="pre">scitex_writer.</span></span><span class="sig-name descname"><span class="pre">_version</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">distribution_name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#scitex_writer._version" title="Link to this definition"></a></dt>
-<dd><p>Get the version string for the named package.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>distribution_name</strong> – The name of the distribution package to query.</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The version string for the package as defined in the package’s
-“Version” metadata key.</p>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></span></p>
 </dd>
 </dl>
 </dd></dl>
@@ -762,39 +682,6 @@ PDF is copied to the project’s .preview/ directory.</p></li>
 </div>
 </dd></dl>
 
-<dl class="py function">
-<dt class="sig sig-object py" id="scitex_writer.compile._compile_manuscript">
-<span class="sig-prename descclassname"><span class="pre">scitex_writer.compile.</span></span><span class="sig-name descname"><span class="pre">_compile_manuscript</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">project_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">300</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">no_figs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">no_tables</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">no_diff</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">draft</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dark_mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">quiet</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">engine</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#scitex_writer.compile._compile_manuscript" title="Link to this definition"></a></dt>
-<dd><p>Compile manuscript to PDF.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a></span></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="scitex_writer.compile._compile_revision">
-<span class="sig-prename descclassname"><span class="pre">scitex_writer.compile.</span></span><span class="sig-name descname"><span class="pre">_compile_revision</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">project_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">track_changes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">300</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">no_diff</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">draft</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dark_mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">quiet</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">engine</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#scitex_writer.compile._compile_revision" title="Link to this definition"></a></dt>
-<dd><p>Compile revision document to PDF.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a></span></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="scitex_writer.compile._compile_supplementary">
-<span class="sig-prename descclassname"><span class="pre">scitex_writer.compile.</span></span><span class="sig-name descname"><span class="pre">_compile_supplementary</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">project_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">300</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">no_figs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">no_tables</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">no_diff</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">draft</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dark_mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">quiet</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">engine</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#scitex_writer.compile._compile_supplementary" title="Link to this definition"></a></dt>
-<dd><p>Compile supplementary materials to PDF.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a></span></p>
-</dd>
-</dl>
-</dd></dl>
-
 </section>
 <section id="module-scitex_writer.project">
 <span id="scitex-writer-project"></span><h3>scitex_writer.project<a class="headerlink" href="#module-scitex_writer.project" title="Link to this heading"></a></h3>
@@ -885,50 +772,6 @@ PDF is copied to the project’s .preview/ directory.</p></li>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>Dict with document_types list.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="scitex_writer.project._clone_project">
-<span class="sig-prename descclassname"><span class="pre">scitex_writer.project.</span></span><span class="sig-name descname"><span class="pre">_clone_project</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">project_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">git_strategy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'child'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">branch</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tag</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#scitex_writer.project._clone_project" title="Link to this definition"></a></dt>
-<dd><p>Create a new writer project from template.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a></span></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="scitex_writer.project._get_pdf">
-<span class="sig-prename descclassname"><span class="pre">scitex_writer.project.</span></span><span class="sig-name descname"><span class="pre">_get_pdf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">project_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">doc_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'manuscript'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#scitex_writer.project._get_pdf" title="Link to this definition"></a></dt>
-<dd><p>Get path to compiled PDF.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a></span></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="scitex_writer.project._get_project_info">
-<span class="sig-prename descclassname"><span class="pre">scitex_writer.project.</span></span><span class="sig-name descname"><span class="pre">_get_project_info</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">project_dir</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#scitex_writer.project._get_project_info" title="Link to this definition"></a></dt>
-<dd><p>Get writer project information.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a></span></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="scitex_writer.project._list_document_types">
-<span class="sig-prename descclassname"><span class="pre">scitex_writer.project.</span></span><span class="sig-name descname"><span class="pre">_list_document_types</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#scitex_writer.project._list_document_types" title="Link to this definition"></a></dt>
-<dd><p>List available document types.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a></span></p>
 </dd>
 </dl>
 </dd></dl>
@@ -1073,17 +916,6 @@ PDF is copied to the project’s .preview/ directory.</p></li>
 </dl>
 </dd></dl>
 
-<dl class="py function">
-<dt class="sig sig-object py" id="scitex_writer.bib._resolve_project_path">
-<span class="sig-prename descclassname"><span class="pre">scitex_writer.bib.</span></span><span class="sig-name descname"><span class="pre">_resolve_project_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">project_dir</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#scitex_writer.bib._resolve_project_path" title="Link to this definition"></a></dt>
-<dd><p>Resolve project directory to absolute path.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code></a></span></p>
-</dd>
-</dl>
-</dd></dl>
-
 </section>
 <section id="module-scitex_writer.tables">
 <span id="scitex-writer-tables"></span><h3>scitex_writer.tables<a class="headerlink" href="#module-scitex_writer.tables" title="Link to this heading"></a></h3>
@@ -1210,39 +1042,6 @@ PDF is copied to the project’s .preview/ directory.</p></li>
 </dl>
 </dd></dl>
 
-<dl class="py function">
-<dt class="sig sig-object py" id="scitex_writer.tables._csv_to_latex">
-<span class="sig-prename descclassname"><span class="pre">scitex_writer.tables.</span></span><span class="sig-name descname"><span class="pre">_csv_to_latex</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">csv_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">caption</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">longtable</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#scitex_writer.tables._csv_to_latex" title="Link to this definition"></a></dt>
-<dd><p>Convert CSV file to LaTeX table.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a></span></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="scitex_writer.tables._latex_to_csv">
-<span class="sig-prename descclassname"><span class="pre">scitex_writer.tables.</span></span><span class="sig-name descname"><span class="pre">_latex_to_csv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">latex_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">table_index</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#scitex_writer.tables._latex_to_csv" title="Link to this definition"></a></dt>
-<dd><p>Convert LaTeX table to CSV.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a></span></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="scitex_writer.tables._resolve_project_path">
-<span class="sig-prename descclassname"><span class="pre">scitex_writer.tables.</span></span><span class="sig-name descname"><span class="pre">_resolve_project_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">project_dir</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#scitex_writer.tables._resolve_project_path" title="Link to this definition"></a></dt>
-<dd><p>Resolve project directory to absolute path.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code></a></span></p>
-</dd>
-</dl>
-</dd></dl>
-
 </section>
 <section id="module-scitex_writer.figures">
 <span id="scitex-writer-figures"></span><h3>scitex_writer.figures<a class="headerlink" href="#module-scitex_writer.figures" title="Link to this heading"></a></h3>
@@ -1308,6 +1107,8 @@ PDF is copied to the project’s .preview/ directory.</p></li>
 <dt class="sig sig-object py" id="scitex_writer.figures.remove">
 <span class="sig-prename descclassname"><span class="pre">scitex_writer.figures.</span></span><span class="sig-name descname"><span class="pre">remove</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">project_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">doc_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'manuscript'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scitex_writer/figures.html#remove"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#scitex_writer.figures.remove" title="Link to this definition"></a></dt>
 <dd><p>Remove a figure (image + caption) from the project.</p>
+<p>Removes all associated files including those in subdirectories
+(jpg_for_compilation/, mermaid_originals/).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -1366,56 +1167,6 @@ PDF is copied to the project’s .preview/ directory.</p></li>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Dict with images list and output_dir.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="scitex_writer.figures._Path">
-<span class="sig-prename descclassname"><span class="pre">scitex_writer.figures.</span></span><span class="sig-name descname"><span class="pre">_Path</span></span><a class="headerlink" href="#scitex_writer.figures._Path" title="Link to this definition"></a></dt>
-<dd><p>alias of <a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code></a></p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="scitex_writer.figures._convert_figure">
-<span class="sig-prename descclassname"><span class="pre">scitex_writer.figures.</span></span><span class="sig-name descname"><span class="pre">_convert_figure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dpi</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">300</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">quality</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">95</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#scitex_writer.figures._convert_figure" title="Link to this definition"></a></dt>
-<dd><p>Convert figure between formats.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a></span></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="scitex_writer.figures._list_figures">
-<span class="sig-prename descclassname"><span class="pre">scitex_writer.figures.</span></span><span class="sig-name descname"><span class="pre">_list_figures</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">project_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extensions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#scitex_writer.figures._list_figures" title="Link to this definition"></a></dt>
-<dd><p>List figures in project.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a></span></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="scitex_writer.figures._pdf_to_images">
-<span class="sig-prename descclassname"><span class="pre">scitex_writer.figures.</span></span><span class="sig-name descname"><span class="pre">_pdf_to_images</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pdf_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pages</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dpi</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">600</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">format</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'png'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#scitex_writer.figures._pdf_to_images" title="Link to this definition"></a></dt>
-<dd><p>Render PDF pages as images.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a></span></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="scitex_writer.figures._resolve_project_path">
-<span class="sig-prename descclassname"><span class="pre">scitex_writer.figures.</span></span><span class="sig-name descname"><span class="pre">_resolve_project_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">project_dir</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#scitex_writer.figures._resolve_project_path" title="Link to this definition"></a></dt>
-<dd><p>Resolve project directory to absolute path.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code></a></span></p>
 </dd>
 </dl>
 </dd></dl>
@@ -1501,23 +1252,6 @@ PDF is copied to the project’s .preview/ directory.</p></li>
 </dl>
 </dd></dl>
 
-<dl class="py attribute">
-<dt class="sig sig-object py" id="scitex_writer.export._ArxivLatexCleaner">
-<span class="sig-prename descclassname"><span class="pre">scitex_writer.export.</span></span><span class="sig-name descname"><span class="pre">_ArxivLatexCleaner</span></span><a class="headerlink" href="#scitex_writer.export._ArxivLatexCleaner" title="Link to this definition"></a></dt>
-<dd><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">ArxivLatexCleaner</span></code></p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="scitex_writer.export._export_manuscript">
-<span class="sig-prename descclassname"><span class="pre">scitex_writer.export.</span></span><span class="sig-name descname"><span class="pre">_export_manuscript</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">project_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">format</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'arxiv'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#scitex_writer.export._export_manuscript" title="Link to this definition"></a></dt>
-<dd><p>Export manuscript as arXiv-ready tarball.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a></span></p>
-</dd>
-</dl>
-</dd></dl>
-
 </section>
 <section id="module-scitex_writer.guidelines">
 <span id="scitex-writer-guidelines"></span><h3>scitex_writer.guidelines<a class="headerlink" href="#module-scitex_writer.guidelines" title="Link to this heading"></a></h3>
@@ -1594,34 +1328,6 @@ SCITEX_WRITER_GUIDELINE_DIR=/path/to/guidelines/</p>
 </dl>
 </dd></dl>
 
-<dl class="py attribute">
-<dt class="sig sig-object py" id="scitex_writer.guidelines._Path">
-<span class="sig-prename descclassname"><span class="pre">scitex_writer.guidelines.</span></span><span class="sig-name descname"><span class="pre">_Path</span></span><a class="headerlink" href="#scitex_writer.guidelines._Path" title="Link to this definition"></a></dt>
-<dd><p>alias of <a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code></a></p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="scitex_writer.guidelines._get_path">
-<span class="sig-prename descclassname"><span class="pre">scitex_writer.guidelines.</span></span><span class="sig-name descname"><span class="pre">_get_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">section</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scitex_writer/guidelines.html#_get_path"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#scitex_writer.guidelines._get_path" title="Link to this definition"></a></dt>
-<dd><p>Get path to guideline file, checking env overrides first.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code></a></span></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="scitex_writer.guidelines._get_source">
-<span class="sig-prename descclassname"><span class="pre">scitex_writer.guidelines.</span></span><span class="sig-name descname"><span class="pre">_get_source</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">section</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scitex_writer/guidelines.html#_get_source"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#scitex_writer.guidelines._get_source" title="Link to this definition"></a></dt>
-<dd><p>Get info about where guidelines are loaded from.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>]</span></p>
-</dd>
-</dl>
-</dd></dl>
-
 </section>
 <section id="module-scitex_writer.prompts">
 <span id="scitex-writer-prompts"></span><h3>scitex_writer.prompts<a class="headerlink" href="#module-scitex_writer.prompts" title="Link to this heading"></a></h3>
@@ -1673,43 +1379,6 @@ SCITEX_WRITER_PROMPT_ASTA_COAUTHORS: Custom template for collaborators</p>
 </dl>
 </dd></dl>
 
-<dl class="py function">
-<dt class="sig sig-object py" id="scitex_writer.prompts._generate_ai2_prompt">
-<span class="sig-prename descclassname"><span class="pre">scitex_writer.prompts.</span></span><span class="sig-name descname"><span class="pre">_generate_ai2_prompt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">project_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">search_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'related'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#scitex_writer.prompts._generate_ai2_prompt" title="Link to this definition"></a></dt>
-<dd><p>Generate AI2 Asta prompt from manuscript files.</p>
-<p>This creates a prompt suitable for Semantic Scholar’s Asta AI
-to find related papers or potential collaborators.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>project_path</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code></a></span>) – Path to scitex/writer project directory.
-Should contain 00_shared/ and 01_manuscript/contents/.</p></li>
-<li><p><strong>search_type</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></span>) – Type of search. One of:
-- “related”: Find related papers
-- “coauthors”: Find potential collaborators</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><ul class="simple">
-<li><p>success: Whether generation succeeded</p></li>
-<li><p>prompt: The generated prompt for AI2 Asta</p></li>
-<li><p>search_type: The search type used</p></li>
-<li><p>next_steps: List of suggested next steps</p></li>
-<li><p>error: Error message if failed, None otherwise</p></li>
-</ul>
-</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Dictionary with</p>
-</dd>
-</dl>
-<dl class="simple">
-<dt>Environment Variables:</dt><dd><p>SCITEX_WRITER_PROMPT_ASTA_RELATED: Custom template for related papers
-SCITEX_WRITER_PROMPT_ASTA_COAUTHORS: Custom template for collaborators</p>
-</dd>
-</dl>
-</dd></dl>
-
 </section>
 <section id="module-scitex_writer.writer">
 <span id="scitex-writer-writer"></span><h3>scitex_writer.writer<a class="headerlink" href="#module-scitex_writer.writer" title="Link to this heading"></a></h3>
@@ -1717,7 +1386,7 @@ SCITEX_WRITER_PROMPT_ASTA_COAUTHORS: Custom template for collaborators</p>
 <p>Provides object-oriented interface to scitex-writer functionality.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="scitex_writer.writer.Writer">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">scitex_writer.writer.</span></span><span class="sig-name descname"><span class="pre">Writer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">project_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">git_strategy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'child'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">branch</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tag</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scitex_writer/writer.html#Writer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#scitex_writer.writer.Writer" title="Link to this definition"></a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">scitex_writer.writer.</span></span><span class="sig-name descname"><span class="pre">Writer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">project_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">git_strategy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'child'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">branch</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tag</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scitex_writer/writer.html#Writer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#scitex_writer.writer.Writer" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>LaTeX manuscript compiler.</p>
 <dl class="py method">
@@ -1998,17 +1667,6 @@ If None, clones the default branch. Mutually exclusive with branch.</p></li>
 </dl>
 </dd></dl>
 
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="scitex_writer.writer._find_git_root">
-<span class="sig-prename descclassname"><span class="pre">scitex_writer.writer.</span></span><span class="sig-name descname"><span class="pre">_find_git_root</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">project_dir</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scitex_writer/writer.html#_find_git_root"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#scitex_writer.writer._find_git_root" title="Link to this definition"></a></dt>
-<dd><p>Find git root for project directory.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.14)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code></a>]</span></p>
-</dd>
-</dl>
 </dd></dl>
 
 </section>
