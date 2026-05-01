@@ -116,7 +116,7 @@ SciTeX Writer solves each of these problems:
 | **MCP Tools** | AI agents | 39 tools for Claude/GPT integration |
 | **Skills** | AI agent discovery | Workflow guides for capabilities and patterns |
 
-<details>
+<details open>
 <summary><strong>Python API</strong></summary>
 
 **Compile** — Build PDFs
