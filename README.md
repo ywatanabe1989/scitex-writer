@@ -20,14 +20,6 @@
 [![License: AGPL v3](https://img.shields.io/badge/license-AGPL_v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
 <!-- scitex-badges:end -->
 
-
-<p align="center">
-  <a href="https://badge.fury.io/py/scitex-writer"><img src="https://badge.fury.io/py/scitex-writer.svg" alt="PyPI version"></a>
-  <a href="https://pypi.org/project/scitex-writer/"><img src="https://img.shields.io/pypi/pyversions/scitex-writer.svg" alt="Python Versions"></a>
-  <a href="https://scitex-writer.readthedocs.io/"><img src="https://readthedocs.org/projects/scitex-writer/badge/?version=latest" alt="Documentation"></a>
-  <a href="https://github.com/ywatanabe1989/scitex-writer/blob/main/LICENSE"><img src="https://img.shields.io/github/license/ywatanabe1989/scitex-writer" alt="License"></a>
-</p>
-
 <p align="center">
   <a href="https://scitex.ai">scitex.ai</a> · <a href="https://scitex-writer.readthedocs.io/">docs</a> · <code>pip install scitex-writer</code>
 </p>
@@ -495,14 +487,18 @@ Change citation style in `config/config_manuscript.yaml`:
 
 ## Part of SciTeX
 
-SciTeX Writer is part of [SciTeX](https://scitex.ai). When used inside the orchestrator package `scitex`, synergy between modules enables end-to-end scientific workflows — from data analysis through publication-ready manuscripts.
+`scitex-writer` is part of [**SciTeX**](https://scitex.ai). Install via
+the umbrella with `pip install scitex[writer]` to use as
+`scitex.writer` (Python) or `scitex writer ...` (CLI).
 
-The SciTeX ecosystem follows the **Four Freedoms** for researchers, inspired by [the Free Software Definition](https://www.gnu.org/philosophy/free-sw.en.html):
-
-0. **Use** — Run the software for any research purpose
-1. **Study** — Examine how it works and adapt it to your needs
-2. **Share** — Distribute copies to fellow researchers
-3. **Improve** — Enhance the software and share improvements with the community
+>Four Freedoms for Research
+>
+>0. The freedom to **run** your research anywhere — your machine, your terms.
+>1. The freedom to **study** how every step works — from raw data to final manuscript.
+>2. The freedom to **redistribute** your workflows, not just your papers.
+>3. The freedom to **modify** any module and share improvements with the community.
+>
+>AGPL-3.0 — because we believe research infrastructure deserves the same freedoms as the software it runs on.
 
 ---
 

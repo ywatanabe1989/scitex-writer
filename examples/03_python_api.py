@@ -10,10 +10,13 @@ Usage: python examples/03_python_api.py
 
 from pathlib import Path
 
+import scitex as stx
+
 import scitex_writer as sw
 
 
-def main():
+@stx.session
+def main(CONFIG=stx.session.INJECTED, logger=stx.session.INJECTED):
     """Demonstrate scitex-writer Python API."""
     print("=== Example 03: Python API ===")
 

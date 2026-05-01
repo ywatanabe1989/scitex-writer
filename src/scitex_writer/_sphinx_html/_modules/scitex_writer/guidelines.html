@@ -1,0 +1,367 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>scitex_writer.guidelines &mdash; SciTeX Writer v2.8.1</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=cd87aae0"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            SciTeX Writer
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../installation.html#requirements">Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../installation.html#install-from-pypi">Install from PyPI</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../installation.html#install-from-source">Install from Source</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../installation.html#docker-setup">Docker Setup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../installation.html#verification">Verification</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../quickstart.html">Quick Start</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../quickstart.html#clone-a-template-project">Clone a Template Project</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../quickstart.html#project-structure">Project Structure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../quickstart.html#compile-documents">Compile Documents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../quickstart.html#manage-bibliography">Manage Bibliography</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../quickstart.html#mcp-server-for-ai-agents">MCP Server for AI Agents</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../api/scitex_writer.html">scitex_writer</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../api/scitex_writer.html#scitex_writer.usage"><code class="docutils literal notranslate"><span class="pre">usage()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/scitex_writer.html#scitex_writer.Writer"><code class="docutils literal notranslate"><span class="pre">Writer</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../api/scitex_writer.html#scitex_writer.Writer.__init__"><code class="docutils literal notranslate"><span class="pre">Writer.__init__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/scitex_writer.html#scitex_writer.Writer._attach_or_create_project"><code class="docutils literal notranslate"><span class="pre">Writer._attach_or_create_project()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/scitex_writer.html#scitex_writer.Writer._list_sections"><code class="docutils literal notranslate"><span class="pre">Writer._list_sections()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/scitex_writer.html#scitex_writer.Writer._verify_project_structure"><code class="docutils literal notranslate"><span class="pre">Writer._verify_project_structure()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/scitex_writer.html#scitex_writer.Writer.compile_manuscript"><code class="docutils literal notranslate"><span class="pre">Writer.compile_manuscript()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/scitex_writer.html#scitex_writer.Writer.compile_revision"><code class="docutils literal notranslate"><span class="pre">Writer.compile_revision()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/scitex_writer.html#scitex_writer.Writer.compile_supplementary"><code class="docutils literal notranslate"><span class="pre">Writer.compile_supplementary()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/scitex_writer.html#scitex_writer.Writer.delete"><code class="docutils literal notranslate"><span class="pre">Writer.delete()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/scitex_writer.html#scitex_writer.Writer.get_pdf"><code class="docutils literal notranslate"><span class="pre">Writer.get_pdf()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/scitex_writer.html#scitex_writer.Writer.get_section"><code class="docutils literal notranslate"><span class="pre">Writer.get_section()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/scitex_writer.html#scitex_writer.Writer.read_section"><code class="docutils literal notranslate"><span class="pre">Writer.read_section()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/scitex_writer.html#scitex_writer.Writer.watch"><code class="docutils literal notranslate"><span class="pre">Writer.watch()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/scitex_writer.html#scitex_writer.Writer.write_section"><code class="docutils literal notranslate"><span class="pre">Writer.write_section()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/scitex_writer.html#scitex_writer.ensure_workspace"><code class="docutils literal notranslate"><span class="pre">ensure_workspace()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/scitex_writer.html#scitex_writer.gui"><code class="docutils literal notranslate"><span class="pre">gui()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/scitex_writer.html#scitex_writer._CompilationResult"><code class="docutils literal notranslate"><span class="pre">_CompilationResult</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/scitex_writer.html#scitex_writer._ManuscriptTree"><code class="docutils literal notranslate"><span class="pre">_ManuscriptTree</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/scitex_writer.html#scitex_writer._PackageNotFoundError"><code class="docutils literal notranslate"><span class="pre">_PackageNotFoundError</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/scitex_writer.html#scitex_writer._RevisionTree"><code class="docutils literal notranslate"><span class="pre">_RevisionTree</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/scitex_writer.html#scitex_writer._SupplementaryTree"><code class="docutils literal notranslate"><span class="pre">_SupplementaryTree</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/scitex_writer.html#scitex_writer._version"><code class="docutils literal notranslate"><span class="pre">_version()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/scitex_writer.html#submodules">Submodules</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../api/scitex_writer.html#module-scitex_writer.compile">scitex_writer.compile</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/scitex_writer.html#scitex_writer.compile.manuscript"><code class="docutils literal notranslate"><span class="pre">manuscript()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/scitex_writer.html#scitex_writer.compile.supplementary"><code class="docutils literal notranslate"><span class="pre">supplementary()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/scitex_writer.html#scitex_writer.compile.revision"><code class="docutils literal notranslate"><span class="pre">revision()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/scitex_writer.html#scitex_writer.compile.content"><code class="docutils literal notranslate"><span class="pre">content()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/scitex_writer.html#scitex_writer.compile._compile_manuscript"><code class="docutils literal notranslate"><span class="pre">_compile_manuscript()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/scitex_writer.html#scitex_writer.compile._compile_revision"><code class="docutils literal notranslate"><span class="pre">_compile_revision()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/scitex_writer.html#scitex_writer.compile._compile_supplementary"><code class="docutils literal notranslate"><span class="pre">_compile_supplementary()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/scitex_writer.html#module-scitex_writer.project">scitex_writer.project</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/scitex_writer.html#scitex_writer.project.clone"><code class="docutils literal notranslate"><span class="pre">clone()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/scitex_writer.html#scitex_writer.project.info"><code class="docutils literal notranslate"><span class="pre">info()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/scitex_writer.html#scitex_writer.project.get_pdf"><code class="docutils literal notranslate"><span class="pre">get_pdf()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/scitex_writer.html#scitex_writer.project.list_document_types"><code class="docutils literal notranslate"><span class="pre">list_document_types()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/scitex_writer.html#scitex_writer.project._clone_project"><code class="docutils literal notranslate"><span class="pre">_clone_project()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/scitex_writer.html#scitex_writer.project._get_pdf"><code class="docutils literal notranslate"><span class="pre">_get_pdf()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/scitex_writer.html#scitex_writer.project._get_project_info"><code class="docutils literal notranslate"><span class="pre">_get_project_info()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/scitex_writer.html#scitex_writer.project._list_document_types"><code class="docutils literal notranslate"><span class="pre">_list_document_types()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/scitex_writer.html#module-scitex_writer.bib">scitex_writer.bib</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/scitex_writer.html#scitex_writer.bib.list_files"><code class="docutils literal notranslate"><span class="pre">list_files()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/scitex_writer.html#scitex_writer.bib.list_entries"><code class="docutils literal notranslate"><span class="pre">list_entries()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/scitex_writer.html#scitex_writer.bib.get"><code class="docutils literal notranslate"><span class="pre">get()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/scitex_writer.html#scitex_writer.bib.add"><code class="docutils literal notranslate"><span class="pre">add()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/scitex_writer.html#scitex_writer.bib.remove"><code class="docutils literal notranslate"><span class="pre">remove()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/scitex_writer.html#scitex_writer.bib.merge"><code class="docutils literal notranslate"><span class="pre">merge()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/scitex_writer.html#scitex_writer.bib._resolve_project_path"><code class="docutils literal notranslate"><span class="pre">_resolve_project_path()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/scitex_writer.html#module-scitex_writer.tables">scitex_writer.tables</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/scitex_writer.html#scitex_writer.tables.list"><code class="docutils literal notranslate"><span class="pre">list()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/scitex_writer.html#scitex_writer.tables.add"><code class="docutils literal notranslate"><span class="pre">add()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/scitex_writer.html#scitex_writer.tables.remove"><code class="docutils literal notranslate"><span class="pre">remove()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/scitex_writer.html#scitex_writer.tables.csv_to_latex"><code class="docutils literal notranslate"><span class="pre">csv_to_latex()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/scitex_writer.html#scitex_writer.tables.latex_to_csv"><code class="docutils literal notranslate"><span class="pre">latex_to_csv()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/scitex_writer.html#scitex_writer.tables._csv_to_latex"><code class="docutils literal notranslate"><span class="pre">_csv_to_latex()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/scitex_writer.html#scitex_writer.tables._latex_to_csv"><code class="docutils literal notranslate"><span class="pre">_latex_to_csv()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/scitex_writer.html#scitex_writer.tables._resolve_project_path"><code class="docutils literal notranslate"><span class="pre">_resolve_project_path()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/scitex_writer.html#module-scitex_writer.figures">scitex_writer.figures</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/scitex_writer.html#scitex_writer.figures.list"><code class="docutils literal notranslate"><span class="pre">list()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/scitex_writer.html#scitex_writer.figures.add"><code class="docutils literal notranslate"><span class="pre">add()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/scitex_writer.html#scitex_writer.figures.remove"><code class="docutils literal notranslate"><span class="pre">remove()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/scitex_writer.html#scitex_writer.figures.convert"><code class="docutils literal notranslate"><span class="pre">convert()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/scitex_writer.html#scitex_writer.figures.pdf_to_images"><code class="docutils literal notranslate"><span class="pre">pdf_to_images()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/scitex_writer.html#scitex_writer.figures._Path"><code class="docutils literal notranslate"><span class="pre">_Path</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/scitex_writer.html#scitex_writer.figures._convert_figure"><code class="docutils literal notranslate"><span class="pre">_convert_figure()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/scitex_writer.html#scitex_writer.figures._list_figures"><code class="docutils literal notranslate"><span class="pre">_list_figures()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/scitex_writer.html#scitex_writer.figures._pdf_to_images"><code class="docutils literal notranslate"><span class="pre">_pdf_to_images()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/scitex_writer.html#scitex_writer.figures._resolve_project_path"><code class="docutils literal notranslate"><span class="pre">_resolve_project_path()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/scitex_writer.html#module-scitex_writer.export">scitex_writer.export</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/scitex_writer.html#scitex_writer.export.manuscript"><code class="docutils literal notranslate"><span class="pre">manuscript()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/scitex_writer.html#scitex_writer.export.clean_latex"><code class="docutils literal notranslate"><span class="pre">clean_latex()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/scitex_writer.html#scitex_writer.export.suggest_categories"><code class="docutils literal notranslate"><span class="pre">suggest_categories()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/scitex_writer.html#scitex_writer.export._ArxivLatexCleaner"><code class="docutils literal notranslate"><span class="pre">_ArxivLatexCleaner</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/scitex_writer.html#scitex_writer.export._export_manuscript"><code class="docutils literal notranslate"><span class="pre">_export_manuscript()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/scitex_writer.html#module-scitex_writer.guidelines">scitex_writer.guidelines</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/scitex_writer.html#scitex_writer.guidelines.get"><code class="docutils literal notranslate"><span class="pre">get()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/scitex_writer.html#scitex_writer.guidelines.build"><code class="docutils literal notranslate"><span class="pre">build()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/scitex_writer.html#scitex_writer.guidelines.list_sections"><code class="docutils literal notranslate"><span class="pre">list_sections()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/scitex_writer.html#scitex_writer.guidelines._Path"><code class="docutils literal notranslate"><span class="pre">_Path</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/scitex_writer.html#scitex_writer.guidelines._get_path"><code class="docutils literal notranslate"><span class="pre">_get_path()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/scitex_writer.html#scitex_writer.guidelines._get_source"><code class="docutils literal notranslate"><span class="pre">_get_source()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/scitex_writer.html#module-scitex_writer.prompts">scitex_writer.prompts</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/scitex_writer.html#scitex_writer.prompts.generate_asta"><code class="docutils literal notranslate"><span class="pre">generate_asta()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/scitex_writer.html#scitex_writer.prompts._generate_ai2_prompt"><code class="docutils literal notranslate"><span class="pre">_generate_ai2_prompt()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/scitex_writer.html#module-scitex_writer.writer">scitex_writer.writer</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/scitex_writer.html#scitex_writer.writer.Writer"><code class="docutils literal notranslate"><span class="pre">Writer</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/scitex_writer.html#scitex_writer.writer._find_git_root"><code class="docutils literal notranslate"><span class="pre">_find_git_root()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">SciTeX Writer</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+          <li class="breadcrumb-item"><a href="../scitex_writer.html">scitex_writer</a></li>
+      <li class="breadcrumb-item active">scitex_writer.guidelines</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for scitex_writer.guidelines</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python3</span>
+<span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="c1"># Timestamp: 2026-01-27</span>
+<span class="c1"># File: src/scitex_writer/guidelines/__init__.py</span>
+
+<span class="sd">&quot;&quot;&quot;IMRAD writing guidelines for scientific manuscripts.</span>
+
+<span class="sd">Guidelines are templates/tips for writing manuscript sections.</span>
+<span class="sd">Prompts can be built from guidelines + user content.</span>
+
+<span class="sd">Usage::</span>
+
+<span class="sd">    from scitex_writer.guidelines import get, build, list_sections</span>
+
+<span class="sd">    # Get raw guidelines</span>
+<span class="sd">    tips = get(&quot;abstract&quot;)</span>
+
+<span class="sd">    # Build prompt with draft</span>
+<span class="sd">    prompt = build(&quot;abstract&quot;, draft=&quot;My draft text...&quot;)</span>
+
+<span class="sd">Custom guidelines via environment variables:</span>
+<span class="sd">    SCITEX_WRITER_GUIDELINE_ABSTRACT=/path/to/custom.md</span>
+<span class="sd">    SCITEX_WRITER_GUIDELINE_DIR=/path/to/guidelines/</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">_os</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span> <span class="k">as</span> <span class="n">_Path</span>
+
+<span class="c1"># Available sections (internal)</span>
+<span class="n">_SECTIONS</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;abstract&quot;</span><span class="p">,</span> <span class="s2">&quot;introduction&quot;</span><span class="p">,</span> <span class="s2">&quot;methods&quot;</span><span class="p">,</span> <span class="s2">&quot;discussion&quot;</span><span class="p">,</span> <span class="s2">&quot;proofread&quot;</span><span class="p">]</span>
+
+<span class="c1"># Default data directory</span>
+<span class="n">_DEFAULT_DIR</span> <span class="o">=</span> <span class="n">_Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;get&quot;</span><span class="p">,</span> <span class="s2">&quot;build&quot;</span><span class="p">,</span> <span class="s2">&quot;list_sections&quot;</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="_get_path">
+<a class="viewcode-back" href="../../api/scitex_writer.html#scitex_writer.guidelines._get_path">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_path</span><span class="p">(</span><span class="n">section</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_Path</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get path to guideline file, checking env overrides first.&quot;&quot;&quot;</span>
+    <span class="n">env_key</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;SCITEX_WRITER_GUIDELINE_</span><span class="si">{</span><span class="n">section</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="k">if</span> <span class="n">env_path</span> <span class="o">:=</span> <span class="n">_os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">env_key</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">_Path</span><span class="p">(</span><span class="n">env_path</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">guideline_dir</span> <span class="o">:=</span> <span class="n">_os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;SCITEX_WRITER_GUIDELINE_DIR&quot;</span><span class="p">):</span>
+        <span class="n">custom_path</span> <span class="o">=</span> <span class="n">_Path</span><span class="p">(</span><span class="n">guideline_dir</span><span class="p">)</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">section</span><span class="si">}</span><span class="s2">.md&quot;</span>
+        <span class="k">if</span> <span class="n">custom_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="k">return</span> <span class="n">custom_path</span>
+
+    <span class="k">return</span> <span class="n">_DEFAULT_DIR</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">section</span><span class="si">}</span><span class="s2">_.md&quot;</span></div>
+
+
+
+<div class="viewcode-block" id="get">
+<a class="viewcode-back" href="../../api/scitex_writer.html#scitex_writer.guidelines.get">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get</span><span class="p">(</span><span class="n">section</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get writing guidelines for a manuscript section.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        section: One of: abstract, introduction, methods, discussion, proofread</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Guidelines markdown content with PLACEHOLDER marker.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        ValueError: If section is not recognized.</span>
+<span class="sd">        FileNotFoundError: If guidelines file not found.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">section</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">section</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">_SECTIONS</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Unknown section: &#39;</span><span class="si">{</span><span class="n">section</span><span class="si">}</span><span class="s2">&#39;. Available: </span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">_SECTIONS</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+
+    <span class="n">path</span> <span class="o">=</span> <span class="n">_get_path</span><span class="p">(</span><span class="n">section</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Guidelines not found: </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">path</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="build">
+<a class="viewcode-back" href="../../api/scitex_writer.html#scitex_writer.guidelines.build">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">build</span><span class="p">(</span><span class="n">section</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">draft</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">placeholder</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;PLACEHOLDER&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Build a prompt from guidelines and user draft.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        section: Section name.</span>
+<span class="sd">        draft: User&#39;s draft text.</span>
+<span class="sd">        placeholder: Placeholder to replace (default: PLACEHOLDER).</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Complete prompt with draft inserted.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">template</span> <span class="o">=</span> <span class="n">get</span><span class="p">(</span><span class="n">section</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">template</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">placeholder</span><span class="p">,</span> <span class="n">draft</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="list_sections">
+<a class="viewcode-back" href="../../api/scitex_writer.html#scitex_writer.guidelines.list_sections">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">list_sections</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;List available sections.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">_SECTIONS</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span></div>
+
+
+
+<div class="viewcode-block" id="_get_source">
+<a class="viewcode-back" href="../../api/scitex_writer.html#scitex_writer.guidelines._get_source">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_source</span><span class="p">(</span><span class="n">section</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get info about where guidelines are loaded from.&quot;&quot;&quot;</span>
+    <span class="n">section</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+
+    <span class="n">env_key</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;SCITEX_WRITER_GUIDELINE_</span><span class="si">{</span><span class="n">section</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="k">if</span> <span class="n">env_path</span> <span class="o">:=</span> <span class="n">_os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">env_key</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;path&quot;</span><span class="p">:</span> <span class="n">env_path</span><span class="p">,</span> <span class="s2">&quot;source&quot;</span><span class="p">:</span> <span class="s2">&quot;env&quot;</span><span class="p">}</span>
+
+    <span class="k">if</span> <span class="n">guideline_dir</span> <span class="o">:=</span> <span class="n">_os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;SCITEX_WRITER_GUIDELINE_DIR&quot;</span><span class="p">):</span>
+        <span class="n">custom_path</span> <span class="o">=</span> <span class="n">_Path</span><span class="p">(</span><span class="n">guideline_dir</span><span class="p">)</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">section</span><span class="si">}</span><span class="s2">.md&quot;</span>
+        <span class="k">if</span> <span class="n">custom_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;path&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">custom_path</span><span class="p">),</span> <span class="s2">&quot;source&quot;</span><span class="p">:</span> <span class="s2">&quot;custom_dir&quot;</span><span class="p">}</span>
+
+    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;path&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">_DEFAULT_DIR</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">section</span><span class="si">}</span><span class="s2">_.md&quot;</span><span class="p">),</span> <span class="s2">&quot;source&quot;</span><span class="p">:</span> <span class="s2">&quot;default&quot;</span><span class="p">}</span></div>
+
+
+
+<span class="c1"># EOF</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Yusuke Watanabe.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
