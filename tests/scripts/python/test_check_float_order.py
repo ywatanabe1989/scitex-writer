@@ -7,7 +7,7 @@ import sys
 from pathlib import Path
 
 # Add scripts/python to path for imports
-ROOT_DIR = Path(__file__).resolve().parent.parent.parent
+ROOT_DIR = Path(__file__).resolve().parent.parent.parent.parent
 sys.path.insert(0, str(ROOT_DIR / "scripts" / "python"))
 
 from check_float_order import (  # noqa: E402
