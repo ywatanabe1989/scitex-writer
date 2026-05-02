@@ -66,6 +66,12 @@ dev = [
     "pytest-cov>=4.0.0",
     "pytest-xdist>=3.0.0",
     "pre-commit>=3.5.0",
+    # Optional features whose tests live in the suite — installed in [dev]
+    # so a fresh `pip install -e .[dev]` runs the full suite. Production
+    # users opt in via `pip install scitex-writer[scholar]`. See
+    # _skills/general/01_ecosystem_02_dependency-and-version-pinning.md
+    # `[dev]` extras completeness.
+    "scitex-scholar",     # tested via [scholar] integration tests
 ]
 docs = [
     "sphinx>=7.0",
