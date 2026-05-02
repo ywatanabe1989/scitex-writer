@@ -39,6 +39,7 @@ classifiers = [
     "Topic :: Text Processing :: Markup :: LaTeX",
 ]
 dependencies = [
+    "click>=8.0",
     "fastmcp>=2.0.0",
     "scitex-dev>=0.1.0",
     "django>=4.2",

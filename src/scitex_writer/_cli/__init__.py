@@ -138,20 +138,18 @@ def mcp_group(ctx):
         click.echo(ctx.get_help())
 
 
-@mcp_group.command("installation")
+@mcp_group.command("show-installation")
 @click.option("--json", "as_json", is_flag=True, default=False, help="Emit JSON.")
-def mcp_installation(as_json):
+def mcp_show_installation(as_json):
     """Show Claude Desktop installation guide for the scitex-writer MCP server.
 
     \b
     Example:
-        $ scitex-writer mcp installation
+        $ scitex-writer mcp show-installation
     """
-    import argparse
-
     from .mcp import cmd_config
 
-    return cmd_config(argparse.Namespace())
+    return cmd_config()
 
 
 @mcp_group.command("list-tools")
@@ -176,14 +174,11 @@ def mcp_list_tools(verbose, compact, module_filter, as_json):
         $ scitex-writer mcp list-tools -vv
         $ scitex-writer mcp list-tools --module bib --json
     """
-    import argparse
-
     from .mcp import cmd_list_tools
 
-    ns = argparse.Namespace(
-        verbose=verbose, compact=compact, module=module_filter, json=as_json
+    return cmd_list_tools(
+        verbose=verbose, compact=compact, module=module_filter, as_json=as_json
     )
-    return cmd_list_tools(ns)
 
 
 @mcp_group.command("doctor")
@@ -195,11 +190,9 @@ def mcp_doctor(as_json):
     Example:
         $ scitex-writer mcp doctor
     """
-    import argparse
-
     from .mcp import cmd_doctor
 
-    return cmd_doctor(argparse.Namespace())
+    return cmd_doctor()
 
 
 @mcp_group.command("start")
@@ -234,11 +227,9 @@ def mcp_start(transport, dry_run, yes, as_json):
         else:
             click.echo(f"Would start MCP server (transport={transport}).")
         return 0
-    import argparse
-
     from .mcp import cmd_start
 
-    return cmd_start(argparse.Namespace(transport=transport))
+    return cmd_start(transport=transport)
 
 
 # =========================================================================
@@ -332,15 +323,17 @@ def _make_guideline_cmd(section: str):
     _impl.__doc__ = (
         f"Show or build the {section} writing guidelines.\n\n"
         f"\b\nExample:\n"
-        f"    $ scitex-writer guidelines {section}\n"
-        f"    $ scitex-writer guidelines {section} -d draft.tex\n"
-        f"    $ scitex-writer guidelines {section} --json\n"
+        f"    $ scitex-writer guidelines show-{section}\n"
+        f"    $ scitex-writer guidelines show-{section} -d draft.tex\n"
+        f"    $ scitex-writer guidelines show-{section} --json\n"
     )
     return _impl
 
 
 for _sec in _GUIDELINE_SECTIONS:
-    guidelines_group.command(_sec)(_make_guideline_cmd(_sec))
+    # Canonical: verb-leaf form (§1 compliant). Old `<section>` form is
+    # transparently translated to `show-<section>` by `_rewrite_argv`.
+    guidelines_group.command(f"show-{_sec}")(_make_guideline_cmd(_sec))
 
 
 # =========================================================================
@@ -362,7 +355,7 @@ def prompts_group(ctx):
         click.echo(ctx.get_help())
 
 
-@prompts_group.command("asta")
+@prompts_group.command("show-asta")
 @click.option(
     "-t",
     "--type",
@@ -413,7 +406,7 @@ def prompts_asta(search_type, project, info, as_json):
 # =========================================================================
 
 
-@main_group.group("compile", invoke_without_command=True)
+@main_group.group("compile", invoke_without_command=True, hidden=True)
 @click.pass_context
 def compile_group(ctx):
     """Compile LaTeX documents to PDF (manuscript / supplementary / revision / content).
@@ -630,7 +623,7 @@ def compile_content(
 # =========================================================================
 
 
-@main_group.group("export", invoke_without_command=True)
+@main_group.group("export", invoke_without_command=True, hidden=True)
 @click.pass_context
 def export_group(ctx):
     """Export manuscript for submission (arXiv/journal-ready bundles).
@@ -1489,7 +1482,7 @@ def migration_export(project, output, dry_run, yes, as_json):
 # =========================================================================
 
 
-@main_group.group("introspect", invoke_without_command=True)
+@main_group.group("introspect", invoke_without_command=True, hidden=True)
 @click.pass_context
 def introspect_group(ctx):
     """Python package introspection utilities.
@@ -1519,14 +1512,9 @@ def introspect_show_api(dotted_path, verbose, max_depth, as_json):
         $ scitex-writer introspect show-api scitex_writer.bib -v
         $ scitex-writer introspect show-api scitex_writer --json
     """
-    import argparse
-
     from .introspect import cmd_api
 
-    ns = argparse.Namespace(
-        dotted_path=dotted_path, verbose=verbose, max_depth=max_depth, json=as_json
-    )
-    return cmd_api(ns)
+    return cmd_api(dotted_path, verbose=verbose, max_depth=max_depth, as_json=as_json)
 
 
 @main_group.command("list-python-apis")
@@ -1544,17 +1532,9 @@ def list_python_apis(verbose, max_depth, as_json):
         $ scitex-writer list-python-apis -v
         $ scitex-writer list-python-apis --json
     """
-    import argparse
-
     from .introspect import cmd_list_python_apis
 
-    ns = argparse.Namespace(
-        dotted_path="scitex_writer",
-        verbose=verbose,
-        max_depth=max_depth,
-        json=as_json,
-    )
-    return cmd_list_python_apis(ns)
+    return cmd_list_python_apis(verbose=verbose, max_depth=max_depth, as_json=as_json)
 
 
 # =========================================================================
@@ -1578,6 +1558,37 @@ def show_usage(as_json):
     else:
         click.echo(text)
     return 0
+
+
+# =========================================================================
+# §1 flat top-level aliases — verb-shaped groups (compile/export/introspect)
+# are kept as hidden back-compat shims; the canonical forms are flat
+# `<verb>-<noun>` commands at the top level. Same Click Command objects are
+# attached to two parents, so behaviour is identical.
+# =========================================================================
+
+
+def _alias_top_level(cmd: click.Command, new_name: str) -> None:
+    """Re-attach a Click command at the top level under a flat verb-noun name.
+
+    The `.name` attribute is updated so audit traversal (which classifies by
+    `cmd.name`, not by the parent's commands-dict key) sees the canonical
+    `<verb>-<noun>` form. The original group registration is preserved on
+    the hidden back-compat group.
+    """
+    import copy as _copy
+
+    clone = _copy.copy(cmd)
+    clone.name = new_name
+    main_group.add_command(clone, name=new_name)
+
+
+_alias_top_level(compile_manuscript, "compile-manuscript")
+_alias_top_level(compile_supplementary, "compile-supplementary")
+_alias_top_level(compile_revision, "compile-revision")
+_alias_top_level(compile_content, "compile-content")
+_alias_top_level(export_manuscript, "export-manuscript")
+_alias_top_level(introspect_show_api, "show-api")
 
 
 # =========================================================================
@@ -1619,8 +1630,29 @@ _TOP_RENAMES = {
     "usage": "show-usage",
 }
 
-_INTROSPECT_RENAMES = {
-    "api": "show-api",
+# old `<verb> <noun>` -> canonical flat `<verb>-<noun>`
+# (groups are kept as hidden back-compat shims; this rewrite is so users
+# typing the old form land on the canonical command path so help/usage
+# reflects current naming).
+_FLAT_RENAMES = {
+    ("compile", "manuscript"): "compile-manuscript",
+    ("compile", "supplementary"): "compile-supplementary",
+    ("compile", "revision"): "compile-revision",
+    ("compile", "content"): "compile-content",
+    ("export", "manuscript"): "export-manuscript",
+    ("introspect", "api"): "show-api",
+    ("introspect", "show-api"): "show-api",
+}
+
+# old `<group> <leaf>` -> `<group> <new-leaf>` (group preserved)
+_LEAF_RENAMES = {
+    ("mcp", "installation"): "show-installation",
+    ("guidelines", "introduction"): "show-introduction",
+    ("guidelines", "methods"): "show-methods",
+    ("guidelines", "discussion"): "show-discussion",
+    ("guidelines", "abstract"): "show-abstract",
+    ("guidelines", "proofread"): "show-proofread",
+    ("prompts", "asta"): "show-asta",
 }
 
 
@@ -1636,10 +1668,13 @@ def _rewrite_argv(argv):
     sub = argv[i]
     if sub in _TOP_RENAMES:
         argv = argv[:i] + [_TOP_RENAMES[sub]] + argv[i + 1 :]
-    elif sub == "introspect" and i + 1 < len(argv):
-        nxt = argv[i + 1]
-        if nxt in _INTROSPECT_RENAMES:
-            argv = argv[: i + 1] + [_INTROSPECT_RENAMES[nxt]] + argv[i + 2 :]
+        return argv
+    if i + 1 < len(argv):
+        pair = (sub, argv[i + 1])
+        if pair in _FLAT_RENAMES:
+            return argv[:i] + [_FLAT_RENAMES[pair]] + argv[i + 2 :]
+        if pair in _LEAF_RENAMES:
+            return argv[: i + 1] + [_LEAF_RENAMES[pair]] + argv[i + 2 :]
     return argv
 
 
