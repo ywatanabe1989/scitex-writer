@@ -177,15 +177,15 @@ def _format_value(value: Dict, style: str) -> str:
 
     # (3) legacy single-value shape
     if "value" in value:
-        v = value.get("value", "")
-        unit = value.get("unit", "")
+        v = _latex_escape_value(value.get("value", ""))
+        unit = _latex_escape_value(value.get("unit", ""))
         if unit:
             return f"{v} {unit}" if style == "plain" else f"${v}$ {unit}"
         return str(v)
 
     # (4) fallback — flat key=val dump
     return ", ".join(
-        f"{k}={v}"
+        f"{k}={_latex_escape_value(v)}"
         for k, v in value.items()
         if not (isinstance(k, str) and k.startswith("template"))
     )
@@ -193,7 +193,7 @@ def _format_value(value: Dict, style: str) -> str:
 
 def _format_citation(value: Dict, style: str) -> str:
     """Format a citation claim — just returns user-supplied text."""
-    return str(value.get("text", ""))
+    return _latex_escape_value(value.get("text", ""))
 
 
 def _format_figure(value: Dict, style: str) -> str:
@@ -208,12 +208,35 @@ def _format_table(value: Dict, style: str) -> str:
     return f"\\ref{{{label}}}"
 
 
+def _latex_escape_value(s: str) -> str:
+    """Escape LaTeX special characters in a claim value string.
+
+    Only the silent-killer specials (`%`, unbalanced `{` / `}`, `&`, `#`,
+    `$`, `_`) are escaped — characters that template-authors might use
+    intentionally (`\\`, `^`, `~`) are left alone. The motivating bug:
+    a claim value of `"25%"` (e.g. bix-6 q5 percentage) was inlined raw
+    into LaTeX, where `%` starts a comment that consumed the closing
+    brace of the surrounding `\\IfFileExists{file}{BODY}` wrapper and
+    triggered a runaway-argument error on every compile. Discovered
+    2026-05-03 in paper-scitex-clew."""
+    if not isinstance(s, str):
+        s = str(s)
+    return (
+        s.replace("\\", "\\textbackslash{}")
+        .replace("&", "\\&")
+        .replace("%", "\\%")
+        .replace("$", "\\$")
+        .replace("#", "\\#")
+        .replace("_", "\\_")
+    )
+
+
 def _render_claim(claim: Dict, style: str) -> str:
     """Render a single claim as a LaTeX string."""
     claim_type = claim.get("type", "value")
     value = claim.get("value", {})
     if isinstance(value, str):
-        return value
+        return _latex_escape_value(value)
     formatters = {
         "statistic": _format_statistic,
         "value": _format_value,
