@@ -1,7 +1,8 @@
 ---
-description: CLI commands for scitex-writer.
-name: cli-reference
-tags: [scitex-writer, scitex-package]
+description: |
+  [TOPIC] CLI Reference
+  [DETAILS] CLI commands for scitex-writer..
+tags: [scitex-writer-cli-reference]
 ---
 
 # CLI Reference

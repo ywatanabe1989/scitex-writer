@@ -1,7 +1,8 @@
 ---
-name: audit-paper-methods-output
-description: COMPREHENSIVE ACADEMIC MANUSCRIPT AUDIT — METHODS, STRUCTURE, CROSS-DOCUMENT, PITFALLS, OUTPUT
-tags: [scitex-writer, scitex-package]
+description: |
+  [TOPIC] Audit Paper Methods Output
+  [DETAILS] COMPREHENSIVE ACADEMIC MANUSCRIPT AUDIT — METHODS, STRUCTURE, CROSS-DOCUMENT, PITFALLS, OUTPUT.
+tags: [scitex-writer-audit-paper-methods-output]
 ---
 
 COMPREHENSIVE ACADEMIC MANUSCRIPT AUDIT — METHODS, STRUCTURE, CROSS-DOCUMENT, PITFALLS, OUTPUT

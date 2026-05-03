@@ -1,7 +1,8 @@
 ---
-name: audit-paper
-description: COMPREHENSIVE ACADEMIC MANUSCRIPT AUDIT PROMPT
-tags: [scitex-writer, scitex-package]
+description: |
+  [TOPIC] Audit Paper
+  [DETAILS] COMPREHENSIVE ACADEMIC MANUSCRIPT AUDIT PROMPT.
+tags: [scitex-writer-audit-paper]
 ---
 
 COMPREHENSIVE ACADEMIC MANUSCRIPT AUDIT PROMPT

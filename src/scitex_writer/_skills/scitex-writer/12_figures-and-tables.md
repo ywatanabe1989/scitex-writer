@@ -1,7 +1,8 @@
 ---
-description: Add, list, and manage figures and tables in manuscripts.
-name: figures-and-tables
-tags: [scitex-writer, scitex-package]
+description: |
+  [TOPIC] Figures and Tables
+  [DETAILS] Add, list, and manage figures and tables in manuscripts..
+tags: [scitex-writer-figures-and-tables]
 ---
 
 # Figures and Tables

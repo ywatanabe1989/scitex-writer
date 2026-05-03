@@ -1,7 +1,8 @@
 ---
-name: manuscript-workflow
-description: Complete manuscript workflow from project creation to submission.
-tags: [scitex-writer, scitex-package]
+description: |
+  [TOPIC] Manuscript Workflow
+  [DETAILS] Complete manuscript workflow from project creation to submission..
+tags: [scitex-writer-manuscript-workflow]
 ---
 
 # Manuscript Workflow

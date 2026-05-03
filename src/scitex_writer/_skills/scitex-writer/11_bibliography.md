@@ -1,7 +1,8 @@
 ---
-description: BibTeX management — add, list, merge, enrich bibliography entries.
-name: bibliography
-tags: [scitex-writer, scitex-package]
+description: |
+  [TOPIC] Bibliography
+  [DETAILS] BibTeX management — add, list, merge, enrich bibliography entries..
+tags: [scitex-writer-bibliography]
 ---
 
 # Bibliography

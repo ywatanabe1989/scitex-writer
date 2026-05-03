@@ -1,7 +1,8 @@
 ---
-description: Discussion writing guidelines — role, aim, style/volume/miscellaneous rules, and 5-section discussion template for scientific manuscripts.
-name: writing-discussion
-tags: [scitex-writer, scitex-package]
+description: |
+  [TOPIC] Scientific Discussion Writing Guidelines
+  [DETAILS] Discussion writing guidelines — role, aim, style/volume/miscellaneous rules, and 5-section discussion template for scientific manuscripts..
+tags: [scitex-writer-writing-discussion]
 ---
 
 # Scientific Discussion Writing Guidelines

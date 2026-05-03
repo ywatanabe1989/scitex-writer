@@ -1,7 +1,8 @@
 ---
-name: scitex-writer-env-vars
-description: Environment variables read by scitex-writer at import / runtime. Follow SCITEX_<MODULE>_* convention — see general/10_arch-environment-variables.md.
-tags: [scitex-writer, scitex-package]
+description: |
+  [TOPIC] scitex-writer — Environment Variables
+  [DETAILS] Environment variables read by scitex-writer at import / runtime. Follow SCITEX_<MODULE>_* convention — see general/10_arch-environment-variables.md..
+tags: [scitex-writer-env-vars]
 ---
 
 # scitex-writer — Environment Variables

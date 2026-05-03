@@ -1,7 +1,8 @@
 ---
-description: Academic mermaid diagram style guide with color palette, node shapes, and examples for scientific publications.
-name: writing-mermaid
-tags: [scitex-writer, scitex-package]
+description: |
+  [TOPIC] Mermaid Academic Figure Style Guide
+  [DETAILS] Academic mermaid diagram style guide with color palette, node shapes, and examples for scientific publications..
+tags: [scitex-writer-writing-mermaid]
 ---
 
 # Mermaid Academic Figure Style Guide
