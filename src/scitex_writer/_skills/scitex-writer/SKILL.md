@@ -30,11 +30,18 @@ CSV-to-LaTeX), and verifiable claims linked to session hashes.
 `pip install scitex` to get `import scitex.writer as sw`. See
 [../../general/02_interface-python-api.md].
 
-## Core / interfaces
+## Sub-skills
 
-- [01_quick-start.md](01_quick-start.md) — basic workflow
-- [02_cli-reference.md](02_cli-reference.md) — CLI reference
-- [03_mcp-tools.md](03_mcp-tools.md) — MCP tools for AI agents
+### Mandatory leaves
+- [01_installation.md](01_installation.md) — pip install + extras + smoke verify
+- [02_quick-start.md](02_quick-start.md) — clone-and-compile minimal example
+- [03_python-api.md](03_python-api.md) — top-level Python surface
+- [04_cli-reference.md](04_cli-reference.md) — `scitex-writer` subcommand summary
+
+### Core / interfaces
+- [06_quick-start.md](06_quick-start.md) — basic workflow
+- [07_cli-reference.md](07_cli-reference.md) — CLI reference (legacy detail)
+- [08_mcp-tools.md](08_mcp-tools.md) — MCP tools for AI agents
 
 ## Workflows
 
@@ -49,11 +56,11 @@ CSV-to-LaTeX), and verifiable claims linked to session hashes.
 
 ## Scientific writing standards
 
-- [20_writing-attitude.md](20_writing-attitude.md) — evidence, critical analysis
 - [21_writing-proofreading.md](21_writing-proofreading.md) — language rules, corrections, section-specific
 - [22_writing-figures-stats.md](22_writing-figures-stats.md) — figure rules, stats reporting
 - [23_writing-mermaid.md](23_writing-mermaid.md) — academic mermaid style
 - [24_writing-proofreading-style.md](24_writing-proofreading-style.md) — tone, hedging, transitions, anti-patterns
+- [25_writing-attitude.md](25_writing-attitude.md) — evidence, critical analysis
 
 ## Section templates
 
@@ -67,4 +74,4 @@ CSV-to-LaTeX), and verifiable claims linked to session hashes.
 
 ## Environment
 
-- [40_env-vars.md](40_env-vars.md) — SCITEX_* env vars read by scitex-writer at runtime
+- [20_env-vars.md](20_env-vars.md) — SCITEX_* env vars read by scitex-writer at runtime
