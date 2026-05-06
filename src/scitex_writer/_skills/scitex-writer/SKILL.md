@@ -61,6 +61,7 @@ CSV-to-LaTeX), and verifiable claims linked to session hashes.
 - [23_writing-mermaid.md](23_writing-mermaid.md) — academic mermaid style
 - [24_writing-proofreading-style.md](24_writing-proofreading-style.md) — tone, hedging, transitions, anti-patterns
 - [25_writing-attitude.md](25_writing-attitude.md) — evidence, critical analysis
+- [26_writing-during-exploration.md](26_writing-during-exploration.md) — discipline for in-flight manuscripts: `\vclaim{}` for confirmed numbers, `\placeholder{}`/`\ph{}` for WIP prose, `\hlref{XXX}` for missing refs, v0/pilot vs final/structurally-masked disclosure rules, claim-type pitfall (text→silently dropped; use value), pre-submission grep gate.
 
 ## Section templates
 
