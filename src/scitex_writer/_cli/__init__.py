@@ -1638,6 +1638,15 @@ def _mount_optional_subcommands():
 _mount_optional_subcommands()
 
 
+# §1a: install-shell-completion + print-shell-completion (canonical leaves)
+try:
+    from scitex_dev._cli._completion import attach_shell_completion
+
+    attach_shell_completion(main_group, prog_name="scitex-writer")
+except ImportError:
+    pass
+
+
 # =========================================================================
 # Backward-compat shim: translate deprecated argv tokens to canonical names
 # =========================================================================
