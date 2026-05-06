@@ -79,6 +79,21 @@ git clone https://github.com/ywatanabe1989/scitex-writer.git my-paper
 cd my-paper && make manuscript   # or: ./compile.sh manuscript
 ```
 
+## Part of SciTeX
+
+`scitex-writer` is part of [**SciTeX**](https://scitex.ai). Install via
+the umbrella with `pip install scitex[writer]` to use as
+`scitex.writer` (Python) or `scitex writer ...` (CLI).
+
+>Four Freedoms for Research
+>
+>0. The freedom to **run** your research anywhere — your machine, your terms.
+>1. The freedom to **study** how every step works — from raw data to final manuscript.
+>2. The freedom to **redistribute** your workflows, not just your papers.
+>3. The freedom to **modify** any module and share improvements with the community.
+>
+>AGPL-3.0 — because we believe research infrastructure deserves the same freedoms as the software it runs on.
+
 ## Problem
 
 LaTeX compilation for scientific manuscripts is painful:
@@ -484,21 +499,6 @@ Change citation style in `config/config_manuscript.yaml`:
 | [Architecture](docs/02_ARCHITECTURE_IMPLEMENTATION.md) | Technical details |
 
 </details>
-
-## Part of SciTeX
-
-`scitex-writer` is part of [**SciTeX**](https://scitex.ai). Install via
-the umbrella with `pip install scitex[writer]` to use as
-`scitex.writer` (Python) or `scitex writer ...` (CLI).
-
->Four Freedoms for Research
->
->0. The freedom to **run** your research anywhere — your machine, your terms.
->1. The freedom to **study** how every step works — from raw data to final manuscript.
->2. The freedom to **redistribute** your workflows, not just your papers.
->3. The freedom to **modify** any module and share improvements with the community.
->
->AGPL-3.0 — because we believe research infrastructure deserves the same freedoms as the software it runs on.
 
 ---
 

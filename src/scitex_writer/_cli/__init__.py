@@ -95,7 +95,7 @@ def _emit_json(payload) -> None:
 )
 @click.pass_context
 def main_group(ctx, as_json):
-    """SciTeX Writer - LaTeX manuscript compilation system with MCP server.
+    """scitex-writer (v{version}) - LaTeX manuscript compilation system with MCP server.
 
     \b
     Configuration precedence (highest -> lowest):
@@ -115,6 +115,12 @@ def main_group(ctx, as_json):
     ctx.obj["as_json"] = as_json
     if ctx.invoked_subcommand is None:
         click.echo(ctx.get_help())
+
+
+# Inject the package version into the root group's help text so that
+# `scitex-writer --help` shows `scitex-writer (vX.Y.Z) — ...` without
+# manual updates. importlib.metadata keeps the literal in sync.
+main_group.help = (main_group.help or "").replace("{version}", __version__)
 
 
 # =========================================================================
@@ -157,8 +163,17 @@ def mcp_show_installation_deprecated(ctx):
 
 @mcp_group.command("install")
 @click.option("--json", "as_json", is_flag=True, default=False, help="Emit JSON.")
-@click.option("--dry-run", is_flag=True, help="Accepted for §2; this verb is informational, never mutates state.")
-@click.option("--yes", "-y", is_flag=True, help="Accepted for §2; this verb is informational, never mutates state.")
+@click.option(
+    "--dry-run",
+    is_flag=True,
+    help="Accepted for §2; this verb is informational, never mutates state.",
+)
+@click.option(
+    "--yes",
+    "-y",
+    is_flag=True,
+    help="Accepted for §2; this verb is informational, never mutates state.",
+)
 def mcp_install(as_json, dry_run, yes):
     """Show Claude Desktop installation guide for the scitex-writer MCP server.
 
@@ -877,9 +892,9 @@ def bib_remove(key, project, dry_run, yes, as_json):
         else:
             click.echo(f"Would remove entry: {key}")
         return 0
-    if not yes and not click.confirm(f"Remove entry {key}?", default=True):
-        click.echo("Aborted.")
-        return 1
+    if not yes:
+        click.echo(f"Refusing to remove entry {key} without --yes/-y.", err=True)
+        raise SystemExit(2)
     result = bib.remove(project, key)
     if as_json:
         _emit_json(result)
@@ -1051,9 +1066,9 @@ def tables_remove(name, project, doc_type, dry_run, yes, as_json):
         else:
             click.echo(f"Would remove table {name}.")
         return 0
-    if not yes and not click.confirm(f"Remove table {name}?", default=True):
-        click.echo("Aborted.")
-        return 1
+    if not yes:
+        click.echo(f"Refusing to remove table {name} without --yes/-y.", err=True)
+        raise SystemExit(2)
     result = tables.remove(project, name, doc_type)
     if as_json:
         _emit_json(result)
@@ -1219,9 +1234,9 @@ def figures_remove(name, project, doc_type, dry_run, yes, as_json):
         else:
             click.echo(f"Would remove figure {name}.")
         return 0
-    if not yes and not click.confirm(f"Remove figure {name}?", default=True):
-        click.echo("Aborted.")
-        return 1
+    if not yes:
+        click.echo(f"Refusing to remove figure {name} without --yes/-y.", err=True)
+        raise SystemExit(2)
     result = figures.remove(project, name, doc_type)
     if as_json:
         _emit_json(result)
@@ -1740,6 +1755,12 @@ def main(argv: list = None) -> int:
     except click.exceptions.Abort:
         click.echo("Aborted.", err=True)
         return 1
+
+
+# Wire in the skills group (list/get/install).
+from ._skills import skills_group as _skills_group  # noqa: E402
+
+main_group.add_command(_skills_group)
 
 
 if __name__ == "__main__":
