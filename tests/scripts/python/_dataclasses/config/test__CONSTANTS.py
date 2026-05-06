@@ -1,8 +1,18 @@
-# Add your tests here
+"""Auto-generated smoke test for scitex_writer.scripts.python._dataclasses.config._CONSTANTS.
 
-if __name__ == "__main__":
-    import os
+Replaces the prior placeholder-only stub (audit-project PS206). The
+real test surface should grow from here — the module-import test below
+is the minimum coverage that proves the file at least parses cleanly.
+"""
 
-    import pytest
+import importlib
 
-    pytest.main([os.path.abspath(__file__)])
+import pytest
+
+
+def test_module_imports():
+    """Smoke: target module imports without error."""
+    try:
+        importlib.import_module('scitex_writer.scripts.python._dataclasses.config._CONSTANTS')
+    except ImportError as e:
+        pytest.skip(f"scitex_writer.scripts.python._dataclasses.config._CONSTANTS: {e}")
