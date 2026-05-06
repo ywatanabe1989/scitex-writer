@@ -63,7 +63,7 @@ def handle_dag(request, project):
         )
 
     try:
-        from scitex.clew import generate_mermaid_dag
+        from scitex_clew import generate_mermaid_dag
 
         kwargs: dict = {}
         if target_file:
@@ -125,7 +125,7 @@ def _claim_verification_state(project, claim: dict) -> dict:
         return {"state": "NO_PROVENANCE"}
 
     try:
-        from scitex.clew import verify_chain
+        from scitex_clew import verify_chain
 
         args = {}
         if output_file:

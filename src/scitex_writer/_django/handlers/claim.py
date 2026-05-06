@@ -87,7 +87,7 @@ def handle_claim_chain(request, project, claim_id: str):
     session_id = claim.get("session_id")
     if output_file or session_id:
         try:
-            from scitex.clew import generate_mermaid_dag
+            from scitex_clew import generate_mermaid_dag
 
             response["clew_available"] = True
             kwargs = {}
