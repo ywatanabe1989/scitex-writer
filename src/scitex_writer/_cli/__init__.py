@@ -132,20 +132,39 @@ def mcp_group(ctx):
         $ scitex-writer mcp start
         $ scitex-writer mcp list-tools -vv
         $ scitex-writer mcp doctor
-        $ scitex-writer mcp installation
+        $ scitex-writer mcp install
     """
     if ctx.invoked_subcommand is None:
         click.echo(ctx.get_help())
 
 
-@mcp_group.command("show-installation")
+@mcp_group.command(
+    "show-installation",
+    hidden=True,
+    context_settings={"ignore_unknown_options": True},
+)
+@click.pass_context
+def mcp_show_installation_deprecated(ctx):
+    """(deprecated) Renamed to `install`."""
+    click.echo(
+        "error: `scitex-writer mcp show-installation` was renamed to "
+        "`scitex-writer mcp install`.\n"
+        "Re-run with: scitex-writer mcp install",
+        err=True,
+    )
+    ctx.exit(2)
+
+
+@mcp_group.command("install")
 @click.option("--json", "as_json", is_flag=True, default=False, help="Emit JSON.")
-def mcp_show_installation(as_json):
+def mcp_install(as_json):
     """Show Claude Desktop installation guide for the scitex-writer MCP server.
+
+    (rename of show-installation)
 
     \b
     Example:
-        $ scitex-writer mcp show-installation
+        $ scitex-writer mcp install
     """
     from .mcp import cmd_config
 
@@ -1646,7 +1665,8 @@ _FLAT_RENAMES = {
 
 # old `<group> <leaf>` -> `<group> <new-leaf>` (group preserved)
 _LEAF_RENAMES = {
-    ("mcp", "installation"): "show-installation",
+    ("mcp", "installation"): "install",
+    ("mcp", "show-installation"): "install",
     ("guidelines", "introduction"): "show-introduction",
     ("guidelines", "methods"): "show-methods",
     ("guidelines", "discussion"): "show-discussion",
