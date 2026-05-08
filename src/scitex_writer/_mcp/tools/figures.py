@@ -27,7 +27,7 @@ def register_tools(mcp: FastMCP) -> None:
     """Register figure tools."""
 
     @mcp.tool()
-    def writer_list_figures(
+    def writer_figures_list(
         project_dir: str,
         extensions: Optional[List[str]] = None,
     ) -> dict:
@@ -35,7 +35,7 @@ def register_tools(mcp: FastMCP) -> None:
         return _list_figures(project_dir, extensions)
 
     @mcp.tool()
-    def writer_convert_figure(
+    def writer_figures_convert(
         input_path: str,
         output_path: str,
         dpi: int = 300,
@@ -45,7 +45,7 @@ def register_tools(mcp: FastMCP) -> None:
         return _convert_figure(input_path, output_path, dpi, quality)
 
     @mcp.tool()
-    def writer_pdf_to_images(
+    def writer_figures_pdf_to_images(
         pdf_path: str,
         output_dir: Optional[str] = None,
         pages: Optional[Union[int, List[int]]] = None,
@@ -56,7 +56,7 @@ def register_tools(mcp: FastMCP) -> None:
         return _pdf_to_images(pdf_path, output_dir, pages, dpi, format)
 
     @mcp.tool()
-    def writer_add_figure(
+    def writer_figures_add(
         project_dir: str,
         name: str,
         image_path: str,
@@ -103,7 +103,7 @@ def register_tools(mcp: FastMCP) -> None:
             return {"success": False, "error": str(e)}
 
     @mcp.tool()
-    def writer_remove_figure(
+    def writer_figures_remove(
         project_dir: str,
         name: str,
         doc_type: Literal["manuscript", "supplementary"] = "manuscript",
@@ -118,7 +118,7 @@ def register_tools(mcp: FastMCP) -> None:
         return remove(project_dir, name, doc_type)
 
     @mcp.tool()
-    def writer_archive_figure(
+    def writer_figures_archive(
         project_dir: str,
         name: str,
         doc_type: Literal["manuscript", "supplementary"] = "manuscript",

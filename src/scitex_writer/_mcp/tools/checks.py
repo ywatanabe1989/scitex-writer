@@ -2,8 +2,8 @@
 # -*- coding: utf-8 -*-
 # File: src/scitex_writer/_mcp/tools/checks.py
 # Purpose: MCP tool registrations for pre-compilation project checks.
-#   - writer_check_references (issue #45)
-#   - writer_check_float_order (issue #44)
+#   - writer_checks_references (issue #45)
+#   - writer_checks_float_order (issue #44)
 
 """Pre-compilation check MCP tools."""
 
@@ -23,7 +23,7 @@ def register_tools(mcp: FastMCP) -> None:
     """Register project-check tools."""
 
     @mcp.tool()
-    def writer_check_references(
+    def writer_checks_references(
         project_dir: str,
         doc_type: Literal["manuscript", "supplementary", "all"] = "all",
         parse_log: bool = False,
@@ -39,7 +39,7 @@ def register_tools(mcp: FastMCP) -> None:
         return _check_references(project_dir, doc_type, parse_log)
 
     @mcp.tool()
-    def writer_check_float_order(
+    def writer_checks_float_order(
         project_dir: str,
         doc_type: Literal["manuscript", "supplementary", "all"] = "manuscript",
         fix: bool = False,

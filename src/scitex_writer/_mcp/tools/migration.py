@@ -13,7 +13,7 @@ def register_tools(mcp: FastMCP) -> None:
     """Register migration tools."""
 
     @mcp.tool()
-    def writer_import_overleaf(
+    def writer_migration_from_overleaf(
         zip_path: str,
         output_dir: Optional[str] = None,
         project_name: Optional[str] = None,
@@ -38,7 +38,7 @@ def register_tools(mcp: FastMCP) -> None:
         return from_overleaf(zip_path, output_dir, project_name, dry_run, force)
 
     @mcp.tool()
-    def writer_export_overleaf(
+    def writer_migration_to_overleaf(
         project_dir: str = ".",
         output_path: Optional[str] = None,
         dry_run: bool = False,

@@ -14,7 +14,7 @@ def register_tools(mcp: FastMCP) -> None:
     """Register prompts tools."""
 
     @mcp.tool()
-    def writer_prompts_asta(
+    def writer_prompts_generate_asta(
         project_path: str = ".",
         search_type: str = "related",
     ) -> str:

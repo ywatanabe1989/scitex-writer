@@ -18,7 +18,7 @@ def register_tools(mcp: FastMCP) -> None:
     """Register table tools."""
 
     @mcp.tool()
-    def writer_csv_to_latex(
+    def writer_tables_csv_to_latex(
         csv_path: str,
         output_path: Optional[str] = None,
         caption: Optional[str] = None,
@@ -29,7 +29,7 @@ def register_tools(mcp: FastMCP) -> None:
         return _csv_to_latex(csv_path, output_path, caption, label, longtable)
 
     @mcp.tool()
-    def writer_latex_to_csv(
+    def writer_tables_latex_to_csv(
         latex_path: str,
         output_path: Optional[str] = None,
         table_index: int = 0,
@@ -38,7 +38,7 @@ def register_tools(mcp: FastMCP) -> None:
         return _latex_to_csv(latex_path, output_path, table_index)
 
     @mcp.tool()
-    def writer_list_tables(
+    def writer_tables_list(
         project_dir: str,
         doc_type: Literal["manuscript", "supplementary", "revision"] = "manuscript",
     ) -> dict:
@@ -80,7 +80,7 @@ def register_tools(mcp: FastMCP) -> None:
             return {"success": False, "error": str(e)}
 
     @mcp.tool()
-    def writer_add_table(
+    def writer_tables_add(
         project_dir: str,
         name: str,
         csv_content: str,
@@ -123,7 +123,7 @@ def register_tools(mcp: FastMCP) -> None:
             return {"success": False, "error": str(e)}
 
     @mcp.tool()
-    def writer_remove_table(
+    def writer_tables_remove(
         project_dir: str,
         name: str,
         doc_type: Literal["manuscript", "supplementary"] = "manuscript",
@@ -134,7 +134,7 @@ def register_tools(mcp: FastMCP) -> None:
         return remove(project_dir, name, doc_type)
 
     @mcp.tool()
-    def writer_archive_table(
+    def writer_tables_archive(
         project_dir: str,
         name: str,
         doc_type: Literal["manuscript", "supplementary"] = "manuscript",

@@ -283,6 +283,6 @@ def pdf_to_images(
     return _pdf_to_images(pdf_path, output_dir, pages, dpi, format)
 
 
-__all__ = ["list", "add", "remove", "convert", "pdf_to_images"]
+__all__ = ["list", "add", "remove", "archive", "convert", "pdf_to_images"]
 
 # EOF

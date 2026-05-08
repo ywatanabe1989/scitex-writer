@@ -13,32 +13,32 @@ tags: [scitex-writer-mcp-tools]
 | `writer_compile_content` | Compile content sections |
 | `writer_compile_supplementary` | Compile supplementary |
 | `writer_compile_revision` | Compile revision |
-| `writer_add_figure` | Add figure |
-| `writer_list_figures` | List figures |
-| `writer_remove_figure` | Remove figure |
-| `writer_add_table` | Add table |
-| `writer_list_tables` | List tables |
-| `writer_remove_table` | Remove table |
-| `writer_add_bibentry` | Add bibliography entry |
-| `writer_get_bibentry` | Get bibliography entry |
-| `writer_list_bibentries` | List bibliography |
-| `writer_remove_bibentry` | Remove bibliography entry |
-| `writer_list_bibfiles` | List .bib files |
-| `writer_merge_bibfiles` | Merge bibliography files |
-| `writer_add_claim` | Add verifiable claim |
-| `writer_get_claim` | Get claim |
-| `writer_list_claims` | List claims |
-| `writer_remove_claim` | Remove claim |
-| `writer_render_claims` | Render claims to LaTeX |
-| `writer_format_claim` | Format claim |
+| `writer_figures_add` | Add figure |
+| `writer_figures_list` | List figures |
+| `writer_figures_remove` | Remove figure |
+| `writer_tables_add` | Add table |
+| `writer_tables_list` | List tables |
+| `writer_tables_remove` | Remove table |
+| `writer_bib_add` | Add bibliography entry |
+| `writer_bib_get` | Get bibliography entry |
+| `writer_bib_list_entries` | List bibliography |
+| `writer_bib_remove` | Remove bibliography entry |
+| `writer_bib_list_files` | List .bib files |
+| `writer_bib_merge` | Merge bibliography files |
+| `writer_claim_add` | Add verifiable claim |
+| `writer_claim_get` | Get claim |
+| `writer_claim_list` | List claims |
+| `writer_claim_remove` | Remove claim |
+| `writer_claim_render` | Render claims to LaTeX |
+| `writer_claim_format` | Format claim |
 | `writer_export_manuscript` | Export for submission |
-| `writer_export_overleaf` | Export to Overleaf |
-| `writer_import_overleaf` | Import from Overleaf |
-| `writer_get_pdf` | Get compiled PDF |
-| `writer_get_project_info` | Get project info |
+| `writer_migration_to_overleaf` | Export to Overleaf |
+| `writer_migration_from_overleaf` | Import from Overleaf |
+| `writer_project_get_pdf` | Get compiled PDF |
+| `writer_project_info` | Get project info |
 | `writer_update_project` | Update project settings |
-| `writer_csv_to_latex` | CSV to LaTeX table |
-| `writer_latex_to_csv` | LaTeX table to CSV |
-| `writer_pdf_to_images` | PDF to image conversion |
-| `writer_check_references` | Validate `\ref{}` / `\cite{}` / `\label{}` before compile (issue #45) |
-| `writer_check_float_order` | Validate — or `fix=True` renumber — figure/table reference order (issue #44) |
+| `writer_tables_csv_to_latex` | CSV to LaTeX table |
+| `writer_tables_latex_to_csv` | LaTeX table to CSV |
+| `writer_figures_pdf_to_images` | PDF to image conversion |
+| `writer_checks_references` | Validate `\ref{}` / `\cite{}` / `\label{}` before compile (issue #45) |
+| `writer_checks_float_order` | Validate — or `fix=True` renumber — figure/table reference order (issue #44) |

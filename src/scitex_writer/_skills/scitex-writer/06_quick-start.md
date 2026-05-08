@@ -46,8 +46,8 @@ sw.checks.float_order("./my-paper", fix=True)
 ```
 
 Both return ``{success, exit_code, summary, stdout, stderr}``. Same
-logic is exposed over MCP as ``writer_check_references`` and
-``writer_check_float_order``, and wired into ``check_project.sh``.
+logic is exposed over MCP as ``writer_checks_references`` and
+``writer_checks_float_order``, and wired into ``check_project.sh``.
 
 ## Key Classes
 
