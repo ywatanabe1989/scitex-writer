@@ -40,8 +40,16 @@ class TestDocumentBuilder:
 
     @pytest.fixture
     def scripts_dir(self):
-        """Get scripts directory."""
-        return Path(__file__).resolve().parents[2] / "scripts"
+        """Get the project's `scripts/` directory.
+
+        Walks up to the directory containing `pyproject.toml` so the lookup
+        survives test-tree depth changes.
+        """
+        p = Path(__file__).resolve()
+        for parent in [p, *p.parents]:
+            if (parent / "pyproject.toml").is_file():
+                return parent / "scripts"
+        raise RuntimeError(f"Could not find pyproject.toml from {__file__}")
 
     def test_document_builder_exists(self, scripts_dir):
         """Test that the document builder script exists."""

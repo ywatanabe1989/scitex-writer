@@ -1,4 +1,4 @@
-"""Auto-generated smoke test for scitex_writer.scripts.python._utils._verify_tree_structure.
+"""Auto-generated smoke test for scitex_writer._dataclasses.results._CompilationResult.
 
 Replaces the prior placeholder-only stub (audit-project PS206). The
 test imports the target module — if the import fails, the test
@@ -14,4 +14,4 @@ import importlib
 
 def test_module_imports():
     """Smoke: target module imports without error."""
-    importlib.import_module('scitex_writer.scripts.python._utils._verify_tree_structure')
+    importlib.import_module('scitex_writer._dataclasses.results._CompilationResult')

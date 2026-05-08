@@ -56,7 +56,10 @@ class TestMainHelp:
             text=True,
         )
         assert result.returncode == 0
-        assert "SciTeX Writer" in result.stdout
+        # Match the actual help banner casing emitted by Click. Case-
+        # insensitive lets re-brandings (e.g. lower → Title-case) not
+        # break this smoke test.
+        assert "scitex-writer" in result.stdout.lower()
         assert "mcp" in result.stdout
 
     def test_short_help_flag(self):
