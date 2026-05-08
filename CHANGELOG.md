@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.17.0] - 2026-05-08
+
+### Changed (BREAKING — MCP tool names)
+- **MCP tool naming aligned with Python API `<noun>_<verb>` convention.** Resolves the scitex-dev `audit-mcp-tools §6` parity rule. Clients that call MCP tools by name must update; signatures and behaviour are unchanged.
+  - `bib`: `add_bibentry`/`get_bibentry`/`list_bibentries`/`list_bibfiles`/`remove_bibentry`/`merge_bibfiles` → `bib_add`/`bib_get`/`bib_list_entries`/`bib_list_files`/`bib_remove`/`bib_merge`
+  - `claim`: `add_claim`/`get_claim`/`list_claims`/`remove_claim`/`format_claim`/`render_claims` → `claim_<verb>`
+  - `figures`/`tables`: `add_figure`/`list_figures`/`archive_figure`/`convert_figure`/`pdf_to_images` (and table equivalents incl. `csv_to_latex`/`latex_to_csv`) → `figures_<verb>` / `tables_<verb>`
+  - `project`: `clone_project`/`get_project_info`/`get_pdf`/`list_document_types` → `project_<verb>`
+  - `checks`: `check_float_order`/`check_references` → `checks_<verb>`
+  - `guidelines`: `guideline_get`/`guideline_build`/`guideline_list` → `guidelines_<verb>(_sections)`
+  - `migration`: `import_overleaf`/`export_overleaf` → `migration_from_overleaf` / `migration_to_overleaf`
+  - `prompts`: `prompts_asta` → `prompts_generate_asta`
+- All names are still `writer_`-prefixed at the MCP boundary (e.g., `writer_bib_add`).
+
+### Fixed
+- `audit-zero` campaign — cleared all `scitex-dev ecosystem audit-all scitex-writer` violations: `PS108b`/`SK109`/`SK302` and the §6 MCP parity gap. Test tree migrated from `tests/python/` to `tests/scitex_writer/` mirroring `src/scitex_writer/`; CI workflow paths updated; `tests/develop/test_audit.py` skip_rules cover the upstream-only `§1` umbrella-bridge rule.
+- `figures.archive` and `tables.archive` are now in `__all__` so the public API parity check sees them.
+
 ## [2.16.1] - 2026-04-21
 
 ### Fixed

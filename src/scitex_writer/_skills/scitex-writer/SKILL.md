@@ -1,6 +1,10 @@
 ---
 name: scitex-writer
-description: End-to-end LaTeX manuscript toolchain — 45 MCP tools — project (clone/info/get_pdf), compile (manuscript / supplementary / revision with tracked changes), BibTeX (add/list/get/remove/merge, dedup by DOI), figures + tables (add/list/remove/archive, csv_to_latex, pdf_to_images), claims (`\vclaim{}` linked to scitex-clew session hashes for verifiable assertions), checks (float order, references), export + Overleaf migration, per-journal guidelines, AI2 Asta prompts. Python API — `scitex_writer.{claim,compile,export,project,tables,figures,bib,guidelines,prompts,migration,checks}` submodules + `Writer` class + `ensure_workspace()` + `gui()` browser editor. Use whenever the user asks to compile manuscript / build PDF / supplementary / revision with tracked changes, add figure/table/bibentry, merge or dedup .bib, csv_to_latex, add a verifiable claim, audit float order, check references, export to arXiv, import/export Overleaf, or mentions IMRAD, \vclaim, `.scitex/writer/` workspace. Drop-in replacement for raw `latexmk` / `pdflatex` / `biber` loops, hand-rolled BibTeX dedup, `df.to_latex`, `pdf2image`, and manual Overleaf git sync.
+description: |
+  [WHAT] End-to-end LaTeX manuscript toolchain — 45 MCP tools — project (clone/info/get_pdf), compile (manuscript / supplementary / revision with tracked changes), BibTeX (add/list/get/remove/merge, dedup by DOI), figures + tables (add/list/remove/archive, csv_to_latex, pdf_to_images), claims (`\vclaim{}` linked to scitex-clew session hashes for verifiable assertions), checks (float order, references), export + Overleaf migration, per-journal guidelines, AI2 Asta prompts.
+  [WHEN] Use whenever the user asks to compile manuscript / build PDF / supplementary / revision with tracked changes, add figure/table/bibentry, merge or dedup .
+  [HOW] `pip install scitex-writer` then `import scitex_writer`; see leaf skills for details.
+tags: [scitex-writer]
 allowed-tools: mcp__scitex__writer_*
 primary_interface: mixed
 interfaces:
@@ -8,9 +12,7 @@ interfaces:
   cli: 3
   mcp: 3
   skills: 2
-  hook: 0
   http: 0
-tags: [scitex-writer, scitex-package]
 ---
 
 # scitex-writer
@@ -28,11 +30,18 @@ CSV-to-LaTeX), and verifiable claims linked to session hashes.
 `pip install scitex` to get `import scitex.writer as sw`. See
 [../../general/02_interface-python-api.md].
 
-## Core / interfaces
+## Sub-skills
 
-- [01_quick-start.md](01_quick-start.md) — basic workflow
-- [02_cli-reference.md](02_cli-reference.md) — CLI reference
-- [03_mcp-tools.md](03_mcp-tools.md) — MCP tools for AI agents
+### Mandatory leaves
+- [01_installation.md](01_installation.md) — pip install + extras + smoke verify
+- [02_quick-start.md](02_quick-start.md) — clone-and-compile minimal example
+- [03_python-api.md](03_python-api.md) — top-level Python surface
+- [04_cli-reference.md](04_cli-reference.md) — `scitex-writer` subcommand summary
+- [05_mcp-tools.md](05_mcp-tools.md) — MCP tools for AI agents
+
+### Core / interfaces
+- [06_quick-start.md](06_quick-start.md) — basic workflow
+- [07_cli-reference.md](07_cli-reference.md) — CLI reference (legacy detail)
 
 ## Workflows
 
@@ -47,11 +56,12 @@ CSV-to-LaTeX), and verifiable claims linked to session hashes.
 
 ## Scientific writing standards
 
-- [20_writing-attitude.md](20_writing-attitude.md) — evidence, critical analysis
 - [21_writing-proofreading.md](21_writing-proofreading.md) — language rules, corrections, section-specific
 - [22_writing-figures-stats.md](22_writing-figures-stats.md) — figure rules, stats reporting
 - [23_writing-mermaid.md](23_writing-mermaid.md) — academic mermaid style
 - [24_writing-proofreading-style.md](24_writing-proofreading-style.md) — tone, hedging, transitions, anti-patterns
+- [25_writing-attitude.md](25_writing-attitude.md) — evidence, critical analysis
+- [26_writing-during-exploration.md](26_writing-during-exploration.md) — discipline for in-flight manuscripts: `\vclaim{}` for confirmed numbers, `\placeholder{}`/`\ph{}` for WIP prose, `\hlref{XXX}` for missing refs, v0/pilot vs final/structurally-masked disclosure rules, claim-type pitfall (text→silently dropped; use value), pre-submission grep gate.
 
 ## Section templates
 
@@ -65,4 +75,4 @@ CSV-to-LaTeX), and verifiable claims linked to session hashes.
 
 ## Environment
 
-- [40_env-vars.md](40_env-vars.md) — SCITEX_* env vars read by scitex-writer at runtime
+- [20_env-vars.md](20_env-vars.md) — SCITEX_* env vars read by scitex-writer at runtime

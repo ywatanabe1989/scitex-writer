@@ -1,7 +1,8 @@
 ---
-description: Discussion writing — section tags, annotated well-written example, and usage for scientific manuscripts.
-name: writing-discussion-example
-tags: [scitex-writer, scitex-package]
+description: |
+  [TOPIC] Scientific Discussion — Section Tags and Example
+  [DETAILS] Discussion writing — section tags, annotated well-written example, and usage for scientific manuscripts..
+tags: [scitex-writer-writing-discussion-example]
 ---
 
 # Scientific Discussion — Section Tags and Example

@@ -1,7 +1,8 @@
 ---
-description: Introduction writing guidelines — role, aim, style/volume/miscellaneous rules, and 8-section introduction template for scientific manuscripts.
-name: writing-introduction
-tags: [scitex-writer, scitex-package]
+description: |
+  [TOPIC] Scientific Introduction Writing Guidelines
+  [DETAILS] Introduction writing guidelines — role, aim, style/volume/miscellaneous rules, and 8-section introduction template for scientific manuscripts..
+tags: [scitex-writer-writing-introduction]
 ---
 
 # Scientific Introduction Writing Guidelines

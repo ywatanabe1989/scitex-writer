@@ -32,7 +32,7 @@ def register_tools(mcp: FastMCP) -> None:
     """Register claim tools with the MCP server."""
 
     @mcp.tool()
-    def writer_add_claim(
+    def writer_claim_add(
         project_dir: str,
         claim_id: str,
         claim_type: str,
@@ -48,7 +48,7 @@ def register_tools(mcp: FastMCP) -> None:
         Claims are traceable scientific assertions — statistics, values, citations —
         stored as structured objects instead of hardcoded magic numbers.
 
-        After adding claims, use writer_render_claims (or recompile) to generate
+        After adding claims, use writer_claim_render (or recompile) to generate
         the LaTeX macro file. Then use \\vclaim{claim_id} in your manuscript.
 
         claim_type options:
@@ -59,10 +59,10 @@ def register_tools(mcp: FastMCP) -> None:
           - table: value={label}
 
         Examples:
-          writer_add_claim("./paper", "group_comparison", "statistic",
+          writer_claim_add("./paper", "group_comparison", "statistic",
                            {"t": 4.23, "df": 34, "p": 0.00032, "d": 0.87},
                            context="Group A vs B alpha power")
-          writer_add_claim("./paper", "replic_rate", "citation",
+          writer_claim_add("./paper", "replic_rate", "citation",
                            {"text": "70\\\\%"}, context="Baker 2016 replication")
         """
         return _add_claim(
@@ -78,7 +78,7 @@ def register_tools(mcp: FastMCP) -> None:
         )
 
     @mcp.tool()
-    def writer_list_claims(project_dir: str) -> dict:
+    def writer_claim_list(project_dir: str) -> dict:
         """List all claims in the project.
 
         Returns each claim's ID, type, context, and a nature-style preview.
@@ -86,7 +86,7 @@ def register_tools(mcp: FastMCP) -> None:
         return _list_claims(project_dir)
 
     @mcp.tool()
-    def writer_get_claim(project_dir: str, claim_id: str) -> dict:
+    def writer_claim_get(project_dir: str, claim_id: str) -> dict:
         """Get full details of a specific claim including all style renderings.
 
         Returns the raw claim data and rendered previews for nature, apa, and plain styles.
@@ -94,15 +94,15 @@ def register_tools(mcp: FastMCP) -> None:
         return _get_claim(project_dir, claim_id)
 
     @mcp.tool()
-    def writer_remove_claim(project_dir: str, claim_id: str) -> dict:
+    def writer_claim_remove(project_dir: str, claim_id: str) -> dict:
         """Remove a claim from 00_shared/claims.json.
 
-        Note: Re-run writer_render_claims after removal to update claims_rendered.tex.
+        Note: Re-run writer_claim_render after removal to update claims_rendered.tex.
         """
         return _remove_claim(project_dir, claim_id)
 
     @mcp.tool()
-    def writer_format_claim(
+    def writer_claim_format(
         project_dir: str,
         claim_id: str,
         style: str = "nature",
@@ -117,7 +117,7 @@ def register_tools(mcp: FastMCP) -> None:
         return _format_claim(project_dir, claim_id, style)
 
     @mcp.tool()
-    def writer_render_claims(project_dir: str) -> dict:
+    def writer_claim_render(project_dir: str) -> dict:
         """Generate 00_shared/claims_rendered.tex from claims.json.
 
         This file defines the \\vclaim[style]{id} LaTeX macro and all claim

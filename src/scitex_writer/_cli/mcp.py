@@ -3,9 +3,11 @@
 # Timestamp: 2026-01-27
 # File: src/scitex_writer/_cli/mcp.py
 
-"""MCP CLI commands."""
+"""MCP CLI commands.
 
-import argparse
+Plain-Python helpers; called from the Click root in `_cli/__init__.py`.
+"""
+
 import shutil
 
 from .. import __version__
@@ -29,11 +31,11 @@ CLAUDE_DESKTOP_CONFIG_PYTHON = """{
 }"""
 
 
-def cmd_start(args: argparse.Namespace) -> int:
+def cmd_start(transport: str = "stdio") -> int:
     """Start the MCP server."""
     from .._mcp import run_server
 
-    run_server(transport=args.transport)
+    run_server(transport=transport)
     return 0
 
 
@@ -142,14 +144,16 @@ def _format_param_names(tool, indent: str = "    ") -> str:
     return f"{indent}params: {', '.join(parts)}"
 
 
-def cmd_list_tools(args: argparse.Namespace) -> int:
+def cmd_list_tools(
+    verbose: int = 0,
+    compact: bool = False,
+    module: str = None,
+    as_json: bool = False,
+) -> int:
     """List all available MCP tools (figrecipe-compatible format)."""
     from .._mcp import mcp
 
-    verbose = getattr(args, "verbose", 0)
-    compact = getattr(args, "compact", False)
-    module_filter = getattr(args, "module", None)
-    as_json = getattr(args, "json", False)
+    module_filter = module
 
     import asyncio
 
@@ -241,7 +245,7 @@ def cmd_list_tools(args: argparse.Namespace) -> int:
     return 0
 
 
-def cmd_doctor(args: argparse.Namespace) -> int:
+def cmd_doctor() -> int:
     """Check MCP server health and configuration."""
     print(f"scitex-writer {__version__}\n")
     print("Health Check")
@@ -288,7 +292,7 @@ def cmd_doctor(args: argparse.Namespace) -> int:
     return 0 if all_ok else 1
 
 
-def cmd_config(args: argparse.Namespace) -> int:
+def cmd_config() -> int:
     """Show Claude Desktop configuration snippet."""
     print(f"scitex-writer {__version__}\n")
     print("Add this to your Claude Desktop config file:\n")
@@ -304,69 +308,6 @@ def cmd_config(args: argparse.Namespace) -> int:
     print("\nOption 2: Python module (replace path with your installation)")
     print(CLAUDE_DESKTOP_CONFIG_PYTHON)
     return 0
-
-
-def register_parser(subparsers) -> argparse.ArgumentParser:
-    """Register MCP subcommand parser."""
-    mcp_help = """MCP (Model Context Protocol) server commands.
-
-Quick start:
-  scitex-writer mcp list-tools          # List tool names by module
-  scitex-writer mcp list-tools -v       # + one-line descriptions
-  scitex-writer mcp list-tools -vv      # + parameter names
-  scitex-writer mcp list-tools -vvv     # Full signatures, types, docs
-  scitex-writer mcp doctor              # Check server health
-  scitex-writer mcp installation        # Show Claude Desktop installation guide
-  scitex-writer mcp start               # Start MCP server
-"""
-    mcp_parser = subparsers.add_parser(
-        "mcp",
-        help="MCP server commands",
-        description=mcp_help,
-        formatter_class=argparse.RawDescriptionHelpFormatter,
-    )
-    mcp_sub = mcp_parser.add_subparsers(dest="mcp_command", title="Commands")
-
-    inst = mcp_sub.add_parser(
-        "installation", help="Show Claude Desktop installation guide"
-    )
-    inst.set_defaults(func=cmd_config)
-
-    lst = mcp_sub.add_parser(
-        "list-tools",
-        help="List all available MCP tools",
-        description="Verbosity: (none) names, -v +desc, -vv +params, -vvv full",
-    )
-    lst.add_argument(
-        "-v",
-        "--verbose",
-        action="count",
-        default=0,
-        help="Verbosity: -v desc, -vv +params, -vvv full",
-    )
-    lst.add_argument(
-        "-c", "--compact", action="store_true", help="Compact signatures (single line)"
-    )
-    lst.add_argument(
-        "-m",
-        "--module",
-        type=str,
-        default=None,
-        help="Filter by module (bib, compile, figures, tables, project, guidelines, prompts)",
-    )
-    lst.add_argument(
-        "--json", action="store_true", default=False, help="Output as JSON"
-    )
-    lst.set_defaults(func=cmd_list_tools)
-
-    doc = mcp_sub.add_parser("doctor", help="Check MCP server health")
-    doc.set_defaults(func=cmd_doctor)
-
-    start = mcp_sub.add_parser("start", help="Start the MCP server")
-    start.add_argument("-t", "--transport", choices=["stdio", "sse"], default="stdio")
-    start.set_defaults(func=cmd_start)
-
-    return mcp_parser
 
 
 # EOF

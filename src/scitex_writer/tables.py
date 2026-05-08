@@ -277,6 +277,6 @@ def latex_to_csv(
     return _latex_to_csv(latex_path, output_path, table_index)
 
 
-__all__ = ["list", "add", "remove", "csv_to_latex", "latex_to_csv"]
+__all__ = ["list", "add", "remove", "archive", "csv_to_latex", "latex_to_csv"]
 
 # EOF

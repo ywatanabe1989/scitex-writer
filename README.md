@@ -20,14 +20,6 @@
 [![License: AGPL v3](https://img.shields.io/badge/license-AGPL_v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
 <!-- scitex-badges:end -->
 
-
-<p align="center">
-  <a href="https://badge.fury.io/py/scitex-writer"><img src="https://badge.fury.io/py/scitex-writer.svg" alt="PyPI version"></a>
-  <a href="https://pypi.org/project/scitex-writer/"><img src="https://img.shields.io/pypi/pyversions/scitex-writer.svg" alt="Python Versions"></a>
-  <a href="https://scitex-writer.readthedocs.io/"><img src="https://readthedocs.org/projects/scitex-writer/badge/?version=latest" alt="Documentation"></a>
-  <a href="https://github.com/ywatanabe1989/scitex-writer/blob/main/LICENSE"><img src="https://img.shields.io/github/license/ywatanabe1989/scitex-writer" alt="License"></a>
-</p>
-
 <p align="center">
   <a href="https://scitex.ai">scitex.ai</a> · <a href="https://scitex-writer.readthedocs.io/">docs</a> · <code>pip install scitex-writer</code>
 </p>
@@ -47,7 +39,7 @@ Part of the [SciTeX](https://scitex.ai) ecosystem — empowers both human resear
 | 2 | **Figures drift from manuscript** -- author renumbers a figure; half the references go stale; `\ref{}` silently prints `??` | **Reference check + float-order audit** -- `writer_check_references` + `writer_check_float_order` catch dangling `\ref{}` before submission |
 | 3 | **Manuscript claims uncheckable** -- a paper asserts "t(58) = 2.34, p = .021"; reviewer has no way to verify | **Clew-backed claims** -- `writer_add_claim` binds each assertion to a source session + file hash; `writer_render_claims` exposes the verification DAG |
 
-## Preview
+## Demo
 
 <p align="center">
   <img src="docs/demo-manuscript-light.png" alt="Light Mode" width="380"/>
@@ -87,6 +79,21 @@ git clone https://github.com/ywatanabe1989/scitex-writer.git my-paper
 cd my-paper && make manuscript   # or: ./compile.sh manuscript
 ```
 
+## Part of SciTeX
+
+`scitex-writer` is part of [**SciTeX**](https://scitex.ai). Install via
+the umbrella with `pip install scitex[writer]` to use as
+`scitex.writer` (Python) or `scitex writer ...` (CLI).
+
+>Four Freedoms for Research
+>
+>0. The freedom to **run** your research anywhere — your machine, your terms.
+>1. The freedom to **study** how every step works — from raw data to final manuscript.
+>2. The freedom to **redistribute** your workflows, not just your papers.
+>3. The freedom to **modify** any module and share improvements with the community.
+>
+>AGPL-3.0 — because we believe research infrastructure deserves the same freedoms as the software it runs on.
+
 ## Problem
 
 LaTeX compilation for scientific manuscripts is painful:
@@ -107,6 +114,46 @@ SciTeX Writer solves each of these problems:
 - **Unified interface** — One tool for compilation, bibliography deduplication, figure/table management, and arXiv export packaging.
 - **39 Model Context Protocol (MCP) tools for AI agents** — AI assistants can compile, edit, and manage manuscripts programmatically.
 
+## Architecture
+
+```mermaid
+flowchart TB
+    subgraph Surfaces["Surfaces (user-facing)"]
+        CLI["CLI<br/><code>_cli/</code>"]
+        MCP["MCP Tools<br/><code>_mcp/</code>"]
+        Web["Django Editor + Viewer<br/><code>_django/</code>"]
+        Ports["Optional Bridges<br/><code>_ports/</code>"]
+    end
+    subgraph Engines["Engines (pure functions)"]
+        Compile["Compile<br/><code>_compile/</code>"]
+        Bib["Bibliography<br/><code>bib.py</code>"]
+        Claim["Claims<br/><code>claim.py</code>"]
+        Export["Export / arXiv<br/><code>export/</code>"]
+        Migrate["Migration<br/><code>migration/</code>"]
+    end
+    subgraph Model["Project model (source of truth)"]
+        DC["<code>_dataclasses/</code><br/>(immutable manuscript view)"]
+        Proj["<code>_project/</code>"]
+        Utils["<code>_utils/</code>"]
+    end
+    Surfaces --> Engines
+    Engines --> Model
+    Ports -.optional.-> Scholar["scitex-scholar<br/>(SCHOLAR_AVAILABLE)"]
+    Ports -.optional.-> Figrecipe["figrecipe / clew / stats"]
+```
+
+`scitex-writer` is layered in three concentric rings:
+
+| Ring | Modules | Role |
+|---|---|---|
+| **Project model** | `_dataclasses/`, `_project/`, `_utils/` | Immutable view of a manuscript's tree, config, and contents — the source of truth every other layer reads. |
+| **Engines** | `_compile/`, `bib.py`, `claim.py`, `export/`, `migration/` | Pure functions that operate on the project model — LaTeX compilation, BibTeX ops, claim rendering, arXiv export. No UI, no I/O assumptions beyond paths. |
+| **Surfaces** | `_cli/`, `_mcp/`, `_django/`, `_ports/` | Four user-facing interfaces (CLI, MCP tools for AI agents, Django web editor, optional bridges to scitex-scholar/figrecipe/clew). Each delegates to the engines; they never bypass them. |
+
+The `_django` editor + viewer ship the same code that runs locally and on `scitex.ai/apps/writer/` (no separate cloud-side implementation). Optional sibling integrations (`_ports/scholar.py`, etc.) follow the `*_AVAILABLE` flag pattern from `scitex-python` — if the peer isn't installed, the bridge degrades silently.
+
+See [`Four Interfaces`](#four-interfaces) below for usage details per surface.
+
 ## Four Interfaces
 
 | Interface | For | Description |
@@ -116,7 +163,7 @@ SciTeX Writer solves each of these problems:
 | **MCP Tools** | AI agents | 39 tools for Claude/GPT integration |
 | **Skills** | AI agent discovery | Workflow guides for capabilities and patterns |
 
-<details>
+<details open>
 <summary><strong>Python API</strong></summary>
 
 **Compile** — Build PDFs
@@ -492,17 +539,6 @@ Change citation style in `config/config_manuscript.yaml`:
 | [Architecture](docs/02_ARCHITECTURE_IMPLEMENTATION.md) | Technical details |
 
 </details>
-
-## Part of SciTeX
-
-SciTeX Writer is part of [SciTeX](https://scitex.ai). When used inside the orchestrator package `scitex`, synergy between modules enables end-to-end scientific workflows — from data analysis through publication-ready manuscripts.
-
-The SciTeX ecosystem follows the **Four Freedoms** for researchers, inspired by [the Free Software Definition](https://www.gnu.org/philosophy/free-sw.en.html):
-
-0. **Use** — Run the software for any research purpose
-1. **Study** — Examine how it works and adapt it to your needs
-2. **Share** — Distribute copies to fellow researchers
-3. **Improve** — Enhance the software and share improvements with the community
 
 ---
 

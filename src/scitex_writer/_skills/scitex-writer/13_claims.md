@@ -1,7 +1,8 @@
 ---
-description: Verifiable claims — add, track, render claims linked to evidence.
-name: claims
-tags: [scitex-writer, scitex-package]
+description: |
+  [TOPIC] Claims
+  [DETAILS] Verifiable claims — add, track, render claims linked to evidence..
+tags: [scitex-writer-claims]
 ---
 
 # Claims
@@ -12,9 +13,9 @@ Claims are verifiable statements linked to evidence (data, figures, statistics).
 
 | Tool | Description |
 |------|-------------|
-| `writer_add_claim` | Add a verifiable claim |
-| `writer_get_claim` | Get claim by ID |
-| `writer_list_claims` | List all claims |
-| `writer_remove_claim` | Remove a claim |
-| `writer_render_claims` | Render claims to LaTeX |
-| `writer_format_claim` | Format claim for display |
+| `writer_claim_add` | Add a verifiable claim |
+| `writer_claim_get` | Get claim by ID |
+| `writer_claim_list` | List all claims |
+| `writer_claim_remove` | Remove a claim |
+| `writer_claim_render` | Render claims to LaTeX |
+| `writer_claim_format` | Format claim for display |

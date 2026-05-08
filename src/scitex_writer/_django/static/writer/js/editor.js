@@ -650,7 +650,7 @@ function loadClaims() {
                 list.innerHTML = '<div class="claims-empty">' +
                     '<p>No claims defined yet.</p>' +
                     '<p class="hint">Add claims to 00_shared/claims.json<br>' +
-                    'or use the MCP tool <code>writer_add_claim</code>.</p>' +
+                    'or use the MCP tool <code>writer_claim_add</code>.</p>' +
                     '</div>';
                 if (countEl) countEl.textContent = '';
                 return;

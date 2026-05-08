@@ -3,9 +3,11 @@
 # Timestamp: 2026-01-30
 # File: src/scitex_writer/_cli/introspect.py
 
-"""Introspection CLI commands for scitex-writer (figrecipe-compatible format)."""
+"""Introspection CLI commands for scitex-writer (figrecipe-compatible format).
 
-import argparse
+Plain-Python helpers; called from the Click root in `_cli/__init__.py`.
+"""
+
 import importlib
 import inspect
 import sys
@@ -179,9 +181,14 @@ def _get_api_tree(module, max_depth: int = 5, docstring: bool = False) -> list[d
     return results
 
 
-def cmd_api(args: argparse.Namespace) -> int:
+def cmd_api(
+    dotted_path: str,
+    verbose: int = 0,
+    max_depth: int = 5,
+    as_json: bool = False,
+) -> int:
     """List API tree of a Python module."""
-    dotted_path = args.dotted_path.replace("-", "_")
+    dotted_path = dotted_path.replace("-", "_")
 
     try:
         module = importlib.import_module(dotted_path)
@@ -189,9 +196,9 @@ def cmd_api(args: argparse.Namespace) -> int:
         print(f"Error importing {dotted_path}: {e}", file=sys.stderr)
         return 1
 
-    df = _get_api_tree(module, max_depth=args.max_depth, docstring=(args.verbose >= 1))
+    df = _get_api_tree(module, max_depth=max_depth, docstring=(verbose >= 1))
 
-    if args.json:
+    if as_json:
         import json
 
         print(json.dumps(df, indent=2))
@@ -237,8 +244,8 @@ def cmd_api(args: argparse.Namespace) -> int:
             name_s = _style(name, fg=TYPE_COLORS.get(t, "white"), bold=True)
             print(f"{indent}{type_s} {name_s}")
 
-        if args.verbose >= 1 and row.get("Docstring"):
-            if args.verbose == 1:
+        if verbose >= 1 and row.get("Docstring"):
+            if verbose == 1:
                 doc = row["Docstring"].split("\n")[0][:60]
                 print(f"{indent}    - {doc}")
             else:
@@ -248,81 +255,15 @@ def cmd_api(args: argparse.Namespace) -> int:
     return 0
 
 
-def cmd_list_python_apis(args: argparse.Namespace) -> int:
-    """List Python APIs (alias for introspect api scitex_writer)."""
-    args.dotted_path = "scitex_writer"
-    return cmd_api(args)
-
-
-def register_parser(subparsers) -> argparse.ArgumentParser:
-    """Register introspect subcommand parser."""
-    intro_help = """Python package introspection utilities.
-
-Quick start:
-  scitex-writer introspect api scitex_writer       # Full API tree
-  scitex-writer introspect api scitex_writer -v    # With docstrings
-  scitex-writer introspect api scitex_writer --json  # JSON output
-"""
-    intro_parser = subparsers.add_parser(
-        "introspect",
-        help="Python package introspection",
-        description=intro_help,
-        formatter_class=argparse.RawDescriptionHelpFormatter,
+def cmd_list_python_apis(
+    verbose: int = 0,
+    max_depth: int = 5,
+    as_json: bool = False,
+) -> int:
+    """List Python APIs (alias for introspect show-api scitex_writer)."""
+    return cmd_api(
+        "scitex_writer", verbose=verbose, max_depth=max_depth, as_json=as_json
     )
-    intro_sub = intro_parser.add_subparsers(dest="introspect_command", title="Commands")
-
-    api_parser = intro_sub.add_parser("api", help="List API tree of a module")
-    api_parser.add_argument(
-        "dotted_path", help="Python dotted path (e.g., scitex_writer)"
-    )
-    api_parser.add_argument(
-        "-v",
-        "--verbose",
-        action="count",
-        default=0,
-        help="Verbosity: -v +doc, -vv full doc",
-    )
-    api_parser.add_argument(
-        "-d",
-        "--max-depth",
-        type=int,
-        default=5,
-        help="Max recursion depth (default: 5)",
-    )
-    api_parser.add_argument(
-        "--json",
-        action="store_true",
-        default=False,
-        help="Output as JSON",
-    )
-    api_parser.set_defaults(func=cmd_api)
-
-    return intro_parser
-
-
-def register_list_python_apis(parent_parser) -> None:
-    """Register list-python-apis command on a parent parser."""
-    lst_parser = parent_parser.add_parser(
-        "list-python-apis",
-        help="List Python APIs (alias for: scitex-writer introspect api scitex_writer)",
-    )
-    lst_parser.add_argument(
-        "-v",
-        "--verbose",
-        action="count",
-        default=0,
-        help="Verbosity: -v +doc, -vv full doc",
-    )
-    lst_parser.add_argument(
-        "-d", "--max-depth", type=int, default=5, help="Max recursion depth"
-    )
-    lst_parser.add_argument(
-        "--json",
-        action="store_true",
-        default=False,
-        help="Output as JSON",
-    )
-    lst_parser.set_defaults(func=cmd_list_python_apis)
 
 
 # EOF
