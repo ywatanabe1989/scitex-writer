@@ -1,0 +1,7 @@
+"""Smoke test: `scitex_writer._dataclasses.contents._ManuscriptContents` imports cleanly."""
+
+import importlib
+
+
+def test_module_imports():
+    importlib.import_module("scitex_writer._dataclasses.contents._ManuscriptContents")

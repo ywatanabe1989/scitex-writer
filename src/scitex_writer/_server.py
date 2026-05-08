@@ -24,8 +24,8 @@ from ._usage import get_usage
 mcp = FastMCP(name=get_mcp_server_name(), instructions=get_usage())
 
 
-@mcp.tool()
-def usage() -> str:
+@mcp.tool(name="get_usage")
+def get_usage_tool() -> str:
     """Get usage guide for SciTeX Writer LaTeX manuscript compilation system."""
     return get_usage()
 
