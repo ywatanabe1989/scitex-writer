@@ -1,7 +1,73 @@
-"""Smoke test: `scitex_writer._usage` imports cleanly."""
+"""Tests for ``scitex_writer._usage.get_usage``."""
+
+from __future__ import annotations
 
 import importlib
 
+import pytest
 
-def test_module_imports():
-    importlib.import_module("scitex_writer._usage")
+
+@pytest.fixture
+def reload_usage(monkeypatch):
+    """Reload `_branding` then `_usage` so brand changes propagate."""
+
+    def _reload(brand: str | None = None, alias: str | None = None):
+        if brand is not None:
+            monkeypatch.setenv("SCITEX_WRITER_BRAND", brand)
+        else:
+            monkeypatch.delenv("SCITEX_WRITER_BRAND", raising=False)
+        if alias is not None:
+            monkeypatch.setenv("SCITEX_WRITER_ALIAS", alias)
+        else:
+            monkeypatch.delenv("SCITEX_WRITER_ALIAS", raising=False)
+        from scitex_writer import _branding, _usage
+
+        importlib.reload(_branding)
+        return importlib.reload(_usage)
+
+    return _reload
+
+
+def test_get_usage_returns_str(reload_usage):
+    mod = reload_usage()
+    out = mod.get_usage()
+    assert isinstance(out, str)
+    assert len(out) > 0
+
+
+def test_get_usage_contains_brand_name_default(reload_usage):
+    mod = reload_usage()
+    out = mod.get_usage()
+    assert "scitex-writer" in out
+
+
+def test_get_usage_uses_custom_brand(reload_usage):
+    mod = reload_usage(brand="paperforge", alias="pf")
+    out = mod.get_usage()
+    assert "paperforge" in out
+
+
+def test_get_usage_includes_import_example(reload_usage):
+    mod = reload_usage()
+    out = mod.get_usage()
+    # Should embed an `import scitex_writer …` style snippet for users.
+    assert "import" in out
+
+
+def test_get_usage_uses_custom_alias_in_example(reload_usage):
+    mod = reload_usage(brand="paperforge", alias="pf")
+    out = mod.get_usage()
+    assert "pf" in out  # alias appears at least once in branded examples
+
+
+def test_get_usage_idempotent_for_same_brand(reload_usage):
+    """Two calls with same env yield the same string."""
+    mod = reload_usage(brand="paperforge", alias="pf")
+    assert mod.get_usage() == mod.get_usage()
+
+
+def test_get_usage_documents_project_structure(reload_usage):
+    mod = reload_usage()
+    out = mod.get_usage()
+    # The README-shaped layout block is expected.
+    assert "Project Structure" in out
