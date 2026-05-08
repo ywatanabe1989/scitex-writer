@@ -12,8 +12,18 @@ import pytest
 from scitex_writer._dataclasses.core._DocumentSection import DocumentSection
 from scitex_writer.writer import Writer
 
-# Path to the actual template used as the project dir for integration-style tests
-TEMPLATE_DIR = Path(__file__).resolve().parent.parent.parent
+
+# Walk up from this file until we hit the project root (marked by
+# pyproject.toml). This survives arbitrary tests/-tree depth changes.
+def _find_project_root(start: Path) -> Path:
+    p = start.resolve()
+    for parent in [p, *p.parents]:
+        if (parent / "pyproject.toml").is_file():
+            return parent
+    raise RuntimeError(f"Could not find pyproject.toml from {start}")
+
+
+TEMPLATE_DIR = _find_project_root(Path(__file__))
 
 
 @pytest.fixture
