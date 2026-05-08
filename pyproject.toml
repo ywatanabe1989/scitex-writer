@@ -41,7 +41,7 @@ classifiers = [
 dependencies = [
     "click>=8.0",
     "fastmcp>=2.0.0",
-    "scitex-dev>=0.1.0",
+    "scitex-dev>=0.11.5",
     "django>=4.2",
     # scitex-ui ships `standalone_shell.html` + shell CSS that the editor
     # and viewer templates extend. Loading either page without scitex-ui
