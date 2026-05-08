@@ -39,7 +39,7 @@ Part of the [SciTeX](https://scitex.ai) ecosystem — empowers both human resear
 | 2 | **Figures drift from manuscript** -- author renumbers a figure; half the references go stale; `\ref{}` silently prints `??` | **Reference check + float-order audit** -- `writer_check_references` + `writer_check_float_order` catch dangling `\ref{}` before submission |
 | 3 | **Manuscript claims uncheckable** -- a paper asserts "t(58) = 2.34, p = .021"; reviewer has no way to verify | **Clew-backed claims** -- `writer_add_claim` binds each assertion to a source session + file hash; `writer_render_claims` exposes the verification DAG |
 
-## Preview
+## Demo
 
 <p align="center">
   <img src="docs/demo-manuscript-light.png" alt="Light Mode" width="380"/>
@@ -113,6 +113,46 @@ SciTeX Writer solves each of these problems:
 - **Built-in version tracking with diff generation** — Every compilation archives the previous version and generates a `latexdiff` document automatically.
 - **Unified interface** — One tool for compilation, bibliography deduplication, figure/table management, and arXiv export packaging.
 - **39 Model Context Protocol (MCP) tools for AI agents** — AI assistants can compile, edit, and manage manuscripts programmatically.
+
+## Architecture
+
+```mermaid
+flowchart TB
+    subgraph Surfaces["Surfaces (user-facing)"]
+        CLI["CLI<br/><code>_cli/</code>"]
+        MCP["MCP Tools<br/><code>_mcp/</code>"]
+        Web["Django Editor + Viewer<br/><code>_django/</code>"]
+        Ports["Optional Bridges<br/><code>_ports/</code>"]
+    end
+    subgraph Engines["Engines (pure functions)"]
+        Compile["Compile<br/><code>_compile/</code>"]
+        Bib["Bibliography<br/><code>bib.py</code>"]
+        Claim["Claims<br/><code>claim.py</code>"]
+        Export["Export / arXiv<br/><code>export/</code>"]
+        Migrate["Migration<br/><code>migration/</code>"]
+    end
+    subgraph Model["Project model (source of truth)"]
+        DC["<code>_dataclasses/</code><br/>(immutable manuscript view)"]
+        Proj["<code>_project/</code>"]
+        Utils["<code>_utils/</code>"]
+    end
+    Surfaces --> Engines
+    Engines --> Model
+    Ports -.optional.-> Scholar["scitex-scholar<br/>(SCHOLAR_AVAILABLE)"]
+    Ports -.optional.-> Figrecipe["figrecipe / clew / stats"]
+```
+
+`scitex-writer` is layered in three concentric rings:
+
+| Ring | Modules | Role |
+|---|---|---|
+| **Project model** | `_dataclasses/`, `_project/`, `_utils/` | Immutable view of a manuscript's tree, config, and contents — the source of truth every other layer reads. |
+| **Engines** | `_compile/`, `bib.py`, `claim.py`, `export/`, `migration/` | Pure functions that operate on the project model — LaTeX compilation, BibTeX ops, claim rendering, arXiv export. No UI, no I/O assumptions beyond paths. |
+| **Surfaces** | `_cli/`, `_mcp/`, `_django/`, `_ports/` | Four user-facing interfaces (CLI, MCP tools for AI agents, Django web editor, optional bridges to scitex-scholar/figrecipe/clew). Each delegates to the engines; they never bypass them. |
+
+The `_django` editor + viewer ship the same code that runs locally and on `scitex.ai/apps/writer/` (no separate cloud-side implementation). Optional sibling integrations (`_ports/scholar.py`, etc.) follow the `*_AVAILABLE` flag pattern from `scitex-python` — if the peer isn't installed, the bridge degrades silently.
+
+See [`Four Interfaces`](#four-interfaces) below for usage details per surface.
 
 ## Four Interfaces
 
