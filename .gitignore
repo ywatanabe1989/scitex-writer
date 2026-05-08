@@ -710,3 +710,6 @@ docs/sphinx/_build/
 
 .claude/
 .venv/
+
+# Runtime artefact dirs (PS102 — keep out of the package tree)
+logs/
