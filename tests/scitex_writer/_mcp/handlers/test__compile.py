@@ -1,4 +1,5 @@
 """Smoke test: `scitex_writer._mcp.handlers._compile` imports cleanly."""
+
 import importlib
 
 

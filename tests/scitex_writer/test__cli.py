@@ -1,4 +1,5 @@
 """Smoke test: `scitex_writer._cli` imports cleanly."""
+
 import importlib
 
 

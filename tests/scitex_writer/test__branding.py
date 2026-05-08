@@ -1,4 +1,5 @@
 """Smoke test: `scitex_writer._branding` imports cleanly."""
+
 import importlib
 
 

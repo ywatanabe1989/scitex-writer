@@ -1,4 +1,5 @@
 """Smoke test: `scitex_writer.tables` imports cleanly."""
+
 import importlib
 
 

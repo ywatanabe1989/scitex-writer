@@ -1,4 +1,5 @@
 """Smoke test: `scitex_writer._cli.introspect` imports cleanly."""
+
 import importlib
 
 

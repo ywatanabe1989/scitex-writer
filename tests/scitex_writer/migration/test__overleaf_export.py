@@ -1,4 +1,5 @@
 """Smoke test: `scitex_writer.migration._overleaf_export` imports cleanly."""
+
 import importlib
 
 

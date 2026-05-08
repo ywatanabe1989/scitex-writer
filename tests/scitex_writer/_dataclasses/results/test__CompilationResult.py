@@ -14,4 +14,4 @@ import importlib
 
 def test_module_imports():
     """Smoke: target module imports without error."""
-    importlib.import_module('scitex_writer._dataclasses.results._CompilationResult')
+    importlib.import_module("scitex_writer._dataclasses.results._CompilationResult")

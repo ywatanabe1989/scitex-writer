@@ -1,4 +1,5 @@
 """Smoke test: `scitex_writer.prompts._ai2` imports cleanly."""
+
 import importlib
 
 

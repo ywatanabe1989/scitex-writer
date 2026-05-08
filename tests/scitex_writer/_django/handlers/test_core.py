@@ -1,4 +1,5 @@
 """Smoke test: `scitex_writer._django.handlers.core` imports cleanly."""
+
 import importlib
 
 

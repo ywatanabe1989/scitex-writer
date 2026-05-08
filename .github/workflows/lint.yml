@@ -6,14 +6,14 @@ on:
     paths:
       - 'src/**'
       - 'scripts/python/**'
-      - 'tests/python/**'
+      - 'tests/**'
       - '.github/workflows/lint.yml'
   pull_request:
     branches: [ main, develop ]
     paths:
       - 'src/**'
       - 'scripts/python/**'
-      - 'tests/python/**'
+      - 'tests/**'
       - '.github/workflows/lint.yml'
 
 concurrency:
@@ -47,11 +47,11 @@ jobs:
 
     - name: Lint MCP package (strict)
       run: |
-        ruff check src/ tests/python/ --output-format=github
+        ruff check src/ tests/ --output-format=github
 
     - name: Check formatting MCP package
       run: |
-        ruff format --check src/ tests/python/
+        ruff format --check src/ tests/
 
     - name: Lint legacy scripts (warnings only)
       continue-on-error: true

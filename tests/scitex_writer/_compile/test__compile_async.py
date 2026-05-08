@@ -14,4 +14,4 @@ import importlib
 
 def test_module_imports():
     """Smoke: target module imports without error."""
-    importlib.import_module('scitex_writer._compile._compile_async')
+    importlib.import_module("scitex_writer._compile._compile_async")
