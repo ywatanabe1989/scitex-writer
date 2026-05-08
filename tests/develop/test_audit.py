@@ -21,7 +21,7 @@ def test_audit_all_clean():
         audit_all_for_package(
             "scitex-writer",
             skip_rules=(
-                "PS503",  # examples/03_python_api FINISHED_SUCCESS blocked by
+                "PS-503",  # examples/03_python_api FINISHED_SUCCESS blocked by
                 # upstream scitex-session KeyError in setup_matplotlib
                 "§1",  # umbrella bridge — fires when umbrella scitex is
                 # transitively installed; lives in scitex-python repo
