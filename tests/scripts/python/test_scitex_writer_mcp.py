@@ -58,7 +58,7 @@ class TestToolRegistration:
         """Test that usage tool is registered with MCP."""
         from scitex_writer._mcp import mcp
 
-        assert "usage" in _get_tool_names(mcp)
+        assert "get_usage" in _get_tool_names(mcp)
 
     def test_tool_count(self):
         """Test that expected number of tools are registered."""
@@ -76,7 +76,7 @@ class TestUsageTool:
         """Test usage tool returns instructions."""
         from scitex_writer._mcp import mcp
 
-        assert "usage" in _get_tool_names(mcp)
+        assert "get_usage" in _get_tool_names(mcp)
 
 
 class TestInstructionsContent:
