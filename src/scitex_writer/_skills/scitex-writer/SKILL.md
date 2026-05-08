@@ -37,11 +37,11 @@ CSV-to-LaTeX), and verifiable claims linked to session hashes.
 - [02_quick-start.md](02_quick-start.md) — clone-and-compile minimal example
 - [03_python-api.md](03_python-api.md) — top-level Python surface
 - [04_cli-reference.md](04_cli-reference.md) — `scitex-writer` subcommand summary
+- [05_mcp-tools.md](05_mcp-tools.md) — MCP tools for AI agents
 
 ### Core / interfaces
 - [06_quick-start.md](06_quick-start.md) — basic workflow
 - [07_cli-reference.md](07_cli-reference.md) — CLI reference (legacy detail)
-- [08_mcp-tools.md](08_mcp-tools.md) — MCP tools for AI agents
 
 ## Workflows
 
