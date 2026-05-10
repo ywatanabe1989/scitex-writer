@@ -1,0 +1,9 @@
+# scitex-dev project-type config
+# scitex-writer carries a research-project-style root layout
+# (numbered manuscript / supplementary / revision directories,
+# `compile.sh`, `config/`). PS-103 is skipped under `special`;
+# every other PS rule still applies via `pip`.
+
+project-type:
+  - pip
+  - special
