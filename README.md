@@ -21,7 +21,7 @@
 <!-- scitex-badges:end -->
 
 <p align="center">
-  <a href="https://scitex.ai">scitex.ai</a> · <a href="https://scitex-writer.readthedocs.io/">docs</a> · <code>pip install scitex-writer</code>
+  <a href="https://scitex.ai">scitex.ai</a> · <a href="https://scitex-writer.readthedocs.io/">docs</a> · <code>uv pip install scitex-writer[all]</code>
 </p>
 
 ---
