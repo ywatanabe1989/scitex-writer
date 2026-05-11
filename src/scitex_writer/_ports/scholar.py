@@ -25,12 +25,12 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Optional
 
-try:  # Presence check only. Not used for functional imports.
-    import scitex_scholar  # noqa: F401
+from scitex_dev import try_import_optional
 
-    SCHOLAR_AVAILABLE = True
-except ImportError:
-    SCHOLAR_AVAILABLE = False
+scitex_scholar = try_import_optional(
+    "scitex_scholar", extra="scholar", pkg="scitex-writer"
+)
+SCHOLAR_AVAILABLE = scitex_scholar is not None
 
 
 _INDEX_DB_NAME = "index.db"

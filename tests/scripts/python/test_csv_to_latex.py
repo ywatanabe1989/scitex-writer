@@ -12,6 +12,8 @@ import pytest
 ROOT_DIR = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(ROOT_DIR / "scripts" / "python"))
 
+pytest.importorskip("pandas")
+
 # Try to import pandas and the functions
 try:
     import pandas as pd  # noqa: F401

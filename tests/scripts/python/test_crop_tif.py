@@ -12,6 +12,9 @@ import pytest
 ROOT_DIR = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(ROOT_DIR / "scripts" / "python"))
 
+pytest.importorskip("cv2")
+pytest.importorskip("numpy")
+
 # Check for dependencies
 try:
     import cv2

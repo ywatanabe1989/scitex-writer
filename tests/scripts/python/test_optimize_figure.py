@@ -12,6 +12,8 @@ import pytest
 ROOT_DIR = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(ROOT_DIR / "scripts" / "python"))
 
+pytest.importorskip("PIL")
+
 # Check for PIL dependency
 try:
     from optimize_figure import crop_whitespace, enhance_image_quality, optimize_figure
