@@ -1,0 +1,20 @@
+# Codecov configuration for scitex-writer.
+# See _skills/general/02_package_11_ci-and-codecov.md.
+
+coverage:
+  status:
+    project:
+      default:
+        # Ramp-up target — switch to 90% once subprocess coverage wiring
+        # lifts the baseline (see _skills/general/05_development_06_subprocess-coverage.md).
+        target: auto
+        threshold: 1%
+    patch:
+      default:
+        target: auto
+        threshold: 1%
+
+comment:
+  layout: "reach, diff, flags, files"
+  behavior: default
+  require_changes: false

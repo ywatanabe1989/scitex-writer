@@ -110,6 +110,9 @@ python_files = ["test_*.py"]
 addopts = "-v --tb=short"
 
 [tool.coverage.run]
+parallel = true
+source = ["scitex_writer"]
+concurrency = ["multiprocessing", "thread"]
 omit = [
     "src/scitex_writer/_django/*",
     "src/scitex_writer/_mcp/handlers/*",
