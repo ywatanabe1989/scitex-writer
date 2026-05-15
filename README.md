@@ -11,12 +11,15 @@
 # SciTeX Writer
 
 <!-- scitex-badges:start -->
-[![PyPI](https://img.shields.io/pypi/v/scitex-writer.svg)](https://pypi.org/project/scitex-writer/)
-[![Python](https://img.shields.io/pypi/pyversions/scitex-writer.svg)](https://pypi.org/project/scitex-writer/)
-[![Tests](https://github.com/ywatanabe1989/scitex-writer/actions/workflows/test.yml/badge.svg)](https://github.com/ywatanabe1989/scitex-writer/actions/workflows/test.yml)
-[![Coverage](https://codecov.io/gh/ywatanabe1989/scitex-writer/graph/badge.svg)](https://codecov.io/gh/ywatanabe1989/scitex-writer)
-[![Docs](https://readthedocs.org/projects/scitex-writer/badge/?version=latest)](https://scitex-writer.readthedocs.io/en/latest/)
-[![License: AGPL v3](https://img.shields.io/badge/license-AGPL_v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
+<p align="center">
+  <a href="https://pypi.org/project/scitex-writer/"><img src="https://img.shields.io/pypi/v/scitex-writer?label=pypi" alt="pypi"></a>
+  <a href="https://pypi.org/project/scitex-writer/"><img src="https://img.shields.io/pypi/pyversions/scitex-writer?label=python" alt="python"></a>
+  <a href="https://github.com/ywatanabe1989/scitex-writer/actions/workflows/rtd-sphinx-build-on-ubuntu-latest.yml"><img src="https://img.shields.io/github/actions/workflow/status/ywatanabe1989/scitex-writer/rtd-sphinx-build-on-ubuntu-latest.yml?branch=develop&label=docs" alt="docs"></a>
+</p>
+<p align="center">
+  <a href="https://github.com/ywatanabe1989/scitex-writer/actions/workflows/pytest-matrix-on-ubuntu-py3-11-3-12-3-13.yml"><img src="https://img.shields.io/github/actions/workflow/status/ywatanabe1989/scitex-writer/pytest-matrix-on-ubuntu-py3-11-3-12-3-13.yml?branch=develop&label=tests" alt="tests"></a>
+  <a href="https://codecov.io/gh/ywatanabe1989/scitex-writer"><img src="https://img.shields.io/codecov/c/github/ywatanabe1989/scitex-writer/develop?label=cov" alt="cov"></a>
+</p>
 <!-- scitex-badges:end -->
 
 <p align="center">
