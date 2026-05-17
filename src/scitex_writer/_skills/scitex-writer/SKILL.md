@@ -17,8 +17,6 @@ interfaces:
 
 # scitex-writer
 
-> **Interfaces:** Python ⭐ · CLI ⭐⭐⭐ · MCP ⭐⭐⭐ · Skills ⭐⭐ · Hook — · HTTP —
-
 LaTeX manuscript compilation framework. Compiles manuscripts,
 supplementary materials, and revisions with tracked changes. Manages
 bibliography (BibTeX merge, DOI dedup), figures/tables (auto-discovery,
