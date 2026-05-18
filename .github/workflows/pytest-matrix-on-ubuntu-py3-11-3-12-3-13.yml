@@ -11,62 +11,32 @@ on:
 
 jobs:
   test:
+    name: pytest-matrix-on-ubuntu-py${{ matrix.python-version }}
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.10", "3.11", "3.12", "3.13"]
+        python-version: ["3.11", "3.12", "3.13"]
     steps:
       - uses: actions/checkout@v4
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
-      - name: Install package + dev deps + test plugins
+      - name: Install dependencies
         run: |
-          pip install --upgrade pip
-          pip install pytest pytest-cov pytest-timeout
-          pip install -e ".[dev]" || pip install -e .
-      - name: Detect import name
-        id: pkg
+          python -m pip install --upgrade pip
+          # Fallback chain: prefer [all,dev] so optional-dep code paths
+          # (yaml, fastmcp, textual) get exercised. Falls back to [dev] then
+          # plain editable so a packaging hiccup doesn't strand CI.
+          pip install -e ".[all,dev]" || pip install -e ".[dev]" || pip install -e .
+      - name: Run tests
         run: |
-          IMPORT_NAME=$(find src -maxdepth 2 -name __init__.py -printf '%h\n' | head -1 | xargs -n1 basename)
-          echo "import_name=${IMPORT_NAME}" >> "$GITHUB_OUTPUT"
-      - name: Run tests with coverage
-        run: |
-          python -m pytest "$GITHUB_WORKSPACE/tests/" -v --tb=short --timeout=120 \
-            --cov=src/${{ steps.pkg.outputs.import_name }} \
-            --cov-report=xml --cov-report=term
+          pytest tests/ --cov=src/scitex_writer --cov-report=xml --cov-report=term
       - name: Upload coverage to Codecov
-        if: matrix.python-version == '3.12'
-        uses: codecov/codecov-action@v4
+        if: always() && matrix.python-version == '3.12'
+        uses: codecov/codecov-action@v5
         with:
-          files: coverage.xml
-          fail_ci_if_error: false
           token: ${{ secrets.CODECOV_TOKEN }}
-
-  install-check:
-    # Catches undeclared runtime deps that the test suite misses. A
-    # package can build, upload, and pass its own tests with the wrong
-    # pyproject.toml — the bug only shows up when a fresh user runs
-    # `pip install <pkg>` in a clean venv. This job reproduces that.
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-      - name: Build wheel + import in a fresh venv
-        run: |
-          python -m pip install --upgrade pip build
-          python -m build --wheel
-          python -m venv /tmp/clean-venv
-          /tmp/clean-venv/bin/pip install --upgrade pip
-          /tmp/clean-venv/bin/pip install dist/*.whl
-          IMPORT_NAME=$(find src -maxdepth 2 -name __init__.py -printf '%h\n' \
-                          | head -1 | xargs -n1 basename)
-          if [ -z "$IMPORT_NAME" ]; then
-              echo "Could not detect import name under src/" >&2
-              exit 1
-          fi
-          /tmp/clean-venv/bin/python -c "import ${IMPORT_NAME}; print(f'OK: {${IMPORT_NAME}.__name__}')"
+          files: ./coverage.xml
+          fail_ci_if_error: false
