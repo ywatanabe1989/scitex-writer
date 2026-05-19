@@ -13,15 +13,21 @@ class TestEnsureProjectExistsExisting:
 
     def test_returns_existing_directory(self, tmp_path):
         """Verify returns existing project directory."""
+        # Arrange
         project_dir = tmp_path / "my_paper"
         project_dir.mkdir()
 
+        # Act
         result = ensure_project_exists(project_dir, "my_paper")
 
+        # Assert
         assert result == project_dir
 
     def test_does_not_call_clone_for_existing(self, tmp_path):
         """Verify clone is not called when project exists."""
+        # Arrange
+        # Act
+        # Assert
         project_dir = tmp_path / "my_paper"
         project_dir.mkdir()
 
@@ -29,18 +35,21 @@ class TestEnsureProjectExistsExisting:
             ensure_project_exists(project_dir, "my_paper")
 
             mock_clone.assert_not_called()
+            assert not mock_clone.called
 
     def test_existing_directory_with_contents(self, tmp_path):
         """Verify returns existing directory with contents."""
+        # Arrange
         project_dir = tmp_path / "my_paper"
         project_dir.mkdir()
         (project_dir / "01_manuscript").mkdir()
         (project_dir / "file.tex").write_text("content")
 
+        # Act
         result = ensure_project_exists(project_dir, "my_paper")
 
-        assert result == project_dir
-        assert (result / "01_manuscript").exists()
+        # Assert
+        assert (result == project_dir) and ((result / '01_manuscript').exists())
 
 
 class TestEnsureProjectExistsNew:
@@ -48,6 +57,9 @@ class TestEnsureProjectExistsNew:
 
     def test_calls_clone_with_correct_args(self, tmp_path):
         """Verify clone is called with correct arguments."""
+        # Arrange
+        # Act
+        # Assert
         project_dir = tmp_path / "new_paper"
 
         def mock_clone_side_effect(*args, **kwargs):
@@ -62,9 +74,13 @@ class TestEnsureProjectExistsNew:
             ensure_project_exists(project_dir, "new_paper")
 
             mock_clone.assert_called_once_with(str(project_dir), "child", None, None)
+            assert mock_clone.called
 
     def test_passes_git_strategy(self, tmp_path):
         """Verify git_strategy is passed to clone."""
+        # Arrange
+        # Act
+        # Assert
         project_dir = tmp_path / "new_paper"
 
         def mock_clone_side_effect(*args, **kwargs):
@@ -80,9 +96,13 @@ class TestEnsureProjectExistsNew:
             mock_clone.assert_called_once_with(
                 str(project_dir), "standalone", None, None
             )
+            assert mock_clone.called
 
-    def test_passes_branch(self, tmp_path):
+    def test_passes_branch_smoke_case(self, tmp_path):
         """Verify branch parameter is passed to clone."""
+        # Arrange
+        # Act
+        # Assert
         project_dir = tmp_path / "new_paper"
 
         def mock_clone_side_effect(*args, **kwargs):
@@ -98,9 +118,13 @@ class TestEnsureProjectExistsNew:
             mock_clone.assert_called_once_with(
                 str(project_dir), "child", "develop", None
             )
+            assert mock_clone.called
 
-    def test_passes_tag(self, tmp_path):
+    def test_passes_tag_smoke_case(self, tmp_path):
         """Verify tag parameter is passed to clone."""
+        # Arrange
+        # Act
+        # Assert
         project_dir = tmp_path / "new_paper"
 
         def mock_clone_side_effect(*args, **kwargs):
@@ -116,9 +140,13 @@ class TestEnsureProjectExistsNew:
             mock_clone.assert_called_once_with(
                 str(project_dir), "child", None, "v1.0.0"
             )
+            assert mock_clone.called
 
     def test_returns_created_directory(self, tmp_path):
         """Verify returns the created project directory."""
+        # Arrange
+        # Act
+        # Assert
         project_dir = tmp_path / "new_paper"
 
         def mock_clone_side_effect(*args, **kwargs):
@@ -139,6 +167,9 @@ class TestEnsureProjectExistsFailure:
 
     def test_raises_when_clone_fails(self, tmp_path):
         """Verify raises RuntimeError when clone returns False."""
+        # Arrange
+        # Act
+        # Assert
         project_dir = tmp_path / "new_paper"
 
         with patch("scitex_writer._project._create.clone_writer_project") as mock_clone:
@@ -149,6 +180,9 @@ class TestEnsureProjectExistsFailure:
 
     def test_raises_when_directory_not_created(self, tmp_path):
         """Verify raises RuntimeError when directory not created after clone."""
+        # Arrange
+        # Act
+        # Assert
         project_dir = tmp_path / "new_paper"
 
         with patch("scitex_writer._project._create.clone_writer_project") as mock_clone:
@@ -164,6 +198,9 @@ class TestEnsureProjectExistsGitStrategy:
 
     def test_git_strategy_none(self, tmp_path):
         """Verify git_strategy=None is passed correctly."""
+        # Arrange
+        # Act
+        # Assert
         project_dir = tmp_path / "new_paper"
 
         def mock_clone_side_effect(*args, **kwargs):
@@ -177,9 +214,13 @@ class TestEnsureProjectExistsGitStrategy:
             ensure_project_exists(project_dir, "new_paper", git_strategy=None)
 
             mock_clone.assert_called_once_with(str(project_dir), None, None, None)
+            assert mock_clone.called
 
     def test_default_git_strategy_is_child(self, tmp_path):
         """Verify default git_strategy is 'child'."""
+        # Arrange
+        # Act
+        # Assert
         project_dir = tmp_path / "new_paper"
 
         def mock_clone_side_effect(*args, **kwargs):

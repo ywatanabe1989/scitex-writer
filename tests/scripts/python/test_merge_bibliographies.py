@@ -38,53 +38,83 @@ class TestNormalizeTitle:
 
     def test_normalize_title_lowercase(self):
         """Should convert title to lowercase."""
+        # Arrange
+        # Act
         result = normalize_title("The Quick Brown Fox")
+        # Assert
         assert result == "the quick brown fox"
 
     def test_normalize_title_removes_latex(self):
         """Should remove LaTeX commands."""
+        # Arrange
+        # Act
         result = normalize_title(r"\textbf{Brain} Activity")
+        # Assert
         assert result == "brain activity"
 
     def test_normalize_title_removes_punctuation(self):
         """Should remove punctuation marks."""
+        # Arrange
+        # Act
         result = normalize_title("Title: A Study, Part 1!")
+        # Assert
         assert result == "title a study part 1"
 
     def test_normalize_title_removes_special_chars(self):
         """Should remove special characters."""
+        # Arrange
+        # Act
         result = normalize_title("Title & Research @ 2024")
+        # Assert
         assert result == "title research 2024"
 
     def test_normalize_title_normalizes_whitespace(self):
         """Should normalize multiple spaces to single space."""
+        # Arrange
+        # Act
         result = normalize_title("Title   with    spaces")
+        # Assert
         assert result == "title with spaces"
 
     def test_normalize_title_strips_whitespace(self):
         """Should strip leading/trailing whitespace."""
+        # Arrange
+        # Act
         result = normalize_title("  Title  ")
+        # Assert
         assert result == "title"
 
     def test_normalize_title_empty_string(self):
         """Should handle empty string."""
+        # Arrange
+        # Act
         result = normalize_title("")
+        # Assert
         assert result == ""
 
     def test_normalize_title_none(self):
         """Should handle None value."""
+        # Arrange
+        # Act
         result = normalize_title(None)
+        # Assert
         assert result == ""
 
     def test_normalize_title_complex_latex(self):
         """Should handle complex LaTeX commands."""
+        # Arrange
+        # Act
         result = normalize_title(r"\emph{Important} \textit{Words}")
+        # Assert
         assert result == "important words"
 
     def test_normalize_title_unicode(self):
         """Should handle unicode characters."""
+        # Arrange
+        # Act
         result = normalize_title("Café résumé naïve")
         # Letters preserved, special chars removed
+        # Assert
         assert "caf" in result.lower()
 
 
@@ -93,44 +123,65 @@ class TestGetDoi:
 
     def test_get_doi_plain(self):
         """Should extract plain DOI."""
+        # Arrange
         entry = {"doi": "10.1234/test"}
+        # Act
         result = get_doi(entry)
+        # Assert
         assert result == "10.1234/test"
 
     def test_get_doi_with_https_prefix(self):
         """Should strip https://doi.org/ prefix."""
+        # Arrange
         entry = {"doi": "https://doi.org/10.1234/test"}
+        # Act
         result = get_doi(entry)
+        # Assert
         assert result == "10.1234/test"
 
     def test_get_doi_with_http_prefix(self):
         """Should strip http://doi.org/ prefix."""
+        # Arrange
         entry = {"doi": "http://doi.org/10.1234/test"}
+        # Act
         result = get_doi(entry)
+        # Assert
         assert result == "10.1234/test"
 
     def test_get_doi_with_dx_prefix(self):
         """Should strip dx.doi.org prefix."""
+        # Arrange
         entry = {"doi": "https://dx.doi.org/10.1234/test"}
+        # Act
         result = get_doi(entry)
+        # Assert
         assert result == "10.1234/test"
 
     def test_get_doi_empty(self):
         """Should return empty string for missing DOI."""
+        # Arrange
         entry = {}
+        # Act
         result = get_doi(entry)
+        # Assert
         assert result == ""
 
     def test_get_doi_whitespace(self):
         """Should strip whitespace from DOI."""
+        # Arrange
         entry = {"doi": "  10.1234/test  "}
+        # Act
         result = get_doi(entry)
+        # Assert
         assert result == "10.1234/test"
 
     def test_get_doi_case_insensitive_url(self):
         """Should handle case-insensitive URL matching."""
+        # Arrange
         entry = {"doi": "HTTPS://DOI.ORG/10.1234/test"}
+        # Act
         result = get_doi(entry)
+        # Assert
         assert result == "10.1234/test"
 
 
@@ -139,64 +190,76 @@ class TestMergeEntries:
 
     def test_merge_entries_prefers_longer_field(self):
         """Should prefer longer field values."""
+        # Arrange
         existing = {"title": "Short", "author": "Alice"}
         duplicate = {"title": "Much Longer Title", "year": "2024"}
 
+        # Act
         result = merge_entries(existing, duplicate)
 
-        assert result["title"] == "Much Longer Title"
-        assert result["author"] == "Alice"
-        assert result["year"] == "2024"
+        # Assert
+        assert (result['title'] == 'Much Longer Title') and (result['author'] == 'Alice') and (result['year'] == '2024')
 
     def test_merge_entries_fills_missing_fields(self):
         """Should fill in missing fields from duplicate."""
+        # Arrange
         existing = {"title": "Title", "author": "Alice"}
         duplicate = {"title": "Title", "year": "2024", "journal": "Nature"}
 
+        # Act
         result = merge_entries(existing, duplicate)
 
-        assert result["year"] == "2024"
-        assert result["journal"] == "Nature"
+        # Assert
+        assert (result['year'] == '2024') and (result['journal'] == 'Nature')
 
     def test_merge_entries_preserves_existing(self):
         """Should not overwrite existing with empty."""
+        # Arrange
         existing = {"title": "Title", "author": "Alice", "year": "2024"}
         duplicate = {"title": "Title", "author": "", "abstract": "Abstract"}
 
+        # Act
         result = merge_entries(existing, duplicate)
 
         # Should keep existing author (not overwrite with empty)
-        assert result["author"] == "Alice"
-        assert result["abstract"] == "Abstract"
+        # Assert
+        assert (result['author'] == 'Alice') and (result['abstract'] == 'Abstract')
 
     def test_merge_entries_returns_copy(self):
         """Should return a new dict, not modify existing."""
+        # Arrange
         existing = {"title": "Title"}
         duplicate = {"author": "Bob"}
 
+        # Act
         result = merge_entries(existing, duplicate)
 
         # Original should be unchanged
-        assert "author" not in existing
-        assert result["author"] == "Bob"
+        # Assert
+        assert ('author' not in existing) and (result['author'] == 'Bob')
 
     def test_merge_entries_empty_duplicate(self):
         """Should handle empty duplicate entry."""
+        # Arrange
         existing = {"title": "Title", "author": "Alice"}
         duplicate = {}
 
+        # Act
         result = merge_entries(existing, duplicate)
 
-        assert result["title"] == "Title"
-        assert result["author"] == "Alice"
+        # Assert
+        assert (result['title'] == 'Title') and (result['author'] == 'Alice')
 
     def test_merge_entries_prefers_content_over_empty(self):
         """Should prefer any content over empty string."""
+        # Arrange
         existing = {"title": "Title", "abstract": ""}
         duplicate = {"title": "Title", "abstract": "Real abstract content"}
 
+        # Act
         result = merge_entries(existing, duplicate)
 
+        # Assert
         assert result["abstract"] == "Real abstract content"
 
 
@@ -205,69 +268,75 @@ class TestDeduplicateEntries:
 
     def test_deduplicate_by_doi(self):
         """Should deduplicate by DOI."""
+        # Arrange
         entries = [
             {"ID": "entry1", "doi": "10.1234/test", "title": "Title", "year": "2024"},
             {"ID": "entry2", "doi": "10.1234/test", "title": "Title", "year": "2024"},
         ]
 
+        # Act
         unique, stats = deduplicate_entries(entries)
 
-        assert len(unique) == 1
-        assert stats["total_input"] == 2
-        assert stats["unique_output"] == 1
-        assert stats["duplicates_found"] == 1
+        # Assert
+        assert (len(unique) == 1) and (stats['total_input'] == 2) and (stats['unique_output'] == 1) and (stats['duplicates_found'] == 1)
 
     def test_deduplicate_by_title_year(self):
         """Should deduplicate by normalized title + year."""
+        # Arrange
         entries = [
             {"ID": "entry1", "title": "The Brain Study", "year": "2024"},
             {"ID": "entry2", "title": "The Brain Study", "year": "2024"},
         ]
 
+        # Act
         unique, stats = deduplicate_entries(entries)
 
-        assert len(unique) == 1
-        assert stats["duplicates_found"] == 1
+        # Assert
+        assert (len(unique) == 1) and (stats['duplicates_found'] == 1)
 
     def test_deduplicate_different_years_not_duplicates(self):
         """Should not deduplicate same title with different years."""
+        # Arrange
         entries = [
             {"ID": "entry1", "title": "Annual Report", "year": "2023"},
             {"ID": "entry2", "title": "Annual Report", "year": "2024"},
         ]
 
+        # Act
         unique, stats = deduplicate_entries(entries)
 
-        assert len(unique) == 2
-        assert stats["duplicates_found"] == 0
+        # Assert
+        assert (len(unique) == 2) and (stats['duplicates_found'] == 0)
 
-    def test_deduplicate_stats(self):
+    def test_deduplicate_stats_stats_total_input_3_and_stats_unique_output_2_and_(self):
         """Should return accurate statistics."""
+        # Arrange
         entries = [
             {"ID": "entry1", "doi": "10.1234/a", "title": "Title A", "year": "2024"},
             {"ID": "entry2", "doi": "10.1234/a", "title": "Title A", "year": "2024"},
             {"ID": "entry3", "doi": "10.1234/b", "title": "Title B", "year": "2024"},
         ]
 
+        # Act
         unique, stats = deduplicate_entries(entries)
 
-        assert stats["total_input"] == 3
-        assert stats["unique_output"] == 2
-        assert stats["duplicates_found"] == 1
-        assert stats["duplicates_merged"] == 1
+        # Assert
+        assert (stats['total_input'] == 3) and (stats['unique_output'] == 2) and (stats['duplicates_found'] == 1) and (stats['duplicates_merged'] == 1)
 
     def test_deduplicate_empty_list(self):
         """Should handle empty entry list."""
+        # Arrange
         entries = []
 
+        # Act
         unique, stats = deduplicate_entries(entries)
 
-        assert len(unique) == 0
-        assert stats["total_input"] == 0
-        assert stats["unique_output"] == 0
+        # Assert
+        assert (len(unique) == 0) and (stats['total_input'] == 0) and (stats['unique_output'] == 0)
 
     def test_deduplicate_merges_metadata(self):
         """Should merge metadata from duplicates."""
+        # Arrange
         entries = [
             {
                 "ID": "entry1",
@@ -283,72 +352,85 @@ class TestDeduplicateEntries:
             },
         ]
 
+        # Act
         unique, stats = deduplicate_entries(entries)
 
-        assert len(unique) == 1
-        # Should have both author and abstract
-        assert unique[0]["author"] == "Alice"
-        assert unique[0]["abstract"] == "Abstract"
+        # Assert
+        assert (len(unique) == 1) and (unique[0]['author'] == 'Alice') and (unique[0]['abstract'] == 'Abstract')
 
     def test_deduplicate_doi_takes_precedence(self):
         """DOI matching should take precedence over title matching."""
+        # Arrange
         entries = [
             {"ID": "entry1", "doi": "10.1234/a", "title": "Title X", "year": "2024"},
             {"ID": "entry2", "doi": "10.1234/a", "title": "Title Y", "year": "2024"},
         ]
 
+        # Act
         unique, stats = deduplicate_entries(entries)
 
         # Should be deduplicated by DOI even though titles differ
+        # Assert
         assert len(unique) == 1
 
     def test_deduplicate_no_doi_or_title(self):
         """Should handle entries without DOI or title."""
+        # Arrange
         entries = [
             {"ID": "entry1", "author": "Alice"},
             {"ID": "entry2", "author": "Bob"},
         ]
 
+        # Act
         unique, stats = deduplicate_entries(entries)
 
         # Should keep both (can't deduplicate without DOI or title+year)
+        # Assert
         assert len(unique) == 2
 
     def test_deduplicate_latex_in_titles(self):
         """Should normalize LaTeX commands in titles for comparison."""
+        # Arrange
         entries = [
             {"ID": "entry1", "title": r"\textbf{Brain} Activity", "year": "2024"},
             {"ID": "entry2", "title": "Brain Activity", "year": "2024"},
         ]
 
+        # Act
         unique, stats = deduplicate_entries(entries)
 
         # Should be considered duplicates after normalization
+        # Assert
         assert len(unique) == 1
 
     def test_deduplicate_preserves_order(self):
         """Should preserve entry order (first occurrence wins)."""
+        # Arrange
         entries = [
             {"ID": "first", "doi": "10.1234/test", "title": "Title"},
             {"ID": "second", "title": "Other", "year": "2024"},
             {"ID": "third", "doi": "10.1234/test", "title": "Title"},
         ]
 
+        # Act
         unique, stats = deduplicate_entries(entries)
 
         # First entry with DOI should be kept
-        assert unique[0]["ID"] == "first"
-        assert unique[1]["ID"] == "second"
+        # Assert
+        assert (unique[0]['ID'] == 'first') and (unique[1]['ID'] == 'second')
 
     def test_deduplicate_case_insensitive_title(self):
         """Title comparison should be case-insensitive."""
+        # Arrange
         entries = [
             {"ID": "entry1", "title": "THE BRAIN STUDY", "year": "2024"},
             {"ID": "entry2", "title": "the brain study", "year": "2024"},
         ]
 
+        # Act
         unique, stats = deduplicate_entries(entries)
 
+        # Assert
         assert len(unique) == 1
 
 
@@ -364,32 +446,50 @@ class TestMergeBibtexFilesOutputPath:
 
     def test_relative_filename_joins_with_bib_dir(self, tmp_path):
         """'-o bibliography.bib' should output inside bib_dir."""
+        # Arrange
         bib_dir = tmp_path / "bib_files"
         bib_dir.mkdir()
         self._create_bib_file(bib_dir / "refs.bib")
 
+        # Act
         merge_bibtex_files(bib_dir, output_file="merged.bib", verbose=False, force=True)
 
+        # Assert
         assert (bib_dir / "merged.bib").exists()
 
-    def test_full_path_with_input_dir_prefix_no_double(self, tmp_path):
-        """Full path output should NOT be joined again with bib_dir."""
+    def test_full_path_with_input_dir_prefix_no_double_path_output_exists(self, tmp_path):
+        # Arrange
         bib_dir = tmp_path / "bib_files"
         bib_dir.mkdir()
         self._create_bib_file(bib_dir / "refs.bib")
+        # Pass full path as output (the bug scenario from issue #68)
+        output = str(bib_dir / "merged.bib")
+        # Act
+        merge_bibtex_files(bib_dir, output_file=output, verbose=False, force=True)
+        # Act
+        # Assert
+        assert Path(output).exists()
 
+    def test_full_path_with_input_dir_prefix_no_double_not_nested_exists(self, tmp_path):
+        # Arrange
+        bib_dir = tmp_path / "bib_files"
+        bib_dir.mkdir()
+        self._create_bib_file(bib_dir / "refs.bib")
         # Pass full path as output (the bug scenario from issue #68)
         output = str(bib_dir / "merged.bib")
         merge_bibtex_files(bib_dir, output_file=output, verbose=False, force=True)
-
         # File should exist at the specified path
-        assert Path(output).exists()
         # Should NOT have created a nested path like bib_files/bib_files/merged.bib
+        # Act
         nested = bib_dir / "bib_files" / "merged.bib"
+        # Act
+        # Assert
         assert not nested.exists()
+
 
     def test_absolute_output_path(self, tmp_path):
         """Absolute output path should be used as-is."""
+        # Arrange
         bib_dir = tmp_path / "bib_files"
         bib_dir.mkdir()
         self._create_bib_file(bib_dir / "refs.bib")
@@ -398,12 +498,15 @@ class TestMergeBibtexFilesOutputPath:
         out_dir.mkdir()
         output = str(out_dir / "merged.bib")
 
+        # Act
         merge_bibtex_files(bib_dir, output_file=output, verbose=False, force=True)
 
+        # Assert
         assert Path(output).exists()
 
     def test_subdirectory_output_path(self, tmp_path):
         """'-o subdir/merged.bib' should use path as-is (not join with bib_dir)."""
+        # Arrange
         bib_dir = tmp_path / "bib_files"
         bib_dir.mkdir()
         self._create_bib_file(bib_dir / "refs.bib")
@@ -412,12 +515,15 @@ class TestMergeBibtexFilesOutputPath:
         out_dir.mkdir()
         output = str(out_dir / "merged.bib")
 
+        # Act
         merge_bibtex_files(bib_dir, output_file=output, verbose=False, force=True)
 
+        # Assert
         assert Path(output).exists()
 
     def test_output_excludes_itself_from_input(self, tmp_path):
         """Output file should not be included as input even with full path."""
+        # Arrange
         bib_dir = tmp_path / "bib_files"
         bib_dir.mkdir()
         self._create_bib_file(bib_dir / "refs.bib", key="ref2024", title="Reference")
@@ -426,10 +532,10 @@ class TestMergeBibtexFilesOutputPath:
 
         merge_bibtex_files(bib_dir, output_file="merged.bib", verbose=False, force=True)
 
+        # Act
         content = (bib_dir / "merged.bib").read_text()
-        assert "ref2024" in content
-        # Should not contain old entry from previous merged.bib
-        assert "old2024" not in content
+        # Assert
+        assert ('ref2024' in content) and ('old2024' not in content)
 
 
 if __name__ == "__main__":

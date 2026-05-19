@@ -100,15 +100,19 @@ def generate_ai2_prompt(title, keywords, authors, abstract, sections=None):
 # Tests for read_tex_content
 def test_read_tex_content_normal(tmp_path):
     """Test reading normal tex content."""
+    # Arrange
     tex_file = tmp_path / "test.tex"
     tex_file.write_text("This is normal content\nWith multiple lines")
 
+    # Act
     content = read_tex_content(tex_file)
+    # Assert
     assert content == "This is normal content\nWith multiple lines"
 
 
 def test_read_tex_content_removes_comments(tmp_path):
     """Test that comment lines are removed."""
+    # Arrange
     tex_file = tmp_path / "test.tex"
     tex_file.write_text("""
 This is valid content
@@ -117,31 +121,38 @@ More valid content
 % Another comment
 """)
 
+    # Act
     content = read_tex_content(tex_file)
-    assert "This is valid content" in content
-    assert "More valid content" in content
-    assert "comment" not in content.lower()
+    # Assert
+    assert ('This is valid content' in content) and ('More valid content' in content) and ('comment' not in content.lower())
 
 
 def test_read_tex_content_missing_file(tmp_path):
     """Test missing file returns empty string."""
+    # Arrange
     tex_file = tmp_path / "nonexistent.tex"
 
+    # Act
     content = read_tex_content(tex_file)
+    # Assert
     assert content == ""
 
 
 def test_read_tex_content_empty_file(tmp_path):
     """Test empty file returns empty string."""
+    # Arrange
     tex_file = tmp_path / "empty.tex"
     tex_file.write_text("")
 
+    # Act
     content = read_tex_content(tex_file)
+    # Assert
     assert content == ""
 
 
 def test_read_tex_content_only_comments(tmp_path):
     """Test file with only comments."""
+    # Arrange
     tex_file = tmp_path / "comments.tex"
     tex_file.write_text("""
 % Comment 1
@@ -149,106 +160,127 @@ def test_read_tex_content_only_comments(tmp_path):
 % Comment 3
 """)
 
+    # Act
     content = read_tex_content(tex_file)
+    # Assert
     assert content == ""
 
 
 # Tests for clean_latex_content
 def test_clean_latex_removes_begin_end(tmp_path):
     """Test that begin/end environments are removed."""
+    # Arrange
     content = "\\begin{abstract}This is text\\end{abstract}"
 
+    # Act
     cleaned = clean_latex_content(content)
-    assert "begin" not in cleaned
-    assert "end" not in cleaned
-    assert "This is text" in cleaned
+    # Assert
+    assert ('begin' not in cleaned) and ('end' not in cleaned) and ('This is text' in cleaned)
 
 
 def test_clean_latex_removes_commands(tmp_path):
     """Test that LaTeX commands are removed."""
+    # Arrange
     content = "This is \\textbf{bold} and \\emph{italic} text"
 
+    # Act
     cleaned = clean_latex_content(content)
-    assert "\\textbf" not in cleaned
-    assert "\\emph" not in cleaned
-    assert "bold" in cleaned
-    assert "italic" in cleaned
+    # Assert
+    assert ('\\textbf' not in cleaned) and ('\\emph' not in cleaned) and ('bold' in cleaned) and ('italic' in cleaned)
 
 
 def test_clean_latex_removes_nested(tmp_path):
     """Test nested commands are properly handled."""
+    # Arrange
     content = "This is \\textbf{\\emph{nested}} text"
 
+    # Act
     cleaned = clean_latex_content(content)
-    assert "textbf" not in cleaned
-    assert "emph" not in cleaned
-    assert "nested" in cleaned
+    # Assert
+    assert ('textbf' not in cleaned) and ('emph' not in cleaned) and ('nested' in cleaned)
 
 
 def test_clean_latex_removes_pdfbookmark(tmp_path):
     """Test pdfbookmark commands are removed."""
+    # Arrange
     content = "\\pdfbookmark[1]{Title}{label}This is content"
 
+    # Act
     cleaned = clean_latex_content(content)
-    assert "pdfbookmark" not in cleaned
-    assert "This is content" in cleaned
+    # Assert
+    assert ('pdfbookmark' not in cleaned) and ('This is content' in cleaned)
 
 
 def test_clean_latex_removes_optional_args(tmp_path):
     """Test commands with optional arguments are handled."""
+    # Arrange
     content = "\\section[short]{Long Title}"
 
+    # Act
     cleaned = clean_latex_content(content)
-    assert "section" not in cleaned
-    assert "Long Title" in cleaned
+    # Assert
+    assert ('section' not in cleaned) and ('Long Title' in cleaned)
 
 
 def test_clean_latex_multiple_spaces(tmp_path):
     """Test multiple spaces are collapsed."""
+    # Arrange
     content = "This  has    many     spaces"
 
+    # Act
     cleaned = clean_latex_content(content)
-    assert "  " not in cleaned  # No double spaces
-    assert "This has many spaces" in cleaned
+    # Assert
+    assert ('  ' not in cleaned) and ('This has many spaces' in cleaned)
 
 
 def test_clean_latex_multiple_newlines(tmp_path):
     """Test multiple newlines are collapsed."""
+    # Arrange
     content = "Para 1\n\n\n\nPara 2"
 
+    # Act
     cleaned = clean_latex_content(content)
     # Should have at most 2 consecutive newlines
+    # Assert
     assert "\n\n\n" not in cleaned
 
 
 # Tests for generate_ai2_prompt
 def test_generate_prompt_has_header(tmp_path):
     """Test output starts with expected header."""
+    # Arrange
+    # Act
     prompt = generate_ai2_prompt("Title", "", "", "")
 
-    assert prompt.startswith("# Literature Search Request")
-    assert "We are preparing a manuscript" in prompt
+    # Assert
+    assert (prompt.startswith('# Literature Search Request')) and ('We are preparing a manuscript' in prompt)
 
 
 def test_generate_prompt_includes_title(tmp_path):
     """Test title appears in prompt."""
+    # Arrange
+    # Act
     prompt = generate_ai2_prompt("Test Manuscript Title", "", "", "")
 
-    assert "## Title" in prompt
-    assert "Test Manuscript Title" in prompt
+    # Assert
+    assert ('## Title' in prompt) and ('Test Manuscript Title' in prompt)
 
 
 def test_generate_prompt_includes_abstract(tmp_path):
     """Test abstract appears in prompt."""
+    # Arrange
     abstract = "This is the abstract text with important findings."
+    # Act
     prompt = generate_ai2_prompt("", "", "", abstract)
 
-    assert "## Abstract" in prompt
-    assert "important findings" in prompt
+    # Assert
+    assert ('## Abstract' in prompt) and ('important findings' in prompt)
 
 
 def test_generate_prompt_selective_sections(tmp_path):
     """Test only requested sections are included."""
+    # Arrange
+    # Act
     prompt = generate_ai2_prompt(
         "Title Text",
         "Keywords Text",
@@ -257,14 +289,14 @@ def test_generate_prompt_selective_sections(tmp_path):
         sections=["title", "abstract"],
     )
 
-    assert "## Title" in prompt
-    assert "## Abstract" in prompt
-    assert "## Keywords" not in prompt
-    assert "## Authors" not in prompt
+    # Assert
+    assert ('## Title' in prompt) and ('## Abstract' in prompt) and ('## Keywords' not in prompt) and ('## Authors' not in prompt)
 
 
 def test_generate_prompt_all_sections(tmp_path):
     """Test all sections when requested."""
+    # Arrange
+    # Act
     prompt = generate_ai2_prompt(
         "Title",
         "keyword1, keyword2",
@@ -273,51 +305,62 @@ def test_generate_prompt_all_sections(tmp_path):
         sections=["title", "keywords", "authors", "abstract"],
     )
 
-    assert "## Title" in prompt
-    assert "## Keywords" in prompt
-    assert "## Authors" in prompt
-    assert "## Abstract" in prompt
+    # Assert
+    assert ('## Title' in prompt) and ('## Keywords' in prompt) and ('## Authors' in prompt) and ('## Abstract' in prompt)
 
 
 def test_generate_prompt_cleans_latex(tmp_path):
     """Test LaTeX commands are cleaned from content."""
+    # Arrange
+    # Act
     prompt = generate_ai2_prompt(
         "\\textbf{Bold Title}", "", "", "Abstract with \\emph{italic} words"
     )
 
-    assert "\\textbf" not in prompt
-    assert "\\emph" not in prompt
-    assert "Bold Title" in prompt
-    assert "italic" in prompt
+    # Assert
+    assert ('\\textbf' not in prompt) and ('\\emph' not in prompt) and ('Bold Title' in prompt) and ('italic' in prompt)
 
 
 def test_generate_prompt_empty_sections_omitted(tmp_path):
     """Test empty sections are not included."""
+    # Arrange
+    # Act
     prompt = generate_ai2_prompt("Title", "", "", "")
 
-    assert "## Title" in prompt
-    assert "## Keywords" not in prompt
-    assert "## Authors" not in prompt
-    assert "## Abstract" not in prompt
+    # Assert
+    assert ('## Title' in prompt) and ('## Keywords' not in prompt) and ('## Authors' not in prompt) and ('## Abstract' not in prompt)
 
 
-def test_generate_prompt_structure(tmp_path):
-    """Test overall prompt structure is correct."""
+def test_generate_prompt_structure_lines_0_literature_search_request(tmp_path):
+    # Arrange
     prompt = generate_ai2_prompt(
         "Test Title", "test, keywords", "Author Name", "Test abstract"
     )
+    # Act
+    lines = prompt.split("\n")
+    # Act
+    # Assert
+    assert lines[0] == "# Literature Search Request"
 
+
+def test_generate_prompt_structure_title_idx_keywords_idx_authors_idx_abstract_idx(tmp_path):
+    # Arrange
+    prompt = generate_ai2_prompt(
+        "Test Title", "test, keywords", "Author Name", "Test abstract"
+    )
     lines = prompt.split("\n")
     # Should start with header
-    assert lines[0] == "# Literature Search Request"
     # Should have proper section markers
     title_idx = lines.index("## Title")
     keywords_idx = lines.index("## Keywords")
     authors_idx = lines.index("## Authors")
+    # Act
     abstract_idx = lines.index("## Abstract")
-
-    # Sections should be in order
+    # Act
+    # Assert
     assert title_idx < keywords_idx < authors_idx < abstract_idx
+
+
 
 
 if __name__ == "__main__":

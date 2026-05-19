@@ -12,6 +12,9 @@ be lazy-imported inside the function bodies — not at module top.
 import importlib
 
 
-def test_module_imports():
+def test_module_imports_calls_import_module():
     """Smoke: target module imports without error."""
+    # Arrange
+    # Act
+    # Assert
     importlib.import_module("scitex_writer._dataclasses.config._CONSTANTS")
