@@ -17,32 +17,41 @@ from scitex_writer._compile._parser import parse_output
 class TestParseOutput:
     """Test suite for parse_output function."""
 
-    def test_import(self):
+    def test_import_callable_parse_output(self):
         """Test that parse_output can be imported."""
+        # Arrange
+        # Act
+        # Assert
         assert callable(parse_output)
 
     def test_parse_empty_output(self):
         """Test parsing empty output returns empty lists."""
+        # Arrange
+        # Act
         errors, warnings = parse_output("", "")
-        assert errors == []
-        assert warnings == []
+        # Assert
+        assert (errors == []) and (warnings == [])
 
     def test_parse_output_with_no_log_file(self):
         """Test parsing without log file."""
+        # Arrange
         stdout = "Compilation successful"
         stderr = ""
+        # Act
         errors, warnings = parse_output(stdout, stderr, log_file=None)
-        assert isinstance(errors, list)
-        assert isinstance(warnings, list)
+        # Assert
+        assert (isinstance(errors, list)) and (isinstance(warnings, list))
 
     def test_parse_output_with_log_file(self):
         """Test parsing with log file path."""
+        # Arrange
         stdout = "Compilation successful"
         stderr = ""
         log_file = Path("/tmp/test.log")
+        # Act
         errors, warnings = parse_output(stdout, stderr, log_file=log_file)
-        assert isinstance(errors, list)
-        assert isinstance(warnings, list)
+        # Assert
+        assert (isinstance(errors, list)) and (isinstance(warnings, list))
 
 
 # EOF

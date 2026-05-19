@@ -36,7 +36,10 @@ except ImportError:
 @pytest.mark.skipif(not HAS_SCRIPT, reason="pptx2tif.py not importable")
 def test_check_libreoffice_installed_returns_bool():
     """Test that check_libreoffice_installed returns a boolean."""
+    # Arrange
+    # Act
     result = check_libreoffice_installed()
+    # Assert
     assert isinstance(result, bool)
 
 
@@ -44,6 +47,9 @@ def test_check_libreoffice_installed_returns_bool():
 @pytest.mark.skipif(not HAS_FULL_SCRIPT, reason="pptx2tif functions not importable")
 def test_convert_pptx_missing_file_raises():
     """Test that FileNotFoundError is raised for missing input."""
+    # Arrange
+    # Act
+    # Assert
     with pytest.raises(FileNotFoundError, match="PowerPoint file not found"):
         convert_pptx_to_tif_libreoffice("/nonexistent/file.pptx")
 
@@ -52,6 +58,9 @@ def test_convert_pptx_missing_file_raises():
 @pytest.mark.skipif(not HAS_FULL_SCRIPT, reason="pptx2tif functions not importable")
 def test_batch_convert_missing_dir_raises():
     """Test that ValueError is raised for missing directory."""
+    # Arrange
+    # Act
+    # Assert
     with pytest.raises(ValueError, match="Directory not found"):
         batch_convert_pptx_to_tif("/nonexistent/directory")
 
@@ -59,7 +68,10 @@ def test_batch_convert_missing_dir_raises():
 @pytest.mark.skipif(not HAS_FULL_SCRIPT, reason="pptx2tif functions not importable")
 def test_batch_convert_empty_dir_returns_empty_list(tmp_path):
     """Test that empty directory returns empty list."""
+    # Arrange
+    # Act
     result = batch_convert_pptx_to_tif(str(tmp_path))
+    # Assert
     assert result == []
 
 
@@ -69,6 +81,9 @@ def test_convert_auto_method_no_tools_raises():
     """Test that RuntimeError is raised when no conversion tools available."""
     # This test assumes neither LibreOffice nor python-pptx+PIL are available
     # It will only fail if we have the tools, which is acceptable
+    # Arrange
+    # Act
+    # Assert
     try:
         convert_pptx_to_tif("/fake/file.pptx", method="auto")
     except (RuntimeError, FileNotFoundError) as e:
@@ -79,6 +94,9 @@ def test_convert_auto_method_no_tools_raises():
 @pytest.mark.skipif(not HAS_FULL_SCRIPT, reason="pptx2tif functions not importable")
 def test_convert_pptx_invalid_method_raises():
     """Test that ValueError is raised for invalid method."""
+    # Arrange
+    # Act
+    # Assert
     with pytest.raises(ValueError, match="Unknown conversion method"):
         convert_pptx_to_tif("/fake/file.pptx", method="invalid_method")
 
@@ -87,6 +105,9 @@ def test_convert_pptx_invalid_method_raises():
 def test_convert_pptx_path_object_support(tmp_path):
     """Test that Path objects are supported for input/output."""
     # Create a fake pptx file
+    # Arrange
+    # Act
+    # Assert
     fake_pptx = tmp_path / "test.pptx"
     fake_pptx.write_bytes(b"fake pptx content")
 
@@ -106,17 +127,23 @@ def test_convert_pptx_path_object_support(tmp_path):
 def test_batch_convert_recursive_flag(tmp_path):
     """Test that recursive flag is handled."""
     # Create subdirectory structure
+    # Arrange
     subdir = tmp_path / "subdir"
     subdir.mkdir()
 
     # This should not raise an error for valid directory
+    # Act
     result = batch_convert_pptx_to_tif(str(tmp_path), recursive=True)
+    # Assert
     assert isinstance(result, list)
 
 
 @pytest.mark.skipif(not HAS_FULL_SCRIPT, reason="pptx2tif functions not importable")
 def test_convert_pptx_string_path_support(tmp_path):
     """Test that string paths are supported."""
+    # Arrange
+    # Act
+    # Assert
     fake_pptx = tmp_path / "test.pptx"
     fake_pptx.write_bytes(b"fake")
 
@@ -133,6 +160,9 @@ def test_convert_pptx_string_path_support(tmp_path):
 def test_module_imports_successfully():
     """Test that the module imports without errors."""
     # If we got here, imports succeeded
+    # Arrange
+    # Act
+    # Assert
     assert HAS_FULL_SCRIPT is True
 
 
@@ -140,6 +170,9 @@ def test_module_imports_successfully():
 def test_check_libreoffice_handles_exceptions():
     """Test that check_libreoffice_installed handles exceptions gracefully."""
     # This should never raise an exception
+    # Arrange
+    # Act
+    # Assert
     try:
         result = check_libreoffice_installed()
         assert result in [True, False]

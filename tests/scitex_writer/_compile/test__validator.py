@@ -17,19 +17,28 @@ from scitex_writer._compile._validator import validate_before_compile
 class TestValidateBeforeCompile:
     """Test suite for validate_before_compile function."""
 
-    def test_import(self):
+    def test_import_callable_validate_before_compile(self):
         """Test that validate_before_compile can be imported."""
+        # Arrange
+        # Act
+        # Assert
         assert callable(validate_before_compile)
 
     def test_validate_nonexistent_directory(self):
         """Test validation fails for non-existent directory."""
+        # Arrange
+        # Act
         project_dir = Path("/tmp/nonexistent-project-12345")
+        # Assert
         with pytest.raises(Exception):
             validate_before_compile(project_dir)
 
     def test_validate_requires_path_object(self):
         """Test that function accepts Path objects."""
         # This should not raise a type error
+        # Arrange
+        # Act
+        # Assert
         project_dir = Path("/tmp/test")
         try:
             validate_before_compile(project_dir)

@@ -14,13 +14,20 @@ class TestWatchManuscriptCompileScript:
 
     def test_returns_early_when_compile_script_missing(self, tmp_path):
         """Verify returns immediately when compile script doesn't exist."""
+        # Arrange
+        # Act
+        # Assert
         with patch("subprocess.Popen") as mock_popen:
             watch_manuscript(tmp_path)
 
             mock_popen.assert_not_called()
+            assert not mock_popen.called
 
     def test_creates_correct_command(self, tmp_path):
         """Verify correct command is built for watch mode."""
+        # Arrange
+        # Act
+        # Assert
         compile_script = tmp_path / "compile"
         compile_script.write_text("#!/bin/bash\necho 'compiling'")
 
@@ -41,6 +48,9 @@ class TestWatchManuscriptProcess:
 
     def test_runs_process_with_correct_settings(self, tmp_path):
         """Verify Popen is called with correct settings."""
+        # Arrange
+        # Act
+        # Assert
         compile_script = tmp_path / "compile"
         compile_script.write_text("#!/bin/bash\necho 'compiling'")
 
@@ -51,14 +61,13 @@ class TestWatchManuscriptProcess:
             watch_manuscript(tmp_path)
 
             call_kwargs = mock_popen.call_args[1]
-            assert call_kwargs["cwd"] == tmp_path
-            assert call_kwargs["stdout"] == subprocess.PIPE
-            assert call_kwargs["stderr"] == subprocess.STDOUT
-            assert call_kwargs["text"] is True
-            assert call_kwargs["bufsize"] == 1
+            assert (call_kwargs['cwd'] == tmp_path) and (call_kwargs['stdout'] == subprocess.PIPE) and (call_kwargs['stderr'] == subprocess.STDOUT) and (call_kwargs['text'] is True) and (call_kwargs['bufsize'] == 1)
 
     def test_waits_for_process_completion(self, tmp_path):
         """Verify process.wait is called with timeout."""
+        # Arrange
+        # Act
+        # Assert
         compile_script = tmp_path / "compile"
         compile_script.write_text("#!/bin/bash\necho 'compiling'")
 
@@ -69,6 +78,7 @@ class TestWatchManuscriptProcess:
             watch_manuscript(tmp_path, timeout=30)
 
             mock_process.wait.assert_called_once_with(timeout=30)
+            assert mock_process.wait.called
 
 
 class TestWatchManuscriptCallback:
@@ -76,6 +86,9 @@ class TestWatchManuscriptCallback:
 
     def test_calls_callback_on_compilation_event(self, tmp_path):
         """Verify callback is called when 'Compilation' appears in output."""
+        # Arrange
+        # Act
+        # Assert
         compile_script = tmp_path / "compile"
         compile_script.write_text("#!/bin/bash\necho 'compiling'")
 
@@ -92,9 +105,13 @@ class TestWatchManuscriptCallback:
             watch_manuscript(tmp_path, on_compile=callback)
 
             callback.assert_called_once()
+            assert callback.call_count == 1
 
     def test_callback_not_called_without_compilation_keyword(self, tmp_path):
         """Verify callback is not called for non-compilation output."""
+        # Arrange
+        # Act
+        # Assert
         compile_script = tmp_path / "compile"
         compile_script.write_text("#!/bin/bash\necho 'compiling'")
 
@@ -111,9 +128,13 @@ class TestWatchManuscriptCallback:
             watch_manuscript(tmp_path, on_compile=callback)
 
             callback.assert_not_called()
+            assert not callback.called
 
     def test_callback_error_does_not_stop_watch(self, tmp_path):
         """Verify callback errors are caught and logged."""
+        # Arrange
+        # Act
+        # Assert
         compile_script = tmp_path / "compile"
         compile_script.write_text("#!/bin/bash\necho 'compiling'")
 
@@ -135,6 +156,9 @@ class TestWatchManuscriptExceptions:
 
     def test_keyboard_interrupt_terminates_process(self, tmp_path):
         """Verify KeyboardInterrupt terminates the process."""
+        # Arrange
+        # Act
+        # Assert
         compile_script = tmp_path / "compile"
         compile_script.write_text("#!/bin/bash\necho 'compiling'")
 
@@ -145,9 +169,13 @@ class TestWatchManuscriptExceptions:
             watch_manuscript(tmp_path)
 
             mock_process.terminate.assert_called_once()
+            assert mock_process.terminate.call_count == 1
 
     def test_generic_exception_terminates_process(self, tmp_path):
         """Verify generic exceptions terminate the process."""
+        # Arrange
+        # Act
+        # Assert
         compile_script = tmp_path / "compile"
         compile_script.write_text("#!/bin/bash\necho 'compiling'")
 
@@ -158,13 +186,17 @@ class TestWatchManuscriptExceptions:
             watch_manuscript(tmp_path)
 
             mock_process.terminate.assert_called_once()
+            assert mock_process.terminate.call_count == 1
 
 
 class TestWatchManuscriptParameters:
     """Tests for watch_manuscript parameter defaults."""
 
-    def test_interval_default(self, tmp_path):
+    def test_interval_default_calls_write_text(self, tmp_path):
         """Verify interval parameter has default value."""
+        # Arrange
+        # Act
+        # Assert
         compile_script = tmp_path / "compile"
         compile_script.write_text("#!/bin/bash")
 
@@ -177,6 +209,9 @@ class TestWatchManuscriptParameters:
 
     def test_timeout_none_by_default(self, tmp_path):
         """Verify timeout defaults to None."""
+        # Arrange
+        # Act
+        # Assert
         compile_script = tmp_path / "compile"
         compile_script.write_text("#!/bin/bash")
 
@@ -187,6 +222,7 @@ class TestWatchManuscriptParameters:
             watch_manuscript(tmp_path)
 
             mock_process.wait.assert_called_once_with(timeout=None)
+            assert mock_process.wait.called
 
 
 if __name__ == "__main__":

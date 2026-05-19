@@ -20,62 +20,57 @@ class TestGetCompileScript:
 
     def test_manuscript_script_path(self):
         """Test manuscript script path generation."""
+        # Arrange
         project_dir = Path("/tmp/test-project")
+        # Act
         script = _get_compile_script(project_dir, "manuscript")
+        # Assert
         assert script == project_dir / "scripts" / "shell" / "compile_manuscript.sh"
 
     def test_supplementary_script_path(self):
         """Test supplementary script path generation."""
+        # Arrange
         project_dir = Path("/tmp/test-project")
+        # Act
         script = _get_compile_script(project_dir, "supplementary")
+        # Assert
         assert script == project_dir / "scripts" / "shell" / "compile_supplementary.sh"
 
     def test_revision_script_path(self):
         """Test revision script path generation."""
+        # Arrange
         project_dir = Path("/tmp/test-project")
+        # Act
         script = _get_compile_script(project_dir, "revision")
+        # Assert
         assert script == project_dir / "scripts" / "shell" / "compile_revision.sh"
 
 
 class TestRunCompile:
     """Test suite for run_compile function."""
 
-    def test_signature(self):
+    def test_signature_doc_type_in_params_and_project_dir_in_params_and_t(self):
         """Test function signature has expected parameters."""
+        # Arrange
         import inspect
 
         sig = inspect.signature(run_compile)
+        # Act
         params = list(sig.parameters.keys())
 
-        assert "doc_type" in params
-        assert "project_dir" in params
-        assert "timeout" in params
-        assert "track_changes" in params
-        assert "no_figs" in params
-        assert "ppt2tif" in params
-        assert "crop_tif" in params
-        assert "quiet" in params
-        assert "verbose" in params
-        assert "force" in params
-        assert "log_callback" in params
-        assert "progress_callback" in params
+        # Assert
+        assert ('doc_type' in params) and ('project_dir' in params) and ('timeout' in params) and ('track_changes' in params) and ('no_figs' in params) and ('ppt2tif' in params) and ('crop_tif' in params) and ('quiet' in params) and ('verbose' in params) and ('force' in params) and ('log_callback' in params) and ('progress_callback' in params)
 
-    def test_default_parameters(self):
+    def test_default_parameters_sig_parameters_timeout_default_300_and_sig_paramet(self):
         """Test default parameter values."""
+        # Arrange
         import inspect
 
+        # Act
         sig = inspect.signature(run_compile)
 
-        assert sig.parameters["timeout"].default == 300
-        assert sig.parameters["track_changes"].default is False
-        assert sig.parameters["no_figs"].default is False
-        assert sig.parameters["ppt2tif"].default is False
-        assert sig.parameters["crop_tif"].default is False
-        assert sig.parameters["quiet"].default is False
-        assert sig.parameters["verbose"].default is False
-        assert sig.parameters["force"].default is False
-        assert sig.parameters["log_callback"].default is None
-        assert sig.parameters["progress_callback"].default is None
+        # Assert
+        assert (sig.parameters['timeout'].default == 300) and (sig.parameters['track_changes'].default is False) and (sig.parameters['no_figs'].default is False) and (sig.parameters['ppt2tif'].default is False) and (sig.parameters['crop_tif'].default is False) and (sig.parameters['quiet'].default is False) and (sig.parameters['verbose'].default is False) and (sig.parameters['force'].default is False) and (sig.parameters['log_callback'].default is None) and (sig.parameters['progress_callback'].default is None)
 
     @patch("scitex_writer._compile._runner.validate_before_compile")
     @patch("scitex_writer._compile._runner._get_compile_script")
@@ -91,6 +86,7 @@ class TestRunCompile:
         mock_validate,
     ):
         """Test manuscript compilation with no_figs option."""
+        # Arrange
         project_dir = Path("/tmp/test-project")
         script_path = project_dir / "scripts" / "shell" / "compile_manuscript.sh"
 
@@ -114,9 +110,10 @@ class TestRunCompile:
 
         # Verify _run_sh_command was called with correct command
         mock_run_sh.assert_called_once()
+        # Act
         call_args = mock_run_sh.call_args[0][0]
-        assert str(script_path) in call_args
-        assert "--no_figs" in call_args
+        # Assert
+        assert (str(script_path) in call_args) and ('--no_figs' in call_args)
 
     @patch("scitex_writer._compile._runner.validate_before_compile")
     @patch("scitex_writer._compile._runner._get_compile_script")
@@ -132,6 +129,7 @@ class TestRunCompile:
         mock_validate,
     ):
         """Test manuscript compilation with multiple options."""
+        # Arrange
         project_dir = Path("/tmp/test-project")
         script_path = project_dir / "scripts" / "shell" / "compile_manuscript.sh"
 
@@ -158,12 +156,10 @@ class TestRunCompile:
                     )
 
         # Verify _run_sh_command was called with all options
+        # Act
         call_args = mock_run_sh.call_args[0][0]
-        assert "--no_figs" in call_args
-        assert "--ppt2tif" in call_args
-        assert "--crop_tif" in call_args
-        assert "--verbose" in call_args
-        assert "--force" in call_args
+        # Assert
+        assert ('--no_figs' in call_args) and ('--ppt2tif' in call_args) and ('--crop_tif' in call_args) and ('--verbose' in call_args) and ('--force' in call_args)
 
     @patch("scitex_writer._compile._runner.validate_before_compile")
     @patch("scitex_writer._compile._runner._get_compile_script")
@@ -179,6 +175,7 @@ class TestRunCompile:
         mock_validate,
     ):
         """Test supplementary compilation with figs option."""
+        # Arrange
         project_dir = Path("/tmp/test-project")
         script_path = project_dir / "scripts" / "shell" / "compile_supplementary.sh"
 
@@ -201,7 +198,9 @@ class TestRunCompile:
                     )
 
         # Verify _run_sh_command was called with --figs option
+        # Act
         call_args = mock_run_sh.call_args[0][0]
+        # Assert
         assert "--figs" in call_args
 
     @patch("scitex_writer._compile._runner.validate_before_compile")
@@ -218,6 +217,7 @@ class TestRunCompile:
         mock_validate,
     ):
         """Test revision compilation with track_changes option."""
+        # Arrange
         project_dir = Path("/tmp/test-project")
         script_path = project_dir / "scripts" / "shell" / "compile_revision.sh"
 
@@ -240,7 +240,9 @@ class TestRunCompile:
                     )
 
         # Verify _run_sh_command was called with --track-changes option
+        # Act
         call_args = mock_run_sh.call_args[0][0]
+        # Assert
         assert "--track-changes" in call_args
 
 
@@ -249,18 +251,21 @@ class TestFindOutputFiles:
 
     def test_returns_none_when_no_pdf_exists(self, tmp_path):
         """When no PDF exists, returns None for output_pdf."""
+        # Arrange
         from scitex_writer._compile._runner import _find_output_files
 
         # Create minimal project dir structure
         doc_dir = tmp_path / "01_manuscript"
         doc_dir.mkdir()
 
+        # Act
         output_pdf, diff_pdf, log_file = _find_output_files(tmp_path, "manuscript")
-        assert output_pdf is None
-        assert diff_pdf is None
+        # Assert
+        assert (output_pdf is None) and (diff_pdf is None)
 
     def test_finds_existing_pdf(self, tmp_path):
         """When PDF exists, returns its path."""
+        # Arrange
         from scitex_writer._compile._runner import _find_output_files
 
         doc_dir = tmp_path / "01_manuscript"
@@ -268,11 +273,14 @@ class TestFindOutputFiles:
         pdf = doc_dir / "manuscript.pdf"
         pdf.write_bytes(b"%PDF-1.4 test")
 
+        # Act
         output_pdf, diff_pdf, log_file = _find_output_files(tmp_path, "manuscript")
+        # Assert
         assert output_pdf == pdf
 
     def test_finds_diff_pdf_separately(self, tmp_path):
         """Diff PDF is found independently of main PDF."""
+        # Arrange
         from scitex_writer._compile._runner import _find_output_files
 
         doc_dir = tmp_path / "01_manuscript"
@@ -280,9 +288,10 @@ class TestFindOutputFiles:
         diff = doc_dir / "manuscript_diff.pdf"
         diff.write_bytes(b"%PDF-1.4 diff")
 
+        # Act
         output_pdf, diff_pdf, log_file = _find_output_files(tmp_path, "manuscript")
-        assert output_pdf is None
-        assert diff_pdf == diff
+        # Assert
+        assert (output_pdf is None) and (diff_pdf == diff)
 
     def test_stale_pdf_detected_by_caller_exit_code(self, tmp_path):
         """Caller must check exit code — stale PDF alone is not proof of success.
@@ -290,6 +299,7 @@ class TestFindOutputFiles:
         This verifies the contract: _find_output_files only checks existence,
         so the caller (run_compile) must gate on subprocess exit code first.
         """
+        # Arrange
         from scitex_writer._compile._runner import _find_output_files
 
         doc_dir = tmp_path / "01_manuscript"
@@ -298,8 +308,10 @@ class TestFindOutputFiles:
         stale = doc_dir / "manuscript.pdf"
         stale.write_bytes(b"%PDF-1.4 stale")
 
+        # Act
         output_pdf, _, _ = _find_output_files(tmp_path, "manuscript")
         # File exists — but this is meaningless without exit code check
+        # Assert
         assert output_pdf is not None
         # The fix in process_diff.sh and compiled_tex_to_compiled_pdf.sh
         # ensures the shell scripts check exit code BEFORE reporting success
@@ -310,6 +322,7 @@ class TestShellCleanupBehavior:
 
     def test_process_diff_cleanup_removes_stale_on_failure(self, tmp_path):
         """cleanup() in process_diff.sh should remove stale PDF when compile fails."""
+        # Arrange
         import subprocess
 
         stale_pdf = tmp_path / "diff.pdf"
@@ -346,17 +359,19 @@ class TestShellCleanupBehavior:
 
         cleanup 1
         """
+        # Act
         result = subprocess.run(
             ["bash", "-c", script],
             capture_output=True,
             text=True,
         )
 
-        assert not stale_pdf.exists(), "Stale PDF should be removed on failure"
-        assert result.returncode != 0
+        # Assert
+        assert (not stale_pdf.exists()) and (result.returncode != 0)
 
     def test_process_diff_cleanup_keeps_pdf_on_success(self, tmp_path):
         """cleanup() should keep PDF when compile succeeds."""
+        # Arrange
         import subprocess
 
         pdf = tmp_path / "diff.pdf"
@@ -393,14 +408,15 @@ class TestShellCleanupBehavior:
 
         cleanup 0
         """
+        # Act
         result = subprocess.run(
             ["bash", "-c", script],
             capture_output=True,
             text=True,
         )
 
-        assert pdf.exists(), "PDF should be kept on success"
-        assert result.returncode == 0
+        # Assert
+        assert (pdf.exists()) and (result.returncode == 0)
 
 
 class TestLatexdiffType:
@@ -408,6 +424,7 @@ class TestLatexdiffType:
 
     def test_process_diff_uses_underline_type(self):
         """process_diff.sh should use --type=UNDERLINE, not CULINECHBAR."""
+        # Arrange
         script_path = (
             Path(__file__).resolve().parents[3]
             / "scripts"
@@ -415,9 +432,10 @@ class TestLatexdiffType:
             / "modules"
             / "process_diff.sh"
         )
+        # Act
         content = script_path.read_text()
-        assert "--type=UNDERLINE" in content
-        assert "--type=CULINECHBAR" not in content
+        # Assert
+        assert ('--type=UNDERLINE' in content) and ('--type=CULINECHBAR' not in content)
 
 
 # EOF
