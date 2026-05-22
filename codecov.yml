@@ -1,17 +1,29 @@
-# Codecov configuration for scitex-writer.
-# See _skills/general/02_package_11_ci-and-codecov.md.
+codecov:
+  require_ci_to_pass: false
+  # Treat develop as the de-facto default branch — main is a stable
+  # release mirror that only fast-forwards from develop, so develop
+  # is where coverage uploads land. This makes the unbranched badge
+  # endpoint (/graph/badge.svg) follow develop's value.
+  branch: develop
 
 coverage:
   status:
     project:
       default:
-        # Ramp-up target — switch to 90% once subprocess coverage wiring
-        # lifts the baseline (see _skills/general/05_development_06_subprocess-coverage.md).
         target: auto
         threshold: 1%
     patch:
       default:
-        target: auto
-        threshold: 1%
+        target: 80%
 
-comment: false
+ignore:
+  - "src/scitex_writer/_sphinx_html/**"
+  - "src/scitex_writer/_skills/**"
+  - "src/scitex_writer/_completion.py"
+  - "src/scitex_writer/_cli/_completion.py"
+  - "tests/**"
+  - "examples/**"
+
+comment:
+  layout: "diff, files"
+  require_changes: true
