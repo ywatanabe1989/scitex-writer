@@ -9,31 +9,29 @@ from scitex_writer._project._validate import validate_structure
 class TestValidateStructureSuccess:
     """Tests for validate_structure when structure is valid."""
 
-    def test_passes_with_all_required_directories(self, tmp_path):
-        """Verify validate_structure passes with complete structure."""
+    def test_returns_none_with_all_required_directories(self, tmp_path):
+        """validate_structure returns None (no raise) for a complete structure."""
         # Arrange
-        # Act
-        # Assert
         (tmp_path / "01_manuscript").mkdir()
         (tmp_path / "02_supplementary").mkdir()
         (tmp_path / "03_revision").mkdir()
-
-        # Should not raise
-        validate_structure(tmp_path)
-
-    def test_passes_with_extra_directories(self, tmp_path):
-        """Verify validate_structure passes when extra directories exist."""
-        # Arrange
         # Act
+        result = validate_structure(tmp_path)
         # Assert
+        assert result is None
+
+    def test_returns_none_with_extra_directories(self, tmp_path):
+        """validate_structure tolerates extra directories and returns None."""
+        # Arrange
         (tmp_path / "01_manuscript").mkdir()
         (tmp_path / "02_supplementary").mkdir()
         (tmp_path / "03_revision").mkdir()
         (tmp_path / "scripts").mkdir()
         (tmp_path / "shared").mkdir()
-
-        # Should not raise
-        validate_structure(tmp_path)
+        # Act
+        result = validate_structure(tmp_path)
+        # Assert
+        assert result is None
 
 
 class TestValidateStructureFailure:
@@ -80,55 +78,47 @@ class TestValidateStructureFailure:
         with pytest.raises(RuntimeError, match="01_manuscript"):
             validate_structure(tmp_path)
 
-    def test_error_message_contains_path_raises_runtimeerror(self, tmp_path):
+    def test_error_message_points_at_the_missing_directory_path(self, tmp_path):
+        """The RuntimeError message names the absolute path it expected."""
         # Arrange
         # Act
         # Assert
-        # Arrange
-        # Act
-        # Assert
-        with pytest.raises(RuntimeError) as exc_info:
+        with pytest.raises(RuntimeError, match="expected at:"):
             validate_structure(tmp_path)
-
-    def test_error_message_contains_path_expected_at_in_str_exc_info_value(self, tmp_path):
-        # Arrange
-        # Act
-        # Assert
-        # Arrange
-        # Act
-        # Assert
-        assert "expected at:" in str(exc_info.value)
-
 
 
 class TestValidateStructureEdgeCases:
     """Tests for validate_structure edge cases."""
 
-    def test_file_instead_of_directory(self, tmp_path):
-        """Verify raises when file exists instead of directory."""
+    def test_file_named_like_required_dir_passes_existence_only_check(self, tmp_path):
+        """A plain file (not a dir) named 01_manuscript still satisfies the
+        existence-only check, so validate_structure returns None.
+
+        This pins the current contract: validate_structure tests `.exists()`,
+        not `.is_dir()`. If the check is tightened later, this test should
+        flip to `pytest.raises`.
+        """
         # Arrange
-        # Act
-        # Assert
         (tmp_path / "01_manuscript").write_text("not a directory")
         (tmp_path / "02_supplementary").mkdir()
         (tmp_path / "03_revision").mkdir()
-
-        # File exists but is not a directory - exists() still returns True
-        # This may or may not be an issue depending on expected behavior
-        validate_structure(tmp_path)
-
-    def test_nested_project_directory(self, tmp_path):
-        """Verify works with nested project directory."""
-        # Arrange
         # Act
+        result = validate_structure(tmp_path)
         # Assert
+        assert result is None
+
+    def test_returns_none_for_valid_nested_project_directory(self, tmp_path):
+        """validate_structure works on a project nested below tmp_path."""
+        # Arrange
         nested = tmp_path / "projects" / "my_paper"
         nested.mkdir(parents=True)
         (nested / "01_manuscript").mkdir()
         (nested / "02_supplementary").mkdir()
         (nested / "03_revision").mkdir()
-
-        validate_structure(nested)
+        # Act
+        result = validate_structure(nested)
+        # Assert
+        assert result is None
 
 
 if __name__ == "__main__":
