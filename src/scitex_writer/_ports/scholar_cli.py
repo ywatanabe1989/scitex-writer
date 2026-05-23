@@ -11,10 +11,22 @@ from __future__ import annotations
 import shutil
 import subprocess
 from pathlib import Path
+from typing import Callable, Optional
 
 
-def scholar_cli_on_path() -> bool:
-    return shutil.which("scitex-scholar") is not None or _python_module_available()
+def scholar_cli_on_path(
+    which: Optional[Callable[[str], Optional[str]]] = None,
+    module_check: Optional[Callable[[], bool]] = None,
+) -> bool:
+    """Return True if the scholar CLI (or its python module) is reachable.
+
+    ``which`` defaults to :func:`shutil.which` and ``module_check`` to
+    :func:`_python_module_available`; both are exposed so callers and
+    tests can inject alternates without patching module internals.
+    """
+    which = which or shutil.which
+    module_check = module_check or _python_module_available
+    return which("scitex-scholar") is not None or module_check()
 
 
 def _python_module_available() -> bool:
@@ -37,14 +49,22 @@ def _command_prefix() -> list[str]:
 
 
 def enrich_bib(
-    bib_path: Path, project_name: str, timeout_s: int = 600
+    bib_path: Path,
+    project_name: str,
+    timeout_s: int = 600,
+    cli_available: Optional[Callable[[], bool]] = None,
 ) -> tuple[bool, str]:
     """Run ``scitex-scholar bibtex <bib> --project <name>``.
 
     Returns ``(ok, combined_stdout_stderr)``. Caller streams the string
     to a log drawer.
+
+    ``cli_available`` defaults to :func:`scholar_cli_on_path`; exposed so
+    tests can exercise the not-installed branch without uninstalling the
+    real scholar package.
     """
-    if not scholar_cli_on_path():
+    cli_available = cli_available or scholar_cli_on_path
+    if not cli_available():
         return (
             False,
             "scitex-scholar is not installed. Run `pip install scitex-scholar` "

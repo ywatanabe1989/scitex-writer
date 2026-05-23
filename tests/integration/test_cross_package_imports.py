@@ -40,5 +40,6 @@ def test_cross_package_import(module_name):
     """Importing scitex-writer's declared cross-package dependency must succeed."""
     # Arrange
     # Act
+    module = pytest.importorskip(module_name)
     # Assert
-    pytest.importorskip(module_name)
+    assert module is not None

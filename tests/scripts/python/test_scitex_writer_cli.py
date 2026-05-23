@@ -7,7 +7,6 @@
 
 import subprocess
 import sys
-from unittest.mock import patch
 
 
 class TestVersion:
@@ -20,7 +19,11 @@ class TestVersion:
         from scitex_writer import __version__
 
         # Assert
-        assert (__version__ is not None) and (isinstance(__version__, str)) and (len(__version__.split('.')) >= 2)
+        assert (
+            (__version__ is not None)
+            and (isinstance(__version__, str))
+            and (len(__version__.split(".")) >= 2)
+        )
 
     def test_version_cli_flag(self):
         """Test --version flag."""
@@ -34,7 +37,11 @@ class TestVersion:
             text=True,
         )
         # Assert
-        assert (result.returncode == 0) and ('scitex-writer' in result.stdout) and (__version__ in result.stdout)
+        assert (
+            (result.returncode == 0)
+            and ("scitex-writer" in result.stdout)
+            and (__version__ in result.stdout)
+        )
 
     def test_version_short_flag(self):
         """Test -V flag."""
@@ -46,7 +53,7 @@ class TestVersion:
             text=True,
         )
         # Assert
-        assert (result.returncode == 0) and ('scitex-writer' in result.stdout)
+        assert (result.returncode == 0) and ("scitex-writer" in result.stdout)
 
 
 class TestMainHelp:
@@ -62,7 +69,11 @@ class TestMainHelp:
             text=True,
         )
         # Assert
-        assert (result.returncode == 0) and ('scitex-writer' in result.stdout.lower()) and ('mcp' in result.stdout)
+        assert (
+            (result.returncode == 0)
+            and ("scitex-writer" in result.stdout.lower())
+            and ("mcp" in result.stdout)
+        )
 
     def test_short_help_flag(self):
         """Test -h flag."""
@@ -74,7 +85,7 @@ class TestMainHelp:
             text=True,
         )
         # Assert
-        assert (result.returncode == 0) and ('mcp' in result.stdout)
+        assert (result.returncode == 0) and ("mcp" in result.stdout)
 
 
 class TestMcpCommand:
@@ -90,7 +101,11 @@ class TestMcpCommand:
             text=True,
         )
         # Assert
-        assert (result.returncode == 0) and ('installation' in result.stdout) and ('start' in result.stdout)
+        assert (
+            (result.returncode == 0)
+            and ("installation" in result.stdout)
+            and ("start" in result.stdout)
+        )
 
 
 class TestMcpInstallation:
@@ -106,7 +121,9 @@ class TestMcpInstallation:
             text=True,
         )
         # Assert
-        assert (result.returncode == 0) and ('mcpServers' in result.stdout or 'Installation' in result.stdout)
+        assert (result.returncode == 0) and (
+            "mcpServers" in result.stdout or "Installation" in result.stdout
+        )
 
 
 class TestMcpStart:
@@ -122,31 +139,29 @@ class TestMcpStart:
             text=True,
         )
         # Assert
-        assert (result.returncode == 0) and ('--transport' in result.stdout or '-t' in result.stdout)
+        assert (result.returncode == 0) and (
+            "--transport" in result.stdout or "-t" in result.stdout
+        )
 
 
 class TestMainFunction:
     """Test main() function directly."""
 
-    def test_main_no_args(self):
-        """Test main() with no arguments shows help."""
+    def test_main_with_no_args_returns_zero(self):
         # Arrange
         from scitex_writer._cli import main
 
         # Act
-        with patch("sys.argv", ["scitex-writer"]):
-            result = main()
+        result = main([])  # main(argv) accepts the arg list directly
         # Assert
         assert result == 0
 
-    def test_main_mcp_no_subcommand(self):
-        """Test main() with mcp but no subcommand shows help."""
+    def test_main_mcp_without_subcommand_returns_zero(self):
         # Arrange
         from scitex_writer._cli import main
 
         # Act
-        with patch("sys.argv", ["scitex-writer", "mcp"]):
-            result = main()
+        result = main(["mcp"])
         # Assert
         assert result == 0
 

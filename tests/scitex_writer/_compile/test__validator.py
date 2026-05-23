@@ -33,18 +33,26 @@ class TestValidateBeforeCompile:
         with pytest.raises(Exception):
             validate_before_compile(project_dir)
 
-    def test_validate_requires_path_object(self):
-        """Test that function accepts Path objects."""
-        # This should not raise a type error
+    def test_validate_accepts_path_object_without_type_error(self):
+        """validate_before_compile accepts a Path argument (no TypeError).
+
+        A missing/invalid project may raise validation errors — that's
+        fine; the contract under test is that passing a Path is itself
+        accepted (no TypeError about the argument type).
+        """
         # Arrange
-        # Act
-        # Assert
         project_dir = Path("/tmp/test")
+        raised_type_error = False
+        # Act
         try:
             validate_before_compile(project_dir)
+        except TypeError:
+            raised_type_error = True
         except Exception:
-            # Any exception is fine, we just want to check it accepts Path
+            # Validation-level errors are acceptable for this contract.
             pass
+        # Assert
+        assert raised_type_error is False
 
 
 # EOF

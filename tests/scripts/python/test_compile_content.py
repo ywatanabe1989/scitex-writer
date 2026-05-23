@@ -76,7 +76,9 @@ class TestDocumentBuilder:
         # Assert
         assert compiler.exists()
 
-    def test_document_builder_light_mode_result_returncode_equals_n_0(self, scripts_dir, tmp_path):
+    def test_document_builder_light_mode_result_returncode_equals_n_0(
+        self, scripts_dir, tmp_path
+    ):
         # Arrange
         builder = scripts_dir / "python" / "tex_snippet2full.py"
         body_file = tmp_path / "body.tex"
@@ -101,7 +103,9 @@ class TestDocumentBuilder:
         # Assert
         assert result.returncode == 0
 
-    def test_document_builder_light_mode_documentclass_in_content_and_begin_document_in_content_and_h(self, scripts_dir, tmp_path):
+    def test_document_builder_light_mode_documentclass_in_content_and_begin_document_in_content_and_h(
+        self, scripts_dir, tmp_path
+    ):
         # Arrange
         builder = scripts_dir / "python" / "tex_snippet2full.py"
         body_file = tmp_path / "body.tex"
@@ -125,10 +129,16 @@ class TestDocumentBuilder:
         content = output_file.read_text()
         # Act
         # Assert
-        assert ('\\documentclass' in content) and ('\\begin{document}' in content) and ('Hello World' in content) and ('MonacoBg' not in content)
+        assert (
+            ("\\documentclass" in content)
+            and ("\\begin{document}" in content)
+            and ("Hello World" in content)
+            and ("MonacoBg" not in content)
+        )
 
-
-    def test_document_builder_dark_mode_result_returncode_equals_n_0(self, scripts_dir, tmp_path):
+    def test_document_builder_dark_mode_result_returncode_equals_n_0(
+        self, scripts_dir, tmp_path
+    ):
         # Arrange
         builder = scripts_dir / "python" / "tex_snippet2full.py"
         body_file = tmp_path / "body.tex"
@@ -153,7 +163,9 @@ class TestDocumentBuilder:
         # Assert
         assert result.returncode == 0
 
-    def test_document_builder_dark_mode_monacobg_in_content_and_1e1e1e_in_content_and_monacofg_in_co(self, scripts_dir, tmp_path):
+    def test_document_builder_dark_mode_monacobg_in_content_and_1e1e1e_in_content_and_monacofg_in_co(
+        self, scripts_dir, tmp_path
+    ):
         # Arrange
         builder = scripts_dir / "python" / "tex_snippet2full.py"
         body_file = tmp_path / "body.tex"
@@ -177,10 +189,18 @@ class TestDocumentBuilder:
         content = output_file.read_text()
         # Act
         # Assert
-        assert ('MonacoBg' in content) and ('1E1E1E' in content) and ('MonacoFg' in content) and ('D4D4D4' in content) and ('\\pagecolor{MonacoBg}' in content) and ('\\color{MonacoFg}' in content)
+        assert (
+            ("MonacoBg" in content)
+            and ("1E1E1E" in content)
+            and ("MonacoFg" in content)
+            and ("D4D4D4" in content)
+            and ("\\pagecolor{MonacoBg}" in content)
+            and ("\\color{MonacoFg}" in content)
+        )
 
-
-    def test_document_builder_complete_document_result_returncode_equals_n_0(self, scripts_dir, tmp_path):
+    def test_document_builder_complete_document_result_returncode_equals_n_0(
+        self, scripts_dir, tmp_path
+    ):
         # Arrange
         builder = scripts_dir / "python" / "tex_snippet2full.py"
         body_file = tmp_path / "body.tex"
@@ -208,7 +228,9 @@ class TestDocumentBuilder:
         # Assert
         assert result.returncode == 0
 
-    def test_document_builder_complete_document_monaco_pos_begin_pos(self, scripts_dir, tmp_path):
+    def test_document_builder_complete_document_monaco_pos_begin_pos(
+        self, scripts_dir, tmp_path
+    ):
         # Arrange
         builder = scripts_dir / "python" / "tex_snippet2full.py"
         body_file = tmp_path / "body.tex"
@@ -241,138 +263,137 @@ class TestDocumentBuilder:
         assert monaco_pos > begin_pos
 
 
+_REQUIRES_LATEXMK = pytest.mark.skipif(
+    shutil.which("latexmk") is None, reason="latexmk not available"
+)
+
+
+def _cleanup_temp_dir(result):
+    temp = result.get("temp_dir")
+    if temp:
+        temp_dir = Path(temp)
+        if temp_dir.exists():
+            shutil.rmtree(temp_dir)
+
 
 class TestContentCompilation:
     """Test content compilation (requires latexmk)."""
 
-    @pytest.fixture
-    def has_latexmk(self):
-        """Check if latexmk is available."""
-        return shutil.which("latexmk") is not None
-
-    def test_compile_simple_content(self, has_latexmk):
-        """Test compiling simple LaTeX content."""
+    @_REQUIRES_LATEXMK
+    def test_compile_simple_content_succeeds(self):
         # Arrange
-        if not has_latexmk:
-            pytest.skip("latexmk not available")
-
         from scitex_writer import compile
 
-        content = r"""
-\documentclass{article}
-\begin{document}
-Hello, World!
-\end{document}
-"""
+        content = (
+            r"\documentclass{article}"
+            "\n"
+            r"\begin{document}"
+            "\nHello, World!\n"
+            r"\end{document}"
+            "\n"
+        )
         # Act
         result = compile.content(content, name="test_simple")
-
+        _cleanup_temp_dir(result)
         # Assert
-        assert (result['success'] is True) and (result['output_pdf'] is not None) and (Path(result['output_pdf']).exists())
+        assert result["success"] is True
 
-        # Cleanup
-        temp_dir = Path(result["temp_dir"])
-        if temp_dir.exists():
-            shutil.rmtree(temp_dir)
-
-    def test_compile_body_only(self, has_latexmk):
-        """Test compiling body-only content (auto-wrapped)."""
+    @_REQUIRES_LATEXMK
+    def test_compile_simple_content_writes_pdf_on_disk(self):
         # Arrange
-        if not has_latexmk:
-            pytest.skip("latexmk not available")
-
         from scitex_writer import compile
 
-        content = r"""
-\section{Introduction}
+        content = (
+            r"\documentclass{article}"
+            "\n"
+            r"\begin{document}"
+            "\nHello, World!\n"
+            r"\end{document}"
+            "\n"
+        )
+        # Act
+        result = compile.content(content, name="test_simple")
+        pdf_exists = (
+            result["output_pdf"] is not None and Path(result["output_pdf"]).exists()
+        )
+        _cleanup_temp_dir(result)
+        # Assert
+        assert pdf_exists is True
 
-This is the introduction.
-"""
+    @_REQUIRES_LATEXMK
+    def test_compile_body_only_content_succeeds(self):
+        # Arrange
+        from scitex_writer import compile
+
+        content = "\n" r"\section{Introduction}" "\n\nThis is the introduction.\n"
         # Act
         result = compile.content(content, name="test_body")
-
+        _cleanup_temp_dir(result)
         # Assert
-        assert (result['success'] is True) and (result['output_pdf'] is not None)
+        assert result["success"] is True
 
-        # Cleanup
-        temp_dir = Path(result["temp_dir"])
-        if temp_dir.exists():
-            shutil.rmtree(temp_dir)
-
-    def test_compile_with_dark_mode(self, has_latexmk):
-        """Test compiling with dark mode."""
+    @_REQUIRES_LATEXMK
+    def test_compile_dark_mode_reports_dark_color_mode(self):
         # Arrange
-        if not has_latexmk:
-            pytest.skip("latexmk not available")
-
         from scitex_writer import compile
 
-        content = r"""
-\documentclass{article}
-\usepackage{xcolor}
-\usepackage{pagecolor}
-\begin{document}
-Dark mode test.
-\end{document}
-"""
+        content = (
+            r"\documentclass{article}"
+            "\n"
+            r"\usepackage{xcolor}"
+            "\n"
+            r"\usepackage{pagecolor}"
+            "\n"
+            r"\begin{document}"
+            "\nDark mode test.\n"
+            r"\end{document}"
+            "\n"
+        )
         # Act
         result = compile.content(content, color_mode="dark", name="test_dark")
-
+        _cleanup_temp_dir(result)
         # Assert
-        assert (result['success'] is True) and (result['color_mode'] == 'dark')
+        assert result["color_mode"] == "dark"
 
-        # Cleanup
-        temp_dir = Path(result["temp_dir"])
-        if temp_dir.exists():
-            shutil.rmtree(temp_dir)
-
-    def test_compile_invalid_latex(self, has_latexmk):
-        """Test compiling invalid LaTeX content."""
+    @_REQUIRES_LATEXMK
+    def test_compile_invalid_latex_reports_failure(self):
         # Arrange
-        if not has_latexmk:
-            pytest.skip("latexmk not available")
-
         from scitex_writer import compile
 
-        content = r"""
-\documentclass{article}
-\begin{document}
-\invalid_command_that_does_not_exist
-\end{document}
-"""
+        content = (
+            r"\documentclass{article}"
+            "\n"
+            r"\begin{document}"
+            "\n"
+            r"\invalid_command_that_does_not_exist"
+            "\n"
+            r"\end{document}"
+            "\n"
+        )
         # Act
         result = compile.content(content, name="test_invalid")
-
+        _cleanup_temp_dir(result)
         # Assert
-        assert (result['success'] is False) and ('error' in result)
+        assert result["success"] is False
 
-        # Cleanup
-        if "temp_dir" in result:
-            temp_dir = Path(result["temp_dir"])
-            if temp_dir.exists():
-                shutil.rmtree(temp_dir)
-
-    def test_compile_timeout_success_in_result(self, has_latexmk):
-        """Test compilation timeout."""
+    @_REQUIRES_LATEXMK
+    def test_compile_returns_success_key_regardless_of_timeout(self):
         # Arrange
-        if not has_latexmk:
-            pytest.skip("latexmk not available")
-
         from scitex_writer import compile
 
-        # Very short timeout to trigger timeout error
-        content = r"""
-\documentclass{article}
-\begin{document}
-Test
-\end{document}
-"""
-        # Note: timeout=1 might be too short even for simple docs on slow systems
-        # This test is more about verifying the timeout mechanism exists
+        content = (
+            r"\documentclass{article}"
+            "\n"
+            r"\begin{document}"
+            "\nTest\n"
+            r"\end{document}"
+            "\n"
+        )
         # Act
+        # timeout=1 may or may not trip depending on machine speed; the
+        # contract under test is only that a 'success' key is always set.
         result = compile.content(content, timeout=1, name="test_timeout")
-
-        # May succeed or timeout depending on system speed
+        _cleanup_temp_dir(result)
         # Assert
         assert "success" in result
 

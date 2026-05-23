@@ -3,8 +3,9 @@
 import importlib
 
 
-def test_module_imports_calls_import_module():
+def test_module_exposes_manuscript():
     # Arrange
     # Act
+    module = importlib.import_module("scitex_writer.compile")
     # Assert
-    importlib.import_module("scitex_writer.compile")
+    assert hasattr(module, "manuscript")

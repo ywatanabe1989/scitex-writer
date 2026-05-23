@@ -23,6 +23,7 @@ def watch_manuscript(
     interval: int = 2,
     on_compile: Optional[Callable] = None,
     timeout: Optional[int] = None,
+    popen: Optional[Callable] = None,
 ) -> None:
     """
     Watch and auto-recompile manuscript on file changes.
@@ -32,6 +33,11 @@ def watch_manuscript(
         interval: Check interval in seconds
         on_compile: Callback function called after each compilation
         timeout: Optional timeout in seconds (None = infinite)
+        popen: Process launcher with the same call shape as
+            ``subprocess.Popen`` (cmd, cwd, stdout, stderr, text, bufsize).
+            Defaults to :class:`subprocess.Popen`. Exposed so callers and
+            tests can supply an alternate launcher without patching
+            ``subprocess.Popen`` globally.
 
     Examples:
         >>> from pathlib import Path
@@ -39,6 +45,9 @@ def watch_manuscript(
         ...     print("Recompiled!")
         >>> watch_manuscript(Path("/path/to/project"), on_compile=on_change)
     """
+    if popen is None:
+        popen = subprocess.Popen
+
     # Get compile script from project directory
     compile_script = project_dir / "compile"
 
@@ -55,7 +64,7 @@ def watch_manuscript(
     process = None
     try:
         # Run watch script
-        process = subprocess.Popen(
+        process = popen(
             cmd,
             cwd=project_dir,
             stdout=subprocess.PIPE,

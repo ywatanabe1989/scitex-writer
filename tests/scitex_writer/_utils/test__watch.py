@@ -2,227 +2,247 @@
 """Tests for scitex_writer._utils._watch."""
 
 import subprocess
-from unittest.mock import MagicMock, patch
-
-import pytest
 
 from scitex_writer._utils._watch import watch_manuscript
+
+
+class _FakeStdout:
+    """Real iterable stdout stand-in driven by a fixed list of lines."""
+
+    def __init__(self, lines):
+        self._lines = list(lines)
+
+    def readline(self):
+        # iter(readline, "") stops at the first "" -> append "" to end.
+        return self._lines.pop(0) if self._lines else ""
+
+
+class _FakeProcess:
+    """Hand-rolled stand-in for the subprocess.Popen object.
+
+    Records terminate/kill/wait calls so tests can assert on them, and
+    streams a fixed set of stdout lines. ``readline_raises`` lets a test
+    drive the KeyboardInterrupt / generic-exception code paths.
+    """
+
+    def __init__(self, lines=None, readline_raises=None):
+        if readline_raises is not None:
+            self.stdout = _RaisingStdout(readline_raises)
+        else:
+            self.stdout = _FakeStdout((lines or []) + [""])
+        self.wait_calls = []
+        self.terminate_count = 0
+        self.kill_count = 0
+
+    def wait(self, timeout=None):
+        self.wait_calls.append(timeout)
+
+    def terminate(self):
+        self.terminate_count += 1
+
+    def kill(self):
+        self.kill_count += 1
+
+
+class _RaisingStdout:
+    def __init__(self, exc):
+        self._exc = exc
+
+    def readline(self):
+        raise self._exc
+
+
+class _RecordingPopen:
+    """Real callable matching subprocess.Popen's call shape.
+
+    Records the positional command and keyword settings, and returns a
+    pre-seeded _FakeProcess. Injected via the watch_manuscript ``popen=``
+    seam — no patching of subprocess.Popen.
+    """
+
+    def __init__(self, process):
+        self._process = process
+        self.calls = []
+
+    def __call__(self, cmd, **kwargs):
+        self.calls.append((cmd, kwargs))
+        return self._process
+
+
+def _make_compile_script(tmp_path):
+    compile_script = tmp_path / "compile"
+    compile_script.write_text("#!/bin/bash\necho 'compiling'")
+    return compile_script
 
 
 class TestWatchManuscriptCompileScript:
     """Tests for watch_manuscript compile script handling."""
 
-    def test_returns_early_when_compile_script_missing(self, tmp_path):
-        """Verify returns immediately when compile script doesn't exist."""
+    def test_does_not_launch_process_when_compile_script_missing(self, tmp_path):
         # Arrange
+        popen = _RecordingPopen(_FakeProcess())
         # Act
+        watch_manuscript(tmp_path, popen=popen)
         # Assert
-        with patch("subprocess.Popen") as mock_popen:
-            watch_manuscript(tmp_path)
+        assert popen.calls == []
 
-            mock_popen.assert_not_called()
-            assert not mock_popen.called
-
-    def test_creates_correct_command(self, tmp_path):
-        """Verify correct command is built for watch mode."""
+    def test_builds_watch_command_from_compile_script(self, tmp_path):
         # Arrange
+        compile_script = _make_compile_script(tmp_path)
+        popen = _RecordingPopen(_FakeProcess())
         # Act
+        watch_manuscript(tmp_path, popen=popen)
         # Assert
-        compile_script = tmp_path / "compile"
-        compile_script.write_text("#!/bin/bash\necho 'compiling'")
-
-        mock_process = MagicMock()
-        mock_process.stdout.readline.return_value = ""  # Stop iteration immediately
-
-        with patch("subprocess.Popen", return_value=mock_process) as mock_popen:
-            watch_manuscript(tmp_path)
-
-            expected_cmd = [str(compile_script), "-m", "-w"]
-            mock_popen.assert_called_once()
-            actual_cmd = mock_popen.call_args[0][0]
-            assert actual_cmd == expected_cmd
+        assert popen.calls[0][0] == [str(compile_script), "-m", "-w"]
 
 
 class TestWatchManuscriptProcess:
     """Tests for watch_manuscript process handling."""
 
-    def test_runs_process_with_correct_settings(self, tmp_path):
-        """Verify Popen is called with correct settings."""
+    def test_runs_process_in_project_dir(self, tmp_path):
         # Arrange
+        _make_compile_script(tmp_path)
+        popen = _RecordingPopen(_FakeProcess())
         # Act
+        watch_manuscript(tmp_path, popen=popen)
         # Assert
-        compile_script = tmp_path / "compile"
-        compile_script.write_text("#!/bin/bash\necho 'compiling'")
+        assert popen.calls[0][1]["cwd"] == tmp_path
 
-        mock_process = MagicMock()
-        mock_process.stdout.readline.return_value = ""
-
-        with patch("subprocess.Popen", return_value=mock_process) as mock_popen:
-            watch_manuscript(tmp_path)
-
-            call_kwargs = mock_popen.call_args[1]
-            assert (call_kwargs['cwd'] == tmp_path) and (call_kwargs['stdout'] == subprocess.PIPE) and (call_kwargs['stderr'] == subprocess.STDOUT) and (call_kwargs['text'] is True) and (call_kwargs['bufsize'] == 1)
-
-    def test_waits_for_process_completion(self, tmp_path):
-        """Verify process.wait is called with timeout."""
+    def test_runs_process_capturing_stdout_pipe(self, tmp_path):
         # Arrange
+        _make_compile_script(tmp_path)
+        popen = _RecordingPopen(_FakeProcess())
         # Act
+        watch_manuscript(tmp_path, popen=popen)
         # Assert
-        compile_script = tmp_path / "compile"
-        compile_script.write_text("#!/bin/bash\necho 'compiling'")
+        assert popen.calls[0][1]["stdout"] == subprocess.PIPE
 
-        mock_process = MagicMock()
-        mock_process.stdout.readline.return_value = ""
+    def test_runs_process_merging_stderr_into_stdout(self, tmp_path):
+        # Arrange
+        _make_compile_script(tmp_path)
+        popen = _RecordingPopen(_FakeProcess())
+        # Act
+        watch_manuscript(tmp_path, popen=popen)
+        # Assert
+        assert popen.calls[0][1]["stderr"] == subprocess.STDOUT
 
-        with patch("subprocess.Popen", return_value=mock_process):
-            watch_manuscript(tmp_path, timeout=30)
+    def test_runs_process_in_text_mode(self, tmp_path):
+        # Arrange
+        _make_compile_script(tmp_path)
+        popen = _RecordingPopen(_FakeProcess())
+        # Act
+        watch_manuscript(tmp_path, popen=popen)
+        # Assert
+        assert popen.calls[0][1]["text"] is True
 
-            mock_process.wait.assert_called_once_with(timeout=30)
-            assert mock_process.wait.called
+    def test_runs_process_line_buffered(self, tmp_path):
+        # Arrange
+        _make_compile_script(tmp_path)
+        popen = _RecordingPopen(_FakeProcess())
+        # Act
+        watch_manuscript(tmp_path, popen=popen)
+        # Assert
+        assert popen.calls[0][1]["bufsize"] == 1
+
+    def test_waits_for_process_with_supplied_timeout(self, tmp_path):
+        # Arrange
+        _make_compile_script(tmp_path)
+        process = _FakeProcess()
+        popen = _RecordingPopen(process)
+        # Act
+        watch_manuscript(tmp_path, timeout=30, popen=popen)
+        # Assert
+        assert process.wait_calls == [30]
 
 
 class TestWatchManuscriptCallback:
     """Tests for watch_manuscript callback handling."""
 
-    def test_calls_callback_on_compilation_event(self, tmp_path):
-        """Verify callback is called when 'Compilation' appears in output."""
+    def test_callback_fires_once_on_compilation_line(self, tmp_path):
         # Arrange
+        _make_compile_script(tmp_path)
+        process = _FakeProcess(["Starting...\n", "Compilation complete\n"])
+        popen = _RecordingPopen(process)
+        calls = []
         # Act
+        watch_manuscript(tmp_path, on_compile=lambda: calls.append(1), popen=popen)
         # Assert
-        compile_script = tmp_path / "compile"
-        compile_script.write_text("#!/bin/bash\necho 'compiling'")
+        assert calls == [1]
 
-        mock_process = MagicMock()
-        mock_process.stdout.readline.side_effect = [
-            "Starting...\n",
-            "Compilation complete\n",
-            "",  # End iteration
-        ]
-
-        callback = MagicMock()
-
-        with patch("subprocess.Popen", return_value=mock_process):
-            watch_manuscript(tmp_path, on_compile=callback)
-
-            callback.assert_called_once()
-            assert callback.call_count == 1
-
-    def test_callback_not_called_without_compilation_keyword(self, tmp_path):
-        """Verify callback is not called for non-compilation output."""
+    def test_callback_not_fired_without_compilation_line(self, tmp_path):
         # Arrange
+        _make_compile_script(tmp_path)
+        process = _FakeProcess(["Starting...\n", "Processing files...\n"])
+        popen = _RecordingPopen(process)
+        calls = []
         # Act
+        watch_manuscript(tmp_path, on_compile=lambda: calls.append(1), popen=popen)
         # Assert
-        compile_script = tmp_path / "compile"
-        compile_script.write_text("#!/bin/bash\necho 'compiling'")
+        assert calls == []
 
-        mock_process = MagicMock()
-        mock_process.stdout.readline.side_effect = [
-            "Starting...\n",
-            "Processing files...\n",
-            "",
-        ]
-
-        callback = MagicMock()
-
-        with patch("subprocess.Popen", return_value=mock_process):
-            watch_manuscript(tmp_path, on_compile=callback)
-
-            callback.assert_not_called()
-            assert not callback.called
-
-    def test_callback_error_does_not_stop_watch(self, tmp_path):
-        """Verify callback errors are caught and logged."""
+    def test_callback_exception_does_not_propagate(self, tmp_path):
         # Arrange
+        _make_compile_script(tmp_path)
+        process = _FakeProcess(["Compilation complete\n"])
+        popen = _RecordingPopen(process)
+
+        def _boom():
+            raise RuntimeError("Callback failed")
+
+        completed = False
         # Act
+        watch_manuscript(tmp_path, on_compile=_boom, popen=popen)
+        completed = True
         # Assert
-        compile_script = tmp_path / "compile"
-        compile_script.write_text("#!/bin/bash\necho 'compiling'")
-
-        mock_process = MagicMock()
-        mock_process.stdout.readline.side_effect = [
-            "Compilation complete\n",
-            "",
-        ]
-
-        callback = MagicMock(side_effect=Exception("Callback failed"))
-
-        with patch("subprocess.Popen", return_value=mock_process):
-            # Should not raise
-            watch_manuscript(tmp_path, on_compile=callback)
+        assert completed is True
 
 
 class TestWatchManuscriptExceptions:
     """Tests for watch_manuscript exception handling."""
 
     def test_keyboard_interrupt_terminates_process(self, tmp_path):
-        """Verify KeyboardInterrupt terminates the process."""
         # Arrange
+        _make_compile_script(tmp_path)
+        process = _FakeProcess(readline_raises=KeyboardInterrupt())
+        popen = _RecordingPopen(process)
         # Act
+        watch_manuscript(tmp_path, popen=popen)
         # Assert
-        compile_script = tmp_path / "compile"
-        compile_script.write_text("#!/bin/bash\necho 'compiling'")
-
-        mock_process = MagicMock()
-        mock_process.stdout.readline.side_effect = KeyboardInterrupt()
-
-        with patch("subprocess.Popen", return_value=mock_process):
-            watch_manuscript(tmp_path)
-
-            mock_process.terminate.assert_called_once()
-            assert mock_process.terminate.call_count == 1
+        assert process.terminate_count == 1
 
     def test_generic_exception_terminates_process(self, tmp_path):
-        """Verify generic exceptions terminate the process."""
         # Arrange
+        _make_compile_script(tmp_path)
+        process = _FakeProcess(readline_raises=RuntimeError("Connection lost"))
+        popen = _RecordingPopen(process)
         # Act
+        watch_manuscript(tmp_path, popen=popen)
         # Assert
-        compile_script = tmp_path / "compile"
-        compile_script.write_text("#!/bin/bash\necho 'compiling'")
-
-        mock_process = MagicMock()
-        mock_process.stdout.readline.side_effect = RuntimeError("Connection lost")
-
-        with patch("subprocess.Popen", return_value=mock_process):
-            watch_manuscript(tmp_path)
-
-            mock_process.terminate.assert_called_once()
-            assert mock_process.terminate.call_count == 1
+        assert process.terminate_count == 1
 
 
 class TestWatchManuscriptParameters:
     """Tests for watch_manuscript parameter defaults."""
 
-    def test_interval_default_calls_write_text(self, tmp_path):
-        """Verify interval parameter has default value."""
+    def test_runs_with_default_parameters(self, tmp_path):
         # Arrange
+        _make_compile_script(tmp_path)
+        process = _FakeProcess()
+        popen = _RecordingPopen(process)
         # Act
+        watch_manuscript(tmp_path, popen=popen)
         # Assert
-        compile_script = tmp_path / "compile"
-        compile_script.write_text("#!/bin/bash")
+        assert len(popen.calls) == 1
 
-        mock_process = MagicMock()
-        mock_process.stdout.readline.return_value = ""
-
-        with patch("subprocess.Popen", return_value=mock_process):
-            # Should work without interval parameter
-            watch_manuscript(tmp_path)
-
-    def test_timeout_none_by_default(self, tmp_path):
-        """Verify timeout defaults to None."""
+    def test_default_timeout_is_none(self, tmp_path):
         # Arrange
+        _make_compile_script(tmp_path)
+        process = _FakeProcess()
+        popen = _RecordingPopen(process)
         # Act
+        watch_manuscript(tmp_path, popen=popen)
         # Assert
-        compile_script = tmp_path / "compile"
-        compile_script.write_text("#!/bin/bash")
-
-        mock_process = MagicMock()
-        mock_process.stdout.readline.return_value = ""
-
-        with patch("subprocess.Popen", return_value=mock_process):
-            watch_manuscript(tmp_path)
-
-            mock_process.wait.assert_called_once_with(timeout=None)
-            assert mock_process.wait.called
+        assert process.wait_calls == [None]
 
 
 if __name__ == "__main__":

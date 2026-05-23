@@ -24,6 +24,7 @@ def compile_revision(
     timeout: int = 300,
     log_callback: Optional[Callable[[str], None]] = None,
     progress_callback: Optional[Callable[[int, str], None]] = None,
+    runner: Optional[Callable[..., CompilationResult]] = None,
 ) -> CompilationResult:
     """
     Compile revision responses with optional callbacks.
@@ -61,8 +62,13 @@ def compile_revision(
     ...     project_dir=Path("~/my-paper"),
     ...     track_changes=True
     ... )
+
+    ``runner`` defaults to
+    :func:`scitex_writer._compile._runner.run_compile`; exposed for
+    injection without patching module internals.
     """
-    return run_compile(
+    runner = runner or run_compile
+    return runner(
         "revision",
         project_dir,
         timeout=timeout,

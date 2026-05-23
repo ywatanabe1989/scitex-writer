@@ -3,8 +3,9 @@
 import importlib
 
 
-def test_module_imports_calls_import_module():
+def test_module_exposes_to_overleaf():
     # Arrange
     # Act
+    module = importlib.import_module("scitex_writer.migration._overleaf_export")
     # Assert
-    importlib.import_module("scitex_writer.migration._overleaf_export")
+    assert hasattr(module, "to_overleaf")

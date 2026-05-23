@@ -3,8 +3,9 @@
 import importlib
 
 
-def test_module_imports_calls_import_module():
+def test_module_exposes_cmd_list_python_apis():
     # Arrange
     # Act
+    module = importlib.import_module("scitex_writer._cli.introspect")
     # Assert
-    importlib.import_module("scitex_writer._cli.introspect")
+    assert hasattr(module, "cmd_list_python_apis")

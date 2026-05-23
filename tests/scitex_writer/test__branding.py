@@ -8,28 +8,43 @@ constants take effect.
 from __future__ import annotations
 
 import importlib
+import os
 
 import pytest
 
+_BRAND_VARS = ("SCITEX_WRITER_BRAND", "SCITEX_WRITER_ALIAS")
+
 
 @pytest.fixture
-def reload_branding(monkeypatch):
-    """Reload `_branding` after setting env vars; restore on teardown."""
+def reload_branding():
+    """Reload `_branding` after setting env vars; restore on teardown.
+
+    Snapshots the brand env vars and restores them on teardown — a real
+    env mutation with cleanup, no monkeypatch fixture.
+    """
+    saved = {k: os.environ.get(k) for k in _BRAND_VARS}
+
+    def _set(name: str, value: str | None) -> None:
+        if value is None:
+            os.environ.pop(name, None)
+        else:
+            os.environ[name] = value
 
     def _reload(brand: str | None = None, alias: str | None = None):
-        if brand is not None:
-            monkeypatch.setenv("SCITEX_WRITER_BRAND", brand)
-        else:
-            monkeypatch.delenv("SCITEX_WRITER_BRAND", raising=False)
-        if alias is not None:
-            monkeypatch.setenv("SCITEX_WRITER_ALIAS", alias)
-        else:
-            monkeypatch.delenv("SCITEX_WRITER_ALIAS", raising=False)
+        _set("SCITEX_WRITER_BRAND", brand)
+        _set("SCITEX_WRITER_ALIAS", alias)
         from scitex_writer import _branding
 
         return importlib.reload(_branding)
 
-    return _reload
+    try:
+        yield _reload
+    finally:
+        for key, value in saved.items():
+            _set(key, value)
+        from scitex_writer import _branding
+
+        importlib.reload(_branding)
 
 
 # ----- BRAND_* defaults ---------------------------------------------------- #
@@ -40,7 +55,7 @@ def test_default_brand_name_and_alias(reload_branding):
     # Act
     mod = reload_branding(brand=None, alias=None)
     # Assert
-    assert (mod.BRAND_NAME == 'scitex-writer') and (mod.BRAND_ALIAS == 'sw')
+    assert (mod.BRAND_NAME == "scitex-writer") and (mod.BRAND_ALIAS == "sw")
 
 
 def test_custom_brand_via_env(reload_branding):
@@ -48,7 +63,7 @@ def test_custom_brand_via_env(reload_branding):
     # Act
     mod = reload_branding(brand="paperforge", alias="pf")
     # Assert
-    assert (mod.BRAND_NAME == 'paperforge') and (mod.BRAND_ALIAS == 'pf')
+    assert (mod.BRAND_NAME == "paperforge") and (mod.BRAND_ALIAS == "pf")
 
 
 # ----- rebrand_text -------------------------------------------------------- #
@@ -89,7 +104,7 @@ def test_rebrand_text_rewrites_from_import(reload_branding):
     # Act
     out = mod.rebrand_text(src)
     # Assert
-    assert ('paperforge' in out) and ('scitex_writer' not in out)
+    assert ("paperforge" in out) and ("scitex_writer" not in out)
 
 
 def test_rebrand_text_rewrites_alias_in_examples(reload_branding):
@@ -108,7 +123,7 @@ def test_rebrand_text_rewrites_standalone_brand_name(reload_branding):
     # Act
     out = mod.rebrand_text(src)
     # Assert
-    assert ('paperforge' in out) and ('scitex-writer' not in out)
+    assert ("paperforge" in out) and ("scitex-writer" not in out)
 
 
 def test_rebrand_text_does_not_touch_urls(reload_branding):
@@ -133,7 +148,7 @@ def test_rebrand_docstring_modifies_in_place(reload_branding):
     # Act
     mod.rebrand_docstring(f)
     # Assert
-    assert ('paperforge' in f.__doc__) and ('scitex_writer' not in f.__doc__)
+    assert ("paperforge" in f.__doc__) and ("scitex_writer" not in f.__doc__)
 
 
 def test_rebrand_docstring_handles_none_doc(reload_branding):

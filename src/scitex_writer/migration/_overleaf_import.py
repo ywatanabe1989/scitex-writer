@@ -9,7 +9,7 @@ import shutil
 import tempfile
 import zipfile
 from pathlib import Path
-from typing import Optional
+from typing import Callable, Optional
 
 from ._parsing import (
     IMRAD_SECTIONS,
@@ -33,6 +33,7 @@ def from_overleaf(
     project_name: Optional[str] = None,
     dry_run: bool = False,
     force: bool = False,
+    clone_fn: Optional[Callable[..., bool]] = None,
 ) -> dict:
     """Import an Overleaf ZIP export into a new scitex-writer project.
 
@@ -48,6 +49,13 @@ def from_overleaf(
         If True, analyze and report mapping without creating files.
     force : bool
         If True, overwrite output_dir if it already exists.
+    clone_fn : callable, optional
+        Function used to materialize the scitex-writer template skeleton at
+        the output directory. Signature ``(project_dir: str, *,
+        git_strategy: str) -> bool``. Defaults to
+        :func:`scitex_writer._project._create.clone_writer_project` (which
+        clones the template repo over the network). Tests inject a local
+        skeleton-creator so the import runs fully offline.
     """
     try:
         zip_obj = Path(zip_path).resolve()
@@ -131,6 +139,7 @@ def from_overleaf(
                 image_files,
                 table_files,
                 style_files,
+                clone_fn=clone_fn,
             )
 
             n_mapped = sum(len(v) for v in section_mapping.values())
@@ -243,14 +252,18 @@ def _create_project(
     image_files,
     table_files,
     style_files,
+    clone_fn: Optional[Callable[..., bool]] = None,
 ):
     """Create scitex-writer project and overlay Overleaf content."""
-    from .._project._create import clone_writer_project
+    if clone_fn is None:
+        from .._project._create import clone_writer_project
+
+        clone_fn = clone_writer_project
 
     if out_path.exists() and force:
         shutil.rmtree(out_path)
 
-    if not clone_writer_project(str(out_path), git_strategy="none"):
+    if not clone_fn(str(out_path), git_strategy="none"):
         raise RuntimeError(f"Failed to clone scitex-writer template to {out_path}")
 
     shared = out_path / "00_shared"

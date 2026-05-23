@@ -28,7 +28,10 @@ def test_example_exists_example_read_text_lstrip_startswith():
     )
 
 
-
-
 if __name__ == "__main__":
-    test_example_exists()
+    import os
+    import sys
+
+    import pytest
+
+    sys.exit(pytest.main([os.path.abspath(__file__)]))

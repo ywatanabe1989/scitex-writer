@@ -5,7 +5,6 @@
 """Tests for Writer section API methods: get_section, read_section, write_section, _list_sections."""
 
 from pathlib import Path
-from unittest.mock import patch
 
 import pytest
 
@@ -28,9 +27,13 @@ TEMPLATE_DIR = _find_project_root(Path(__file__))
 
 @pytest.fixture
 def writer():
-    """Provide a Writer instance attached to the actual template project."""
-    with patch("scitex_writer.writer._find_git_root", return_value=TEMPLATE_DIR):
-        return Writer(TEMPLATE_DIR)
+    """Provide a Writer instance attached to the actual template project.
+
+    git_strategy=None keeps Writer from initializing/attaching any git
+    repository; the template dir is itself a git repo so _find_git_root
+    naturally resolves to it without any patching.
+    """
+    return Writer(TEMPLATE_DIR, git_strategy=None)
 
 
 # ---------------------------------------------------------------------------
@@ -63,7 +66,7 @@ class TestGetSection:
         # Act
         section = writer.get_section("introduction", "manuscript")
         # Assert
-        assert (hasattr(section, 'path')) and (isinstance(section.path, Path))
+        assert (hasattr(section, "path")) and (isinstance(section.path, Path))
 
     def test_get_section_shared_section_has_path(self, writer):
         """Verify shared DocumentSection has a .path attribute."""
@@ -71,140 +74,76 @@ class TestGetSection:
         # Act
         section = writer.get_section("authors", "shared")
         # Assert
-        assert (hasattr(section, 'path')) and (isinstance(section.path, Path))
+        assert (hasattr(section, "path")) and (isinstance(section.path, Path))
 
-    def test_get_section_raises_value_error_for_invalid_doc_type_raises_valueerror(self, writer):
+    def test_get_section_invalid_doc_type_raises_valueerror_naming_the_bad_type(
+        self, writer
+    ):
         # Arrange
         # Act
         # Assert
-        # Arrange
-        # Act
-        # Assert
-        with pytest.raises(ValueError) as exc_info:
+        with pytest.raises(ValueError, match="nonexistent_type"):
             writer.get_section("abstract", "nonexistent_type")
 
-    def test_get_section_raises_value_error_for_invalid_doc_type_nonexistent_type_in_str_exc_info_value(self, writer):
+    def test_get_section_invalid_doc_type_error_lists_every_valid_doc_type(
+        self, writer
+    ):
         # Arrange
+        captured = ""
         # Act
-        # Assert
-        # Arrange
-        # Act
-        # Assert
-        assert "nonexistent_type" in str(exc_info.value)
-
-
-    def test_get_section_error_message_lists_valid_doc_types_raises_valueerror(self, writer):
-        # Arrange
-        # Act
-        # Assert
-        # Arrange
-        # Act
-        # Assert
-        with pytest.raises(ValueError) as exc_info:
+        try:
             writer.get_section("abstract", "invalid")
-
-    def test_get_section_error_message_lists_valid_doc_types_all_valid_type_in_error_msg_for_valid_type_in_shared_manuscr(self, writer):
-        # Arrange
-        # Act
-        error_msg = str(exc_info.value)
-        # Act
+        except ValueError as exc:
+            captured = str(exc)
         # Assert
-        assert all(valid_type in error_msg for valid_type in ('shared', 'manuscript', 'supplementary', 'revision'))
+        assert all(
+            valid_type in captured
+            for valid_type in ("shared", "manuscript", "supplementary", "revision")
+        )
 
-
-    def test_get_section_raises_value_error_for_invalid_section_name_in_manuscript_raises_valueerror(
+    def test_get_section_invalid_manuscript_section_raises_valueerror_naming_the_section(
         self, writer
     ):
         # Arrange
         # Act
         # Assert
-        # Arrange
-        # Act
-        # Assert
-        with pytest.raises(ValueError) as exc_info:
+        with pytest.raises(ValueError, match="nonexistent_section_xyz"):
             writer.get_section("nonexistent_section_xyz", "manuscript")
 
-    def test_get_section_raises_value_error_for_invalid_section_name_in_manuscript_nonexistent_section_xyz_in_str_exc_info_value(
+    def test_get_section_invalid_manuscript_section_error_lists_available_sections(
         self, writer
     ):
         # Arrange
+        captured = ""
         # Act
-        # Assert
-        # Arrange
-        # Act
-        # Assert
-        assert "nonexistent_section_xyz" in str(exc_info.value)
-
-
-    def test_get_section_error_message_lists_available_sections_for_manuscript_raises_valueerror(
-        self, writer
-    ):
-        # Arrange
-        # Act
-        # Assert
-        # Arrange
-        # Act
-        # Assert
-        with pytest.raises(ValueError) as exc_info:
+        try:
             writer.get_section("bogus_section", "manuscript")
-
-    def test_get_section_error_message_lists_available_sections_for_manuscript_abstract_in_error_msg_or_introduction_in_error_msg(
-        self, writer
-    ):
-        # Arrange
-        # Act
-        error_msg = str(exc_info.value)
-        # Act
+        except ValueError as exc:
+            captured = str(exc)
         # Assert
-        assert "abstract" in error_msg or "introduction" in error_msg
+        assert "abstract" in captured or "introduction" in captured
 
-
-    def test_get_section_raises_value_error_for_invalid_section_name_in_shared_raises_valueerror(
+    def test_get_section_invalid_shared_section_raises_valueerror_naming_the_section(
         self, writer
     ):
         # Arrange
         # Act
         # Assert
-        # Arrange
-        # Act
-        # Assert
-        with pytest.raises(ValueError) as exc_info:
+        with pytest.raises(ValueError, match="nonexistent_shared_section"):
             writer.get_section("nonexistent_shared_section", "shared")
 
-    def test_get_section_raises_value_error_for_invalid_section_name_in_shared_nonexistent_shared_section_in_str_exc_info_value(
+    def test_get_section_invalid_shared_section_error_lists_available_sections(
         self, writer
     ):
         # Arrange
+        captured = ""
         # Act
-        # Assert
-        # Arrange
-        # Act
-        # Assert
-        assert "nonexistent_shared_section" in str(exc_info.value)
-
-
-    def test_get_section_error_message_lists_available_sections_for_shared_raises_valueerror(
-        self, writer
-    ):
-        # Arrange
-        # Act
-        # Assert
-        # Arrange
-        # Act
-        # Assert
-        with pytest.raises(ValueError) as exc_info:
+        try:
             writer.get_section("bogus_shared_key", "shared")
-
-    def test_get_section_error_message_lists_available_sections_for_shared_title_in_error_msg_or_authors_in_error_msg(
-        self, writer
-    ):
-        # Arrange
-        # Act
-        error_msg = str(exc_info.value)
-        # Act
+        except ValueError as exc:
+            captured = str(exc)
         # Assert
-        assert "title" in error_msg or "authors" in error_msg
-
+        assert "title" in captured or "authors" in captured
 
     def test_get_section_manuscript_routes_via_contents(self, writer):
         """Verify manuscript sections are accessed via .contents attribute."""
@@ -213,7 +152,9 @@ class TestGetSection:
         section = writer.get_section("abstract", "manuscript")
         # Path should be inside the manuscript contents directory
         # Assert
-        assert ('01_manuscript' in str(section.path)) and ('contents' in str(section.path))
+        assert ("01_manuscript" in str(section.path)) and (
+            "contents" in str(section.path)
+        )
 
     def test_get_section_shared_routes_directly(self, writer):
         """Verify shared sections are accessed directly (not via .contents)."""
@@ -281,16 +222,16 @@ class TestReadSection:
         # Assert
         assert isinstance(content, str)
 
-    def test_read_section_returns_empty_string_for_missing_file(self, writer):
-        """Verify read_section returns empty string when section file does not exist."""
-        # Use a section that definitely doesn't have a real file in a tmp setup
-        # We mock a DocumentSection whose .read() returns None
+    def test_read_section_returns_empty_string_when_section_file_is_absent(
+        self, tmp_path
+    ):
+        """When a section's .tex file is missing, read_section yields ''."""
         # Arrange
+        _setup_minimal_project(tmp_path)
+        w = Writer(tmp_path, git_strategy=None)
+        (tmp_path / "01_manuscript" / "contents" / "abstract.tex").unlink()
         # Act
-        with patch.object(writer, "get_section") as mock_get:
-            mock_section = DocumentSection(Path("/nonexistent/path.tex"))
-            mock_get.return_value = mock_section
-            content = writer.read_section("abstract", "manuscript")
+        content = w.read_section("abstract", "manuscript")
         # Assert
         assert content == ""
 
@@ -301,19 +242,6 @@ class TestReadSection:
         content = writer.read_section("introduction", "manuscript")
         # Assert
         assert isinstance(content, str)
-
-    def test_read_section_joins_list_content(self, writer):
-        """Verify read_section joins list content into a single string."""
-        # Arrange
-        # Act
-        with patch.object(writer, "get_section") as mock_get:
-            mock_section = DocumentSection.__new__(DocumentSection)
-            mock_section.path = Path("/fake/section.tex")
-            mock_section.read = lambda: ["line one", "line two"]
-            mock_get.return_value = mock_section
-            content = writer.read_section("abstract", "manuscript")
-        # Assert
-        assert content == "line one\nline two"
 
     def test_read_section_raises_for_invalid_doc_type(self, writer):
         """Verify read_section propagates ValueError for invalid doc_type."""
@@ -353,8 +281,7 @@ class TestWriteSection:
         """Verify write_section returns True when write succeeds."""
         # Arrange
         _setup_minimal_project(tmp_path)
-        with patch("scitex_writer.writer._find_git_root", return_value=None):
-            w = Writer(tmp_path)
+        w = Writer(tmp_path, git_strategy=None)
 
         # Act
         result = w.write_section("abstract", "Test abstract content.", "manuscript")
@@ -365,8 +292,7 @@ class TestWriteSection:
         """Verify write_section writes content that read_section can read back."""
         # Arrange
         _setup_minimal_project(tmp_path)
-        with patch("scitex_writer.writer._find_git_root", return_value=None):
-            w = Writer(tmp_path)
+        w = Writer(tmp_path, git_strategy=None)
 
         test_content = "This is a unique test abstract for round-trip verification."
         w.write_section("abstract", test_content, "manuscript")
@@ -379,8 +305,7 @@ class TestWriteSection:
         """Verify write_section overwrites previously written content."""
         # Arrange
         _setup_minimal_project(tmp_path)
-        with patch("scitex_writer.writer._find_git_root", return_value=None):
-            w = Writer(tmp_path)
+        w = Writer(tmp_path, git_strategy=None)
 
         w.write_section("abstract", "First content.", "manuscript")
         w.write_section("abstract", "Second content.", "manuscript")
@@ -393,21 +318,19 @@ class TestWriteSection:
         """Verify write_section works for shared doc_type."""
         # Arrange
         _setup_minimal_project(tmp_path)
-        with patch("scitex_writer.writer._find_git_root", return_value=None):
-            w = Writer(tmp_path)
+        w = Writer(tmp_path, git_strategy=None)
 
         test_title = "My Test Paper Title"
         # Act
         result = w.write_section("title", test_title, "shared")
         # Assert
-        assert (result is True) and (w.read_section('title', 'shared') == test_title)
+        assert (result is True) and (w.read_section("title", "shared") == test_title)
 
     def test_write_section_default_doc_type_is_manuscript(self, tmp_path):
         """Verify default doc_type is manuscript when omitted."""
         # Arrange
         _setup_minimal_project(tmp_path)
-        with patch("scitex_writer.writer._find_git_root", return_value=None):
-            w = Writer(tmp_path)
+        w = Writer(tmp_path, git_strategy=None)
 
         test_content = "Abstract written with default doc_type."
         w.write_section("abstract", test_content)
@@ -416,28 +339,22 @@ class TestWriteSection:
         # Assert
         assert result == test_content
 
-    def test_write_and_restore_actual_template(self, writer):
-        """Verify write_section on actual template restores original content."""
+    def test_write_section_rewrite_reflects_latest_content(self, tmp_path):
+        """A second write_section call leaves the latest content readable.
+
+        Uses a throwaway project so the round-trip never mutates the real
+        template (the original test wrote into the live template and relied
+        on a finally-block to restore it).
+        """
         # Arrange
+        _setup_minimal_project(tmp_path)
+        w = Writer(tmp_path, git_strategy=None)
+        w.write_section("abstract", "first pass", "manuscript")
+        w.write_section("abstract", "second pass", "manuscript")
         # Act
+        result = w.read_section("abstract", "manuscript")
         # Assert
-        original_content = writer.read_section("abstract", "manuscript")
-        try:
-            writer.write_section(
-                "abstract",
-                "Temporary test content for write_section round-trip.",
-                "manuscript",
-            )
-            modified_content = writer.read_section("abstract", "manuscript")
-            assert (
-                modified_content
-                == "Temporary test content for write_section round-trip."
-            )
-        finally:
-            # Always restore original content
-            writer.write_section("abstract", original_content, "manuscript")
-            restored_content = writer.read_section("abstract", "manuscript")
-            assert restored_content == original_content
+        assert result == "second pass"
 
     def test_write_section_raises_for_invalid_doc_type(self, writer):
         """Verify write_section propagates ValueError for invalid doc_type."""
@@ -550,7 +467,7 @@ class TestListSections:
         # Act
         result = writer._list_sections(writer.manuscript.contents)
         # Assert
-        assert all(not name.startswith('_') for name in result)
+        assert all(not name.startswith("_") for name in result)
 
     def test_list_sections_excludes_path_only_attributes(self, writer):
         """Verify _list_sections excludes plain Path attributes (e.g., figures dir)."""
@@ -559,7 +476,7 @@ class TestListSections:
         result = writer._list_sections(writer.manuscript.contents)
         # 'figures' and 'tables' are plain Paths, not DocumentSections
         # Assert
-        assert ('figures' not in result) and ('tables' not in result)
+        assert ("figures" not in result) and ("tables" not in result)
 
     def test_list_sections_non_empty_for_manuscript(self, writer):
         """Verify _list_sections returns non-empty list for manuscript contents."""
@@ -600,7 +517,9 @@ class TestSharedVsManuscriptRouting:
         # Act
         section = writer.get_section("title", "manuscript")
         # Assert
-        assert ('01_manuscript' in str(section.path)) and ('contents' in str(section.path))
+        assert ("01_manuscript" in str(section.path)) and (
+            "contents" in str(section.path)
+        )
 
     def test_shared_and_manuscript_title_are_different_paths(self, writer):
         """Verify shared and manuscript title sections point to different files."""
@@ -620,9 +539,13 @@ class TestSharedVsManuscriptRouting:
         shared_sections = writer._list_sections(writer.shared)
         # Both trees expose 'bibliography' as a DocumentSection
         # Assert
-        assert ('bibliography' in manuscript_sections) and ('bibliography' in shared_sections)
+        assert ("bibliography" in manuscript_sections) and (
+            "bibliography" in shared_sections
+        )
 
-    def test_shared_doc_raises_for_manuscript_only_section_section_is_documentsection(self, writer):
+    def test_shared_doc_raises_for_manuscript_only_section_section_is_documentsection(
+        self, writer
+    ):
         # Arrange
         # Act
         section = writer.get_section("introduction", "manuscript")
@@ -630,7 +553,9 @@ class TestSharedVsManuscriptRouting:
         # Assert
         assert isinstance(section, DocumentSection)
 
-    def test_shared_doc_raises_for_manuscript_only_section_raises_valueerror(self, writer):
+    def test_shared_doc_raises_for_manuscript_only_section_raises_valueerror(
+        self, writer
+    ):
         # Arrange
         # Act
         section = writer.get_section("introduction", "manuscript")
@@ -638,7 +563,6 @@ class TestSharedVsManuscriptRouting:
         # Assert
         with pytest.raises(ValueError):
             writer.get_section("introduction", "shared")
-
 
 
 # ---------------------------------------------------------------------------

@@ -3,8 +3,9 @@
 import importlib
 
 
-def test_module_imports_calls_import_module():
+def test_module_exposes_manuscript_contents():
     # Arrange
     # Act
+    module = importlib.import_module("scitex_writer._dataclasses.contents._ManuscriptContents")
     # Assert
-    importlib.import_module("scitex_writer._dataclasses.contents._ManuscriptContents")
+    assert hasattr(module, "ManuscriptContents")

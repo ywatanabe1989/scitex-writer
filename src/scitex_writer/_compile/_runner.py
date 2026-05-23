@@ -276,6 +276,7 @@ def run_compile(
     force: bool = False,
     log_callback: Optional[Callable[[str], None]] = None,
     progress_callback: Optional[Callable[[int, str], None]] = None,
+    command_runner: Optional[Callable[..., dict]] = None,
 ) -> CompilationResult:
     """
     Run compilation script and parse results with optional callbacks.
@@ -307,11 +308,20 @@ def run_compile(
     progress_callback : Optional[Callable[[int, str], None]]
         Called with progress updates (percent, step)
 
+    command_runner : Optional[Callable[..., dict]]
+        Executor for the non-callback path, same shape as
+        :func:`_run_sh_command` (cmd, verbose, timeout, stream_output) ->
+        dict. Defaults to :func:`_run_sh_command`. Exposed so callers and
+        tests can supply an alternate executor without patching internals.
+
     Returns
     -------
     CompilationResult
         Compilation status and outputs
     """
+    if command_runner is None:
+        command_runner = _run_sh_command
+
     start_time = datetime.now()
     project_dir = Path(project_dir).absolute()
 
@@ -414,7 +424,7 @@ def run_compile(
                 )
             else:
                 # Use simple subprocess execution
-                result_dict = _run_sh_command(
+                result_dict = command_runner(
                     cmd,
                     verbose=True,
                     timeout=timeout,

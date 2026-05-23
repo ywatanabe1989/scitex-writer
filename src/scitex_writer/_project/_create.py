@@ -14,7 +14,7 @@ import shutil
 import subprocess
 from logging import getLogger
 from pathlib import Path
-from typing import Optional
+from typing import Callable, Optional
 
 logger = getLogger(__name__)
 
@@ -111,6 +111,7 @@ def ensure_project_exists(
     git_strategy: Optional[str] = "child",
     branch: Optional[str] = None,
     tag: Optional[str] = None,
+    clone_fn: Optional[Callable[..., bool]] = None,
 ) -> Path:
     """
     Ensure project directory exists, creating it if necessary.
@@ -139,7 +140,16 @@ def ensure_project_exists(
     ------
     RuntimeError
         If project creation fails
+
+    Notes
+    -----
+    ``clone_fn`` is the template-materialization function; it defaults to
+    :func:`clone_writer_project`. Exposed so callers and tests can supply
+    an alternate implementation without patching module internals.
     """
+    if clone_fn is None:
+        clone_fn = clone_writer_project
+
     if project_dir.exists():
         logger.info(f"Attached to existing project at {project_dir.absolute()}")
         return project_dir
@@ -147,7 +157,7 @@ def ensure_project_exists(
     logger.info(f"Creating new project '{project_name}' at {project_dir.absolute()}")
 
     # Initialize project directory structure
-    success = clone_writer_project(str(project_dir), git_strategy, branch, tag)
+    success = clone_fn(str(project_dir), git_strategy, branch, tag)
 
     if not success:
         logger.error(f"Failed to initialize project directory for {project_name}")

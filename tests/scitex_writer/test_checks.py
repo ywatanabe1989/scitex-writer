@@ -5,105 +5,107 @@ from __future__ import annotations
 from scitex_writer import checks
 
 
-def test_module_exports_only_documented_api():
+class _RecordingHandler:
+    """Real callable that records its call args and returns a canned dict.
+
+    Injected via the ``handler=`` seam on checks.references /
+    checks.float_order so the thin wrappers are exercised without
+    patching module internals or running the real (subprocess-heavy)
+    check scripts.
+    """
+
+    def __init__(self, result: dict | None = None):
+        self.calls: list[tuple] = []
+        self.result = {} if result is None else result
+
+    def __call__(self, *args):
+        self.calls.append(args)
+        return self.result
+
+
+def test_module_exports_only_references_and_float_order():
     # Arrange
     # Act
+    exported = checks.__all__
     # Assert
-    assert (checks.__all__ == ['references', 'float_order']) and (hasattr(checks, 'references')) and (hasattr(checks, 'float_order'))
+    assert exported == ["references", "float_order"]
 
 
-def test_references_delegates_to_handler(monkeypatch):
+def test_references_forwards_all_arguments_to_handler():
     # Arrange
-    captured = {}
-
-    def _fake_check_references(project_dir, doc_type, parse_log):
-        captured["args"] = (project_dir, doc_type, parse_log)
-        return {"success": True, "exit_code": 0, "summary": {"errors": 0}}
-
-    monkeypatch.setattr(checks, "_check_references", _fake_check_references)
+    handler = _RecordingHandler({"success": True})
     # Act
-    out = checks.references("/path", doc_type="manuscript", parse_log=True)
+    checks.references("/path", doc_type="manuscript", parse_log=True, handler=handler)
     # Assert
-    assert (captured['args'] == ('/path', 'manuscript', True)) and (out['success'] is True)
+    assert handler.calls == [("/path", "manuscript", True)]
 
 
-def test_references_default_doc_type(monkeypatch):
+def test_references_returns_handler_result_unchanged():
     # Arrange
-    captured = {}
-
-    def _fake(project_dir, doc_type, parse_log):
-        captured["doc_type"] = doc_type
-        return {}
-
-    monkeypatch.setattr(checks, "_check_references", _fake)
+    handler = _RecordingHandler({"success": True, "exit_code": 0})
     # Act
-    checks.references("/p")
+    out = checks.references("/path", handler=handler)
     # Assert
-    assert captured["doc_type"] == "all"
+    assert out == {"success": True, "exit_code": 0}
 
 
-def test_float_order_default_doc_type(monkeypatch):
+def test_references_default_doc_type_is_all():
     # Arrange
-    captured = {}
-
-    def _fake(project_dir, doc_type, fix, dry_run):
-        captured.update(
-            project_dir=project_dir, doc_type=doc_type, fix=fix, dry_run=dry_run
-        )
-        return {"success": True}
-
-    monkeypatch.setattr(checks, "_check_float_order", _fake)
+    handler = _RecordingHandler()
     # Act
-    checks.float_order("/p")
+    checks.references("/p", handler=handler)
     # Assert
-    assert (captured['doc_type'] == 'manuscript') and (captured['fix'] is False) and (captured['dry_run'] is False)
+    assert handler.calls[0][1] == "all"
 
 
-def test_float_order_dry_run_passthrough(monkeypatch):
+def test_float_order_default_doc_type_is_manuscript():
     # Arrange
-    captured = {}
-
-    def _fake(project_dir, doc_type, fix, dry_run):
-        captured.update(fix=fix, dry_run=dry_run)
-        return {"success": True}
-
-    monkeypatch.setattr(checks, "_check_float_order", _fake)
+    handler = _RecordingHandler({"success": True})
     # Act
-    checks.float_order("/p", fix=False, dry_run=True)
+    checks.float_order("/p", handler=handler)
     # Assert
-    assert (captured['fix'] is False) and (captured['dry_run'] is True)
+    assert handler.calls[0][1] == "manuscript"
 
 
-def test_float_order_fix_passthrough(monkeypatch):
+def test_float_order_default_fix_and_dry_run_are_false():
     # Arrange
-    captured = {}
-
-    def _fake(project_dir, doc_type, fix, dry_run):
-        captured["fix"] = fix
-        return {"success": True}
-
-    monkeypatch.setattr(checks, "_check_float_order", _fake)
+    handler = _RecordingHandler({"success": True})
     # Act
-    checks.float_order("/p", fix=True)
+    checks.float_order("/p", handler=handler)
     # Assert
-    assert captured["fix"] is True
+    assert handler.calls[0][2:] == (False, False)
 
 
-def test_references_propagates_handler_errors(monkeypatch):
-    """Handler-side error envelope passes through unchanged."""
-
+def test_float_order_dry_run_flag_passes_through():
     # Arrange
-    def _fake(project_dir, doc_type, parse_log):
-        return {
+    handler = _RecordingHandler({"success": True})
+    # Act
+    checks.float_order("/p", fix=False, dry_run=True, handler=handler)
+    # Assert
+    assert handler.calls[0][2:] == (False, True)
+
+
+def test_float_order_fix_flag_passes_through():
+    # Arrange
+    handler = _RecordingHandler({"success": True})
+    # Act
+    checks.float_order("/p", fix=True, handler=handler)
+    # Assert
+    assert handler.calls[0][2] is True
+
+
+def test_references_propagates_handler_error_envelope():
+    # Arrange
+    handler = _RecordingHandler(
+        {
             "success": False,
             "exit_code": 1,
             "stdout": "",
             "stderr": "fail",
             "summary": {"errors": 3},
         }
-
-    monkeypatch.setattr(checks, "_check_references", _fake)
+    )
     # Act
-    out = checks.references("/p")
+    out = checks.references("/p", handler=handler)
     # Assert
-    assert (out['success'] is False) and (out['summary']['errors'] == 3)
+    assert out["summary"]["errors"] == 3

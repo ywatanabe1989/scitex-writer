@@ -3,8 +3,9 @@
 import importlib
 
 
-def test_module_imports_calls_import_module():
+def test_module_exposes_bib_group():
     # Arrange
     # Act
+    module = importlib.import_module("scitex_writer._cli")
     # Assert
-    importlib.import_module("scitex_writer._cli")
+    assert hasattr(module, "bib_group")

@@ -3,29 +3,46 @@
 from __future__ import annotations
 
 import importlib
+import os
 
 import pytest
 
+_BRAND_VARS = ("SCITEX_WRITER_BRAND", "SCITEX_WRITER_ALIAS")
+
 
 @pytest.fixture
-def reload_usage(monkeypatch):
-    """Reload `_branding` then `_usage` so brand changes propagate."""
+def reload_usage():
+    """Reload `_branding` then `_usage` so brand changes propagate.
+
+    Snapshots the brand env vars and restores them on teardown — a real
+    env mutation with cleanup, no monkeypatch fixture.
+    """
+    saved = {k: os.environ.get(k) for k in _BRAND_VARS}
+
+    def _set(name: str, value: str | None) -> None:
+        if value is None:
+            os.environ.pop(name, None)
+        else:
+            os.environ[name] = value
 
     def _reload(brand: str | None = None, alias: str | None = None):
-        if brand is not None:
-            monkeypatch.setenv("SCITEX_WRITER_BRAND", brand)
-        else:
-            monkeypatch.delenv("SCITEX_WRITER_BRAND", raising=False)
-        if alias is not None:
-            monkeypatch.setenv("SCITEX_WRITER_ALIAS", alias)
-        else:
-            monkeypatch.delenv("SCITEX_WRITER_ALIAS", raising=False)
+        _set("SCITEX_WRITER_BRAND", brand)
+        _set("SCITEX_WRITER_ALIAS", alias)
         from scitex_writer import _branding, _usage
 
         importlib.reload(_branding)
         return importlib.reload(_usage)
 
-    return _reload
+    try:
+        yield _reload
+    finally:
+        for key, value in saved.items():
+            _set(key, value)
+        # Restore the modules to their unbranded baseline for other tests.
+        from scitex_writer import _branding, _usage
+
+        importlib.reload(_branding)
+        importlib.reload(_usage)
 
 
 def test_get_usage_returns_str(reload_usage):
