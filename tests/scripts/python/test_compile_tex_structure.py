@@ -39,7 +39,9 @@ class TestGenerateSignature:
         # Assert
         assert "SciTeX Writer" in signature
 
-    def test_generate_signature_contains_version_scitex_writer_unknown_in_signature_or_re_search_scitex_write(self):
+    def test_generate_signature_contains_version_scitex_writer_unknown_in_signature_or_re_search_scitex_write(
+        self,
+    ):
         # Arrange
         # Act
         signature = generate_signature()
@@ -49,21 +51,29 @@ class TestGenerateSignature:
             r"SciTeX Writer \d+\.\d+", signature
         )
 
-
     def test_generate_signature_contains_engine(self):
         """Signature should contain engine information."""
         # Arrange
         # Act
         signature = generate_signature()
         # Assert
-        assert ('LaTeX compilation engine:' in signature) and ('auto' in signature or 'tectonic' in signature or 'latexmk' in signature)
+        assert ("LaTeX compilation engine:" in signature) and (
+            "auto" in signature or "tectonic" in signature or "latexmk" in signature
+        )
 
-    def test_generate_signature_with_env_engine(self, monkeypatch):
+    def test_generate_signature_with_env_engine(self):
         """Signature should use SCITEX_WRITER_ENGINE if set."""
         # Arrange
-        monkeypatch.setenv("SCITEX_WRITER_ENGINE", "tectonic")
-        # Act
-        signature = generate_signature()
+        saved = os.environ.get("SCITEX_WRITER_ENGINE")
+        os.environ["SCITEX_WRITER_ENGINE"] = "tectonic"
+        try:
+            # Act
+            signature = generate_signature()
+        finally:
+            if saved is None:
+                os.environ.pop("SCITEX_WRITER_ENGINE", None)
+            else:
+                os.environ["SCITEX_WRITER_ENGINE"] = saved
         # Assert
         assert "engine: tectonic" in signature
 
@@ -74,7 +84,7 @@ class TestGenerateSignature:
         # Act
         signature = generate_signature(source_file=source_file)
         # Assert
-        assert ('Source:' in signature) and (str(source_file) in signature)
+        assert ("Source:" in signature) and (str(source_file) in signature)
 
     def test_generate_signature_has_timestamp(self):
         """Signature should contain compilation timestamp."""
@@ -82,7 +92,9 @@ class TestGenerateSignature:
         # Act
         signature = generate_signature()
         # Assert
-        assert ('Compiled:' in signature) and (re.search('\\d{4}-\\d{2}-\\d{2}', signature))
+        assert ("Compiled:" in signature) and (
+            re.search("\\d{4}-\\d{2}-\\d{2}", signature)
+        )
 
     def test_generate_signature_is_comment(self):
         """Signature should be LaTeX comments."""
@@ -127,7 +139,12 @@ class TestExpandInputs:
 
         # Should contain both parent and child content
         # Assert
-        assert ('Start' in result) and ('Child content here' in result) and ('End' in result) and ('File: child' in result)
+        assert (
+            ("Start" in result)
+            and ("Child content here" in result)
+            and ("End" in result)
+            and ("File: child" in result)
+        )
 
     def test_expand_inputs_missing_file(self, tmp_path):
         """Should handle missing input file gracefully."""
@@ -140,7 +157,7 @@ class TestExpandInputs:
 
         # Should contain SKIPPED comment
         # Assert
-        assert ('SKIPPED' in result) and ('file not found' in result)
+        assert ("SKIPPED" in result) and ("file not found" in result)
 
     def test_expand_inputs_circular_reference(self, tmp_path):
         """Should detect and prevent circular references."""
@@ -154,7 +171,9 @@ class TestExpandInputs:
 
         # Should contain circular reference warning
         # Assert
-        assert ('SKIPPED' in result) and ('circular reference' in result or 'already processed' in result)
+        assert ("SKIPPED" in result) and (
+            "circular reference" in result or "already processed" in result
+        )
 
     def test_expand_inputs_max_depth(self, tmp_path):
         """Should stop at max recursion depth."""
@@ -174,7 +193,11 @@ class TestExpandInputs:
 
         # Should stop before reaching the deepest level
         # Assert
-        assert ('Level 0' in result) and ('Level 5' in result or 'Level 6' in result) and ('ERROR' in result or 'Max recursion depth' in result)
+        assert (
+            ("Level 0" in result)
+            and ("Level 5" in result or "Level 6" in result)
+            and ("ERROR" in result or "Max recursion depth" in result)
+        )
 
     def test_expand_inputs_commented_line_skipped(self, tmp_path):
         """Should skip \\input{} in commented lines."""
@@ -190,7 +213,9 @@ class TestExpandInputs:
 
         # Should NOT expand commented input
         # Assert
-        assert ('This should not appear' not in result) and ('% \\input{child}' in result)
+        assert ("This should not appear" not in result) and (
+            "% \\input{child}" in result
+        )
 
     def test_expand_inputs_adds_tex_extension(self, tmp_path):
         """Should add .tex extension if not present."""
@@ -226,7 +251,13 @@ class TestExpandInputs:
 
         # All levels should be present
         # Assert
-        assert ('Level 0 start' in result) and ('Level 1 start' in result) and ('Level 2 content' in result) and ('Level 1 end' in result) and ('Level 0 end' in result)
+        assert (
+            ("Level 0 start" in result)
+            and ("Level 1 start" in result)
+            and ("Level 2 content" in result)
+            and ("Level 1 end" in result)
+            and ("Level 0 end" in result)
+        )
 
     def test_expand_inputs_nonexistent_file(self, tmp_path):
         """Should handle nonexistent file at top level."""
@@ -238,7 +269,7 @@ class TestExpandInputs:
 
         # Should return SKIPPED message
         # Assert
-        assert ('SKIPPED' in result) and ('file not found' in result)
+        assert ("SKIPPED" in result) and ("file not found" in result)
 
 
 class TestCompileTexStructure:
@@ -275,7 +306,7 @@ class TestCompileTexStructure:
         # Act
         output_content = output_file.read_text()
         # Assert
-        assert ('SciTeX Writer' in output_content) and ('Compiled:' in output_content)
+        assert ("SciTeX Writer" in output_content) and ("Compiled:" in output_content)
 
     def test_compile_tex_structure_expands_inputs(self, tmp_path):
         """Should expand \\input{} commands in base file."""
@@ -347,7 +378,9 @@ class TestCompileTexStructure:
         output_content = output_file.read_text()
         # lineno package should be commented out
         # Assert
-        assert ('% \\usepackage{lineno}' in output_content) and ('% \\linenumbers' in output_content)
+        assert ("% \\usepackage{lineno}" in output_content) and (
+            "% \\linenumbers" in output_content
+        )
 
     def test_tectonic_mode_comments_out_bashful(self, tmp_path):
         """Tectonic mode should comment out bashful package."""
@@ -372,7 +405,9 @@ class TestCompileTexStructure:
         # Assert
         assert "% \\usepackage{bashful}" in output_content
 
-    def test_dark_mode_injection_dark_mode_styling_in_output_content_and_pagecolor_black_in_o(self, tmp_path):
+    def test_dark_mode_injection_dark_mode_styling_in_output_content_and_pagecolor_black_in_o(
+        self, tmp_path
+    ):
         # Arrange
         dark_mode_dir = tmp_path / "00_shared" / "latex_styles"
         dark_mode_dir.mkdir(parents=True)
@@ -391,7 +426,9 @@ class TestCompileTexStructure:
         output_content = output_file.read_text()
         # Act
         # Assert
-        assert ('Dark mode styling' in output_content) and ('pagecolor{black}' in output_content)
+        assert ("Dark mode styling" in output_content) and (
+            "pagecolor{black}" in output_content
+        )
 
     def test_dark_mode_injection_dark_pos_doc_pos(self, tmp_path):
         # Arrange
@@ -417,7 +454,6 @@ class TestCompileTexStructure:
         # Act
         # Assert
         assert dark_pos < doc_pos
-
 
 
 if __name__ == "__main__":
