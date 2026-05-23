@@ -3,8 +3,9 @@
 import importlib
 
 
-def test_module_imports_calls_import_module():
+def test_module_exposes_package_submission():
     # Arrange
     # Act
+    module = importlib.import_module("scitex_writer.export._arxiv_packager")
     # Assert
-    importlib.import_module("scitex_writer.export._arxiv_packager")
+    assert hasattr(module, "package_submission")

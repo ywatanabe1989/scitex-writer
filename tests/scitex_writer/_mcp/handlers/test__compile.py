@@ -3,8 +3,9 @@
 import importlib
 
 
-def test_module_imports_calls_import_module():
+def test_module_exposes_compile_manuscript():
     # Arrange
     # Act
+    module = importlib.import_module("scitex_writer._mcp.handlers._compile")
     # Assert
-    importlib.import_module("scitex_writer._mcp.handlers._compile")
+    assert hasattr(module, "compile_manuscript")

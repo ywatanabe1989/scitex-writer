@@ -3,8 +3,9 @@
 import importlib
 
 
-def test_module_imports_calls_import_module():
+def test_module_exposes_collect_sync_files():
     # Arrange
     # Act
+    module = importlib.import_module("scitex_writer._mcp.handlers._update._handler")
     # Assert
-    importlib.import_module("scitex_writer._mcp.handlers._update._handler")
+    assert hasattr(module, "collect_sync_files")
