@@ -5,7 +5,6 @@ from __future__ import annotations
 
 import csv
 from pathlib import Path
-from unittest import mock
 
 from PIL import Image
 
@@ -44,16 +43,26 @@ def test_thumbnail_key_changes_on_mtime(tmp_path: Path):
     assert k1 != k2
 
 
-def test_renders_png_image(tmp_path: Path):
+def test_renders_png_image_to_a_file(tmp_path: Path):
     # Arrange
     src = tmp_path / "fig.png"
     _make_png(src, (800, 600))
     # Act
     thumb = thumbnails.ensure_thumbnail(tmp_path, "figures", src)
     # Assert
-    assert (thumb is not None) and (thumb.is_file())
+    assert thumb is not None and thumb.is_file()
+
+
+def test_rendered_png_thumbnail_fits_within_thumb_edge(tmp_path: Path):
+    # Arrange
+    src = tmp_path / "fig.png"
+    _make_png(src, (800, 600))
+    # Act
+    thumb = thumbnails.ensure_thumbnail(tmp_path, "figures", src)
     with Image.open(thumb) as img:
-        assert max(img.size) <= thumbnails.THUMB_EDGE
+        longest_edge = max(img.size)
+    # Assert
+    assert longest_edge <= thumbnails.THUMB_EDGE
 
 
 def test_renders_csv_preview(tmp_path: Path):
@@ -66,8 +75,9 @@ def test_renders_csv_preview(tmp_path: Path):
             w.writerow([f"g{i}", i * 1.5, i * 0.2, i])
     # Act
     thumb = thumbnails.ensure_thumbnail(tmp_path, "tables", src)
+    is_real_png = thumb is not None and thumb.is_file() and thumb.stat().st_size > 1_000
     # Assert
-    assert (thumb is not None and thumb.is_file()) and (thumb.stat().st_size > 1000)
+    assert is_real_png
 
 
 def test_cached_thumbnail_is_reused_first_is_not_none(tmp_path: Path):
@@ -81,7 +91,9 @@ def test_cached_thumbnail_is_reused_first_is_not_none(tmp_path: Path):
     assert first is not None
 
 
-def test_cached_thumbnail_is_reused_second_equals_first_and_second_stat_st_mtime(tmp_path: Path):
+def test_cached_thumbnail_is_reused_second_equals_first_and_second_stat_st_mtime(
+    tmp_path: Path,
+):
     # Arrange
     src = tmp_path / "a.png"
     _make_png(src)
@@ -95,8 +107,6 @@ def test_cached_thumbnail_is_reused_second_equals_first_and_second_stat_st_mtime
     assert (second == first) and (second.stat().st_mtime == mtime_first)
 
 
-
-
 def test_find_media_for_stem_prefers_raster(tmp_path: Path):
     # Arrange
     (tmp_path / "fig.pdf").write_bytes(b"%PDF-stub")
@@ -105,7 +115,7 @@ def test_find_media_for_stem_prefers_raster(tmp_path: Path):
     # Act
     match = thumbnails.find_media_for_stem(tmp_path, "fig")
     # Assert
-    assert (match is not None) and (match.suffix == '.png')
+    assert (match is not None) and (match.suffix == ".png")
 
 
 def test_find_media_walks_subdirs(tmp_path: Path):
@@ -126,18 +136,28 @@ def test_find_media_returns_none_when_missing(tmp_path: Path):
     assert thumbnails.find_media_for_stem(tmp_path, "nope") is None
 
 
-def test_placeholder_rendered_for_unknown_format(tmp_path: Path):
+def test_unknown_format_produces_a_thumbnail_file(tmp_path: Path):
     # Arrange
     src = tmp_path / "x.xyz"
     src.write_bytes(b"unknown binary")
     # Act
     thumb = thumbnails.ensure_thumbnail(tmp_path, "figures", src)
-    # Unknown extensions aren't in IMAGE/VECTOR/DATA ext lists, so
-    # `_render_thumbnail` hits the placeholder branch.
     # Assert
     assert thumb is not None and thumb.is_file()
+
+
+def test_unknown_format_placeholder_is_square_thumb_edge(tmp_path: Path):
+    # Unknown extensions aren't in IMAGE/VECTOR/DATA ext lists, so
+    # _render_thumbnail hits the placeholder branch (a square THUMB_EDGE).
+    # Arrange
+    src = tmp_path / "x.xyz"
+    src.write_bytes(b"unknown binary")
+    # Act
+    thumb = thumbnails.ensure_thumbnail(tmp_path, "figures", src)
     with Image.open(thumb) as img:
-        assert img.size == (thumbnails.THUMB_EDGE, thumbnails.THUMB_EDGE)
+        size = img.size
+    # Assert
+    assert size == (thumbnails.THUMB_EDGE, thumbnails.THUMB_EDGE)
 
 
 def test_pillow_failure_returns_none(tmp_path: Path):
@@ -152,15 +172,15 @@ def test_pillow_failure_returns_none(tmp_path: Path):
     assert thumb is None
 
 
-def test_missing_pandas_falls_back_to_placeholder(tmp_path: Path):
+def test_unparseable_csv_falls_back_to_placeholder_thumbnail(tmp_path: Path):
+    # An empty CSV makes pandas raise "No columns to parse", driving
+    # _render_data_preview into its real placeholder fallback — a genuine
+    # exercise of the fallback path without patching the pandas import.
     # Arrange
-    src = tmp_path / "data.csv"
-    src.write_text("a,b\n1,2\n")
-    # Simulate pandas not being installed by patching the import
+    src = tmp_path / "empty.csv"
+    src.write_text("")
     # Act
-    with mock.patch.dict("sys.modules", {"pandas": None, "matplotlib": None}):
-        thumb = thumbnails.ensure_thumbnail(tmp_path, "tables", src)
-    # Fallback placeholder still generates a PNG
+    thumb = thumbnails.ensure_thumbnail(tmp_path, "tables", src)
     # Assert
     assert thumb is not None and thumb.is_file()
 

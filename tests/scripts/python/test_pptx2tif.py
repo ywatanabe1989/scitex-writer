@@ -167,17 +167,13 @@ def test_module_imports_successfully():
 
 
 @pytest.mark.skipif(not HAS_SCRIPT, reason="pptx2tif.py not importable")
-def test_check_libreoffice_handles_exceptions():
-    """Test that check_libreoffice_installed handles exceptions gracefully."""
-    # This should never raise an exception
+def test_check_libreoffice_returns_bool_without_raising():
+    """check_libreoffice_installed returns a bool and never raises."""
     # Arrange
     # Act
+    result = check_libreoffice_installed()
     # Assert
-    try:
-        result = check_libreoffice_installed()
-        assert result in [True, False]
-    except Exception as e:
-        pytest.fail(f"check_libreoffice_installed raised unexpected exception: {e}")
+    assert result in (True, False)
 
 
 if __name__ == "__main__":
