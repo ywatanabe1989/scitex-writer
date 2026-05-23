@@ -33,6 +33,7 @@ def compile_manuscript(
     force: bool = False,
     log_callback: Optional[Callable[[str], None]] = None,
     progress_callback: Optional[Callable[[int, str], None]] = None,
+    runner: Optional[Callable[..., CompilationResult]] = None,
 ) -> CompilationResult:
     """
     Compile manuscript document with optional callbacks.
@@ -84,8 +85,14 @@ def compile_manuscript(
     ...     crop_tif=True,
     ...     verbose=True
     ... )
+
+    ``runner`` is the worker that actually drives the LaTeX toolchain;
+    it defaults to :func:`scitex_writer._compile._runner.run_compile`.
+    Exposed so callers and tests can supply an alternate worker without
+    patching module internals.
     """
-    return run_compile(
+    runner = runner or run_compile
+    return runner(
         "manuscript",
         project_dir,
         timeout=timeout,
