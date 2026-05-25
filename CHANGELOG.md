@@ -7,6 +7,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.17.2] - 2026-05-26
+
+### Fixed
+- **sdist build failure** — absolute symlinks (`00_shared/scholar/library`)
+  in the repo root now excluded from the source distribution via
+  `[tool.hatch.build.targets.sdist] exclude`. v2.17.1 release aborted at
+  the build step; this is the corrected release.
+
+## [2.17.1] - 2026-05-26
+
+### Changed
+- **Test suite fully de-mocked.** Every `unittest.mock`/`pytest-mock`/`monkeypatch`
+  call replaced with real seams (injectable `clone_fn`, `command_runner`, `handler`
+  callables) and hand-rolled fakes (skeleton project directory, fake `Popen` process,
+  real filesystem operations on `tmp_path`). 1092→47 PA-307 TQ violations (-95.7%).
+  Covers: `compile_content`, `Writer`, `manuscript`/`supplementary`/`revision`,
+  `runner`, `checks`, `watch`, `migration`, `scholar_cli`, `thumbnails`,
+  `clone_writer_project`, `ensure_project_exists`, `argv`-dependent CLI tests,
+  smoke imports.
+
+### Fixed
+- **Audit gate PATH resolution** — `test_audit_all_clean` now prepends
+  `sys.exec_prefix/bin` to `PATH` so the project venv's `scitex-dev` is resolved
+  before any system-installed copy that cannot locate the repo root.
+
 ## [2.17.0] - 2026-05-08
 
 ### Changed (BREAKING — MCP tool names)
@@ -360,7 +385,10 @@ Closes issue **#82** — Flask `_editor` app fully ported to Django `_django`, r
 - Restructured project for better modularity
 - Separated configuration from scripts
 
-[Unreleased]: https://github.com/ywatanabe1989/scitex-writer/compare/v2.9.0...HEAD
+[Unreleased]: https://github.com/ywatanabe1989/scitex-writer/compare/v2.17.2...HEAD
+[2.17.2]: https://github.com/ywatanabe1989/scitex-writer/compare/v2.17.1...v2.17.2
+[2.17.1]: https://github.com/ywatanabe1989/scitex-writer/compare/v2.17.0...v2.17.1
+[2.17.0]: https://github.com/ywatanabe1989/scitex-writer/compare/v2.9.0...v2.17.0
 [2.9.0]: https://github.com/ywatanabe1989/scitex-writer/compare/v2.8.1...v2.9.0
 [2.8.1]: https://github.com/ywatanabe1989/scitex-writer/compare/v2.8.0...v2.8.1
 [2.8.0]: https://github.com/ywatanabe1989/scitex-writer/compare/v2.7.2...v2.8.0
