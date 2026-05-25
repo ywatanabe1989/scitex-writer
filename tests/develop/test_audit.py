@@ -11,12 +11,21 @@ without the audit corpus available locally. CI for release
 branches MUST NOT set this — drift goes silent.
 """
 
+import os
 import shutil
+import sys
 
 import pytest
 
 
 def test_audit_all_clean():
+    # Ensure the project venv's scitex-dev is found first (overrides
+    # older system-installed versions that can't locate the repo root).
+    _venv_bin = os.path.join(sys.exec_prefix, "bin")
+    _path = os.environ.get("PATH", "")
+    if _venv_bin not in _path:
+        os.environ["PATH"] = f"{_venv_bin}:{_path}"
+
     # Arrange
     # Act
     # Assert
@@ -27,4 +36,4 @@ def test_audit_all_clean():
         )
     from scitex_dev.testing import audit_all_for_package
 
-    audit_all_for_package('scitex-writer')
+    audit_all_for_package("scitex-writer")
