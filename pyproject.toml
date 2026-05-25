@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "scitex-writer"
-version = "2.17.1"
+version = "2.17.2"
 description = "LaTeX manuscript compilation system for scientific documents with MCP server"
 readme = "README.md"
 license = "AGPL-3.0-only"
@@ -103,6 +103,13 @@ Issues = "https://github.com/ywatanabe1989/scitex-writer/issues"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/scitex_writer"]
+
+[tool.hatch.build.targets.sdist]
+exclude = [
+    "/00_*",
+    "/config",
+    "/compile.sh",
+]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

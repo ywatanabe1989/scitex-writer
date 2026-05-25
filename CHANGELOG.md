@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.17.2] - 2026-05-26
+
+### Fixed
+- **sdist build failure** — absolute symlinks (`00_shared/scholar/library`)
+  in the repo root now excluded from the source distribution via
+  `[tool.hatch.build.targets.sdist] exclude`. v2.17.1 release aborted at
+  the build step; this is the corrected release.
+
 ## [2.17.1] - 2026-05-26
 
 ### Changed
@@ -377,7 +385,8 @@ Closes issue **#82** — Flask `_editor` app fully ported to Django `_django`, r
 - Restructured project for better modularity
 - Separated configuration from scripts
 
-[Unreleased]: https://github.com/ywatanabe1989/scitex-writer/compare/v2.17.1...HEAD
+[Unreleased]: https://github.com/ywatanabe1989/scitex-writer/compare/v2.17.2...HEAD
+[2.17.2]: https://github.com/ywatanabe1989/scitex-writer/compare/v2.17.1...v2.17.2
 [2.17.1]: https://github.com/ywatanabe1989/scitex-writer/compare/v2.17.0...v2.17.1
 [2.17.0]: https://github.com/ywatanabe1989/scitex-writer/compare/v2.9.0...v2.17.0
 [2.9.0]: https://github.com/ywatanabe1989/scitex-writer/compare/v2.8.1...v2.9.0
