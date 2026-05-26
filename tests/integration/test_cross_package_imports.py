@@ -20,6 +20,8 @@ import pytest
 
 # ===== AUTO-GENERATED: cross-package imports =====
 CROSS_PACKAGE_IMPORTS = [
+    # Peer standalones — these are true cross-package deps. If one of these
+    # modules is renamed/moved in a peer package, this test fails loudly.
     "scitex_app._django",
     "scitex_app._standalone",
     "scitex_clew",
@@ -31,6 +33,18 @@ CROSS_PACKAGE_IMPORTS = [
     "scitex_dev.types",
     "scitex_scholar",
     "scitex_ui",
+    # Self-imports — also listed here because the audit derives the package
+    # name from the repo directory basename, which is "/work" in CI containers
+    # rather than "scitex-writer". Including them is harmless: they exercise
+    # the package's own module tree and always pass when the package is
+    # installed.
+    "scitex_writer",
+    "scitex_writer._ports",
+    "scitex_writer._ports.thumbnails",
+    "scitex_writer._ports.workspace",
+    "scitex_writer._server",
+    "scitex_writer.figures",
+    "scitex_writer.tables",
 ]
 # ===== END AUTO-GENERATED =====
 
