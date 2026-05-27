@@ -15,12 +15,38 @@ GREEN = "\033[0;32m"
 YELLOW = "\033[1;33m"
 DIM = "\033[0;90m"
 CYAN = "\033[0;36m"
+YELLOW = "\033[1;33m"
 BOLD = "\033[1m"
 NC = "\033[0m"
 
+_DEPRECATION_WARNED = False  # print legacy-path warning at most once
+
 
 def _resolve_registry(project_root: Path) -> Path:
-    return project_root / ".scitex" / "writer" / "builds" / "builds.json"
+    """Resolve the build-registry JSON path (runtime/ canonical).
+
+    Returns the canonical path under ``runtime/builds/builds.json``.
+    If only the legacy ``builds/builds.json`` exists, returns that instead
+    and emits a one-time deprecation warning (back-compat §8).
+    """
+    global _DEPRECATION_WARNED
+    canonical = (
+        project_root / ".scitex" / "writer" / "runtime" / "builds" / "builds.json"
+    )
+    legacy = project_root / ".scitex" / "writer" / "builds" / "builds.json"
+
+    if canonical.exists():
+        return canonical
+    if legacy.exists():
+        if not _DEPRECATION_WARNED:
+            print(
+                f"{YELLOW}WARN:{NC} build registry at legacy path {legacy}. "
+                f"Move it to {canonical} for PS-102 compliance.",
+                file=sys.stderr,
+            )
+            _DEPRECATION_WARNED = True
+        return legacy
+    return canonical
 
 
 def _load(project_root: Path) -> list[dict]:
