@@ -162,7 +162,7 @@ See [`Four Interfaces`](#four-interfaces) below for usage details per surface.
 |-----------|-----|-------------|
 | **Python API** | Human researchers | `import scitex_writer as sw` |
 | **Command-Line Interface (CLI) Commands** | Terminal users | `scitex-writer compile`, `scitex-writer bib` |
-| **MCP Tools** | AI agents | 39 tools for Claude/GPT integration |
+| **MCP Tools** | AI agents | 44 tools for Claude/GPT integration |
 | **Skills** | AI agent discovery | Workflow guides for capabilities and patterns |
 
 <details open>
@@ -274,7 +274,7 @@ scitex-writer prompts asta -t coauthors        # Find collaborators
 # MCP server management
 scitex-writer mcp list-tools                   # List all MCP tools (markdown)
 scitex-writer mcp doctor                       # Check server health
-scitex-writer mcp installation                 # Show Claude Desktop config
+scitex-writer mcp install                     # Show Claude Desktop config
 scitex-writer mcp start                        # Start MCP server
 
 # GUI - Browser-based editor
@@ -286,7 +286,7 @@ scitex-writer gui --port 8080 --no-browser     # Custom port, no auto-open
 </details>
 
 <details>
-<summary><strong>MCP Tools — 39 tools for AI Agents</strong></summary>
+<summary><strong>MCP Tools — 44 tools for AI Agents</strong></summary>
 
 Turn AI agents into autonomous manuscript compilers.
 
@@ -294,14 +294,16 @@ Turn AI agents into autonomous manuscript compilers.
 |----------|-------|-------------|
 | project | 4 | Clone, info, PDF paths, document types |
 | compile | 4 | Manuscript, supplementary, revision, content |
-| tables | 5 | CSV to LaTeX, list/add/remove tables |
-| figures | 5 | Convert, render PDF, list/add/remove |
+| tables | 6 | CSV to LaTeX, list/add/remove, archive |
+| figures | 6 | Convert, render PDF, list/add/remove, archive |
 | bib | 6 | List files/entries, CRUD, merge/dedupe |
 | guidelines | 3 | List, get, build with draft |
 | prompts | 1 | AI2 Asta prompt generation |
 | export | 1 | arXiv-ready tarball packaging |
 | claim | 6 | Traceable scientific assertions |
 | migration | 2 | Overleaf import/export |
+| checks | 2 | Reference integrity, float order |
+| skills | 2 | List and retrieve skill pages |
 | update | 1 | Template update from upstream |
 
 **Claude Desktop** (`~/.config/Claude/claude_desktop_config.json`):

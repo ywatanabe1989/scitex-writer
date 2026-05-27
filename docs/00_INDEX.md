@@ -17,7 +17,7 @@ Technical design and implementation details:
 - **02_ARCHITECTURE_IMPLEMENTATION.md** - System architecture, technical implementation, and troubleshooting guide
 
 ### MCP Tools
-- **MCP_TOOLS.md** - Reference for all 29 MCP tools for AI agent integration
+- **MCP_TOOLS.md** - Reference for all 44 MCP tools for AI agent integration
 
 ## Subdirectories
 

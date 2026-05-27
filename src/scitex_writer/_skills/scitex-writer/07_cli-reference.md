@@ -38,5 +38,5 @@ scitex-writer skills get                     # Get skill content
 
 Each compile stamps a 6-char build ID into the PDF `/Info` dictionary
 (`pdfsubject=build:XXXXXX`) and records it in
-`.scitex/writer/builds/builds.json`. Verify on any PDF via
+`.scitex/writer/runtime/builds/builds.json`. Verify on any PDF via
 `pdfinfo manuscript.pdf | grep Subject`.
