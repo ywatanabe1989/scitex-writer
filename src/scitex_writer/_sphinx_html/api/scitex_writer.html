@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>scitex_writer &mdash; SciTeX Writer v2.17.1</title>
+  <title>scitex_writer &mdash; SciTeX Writer v2.17.2</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
@@ -14,7 +14,7 @@
   
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=4db17fe1"></script>
+      <script src="../_static/documentation_options.js?v=7a49f58b"></script>
       <script src="../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -284,7 +284,7 @@ If None, clones the default branch. Mutually exclusive with branch.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="scitex_writer.Writer.compile_manuscript">
-<span class="sig-name descname"><span class="pre">compile_manuscript</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">300</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_callback</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">progress_callback</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scitex_writer/writer.html#Writer.compile_manuscript"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#scitex_writer.Writer.compile_manuscript" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">compile_manuscript</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">300</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_callback</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">progress_callback</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">runner</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scitex_writer/writer.html#Writer.compile_manuscript"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#scitex_writer.Writer.compile_manuscript" title="Link to this definition"></a></dt>
 <dd><p>Compile manuscript to PDF with optional live callbacks.</p>
 <p>Runs scripts/shell/compile_manuscript.sh with configured settings.</p>
 <dl class="field-list simple">
@@ -310,12 +310,16 @@ If None, clones the default branch. Mutually exclusive with branch.</p></li>
 <span class="gp">... </span>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;PDF created: </span><span class="si">{</span><span class="n">result</span><span class="o">.</span><span class="n">output_pdf</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
+<p><code class="docutils literal notranslate"><span class="pre">runner</span></code> is the underlying compile implementation; it defaults
+to <code class="xref py py-func docutils literal notranslate"><span class="pre">scitex_writer._compile.compile_manuscript()</span></code>. Exposed so
+callers and tests can supply an alternate implementation without
+patching module internals.</p>
 </div>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="scitex_writer.Writer.compile_supplementary">
-<span class="sig-name descname"><span class="pre">compile_supplementary</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">300</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_callback</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">progress_callback</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scitex_writer/writer.html#Writer.compile_supplementary"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#scitex_writer.Writer.compile_supplementary" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">compile_supplementary</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">300</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_callback</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">progress_callback</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">runner</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scitex_writer/writer.html#Writer.compile_supplementary"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#scitex_writer.Writer.compile_supplementary" title="Link to this definition"></a></dt>
 <dd><p>Compile supplementary materials to PDF with optional live callbacks.</p>
 <p>Runs scripts/shell/compile_supplementary.sh with configured settings.</p>
 <dl class="field-list simple">
@@ -341,12 +345,15 @@ If None, clones the default branch. Mutually exclusive with branch.</p></li>
 <span class="gp">... </span>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;PDF created: </span><span class="si">{</span><span class="n">result</span><span class="o">.</span><span class="n">output_pdf</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
+<p><code class="docutils literal notranslate"><span class="pre">runner</span></code> defaults to
+<code class="xref py py-func docutils literal notranslate"><span class="pre">scitex_writer._compile.compile_supplementary()</span></code>; exposed for
+injection without patching module internals.</p>
 </div>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="scitex_writer.Writer.compile_revision">
-<span class="sig-name descname"><span class="pre">compile_revision</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">track_changes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">300</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_callback</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">progress_callback</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scitex_writer/writer.html#Writer.compile_revision"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#scitex_writer.Writer.compile_revision" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">compile_revision</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">track_changes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">300</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_callback</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">progress_callback</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">runner</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scitex_writer/writer.html#Writer.compile_revision"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#scitex_writer.Writer.compile_revision" title="Link to this definition"></a></dt>
 <dd><p>Compile revision document with optional change tracking and live callbacks.</p>
 <p>Runs scripts/shell/compile_revision.sh with configured settings.</p>
 <dl class="field-list simple">
@@ -373,6 +380,9 @@ If None, clones the default branch. Mutually exclusive with branch.</p></li>
 <span class="gp">... </span>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Revision PDF: </span><span class="si">{</span><span class="n">result</span><span class="o">.</span><span class="n">output_pdf</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
+<p><code class="docutils literal notranslate"><span class="pre">runner</span></code> defaults to
+<code class="xref py py-func docutils literal notranslate"><span class="pre">scitex_writer._compile.compile_revision()</span></code>; exposed for
+injection without patching module internals.</p>
 </div>
 </dd></dl>
 
@@ -469,8 +479,11 @@ If None, clones the default branch. Mutually exclusive with branch.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="scitex_writer.Writer.watch">
-<span class="sig-name descname"><span class="pre">watch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">on_compile</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scitex_writer/writer.html#Writer.watch"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#scitex_writer.Writer.watch" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">watch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">on_compile</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">runner</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scitex_writer/writer.html#Writer.watch"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#scitex_writer.Writer.watch" title="Link to this definition"></a></dt>
 <dd><p>Auto-recompile on file changes.</p>
+<p><code class="docutils literal notranslate"><span class="pre">runner</span></code> defaults to
+<code class="xref py py-func docutils literal notranslate"><span class="pre">scitex_writer._utils._watch.watch_manuscript()</span></code>; exposed for
+injection without patching module internals.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></span></p>
@@ -1499,7 +1512,7 @@ If None, clones the default branch. Mutually exclusive with branch.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="scitex_writer.writer.Writer.compile_manuscript">
-<span class="sig-name descname"><span class="pre">compile_manuscript</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">300</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_callback</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">progress_callback</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scitex_writer/writer.html#Writer.compile_manuscript"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#scitex_writer.writer.Writer.compile_manuscript" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">compile_manuscript</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">300</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_callback</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">progress_callback</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">runner</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scitex_writer/writer.html#Writer.compile_manuscript"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#scitex_writer.writer.Writer.compile_manuscript" title="Link to this definition"></a></dt>
 <dd><p>Compile manuscript to PDF with optional live callbacks.</p>
 <p>Runs scripts/shell/compile_manuscript.sh with configured settings.</p>
 <dl class="field-list simple">
@@ -1525,12 +1538,16 @@ If None, clones the default branch. Mutually exclusive with branch.</p></li>
 <span class="gp">... </span>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;PDF created: </span><span class="si">{</span><span class="n">result</span><span class="o">.</span><span class="n">output_pdf</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
+<p><code class="docutils literal notranslate"><span class="pre">runner</span></code> is the underlying compile implementation; it defaults
+to <code class="xref py py-func docutils literal notranslate"><span class="pre">scitex_writer._compile.compile_manuscript()</span></code>. Exposed so
+callers and tests can supply an alternate implementation without
+patching module internals.</p>
 </div>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="scitex_writer.writer.Writer.compile_supplementary">
-<span class="sig-name descname"><span class="pre">compile_supplementary</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">300</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_callback</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">progress_callback</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scitex_writer/writer.html#Writer.compile_supplementary"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#scitex_writer.writer.Writer.compile_supplementary" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">compile_supplementary</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">300</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_callback</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">progress_callback</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">runner</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scitex_writer/writer.html#Writer.compile_supplementary"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#scitex_writer.writer.Writer.compile_supplementary" title="Link to this definition"></a></dt>
 <dd><p>Compile supplementary materials to PDF with optional live callbacks.</p>
 <p>Runs scripts/shell/compile_supplementary.sh with configured settings.</p>
 <dl class="field-list simple">
@@ -1556,12 +1573,15 @@ If None, clones the default branch. Mutually exclusive with branch.</p></li>
 <span class="gp">... </span>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;PDF created: </span><span class="si">{</span><span class="n">result</span><span class="o">.</span><span class="n">output_pdf</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
+<p><code class="docutils literal notranslate"><span class="pre">runner</span></code> defaults to
+<code class="xref py py-func docutils literal notranslate"><span class="pre">scitex_writer._compile.compile_supplementary()</span></code>; exposed for
+injection without patching module internals.</p>
 </div>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="scitex_writer.writer.Writer.compile_revision">
-<span class="sig-name descname"><span class="pre">compile_revision</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">track_changes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">300</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_callback</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">progress_callback</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scitex_writer/writer.html#Writer.compile_revision"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#scitex_writer.writer.Writer.compile_revision" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">compile_revision</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">track_changes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">300</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_callback</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">progress_callback</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">runner</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scitex_writer/writer.html#Writer.compile_revision"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#scitex_writer.writer.Writer.compile_revision" title="Link to this definition"></a></dt>
 <dd><p>Compile revision document with optional change tracking and live callbacks.</p>
 <p>Runs scripts/shell/compile_revision.sh with configured settings.</p>
 <dl class="field-list simple">
@@ -1588,6 +1608,9 @@ If None, clones the default branch. Mutually exclusive with branch.</p></li>
 <span class="gp">... </span>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Revision PDF: </span><span class="si">{</span><span class="n">result</span><span class="o">.</span><span class="n">output_pdf</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
+<p><code class="docutils literal notranslate"><span class="pre">runner</span></code> defaults to
+<code class="xref py py-func docutils literal notranslate"><span class="pre">scitex_writer._compile.compile_revision()</span></code>; exposed for
+injection without patching module internals.</p>
 </div>
 </dd></dl>
 
@@ -1684,8 +1707,11 @@ If None, clones the default branch. Mutually exclusive with branch.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="scitex_writer.writer.Writer.watch">
-<span class="sig-name descname"><span class="pre">watch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">on_compile</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scitex_writer/writer.html#Writer.watch"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#scitex_writer.writer.Writer.watch" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">watch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">on_compile</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">runner</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scitex_writer/writer.html#Writer.watch"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#scitex_writer.writer.Writer.watch" title="Link to this definition"></a></dt>
 <dd><p>Auto-recompile on file changes.</p>
+<p><code class="docutils literal notranslate"><span class="pre">runner</span></code> defaults to
+<code class="xref py py-func docutils literal notranslate"><span class="pre">scitex_writer._utils._watch.watch_manuscript()</span></code>; exposed for
+injection without patching module internals.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></span></p>
