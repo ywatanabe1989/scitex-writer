@@ -1763,6 +1763,15 @@ from ._skills import skills_group as _skills_group  # noqa: E402
 main_group.add_command(_skills_group)
 
 
+# Wire in the install group (sub-tool SIF installers — texlive, ...).
+# Per operator design 8566: scitex-writer owns its own SIFs under
+# ~/.scitex/writer/containers/; the build engine is shared with sac
+# via scitex-container for uniform versioning + pinning.
+from .install import install_group as _install_group  # noqa: E402
+
+main_group.add_command(_install_group)
+
+
 if __name__ == "__main__":
     sys.exit(main())
 
