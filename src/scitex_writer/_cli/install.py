@@ -1,4 +1,4 @@
-"""``scitex-writer install`` — wrapper-side SIF installer.
+"""``scitex-writer containers install`` — wrapper-side SIF installer.
 
 Per operator design 8566: each scitex-* package owns its own SIF
 artifacts under ``~/.scitex/<pkg>/containers/``. scitex-writer owns
@@ -21,6 +21,13 @@ Delegating means:
     per the convention) sees the artifact without scitex-writer
     needing to know about sac.
 
+CLI shape — ``containers`` is the (noun) group; ``install`` is the
+(verb) leaf; the sub-tool name is a positional ``TARGET`` argument.
+This keeps every node a single audit-friendly token and lets new
+targets land by extending ``_SUB_TOOLS`` only:
+
+    scitex-writer containers install texlive -y
+
 Out of scope: raw ``apptainer build`` shell-outs. Hand-rolled apptainer
 calls would diverge in shape from sac's build artifacts and lose the
 pinning the operator asked for.
@@ -36,17 +43,16 @@ import click
 # Layout
 # ---------------------------------------------------------------------------
 
-# Each install target is a (def-file-stem, recipe-path) pair. New
-# sub-tools register here; the install group's click.Choice + dispatch
-# both read from this dict so a single addition lights up the CLI +
-# tests + docs in one shot.
+# Recipe files ship in the repo tree at ``scripts/containers/<target>.def``.
+# New sub-tools register here only — the install dispatcher reads from this
+# dict so a single addition lights up the CLI choice + tests in one shot.
 _RECIPES_DIR = (
     Path(__file__).resolve().parent.parent.parent.parent / "scripts" / "containers"
 )
 
 _SUB_TOOLS: dict[str, str] = {
-    "texlive-sif": "texlive.def",
-    # "mermaid-sif": "mermaid.def",   # follow-up: enable when canonicalized
+    "texlive": "texlive.def",
+    # "mermaid": "mermaid.def",   # follow-up: enable when canonicalized
 }
 
 
@@ -62,7 +68,7 @@ def _output_dir() -> Path:
 
 
 def _resolve_recipe(target: str) -> Path:
-    """Map a CLI target (``texlive-sif``) to its shipped .def file."""
+    """Map a CLI target (``texlive``) to its shipped .def file."""
     if target not in _SUB_TOOLS:
         raise click.UsageError(
             f"unknown install target {target!r}; choose from {sorted(_SUB_TOOLS)}"
@@ -70,40 +76,30 @@ def _resolve_recipe(target: str) -> Path:
     return _RECIPES_DIR / _SUB_TOOLS[target]
 
 
-def _image_name_for(target: str) -> str:
-    """Drop the ``-sif`` suffix to get the artifact's base name.
-
-    The artifact lands at ``<output_dir>/<image_name>/<image_name>.sif``
-    with a top-level symlink ``<output_dir>/<image_name>.sif`` — that
-    top-level link is what sac's ``image list`` glob surfaces and what
-    wrapper specs bind from.
-    """
-    return target.removesuffix("-sif")
-
-
 # ---------------------------------------------------------------------------
 # Group + verbs
 # ---------------------------------------------------------------------------
 
 
-@click.group("install")
-def install_group() -> None:
-    """Install scitex-writer's owned sub-tool SIFs.
+@click.group("containers")
+def containers_group() -> None:
+    """Manage scitex-writer's owned sub-tool SIFs.
 
     \b
-    Targets:
-      texlive-sif   ~/.scitex/writer/containers/texlive.sif (TeX Live)
+    Sub-tools installed under ``~/.scitex/writer/containers/``:
+      texlive   LaTeX manuscript-compile toolchain
 
-    Each target writes:
-      ~/.scitex/writer/containers/<name>/<name>.sif       (the built image)
-      ~/.scitex/writer/containers/<name>.sif              (top-level symlink)
-      ~/.scitex/writer/containers/<name>.def              (recipe snapshot)
-      ~/.scitex/writer/containers/<name>/.def-hash        (skip-rebuild guard)
+    Each ``install`` writes:
+      ~/.scitex/writer/containers/<name>/<name>.sif         (the built image)
+      ~/.scitex/writer/containers/<name>.sif                (top-level symlink)
+      ~/.scitex/writer/containers/<name>.def                (recipe snapshot)
+      ~/.scitex/writer/containers/<name>/.def-hash          (skip-rebuild guard)
       ~/.scitex/writer/containers/<name>/<name>.build-<ts>.log
     """
 
 
-@install_group.command("texlive-sif")
+@containers_group.command("install")
+@click.argument("target", type=click.Choice(sorted(_SUB_TOOLS)))
 @click.option(
     "-y",
     "--yes",
@@ -125,20 +121,20 @@ def install_group() -> None:
     default=False,
     help="Resolve paths + print what would happen; do not invoke apptainer.",
 )
-def install_texlive_sif(yes: bool, force: bool, dry_run: bool) -> None:
-    """Build the TeX Live sub-tool SIF.
+def containers_install(target: str, yes: bool, force: bool, dry_run: bool) -> None:
+    """Build the named sub-tool SIF.
 
     Delegates to ``scitex_container.apptainer.build``; the artifact
-    lands at ``~/.scitex/writer/containers/texlive.sif`` (top-level
+    lands at ``~/.scitex/writer/containers/<target>.sif`` (top-level
     symlink) so wrapper agents bind from a stable path regardless of
     rebuilds.
 
     \b
     Example:
-      $ scitex-writer install texlive-sif -y
-      $ scitex-writer install texlive-sif -y --force
+      $ scitex-writer containers install texlive -y
+      $ scitex-writer containers install texlive -y --force
     """
-    _run_install("texlive-sif", yes=yes, force=force, dry_run=dry_run)
+    _run_install(target, yes=yes, force=force, dry_run=dry_run)
 
 
 # ---------------------------------------------------------------------------
@@ -162,13 +158,12 @@ def _run_install(target: str, *, yes: bool, force: bool, dry_run: bool) -> None:
             f"scripts/containers/ tree."
         )
 
-    image_name = _image_name_for(target)
     output_dir = _output_dir()
 
     if dry_run:
         click.echo(
-            f"[dry-run] would build {image_name!r} from {recipe} "
-            f"→ {output_dir / f'{image_name}.sif'} "
+            f"[dry-run] would build {target!r} from {recipe} "
+            f"→ {output_dir / f'{target}.sif'} "
             f"(force={force})"
         )
         return
@@ -177,7 +172,7 @@ def _run_install(target: str, *, yes: bool, force: bool, dry_run: bool) -> None:
         click.echo(
             f"Refusing to build {target!r} without --yes/-y. Re-run "
             f"with `-y` to confirm; the resulting SIF lands at "
-            f"{output_dir / f'{image_name}.sif'}.",
+            f"{output_dir / f'{target}.sif'}.",
             err=True,
         )
         raise SystemExit(2)
@@ -192,16 +187,16 @@ def _run_install(target: str, *, yes: bool, force: bool, dry_run: bool) -> None:
         from scitex_container.apptainer import build as sc_build
     except ImportError as exc:
         raise click.ClickException(
-            "scitex-container is required for `scitex-writer install` "
-            "but is not installed. Run `uv pip install scitex-container` "
-            "(or `pip install scitex-container`) and retry."
+            "scitex-container is required for `scitex-writer containers "
+            "install` but is not installed. Run `uv pip install "
+            "scitex-container` (or `pip install scitex-container`) and retry."
         ) from exc
 
     try:
         output = sc_build(
             def_path=recipe,
             output_dir=output_dir,
-            image_name=image_name,
+            image_name=target,
             force=force,
         )
     except (FileNotFoundError, RuntimeError) as exc:
@@ -211,6 +206,6 @@ def _run_install(target: str, *, yes: bool, force: bool, dry_run: bool) -> None:
 
 
 __all__ = [
-    "install_group",
-    "install_texlive_sif",
+    "containers_group",
+    "containers_install",
 ]

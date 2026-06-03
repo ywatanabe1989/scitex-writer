@@ -1,14 +1,14 @@
 """Tests for ``scitex_writer/_cli/install.py`` — sub-tool SIF installer.
 
 Per operator design 8566: scitex-writer owns its texlive.def + its
-``install texlive-sif`` CLI verb that drops the built SIF at
+``containers install texlive`` CLI verb that drops the built SIF at
 ``~/.scitex/writer/containers/texlive.sif``. The build is delegated
 to ``scitex_container.apptainer.build`` — same engine sac uses for
 ``:base`` / ``:scitex`` — for uniform versioning.
 
-Real on-disk via ``tmp_path``; no MagicMock. The build delegate is
-swapped through a module-level reassignment (no monkeypatch deep
-imports) — same hand-rolled-callable pattern sac's
+Real on-disk via ``tmp_path``; no mocks. The build delegate is
+swapped through ``sys.modules`` (a hand-rolled module stand-in, not
+``unittest.mock``) — same hand-rolled-callable pattern sac's
 ``test_image_group.py`` uses for its build runner. AAA, ≥3-word
 test names, one assert per test.
 """
@@ -18,13 +18,13 @@ from __future__ import annotations
 import os
 from contextlib import contextmanager
 from pathlib import Path
-from typing import Any, Iterator
+from typing import Iterator
 
 import pytest
 from click.testing import CliRunner
 
 from scitex_writer._cli import install as inst
-from scitex_writer._cli.install import install_group
+from scitex_writer._cli.install import containers_group
 
 # ---------------------------------------------------------------------------
 # Fixtures — tmp HOME so every command writes into tmp_path.
@@ -91,6 +91,23 @@ def _sc_build_ok(*a, **kw) -> Path:
     return Path(kw["output_dir"]) / f"{kw['image_name']}.sif"
 
 
+@contextmanager
+def _swap_recipes_dir(tmp_dir: Path) -> Iterator[None]:
+    """Swap the module-level recipes-dir pointer.
+
+    Same swap/restore discipline as ``home_tmp`` — a tmp pointer is
+    real (no mock), and the original is restored on exit even when
+    the body raises. Used to cover the "recipe not found" branch
+    without touching the real ``scripts/containers/`` tree.
+    """
+    saved = inst._RECIPES_DIR
+    inst._RECIPES_DIR = tmp_dir
+    try:
+        yield
+    finally:
+        inst._RECIPES_DIR = saved
+
+
 # ---------------------------------------------------------------------------
 # Path resolution
 # ---------------------------------------------------------------------------
@@ -108,7 +125,7 @@ def test_output_dir_is_under_dotscitex_writer_containers(home_tmp):
 def test_resolve_recipe_finds_texlive_def_in_scripts_containers():
     # Arrange — the shipped recipe lives at scripts/containers/texlive.def.
     # Act
-    recipe = inst._resolve_recipe("texlive-sif")
+    recipe = inst._resolve_recipe("texlive")
     # Assert
     assert recipe.name == "texlive.def"
 
@@ -126,134 +143,126 @@ def test_resolve_recipe_raises_usage_error_for_unknown_target():
         _call()
 
 
-def test_image_name_for_strips_sif_suffix():
-    # Arrange — the SIF artifact's basename is the target minus "-sif".
-    # Act
-    name = inst._image_name_for("texlive-sif")
-    # Assert
-    assert name == "texlive"
-
-
 # ---------------------------------------------------------------------------
-# install texlive-sif — happy path
+# containers install texlive — happy path
 # ---------------------------------------------------------------------------
 
 
-def test_install_texlive_sif_dry_run_exits_zero(home_tmp):
+def test_containers_install_texlive_dry_run_exits_zero(home_tmp):
     # Arrange
     runner = CliRunner()
     # Act
-    result = runner.invoke(install_group, ["texlive-sif", "--dry-run"])
+    result = runner.invoke(containers_group, ["install", "texlive", "--dry-run"])
     # Assert
     assert result.exit_code == 0
 
 
-def test_install_texlive_sif_dry_run_prints_dry_run_marker(home_tmp):
+def test_containers_install_texlive_dry_run_prints_dry_run_marker(home_tmp):
     # Arrange
     runner = CliRunner()
     # Act
-    result = runner.invoke(install_group, ["texlive-sif", "--dry-run"])
+    result = runner.invoke(containers_group, ["install", "texlive", "--dry-run"])
     # Assert
     assert "dry-run" in result.output
 
 
-def test_install_texlive_sif_refuses_without_yes_flag(home_tmp):
+def test_containers_install_texlive_refuses_without_yes_flag(home_tmp):
     # Arrange
     runner = CliRunner()
     # Act
-    result = runner.invoke(install_group, ["texlive-sif"])
+    result = runner.invoke(containers_group, ["install", "texlive"])
     # Assert
     assert result.exit_code == 2
 
 
-def test_install_texlive_sif_refusal_names_the_target_path(home_tmp):
+def test_containers_install_refusal_names_the_target_path(home_tmp):
     # Arrange
     runner = CliRunner()
     expected = str(inst._output_dir() / "texlive.sif")
     # Act
-    result = runner.invoke(install_group, ["texlive-sif"])
+    result = runner.invoke(containers_group, ["install", "texlive"])
     # Assert
     assert expected in result.output
 
 
-def test_install_texlive_sif_with_yes_delegates_to_scitex_container_build(home_tmp):
+def test_containers_install_with_yes_delegates_to_scitex_container_build(home_tmp):
     # Arrange
     runner = CliRunner()
     # Act
     with _swap_sc_build(_sc_build_ok) as calls:
-        runner.invoke(install_group, ["texlive-sif", "--yes"])
+        runner.invoke(containers_group, ["install", "texlive", "--yes"])
     # Assert
     assert len(calls) == 1
 
 
-def test_install_texlive_sif_passes_def_path_to_build(home_tmp):
+def test_containers_install_passes_def_path_to_build(home_tmp):
     # Arrange
     runner = CliRunner()
     # Act
     with _swap_sc_build(_sc_build_ok) as calls:
-        runner.invoke(install_group, ["texlive-sif", "--yes"])
+        runner.invoke(containers_group, ["install", "texlive", "--yes"])
     # Assert
     assert calls[0][1]["def_path"].name == "texlive.def"
 
 
-def test_install_texlive_sif_passes_image_name_texlive(home_tmp):
+def test_containers_install_passes_image_name_texlive(home_tmp):
     # Arrange
     runner = CliRunner()
     # Act
     with _swap_sc_build(_sc_build_ok) as calls:
-        runner.invoke(install_group, ["texlive-sif", "--yes"])
+        runner.invoke(containers_group, ["install", "texlive", "--yes"])
     # Assert
     assert calls[0][1]["image_name"] == "texlive"
 
 
-def test_install_texlive_sif_passes_output_dir_under_writer_containers(home_tmp):
+def test_containers_install_passes_output_dir_under_writer_containers(home_tmp):
     # Arrange
     runner = CliRunner()
     expected = Path(os.environ["HOME"]) / ".scitex" / "writer" / "containers"
     # Act
     with _swap_sc_build(_sc_build_ok) as calls:
-        runner.invoke(install_group, ["texlive-sif", "--yes"])
+        runner.invoke(containers_group, ["install", "texlive", "--yes"])
     # Assert
     assert calls[0][1]["output_dir"] == expected
 
 
-def test_install_texlive_sif_creates_output_dir_before_calling_build(home_tmp):
+def test_containers_install_creates_output_dir_before_calling_build(home_tmp):
     # Arrange
     runner = CliRunner()
     out = Path(os.environ["HOME"]) / ".scitex" / "writer" / "containers"
     # Act
     with _swap_sc_build(_sc_build_ok):
-        runner.invoke(install_group, ["texlive-sif", "--yes"])
+        runner.invoke(containers_group, ["install", "texlive", "--yes"])
     # Assert
     assert out.is_dir()
 
 
-def test_install_texlive_sif_force_flag_propagates_to_build(home_tmp):
+def test_containers_install_force_flag_propagates_to_build(home_tmp):
     # Arrange
     runner = CliRunner()
     # Act
     with _swap_sc_build(_sc_build_ok) as calls:
-        runner.invoke(install_group, ["texlive-sif", "--yes", "--force"])
+        runner.invoke(containers_group, ["install", "texlive", "--yes", "--force"])
     # Assert
     assert calls[0][1]["force"] is True
 
 
-def test_install_texlive_sif_success_prints_built_message(home_tmp):
+def test_containers_install_success_prints_built_message(home_tmp):
     # Arrange
     runner = CliRunner()
     # Act
     with _swap_sc_build(_sc_build_ok):
-        result = runner.invoke(install_group, ["texlive-sif", "--yes"])
+        result = runner.invoke(containers_group, ["install", "texlive", "--yes"])
     # Assert
     assert "built" in result.output
 
 
 # ---------------------------------------------------------------------------
-# install texlive-sif — failure paths
+# containers install texlive — failure paths
 # ---------------------------------------------------------------------------
 
 
-def test_install_texlive_sif_reports_build_failure_loudly(home_tmp):
+def test_containers_install_reports_build_failure_loudly(home_tmp):
     # Arrange — the build engine raises a RuntimeError (mirrors what
     # scitex-container does on apptainer-cli failure).
     def _build_fails(*a, **kw):
@@ -262,56 +271,54 @@ def test_install_texlive_sif_reports_build_failure_loudly(home_tmp):
     runner = CliRunner()
     # Act
     with _swap_sc_build(_build_fails):
-        result = runner.invoke(install_group, ["texlive-sif", "--yes"])
+        result = runner.invoke(containers_group, ["install", "texlive", "--yes"])
     # Assert
     assert "apptainer build failed" in result.output
 
 
-def test_install_texlive_sif_reports_missing_recipe_loudly(home_tmp, monkeypatch):
-    # Arrange — point _RECIPES_DIR at an empty real dir; no monkeypatch
-    # on the deep import — just swap the module attribute (same
-    # convention as sac).
-    saved = inst._RECIPES_DIR
-    inst._RECIPES_DIR = home_tmp / "absent-recipes"
+def test_containers_install_reports_missing_recipe_loudly(home_tmp, tmp_path):
+    # Arrange — point _RECIPES_DIR at an empty real dir (no
+    # monkeypatch — the swap is a hand-rolled context manager that
+    # restores on exit, same shape as sac's _use_apptainer pattern).
     runner = CliRunner()
-    try:
-        # Act
-        result = runner.invoke(install_group, ["texlive-sif", "--yes"])
-    finally:
-        inst._RECIPES_DIR = saved
+    # Act
+    with _swap_recipes_dir(tmp_path / "absent-recipes"):
+        result = runner.invoke(containers_group, ["install", "texlive", "--yes"])
     # Assert
     assert "recipe not found" in result.output
 
 
 # ---------------------------------------------------------------------------
-# install (group) — CLI surface
+# containers (group) — CLI surface
 # ---------------------------------------------------------------------------
 
 
-def test_install_group_lists_texlive_sif_in_help():
-    # Arrange — group --help should advertise the texlive-sif target so
-    # discoverability is from `scitex-writer install --help` only.
+def test_containers_group_lists_install_subcommand_in_help():
+    # Arrange — group --help should advertise the install verb so
+    # discoverability is from `scitex-writer containers --help` only.
     runner = CliRunner()
     # Act
-    result = runner.invoke(install_group, ["--help"])
+    result = runner.invoke(containers_group, ["--help"])
     # Assert
-    assert "texlive-sif" in result.output
+    assert "install" in result.output
 
 
-def test_install_group_help_mentions_scitex_writer_containers_path():
+def test_containers_group_help_mentions_scitex_writer_containers_path():
     # Arrange — the group docstring names the canonical install path
     # so operators reading --help see the convention without digging.
     runner = CliRunner()
     # Act
-    result = runner.invoke(install_group, ["--help"])
+    result = runner.invoke(containers_group, ["--help"])
     # Assert
     assert ".scitex/writer/containers" in result.output
 
 
-def test_install_texlive_sif_rejects_unknown_subcommand(home_tmp):
-    # Arrange
+def test_containers_install_rejects_unknown_target_via_choice():
+    # Arrange — click.Choice on the TARGET argument enforces a closed
+    # set at parse time, so an unknown target trips a usage error
+    # before _run_install runs.
     runner = CliRunner()
     # Act
-    result = runner.invoke(install_group, ["totally-bogus-target"])
+    result = runner.invoke(containers_group, ["install", "totally-bogus-target"])
     # Assert
     assert result.exit_code != 0

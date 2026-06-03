@@ -16,7 +16,7 @@
 # ``apptainer.build()`` for uniform versioning + .def-hash + build-log
 # pinning (matches how sac builds its own :base / :scitex). Build raw:
 #
-#     scitex-writer install texlive-sif -y
+#     scitex-writer containers install texlive -y
 #
 # Wrapper integration (drop into wrapper agent's spec.yaml):
 #
@@ -66,7 +66,7 @@ From: ubuntu:22.04
     pdflatex / bibtex / latexmk calls. Standalone use also supported.
 
     Build (canonical):
-        scitex-writer install texlive-sif -y
+        scitex-writer containers install texlive -y
         # -> ~/.scitex/writer/containers/texlive.sif
 
     Usage (standalone):
