@@ -12,13 +12,23 @@ This directory contains container definition files for reproducible LaTeX compil
 
 ## Building Containers
 
-### Apptainer/Singularity
+### Preferred — scitex-writer CLI
+
+Builds the canonical SIF under the per-package convention
+(`~/.scitex/writer/containers/<tool>.sif`, operator design 8566 + sac PR #293)
+via `scitex-container.apptainer.build` so the artifact ships with a
+`.def-hash`, build log, and top-level symlink — the same engine sac uses for
+its own `:base` / `:scitex` SIFs.
 
 ```bash
-# Build TeX Live container
-apptainer build texlive.sif texlive.def
+scitex-writer containers install texlive -y
+scitex-writer containers install mermaid -y    # follow-up: enable when canonicalized
+```
 
-# Build Mermaid container
+### Raw apptainer (fallback)
+
+```bash
+apptainer build texlive.sif texlive.def
 apptainer build mermaid.sif mermaid.def
 ```
 
@@ -48,11 +58,16 @@ docker run --rm -v $(pwd):/workspace scitex-writer ./compile.sh manuscript
 
 ## Cache Location
 
-Built containers are cached in `.cache/containers/` for faster subsequent runs.
+Built containers live under `~/.scitex/writer/containers/<tool>.sif` per the
+per-package convention. The legacy `./.cache/containers/<tool>_container.sif`
+path is still consulted by the shell modules as a deprecated fallback for
+caches built before this migration (a `[DEPRECATED]` log line fires when it's
+used) — please rebuild via the `scitex-writer containers install` CLI to
+land on the canonical artifact.
 
 ## Automatic Download
 
-The compilation system automatically downloads pre-built containers if available:
+The bulk downloader still works and now writes to the canonical location:
 
 ```bash
 ./scripts/installation/download_containers.sh

@@ -49,12 +49,15 @@ fi
 
 echo_success "Found container runtime: $RUNTIME"
 
-# Setup container directory
-CONTAINER_DIR="$PROJECT_ROOT/.cache/containers"
+# Setup container directory under the per-package convention
+# (operator design 8566 + sac PR #293): ~/.scitex/writer/containers/.
+# The legacy ./.cache/containers/ path is still consulted by the shell
+# modules as a deprecated fallback for caches built before this migration.
+CONTAINER_DIR="$HOME/.scitex/writer/containers"
 mkdir -p "$CONTAINER_DIR"
 
 # Download TeXLive container
-TEXLIVE_SIF="$CONTAINER_DIR/texlive_container.sif"
+TEXLIVE_SIF="$CONTAINER_DIR/texlive.sif"
 if [ ! -f "$TEXLIVE_SIF" ]; then
     echo_info "Downloading TeXLive container (~2.3GB)..."
     $RUNTIME pull "$TEXLIVE_SIF" docker://texlive/texlive:latest
@@ -69,7 +72,7 @@ else
 fi
 
 # Download Mermaid container
-MERMAID_SIF="$CONTAINER_DIR/mermaid_container.sif"
+MERMAID_SIF="$CONTAINER_DIR/mermaid.sif"
 if [ ! -f "$MERMAID_SIF" ]; then
     echo_info "Downloading Mermaid container (~750MB)..."
     $RUNTIME pull "$MERMAID_SIF" docker://minlag/mermaid-cli:latest
@@ -84,7 +87,7 @@ else
 fi
 
 # Download ImageMagick container (optional but recommended)
-IMAGEMAGICK_SIF="$CONTAINER_DIR/imagemagick_container.sif"
+IMAGEMAGICK_SIF="$CONTAINER_DIR/imagemagick.sif"
 if [ ! -f "$IMAGEMAGICK_SIF" ]; then
     echo_info "Downloading ImageMagick container (~200MB)..."
     $RUNTIME pull "$IMAGEMAGICK_SIF" docker://dpokidov/imagemagick:latest
