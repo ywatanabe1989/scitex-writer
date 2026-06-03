@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.17.3] - 2026-06-03
+
+### Changed
+- **Adopt the per-package `~/.scitex/writer/containers/<tool>.sif` convention
+  for SIF paths (#117).** Configs, shell modules, installation scripts, and
+  Makefile now point at the canonical per-package containers root (operator
+  design 8566 + sac PR #293). `command_switching.src` extracts a shared
+  `_writer_resolve_sif(tool, var)` helper that resolves canonical first,
+  falls back to the legacy `./.cache/containers/<tool>_container.sif` with a
+  `[DEPRECATED]` log line on hit (keeps pre-migration caches working until
+  rebuilt via `scitex-writer containers install <tool>`). The canonical
+  `~/.scitex/writer/containers/texlive.sif` artifact built earlier today is
+  picked up immediately on upgrade — no rebuild required for texlive.
+  Mermaid / tectonic / imagemagick still need their builds in a separate
+  follow-up (P1.b of the brand-wide ecosystem containers/bin migration).
+- 4-way duplication across `setup_latex_container`,
+  `setup_tectonic_container`, `setup_mermaid_container`,
+  `setup_imagemagick_container` collapsed via the shared resolver helper:
+  `command_switching.src` 528 → 507 lines.
+
 ## [2.17.2] - 2026-05-26
 
 ### Fixed
