@@ -233,7 +233,9 @@ status:
 	@echo "Revision PDF:       $(shell [ -f ./03_revision/revision.pdf ] && echo "✓ Available" || echo "✗ Missing")"
 	@echo ""
 	@echo "Container Cache:"
-	@ls -lh ./.cache/containers/*.sif 2>/dev/null | awk '{print "  " $$9 " (" $$5 ")"}' || echo "  No containers cached"
+	@ls -lh $${HOME}/.scitex/writer/containers/*.sif 2>/dev/null | awk '{print "  " $$9 " (" $$5 ")"}'; \
+	 ls -lh ./.cache/containers/*.sif 2>/dev/null | awk '{print "  [legacy] " $$9 " (" $$5 ")"}'; \
+	 [ -d $${HOME}/.scitex/writer/containers ] || [ -d ./.cache/containers ] || echo "  No containers cached"
 
 # Help target
 help:

@@ -27,19 +27,27 @@ _CACHE_CHECKED=false
 _CACHED_MODULE_AVAILABLE=""
 _MODULE_CACHE_CHECKED=false
 
+# Resolve a writer sub-tool SIF path under the per-package convention
+# (operator design 8566 + sac PR #293): ~/.scitex/writer/containers/<tool>.sif.
+# Falls back to legacy ./.cache/containers/<tool>_container.sif for caches built
+# before the migration; deprecation log fires on legacy hit. Sets the named var.
+# Returns 0 if resolved to an existing file, 1 otherwise (var still set to canon
+# so the caller's downloader/builder can populate it at the canonical path).
+_writer_resolve_sif() {
+    local t="$1" var="$2"
+    [ -n "${!var}" ] && [ -f "${!var}" ] && return 0
+    local canon="$HOME/.scitex/writer/containers/$t.sif"
+    [ -f "$canon" ] && { eval "$var=\"\$canon\""; return 0; }
+    local root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../../" && pwd)"
+    local legacy="$root/.cache/containers/${t}_container.sif"
+    [ -f "$legacy" ] && { echo_info "    [DEPRECATED] $legacy — rebuild via 'scitex-writer containers install $t -y' (canonical: $canon)"; eval "$var=\"\$legacy\""; return 0; }
+    eval "$var=\"\$canon\""
+    return 1
+}
+
 # Setup container path (Singularity/Apptainer)
 setup_latex_container() {
-    # Check if container path is already set
-    if [ -n "$SCITEX_WRITER_TEXLIVE_APPTAINER_SIF" ] && [ -f "$SCITEX_WRITER_TEXLIVE_APPTAINER_SIF" ]; then
-        return 0
-    fi
-
-    # Use config value if set, otherwise use project directory default
-    if [ -z "$SCITEX_WRITER_TEXLIVE_APPTAINER_SIF" ]; then
-        # Use project directory to ensure availability across HPC nodes
-        local project_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../../" && pwd)"
-        SCITEX_WRITER_TEXLIVE_APPTAINER_SIF="${project_root}/.cache/containers/texlive_container.sif"
-    fi
+    _writer_resolve_sif texlive SCITEX_WRITER_TEXLIVE_APPTAINER_SIF && return 0
 
     if [ ! -f "$SCITEX_WRITER_TEXLIVE_APPTAINER_SIF" ]; then
         echo_info "    Downloading TeXLive container (one-time setup)..."
@@ -296,17 +304,7 @@ get_cmd_tectonic() {
 
 # Setup Tectonic container (for tectonic)
 setup_tectonic_container() {
-    # Check if container path is already set
-    if [ -n "$SCITEX_WRITER_TECTONIC_APPTAINER_SIF" ] && [ -f "$SCITEX_WRITER_TECTONIC_APPTAINER_SIF" ]; then
-        return 0
-    fi
-
-    # Use config value if set, otherwise use project directory default
-    if [ -z "$SCITEX_WRITER_TECTONIC_APPTAINER_SIF" ]; then
-        # Use project directory to ensure availability across HPC nodes
-        local project_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../../" && pwd)"
-        SCITEX_WRITER_TECTONIC_APPTAINER_SIF="${project_root}/.cache/containers/tectonic_container.sif"
-    fi
+    _writer_resolve_sif tectonic SCITEX_WRITER_TECTONIC_APPTAINER_SIF && return 0
 
     if [ ! -f "$SCITEX_WRITER_TECTONIC_APPTAINER_SIF" ]; then
         echo_info "    Downloading Tectonic container (one-time setup)..."
@@ -335,17 +333,7 @@ setup_tectonic_container() {
 
 # Setup Mermaid container (for mmdc)
 setup_mermaid_container() {
-    # Check if container path is already set
-    if [ -n "$SCITEX_WRITER_MERMAID_APPTAINER_SIF" ] && [ -f "$SCITEX_WRITER_MERMAID_APPTAINER_SIF" ]; then
-        return 0
-    fi
-
-    # Use config value if set, otherwise use project directory default
-    if [ -z "$SCITEX_WRITER_MERMAID_APPTAINER_SIF" ]; then
-        # Use project directory to ensure availability across HPC nodes
-        local project_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../../" && pwd)"
-        SCITEX_WRITER_MERMAID_APPTAINER_SIF="${project_root}/.cache/containers/mermaid_container.sif"
-    fi
+    _writer_resolve_sif mermaid SCITEX_WRITER_MERMAID_APPTAINER_SIF && return 0
 
     if [ ! -f "$SCITEX_WRITER_MERMAID_APPTAINER_SIF" ]; then
         echo_info "    Downloading Mermaid container (one-time setup)..."
@@ -426,17 +414,7 @@ check_latex_commands_available() {
 
 # Setup ImageMagick container
 setup_imagemagick_container() {
-    # Check if container path is already set
-    if [ -n "$SCITEX_WRITER_IMAGEMAGICK_APPTAINER_SIF" ] && [ -f "$SCITEX_WRITER_IMAGEMAGICK_APPTAINER_SIF" ]; then
-        return 0
-    fi
-
-    # Use config value if set, otherwise use project directory default
-    if [ -z "$SCITEX_WRITER_IMAGEMAGICK_APPTAINER_SIF" ]; then
-        # Use project directory to ensure availability across HPC nodes
-        local project_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../../" && pwd)"
-        SCITEX_WRITER_IMAGEMAGICK_APPTAINER_SIF="${project_root}/.cache/containers/imagemagick_container.sif"
-    fi
+    _writer_resolve_sif imagemagick SCITEX_WRITER_IMAGEMAGICK_APPTAINER_SIF && return 0
 
     if [ ! -f "$SCITEX_WRITER_IMAGEMAGICK_APPTAINER_SIF" ]; then
         echo_info "    Downloading ImageMagick container (one-time setup)..."
@@ -503,6 +481,7 @@ get_cmd_convert() {
 }
 
 # Export functions and cache variables for use in other scripts
+export -f _writer_resolve_sif
 export -f setup_latex_container
 export -f setup_tectonic_container
 export -f setup_mermaid_container

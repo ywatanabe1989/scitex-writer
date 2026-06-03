@@ -133,21 +133,29 @@ fi
 
 echo
 echo_info "Checking container availability..."
-CONTAINER_DIR="$PROJECT_ROOT/.cache/containers"
+# Canonical convention: ~/.scitex/writer/containers/<tool>.sif
+# (operator design 8566 + sac PR #293). Legacy ./.cache/containers/
+# is consulted as a fallback for caches built before the migration.
+CONTAINER_DIR="$HOME/.scitex/writer/containers"
+LEGACY_CONTAINER_DIR="$PROJECT_ROOT/.cache/containers"
 
-if [ -f "$CONTAINER_DIR/texlive.sif" ]; then
-    SIZE=$(du -h "$CONTAINER_DIR/texlive.sif" | cut -f1)
-    echo_success "✓ TeXLive container exists ($SIZE)"
-else
-    echo_warning "○ TeXLive container not found (will download on first use)"
-fi
+_check_sif() {
+    local tool="$1" canon legacy size
+    canon="$CONTAINER_DIR/${tool}.sif"
+    legacy="$LEGACY_CONTAINER_DIR/${tool}_container.sif"
+    if [ -f "$canon" ]; then
+        size=$(du -h "$canon" | cut -f1)
+        echo_success "✓ ${tool^} container exists ($size)"
+    elif [ -f "$legacy" ]; then
+        size=$(du -h "$legacy" | cut -f1)
+        echo_warning "○ ${tool^} container at legacy $legacy ($size) — rebuild via 'scitex-writer containers install ${tool} -y' to land at $canon"
+    else
+        echo_warning "○ ${tool^} container not found (will download/build on first use)"
+    fi
+}
 
-if [ -f "$CONTAINER_DIR/mermaid_container.sif" ]; then
-    SIZE=$(du -h "$CONTAINER_DIR/mermaid_container.sif" | cut -f1)
-    echo_success "✓ Mermaid container exists ($SIZE)"
-else
-    echo_warning "○ Mermaid container not found (will download on first use)"
-fi
+_check_sif texlive
+_check_sif mermaid
 
 echo
 if [ $MISSING_REQUIREMENTS -eq 0 ]; then

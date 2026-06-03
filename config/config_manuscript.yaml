@@ -75,10 +75,14 @@ paths:
   diff_tex: "./01_manuscript/manuscript_diff.tex"
   diff_pdf: "./01_manuscript/manuscript_diff.pdf"
   archive_dir: "./01_manuscript/archive"
-  texlive_apptainer_sif: "./.cache/containers/texlive_container.sif"
-  tectonic_apptainer_sif: "./.cache/containers/tectonic_container.sif"
-  mermaid_apptainer_sif: "./.cache/containers/mermaid_container.sif"
-  imagemagick_apptainer_sif: "./.cache/containers/imagemagick_container.sif"
+  # Canonical convention (operator design 8566 + sac PR #293): every
+  # scitex-* package owns SIFs under ~/.scitex/<pkg>/containers/<tool>.sif.
+  # Shell modules retain a legacy lookup at ./.cache/containers/<tool>_container.sif
+  # for caches built before the migration; deprecation log fires on legacy hit.
+  texlive_apptainer_sif: "~/.scitex/writer/containers/texlive.sif"
+  tectonic_apptainer_sif: "~/.scitex/writer/containers/tectonic.sif"
+  mermaid_apptainer_sif: "~/.scitex/writer/containers/mermaid.sif"
+  imagemagick_apptainer_sif: "~/.scitex/writer/containers/imagemagick.sif"
   
 figures:
   dir: "./01_manuscript/contents/figures"
