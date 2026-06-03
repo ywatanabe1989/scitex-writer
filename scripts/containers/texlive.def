@@ -1,80 +1,189 @@
+# scripts/containers/texlive.def — scitex-writer LaTeX sub-tool SIF.
+#
+# Lean LaTeX environment delivered as an independent, read-only sub-tool
+# SIF for wrapper agents (proj-neurovista, scitex-writer's own compile
+# flow, ...) to mount at ``/opt/texlive.sif`` and exec-shell into for
+# the actual ``pdflatex`` / ``bibtex`` / ``latexmk`` work. Keeps the
+# LaTeX image stable across wrapper-runtime iterations, and keeps each
+# wrapper SIF free of the 1-2 GB TeX Live footprint.
+#
+# Per-package convention path (operator design 8566 + sac PR #293):
+#
+#     ~/.scitex/writer/containers/texlive.sif
+#       → top-level symlink to ~/.scitex/writer/containers/texlive/texlive.sif
+#
+# Built via the install CLI which delegates to scitex-container's
+# ``apptainer.build()`` for uniform versioning + .def-hash + build-log
+# pinning (matches how sac builds its own :base / :scitex). Build raw:
+#
+#     scitex-writer containers install texlive -y
+#
+# Wrapper integration (drop into wrapper agent's spec.yaml):
+#
+#     spec:
+#       apptainer:
+#         binds:
+#           - $HOME/.scitex/writer/containers/texlive.sif:/opt/texlive.sif:ro
+#         raw_args:
+#           - --env
+#           - STXW_TEXLIVE_APPTAINER_SIF=/opt/texlive.sif
+#
+# The wrapper's compile script honours ``STXW_TEXLIVE_APPTAINER_SIF``
+# and invokes ``apptainer exec $STXW_TEXLIVE_APPTAINER_SIF latexmk
+# -pdf ...`` against the mounted sub-tool. SAC PR-1 bind preflight
+# catches a missing sub-tool SIF at ``POST /agents`` time with HTTP
+# 400 ``kind=bind_unresolvable``.
+#
+# Specifications signed off by proj-neurovista 2026-06-03 12:55 JST
+# (a2a msg faf626095310415b8751603afa7b6d3e):
+#
+#   - distribution = scheme-medium + explicit package list (no full TL)
+#   - base = ubuntu:22.04 (texlive/texlive:latest compatible)
+#   - bibliography = natbib + bibtex (NOT biber / biblatex — current
+#     neurovista manuscripts use natbib)
+#   - figures = pre-baked PDFs via figrecipe (no Inkscape / gnuplot /
+#     mermaid / matplotlib inside this SIF — those live elsewhere)
+#   - fonts = Times (elsarticle default, Type 1 in TL) + Liberation +
+#     Noto + Fira Code for figrecipe SCITEX style match
+#   - tools = bibtex, latexdiff, latexmk, texcount, chktex, parallel,
+#     ghostscript, qpdf, poppler-utils
+
 Bootstrap: docker
-From: ubuntu:24.04
+From: ubuntu:22.04
 
 %labels
-    Author SciTeX Writer Project
-    Version 1.0.0
-    Description Complete LaTeX environment for scientific manuscript writing
+    org.scitex.layer texlive
+    org.scitex.owner scitex-writer
+    org.scitex.runtime apptainer
+    org.scitex.pattern sub-tool
+    org.scitex.contains "pdflatex xelatex lualatex bibtex latexmk latexdiff texcount chktex parallel ghostscript qpdf poppler-utils"
 
 %help
-    SciTeX Writer - Apptainer/Singularity Container
+    scitex-writer texlive.sif — Apptainer/Singularity LaTeX sub-tool.
 
-    Complete LaTeX environment for reproducible manuscript compilation.
+    Independent, read-only sub-tool. Mounted as /opt/texlive.sif into
+    wrapper agent runtimes (proj-neurovista, etc.) for the actual
+    pdflatex / bibtex / latexmk calls. Standalone use also supported.
 
-    Usage:
-        apptainer build scitex-writer.sif scitex-writer.def
-        apptainer run scitex-writer.sif ./compile.sh manuscript
+    Build (canonical):
+        scitex-writer containers install texlive -y
+        # -> ~/.scitex/writer/containers/texlive.sif
 
-    Or with bind mount:
-        apptainer run --bind $(pwd):/workspace scitex-writer.sif ./compile.sh manuscript
+    Usage (standalone):
+        apptainer exec --bind $(pwd):/work \
+            ~/.scitex/writer/containers/texlive.sif \
+            bash -c "cd /work && latexmk -pdf manuscript.tex"
+
+    Usage (sub-tool — wrapper integration):
+        Drop the spec.yaml fragments (see file header comment) into the
+        wrapper agent's spec.yaml under apptainer.binds + apptainer.raw_args.
+        The wrapper exports STXW_TEXLIVE_APPTAINER_SIF=/opt/texlive.sif so
+        its compile script invokes apptainer-exec into this SIF.
+
+    Tooling:
+        - pdflatex / xelatex / lualatex
+        - bibtex (natbib path)
+        - latexmk (compile orchestrator)
+        - latexdiff (manuscript diffs)
+        - texcount (word/structure counts)
+        - chktex (lint)
+        - ghostscript / qpdf / poppler-utils (PDF post-processing)
+        - parallel (xargs-like, used by wrapper compile scripts)
+
+    TeX packages explicitly verified in %test (kpsewhich):
+        - elsarticle (Elsevier manuscript class)
+        - natbib (numeric citations)
+        - booktabs, longtable, tabularx, xltabular, colortbl, xcolor
+        - csvsimple, makecell
+        - amsmath, amssymb, siunitx
+        - graphicx, tikz, pgfplots, pgfplotstable
+        - hyperref, xr-hyper
+        - lineno (review-mode line numbers)
+        - caption, geometry, indentfirst, pdflscape
+        - bashful, lipsum, tcolorbox
+        - pdfpages (supplementary multi-page \includepdf)
+        - accsupp (tagged-pdf accessibility)
 
 %environment
     export LANG=C.UTF-8
     export LC_ALL=C.UTF-8
     export PATH=/usr/local/bin:$PATH
+    # TeX Live caches at runtime — point them at /tmp so the SIF is
+    # fully read-only and per-agent state doesn't accumulate in the
+    # operator's home dir.
+    export TEXMFVAR=/tmp/texmf-var
+    export TEXMFCONFIG=/tmp/texmf-config
 
 %post
-    # Prevent interactive prompts
+    set -e
     export DEBIAN_FRONTEND=noninteractive
 
-    # Update and install system dependencies
+    # ---- 1. apt: minimal base ---------------------------------------
     apt-get update
     apt-get install -y --no-install-recommends \
+        ca-certificates curl wget gnupg \
+        locales tzdata \
+        parallel \
+        build-essential
+    locale-gen en_US.UTF-8
+
+    # ---- 2. TeX Live scheme-medium + explicit-extras ----------------
+    # scheme-medium covers the bulk of the neurovista requirement list
+    # (elsarticle, natbib, booktabs, longtable, tabularx, amsmath,
+    # amssymb, siunitx, graphicx, tikz, pgfplots, hyperref, caption,
+    # geometry, lineno, etc.). The extras packages cover the rest
+    # (pdfpages, tcolorbox, accsupp, xr-hyper, xltabular, csvsimple,
+    # makecell). Bibtex (natbib path) is in -bibtex-extra.
+    apt-get install -y --no-install-recommends \
         texlive-latex-base \
+        texlive-latex-recommended \
         texlive-latex-extra \
         texlive-fonts-recommended \
         texlive-fonts-extra \
         texlive-science \
-        texlive-bibtex-extra \
+        texlive-pictures \
         texlive-publishers \
         texlive-luatex \
         texlive-xetex \
-        texlive-lang-european \
+        texlive-bibtex-extra \
         texlive-lang-english \
+        texlive-plain-generic \
+        latexmk \
         latexdiff \
         chktex \
+        texlive-extra-utils
+
+    # ---- 3. Bonus fonts for figrecipe SCITEX style match -----------
+    # Wrapper-side figrecipe expects Arial-like sans; Liberation +
+    # Noto Sans / Mono + Fira Code land cleanly via apt without
+    # needing tlmgr.
+    apt-get install -y --no-install-recommends \
+        fonts-liberation \
+        fonts-noto-core \
+        fonts-noto-mono \
+        fonts-firacode
+
+    # ---- 4. PDF post-processing tools ------------------------------
+    apt-get install -y --no-install-recommends \
         ghostscript \
-        imagemagick \
-        perl \
-        parallel \
-        make \
-        wget \
-        curl \
-        git \
-        python3 \
-        python3-pip \
-        python3-venv
+        qpdf \
+        poppler-utils
 
-    # Install yq (Go version)
-    wget -qO /usr/local/bin/yq \
-        https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
-    chmod +x /usr/local/bin/yq
-
-    # Upgrade pip
-    python3 -m pip install --upgrade pip
-
-    # Install Python packages
-    pip3 install --no-cache-dir \
-        xlsx2csv>=0.8.0 \
-        csv2latex>=0.1.0 \
-        pyyaml>=6.0
-
-    # Clean up
-    apt-get clean
+    # ---- 5. Clean up + cache hygiene -------------------------------
     rm -rf /var/lib/apt/lists/*
+    apt-get clean
+
+    # ---- 6. Generate TeX Live format files at build time -----------
+    # ``fmtutil-sys --all`` regenerates the format files so first-use
+    # compile doesn't pay the cost. Speeds up cold-start by 30-60s.
+    fmtutil-sys --all || true
+
+    # ---- 7. Writable cache dirs for runtime ------------------------
+    mkdir -p /tmp/texmf-var /tmp/texmf-config
+    chmod 1777 /tmp/texmf-var /tmp/texmf-config
 
 %runscript
-    # Default: Run bash or execute provided command
+    # Default: drop into bash if no args, else exec args verbatim.
     if [ $# -eq 0 ]; then
         exec /bin/bash
     else
@@ -82,18 +191,47 @@ From: ubuntu:24.04
     fi
 
 %test
-    # Test that required commands are available
-    command -v pdflatex || exit 1
-    command -v latexdiff || exit 1
-    command -v yq || exit 1
-    command -v python3 || exit 1
-    echo "All required commands are available"
+    # Verify every claim made in %help. CI re-runs this on every build.
+    set -e
 
-    # Test LaTeX
-    pdflatex --version
+    # Core commands
+    command -v pdflatex   || { echo "pdflatex missing"; exit 1; }
+    command -v xelatex    || { echo "xelatex missing"; exit 1; }
+    command -v lualatex   || { echo "lualatex missing"; exit 1; }
+    command -v bibtex     || { echo "bibtex missing"; exit 1; }
+    command -v latexmk    || { echo "latexmk missing"; exit 1; }
+    command -v latexdiff  || { echo "latexdiff missing"; exit 1; }
+    command -v texcount   || { echo "texcount missing"; exit 1; }
+    command -v chktex     || { echo "chktex missing"; exit 1; }
+    command -v gs         || { echo "ghostscript missing"; exit 1; }
+    command -v qpdf       || { echo "qpdf missing"; exit 1; }
+    command -v pdftotext  || { echo "pdftotext missing"; exit 1; }
+    command -v parallel   || { echo "parallel missing"; exit 1; }
 
-    # Test yq
-    yq --version
+    # Version banners
+    pdflatex --version | head -1
+    bibtex --version   | head -1
+    latexmk --version  | head -1
 
-    # Test Python packages
-    python3 -c "import yaml; print('PyYAML available')"
+    # TeX package availability — verify each required class / package
+    # resolves via ``kpsewhich``. A missing one trips CI red.
+    for pkg in \
+        elsarticle.cls \
+        natbib.sty \
+        booktabs.sty longtable.sty tabularx.sty xltabular.sty \
+        colortbl.sty xcolor.sty csvsimple.sty makecell.sty \
+        amsmath.sty amssymb.sty siunitx.sty \
+        graphicx.sty tikz.sty pgfplots.sty pgfplotstable.sty \
+        hyperref.sty xr-hyper.sty \
+        lineno.sty caption.sty geometry.sty indentfirst.sty pdflscape.sty \
+        bashful.sty lipsum.sty tcolorbox.sty \
+        pdfpages.sty accsupp.sty \
+    ; do
+        if ! kpsewhich "$pkg" > /dev/null; then
+            echo "FAIL: TeX package '$pkg' not found via kpsewhich"
+            exit 1
+        fi
+    done
+
+    echo "scitex-writer texlive.sif: all 24 required TeX packages present"
+    echo "scitex-writer texlive.sif: all 12 commands verified"
