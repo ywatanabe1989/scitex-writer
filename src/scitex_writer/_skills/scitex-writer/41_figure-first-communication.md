@@ -197,6 +197,7 @@ fig1 = figrecipe.compose(
         ("c", panel_channel_grid),   # Fig 1.c
     ],
     layout="row",                    # or "grid", "column", ...
+    caption="...",                   # optional convenience — see below
 )
 ```
 
@@ -207,6 +208,50 @@ FigRecipe — not stitched together by external tooling — means the
 DAG provenance is preserved (the composite's source code references
 the per-panel sources references the raw data sources, all
 traceable through `stx.io.save`).
+
+#### What `figrecipe.compose` does (three things)
+
+1. **Tile.** Lay the per-panel objects out into the multi-panel
+   layout per the `layout=` argument (`"row"` / `"column"` /
+   `"grid"` / explicit nested layouts). The agreed `a./b./c.`
+   order determines the tile sequence.
+2. **Panel labels.** Generate the panel-label annotations (`a` /
+   `b` / `c`) on each panel automatically, using the lowercase
+   convention from the figure-first agreement format. The author
+   does not hand-place `text(0, 1, "a", ...)` calls.
+3. **Caption (optional convenience).** If `caption=` is passed,
+   render the caption text inside the composite figure at compose
+   time. **This is a drafting aid, not the canonical caption
+   location.** See the caveat below.
+
+#### Caption-at-compose — optional convenience, prefer one canonical location
+
+Setting `caption=` on the compose call is convenient during drafting
+(the rendered PDF carries the caption text so a co-author skimming
+the figure file sees the intended caption immediately, no LaTeX
+build required). But the caption will likely **duplicate** the LaTeX
+caption that the manuscript already carries via
+`\begin{figure}\caption{...}` — both render to the final PDF.
+
+The duplication is **fine during drafting** ("easy to delete later"
+per the operator's intent), but the published manuscript should
+have ONE canonical caption location. Two acceptable resolutions:
+
+- **Drafting → submission:** drop the `caption=` argument before
+  the final compose for submission. The LaTeX caption is the
+  canonical location.
+- **OR:** keep `caption=` and remove the LaTeX `\caption{...}`. The
+  composite figure carries the caption inline. Less common in the
+  biology / neuroscience journal style.
+
+Pick one canonical location for submission; redundancy at draft
+time is a fine trade-off for the same-file caption visibility.
+
+Operator iteration note: the exact API field name (`caption=` vs
+`title_below=` vs `description=`) and the rendering style come from
+FigRecipe's own SKILL.md — keep this section's *intent* (the
+three-things + the optional-with-caveat caption rule) intact when
+the operator refines the API surface.
 
 ### Step 3.c — save into manuscript via symlink
 
