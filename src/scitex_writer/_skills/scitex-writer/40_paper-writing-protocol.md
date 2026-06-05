@@ -226,9 +226,27 @@ live under a dedicated directory in the scitexified analysis:
 
 The `scripts/for_paper/` directory carries the **figure-generation
 scripts agreed in protocol step 1+2**. One script per figure (or
-one per panel and one for the FigRecipe composite, if the panels
-are heavy enough to warrant separate files). The naming follows
+one per panel and one for the FigRecipe composite). Naming follows
 the agreed `Fig N.` numbering (`plot_fig1_*`, `plot_fig2_*`, ...).
+
+### `scripts/for_paper/` is compose-centric, not plot-centric
+
+The crucial discipline: `scripts/for_paper/` **pulls existing panels
+from `./data` and composes the manuscript multi-panel figures via
+FigRecipe `compose`**. It plots NEW only if a needed panel is
+missing from `./data`. Each panel is produced *once* by the
+analysis script that owns its data; the composite script pulls
+that panel via `stx.io.load(eval(CONFIG.PATH.FIG_X))` and composes
+— it does not re-plot. Re-rendering the panel (parameter tweak,
+dataset update) propagates through the symlink chain automatically;
+the composite picks up the new panel on next build. A plot-centric
+`scripts/for_paper/` would have two versions of every panel (analysis
+vs manuscript) and they would silently drift apart. Compose-centric
+guarantees one version per panel. When a paper-specific aggregation
+not in the analysis pipeline is needed, plotting NEW is allowed —
+but the output still flows through the canonical chain
+(`stx.io.save` → `./data` symlink → `.scitex/writer` symlink → PDF)
+so provenance is preserved. See [14 § Per-figure symlink chain](14_manuscript-workflow.md).
 
 Why a dedicated directory:
 

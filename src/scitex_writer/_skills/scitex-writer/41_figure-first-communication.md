@@ -253,28 +253,32 @@ FigRecipe's own SKILL.md — keep this section's *intent* (the
 three-things + the optional-with-caveat caption rule) intact when
 the operator refines the API surface.
 
-### Step 3.c — save into manuscript via symlink
+### Step 3.c — save into the canonical symlink chain
 
 Save the final composite via `stx.io.save(fig, ...)` so the figure
 enters the DAG as data — **never** `matplotlib.pyplot.savefig` (the
 file lands outside the session's output dir and is invisible to
 provenance tooling).
 
-The output path follows the project's scitexified analysis layout
-(under `<proj-root>/data/results/` or equivalent). The manuscript
-then references the figure via a **symlink** into
-`<proj-root>/.scitex/writer/` (equivalently `<proj-root>/paper/`,
-via the symlink convention in
-[14_manuscript-workflow.md](14_manuscript-workflow.md) §"Per-figure
-symlink rule") — NOT via a direct copy.
+The composite enters the **canonical symlink chain** documented in
+[14_manuscript-workflow.md § "Per-figure symlink chain"](14_manuscript-workflow.md):
 
-Why symlink (not copy): the canonical artefact stays in its source
-location inside the scitexified analysis (with full DAG provenance).
-The writer-side reference is just a pointer. Copying breaks the
-provenance trail and creates two-files-of-truth.
+```
+session out / run dir (source of truth — stx.io.save lands here)
+  └─ symlink ─→ ./data/results/figures/...
+       └─ symlink ─→ .scitex/writer/.../caption_and_media/...
+            └─ symlink ─→ PDF (LaTeX \includegraphics resolves through it)
+```
+
+Each downstream location is a **symlink, not a copy**. The PDF
+build resolves the figure through the symlink chain at compile
+time; the figure inside the PDF IS the figure at the source-of-truth
+location. Re-rendering the composite produces a new file at the
+session out/run dir; every downstream location picks up the new
+version automatically.
 
 For the `01_manuscript/contents/figures/caption_and_media/`
-file-layout convention that the symlinks land into, see
+file-layout convention that the writer-side symlink lands into, see
 [12_figures-and-tables.md](12_figures-and-tables.md).
 
 ### Step 4 — prose follows

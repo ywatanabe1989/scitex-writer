@@ -201,6 +201,34 @@ Every results-section claim sentence is either:
    [`scientific/06_scitexification/00_playbook.md` § "Honest
    source-grounding"](../../scientific/06_scitexification/00_playbook.md)).
 
+### scitex-clew claim registration is load-bearing
+
+Every `\vclaim{<id>}` resolves through **scitex-clew claim
+registration**. The mechanism in [13_claims.md](13_claims.md):
+during the analysis, the script that produces a manuscript number
+registers a clew claim — a record with the value, the session
+hash (SHA-256 of the run that produced it), the source file path,
+and the timestamp. The manuscript's `\vclaim{<id>}` resolves at
+LaTeX compile time by looking up the registered claim from
+`claims.json` and substituting its value.
+
+**Why this matters for honest grounding.** Without clew
+registration, a number in the manuscript is just typed text; a
+reviewer cannot verify it ladders back to a specific script run on
+specific data. With clew registration, the manuscript number's
+provenance chain is mechanical: `\vclaim{<id>}` → `claims.json`
+entry → session hash → script source → data inputs → all DAG-anchored.
+The scitexify silent-attrition antipattern (silent rephrasing of a
+number without provenance) is structurally prevented because every
+number must resolve through a registered claim.
+
+The `requires: [scitex-clew]` declaration on this leaf is **load-bearing**:
+the claim-registration mechanism IS the honest-grounding contract at
+the manuscript layer. Without scitex-clew, the contract collapses to
+"the author claims this number; you'll have to trust them."
+
+### Figure-list integrity
+
 A results-section paragraph that drops a planned panel without
 explanation is the **silent-attrition antipattern** at the figure
 layer — forbidden.
