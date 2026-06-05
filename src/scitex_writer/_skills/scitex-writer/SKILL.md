@@ -69,7 +69,12 @@ CSV-to-LaTeX), and verifiable claims linked to session hashes.
 - [33_writing-discussion.md](33_writing-discussion.md) — 5-section discussion template
 - [34_writing-introduction-example.md](34_writing-introduction-example.md) — intro section tags + example
 - [35_writing-discussion-example.md](35_writing-discussion-example.md) — discussion section tags + example
+- [36_writing-results.md](36_writing-results.md) — per-figure paragraph structure, `\vclaim{}`-anchored claim sentences, results-order = figure-order constraint. V0 SKELETON — awaiting operator iteration to match the 30-33 Nature-style voice.
 
+## Paper-writing flow (agent ↔ user)
+
+- [40_paper-writing-protocol.md](40_paper-writing-protocol.md) — umbrella protocol composing the existing section templates + in-flight discipline into one driven flow. Operator framing: paper-writing is concurrent with experiments (`\vclaim{}` fills as runs land). Cross-section ordering (figures → results → methods → intro → abstract → discussion → tables/SI). Pre-submission checklist. V0 SKELETON for operator iteration.
+- [41_figure-first-communication.md](41_figure-first-communication.md) — figure-first agreement protocol (load-bearing first step of `40`). Step 1: agree on `Fig 1` ... `Fig N` list. Step 2: agree on per-figure `a./b./c.` panel breakdown. Step 3: plot code. Step 4: results-section prose. Pairs with `~/.claude/skills/scitex/scientific/01_figures_02_logic-and-ordering.md` (universal WHY) — this leaf is the HOW. V0 SKELETON for operator co-design.
 
 ## Environment
 
