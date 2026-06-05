@@ -156,6 +156,56 @@ in-vs-out rule (main-paper iff referenced in abstract / introduction /
 discussion), SI index conventions (`Fig S1` / `Tab S1` parallel),
 methods overflow.
 
+## Manuscript-scripts layout (cross-section)
+
+Scripts that **generate figures, tables, or claims for the paper**
+live under a dedicated directory in the scitexified analysis:
+
+```
+<proj-root>/
+├── scripts/
+│   ├── 01_extract.py          # general analysis scripts
+│   ├── 02_features.py
+│   ├── ...
+│   └── for_paper/             # MANUSCRIPT-specific scripts only
+│       ├── plot_fig1_cohort.py
+│       ├── plot_fig2_features.py
+│       ├── plot_fig3_classifier.py
+│       ├── ...
+│       └── render_table1.py
+├── data/results/              # outputs land here, picked up via stx.io.save
+├── config/
+│   ├── COLORS.yaml            # paper-wide colour scheme (§7 above)
+│   └── REPRESENTATIVE.yaml    # fixed representative subject (§7 above)
+└── .scitex/writer/            # writer-side artefacts; symlinked from
+                               # paper/ at <proj-root>/paper -> .scitex/writer
+```
+
+The `scripts/for_paper/` directory carries the **figure-generation
+scripts agreed in protocol step 1+2**. One script per figure (or
+one per panel and one for the FigRecipe composite, if the panels
+are heavy enough to warrant separate files). The naming follows
+the agreed `Fig N.` numbering (`plot_fig1_*`, `plot_fig2_*`, ...).
+
+Why a dedicated directory:
+
+- **Discoverability.** A reviewer or co-author looking for "the
+  script that produced `Fig 3`" finds it under
+  `scripts/for_paper/plot_fig3_*` without searching the whole
+  analysis tree.
+- **Lifecycle separation.** Analysis scripts may evolve through
+  the project lifetime; manuscript scripts crystallise at submission.
+  Keeping them in a dedicated dir makes the "freeze for submission"
+  step clean (snapshot `scripts/for_paper/` + outputs + config).
+- **Reproducibility audit.** The pre-submission checklist (item 4
+  below) can scope its figure-script audit to
+  `scripts/for_paper/`.
+
+This pairs with [14_manuscript-workflow.md](14_manuscript-workflow.md)
+§"Project layout convention" — the `<proj-root>/paper ->
+.scitex/writer` symlink plus the `scripts/for_paper/` directory are
+the two project-layout conventions for a scitexified manuscript.
+
 ## Pre-submission checklist (cross-section)
 
 Before any submission:
@@ -214,6 +264,38 @@ this, see
 "Statistical Reporting" (full stats reporting form for methods) and
 [32_writing-methods.md](32_writing-methods.md) (the methods template
 itself).
+
+## FigRecipe mandate (cross-section)
+
+All paper figures MUST be authored with **FigRecipe**, not raw
+`matplotlib` ad-hoc code. This is what makes the `requires:
+[figrecipe]` declaration on this leaf load-bearing rather than
+informational.
+
+The mandate has three layers, each enforced at a different step:
+
+1. **Per-panel** — every panel `a./b./c.` in the figure-first
+   agreement (`41_figure-first-communication.md`) is a FigRecipe
+   plot using the publication-quality primitives. Raw `matplotlib`
+   in a panel script is a violation.
+2. **Composite** — the multi-panel figure is assembled via
+   FigRecipe's compose API (the bridge between the
+   `## Fig N.` + `a./b./c.` agreement format and the rendered
+   composite). External stitching (imagemagick, gridspec) is a
+   violation.
+3. **Provenance** — the composite is saved via `stx.io.save(fig,
+   ...)` so the DAG carries it. Direct `matplotlib.pyplot.savefig`
+   is a violation.
+
+Why: FigRecipe enforces the rendering rules from
+[`scientific/01_figures_01_standards.md`](../../scientific/01_figures_01_standards.md)
+(shared colour scale, aligned axes, no `jet`, etc.) by
+construction; the agent doesn't have to re-check them per panel.
+The compose layer preserves the panel-by-panel DAG provenance
+chain end-to-end.
+
+See `41_figure-first-communication.md` steps 3.a / 3.b / 3.c for
+the per-step detail.
 
 ## Config-driven figure parameters (cross-section)
 

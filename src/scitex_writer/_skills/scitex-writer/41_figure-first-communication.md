@@ -137,31 +137,100 @@ that uses a term `X` before `X` has been defined upstream is an
 ordering violation. The agreement step is where the agent catches and
 flags those violations before plot code is written.
 
-### Step 3 — plot generation (per panel)
+### Step 3 — plot generation (per panel) via FigRecipe
 
-Only NOW does plot code get written. Each agreed panel maps to a
-FigRecipe call (or equivalent publication-quality primitive). Because
-steps 1+2 fixed the structure, step 3 is mechanical — no scope creep,
-no figure rewrites mid-paper.
+**Figrecipe mandate.** All paper figures MUST be authored with
+**FigRecipe** (not raw matplotlib ad-hoc). The
+`scitex-writer/_skills/scitex-writer/SKILL.md` umbrella and the
+paper-writing flow's `requires: [figrecipe]` are load-bearing: every
+panel is a FigRecipe call, every multi-panel composite is a
+FigRecipe composition. Raw `matplotlib` figure code in a paper
+script is a flow violation.
 
-For per-panel rendering:
+Why: FigRecipe enforces the publication-quality primitives (per-figure
+RENDERING rules from
+[`scientific/01_figures_01_standards.md`](../../scientific/01_figures_01_standards.md))
+by construction, and its compose API is what bridges the per-panel
+agreement (steps 1+2) and the final composite figure rendered in the
+manuscript (step 3.b below).
 
-- Choose colour from the **paper-wide color scheme** decided at
+For per-panel rendering (step 3.a):
+
+- Use FigRecipe primitives for the panel type (heatmap, line,
+  scatter, bar, violin, etc.) — see
+  `~/.claude/skills/scitex/figrecipe/SKILL.md` for the catalog.
+- Choose colour from the **paper-wide colour scheme** decided at
   paper-start (see
-  [`scientific/01_figures_02_logic-and-ordering.md` §6](../../scientific/01_figures_02_logic-and-ordering.md)).
-- If the panel needs a representative subject (single-subject example),
-  use the **fixed representative subject** decided at paper-start
-  (same subject across `Fig 1.a`, `Fig 2.a`, `Fig 3.a` unless a
-  stated scientific reason switches it; see
-  [`scientific/01_figures_02_logic-and-ordering.md` §5](../../scientific/01_figures_02_logic-and-ordering.md)).
-- Save via `stx.io.save(fig, ...)` so the figure enters the DAG as
-  data — never `matplotlib.pyplot.savefig` (provenance dropped).
+  [`scientific/01_figures_02_logic-and-ordering.md` §6](../../scientific/01_figures_02_logic-and-ordering.md))
+  and resolved via the config-driven mechanism in
+  [§7](../../scientific/01_figures_02_logic-and-ordering.md) —
+  the colour comes from `config/COLORS.yaml`, not from a hex
+  string in the plot script.
+- If the panel needs a representative subject (single-subject
+  example), resolve the **fixed representative subject** from
+  `config/REPRESENTATIVE.yaml` (e.g. `Pat10`) — same subject
+  across `Fig 1.a`, `Fig 2.a`, `Fig 3.a` unless a stated
+  scientific reason switches it; see
+  [`scientific/01_figures_02_logic-and-ordering.md` §5](../../scientific/01_figures_02_logic-and-ordering.md).
 - For rendering rules per individual panel (color scale, aligned
   axes, ticks, ranges, no `jet`), see
   [`scientific/01_figures_01_standards.md`](../../scientific/01_figures_01_standards.md).
-- File layout (where in `01_manuscript/contents/figures/`) follows
-  [12_figures-and-tables.md](12_figures-and-tables.md)'s
-  `caption_and_media/` + `compiled/` + `legacy/` convention.
+
+### Step 3.b — compose panels into the multi-panel figure
+
+After each agreed panel `a./b./c.` is rendered as a FigRecipe plot,
+the multi-panel composite is assembled **via FigRecipe's compose
+API** (not via subprocess `imagemagick montage` calls, not via raw
+`matplotlib.gridspec`). The composite IS a FigRecipe object whose
+panels are the per-panel FigRecipe objects.
+
+The agreement format (`## Fig N.` + `a./b./c.`) maps 1:1 to the
+composition call:
+
+```python
+# pseudocode — the exact API is figrecipe's; see its SKILL.md
+fig1 = figrecipe.compose(
+    title="NeuroVista cohort overview",
+    panels=[
+        ("a", panel_cohort_n),       # Fig 1.a
+        ("b", panel_pattern_labels), # Fig 1.b
+        ("c", panel_channel_grid),   # Fig 1.c
+    ],
+    layout="row",                    # or "grid", "column", ...
+)
+```
+
+The composition step is the **bridge** between the agreement
+artefact (the markdown list from steps 1+2) and the rendered
+composite that ends up in the manuscript. Keeping it inside
+FigRecipe — not stitched together by external tooling — means the
+DAG provenance is preserved (the composite's source code references
+the per-panel sources references the raw data sources, all
+traceable through `stx.io.save`).
+
+### Step 3.c — save into manuscript via symlink
+
+Save the final composite via `stx.io.save(fig, ...)` so the figure
+enters the DAG as data — **never** `matplotlib.pyplot.savefig` (the
+file lands outside the session's output dir and is invisible to
+provenance tooling).
+
+The output path follows the project's scitexified analysis layout
+(under `<proj-root>/data/results/` or equivalent). The manuscript
+then references the figure via a **symlink** into
+`<proj-root>/.scitex/writer/` (equivalently `<proj-root>/paper/`,
+via the symlink convention in
+[14_manuscript-workflow.md](14_manuscript-workflow.md) §"Per-figure
+symlink rule") — NOT via a direct copy.
+
+Why symlink (not copy): the canonical artefact stays in its source
+location inside the scitexified analysis (with full DAG provenance).
+The writer-side reference is just a pointer. Copying breaks the
+provenance trail and creates two-files-of-truth.
+
+For the `01_manuscript/contents/figures/caption_and_media/`
+file-layout convention that the symlinks land into, see
+[12_figures-and-tables.md](12_figures-and-tables.md).
 
 ### Step 4 — prose follows
 
@@ -300,6 +369,15 @@ silent-attrition detectable at the figure layer.
 - Calling `matplotlib.pyplot.savefig` for a paper figure — figures
   enter the manuscript via `stx.io.save(fig, ...)` so provenance is
   preserved.
+- Authoring paper figures with raw `matplotlib` ad-hoc code instead of
+  FigRecipe — violates the figrecipe mandate (step 3.a) and skips the
+  publication-quality primitives.
+- Stitching the multi-panel composite via `imagemagick montage` /
+  `matplotlib.gridspec` / external tooling instead of FigRecipe's
+  compose API — breaks the DAG provenance trail (step 3.b).
+- Copying the rendered figure file into `<proj-root>/.scitex/writer/`
+  instead of symlinking — creates two-files-of-truth and breaks the
+  canonical-artefact-stays-in-source-location convention (step 3.c).
 
 ## Related
 
