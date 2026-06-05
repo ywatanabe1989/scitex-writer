@@ -215,14 +215,32 @@ data/results/figures/fig1_cohort_overview.pdf
   figure re-render produces a PDF with the new figure, no copy step
   needed.
 
-### Where the figure scripts live
+### Where the figure scripts live (primary vs fallback)
 
-Figure-generation scripts (the FigRecipe `compose` calls that
-assemble panels into multi-panel composites) live in
-`<proj-root>/scripts/for_paper/`. One script per figure (or per
-panel + composite). See
+**Primary rule.** A figure (or panel) is generated as **close as
+possible to the analysis script that produces its data**. The figure
+script lives **next to its analysis script**, at the related location
+inside `./scripts/` where the analysis runs — typically the analysis
+script itself owns its panel as a side-output via `stx.io.save(fig,
+...)`. The session out/run dir is the source of truth at this layer.
+
+**Fallback.** `<proj-root>/scripts/for_paper/` is an **aggregation
+compromise**, NOT the primary figure home. It exists to:
+
+1. **Compose** the per-panel artefacts that the analysis scripts
+   produced into multi-panel manuscript figures (FigRecipe `compose`).
+2. **Centralise** the figure-list-to-script mapping for the manuscript
+   build, so the LaTeX side has a single discoverable location.
+3. **Plot NEW only when necessary** — when a paper-specific
+   aggregation or transformation is genuinely missing from the
+   analysis pipeline and cannot reasonably move there.
+
+Default to the primary rule. Use `scripts/for_paper/` for composition
++ centralisation; resort to plotting-NEW there only when the primary
+location can't reasonably host it. See
 [40_paper-writing-protocol.md](40_paper-writing-protocol.md)
-§"Manuscript-scripts layout" for the convention.
+§"Manuscript-scripts layout" for the full primary-vs-fallback
+discussion.
 
 ### Forbidden
 

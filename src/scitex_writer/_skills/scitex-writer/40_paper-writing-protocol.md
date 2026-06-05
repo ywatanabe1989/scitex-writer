@@ -224,29 +224,31 @@ live under a dedicated directory in the scitexified analysis:
                                # paper/ at <proj-root>/paper -> .scitex/writer
 ```
 
-The `scripts/for_paper/` directory carries the **figure-generation
-scripts agreed in protocol step 1+2**. One script per figure (or
-one per panel and one for the FigRecipe composite). Naming follows
-the agreed `Fig N.` numbering (`plot_fig1_*`, `plot_fig2_*`, ...).
+### Primary rule — figures live next to their analysis script
 
-### `scripts/for_paper/` is compose-centric, not plot-centric
+A figure (or panel) is generated as CLOSE as possible to the
+analysis script that produces its data. The analysis script owns
+its panel as a side-output via `stx.io.save(fig, ...)`; the session
+out/run dir is the source of truth, and the panel enters the
+canonical symlink chain from there (see
+[14 § Per-figure symlink chain](14_manuscript-workflow.md)). This
+is the default — do NOT centralise figure generation away from the
+analysis.
 
-The crucial discipline: `scripts/for_paper/` **pulls existing panels
-from `./data` and composes the manuscript multi-panel figures via
-FigRecipe `compose`**. It plots NEW only if a needed panel is
-missing from `./data`. Each panel is produced *once* by the
-analysis script that owns its data; the composite script pulls
-that panel via `stx.io.load(eval(CONFIG.PATH.FIG_X))` and composes
-— it does not re-plot. Re-rendering the panel (parameter tweak,
-dataset update) propagates through the symlink chain automatically;
-the composite picks up the new panel on next build. A plot-centric
-`scripts/for_paper/` would have two versions of every panel (analysis
-vs manuscript) and they would silently drift apart. Compose-centric
-guarantees one version per panel. When a paper-specific aggregation
-not in the analysis pipeline is needed, plotting NEW is allowed —
-but the output still flows through the canonical chain
-(`stx.io.save` → `./data` symlink → `.scitex/writer` symlink → PDF)
-so provenance is preserved. See [14 § Per-figure symlink chain](14_manuscript-workflow.md).
+### Fallback — `./scripts/for_paper/` is the aggregation COMPROMISE
+
+`./scripts/for_paper/` is NOT the primary figure home. Two scoped
+reasons for it: **composition** (pull existing panels from `./data`
+and assemble multi-panel composites via `figrecipe.compose` —
+load via `stx.io.load(eval(CONFIG.PATH.FIG_X))`, never re-plot),
+and **centralisation** (single discoverable directory for the
+figure-list-to-script mapping at LaTeX build time). A plot-centric
+`scripts/for_paper/` would carry two-versions-drift between
+analysis and manuscript; compose-centric guarantees one version per
+panel and the symlink chain propagates re-renders automatically.
+Plotting NEW in `scripts/for_paper/` is a last resort — only when
+a paper-specific aggregation genuinely cannot move to the analysis
+pipeline. Output still flows through the canonical chain.
 
 Why a dedicated directory:
 
