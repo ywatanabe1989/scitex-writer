@@ -224,16 +224,17 @@ live under a dedicated directory in the scitexified analysis:
                                # paper/ at <proj-root>/paper -> .scitex/writer
 ```
 
-### Primary rule — figures live next to their analysis script
+### Primary rule — figures AND tables live next to their analysis script
 
-A figure (or panel) is generated as CLOSE as possible to the
-analysis script that produces its data. The analysis script owns
-its panel as a side-output via `stx.io.save(fig, ...)`; the session
-out/run dir is the source of truth, and the panel enters the
-canonical symlink chain from there (see
-[14 § Per-figure symlink chain](14_manuscript-workflow.md)). This
-is the default — do NOT centralise figure generation away from the
-analysis.
+A figure (or panel) AND a table (as CSV) is generated as CLOSE as
+possible to the analysis script that produces its data. The analysis
+script owns its artefact as a side-output via `stx.io.save(fig, ...)`
+(figures) or `stx.io.save(df, ...)` (tables, saved as CSV); the
+session out/run dir is the source of truth, and the artefact enters
+the canonical symlink chain from there (see
+[14 § Per-artefact symlink chain](14_manuscript-workflow.md)). This
+is the default — do NOT centralise figure or table generation away
+from the analysis.
 
 ### Fallback — `./scripts/for_paper/` is the aggregation COMPROMISE
 

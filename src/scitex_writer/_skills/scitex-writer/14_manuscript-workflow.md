@@ -137,11 +137,17 @@ paper-symlink:
   not committed (it's local convenience; recreate via the Makefile
   target on clone).
 
-## Per-figure symlink chain (canonical → ./data → .scitex/writer → PDF)
+## Per-artefact symlink chain — figures AND tables (canonical → ./data → .scitex/writer → PDF)
 
-Figure outputs follow a **canonical symlink chain** with the
-`@stx.session` output directory as the source of truth and every
-downstream location as a symlink — never a copy. The full chain:
+Manuscript artefacts — **figures AND tables** — follow a
+**canonical symlink chain** with the `@stx.session` output directory
+as the source of truth and every downstream location as a symlink —
+never a copy. Tables are saved as **CSV** at the analysis-script
+location (same convention as figures use `stx.io.save(fig, ...)` to
+land in the session out/run dir); the CSV file then enters the same
+symlink chain that figures use.
+
+The full chain:
 
 ```
 session out / run dir (source of truth)
@@ -177,19 +183,36 @@ Concretely:
    same source-of-truth file feeds every downstream consumer.
 
 ```bash
+# FIGURES (same chain — stx.io.save(fig, ...) → PDF/PNG)
 # (1) canonical artefact stays in session out / run dir
 .scitex/io/runs/2026-06-05T18:42:00/plot_fig1_cohort.py/fig1_cohort_overview.pdf
-
 # (2) symlinked into ./data
 data/results/figures/fig1_cohort_overview.pdf
   └─→ ../../../.scitex/io/runs/2026-06-05T18:42:00/plot_fig1_cohort.py/fig1_cohort_overview.pdf
-
-# (3) symlinked into .scitex/writer (LaTeX-visible location)
+# (3) symlinked into .scitex/writer (LaTeX-visible)
 .scitex/writer/01_manuscript/contents/figures/caption_and_media/fig1_cohort_overview.pdf
   └─→ ../../../../../../data/results/figures/fig1_cohort_overview.pdf
-
 # (4) LaTeX \includegraphics resolves through the chain; no copy at build time
+
+# TABLES (same chain — stx.io.save(df, ...) → CSV)
+# (1) canonical CSV stays in session out / run dir
+.scitex/io/runs/2026-06-05T18:42:00/02_cohort_descriptives.py/tab1_demographics.csv
+# (2) symlinked into ./data
+data/results/tables/tab1_demographics.csv
+  └─→ ../../../.scitex/io/runs/2026-06-05T18:42:00/02_cohort_descriptives.py/tab1_demographics.csv
+# (3) symlinked into .scitex/writer (LaTeX-visible via writer_tables_csv_to_latex)
+.scitex/writer/01_manuscript/contents/tables/caption_and_media/tab1_demographics.csv
+  └─→ ../../../../../../data/results/tables/tab1_demographics.csv
+# (4) writer_tables_csv_to_latex resolves through the chain at build time; no copy
 ```
+
+Tables are saved as **CSV** specifically — not pre-rendered LaTeX
+`\begin{tabular}` blocks. The CSV is the canonical source of truth;
+the LaTeX representation is generated at manuscript-build time via
+`writer_tables_csv_to_latex` (see
+[12_figures-and-tables.md](12_figures-and-tables.md)). The "single
+source of truth" rationale that motivates the figure symlink chain
+applies identically to tables.
 
 ### Why symlink at every step of the chain (not copy)
 
@@ -215,14 +238,16 @@ data/results/figures/fig1_cohort_overview.pdf
   figure re-render produces a PDF with the new figure, no copy step
   needed.
 
-### Where the figure scripts live (primary vs fallback)
+### Where the figure / table scripts live (primary vs fallback)
 
-**Primary rule.** A figure (or panel) is generated as **close as
-possible to the analysis script that produces its data**. The figure
-script lives **next to its analysis script**, at the related location
-inside `./scripts/` where the analysis runs — typically the analysis
-script itself owns its panel as a side-output via `stx.io.save(fig,
-...)`. The session out/run dir is the source of truth at this layer.
+**Primary rule.** A figure (or panel) AND a table (as CSV) is
+generated as **close as possible to the analysis script that
+produces its data**. The figure or table script lives **next to its
+analysis script**, at the related location inside `./scripts/` where
+the analysis runs — typically the analysis script itself owns its
+panel / CSV as a side-output via `stx.io.save(fig, ...)` (for
+figures) or `stx.io.save(df, ...)` (for tables, saved as CSV). The
+session out/run dir is the source of truth at this layer for both.
 
 **Fallback.** `<proj-root>/scripts/for_paper/` is an **aggregation
 compromise**, NOT the primary figure home. It exists to:
@@ -244,17 +269,24 @@ discussion.
 
 ### Forbidden
 
-- Copying a figure file at any step of the symlink chain (session
-  out/run dir → `./data` → `.scitex/writer` → PDF). Creates
-  two-files-of-truth and breaks DAG provenance at the layer where
-  the copy happens.
-- Editing a figure inside `./data/results/figures/` or inside
-  `.scitex/writer/` (both are references; the canonical artefact is
-  in the session out/run dir).
+- Copying a figure or table file at any step of the symlink chain
+  (session out/run dir → `./data` → `.scitex/writer` → PDF /
+  LaTeX). Creates two-files-of-truth and breaks DAG provenance at
+  the layer where the copy happens.
+- Editing a figure or table inside `./data/results/{figures,tables}/`
+  or inside `.scitex/writer/` (both are references; the canonical
+  artefact is in the session out/run dir).
 - Embedding a copy of the figure into the PDF at build time —
   `\includegraphics{}` resolves through the symlink chain; do not
   pre-render or pre-copy figures into a "submission_figures/"
   directory.
-- Putting figure-generation scripts anywhere other than
-  `scripts/for_paper/` (breaks the manuscript-scripts-layout
-  convention; see 40_protocol).
+- Saving a table as a pre-rendered LaTeX `\begin{tabular}` block
+  instead of CSV. The CSV is the canonical source of truth; the
+  LaTeX representation is generated at build time from the CSV via
+  `writer_tables_csv_to_latex` (see
+  [12_figures-and-tables.md](12_figures-and-tables.md)).
+- Putting figure- or table-generation scripts at a location that
+  breaks the primary-vs-fallback rule from
+  [40_paper-writing-protocol.md § "Manuscript-scripts layout"](40_paper-writing-protocol.md):
+  primary = next to the analysis script; fallback = `scripts/for_paper/`
+  for composition + centralisation.
