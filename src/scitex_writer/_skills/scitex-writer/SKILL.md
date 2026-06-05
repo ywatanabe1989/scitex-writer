@@ -55,7 +55,7 @@ CSV-to-LaTeX), and verifiable claims linked to session hashes.
 ## Scientific writing standards
 
 - [21_writing-proofreading.md](21_writing-proofreading.md) — language rules, corrections, section-specific
-- [22_writing-figures-stats.md](22_writing-figures-stats.md) — figure rules, stats reporting
+- [22_writing-figures-stats.md](22_writing-figures-stats.md) — figure rules, stats reporting, scitex.stats mandate (PRESETS for full anchor: n / dof / effect size / p / stars / test name / H0), long-value footnote rule (overflow location alongside results prose / caption / methods)
 - [23_writing-mermaid.md](23_writing-mermaid.md) — academic mermaid style
 - [24_writing-proofreading-style.md](24_writing-proofreading-style.md) — tone, hedging, transitions, anti-patterns
 - [25_writing-attitude.md](25_writing-attitude.md) — evidence, critical analysis

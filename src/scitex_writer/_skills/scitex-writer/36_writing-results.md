@@ -3,6 +3,11 @@ description: |
   [TOPIC] Scientific Results Writing Guidelines
   [DETAILS] Results section writing template — role, aim, style/volume/miscellaneous rules, and a per-figure paragraph structure that anchors each `Fig N` to a registered `\vclaim{}`. Composes with `41_figure-first-communication.md` (the figure-list and panel-list agreement protocol that determines the results-section paragraph order) and `26_writing-during-exploration.md` (in-flight `\vclaim{}` / `\placeholder{}` / `\hlref{}` discipline). V0 SKELETON matching the 30-33 voice — awaiting operator iteration to refine the substance to the Nature-style detail.
 tags: [scitex-writer-writing-results]
+requires:
+  - scitex-stats
+  - figrecipe
+  - scitex-io
+  - scitex-clew
 ---
 
 <!--
@@ -108,7 +113,7 @@ figure (alphabetical, lowercase).
 
 ### [3. Statistical anchor (where applicable)]
 Where a comparison is shown, report the **brief** statistical
-anchor: test name, sample sizes, key effect size, p-value with
+anchor: test name, sample sizes (n), key effect size, p-value with
 stars. **The full statistical detail (degrees of freedom, exact
 test parameters, justification for choice of test) belongs in the
 METHODS section, not here.** See
@@ -121,6 +126,36 @@ The same rule applies to acquisition parameters, equipment
 versions, and procedural detail: **BRIEF in results and captions,
 FULL in methods.** Duplication across all three is the symptom of
 a flow violation.
+
+#### scitex.stats mandate
+
+Use `scitex.stats` (NOT raw `scipy.stats` / `statsmodels` ad-hoc)
+for every statistical test in the results section. `scitex.stats`
+provides PRESETS that emit the full reporting anchor (n / dof /
+effect size / p / stars / test name / H0) in the canonical form
+— so the in-line `\vclaim{}` reference in the results prose
+resolves to a numerically complete and structurally consistent
+anchor. Raw `scipy.stats` calls are a flow violation (parallels
+the FigRecipe mandate for figures).
+
+See
+[22_writing-figures-stats.md § "scitex.stats mandate"](22_writing-figures-stats.md)
+for the rationale and the per-preset pointer; the
+`requires: [scitex-stats]` declaration on this leaf makes the
+mandate load-bearing.
+
+#### Long-value footnote rule
+
+If a single statistical value or expression in the prose grows
+**long enough to disrupt the reader's flow** (multi-clause
+parenthetical, four-line expression, multi-group CI), offload the
+full value to a **footnote** and keep the in-line citation brief.
+The footnote is the third location in the detail-location
+discipline (after prose / caption / methods).
+
+See
+[22_writing-figures-stats.md § "Long-value footnote rule"](22_writing-figures-stats.md)
+for the worked example and the threshold guidance.
 
 ### [4. Forward reference to discussion (optional)]
 If the finding feeds a discussion point, flag with a one-clause
