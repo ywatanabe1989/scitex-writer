@@ -26,51 +26,37 @@ jobs:
         with:
           path: scitex-writer
 
+      - name: Checkout scitex-dev + ecosystem list script
+        uses: actions/checkout@v4
+        with:
+          path: scitex-dev
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
 
-      - name: Shallow-clone every ecosystem package
+      - name: Install scitex-dev + ecosystem list script
+        run: pip install -e "scitex-dev[dev]"
+
+      - name: Clone every ecosystem package
         run: |
           set -e
           mkdir -p proj
-          python3 - <<'PY'
-          import json, re, subprocess, sys
-          from pathlib import Path
-          # 0.11.0 layout: ecosystem.py moved to _ecosystem/_core.py.
-          eco_new = Path("scitex-writer/src/scitex_writer/_ecosystem/_core.py")
-          eco_old = Path("scitex-writer/src/scitex_writer/ecosystem.py")
-          src = (eco_new if eco_new.is_file() else eco_old).read_text()
-          for m in re.finditer(
-              r'^\s*"([\w-]+)"\s*:\s*\{(.*?)\},?\s*$', src,
-              re.MULTILINE | re.DOTALL):
-              name, body = m.group(1), m.group(2)
-              g = re.search(r'"github_repo"\s*:\s*"([^"]+)"', body)
-              cat = re.search(r'"category"\s*:\s*"([^"]+)"', body)
-              category = cat.group(1) if cat else "library"
-              if category not in ("umbrella", "library", "external-lib"):
-                  continue
-              if not g:
-                  continue
-              dest = Path("proj") / name
-              if dest.exists():
-                  continue
-              print(f"clone {g.group(1)} -> {dest}")
-              r = subprocess.run(
-                  ["git", "clone", "--depth", "1", "--no-tags",
-                   f"https://github.com/{g.group(1)}.git", str(dest)],
-                  capture_output=True, text=True)
-              if r.returncode:
-                  print(f"  WARN: {r.stderr.strip()[:200]}", file=sys.stderr)
-          PY
+          python3 scitex-dev/scripts/quality/ecosystem_list.py 2>/dev/null | while IFS= read -r line; do
+            name=$(echo "$line" | python3 -c "import json,sys; print(json.load(sys.stdin)['name'])")
+            repo=$(echo "$line" | python3 -c "import json,sys; print(json.load(sys.stdin)['github_repo'])")
+            dest="proj/$name"
+            [ -d "$dest" ] && continue
+            git clone --depth 1 --no-tags "https://github.com/$repo.git" "$dest"
+          done
 
       - name: Run ecosystem audit
         id: audit
         run: |
-          python3 scitex-writer/scripts/quality/audit_ecosystem.py \
+          python3 scitex-dev/scripts/quality/audit_ecosystem.py \
             --projects-root proj \
-            --scitex-writer-root scitex-writer \
+            --scitex-dev-root scitex-dev \
             --out audit.json
           echo "json_path=$(pwd)/audit.json" >> "$GITHUB_OUTPUT"
           # Surface summary in step output.
