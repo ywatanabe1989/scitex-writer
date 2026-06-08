@@ -76,6 +76,37 @@ plt.ylim(0, 1)
 
 ## Statistical Reporting
 
+### scitex.stats mandate (v0 — operator iteration)
+
+**All statistical tests in a paper-writing flow MUST use `scitex.stats`,
+not raw `scipy.stats` / `statsmodels` ad-hoc.** This parallels the
+FigRecipe mandate for figures (see
+[40_paper-writing-protocol.md §"FigRecipe mandate"](40_paper-writing-protocol.md))
+and makes the `requires: [scitex-stats]` declaration on the
+paper-writing flow load-bearing.
+
+Why: `scitex.stats` provides **PRESETS** that emit the full
+statistical anchor in the canonical reporting form — sample sizes,
+degrees of freedom, effect size, p-value with stars, test name,
+null hypothesis. Raw `scipy.stats.ttest_ind(...)` returns just a
+statistic and a p-value; the author then has to assemble the
+anchor by hand and is likely to miss a field (the "DO NOT" example
+below). `scitex.stats` presets close that gap by construction.
+
+Use:
+- `scitex.stats.<test>(...)` for the test itself.
+- The preset emitters for the reporting form (the `DO` example
+  below is what the preset returns).
+- `scitex.stats.fdr_correction(...)` for multiple-comparison
+  correction (the second `DO` example).
+- The `scitex.stats` SKILL.md companion for the full API surface.
+
+`requires: [scitex-stats]` should be declared on
+[36_writing-results.md](36_writing-results.md) and
+[40_paper-writing-protocol.md](40_paper-writing-protocol.md)
+alongside `figrecipe` and `scitex-io` / `scitex-clew` — the four
+tool-mandate companions of paper-writing.
+
 | DO NOT | DO |
 |-----------|------|
 | ```python
@@ -118,7 +149,7 @@ significant = corrected_results["p_value_fdr"] < 0.05
 ### Statistical Analysis Guidelines
 - Report all relevant statistical information:
   - p-value (with stars for significance)
-  - Sample sizes
+  - Sample sizes (n)
   - Degrees of freedom (dof)
   - Effect size
   - Test name
@@ -128,6 +159,49 @@ significant = corrected_results["p_value_fdr"] < 0.05
 - Round statistical values appropriately (typically 3 digits)
 - Report statistical values in italic font in documents
 - Fix random seed as 42 for reproducibility
+
+### Long-value footnote rule (v0 — operator iteration)
+
+When a single statistical value or expression in the prose grows
+**long enough to disrupt the reader's flow** (a multi-clause
+parenthetical, a four-or-more-line expression, a long bracketed
+confidence interval with multiple groups), offload the full value
+to a **footnote** and keep the in-line citation brief.
+
+This is the third location in the detail-location discipline (see
+[40_paper-writing-protocol.md § "Detail-location rule"](40_paper-writing-protocol.md)):
+
+- **Results prose** → brief: test name + p-value + stars
+  (`paired t-test, p < 0.001, ***`).
+- **Figure caption** → figure-specific minimum (n + key effect).
+- **Methods section** → full procedure + test choice justification.
+- **Footnote** → overflow for a value or expression that's
+  load-bearing in-line but too long to read smoothly. The footnote
+  lets the prose stay readable AND lets the value stay on the
+  same page for the reviewer.
+
+Example (illustrative):
+
+```
+\paragraph{Results.}
+Treatment increased response amplitude relative to control
+(paired $t$-test, $p < 0.001$, ***\footnote{paired $t(8) = 5.42$,
+$p = 0.00064$, Cohen's $d = 1.81$, $95\%$ CI $[0.41, 3.21]$;
+$n = 9$ patients; \scitex{}.stats.paired\_ttest preset.}).
+```
+
+The brief `paired t-test, p < 0.001, ***` reads cleanly in the
+results narrative; the long anchor lives in the footnote for the
+reviewer who wants to verify.
+
+Use when the in-line form would otherwise span more than ~1.5
+lines or interrupt the sentence's grammatical flow. Don't use for
+short anchors that read cleanly in-line.
+
+Operator iteration note: refine the threshold ("how long is too
+long") and the footnote-vs-supplementary-table decision (large
+multi-group anchors may belong in a supplementary table referenced
+from the main text instead of a footnote).
 
 ## Document Format
 
