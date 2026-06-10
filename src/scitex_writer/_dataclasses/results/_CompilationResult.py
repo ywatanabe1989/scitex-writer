@@ -47,6 +47,32 @@ class CompilationResult:
     warnings: List[str] = field(default_factory=list)
     """Parsed LaTeX warnings (if any)"""
 
+    color_mode: Optional[str] = None
+    """Color theme used for the compilation ('light' / 'dark' / None).
+
+    Populated by the content/preview compile path so the UI knows which
+    theme the rendered PDF belongs to. The manuscript / supplementary /
+    revision compile paths leave this as None.
+    """
+
+    temp_dir: Optional[Path] = None
+    """Temporary build directory the compilation ran in.
+
+    Populated by the content/preview compile path so callers can clean
+    up the scratch area after consuming the PDF. The manuscript /
+    supplementary / revision paths leave this as None (they build
+    in-place inside the project tree).
+    """
+
+    message: Optional[str] = None
+    """Free-form human-readable summary line.
+
+    Filled with a 'Content compiled successfully: ...' line on success
+    and 'Compilation failed with exit code N' / 'timed out' / etc. on
+    failure paths, so the Django consumer can surface a single status
+    string without re-deriving it from ``success`` + ``exit_code``.
+    """
+
     def __str__(self):
         """Human-readable summary."""
         status = "SUCCESS" if self.success else "FAILED"
