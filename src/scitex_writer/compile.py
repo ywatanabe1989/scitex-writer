@@ -27,6 +27,7 @@ Usage::
     )
 """
 
+from ._dataclasses import CompilationResult
 from ._mcp.handlers import compile_manuscript as _compile_manuscript
 from ._mcp.handlers import compile_revision as _compile_revision
 from ._mcp.handlers import compile_supplementary as _compile_supplementary
@@ -164,7 +165,7 @@ def content(
     name: str = "content",
     timeout: int = 60,
     keep_aux: bool = False,
-) -> dict:
+) -> CompilationResult:
     """Compile raw LaTeX content to PDF.
 
     Creates a standalone document from the provided LaTeX content and compiles
@@ -182,7 +183,14 @@ def content(
         keep_aux: Keep auxiliary files (.aux, .log, etc.) after compilation.
 
     Returns:
-        Dict with success status, output_pdf path, log, and any errors.
+        ``CompilationResult`` dataclass. Always carries ``success`` /
+        ``exit_code`` / ``stdout`` / ``stderr`` / ``output_pdf`` /
+        ``log_file`` / ``color_mode`` / ``temp_dir`` / ``message`` —
+        unified across success / latexmk-fail / timeout / internal-
+        exception paths. Migrated from the legacy ad-hoc dict return in
+        2026-06-10 (G1 follow-up to G2 atomic publish + G3 flock).
+        Dict-shape JSON callers can serialize via
+        ``dataclasses.asdict(result)``.
 
     Example::
 

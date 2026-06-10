@@ -269,8 +269,14 @@ _REQUIRES_LATEXMK = pytest.mark.skipif(
 
 
 def _cleanup_temp_dir(result):
-    temp = result.get("temp_dir")
-    if temp:
+    # `result` is a CompilationResult dataclass (G1 unification,
+    # 2026-06-10) — drop the legacy `.get("temp_dir")` dict access in
+    # favour of attribute access. CompilationResult.temp_dir is
+    # Optional[Path]; None when the compile path is not the preview
+    # path (e.g. manuscript / supplementary / revision compiles build
+    # in-place, no scratch dir to clean up).
+    temp = getattr(result, "temp_dir", None)
+    if temp is not None:
         temp_dir = Path(temp)
         if temp_dir.exists():
             shutil.rmtree(temp_dir)
@@ -296,7 +302,7 @@ class TestContentCompilation:
         result = compile.content(content, name="test_simple")
         _cleanup_temp_dir(result)
         # Assert
-        assert result["success"] is True
+        assert result.success is True
 
     @_REQUIRES_LATEXMK
     def test_compile_simple_content_writes_pdf_on_disk(self):
@@ -314,7 +320,7 @@ class TestContentCompilation:
         # Act
         result = compile.content(content, name="test_simple")
         pdf_exists = (
-            result["output_pdf"] is not None and Path(result["output_pdf"]).exists()
+            result.output_pdf is not None and Path(result.output_pdf).exists()
         )
         _cleanup_temp_dir(result)
         # Assert
@@ -330,7 +336,7 @@ class TestContentCompilation:
         result = compile.content(content, name="test_body")
         _cleanup_temp_dir(result)
         # Assert
-        assert result["success"] is True
+        assert result.success is True
 
     @_REQUIRES_LATEXMK
     def test_compile_dark_mode_reports_dark_color_mode(self):
@@ -353,7 +359,7 @@ class TestContentCompilation:
         result = compile.content(content, color_mode="dark", name="test_dark")
         _cleanup_temp_dir(result)
         # Assert
-        assert result["color_mode"] == "dark"
+        assert result.color_mode == "dark"
 
     @_REQUIRES_LATEXMK
     def test_compile_invalid_latex_reports_failure(self):
@@ -374,7 +380,7 @@ class TestContentCompilation:
         result = compile.content(content, name="test_invalid")
         _cleanup_temp_dir(result)
         # Assert
-        assert result["success"] is False
+        assert result.success is False
 
     @_REQUIRES_LATEXMK
     def test_compile_returns_success_key_regardless_of_timeout(self):
@@ -391,11 +397,13 @@ class TestContentCompilation:
         )
         # Act
         # timeout=1 may or may not trip depending on machine speed; the
-        # contract under test is only that a 'success' key is always set.
+        # contract under test is only that the result carries a `success`
+        # attribute and an `exit_code` attribute regardless of which
+        # branch (success / latexmk-fail / TimeoutExpired) it hit.
         result = compile.content(content, timeout=1, name="test_timeout")
         _cleanup_temp_dir(result)
         # Assert
-        assert "success" in result
+        assert hasattr(result, "success") and hasattr(result, "exit_code")
 
 
 class TestMcpToolRegistration:
