@@ -176,11 +176,43 @@ fi
 
 log_success "PDF generated: $PDF_FILE"
 
-# Copy to preview directory if specified
+# Copy to preview directory if specified — atomic (tmp + mv -f).
+#
+# Background (2026-06-10, proj-scitex-hub diagnosis confirmed in prod by
+# lead): the UI's Compile-on-Change auto-firing for the same
+# (project, section, color_mode) triple causes daphne's asyncio +
+# sync_to_async threadpool to invoke compile_content() concurrently
+# against the same .preview/<job_name>.pdf destination. The previous
+# `cp $PDF_FILE $PREVIEW_DIR/` is a raw write under `set -e` and races
+# (mid-write open + read, partial flushes, cp itself short-circuiting
+# with a non-zero exit) — surfacing as `Compilation failed with exit
+# code N` at content.py:186 even though the compile itself succeeded.
+#
+# Atomic write: stage to a uniquely-named temp file (PID-suffixed so
+# parallel processes do not collide on the tmp slot itself) inside the
+# SAME directory as the publish target, then `mv -f` it into place.
+# `mv` within one filesystem is rename(2), which is atomic — concurrent
+# readers either see the OLD pdf or the NEW pdf, never a half-written
+# fd. The `.` prefix on the tmp name keeps it out of normal directory
+# listings if any reader walks $PREVIEW_DIR.
+#
+# Failure modes are explicit (non-zero exit + cleanup) rather than
+# inheriting `set -e`'s opaque propagation, so content.py sees a
+# coherent error code instead of the indeterminate exit 12 race.
 if [ -n "$PREVIEW_DIR" ]; then
     mkdir -p "$PREVIEW_DIR"
-    cp "$PDF_FILE" "$PREVIEW_DIR/"
-    log_info "Copied to preview: $PREVIEW_DIR/$JOB_NAME.pdf"
+    PREVIEW_TMP="$PREVIEW_DIR/.$JOB_NAME.pdf.tmp.$$"
+    if ! cp "$PDF_FILE" "$PREVIEW_TMP"; then
+        log_error "Failed to stage PDF to $PREVIEW_TMP"
+        rm -f "$PREVIEW_TMP"
+        exit 1
+    fi
+    if ! mv -f "$PREVIEW_TMP" "$PREVIEW_DIR/$JOB_NAME.pdf"; then
+        log_error "Failed to publish PDF to $PREVIEW_DIR/$JOB_NAME.pdf"
+        rm -f "$PREVIEW_TMP"
+        exit 1
+    fi
+    log_info "Copied to preview: $PREVIEW_DIR/$JOB_NAME.pdf (atomic)"
 fi
 
 # Cleanup auxiliary files
