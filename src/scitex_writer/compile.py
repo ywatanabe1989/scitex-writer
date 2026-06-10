@@ -27,6 +27,7 @@ Usage::
     )
 """
 
+from ._dataclasses import CompilationResult
 from ._mcp.handlers import compile_manuscript as _compile_manuscript
 from ._mcp.handlers import compile_revision as _compile_revision
 from ._mcp.handlers import compile_supplementary as _compile_supplementary
@@ -164,7 +165,7 @@ def content(
     name: str = "content",
     timeout: int = 60,
     keep_aux: bool = False,
-) -> "CompilationResult":
+) -> CompilationResult:
     """Compile raw LaTeX content to PDF.
 
     Creates a standalone document from the provided LaTeX content and compiles
