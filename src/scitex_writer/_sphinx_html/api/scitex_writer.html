@@ -679,10 +679,17 @@ PDF is copied to the project’s .preview/ directory.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a></span></p>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">CompilationResult</span></code></span></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Dict with success status, output_pdf path, log, and any errors.</p>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">CompilationResult</span></code> dataclass. Always carries <code class="docutils literal notranslate"><span class="pre">success</span></code> /
+<code class="docutils literal notranslate"><span class="pre">exit_code</span></code> / <code class="docutils literal notranslate"><span class="pre">stdout</span></code> / <code class="docutils literal notranslate"><span class="pre">stderr</span></code> / <code class="docutils literal notranslate"><span class="pre">output_pdf</span></code> /
+<code class="docutils literal notranslate"><span class="pre">log_file</span></code> / <code class="docutils literal notranslate"><span class="pre">color_mode</span></code> / <code class="docutils literal notranslate"><span class="pre">temp_dir</span></code> / <code class="docutils literal notranslate"><span class="pre">message</span></code> —
+unified across success / latexmk-fail / timeout / internal-
+exception paths. Migrated from the legacy ad-hoc dict return in
+2026-06-10 (G1 follow-up to G2 atomic publish + G3 flock).
+Dict-shape JSON callers can serialize via
+<code class="docutils literal notranslate"><span class="pre">dataclasses.asdict(result)</span></code>.</p>
 </dd>
 </dl>
 <p>Example:</p>
