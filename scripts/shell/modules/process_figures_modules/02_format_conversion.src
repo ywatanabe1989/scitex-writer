@@ -151,9 +151,13 @@ copy_composed_jpg_files() {
         fi
     done
 
-    # Copy composed figures to jpg_for_compilation
-    echo_info "Copying composed figure JPGs to jpg_for_compilation..."
-    local copied_count=0
+    # Place composed figures into jpg_for_compilation as SYMLINKS so edits
+    # to the upstream caption_and_media copy show up immediately in the next
+    # compile without a re-copy step (operator decision 1b, 2026-06-12). Fall
+    # back to cp + WARN if the filesystem cannot create symlinks (e.g. a
+    # remote share mounted with nosymlinks).
+    echo_info "Linking composed figure JPGs into jpg_for_compilation..."
+    local placed_count=0
 
     for jpg_file in "$SCITEX_WRITER_FIGURE_CAPTION_MEDIA_DIR"/[0-9]*.jpg; do
         [ -e "$jpg_file" ] || continue
@@ -166,13 +170,24 @@ copy_composed_jpg_files() {
             continue
         fi
 
-        # Copy main figure
-        cp "$jpg_file" "$SCITEX_WRITER_FIGURE_JPG_DIR/"
-        echo_success "Copied composed figure: $filename"
-        ((copied_count++))
+        # Resolve source to an absolute path so the symlink survives
+        # downstream `cd` into other subdirs during compile.
+        local abs_src
+        abs_src=$(readlink -f "$jpg_file")
+        local dest="$SCITEX_WRITER_FIGURE_JPG_DIR/$filename"
+
+        # Prefer symlink; -f replaces any stale link/file already there.
+        if ln -sf "$abs_src" "$dest" 2>/dev/null; then
+            echo_success "Linked composed figure: $filename"
+        else
+            # Symlink rejected (e.g. nosymfollow / network FS); copy instead.
+            cp "$jpg_file" "$dest"
+            echo_warning "Symlink unsupported on $SCITEX_WRITER_FIGURE_JPG_DIR; copied $filename instead"
+        fi
+        ((placed_count++))
     done
 
-    echo_success "Copied $copied_count composed figures to jpg_for_compilation"
+    echo_success "Placed $placed_count composed figures into jpg_for_compilation (symlink-first, cp fallback)"
 }
 
 # EOF
