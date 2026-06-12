@@ -251,6 +251,19 @@
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Add a figure (copy image + create caption) to the project.</span>
 
+<span class="sd">    Design note (2026-06-12, operator decision 1b):</span>
+<span class="sd">        Figure *ingestion* (this function) keeps `shutil.copy2` — the</span>
+<span class="sd">        source path is a user-owned file outside the project, and the</span>
+<span class="sd">        project must remain self-contained after ingestion. Symlinking</span>
+<span class="sd">        here would create a dangling reference if the user later moves</span>
+<span class="sd">        or deletes the source.</span>
+
+<span class="sd">        In contrast, figure *placement into jpg_for_compilation*</span>
+<span class="sd">        (`scripts/shell/modules/process_figures_modules/02_format_conversion.src`)</span>
+<span class="sd">        was switched to a symlink — that target lives entirely inside the</span>
+<span class="sd">        project&#39;s derived tree and benefits from automatic propagation of</span>
+<span class="sd">        upstream edits.</span>
+
 <span class="sd">    Args:</span>
 <span class="sd">        project_dir: Path to scitex-writer project.</span>
 <span class="sd">        name: Figure name (without extension).</span>

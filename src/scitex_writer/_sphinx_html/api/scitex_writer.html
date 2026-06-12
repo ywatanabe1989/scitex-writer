@@ -1128,6 +1128,19 @@ preserving them for potential reuse or supplementary materials.</p>
 <dt class="sig sig-object py" id="scitex_writer.figures.add">
 <span class="sig-prename descclassname"><span class="pre">scitex_writer.figures.</span></span><span class="sig-name descname"><span class="pre">add</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">project_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">image_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">caption</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">doc_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'manuscript'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scitex_writer/figures.html#add"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#scitex_writer.figures.add" title="Link to this definition"></a></dt>
 <dd><p>Add a figure (copy image + create caption) to the project.</p>
+<dl>
+<dt>Design note (2026-06-12, operator decision 1b):</dt><dd><p>Figure <em>ingestion</em> (this function) keeps <cite>shutil.copy2</cite> — the
+source path is a user-owned file outside the project, and the
+project must remain self-contained after ingestion. Symlinking
+here would create a dangling reference if the user later moves
+or deletes the source.</p>
+<p>In contrast, figure <em>placement into jpg_for_compilation</em>
+(<cite>scripts/shell/modules/process_figures_modules/02_format_conversion.src</cite>)
+was switched to a symlink — that target lives entirely inside the
+project’s derived tree and benefits from automatic propagation of
+upstream edits.</p>
+</dd>
+</dl>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
