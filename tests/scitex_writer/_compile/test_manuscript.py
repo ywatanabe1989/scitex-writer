@@ -11,261 +11,401 @@ Tests compile_manuscript function with various options:
 - force: Force recompilation
 - log_callback: Live logging
 - progress_callback: Progress tracking
+
+NM-rewrite (2026-06-13): replaced unittest.mock.patch/Mock with real
+recording-fake collaborators that are injected into compile_manuscript
+through the new public runner_fn/validator_fn/output_finder_fn/
+script_resolver_fn kwargs. Tests then assert on the recorded command
+list (real observable side-effect) instead of mock_calls.
 """
+
+from pathlib import Path
 
 import pytest
 
 pytest.importorskip("git")
-from pathlib import Path
-from unittest.mock import Mock, patch
 
 from scitex_writer._compile.manuscript import compile_manuscript
-from scitex_writer._dataclasses import CompilationResult
+
+# ---------------------------------------------------------------------------
+# Real fakes (no unittest.mock).
+# ---------------------------------------------------------------------------
 
 
-class TestCompileManuscript:
-    """Test suite for compile_manuscript function."""
+class _RecordingRunner:
+    """Real fake recording the cmd list and returning a fixed result."""
 
-    def test_import(self):
-        """Test that compile_manuscript can be imported."""
+    def __init__(self):
+        self.calls: list[list[str]] = []
+
+    def __call__(self, cmd, *args, **kwargs):
+        self.calls.append(list(cmd))
+        return {"exit_code": 0, "stdout": "", "stderr": "", "success": True}
+
+
+def _noop_validator(project_dir: Path) -> None:
+    return None
+
+
+def _empty_output_finder(project_dir: Path, doc_type: str):
+    return (None, None, None)
+
+
+def _make_script_resolver(script_path: Path):
+    def _resolver(project_dir: Path, doc_type: str) -> Path:
+        return script_path
+
+    return _resolver
+
+
+def _setup_existing_script(tmp_path: Path) -> Path:
+    script_dir = tmp_path / "scripts" / "shell"
+    script_dir.mkdir(parents=True, exist_ok=True)
+    script = script_dir / "compile_manuscript.sh"
+    script.write_text("#!/bin/sh\nexit 0\n")
+    return script
+
+
+def _run(tmp_path: Path, runner: _RecordingRunner, **kwargs):
+    script = _setup_existing_script(tmp_path)
+    return compile_manuscript(
+        tmp_path,
+        runner_fn=runner,
+        validator_fn=_noop_validator,
+        output_finder_fn=_empty_output_finder,
+        script_resolver_fn=_make_script_resolver(script),
+        **kwargs,
+    )
+
+
+# ---------------------------------------------------------------------------
+# Tests
+# ---------------------------------------------------------------------------
+
+
+class TestCompileManuscriptImport:
+    """Module-level import contract."""
+
+    def test_compile_manuscript_is_callable_after_import(self):
+        # Arrange
         from scitex_writer._compile import compile_manuscript as cm
 
-        assert callable(cm)
+        # Act
+        result = callable(cm)
+        # Assert
+        assert result is True
 
-    def test_signature(self):
-        """Test function signature has expected parameters."""
+
+class TestCompileManuscriptSignature:
+    """Signature contract — one assertion per test."""
+
+    def test_signature_includes_project_dir_parameter(self):
+        # Arrange
         import inspect
 
-        sig = inspect.signature(compile_manuscript)
-        params = list(sig.parameters.keys())
-
+        # Act
+        params = list(inspect.signature(compile_manuscript).parameters.keys())
+        # Assert
         assert "project_dir" in params
+
+    def test_signature_includes_timeout_parameter(self):
+        # Arrange
+        import inspect
+
+        # Act
+        params = list(inspect.signature(compile_manuscript).parameters.keys())
+        # Assert
         assert "timeout" in params
+
+    def test_signature_includes_no_figs_parameter(self):
+        # Arrange
+        import inspect
+
+        # Act
+        params = list(inspect.signature(compile_manuscript).parameters.keys())
+        # Assert
         assert "no_figs" in params
+
+    def test_signature_includes_ppt2tif_parameter(self):
+        # Arrange
+        import inspect
+
+        # Act
+        params = list(inspect.signature(compile_manuscript).parameters.keys())
+        # Assert
         assert "ppt2tif" in params
+
+    def test_signature_includes_crop_tif_parameter(self):
+        # Arrange
+        import inspect
+
+        # Act
+        params = list(inspect.signature(compile_manuscript).parameters.keys())
+        # Assert
         assert "crop_tif" in params
+
+    def test_signature_includes_quiet_parameter(self):
+        # Arrange
+        import inspect
+
+        # Act
+        params = list(inspect.signature(compile_manuscript).parameters.keys())
+        # Assert
         assert "quiet" in params
+
+    def test_signature_includes_verbose_parameter(self):
+        # Arrange
+        import inspect
+
+        # Act
+        params = list(inspect.signature(compile_manuscript).parameters.keys())
+        # Assert
         assert "verbose" in params
+
+    def test_signature_includes_force_parameter(self):
+        # Arrange
+        import inspect
+
+        # Act
+        params = list(inspect.signature(compile_manuscript).parameters.keys())
+        # Assert
         assert "force" in params
+
+    def test_signature_includes_log_callback_parameter(self):
+        # Arrange
+        import inspect
+
+        # Act
+        params = list(inspect.signature(compile_manuscript).parameters.keys())
+        # Assert
         assert "log_callback" in params
+
+    def test_signature_includes_progress_callback_parameter(self):
+        # Arrange
+        import inspect
+
+        # Act
+        params = list(inspect.signature(compile_manuscript).parameters.keys())
+        # Assert
         assert "progress_callback" in params
 
-    def test_default_parameters(self):
-        """Test default parameter values."""
+
+class TestCompileManuscriptDefaults:
+    """Default-value contract — one assertion per test."""
+
+    def test_default_timeout_is_300_seconds(self):
+        # Arrange
         import inspect
 
-        sig = inspect.signature(compile_manuscript)
+        # Act
+        default = inspect.signature(compile_manuscript).parameters["timeout"].default
+        # Assert
+        assert default == 300
 
-        assert sig.parameters["timeout"].default == 300
-        assert sig.parameters["no_figs"].default is False
-        assert sig.parameters["ppt2tif"].default is False
-        assert sig.parameters["crop_tif"].default is False
-        assert sig.parameters["quiet"].default is False
-        assert sig.parameters["verbose"].default is False
-        assert sig.parameters["force"].default is False
-        assert sig.parameters["log_callback"].default is None
-        assert sig.parameters["progress_callback"].default is None
+    def test_default_no_figs_is_false(self):
+        # Arrange
+        import inspect
 
-    @patch("scitex_writer._compile.manuscript.run_compile")
-    def test_calls_run_compile_with_manuscript_type(self, mock_run_compile):
-        """Test that compile_manuscript calls run_compile with 'manuscript' doc_type."""
-        mock_run_compile.return_value = CompilationResult(
-            success=True,
-            exit_code=0,
-            stdout="",
-            stderr="",
-            duration=1.0,
+        # Act
+        default = inspect.signature(compile_manuscript).parameters["no_figs"].default
+        # Assert
+        assert default is False
+
+    def test_default_ppt2tif_is_false(self):
+        # Arrange
+        import inspect
+
+        # Act
+        default = inspect.signature(compile_manuscript).parameters["ppt2tif"].default
+        # Assert
+        assert default is False
+
+    def test_default_crop_tif_is_false(self):
+        # Arrange
+        import inspect
+
+        # Act
+        default = inspect.signature(compile_manuscript).parameters["crop_tif"].default
+        # Assert
+        assert default is False
+
+    def test_default_quiet_is_false(self):
+        # Arrange
+        import inspect
+
+        # Act
+        default = inspect.signature(compile_manuscript).parameters["quiet"].default
+        # Assert
+        assert default is False
+
+    def test_default_verbose_is_false(self):
+        # Arrange
+        import inspect
+
+        # Act
+        default = inspect.signature(compile_manuscript).parameters["verbose"].default
+        # Assert
+        assert default is False
+
+    def test_default_force_is_false(self):
+        # Arrange
+        import inspect
+
+        # Act
+        default = inspect.signature(compile_manuscript).parameters["force"].default
+        # Assert
+        assert default is False
+
+    def test_default_log_callback_is_none(self):
+        # Arrange
+        import inspect
+
+        # Act
+        default = (
+            inspect.signature(compile_manuscript).parameters["log_callback"].default
         )
+        # Assert
+        assert default is None
 
-        project_dir = Path("/tmp/test-project")
-        compile_manuscript(project_dir)
+    def test_default_progress_callback_is_none(self):
+        # Arrange
+        import inspect
 
-        mock_run_compile.assert_called_once()
-        args, kwargs = mock_run_compile.call_args
-        assert args[0] == "manuscript"
-        assert args[1] == project_dir
-
-    @patch("scitex_writer._compile.manuscript.run_compile")
-    def test_passes_no_figs_option(self, mock_run_compile):
-        """Test that no_figs option is passed to run_compile."""
-        mock_run_compile.return_value = CompilationResult(
-            success=True,
-            exit_code=0,
-            stdout="",
-            stderr="",
-            duration=1.0,
+        # Act
+        default = (
+            inspect.signature(compile_manuscript)
+            .parameters["progress_callback"]
+            .default
         )
+        # Assert
+        assert default is None
 
-        project_dir = Path("/tmp/test-project")
-        compile_manuscript(project_dir, no_figs=True)
 
-        _, kwargs = mock_run_compile.call_args
-        assert kwargs["no_figs"] is True
+class TestCompileManuscriptBehavior:
+    """Behavioural tests — exercise compile_manuscript end-to-end with
+    real recording fakes. Each test asserts ONE observable contract
+    fact, derived from the side-effects captured by the fake."""
 
-    @patch("scitex_writer._compile.manuscript.run_compile")
-    def test_passes_ppt2tif_option(self, mock_run_compile):
-        """Test that ppt2tif option is passed to run_compile."""
-        mock_run_compile.return_value = CompilationResult(
-            success=True,
-            exit_code=0,
-            stdout="",
-            stderr="",
-            duration=1.0,
-        )
+    def test_runner_called_exactly_once_for_default_invocation(self, tmp_path):
+        # Arrange
+        runner = _RecordingRunner()
+        # Act
+        _run(tmp_path, runner)
+        # Assert
+        assert len(runner.calls) == 1
 
-        project_dir = Path("/tmp/test-project")
-        compile_manuscript(project_dir, ppt2tif=True)
+    def test_command_invokes_manuscript_compile_script_path(self, tmp_path):
+        # Arrange
+        runner = _RecordingRunner()
+        # Act
+        _run(tmp_path, runner)
+        # Assert
+        assert any("compile_manuscript.sh" in arg for arg in runner.calls[0])
 
-        _, kwargs = mock_run_compile.call_args
-        assert kwargs["ppt2tif"] is True
+    def test_no_figs_option_appends_no_figs_flag(self, tmp_path):
+        # Arrange
+        runner = _RecordingRunner()
+        # Act
+        _run(tmp_path, runner, no_figs=True)
+        # Assert
+        assert "--no_figs" in runner.calls[0]
 
-    @patch("scitex_writer._compile.manuscript.run_compile")
-    def test_passes_crop_tif_option(self, mock_run_compile):
-        """Test that crop_tif option is passed to run_compile."""
-        mock_run_compile.return_value = CompilationResult(
-            success=True,
-            exit_code=0,
-            stdout="",
-            stderr="",
-            duration=1.0,
-        )
+    def test_ppt2tif_option_appends_ppt2tif_flag(self, tmp_path):
+        # Arrange
+        runner = _RecordingRunner()
+        # Act
+        _run(tmp_path, runner, ppt2tif=True)
+        # Assert
+        assert "--ppt2tif" in runner.calls[0]
 
-        project_dir = Path("/tmp/test-project")
-        compile_manuscript(project_dir, crop_tif=True)
+    def test_crop_tif_option_appends_crop_tif_flag(self, tmp_path):
+        # Arrange
+        runner = _RecordingRunner()
+        # Act
+        _run(tmp_path, runner, crop_tif=True)
+        # Assert
+        assert "--crop_tif" in runner.calls[0]
 
-        _, kwargs = mock_run_compile.call_args
-        assert kwargs["crop_tif"] is True
+    def test_quiet_option_appends_quiet_flag(self, tmp_path):
+        # Arrange
+        runner = _RecordingRunner()
+        # Act
+        _run(tmp_path, runner, quiet=True)
+        # Assert
+        assert "--quiet" in runner.calls[0]
 
-    @patch("scitex_writer._compile.manuscript.run_compile")
-    def test_passes_quiet_option(self, mock_run_compile):
-        """Test that quiet option is passed to run_compile."""
-        mock_run_compile.return_value = CompilationResult(
-            success=True,
-            exit_code=0,
-            stdout="",
-            stderr="",
-            duration=1.0,
-        )
+    def test_verbose_option_appends_verbose_flag(self, tmp_path):
+        # Arrange
+        runner = _RecordingRunner()
+        # Act
+        _run(tmp_path, runner, verbose=True)
+        # Assert
+        assert "--verbose" in runner.calls[0]
 
-        project_dir = Path("/tmp/test-project")
-        compile_manuscript(project_dir, quiet=True)
+    def test_force_option_appends_force_flag(self, tmp_path):
+        # Arrange
+        runner = _RecordingRunner()
+        # Act
+        _run(tmp_path, runner, force=True)
+        # Assert
+        assert "--force" in runner.calls[0]
 
-        _, kwargs = mock_run_compile.call_args
-        assert kwargs["quiet"] is True
-
-    @patch("scitex_writer._compile.manuscript.run_compile")
-    def test_passes_verbose_option(self, mock_run_compile):
-        """Test that verbose option is passed to run_compile."""
-        mock_run_compile.return_value = CompilationResult(
-            success=True,
-            exit_code=0,
-            stdout="",
-            stderr="",
-            duration=1.0,
-        )
-
-        project_dir = Path("/tmp/test-project")
-        compile_manuscript(project_dir, verbose=True)
-
-        _, kwargs = mock_run_compile.call_args
-        assert kwargs["verbose"] is True
-
-    @patch("scitex_writer._compile.manuscript.run_compile")
-    def test_passes_force_option(self, mock_run_compile):
-        """Test that force option is passed to run_compile."""
-        mock_run_compile.return_value = CompilationResult(
-            success=True,
-            exit_code=0,
-            stdout="",
-            stderr="",
-            duration=1.0,
-        )
-
-        project_dir = Path("/tmp/test-project")
-        compile_manuscript(project_dir, force=True)
-
-        _, kwargs = mock_run_compile.call_args
-        assert kwargs["force"] is True
-
-    @patch("scitex_writer._compile.manuscript.run_compile")
-    def test_passes_callbacks(self, mock_run_compile):
-        """Test that callbacks are passed to run_compile."""
-        mock_run_compile.return_value = CompilationResult(
-            success=True,
-            exit_code=0,
-            stdout="",
-            stderr="",
-            duration=1.0,
-        )
-
-        log_callback = Mock()
-        progress_callback = Mock()
-
-        project_dir = Path("/tmp/test-project")
-        compile_manuscript(
-            project_dir,
-            log_callback=log_callback,
-            progress_callback=progress_callback,
-        )
-
-        _, kwargs = mock_run_compile.call_args
-        assert kwargs["log_callback"] is log_callback
-        assert kwargs["progress_callback"] is progress_callback
-
-    @patch("scitex_writer._compile.manuscript.run_compile")
-    def test_passes_multiple_options(self, mock_run_compile):
-        """Test that multiple options are passed correctly."""
-        mock_run_compile.return_value = CompilationResult(
-            success=True,
-            exit_code=0,
-            stdout="",
-            stderr="",
-            duration=1.0,
-        )
-
-        project_dir = Path("/tmp/test-project")
-        compile_manuscript(
-            project_dir,
+    def test_multiple_options_all_present_in_command(self, tmp_path):
+        # Arrange
+        runner = _RecordingRunner()
+        # Act
+        _run(
+            tmp_path,
+            runner,
             no_figs=True,
             ppt2tif=True,
             crop_tif=True,
             verbose=True,
             force=True,
         )
+        # Assert
+        cmd = runner.calls[0]
+        assert {
+            "--no_figs",
+            "--ppt2tif",
+            "--crop_tif",
+            "--verbose",
+            "--force",
+        }.issubset(set(cmd))
 
-        _, kwargs = mock_run_compile.call_args
-        assert kwargs["no_figs"] is True
-        assert kwargs["ppt2tif"] is True
-        assert kwargs["crop_tif"] is True
-        assert kwargs["verbose"] is True
-        assert kwargs["force"] is True
-
-    @patch("scitex_writer._compile.manuscript.run_compile")
-    def test_returns_compilation_result(self, mock_run_compile):
-        """Test that function returns CompilationResult."""
-        expected_result = CompilationResult(
-            success=True,
-            exit_code=0,
-            stdout="Test output",
-            stderr="",
-            duration=2.5,
-        )
-        mock_run_compile.return_value = expected_result
-
-        project_dir = Path("/tmp/test-project")
-        result = compile_manuscript(project_dir)
-
-        assert result is expected_result
+    def test_returns_compilation_result_with_success_true_on_zero_exit(self, tmp_path):
+        # Arrange
+        runner = _RecordingRunner()
+        # Act
+        result = _run(tmp_path, runner)
+        # Assert
         assert result.success is True
+
+    def test_returns_compilation_result_with_exit_code_zero_on_success(self, tmp_path):
+        # Arrange
+        runner = _RecordingRunner()
+        # Act
+        result = _run(tmp_path, runner)
+        # Assert
         assert result.exit_code == 0
-        assert result.duration == 2.5
+
+    def test_progress_callback_receives_completion_update(self, tmp_path):
+        # Arrange
+        runner = _RecordingRunner()
+        progress_events: list[tuple[int, str]] = []
+
+        def record_progress(pct: int, step: str) -> None:
+            progress_events.append((pct, step))
+
+        # Act
+        _run(tmp_path, runner, progress_callback=record_progress)
+        # Assert
+        assert any(pct == 100 for pct, _ in progress_events)
 
 
 # EOF
 
 if __name__ == "__main__":
     import os
-
-    import pytest
 
     pytest.main([os.path.abspath(__file__)])
