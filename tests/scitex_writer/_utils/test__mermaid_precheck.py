@@ -4,17 +4,17 @@
 
 """Tests for scitex_writer._utils._mermaid_precheck.check_mmdc_or_raise.
 
-These tests use tmp_path PATH manipulation (not unittest.mock) to
-exercise the precheck without requiring a real mmdc install on the
-CI runner.
+These tests use ``tmp_path`` + the explicit ``mmdc_path`` override on
+``check_mmdc_or_raise`` so we never touch ``shutil.which`` / PATH and
+never need the ``monkeypatch`` fixture (PA-306 no-mocks doctrine).
+A fake ``mmdc`` is written into ``tmp_path`` as a tiny shell script
+with controlled exit code / stderr to simulate each failure mode.
 """
 
-import os
 import stat
 from pathlib import Path
 
 import pytest
-
 from scitex_writer._utils._mermaid_precheck import (
     MermaidDependencyError,
     check_mmdc_or_raise,
@@ -22,55 +22,32 @@ from scitex_writer._utils._mermaid_precheck import (
 
 
 # ---------------------------------------------------------------------------
-# Helpers (testing infrastructure — write a fake mmdc into tmp_path)
+# Helpers (testing infrastructure — drop a fake mmdc shim into tmp_path)
 # ---------------------------------------------------------------------------
 
 
-def _install_fake_mmdc(
-    tmp_path: Path,
-    monkeypatch: pytest.MonkeyPatch,
-    body: str,
-) -> Path:
-    """Drop a fake mmdc shell-script into tmp_path and put it on PATH.
-
-    Returns the path to the fake mmdc binary.
-    """
-    bin_dir = tmp_path / "bin"
-    bin_dir.mkdir()
-    fake = bin_dir / "mmdc"
+def _write_fake_mmdc(tmp_path: Path, body: str) -> Path:
+    """Write an executable shim at ``tmp_path/mmdc`` and return its path."""
+    fake = tmp_path / "mmdc"
     fake.write_text(body)
     fake.chmod(fake.stat().st_mode | stat.S_IEXEC | stat.S_IXGRP | stat.S_IXOTH)
-    monkeypatch.setenv("PATH", str(bin_dir), prepend=os.pathsep)
     return fake
 
 
 # ---------------------------------------------------------------------------
-# mmdc not on PATH
+# mmdc not on PATH (caller passes an explicit nonexistent path)
 # ---------------------------------------------------------------------------
 
 
 class TestMmdcMissing:
-    """mmdc binary is not present anywhere on PATH."""
+    """No mmdc binary exists at the given path."""
 
-    def test_raises_mermaid_dependency_error_when_mmdc_missing(
-        self, tmp_path, monkeypatch
-    ):
+    def test_raises_mermaid_dependency_error_when_mmdc_missing(self, tmp_path):
         # Arrange
-        monkeypatch.setenv("PATH", str(tmp_path / "empty"))
+        bogus = str(tmp_path / "does-not-exist" / "mmdc")
         # Act / Assert
-        with pytest.raises(MermaidDependencyError):
-            check_mmdc_or_raise()
-
-    def test_error_message_mentions_install_hint_when_missing(
-        self, tmp_path, monkeypatch
-    ):
-        # Arrange
-        monkeypatch.setenv("PATH", str(tmp_path / "empty"))
-        # Act
-        with pytest.raises(MermaidDependencyError) as exc_info:
-            check_mmdc_or_raise()
-        # Assert
-        assert "mermaid-cli" in str(exc_info.value)
+        with pytest.raises(MermaidDependencyError, match="mermaid-cli"):
+            check_mmdc_or_raise(mmdc_path=bogus)
 
 
 # ---------------------------------------------------------------------------
@@ -79,15 +56,12 @@ class TestMmdcMissing:
 
 
 class TestMmdcLibnspr4Missing:
-    """mmdc is on PATH but its chromium dep is missing libnspr4."""
+    """mmdc binary exists but its chromium dep is missing libnspr4."""
 
-    def test_raises_mermaid_dependency_error_when_libnspr4_missing(
-        self, tmp_path, monkeypatch
-    ):
+    def test_raises_with_libnspr4_install_hint(self, tmp_path):
         # Arrange
-        _install_fake_mmdc(
+        fake = _write_fake_mmdc(
             tmp_path,
-            monkeypatch,
             body=(
                 "#!/bin/sh\n"
                 "echo 'error while loading shared libraries: libnspr4.so:"
@@ -96,28 +70,8 @@ class TestMmdcLibnspr4Missing:
             ),
         )
         # Act / Assert
-        with pytest.raises(MermaidDependencyError):
-            check_mmdc_or_raise()
-
-    def test_error_message_mentions_libnspr4_install_hint(
-        self, tmp_path, monkeypatch
-    ):
-        # Arrange
-        _install_fake_mmdc(
-            tmp_path,
-            monkeypatch,
-            body=(
-                "#!/bin/sh\n"
-                "echo 'error while loading shared libraries: libnspr4.so:"
-                " cannot open shared object file' >&2\n"
-                "exit 127\n"
-            ),
-        )
-        # Act
-        with pytest.raises(MermaidDependencyError) as exc_info:
-            check_mmdc_or_raise()
-        # Assert
-        assert "libnspr4" in str(exc_info.value)
+        with pytest.raises(MermaidDependencyError, match="libnspr4"):
+            check_mmdc_or_raise(mmdc_path=str(fake))
 
 
 # ---------------------------------------------------------------------------
@@ -126,15 +80,12 @@ class TestMmdcLibnspr4Missing:
 
 
 class TestMmdcApptainerSegfault:
-    """mmdc on PATH, but headless chromium SIGSEGVs (typical apptainer)."""
+    """mmdc binary exists, but its headless chromium SIGSEGVs."""
 
-    def test_raises_mermaid_dependency_error_on_sigsegv(
-        self, tmp_path, monkeypatch
-    ):
+    def test_raises_with_sandbox_hint_on_sigsegv(self, tmp_path):
         # Arrange
-        _install_fake_mmdc(
+        fake = _write_fake_mmdc(
             tmp_path,
-            monkeypatch,
             body=(
                 "#!/bin/sh\n"
                 "echo 'Aborted (core dumped) SIGSEGV in chromium' >&2\n"
@@ -142,27 +93,8 @@ class TestMmdcApptainerSegfault:
             ),
         )
         # Act / Assert
-        with pytest.raises(MermaidDependencyError):
-            check_mmdc_or_raise()
-
-    def test_error_message_mentions_sandbox_hint_on_sigsegv(
-        self, tmp_path, monkeypatch
-    ):
-        # Arrange
-        _install_fake_mmdc(
-            tmp_path,
-            monkeypatch,
-            body=(
-                "#!/bin/sh\n"
-                "echo 'Aborted (core dumped) SIGSEGV in chromium' >&2\n"
-                "exit 139\n"
-            ),
-        )
-        # Act
-        with pytest.raises(MermaidDependencyError) as exc_info:
-            check_mmdc_or_raise()
-        # Assert
-        assert "sandbox" in str(exc_info.value).lower()
+        with pytest.raises(MermaidDependencyError, match="sandbox"):
+            check_mmdc_or_raise(mmdc_path=str(fake))
 
 
 # ---------------------------------------------------------------------------
@@ -171,42 +103,44 @@ class TestMmdcApptainerSegfault:
 
 
 class TestMmdcWorking:
-    """mmdc is on PATH and runs --version successfully."""
+    """mmdc binary exists and ``mmdc --version`` succeeds."""
 
-    def test_returns_resolved_mmdc_path_when_working(
-        self, tmp_path, monkeypatch
-    ):
+    def test_returns_resolved_mmdc_path_when_working(self, tmp_path):
         # Arrange
-        fake = _install_fake_mmdc(
+        fake = _write_fake_mmdc(
             tmp_path,
-            monkeypatch,
             body="#!/bin/sh\necho '10.0.0'\nexit 0\n",
         )
         # Act
-        resolved = check_mmdc_or_raise()
+        resolved = check_mmdc_or_raise(mmdc_path=str(fake))
         # Assert
         assert resolved == str(fake)
 
 
 # ---------------------------------------------------------------------------
-# Explicit override path
+# mmdc present but a generic non-zero exit (not libnspr4 / not SIGSEGV)
 # ---------------------------------------------------------------------------
 
 
-class TestMmdcExplicitOverride:
-    """Caller passes mmdc_path explicitly (bypassing shutil.which)."""
+class TestMmdcGenericFailure:
+    """mmdc exits non-zero with stderr that matches neither known needle."""
 
-    def test_raises_when_explicit_path_does_not_exist(self, tmp_path):
+    def test_raises_with_install_hint_on_generic_failure(self, tmp_path):
         # Arrange
-        bogus = str(tmp_path / "does-not-exist" / "mmdc")
+        fake = _write_fake_mmdc(
+            tmp_path,
+            body=(
+                "#!/bin/sh\necho 'some unrelated error message' >&2\nexit 2\n"
+            ),
+        )
         # Act / Assert
-        with pytest.raises(MermaidDependencyError):
-            check_mmdc_or_raise(mmdc_path=bogus)
+        with pytest.raises(MermaidDependencyError, match="exited with code 2"):
+            check_mmdc_or_raise(mmdc_path=str(fake))
 
 
 if __name__ == "__main__":
-    import os as _os
+    import os
 
-    pytest.main([_os.path.abspath(__file__)])
+    pytest.main([os.path.abspath(__file__)])
 
 # EOF
