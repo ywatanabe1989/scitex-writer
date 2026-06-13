@@ -45,7 +45,8 @@ class TestMmdcMissing:
     def test_raises_mermaid_dependency_error_when_mmdc_missing(self, tmp_path):
         # Arrange
         bogus = str(tmp_path / "does-not-exist" / "mmdc")
-        # Act / Assert
+        # Act
+        # Assert
         with pytest.raises(MermaidDependencyError, match="mermaid-cli"):
             check_mmdc_or_raise(mmdc_path=bogus)
 
@@ -69,7 +70,8 @@ class TestMmdcLibnspr4Missing:
                 "exit 127\n"
             ),
         )
-        # Act / Assert
+        # Act
+        # Assert
         with pytest.raises(MermaidDependencyError, match="libnspr4"):
             check_mmdc_or_raise(mmdc_path=str(fake))
 
@@ -92,7 +94,8 @@ class TestMmdcApptainerSegfault:
                 "exit 139\n"
             ),
         )
-        # Act / Assert
+        # Act
+        # Assert
         with pytest.raises(MermaidDependencyError, match="sandbox"):
             check_mmdc_or_raise(mmdc_path=str(fake))
 
@@ -131,7 +134,8 @@ class TestMmdcGenericFailure:
             tmp_path,
             body=("#!/bin/sh\necho 'some unrelated error message' >&2\nexit 2\n"),
         )
-        # Act / Assert
+        # Act
+        # Assert
         with pytest.raises(MermaidDependencyError, match="exited with code 2"):
             check_mmdc_or_raise(mmdc_path=str(fake))
 
