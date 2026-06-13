@@ -15,10 +15,7 @@ from pathlib import Path
 
 import pytest
 
-from scitex_writer._utils._mermaid_precheck import (
-    MermaidDependencyError,
-    check_mmdc_or_raise,
-)
+from scitex_writer._utils._mermaid_precheck import MermaidDependencyError, check_mmdc_or_raise
 
 
 # ---------------------------------------------------------------------------
