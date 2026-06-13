@@ -6,10 +6,13 @@
 
 from ._csv_latex import csv2latex, latex2csv
 from ._figures import convert_figure, list_figures
+from ._mermaid_precheck import MermaidDependencyError, check_mmdc_or_raise
 from ._pdf_images import pdf_thumbnail, pdf_to_images
 from ._verify_tree_structure import verify_tree_structure
 
 __all__ = [
+    "MermaidDependencyError",
+    "check_mmdc_or_raise",
     "convert_figure",
     "csv2latex",
     "latex2csv",
