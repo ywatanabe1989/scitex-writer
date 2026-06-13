@@ -4,17 +4,17 @@
 
 """Tests for scitex_writer._utils._mermaid_precheck.check_mmdc_or_raise.
 
-These tests use ``tmp_path`` + the explicit ``mmdc_path`` override on
-``check_mmdc_or_raise`` so we never touch ``shutil.which`` / PATH and
-never need the ``monkeypatch`` fixture (PA-306 no-mocks doctrine).
+These tests use ``tmp_path`` plus the explicit ``mmdc_path`` override
+on ``check_mmdc_or_raise`` so we never touch ``shutil.which`` / PATH
+and never need the ``monkeypatch`` fixture (PA-306 no-mocks doctrine).
 A fake ``mmdc`` is written into ``tmp_path`` as a tiny shell script
 with controlled exit code / stderr to simulate each failure mode.
 """
 
-import stat
 from pathlib import Path
 
 import pytest
+
 from scitex_writer._utils._mermaid_precheck import (
     MermaidDependencyError,
     check_mmdc_or_raise,
@@ -30,7 +30,8 @@ def _write_fake_mmdc(tmp_path: Path, body: str) -> Path:
     """Write an executable shim at ``tmp_path/mmdc`` and return its path."""
     fake = tmp_path / "mmdc"
     fake.write_text(body)
-    fake.chmod(fake.stat().st_mode | stat.S_IEXEC | stat.S_IXGRP | stat.S_IXOTH)
+    # chmod +rwx for owner / group / world (0o755)
+    fake.chmod(0o755)
     return fake
 
 
