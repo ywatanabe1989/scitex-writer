@@ -13,8 +13,11 @@ from unittest.mock import patch
 class TestVersion:
     """Test version-related functionality."""
 
-    def test_version_import(self):
+    def test_version_import_returns_string(self):
         """Test that version can be imported."""
+        # Arrange
+        # Act
+        # Assert
         from scitex_writer import __version__
 
         assert __version__ is not None
@@ -23,6 +26,9 @@ class TestVersion:
 
     def test_version_cli_flag(self):
         """Test --version flag."""
+        # Arrange
+        # Act
+        # Assert
         from scitex_writer import __version__
 
         result = subprocess.run(
@@ -36,6 +42,9 @@ class TestVersion:
 
     def test_version_short_flag(self):
         """Test -V flag."""
+        # Arrange
+        # Act
+        # Assert
         result = subprocess.run(
             [sys.executable, "-m", "scitex_writer", "-V"],
             capture_output=True,
@@ -48,8 +57,11 @@ class TestVersion:
 class TestMainHelp:
     """Test main help functionality."""
 
-    def test_help_flag(self):
+    def test_help_flag_displays_banner(self):
         """Test --help flag."""
+        # Arrange
+        # Act
+        # Assert
         result = subprocess.run(
             [sys.executable, "-m", "scitex_writer", "--help"],
             capture_output=True,
@@ -64,6 +76,9 @@ class TestMainHelp:
 
     def test_short_help_flag(self):
         """Test -h flag."""
+        # Arrange
+        # Act
+        # Assert
         result = subprocess.run(
             [sys.executable, "-m", "scitex_writer", "-h"],
             capture_output=True,
@@ -76,8 +91,11 @@ class TestMainHelp:
 class TestMcpCommand:
     """Test MCP subcommand."""
 
-    def test_mcp_help(self):
+    def test_mcp_help_lists_subcommands(self):
         """Test mcp --help."""
+        # Arrange
+        # Act
+        # Assert
         result = subprocess.run(
             [sys.executable, "-m", "scitex_writer", "mcp", "--help"],
             capture_output=True,
@@ -91,8 +109,11 @@ class TestMcpCommand:
 class TestMcpInstallation:
     """Test mcp installation subcommand."""
 
-    def test_mcp_installation(self):
+    def test_mcp_installation_emits_config(self):
         """Test mcp installation output."""
+        # Arrange
+        # Act
+        # Assert
         result = subprocess.run(
             [sys.executable, "-m", "scitex_writer", "mcp", "installation"],
             capture_output=True,
@@ -107,6 +128,9 @@ class TestMcpStart:
 
     def test_mcp_start_help(self):
         """Test mcp start --help."""
+        # Arrange
+        # Act
+        # Assert
         result = subprocess.run(
             [sys.executable, "-m", "scitex_writer", "mcp", "start", "--help"],
             capture_output=True,
@@ -121,6 +145,9 @@ class TestMainFunction:
 
     def test_main_no_args(self):
         """Test main() with no arguments shows help."""
+        # Arrange
+        # Act
+        # Assert
         from scitex_writer._cli import main
 
         with patch("sys.argv", ["scitex-writer"]):
@@ -129,6 +156,9 @@ class TestMainFunction:
 
     def test_main_mcp_no_subcommand(self):
         """Test main() with mcp but no subcommand shows help."""
+        # Arrange
+        # Act
+        # Assert
         from scitex_writer._cli import main
 
         with patch("sys.argv", ["scitex-writer", "mcp"]):

@@ -100,6 +100,9 @@ def generate_ai2_prompt(title, keywords, authors, abstract, sections=None):
 # Tests for read_tex_content
 def test_read_tex_content_normal(tmp_path):
     """Test reading normal tex content."""
+    # Arrange
+    # Act
+    # Assert
     tex_file = tmp_path / "test.tex"
     tex_file.write_text("This is normal content\nWith multiple lines")
 
@@ -109,6 +112,9 @@ def test_read_tex_content_normal(tmp_path):
 
 def test_read_tex_content_removes_comments(tmp_path):
     """Test that comment lines are removed."""
+    # Arrange
+    # Act
+    # Assert
     tex_file = tmp_path / "test.tex"
     tex_file.write_text("""
 This is valid content
@@ -125,6 +131,9 @@ More valid content
 
 def test_read_tex_content_missing_file(tmp_path):
     """Test missing file returns empty string."""
+    # Arrange
+    # Act
+    # Assert
     tex_file = tmp_path / "nonexistent.tex"
 
     content = read_tex_content(tex_file)
@@ -133,6 +142,9 @@ def test_read_tex_content_missing_file(tmp_path):
 
 def test_read_tex_content_empty_file(tmp_path):
     """Test empty file returns empty string."""
+    # Arrange
+    # Act
+    # Assert
     tex_file = tmp_path / "empty.tex"
     tex_file.write_text("")
 
@@ -142,6 +154,9 @@ def test_read_tex_content_empty_file(tmp_path):
 
 def test_read_tex_content_only_comments(tmp_path):
     """Test file with only comments."""
+    # Arrange
+    # Act
+    # Assert
     tex_file = tmp_path / "comments.tex"
     tex_file.write_text("""
 % Comment 1
@@ -156,6 +171,9 @@ def test_read_tex_content_only_comments(tmp_path):
 # Tests for clean_latex_content
 def test_clean_latex_removes_begin_end(tmp_path):
     """Test that begin/end environments are removed."""
+    # Arrange
+    # Act
+    # Assert
     content = "\\begin{abstract}This is text\\end{abstract}"
 
     cleaned = clean_latex_content(content)
@@ -166,6 +184,9 @@ def test_clean_latex_removes_begin_end(tmp_path):
 
 def test_clean_latex_removes_commands(tmp_path):
     """Test that LaTeX commands are removed."""
+    # Arrange
+    # Act
+    # Assert
     content = "This is \\textbf{bold} and \\emph{italic} text"
 
     cleaned = clean_latex_content(content)
@@ -177,6 +198,9 @@ def test_clean_latex_removes_commands(tmp_path):
 
 def test_clean_latex_removes_nested(tmp_path):
     """Test nested commands are properly handled."""
+    # Arrange
+    # Act
+    # Assert
     content = "This is \\textbf{\\emph{nested}} text"
 
     cleaned = clean_latex_content(content)
@@ -187,6 +211,9 @@ def test_clean_latex_removes_nested(tmp_path):
 
 def test_clean_latex_removes_pdfbookmark(tmp_path):
     """Test pdfbookmark commands are removed."""
+    # Arrange
+    # Act
+    # Assert
     content = "\\pdfbookmark[1]{Title}{label}This is content"
 
     cleaned = clean_latex_content(content)
@@ -196,6 +223,9 @@ def test_clean_latex_removes_pdfbookmark(tmp_path):
 
 def test_clean_latex_removes_optional_args(tmp_path):
     """Test commands with optional arguments are handled."""
+    # Arrange
+    # Act
+    # Assert
     content = "\\section[short]{Long Title}"
 
     cleaned = clean_latex_content(content)
@@ -205,6 +235,9 @@ def test_clean_latex_removes_optional_args(tmp_path):
 
 def test_clean_latex_multiple_spaces(tmp_path):
     """Test multiple spaces are collapsed."""
+    # Arrange
+    # Act
+    # Assert
     content = "This  has    many     spaces"
 
     cleaned = clean_latex_content(content)
@@ -214,6 +247,9 @@ def test_clean_latex_multiple_spaces(tmp_path):
 
 def test_clean_latex_multiple_newlines(tmp_path):
     """Test multiple newlines are collapsed."""
+    # Arrange
+    # Act
+    # Assert
     content = "Para 1\n\n\n\nPara 2"
 
     cleaned = clean_latex_content(content)
@@ -224,6 +260,9 @@ def test_clean_latex_multiple_newlines(tmp_path):
 # Tests for generate_ai2_prompt
 def test_generate_prompt_has_header(tmp_path):
     """Test output starts with expected header."""
+    # Arrange
+    # Act
+    # Assert
     prompt = generate_ai2_prompt("Title", "", "", "")
 
     assert prompt.startswith("# Literature Search Request")
@@ -232,6 +271,9 @@ def test_generate_prompt_has_header(tmp_path):
 
 def test_generate_prompt_includes_title(tmp_path):
     """Test title appears in prompt."""
+    # Arrange
+    # Act
+    # Assert
     prompt = generate_ai2_prompt("Test Manuscript Title", "", "", "")
 
     assert "## Title" in prompt
@@ -240,6 +282,9 @@ def test_generate_prompt_includes_title(tmp_path):
 
 def test_generate_prompt_includes_abstract(tmp_path):
     """Test abstract appears in prompt."""
+    # Arrange
+    # Act
+    # Assert
     abstract = "This is the abstract text with important findings."
     prompt = generate_ai2_prompt("", "", "", abstract)
 
@@ -249,6 +294,9 @@ def test_generate_prompt_includes_abstract(tmp_path):
 
 def test_generate_prompt_selective_sections(tmp_path):
     """Test only requested sections are included."""
+    # Arrange
+    # Act
+    # Assert
     prompt = generate_ai2_prompt(
         "Title Text",
         "Keywords Text",
@@ -265,6 +313,9 @@ def test_generate_prompt_selective_sections(tmp_path):
 
 def test_generate_prompt_all_sections(tmp_path):
     """Test all sections when requested."""
+    # Arrange
+    # Act
+    # Assert
     prompt = generate_ai2_prompt(
         "Title",
         "keyword1, keyword2",
@@ -281,6 +332,9 @@ def test_generate_prompt_all_sections(tmp_path):
 
 def test_generate_prompt_cleans_latex(tmp_path):
     """Test LaTeX commands are cleaned from content."""
+    # Arrange
+    # Act
+    # Assert
     prompt = generate_ai2_prompt(
         "\\textbf{Bold Title}", "", "", "Abstract with \\emph{italic} words"
     )
@@ -293,6 +347,9 @@ def test_generate_prompt_cleans_latex(tmp_path):
 
 def test_generate_prompt_empty_sections_omitted(tmp_path):
     """Test empty sections are not included."""
+    # Arrange
+    # Act
+    # Assert
     prompt = generate_ai2_prompt("Title", "", "", "")
 
     assert "## Title" in prompt
@@ -303,6 +360,9 @@ def test_generate_prompt_empty_sections_omitted(tmp_path):
 
 def test_generate_prompt_structure(tmp_path):
     """Test overall prompt structure is correct."""
+    # Arrange
+    # Act
+    # Assert
     prompt = generate_ai2_prompt(
         "Test Title", "test, keywords", "Author Name", "Test abstract"
     )

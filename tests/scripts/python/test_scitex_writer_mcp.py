@@ -25,8 +25,11 @@ def _get_tool_names(mcp) -> list:
 class TestMcpModule:
     """Test MCP module functionality."""
 
-    def test_mcp_import(self):
+    def test_mcp_import_exposes_app(self):
         """Test that MCP module can be imported."""
+        # Arrange
+        # Act
+        # Assert
         from scitex_writer._mcp import mcp
 
         assert mcp is not None
@@ -37,6 +40,9 @@ class TestMcpModule:
 
     def test_instructions_via_branding(self):
         """Test that instructions are available via branding module."""
+        # Arrange
+        # Act
+        # Assert
         from scitex_writer._branding import get_mcp_instructions
 
         instructions = get_mcp_instructions()
@@ -46,6 +52,9 @@ class TestMcpModule:
 
     def test_run_server_function_exists(self):
         """Test that run_server function exists."""
+        # Arrange
+        # Act
+        # Assert
         from scitex_writer._mcp import run_server
 
         assert callable(run_server)
@@ -56,12 +65,18 @@ class TestToolRegistration:
 
     def test_usage_tool_registered(self):
         """Test that usage tool is registered with MCP."""
+        # Arrange
+        # Act
+        # Assert
         from scitex_writer._mcp import mcp
 
         assert "get_usage" in _get_tool_names(mcp)
 
-    def test_tool_count(self):
+    def test_tool_count_matches_expected(self):
         """Test that expected number of tools are registered."""
+        # Arrange
+        # Act
+        # Assert
         from scitex_writer._mcp import mcp
 
         # 30+ tools: usage(1), project(4), compile(4), tables(5), figures(5),
@@ -74,6 +89,9 @@ class TestUsageTool:
 
     def test_usage_returns_instructions(self):
         """Test usage tool returns instructions."""
+        # Arrange
+        # Act
+        # Assert
         from scitex_writer._mcp import mcp
 
         assert "get_usage" in _get_tool_names(mcp)
@@ -84,6 +102,9 @@ class TestInstructionsContent:
 
     def test_instructions_has_setup(self):
         """Test that instructions contains setup/clone info."""
+        # Arrange
+        # Act
+        # Assert
         from scitex_writer._branding import get_mcp_instructions
 
         instructions = get_mcp_instructions()
@@ -92,6 +113,9 @@ class TestInstructionsContent:
 
     def test_instructions_has_structure(self):
         """Test that instructions contains project structure info."""
+        # Arrange
+        # Act
+        # Assert
         from scitex_writer._branding import get_mcp_instructions
 
         instructions = get_mcp_instructions()
@@ -102,6 +126,9 @@ class TestInstructionsContent:
 
     def test_instructions_has_editable_files(self):
         """Test that instructions lists editable files."""
+        # Arrange
+        # Act
+        # Assert
         from scitex_writer._branding import get_mcp_instructions
 
         instructions = get_mcp_instructions()
@@ -113,6 +140,9 @@ class TestInstructionsContent:
 
     def test_instructions_has_compile_options(self):
         """Test that instructions lists compile options."""
+        # Arrange
+        # Act
+        # Assert
         from scitex_writer._branding import get_mcp_instructions
 
         instructions = get_mcp_instructions()
@@ -123,6 +153,9 @@ class TestInstructionsContent:
 
     def test_instructions_has_output_info(self):
         """Test that instructions lists output files."""
+        # Arrange
+        # Act
+        # Assert
         from scitex_writer._branding import get_mcp_instructions
 
         instructions = get_mcp_instructions()
@@ -130,6 +163,9 @@ class TestInstructionsContent:
 
     def test_instructions_has_scitex_writer_root(self):
         """Test that instructions explains SCITEX_WRITER_ROOT."""
+        # Arrange
+        # Act
+        # Assert
         from scitex_writer._branding import get_mcp_instructions
 
         instructions = get_mcp_instructions()
@@ -138,6 +174,9 @@ class TestInstructionsContent:
 
     def test_instructions_has_revision_info(self):
         """Test that instructions mentions revision directory."""
+        # Arrange
+        # Act
+        # Assert
         from scitex_writer._branding import get_mcp_instructions
 
         instructions = get_mcp_instructions()
@@ -145,6 +184,9 @@ class TestInstructionsContent:
 
     def test_instructions_has_bib_merge(self):
         """Test that instructions explains bib auto-merge."""
+        # Arrange
+        # Act
+        # Assert
         from scitex_writer._branding import get_mcp_instructions
 
         instructions = get_mcp_instructions()
@@ -155,14 +197,20 @@ class TestInstructionsContent:
 class TestHandlersModule:
     """Test handlers module can be imported."""
 
-    def test_handlers_import(self):
+    def test_handlers_import_works_correctly(self):
         """Test that handlers module can be imported."""
+        # Arrange
+        # Act
+        # Assert
         from scitex_writer._mcp import handlers
 
         assert handlers is not None
 
     def test_handlers_functions_exist(self):
         """Test that all handler functions exist (not registered, but available)."""
+        # Arrange
+        # Act
+        # Assert
         from scitex_writer._mcp import handlers
 
         assert callable(handlers.clone_project)
@@ -182,8 +230,11 @@ class TestHandlersModule:
 class TestUtilsModule:
     """Test utils module."""
 
-    def test_utils_import(self):
+    def test_utils_import_works_correctly(self):
         """Test that utils module can be imported."""
+        # Arrange
+        # Act
+        # Assert
         from scitex_writer._mcp.utils import resolve_project_path, run_compile_script
 
         assert callable(resolve_project_path)
@@ -191,6 +242,9 @@ class TestUtilsModule:
 
     def test_resolve_project_path_relative(self):
         """Test resolve_project_path with relative path."""
+        # Arrange
+        # Act
+        # Assert
         from scitex_writer._mcp.utils import resolve_project_path
 
         result = resolve_project_path(".")
@@ -198,6 +252,9 @@ class TestUtilsModule:
 
     def test_resolve_project_path_absolute(self):
         """Test resolve_project_path with absolute path."""
+        # Arrange
+        # Act
+        # Assert
         from scitex_writer._mcp.utils import resolve_project_path
 
         result = resolve_project_path("/tmp")
@@ -209,6 +266,9 @@ class TestBranding:
 
     def test_default_brand_values(self):
         """Test default branding values."""
+        # Arrange
+        # Act
+        # Assert
         from scitex_writer._branding import BRAND_ALIAS, BRAND_NAME
 
         # Default values when env vars not set
@@ -217,6 +277,9 @@ class TestBranding:
 
     def test_get_mcp_server_name(self):
         """Test MCP server name generation."""
+        # Arrange
+        # Act
+        # Assert
         from scitex_writer._branding import get_mcp_server_name
 
         # Should replace dots with hyphens
@@ -225,6 +288,9 @@ class TestBranding:
 
     def test_rebrand_text_noop(self):
         """Test rebrand_text returns original when no branding change."""
+        # Arrange
+        # Act
+        # Assert
         from scitex_writer._branding import rebrand_text
 
         text = "import scitex_writer as sw"
@@ -233,6 +299,9 @@ class TestBranding:
 
     def test_rebrand_text_none(self):
         """Test rebrand_text handles None."""
+        # Arrange
+        # Act
+        # Assert
         from scitex_writer._branding import rebrand_text
 
         result = rebrand_text(None)
