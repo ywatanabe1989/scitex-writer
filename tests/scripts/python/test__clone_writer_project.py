@@ -11,7 +11,6 @@ No-mock rewrite: each test drives the real implementation against either
 
 import os
 import subprocess
-from pathlib import Path
 
 import pytest
 
