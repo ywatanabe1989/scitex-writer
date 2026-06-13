@@ -276,6 +276,11 @@ def run_compile(
     force: bool = False,
     log_callback: Optional[Callable[[str], None]] = None,
     progress_callback: Optional[Callable[[int, str], None]] = None,
+    *,
+    runner_fn: Optional[Callable[..., dict]] = None,
+    validator_fn: Optional[Callable[[Path], None]] = None,
+    output_finder_fn: Optional[Callable[[Path, str], tuple]] = None,
+    script_resolver_fn: Optional[Callable[[Path, str], Path]] = None,
 ) -> CompilationResult:
     """
     Run compilation script and parse results with optional callbacks.
@@ -315,6 +320,16 @@ def run_compile(
     start_time = datetime.now()
     project_dir = Path(project_dir).absolute()
 
+    # Resolve injectable collaborators (default to real implementations)
+    _runner = runner_fn if runner_fn is not None else _run_sh_command
+    _validator = validator_fn if validator_fn is not None else validate_before_compile
+    _find_outputs = (
+        output_finder_fn if output_finder_fn is not None else _find_output_files
+    )
+    _resolve_script = (
+        script_resolver_fn if script_resolver_fn is not None else _get_compile_script
+    )
+
     # Helper for progress tracking
     def progress(percent: int, step: str):
         if progress_callback:
@@ -334,7 +349,7 @@ def run_compile(
     # Validate project structure before compilation
     try:
         progress(5, "Validating project structure...")
-        validate_before_compile(project_dir)
+        _validator(project_dir)
         log("[INFO] Project structure validated")
     except Exception as e:
         error_msg = f"[ERROR] Validation failed: {e}"
@@ -348,7 +363,7 @@ def run_compile(
         )
 
     # Get compile script
-    compile_script = _get_compile_script(project_dir, doc_type)
+    compile_script = _resolve_script(project_dir, doc_type)
     if not compile_script or not compile_script.exists():
         error_msg = f"[ERROR] Compilation script not found: {compile_script}"
         log(error_msg)
@@ -404,8 +419,8 @@ def run_compile(
         try:
             progress(15, "Executing LaTeX compilation...")
 
-            # Use callbacks version if callbacks provided
-            if log_callback:
+            # Use callbacks version if callbacks provided (and no custom runner injected)
+            if log_callback and runner_fn is None:
                 result_dict = _execute_with_callbacks(
                     command=cmd,
                     cwd=project_dir,
@@ -413,8 +428,8 @@ def run_compile(
                     log_callback=log_callback,
                 )
             else:
-                # Use simple subprocess execution
-                result_dict = _run_sh_command(
+                # Use simple subprocess execution (or injected runner)
+                result_dict = _runner(
                     cmd,
                     verbose=True,
                     timeout=timeout,
@@ -439,7 +454,7 @@ def run_compile(
         if result.returncode == 0:
             progress(90, "Compilation successful, locating output files...")
             log("[INFO] Compilation succeeded, checking output files...")
-            output_pdf, diff_pdf, log_file = _find_output_files(project_dir, doc_type)
+            output_pdf, diff_pdf, log_file = _find_outputs(project_dir, doc_type)
             if output_pdf:
                 log(f"[SUCCESS] PDF generated: {output_pdf}")
         else:

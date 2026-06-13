@@ -10,219 +10,332 @@ Tests compile_supplementary function with various options:
 - quiet: Output verbosity
 - log_callback: Live logging
 - progress_callback: Progress tracking
+
+NM-rewrite (2026-06-13): replaced unittest.mock.patch/Mock with real
+recording-fake collaborators injected through the new public
+runner_fn/validator_fn/output_finder_fn/script_resolver_fn kwargs.
 """
+
+from pathlib import Path
 
 import pytest
 
 pytest.importorskip("git")
-from pathlib import Path
-from unittest.mock import Mock, patch
 
 from scitex_writer._compile.supplementary import compile_supplementary
-from scitex_writer._dataclasses import CompilationResult
+
+# ---------------------------------------------------------------------------
+# Real fakes
+# ---------------------------------------------------------------------------
 
 
-class TestCompileSupplementary:
-    """Test suite for compile_supplementary function."""
+class _RecordingRunner:
+    def __init__(self):
+        self.calls: list[list[str]] = []
 
-    def test_import(self):
-        """Test that compile_supplementary can be imported."""
+    def __call__(self, cmd, *args, **kwargs):
+        self.calls.append(list(cmd))
+        return {"exit_code": 0, "stdout": "", "stderr": "", "success": True}
+
+
+def _noop_validator(project_dir: Path) -> None:
+    return None
+
+
+def _empty_output_finder(project_dir: Path, doc_type: str):
+    return (None, None, None)
+
+
+def _make_script_resolver(script_path: Path):
+    def _resolver(project_dir: Path, doc_type: str) -> Path:
+        return script_path
+
+    return _resolver
+
+
+def _setup_existing_script(tmp_path: Path) -> Path:
+    script_dir = tmp_path / "scripts" / "shell"
+    script_dir.mkdir(parents=True, exist_ok=True)
+    script = script_dir / "compile_supplementary.sh"
+    script.write_text("#!/bin/sh\nexit 0\n")
+    return script
+
+
+def _run(tmp_path: Path, runner: _RecordingRunner, **kwargs):
+    script = _setup_existing_script(tmp_path)
+    return compile_supplementary(
+        tmp_path,
+        runner_fn=runner,
+        validator_fn=_noop_validator,
+        output_finder_fn=_empty_output_finder,
+        script_resolver_fn=_make_script_resolver(script),
+        **kwargs,
+    )
+
+
+# ---------------------------------------------------------------------------
+# Tests
+# ---------------------------------------------------------------------------
+
+
+class TestCompileSupplementaryImport:
+    def test_compile_supplementary_is_callable_after_import(self):
+        # Arrange
         from scitex_writer._compile import compile_supplementary as cs
 
-        assert callable(cs)
+        # Act
+        result = callable(cs)
+        # Assert
+        assert result is True
 
-    def test_signature(self):
-        """Test function signature has expected parameters."""
+
+class TestCompileSupplementarySignature:
+    def test_signature_includes_project_dir_parameter(self):
+        # Arrange
         import inspect
 
-        sig = inspect.signature(compile_supplementary)
-        params = list(sig.parameters.keys())
-
+        # Act
+        params = list(inspect.signature(compile_supplementary).parameters.keys())
+        # Assert
         assert "project_dir" in params
+
+    def test_signature_includes_timeout_parameter(self):
+        # Arrange
+        import inspect
+
+        # Act
+        params = list(inspect.signature(compile_supplementary).parameters.keys())
+        # Assert
         assert "timeout" in params
+
+    def test_signature_includes_no_figs_parameter(self):
+        # Arrange
+        import inspect
+
+        # Act
+        params = list(inspect.signature(compile_supplementary).parameters.keys())
+        # Assert
         assert "no_figs" in params
+
+    def test_signature_includes_ppt2tif_parameter(self):
+        # Arrange
+        import inspect
+
+        # Act
+        params = list(inspect.signature(compile_supplementary).parameters.keys())
+        # Assert
         assert "ppt2tif" in params
+
+    def test_signature_includes_crop_tif_parameter(self):
+        # Arrange
+        import inspect
+
+        # Act
+        params = list(inspect.signature(compile_supplementary).parameters.keys())
+        # Assert
         assert "crop_tif" in params
+
+    def test_signature_includes_quiet_parameter(self):
+        # Arrange
+        import inspect
+
+        # Act
+        params = list(inspect.signature(compile_supplementary).parameters.keys())
+        # Assert
         assert "quiet" in params
+
+    def test_signature_includes_log_callback_parameter(self):
+        # Arrange
+        import inspect
+
+        # Act
+        params = list(inspect.signature(compile_supplementary).parameters.keys())
+        # Assert
         assert "log_callback" in params
+
+    def test_signature_includes_progress_callback_parameter(self):
+        # Arrange
+        import inspect
+
+        # Act
+        params = list(inspect.signature(compile_supplementary).parameters.keys())
+        # Assert
         assert "progress_callback" in params
 
-    def test_default_parameters(self):
-        """Test default parameter values."""
+
+class TestCompileSupplementaryDefaults:
+    def test_default_timeout_is_300_seconds(self):
+        # Arrange
         import inspect
 
-        sig = inspect.signature(compile_supplementary)
+        # Act
+        default = inspect.signature(compile_supplementary).parameters["timeout"].default
+        # Assert
+        assert default == 300
 
-        assert sig.parameters["timeout"].default == 300
-        assert sig.parameters["no_figs"].default is False
-        assert sig.parameters["ppt2tif"].default is False
-        assert sig.parameters["crop_tif"].default is False
-        assert sig.parameters["quiet"].default is False
-        assert sig.parameters["log_callback"].default is None
-        assert sig.parameters["progress_callback"].default is None
+    def test_default_no_figs_is_false(self):
+        # Arrange
+        import inspect
 
-    @patch("scitex_writer._compile.supplementary.run_compile")
-    def test_calls_run_compile_with_supplementary_type(self, mock_run_compile):
-        """Test that compile_supplementary calls run_compile with 'supplementary' doc_type."""
-        mock_run_compile.return_value = CompilationResult(
-            success=True,
-            exit_code=0,
-            stdout="",
-            stderr="",
-            duration=1.0,
+        # Act
+        default = inspect.signature(compile_supplementary).parameters["no_figs"].default
+        # Assert
+        assert default is False
+
+    def test_default_ppt2tif_is_false(self):
+        # Arrange
+        import inspect
+
+        # Act
+        default = inspect.signature(compile_supplementary).parameters["ppt2tif"].default
+        # Assert
+        assert default is False
+
+    def test_default_crop_tif_is_false(self):
+        # Arrange
+        import inspect
+
+        # Act
+        default = (
+            inspect.signature(compile_supplementary).parameters["crop_tif"].default
         )
+        # Assert
+        assert default is False
 
-        project_dir = Path("/tmp/test-project")
-        compile_supplementary(project_dir)
+    def test_default_quiet_is_false(self):
+        # Arrange
+        import inspect
 
-        mock_run_compile.assert_called_once()
-        args, kwargs = mock_run_compile.call_args
-        assert args[0] == "supplementary"
-        assert args[1] == project_dir
+        # Act
+        default = inspect.signature(compile_supplementary).parameters["quiet"].default
+        # Assert
+        assert default is False
 
-    @patch("scitex_writer._compile.supplementary.run_compile")
-    def test_passes_no_figs_option(self, mock_run_compile):
-        """Test that no_figs option is passed to run_compile."""
-        mock_run_compile.return_value = CompilationResult(
-            success=True,
-            exit_code=0,
-            stdout="",
-            stderr="",
-            duration=1.0,
+    def test_default_log_callback_is_none(self):
+        # Arrange
+        import inspect
+
+        # Act
+        default = (
+            inspect.signature(compile_supplementary).parameters["log_callback"].default
         )
+        # Assert
+        assert default is None
 
-        project_dir = Path("/tmp/test-project")
-        compile_supplementary(project_dir, no_figs=True)
+    def test_default_progress_callback_is_none(self):
+        # Arrange
+        import inspect
 
-        _, kwargs = mock_run_compile.call_args
-        assert kwargs["no_figs"] is True
-
-    @patch("scitex_writer._compile.supplementary.run_compile")
-    def test_passes_ppt2tif_option(self, mock_run_compile):
-        """Test that ppt2tif option is passed to run_compile."""
-        mock_run_compile.return_value = CompilationResult(
-            success=True,
-            exit_code=0,
-            stdout="",
-            stderr="",
-            duration=1.0,
+        # Act
+        default = (
+            inspect.signature(compile_supplementary)
+            .parameters["progress_callback"]
+            .default
         )
+        # Assert
+        assert default is None
 
-        project_dir = Path("/tmp/test-project")
-        compile_supplementary(project_dir, ppt2tif=True)
 
-        _, kwargs = mock_run_compile.call_args
-        assert kwargs["ppt2tif"] is True
+class TestCompileSupplementaryBehavior:
+    def test_runner_called_exactly_once_for_default_invocation(self, tmp_path):
+        # Arrange
+        runner = _RecordingRunner()
+        # Act
+        _run(tmp_path, runner)
+        # Assert
+        assert len(runner.calls) == 1
 
-    @patch("scitex_writer._compile.supplementary.run_compile")
-    def test_passes_crop_tif_option(self, mock_run_compile):
-        """Test that crop_tif option is passed to run_compile."""
-        mock_run_compile.return_value = CompilationResult(
-            success=True,
-            exit_code=0,
-            stdout="",
-            stderr="",
-            duration=1.0,
-        )
+    def test_command_invokes_supplementary_compile_script_path(self, tmp_path):
+        # Arrange
+        runner = _RecordingRunner()
+        # Act
+        _run(tmp_path, runner)
+        # Assert
+        assert any("compile_supplementary.sh" in arg for arg in runner.calls[0])
 
-        project_dir = Path("/tmp/test-project")
-        compile_supplementary(project_dir, crop_tif=True)
+    def test_default_invocation_includes_figs_flag(self, tmp_path):
+        """Supplementary defaults to figures included → --figs flag present."""
+        # Arrange
+        runner = _RecordingRunner()
+        # Act
+        _run(tmp_path, runner)
+        # Assert
+        assert "--figs" in runner.calls[0]
 
-        _, kwargs = mock_run_compile.call_args
-        assert kwargs["crop_tif"] is True
+    def test_no_figs_option_suppresses_figs_flag(self, tmp_path):
+        # Arrange
+        runner = _RecordingRunner()
+        # Act
+        _run(tmp_path, runner, no_figs=True)
+        # Assert
+        assert "--figs" not in runner.calls[0]
 
-    @patch("scitex_writer._compile.supplementary.run_compile")
-    def test_passes_quiet_option(self, mock_run_compile):
-        """Test that quiet option is passed to run_compile."""
-        mock_run_compile.return_value = CompilationResult(
-            success=True,
-            exit_code=0,
-            stdout="",
-            stderr="",
-            duration=1.0,
-        )
+    def test_ppt2tif_option_appends_ppt2tif_flag(self, tmp_path):
+        # Arrange
+        runner = _RecordingRunner()
+        # Act
+        _run(tmp_path, runner, ppt2tif=True)
+        # Assert
+        assert "--ppt2tif" in runner.calls[0]
 
-        project_dir = Path("/tmp/test-project")
-        compile_supplementary(project_dir, quiet=True)
+    def test_crop_tif_option_appends_crop_tif_flag(self, tmp_path):
+        # Arrange
+        runner = _RecordingRunner()
+        # Act
+        _run(tmp_path, runner, crop_tif=True)
+        # Assert
+        assert "--crop_tif" in runner.calls[0]
 
-        _, kwargs = mock_run_compile.call_args
-        assert kwargs["quiet"] is True
+    def test_quiet_option_appends_quiet_flag(self, tmp_path):
+        # Arrange
+        runner = _RecordingRunner()
+        # Act
+        _run(tmp_path, runner, quiet=True)
+        # Assert
+        assert "--quiet" in runner.calls[0]
 
-    @patch("scitex_writer._compile.supplementary.run_compile")
-    def test_passes_callbacks(self, mock_run_compile):
-        """Test that callbacks are passed to run_compile."""
-        mock_run_compile.return_value = CompilationResult(
-            success=True,
-            exit_code=0,
-            stdout="",
-            stderr="",
-            duration=1.0,
-        )
+    def test_multiple_options_all_present_in_command(self, tmp_path):
+        # Arrange
+        runner = _RecordingRunner()
+        # Act
+        _run(tmp_path, runner, ppt2tif=True, crop_tif=True, quiet=True)
+        # Assert
+        cmd = runner.calls[0]
+        assert {"--ppt2tif", "--crop_tif", "--quiet"}.issubset(set(cmd))
 
-        log_callback = Mock()
-        progress_callback = Mock()
+    def test_progress_callback_receives_completion_update(self, tmp_path):
+        # Arrange
+        runner = _RecordingRunner()
+        progress_events: list[tuple[int, str]] = []
 
-        project_dir = Path("/tmp/test-project")
-        compile_supplementary(
-            project_dir,
-            log_callback=log_callback,
-            progress_callback=progress_callback,
-        )
+        def record_progress(pct: int, step: str) -> None:
+            progress_events.append((pct, step))
 
-        _, kwargs = mock_run_compile.call_args
-        assert kwargs["log_callback"] is log_callback
-        assert kwargs["progress_callback"] is progress_callback
+        # Act
+        _run(tmp_path, runner, progress_callback=record_progress)
+        # Assert
+        assert any(pct == 100 for pct, _ in progress_events)
 
-    @patch("scitex_writer._compile.supplementary.run_compile")
-    def test_passes_multiple_options(self, mock_run_compile):
-        """Test that multiple options are passed correctly."""
-        mock_run_compile.return_value = CompilationResult(
-            success=True,
-            exit_code=0,
-            stdout="",
-            stderr="",
-            duration=1.0,
-        )
-
-        project_dir = Path("/tmp/test-project")
-        compile_supplementary(
-            project_dir,
-            ppt2tif=True,
-            crop_tif=True,
-            quiet=True,
-        )
-
-        _, kwargs = mock_run_compile.call_args
-        assert kwargs["ppt2tif"] is True
-        assert kwargs["crop_tif"] is True
-        assert kwargs["quiet"] is True
-
-    @patch("scitex_writer._compile.supplementary.run_compile")
-    def test_returns_compilation_result(self, mock_run_compile):
-        """Test that function returns CompilationResult."""
-        expected_result = CompilationResult(
-            success=True,
-            exit_code=0,
-            stdout="Test output",
-            stderr="",
-            duration=2.5,
-        )
-        mock_run_compile.return_value = expected_result
-
-        project_dir = Path("/tmp/test-project")
-        result = compile_supplementary(project_dir)
-
-        assert result is expected_result
+    def test_returns_compilation_result_with_success_true_on_zero_exit(self, tmp_path):
+        # Arrange
+        runner = _RecordingRunner()
+        # Act
+        result = _run(tmp_path, runner)
+        # Assert
         assert result.success is True
+
+    def test_returns_compilation_result_with_exit_code_zero_on_success(self, tmp_path):
+        # Arrange
+        runner = _RecordingRunner()
+        # Act
+        result = _run(tmp_path, runner)
+        # Assert
         assert result.exit_code == 0
-        assert result.duration == 2.5
 
 
 # EOF
 
 if __name__ == "__main__":
     import os
-
-    import pytest
 
     pytest.main([os.path.abspath(__file__)])

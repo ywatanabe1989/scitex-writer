@@ -33,6 +33,11 @@ def compile_manuscript(
     force: bool = False,
     log_callback: Optional[Callable[[str], None]] = None,
     progress_callback: Optional[Callable[[int, str], None]] = None,
+    *,
+    runner_fn: Optional[Callable[..., dict]] = None,
+    validator_fn: Optional[Callable[[Path], None]] = None,
+    output_finder_fn: Optional[Callable[[Path, str], tuple]] = None,
+    script_resolver_fn: Optional[Callable[[Path, str], Path]] = None,
 ) -> CompilationResult:
     """
     Compile manuscript document with optional callbacks.
@@ -97,6 +102,10 @@ def compile_manuscript(
         force=force,
         log_callback=log_callback,
         progress_callback=progress_callback,
+        runner_fn=runner_fn,
+        validator_fn=validator_fn,
+        output_finder_fn=output_finder_fn,
+        script_resolver_fn=script_resolver_fn,
     )
 
 
