@@ -302,7 +302,11 @@ def test_optimize_figure_respects_max_dimensions(tmp_path):
     img.save(str(input_path))
 
     result = optimize_figure(
-        str(input_path), str(output_path), max_width=1_000, max_height=1_000, no_crop=True
+        str(input_path),
+        str(output_path),
+        max_width=1_000,
+        max_height=1_000,
+        no_crop=True,
     )
 
     result_img = Image.open(result)
