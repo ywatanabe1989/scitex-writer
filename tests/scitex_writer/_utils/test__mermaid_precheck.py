@@ -15,8 +15,10 @@ from pathlib import Path
 
 import pytest
 
-from scitex_writer._utils._mermaid_precheck import MermaidDependencyError, check_mmdc_or_raise
-
+from scitex_writer._utils._mermaid_precheck import (
+    MermaidDependencyError,
+    check_mmdc_or_raise,
+)
 
 # ---------------------------------------------------------------------------
 # Helpers (testing infrastructure — drop a fake mmdc shim into tmp_path)
@@ -127,9 +129,7 @@ class TestMmdcGenericFailure:
         # Arrange
         fake = _write_fake_mmdc(
             tmp_path,
-            body=(
-                "#!/bin/sh\necho 'some unrelated error message' >&2\nexit 2\n"
-            ),
+            body=("#!/bin/sh\necho 'some unrelated error message' >&2\nexit 2\n"),
         )
         # Act / Assert
         with pytest.raises(MermaidDependencyError, match="exited with code 2"):
