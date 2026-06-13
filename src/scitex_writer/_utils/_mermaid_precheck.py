@@ -70,7 +70,7 @@ _SIGSEGV_HINT = (
     "chromium. This is a known Apptainer/Singularity gap: the "
     "container's chromium cannot create its sandbox. Re-run mmdc "
     "with '--puppeteerConfigFile' pointing at a config that sets "
-    "'args: [\"--no-sandbox\", \"--disable-dev-shm-usage\"]', or "
+    '\'args: ["--no-sandbox", "--disable-dev-shm-usage"]\', or '
     "pull a mermaid-cli image rebuilt with the sandbox-friendly "
     "options."
 )
@@ -151,8 +151,7 @@ def check_mmdc_or_raise(
 
     raise MermaidDependencyError(
         f"mmdc --version exited with code {result.returncode}. "
-        f"stderr: {combined_err.strip() or '<empty>'}. "
-        + _NOT_INSTALLED_HINT
+        f"stderr: {combined_err.strip() or '<empty>'}. " + _NOT_INSTALLED_HINT
     )
 
 
