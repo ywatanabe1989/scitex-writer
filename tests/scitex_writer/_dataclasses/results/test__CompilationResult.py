@@ -12,6 +12,11 @@ be lazy-imported inside the function bodies — not at module top.
 import importlib
 
 
-def test_module_imports():
-    """Smoke: target module imports without error."""
-    importlib.import_module("scitex_writer._dataclasses.results._CompilationResult")
+def test_compilation_result_module_imports_without_error():
+    """Smoke: target module imports without error and is not None."""
+    # Arrange
+    target = "scitex_writer._dataclasses.results._CompilationResult"
+    # Act
+    module = importlib.import_module(target)
+    # Assert
+    assert module is not None
