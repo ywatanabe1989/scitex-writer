@@ -755,6 +755,78 @@
       "timestamp": "2026-05-08T05:55:06Z",
       "output_tex": "/home/ywatanabe/.cache/tmp/pytest-of-ywatanabe/pytest-2004/test_dark_mode_injection0/01_manuscript/output.tex",
       "engine": "auto"
+    },
+    {
+      "build_id": "0f42a0",
+      "doc_type": "unknown",
+      "git_commit": "a52c3d4f000b",
+      "git_dirty": true,
+      "timestamp": "2026-06-13T09:32:59Z",
+      "output_tex": "/uvwork/tmp/pytest-of-agent/pytest-163/test_compile_tex_structure_sim0/output.tex",
+      "engine": "auto"
+    },
+    {
+      "build_id": "845e13",
+      "doc_type": "unknown",
+      "git_commit": "a52c3d4f000b",
+      "git_dirty": true,
+      "timestamp": "2026-06-13T09:32:59Z",
+      "output_tex": "/uvwork/tmp/pytest-of-agent/pytest-163/test_compile_tex_structure_sim1/output.tex",
+      "engine": "auto"
+    },
+    {
+      "build_id": "b5b342",
+      "doc_type": "unknown",
+      "git_commit": "a52c3d4f000b",
+      "git_dirty": true,
+      "timestamp": "2026-06-13T09:32:59Z",
+      "output_tex": "/uvwork/tmp/pytest-of-agent/pytest-163/test_compile_tex_structure_out0/output.tex",
+      "engine": "auto"
+    },
+    {
+      "build_id": "68ec6c",
+      "doc_type": "unknown",
+      "git_commit": "a52c3d4f000b",
+      "git_dirty": true,
+      "timestamp": "2026-06-13T09:33:00Z",
+      "output_tex": "/uvwork/tmp/pytest-of-agent/pytest-163/test_compile_tex_structure_inl0/output.tex",
+      "engine": "auto"
+    },
+    {
+      "build_id": "95f0ba",
+      "doc_type": "unknown",
+      "git_commit": "a52c3d4f000b",
+      "git_dirty": true,
+      "timestamp": "2026-06-13T09:33:00Z",
+      "output_tex": "/uvwork/tmp/pytest-of-agent/pytest-163/test_compile_tex_structure_cre0/nested/dir/output.tex",
+      "engine": "auto"
+    },
+    {
+      "build_id": "95ec79",
+      "doc_type": "unknown",
+      "git_commit": "a52c3d4f000b",
+      "git_dirty": true,
+      "timestamp": "2026-06-13T09:33:00Z",
+      "output_tex": "/uvwork/tmp/pytest-of-agent/pytest-163/test_compile_tex_structure_tec0/output.tex",
+      "engine": "auto"
+    },
+    {
+      "build_id": "ff07db",
+      "doc_type": "unknown",
+      "git_commit": "a52c3d4f000b",
+      "git_dirty": true,
+      "timestamp": "2026-06-13T09:33:00Z",
+      "output_tex": "/uvwork/tmp/pytest-of-agent/pytest-163/test_compile_tex_structure_tec1/output.tex",
+      "engine": "auto"
+    },
+    {
+      "build_id": "ea80a0",
+      "doc_type": "unknown",
+      "git_commit": "a52c3d4f000b",
+      "git_dirty": true,
+      "timestamp": "2026-06-13T09:33:00Z",
+      "output_tex": "/uvwork/tmp/pytest-of-agent/pytest-163/test_compile_tex_structure_dar0/01_manuscript/output.tex",
+      "engine": "auto"
     }
   ]
 }

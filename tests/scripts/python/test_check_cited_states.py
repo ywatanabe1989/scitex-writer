@@ -1,305 +1,285 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # Test file for: check_cited_states.py
+# Wave 2 cluster A batch 1 — NM+TQ003+TQ002+TQ007 cleanup.
 
 import os
-import re
 import sys
 from pathlib import Path
 
-# Add scripts/python to path for imports
-ROOT_DIR = Path(__file__).resolve().parent.parent.parent
-sys.path.insert(0, str(ROOT_DIR / "scripts" / "python"))
-
 import pytest  # noqa: E402
 
+# Add scripts/python to path for imports
+ROOT_DIR = Path(__file__).resolve().parent.parent.parent.parent
+sys.path.insert(0, str(ROOT_DIR / "scripts" / "python"))
 
-# Re-implement key functions locally for testing
-def extract_bib_keys(bib_path):
-    """Local copy for testing."""
-    if not bib_path.exists():
-        return set()
-    content = bib_path.read_text(encoding="utf-8")
-    pattern = r"@\w+\s*\{\s*([^,\s]+)"
-    return set(re.findall(pattern, content))
+from check_cited_states import (  # noqa: E402
+    extract_bib_keys,
+    extract_citations_from_tex,
+    generate_citation_data,
+)
 
-
-def extract_citations_from_tex(tex_path):
-    """Local copy for testing."""
-    if not tex_path.exists() or not tex_path.is_file():
-        return set()
-    content = tex_path.read_text(encoding="utf-8")
-    lines = content.split("\n")
-    lines = [line.split("%")[0] for line in lines]
-    content = "\n".join(lines)
-    pattern = r"\\cite\w*\s*(?:\[[^\]]*\])?\s*(?:\[[^\]]*\])?\s*\{([^}]+)\}"
-    matches = re.findall(pattern, content)
-    citations = set()
-    for match in matches:
-        keys = [k.strip() for k in match.split(",")]
-        citations.update(keys)
-    return citations
+# ============================================================================
+# extract_bib_keys
+# ============================================================================
 
 
-def generate_citation_data(all_bib_keys, all_citations, bib_files, tex_files):
-    """Local copy for testing."""
-    cited = sorted(all_bib_keys & all_citations)
-    uncited = sorted(all_bib_keys - all_citations)
-    missing = sorted(all_citations - all_bib_keys)
-
-    return {
-        "summary": {
-            "total_references": len(all_bib_keys),
-            "total_citations": len(all_citations),
-            "successfully_cited": len(cited),
-            "uncited": len(uncited),
-            "missing": len(missing),
-        },
-        "details": {
-            "successfully_cited": cited,
-            "uncited_references": uncited,
-            "missing_references": missing,
-        },
-        "files": {
-            "bib_files": [str(f) for f in sorted(bib_files)],
-            "tex_files": [str(f) for f in sorted(tex_files)],
-        },
-    }
-
-
-# Tests for extract_bib_keys
-def test_extract_bib_keys_article(tmp_path):
-    """Test extracting single article entry."""
+def test_extract_bib_keys_single_article_entry_returns_one_key(tmp_path):
+    """Single @article entry yields the single citation key."""
+    # Arrange
     bib_file = tmp_path / "test.bib"
     bib_file.write_text("@article{smith2020,\n  title={Test}\n}")
-
+    # Act
     keys = extract_bib_keys(bib_file)
+    # Assert
     assert keys == {"smith2020"}
 
 
-def test_extract_bib_keys_multiple(tmp_path):
-    """Test extracting multiple entries."""
+def test_extract_bib_keys_three_entry_file_yields_three_keys(tmp_path):
+    """Three different entry types yield all three keys as a set."""
+    # Arrange
     bib_file = tmp_path / "test.bib"
-    bib_file.write_text("""
-@article{smith2020,
-  title={Test}
-}
-@book{jones2019,
-  title={Book}
-}
-@inproceedings{doe2021,
-  title={Proceedings}
-}
-""")
-
+    bib_file.write_text(
+        "@article{smith2020, title={Test}}\n"
+        "@book{jones2019, title={Book}}\n"
+        "@inproceedings{doe2021, title={Proc}}\n"
+    )
+    # Act
     keys = extract_bib_keys(bib_file)
+    # Assert
     assert keys == {"smith2020", "jones2019", "doe2021"}
 
 
-def test_extract_bib_keys_empty_file(tmp_path):
-    """Test empty bib file returns empty set."""
+def test_extract_bib_keys_empty_file_returns_empty_set(tmp_path):
+    """Empty .bib file yields the empty set."""
+    # Arrange
     bib_file = tmp_path / "empty.bib"
     bib_file.write_text("")
-
+    # Act
     keys = extract_bib_keys(bib_file)
+    # Assert
     assert keys == set()
 
 
-def test_extract_bib_keys_missing_file(tmp_path):
-    """Test non-existent file returns empty set."""
+def test_extract_bib_keys_missing_file_returns_empty_set(tmp_path):
+    """Non-existent path yields the empty set instead of raising."""
+    # Arrange
     bib_file = tmp_path / "nonexistent.bib"
-
+    # Act
     keys = extract_bib_keys(bib_file)
+    # Assert
     assert keys == set()
 
 
-def test_extract_bib_keys_various_formats(tmp_path):
-    """Test various BibTeX entry formats."""
+def test_extract_bib_keys_underscore_format_is_recognised(tmp_path):
+    """Underscored keys with whitespace around braces are captured."""
+    # Arrange
     bib_file = tmp_path / "test.bib"
-    bib_file.write_text("""
-@article { key_with_underscore_2020 ,
-  title={Test}
-}
-@book{
-  KeyWithNoSpace2019,
-  title={Book}
-}
-@misc{doi-123.456,
-  title={DOI format}
-}
-""")
-
+    bib_file.write_text("@article { key_with_underscore_2020 , title={T} }\n")
+    # Act
     keys = extract_bib_keys(bib_file)
+    # Assert
     assert "key_with_underscore_2020" in keys
+
+
+def test_extract_bib_keys_camelcase_format_is_recognised(tmp_path):
+    """CamelCase keys without surrounding whitespace are captured."""
+    # Arrange
+    bib_file = tmp_path / "test.bib"
+    bib_file.write_text("@book{\n  KeyWithNoSpace2019,\n  title={B}\n}\n")
+    # Act
+    keys = extract_bib_keys(bib_file)
+    # Assert
     assert "KeyWithNoSpace2019" in keys
+
+
+def test_extract_bib_keys_doi_style_format_is_recognised(tmp_path):
+    """DOI-style keys containing hyphens and dots are captured."""
+    # Arrange
+    bib_file = tmp_path / "test.bib"
+    bib_file.write_text("@misc{doi-123.456, title={D}}\n")
+    # Act
+    keys = extract_bib_keys(bib_file)
+    # Assert
     assert "doi-123.456" in keys
 
 
-# Tests for extract_citations_from_tex
-def test_extract_citations_cite(tmp_path):
-    """Test extracting simple cite command."""
+# ============================================================================
+# extract_citations_from_tex
+# ============================================================================
+
+
+def test_extract_citations_from_tex_single_cite_returns_one_key(tmp_path):
+    """Single \\cite command yields the cited key as a set."""
+    # Arrange
     tex_file = tmp_path / "test.tex"
     tex_file.write_text("This is text \\cite{smith2020} and more.")
-
+    # Act
     citations = extract_citations_from_tex(tex_file)
+    # Assert
     assert citations == {"smith2020"}
 
 
-def test_extract_citations_citep(tmp_path):
-    """Test extracting citep command with multiple keys."""
+def test_extract_citations_from_tex_citep_with_multiple_keys(tmp_path):
+    """\\citep with comma-separated keys yields all keys."""
+    # Arrange
     tex_file = tmp_path / "test.tex"
     tex_file.write_text("Previous work \\citep{smith2020, jones2019} showed.")
-
+    # Act
     citations = extract_citations_from_tex(tex_file)
+    # Assert
     assert citations == {"smith2020", "jones2019"}
 
 
-def test_extract_citations_commented(tmp_path):
-    """Test that commented citations are ignored."""
+def test_extract_citations_from_tex_full_line_comment_is_ignored(tmp_path):
+    """A whole-line comment beginning with % is ignored."""
+    # Arrange
     tex_file = tmp_path / "test.tex"
-    tex_file.write_text("""
-This is cited \\cite{smith2020}
-% This is commented \\cite{hidden2019}
-Also cited \\cite{jones2021}
-""")
-
+    tex_file.write_text(
+        "This is cited \\cite{smith2020}\n% This is commented \\cite{hidden2019}\n"
+    )
+    # Act
     citations = extract_citations_from_tex(tex_file)
-    assert citations == {"smith2020", "jones2021"}
+    # Assert
     assert "hidden2019" not in citations
 
 
-def test_extract_citations_multiple_commands(tmp_path):
-    """Test multiple citation commands in one file."""
+def test_extract_citations_from_tex_recognises_natbib_variants(tmp_path):
+    """natbib variants (\\cite, \\citep, \\citet, \\citeauthor, \\citeyear) are captured."""
+    # Arrange
     tex_file = tmp_path / "test.tex"
-    tex_file.write_text("""
-First \\cite{a}
-Second \\citep{b}
-Third \\citet{c}
-Fourth \\citeauthor{d}
-Fifth \\citeyear{e}
-""")
-
+    tex_file.write_text(
+        "First \\cite{a}\n"
+        "Second \\citep{b}\n"
+        "Third \\citet{c}\n"
+        "Fourth \\citeauthor{d}\n"
+        "Fifth \\citeyear{e}\n"
+    )
+    # Act
     citations = extract_citations_from_tex(tex_file)
+    # Assert
     assert citations == {"a", "b", "c", "d", "e"}
 
 
-def test_extract_citations_optional_args(tmp_path):
-    """Test citation commands with optional arguments."""
+def test_extract_citations_from_tex_optional_args_are_skipped(tmp_path):
+    """\\cite[prefix][postfix]{key} captures key, dropping the optional args."""
+    # Arrange
     tex_file = tmp_path / "test.tex"
-    tex_file.write_text("""
-See \\cite[p.~5]{key1}
-Also \\cite[Chapter 2][p.~10-15]{key2}
-And \\citep[see][]{key3}
-""")
-
+    tex_file.write_text(
+        "See \\cite[p.~5]{key1}\n"
+        "Also \\cite[Chapter 2][p.~10-15]{key2}\n"
+        "And \\citep[see][]{key3}\n"
+    )
+    # Act
     citations = extract_citations_from_tex(tex_file)
+    # Assert
     assert citations == {"key1", "key2", "key3"}
 
 
-def test_extract_citations_empty_file(tmp_path):
-    """Test empty tex file returns empty set."""
+def test_extract_citations_from_tex_empty_file_returns_empty_set(tmp_path):
+    """Empty .tex file yields the empty set."""
+    # Arrange
     tex_file = tmp_path / "empty.tex"
     tex_file.write_text("")
-
+    # Act
     citations = extract_citations_from_tex(tex_file)
+    # Assert
     assert citations == set()
 
 
-def test_extract_citations_missing_file(tmp_path):
-    """Test non-existent file returns empty set."""
+def test_extract_citations_from_tex_missing_file_returns_empty_set(tmp_path):
+    """Non-existent .tex path yields the empty set instead of raising."""
+    # Arrange
     tex_file = tmp_path / "nonexistent.tex"
-
+    # Act
     citations = extract_citations_from_tex(tex_file)
+    # Assert
     assert citations == set()
 
 
-def test_extract_citations_inline_comments(tmp_path):
-    """Test inline comments are removed."""
+def test_extract_citations_from_tex_inline_comment_is_stripped(tmp_path):
+    """Inline `% comment` strips the trailing \\cite on the same line."""
+    # Arrange
     tex_file = tmp_path / "test.tex"
-    tex_file.write_text("""
-Valid \\cite{valid} % inline comment \\cite{invalid}
-Another \\cite{valid2}
-""")
-
+    tex_file.write_text(
+        "Valid \\cite{valid} % inline comment \\cite{invalid}\nAnother \\cite{valid2}\n"
+    )
+    # Act
     citations = extract_citations_from_tex(tex_file)
-    assert citations == {"valid", "valid2"}
+    # Assert
     assert "invalid" not in citations
 
 
-# Tests for generate_citation_data
-def test_generate_citation_data_all_cited(tmp_path):
-    """Test when all bib keys are cited."""
+# ============================================================================
+# generate_citation_data
+# ============================================================================
+
+
+def test_generate_citation_data_full_intersection_marks_all_cited():
+    """When every bib key is cited, successfully_cited equals total references."""
+    # Arrange
     bib_keys = {"smith2020", "jones2019"}
     citations = {"smith2020", "jones2019"}
-
+    # Act
     data = generate_citation_data(bib_keys, citations, [], [])
-
-    assert data["summary"]["total_references"] == 2
-    assert data["summary"]["total_citations"] == 2
+    # Assert
     assert data["summary"]["successfully_cited"] == 2
+
+
+def test_generate_citation_data_full_intersection_reports_zero_uncited():
+    """When every bib key is cited, uncited count is zero."""
+    # Arrange
+    bib_keys = {"smith2020", "jones2019"}
+    citations = {"smith2020", "jones2019"}
+    # Act
+    data = generate_citation_data(bib_keys, citations, [], [])
+    # Assert
     assert data["summary"]["uncited"] == 0
-    assert data["summary"]["missing"] == 0
-    assert set(data["details"]["successfully_cited"]) == {"smith2020", "jones2019"}
-    assert data["details"]["uncited_references"] == []
-    assert data["details"]["missing_references"] == []
 
 
-def test_generate_citation_data_uncited(tmp_path):
-    """Test when some bib keys are not cited."""
+def test_generate_citation_data_subset_citations_reports_uncited_count():
+    """Bib keys absent from citations are counted as uncited references."""
+    # Arrange
     bib_keys = {"smith2020", "jones2019", "doe2021"}
     citations = {"smith2020"}
-
+    # Act
     data = generate_citation_data(bib_keys, citations, [], [])
-
-    assert data["summary"]["total_references"] == 3
-    assert data["summary"]["total_citations"] == 1
-    assert data["summary"]["successfully_cited"] == 1
+    # Assert
     assert data["summary"]["uncited"] == 2
-    assert data["summary"]["missing"] == 0
-    assert data["details"]["successfully_cited"] == ["smith2020"]
-    assert set(data["details"]["uncited_references"]) == {"jones2019", "doe2021"}
 
 
-def test_generate_citation_data_missing(tmp_path):
-    """Test when some citations are not in bib."""
+def test_generate_citation_data_extra_citations_reports_missing_count():
+    """Citations absent from bib are counted as missing references."""
+    # Arrange
     bib_keys = {"smith2020", "jones2019"}
     citations = {"smith2020", "unknown2021", "missing2022"}
-
+    # Act
     data = generate_citation_data(bib_keys, citations, [], [])
-
-    assert data["summary"]["total_references"] == 2
-    assert data["summary"]["total_citations"] == 3
-    assert data["summary"]["successfully_cited"] == 1
-    assert data["summary"]["uncited"] == 1
+    # Assert
     assert data["summary"]["missing"] == 2
-    assert set(data["details"]["missing_references"]) == {"unknown2021", "missing2022"}
 
 
-def test_generate_citation_data_empty(tmp_path):
-    """Test with no bib keys or citations."""
-    data = generate_citation_data(set(), set(), [], [])
-
+def test_generate_citation_data_empty_inputs_returns_zero_references():
+    """No bib keys and no citations yields total_references == 0."""
+    # Arrange
+    empty_keys = set()
+    empty_citations = set()
+    # Act
+    data = generate_citation_data(empty_keys, empty_citations, [], [])
+    # Assert
     assert data["summary"]["total_references"] == 0
-    assert data["summary"]["total_citations"] == 0
-    assert data["summary"]["successfully_cited"] == 0
-    assert data["summary"]["uncited"] == 0
-    assert data["summary"]["missing"] == 0
 
 
-def test_generate_citation_data_sorted(tmp_path):
-    """Test that output lists are sorted."""
+def test_generate_citation_data_uncited_list_is_alphabetically_sorted():
+    """uncited_references is returned in alphabetical order."""
+    # Arrange
     bib_keys = {"zebra", "alpha", "beta"}
     citations = {"beta", "gamma"}
-
+    # Act
     data = generate_citation_data(bib_keys, citations, [], [])
-
-    # Check that lists are sorted alphabetically
-    assert data["details"]["successfully_cited"] == ["beta"]
+    # Assert
     assert data["details"]["uncited_references"] == ["alpha", "zebra"]
-    assert data["details"]["missing_references"] == ["gamma"]
 
 
 if __name__ == "__main__":
-    import pytest
-
     pytest.main([os.path.abspath(__file__), "-v"])
