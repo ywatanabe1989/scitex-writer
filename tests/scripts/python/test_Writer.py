@@ -24,6 +24,9 @@ class TestWriterInitialization:
 
     def test_initializes_with_existing_project(self, valid_project_structure):
         """Verify Writer initializes with existing project."""
+        # Arrange
+        # Act
+        # Assert
         with patch("scitex_writer.writer._find_git_root", return_value=None):
             writer = Writer(valid_project_structure)
 
@@ -32,6 +35,9 @@ class TestWriterInitialization:
 
     def test_sets_project_name_from_directory(self, valid_project_structure):
         """Verify project_name defaults to directory name."""
+        # Arrange
+        # Act
+        # Assert
         with patch("scitex_writer.writer._find_git_root", return_value=None):
             writer = Writer(valid_project_structure)
 
@@ -39,6 +45,9 @@ class TestWriterInitialization:
 
     def test_uses_custom_project_name(self, valid_project_structure):
         """Verify custom project name is used."""
+        # Arrange
+        # Act
+        # Assert
         with patch("scitex_writer.writer._find_git_root", return_value=None):
             writer = Writer(valid_project_structure, name="custom_name")
 
@@ -46,6 +55,9 @@ class TestWriterInitialization:
 
     def test_initializes_document_trees(self, valid_project_structure):
         """Verify document trees are initialized."""
+        # Arrange
+        # Act
+        # Assert
         with patch("scitex_writer.writer._find_git_root", return_value=None):
             writer = Writer(valid_project_structure)
 
@@ -61,6 +73,9 @@ class TestWriterProjectVerification:
 
     def test_raises_when_manuscript_missing(self, tmp_path):
         """Verify raises RuntimeError when manuscript directory is missing."""
+        # Arrange
+        # Act
+        # Assert
         (tmp_path / "00_shared").mkdir()
         (tmp_path / "02_supplementary").mkdir()
         (tmp_path / "03_revision").mkdir()
@@ -72,6 +87,9 @@ class TestWriterProjectVerification:
 
     def test_raises_when_supplementary_missing(self, tmp_path):
         """Verify raises RuntimeError when supplementary directory is missing."""
+        # Arrange
+        # Act
+        # Assert
         (tmp_path / "00_shared").mkdir()
         (tmp_path / "01_manuscript").mkdir()
         (tmp_path / "03_revision").mkdir()
@@ -83,6 +101,9 @@ class TestWriterProjectVerification:
 
     def test_raises_when_revision_missing(self, tmp_path):
         """Verify raises RuntimeError when revision directory is missing."""
+        # Arrange
+        # Act
+        # Assert
         (tmp_path / "00_shared").mkdir()
         (tmp_path / "01_manuscript").mkdir()
         (tmp_path / "02_supplementary").mkdir()
@@ -98,6 +119,9 @@ class TestWriterGetPdf:
 
     def test_returns_none_when_pdf_missing(self, valid_project_structure):
         """Verify returns None when PDF doesn't exist."""
+        # Arrange
+        # Act
+        # Assert
         with patch("scitex_writer.writer._find_git_root", return_value=None):
             writer = Writer(valid_project_structure)
 
@@ -105,6 +129,9 @@ class TestWriterGetPdf:
 
     def test_returns_path_when_pdf_exists(self, valid_project_structure):
         """Verify returns Path when PDF exists."""
+        # Arrange
+        # Act
+        # Assert
         pdf_path = valid_project_structure / "01_manuscript" / "manuscript.pdf"
         pdf_path.write_bytes(b"%PDF-1.4")
 
@@ -116,6 +143,9 @@ class TestWriterGetPdf:
 
     def test_returns_supplementary_pdf(self, valid_project_structure):
         """Verify returns supplementary PDF path."""
+        # Arrange
+        # Act
+        # Assert
         pdf_path = valid_project_structure / "02_supplementary" / "supplementary.pdf"
         pdf_path.write_bytes(b"%PDF-1.4")
 
@@ -131,6 +161,9 @@ class TestWriterDelete:
 
     def test_deletes_project_directory(self, valid_project_structure):
         """Verify delete removes project directory."""
+        # Arrange
+        # Act
+        # Assert
         with patch("scitex_writer.writer._find_git_root", return_value=None):
             writer = Writer(valid_project_structure)
 
@@ -141,6 +174,9 @@ class TestWriterDelete:
 
     def test_delete_returns_false_on_error(self, valid_project_structure):
         """Verify delete returns False on error."""
+        # Arrange
+        # Act
+        # Assert
         with patch("scitex_writer.writer._find_git_root", return_value=None):
             writer = Writer(valid_project_structure)
 
@@ -155,6 +191,9 @@ class TestWriterCompileMethods:
 
     def test_compile_manuscript_calls_function(self, valid_project_structure):
         """Verify compile_manuscript calls the compile function."""
+        # Arrange
+        # Act
+        # Assert
         with patch("scitex_writer.writer._find_git_root", return_value=None):
             Writer(valid_project_structure)  # Verify initialization works
 
@@ -174,6 +213,9 @@ class TestWriterCompileMethods:
 
     def test_compile_supplementary_calls_function(self, valid_project_structure):
         """Verify compile_supplementary calls the compile function."""
+        # Arrange
+        # Act
+        # Assert
         with patch("scitex_writer.writer._find_git_root", return_value=None):
             Writer(valid_project_structure)  # Verify initialization works
 
@@ -193,6 +235,9 @@ class TestWriterCompileMethods:
 
     def test_compile_revision_calls_function(self, valid_project_structure):
         """Verify compile_revision calls the compile function."""
+        # Arrange
+        # Act
+        # Assert
         with patch("scitex_writer.writer._find_git_root", return_value=None):
             Writer(valid_project_structure)  # Verify initialization works
 
@@ -217,6 +262,9 @@ class TestWriterWatch:
 
     def test_watch_calls_watch_manuscript(self, valid_project_structure):
         """Verify watch calls watch_manuscript function."""
+        # Arrange
+        # Act
+        # Assert
         with patch("scitex_writer.writer._find_git_root", return_value=None):
             writer = Writer(valid_project_structure)
 
@@ -234,6 +282,9 @@ class TestWriterGitStrategy:
 
     def test_default_git_strategy_is_child(self, valid_project_structure):
         """Verify default git_strategy is 'child'."""
+        # Arrange
+        # Act
+        # Assert
         with patch("scitex_writer.writer._find_git_root", return_value=None):
             writer = Writer(valid_project_structure)
 
@@ -241,6 +292,9 @@ class TestWriterGitStrategy:
 
     def test_custom_git_strategy(self, valid_project_structure):
         """Verify custom git_strategy is set."""
+        # Arrange
+        # Act
+        # Assert
         with patch("scitex_writer.writer._find_git_root", return_value=None):
             writer = Writer(valid_project_structure, git_strategy="parent")
 
@@ -248,6 +302,9 @@ class TestWriterGitStrategy:
 
     def test_git_strategy_none(self, valid_project_structure):
         """Verify git_strategy=None is allowed."""
+        # Arrange
+        # Act
+        # Assert
         with patch("scitex_writer.writer._find_git_root", return_value=None):
             writer = Writer(valid_project_structure, git_strategy=None)
 
@@ -257,15 +314,21 @@ class TestWriterGitStrategy:
 class TestWriterBranchTag:
     """Tests for Writer branch and tag parameters."""
 
-    def test_branch_parameter(self, valid_project_structure):
+    def test_branch_parameter_propagates_correctly(self, valid_project_structure):
         """Verify branch parameter is stored."""
+        # Arrange
+        # Act
+        # Assert
         with patch("scitex_writer.writer._find_git_root", return_value=None):
             writer = Writer(valid_project_structure, branch="develop")
 
             assert writer.branch == "develop"
 
-    def test_tag_parameter(self, valid_project_structure):
+    def test_tag_parameter_propagates_correctly(self, valid_project_structure):
         """Verify tag parameter is stored."""
+        # Arrange
+        # Act
+        # Assert
         with patch("scitex_writer.writer._find_git_root", return_value=None):
             writer = Writer(valid_project_structure, tag="v1.0.0")
 
