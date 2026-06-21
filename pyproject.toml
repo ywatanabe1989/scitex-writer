@@ -4,13 +4,13 @@ build-backend = "hatchling.build"
 
 [project]
 name = "scitex-writer"
-version = "2.17.5"
+version = "2.18.0"
 description = "LaTeX manuscript compilation system for scientific documents with MCP server"
 readme = "README.md"
 license = "AGPL-3.0-only"
 requires-python = ">=3.10"
 authors = [
-    { name = "Yusuke Watanabe", email = "noreply@scitex.ai" },
+    { name = "Yusuke Watanabe", email = "ywatanabe@scitex.ai" },
 ]
 keywords = [
     "latex",
@@ -105,10 +105,24 @@ Issues = "https://github.com/ywatanabe1989/scitex-writer/issues"
 packages = ["src/scitex_writer"]
 
 [tool.hatch.build.targets.sdist]
+# Ship only the Python package + project metadata in sdist. Top-level
+# manuscript / scratch directories (00_shared, 01_manuscript, …) contain
+# absolute-path symlinks (00_shared/scholar/library → ~/.scitex/scholar/library)
+# that tarfile rejects, and aren't useful in a wheel anyway.
+include = [
+    "src/scitex_writer",
+    "README.md",
+    "CHANGELOG.md",
+    "LICENSE",
+    "pyproject.toml",
+]
 exclude = [
-    "/00_*",
-    "/config",
-    "/compile.sh",
+    "00_shared",
+    "01_manuscript",
+    "02_supplementary",
+    "03_revision",
+    ".scitex",
+    "config",
 ]
 
 [tool.pytest.ini_options]
