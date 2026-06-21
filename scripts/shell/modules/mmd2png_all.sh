@@ -68,6 +68,20 @@ mmd2png() {
         return 1
     fi
 
+    # Crash-early dependency check: if `mmdc` is on PATH but its
+    # headless-chromium dep is broken (missing libnspr4, apptainer
+    # sandbox SIGSEGV, etc.), fail LOUD here with an actionable hint
+    # rather than letting mmdc silently write a corrupted PNG.
+    if command -v python3 &>/dev/null; then
+        if ! python3 -c "from scitex_writer._utils._mermaid_precheck import check_mmdc_or_raise; check_mmdc_or_raise()" 2>/tmp/.mmdc_precheck.$$.err; then
+            echo_error "    mmdc precheck failed:"
+            sed 's/^/        /' /tmp/.mmdc_precheck.$$.err >&2
+            rm -f /tmp/.mmdc_precheck.$$.err
+            return 1
+        fi
+        rm -f /tmp/.mmdc_precheck.$$.err
+    fi
+
     # Process .mmd files - handle both hidden and numbered files
     for mmd_file in "$SCITEX_WRITER_FIGURE_CAPTION_MEDIA_DIR"/.*.mmd "$SCITEX_WRITER_FIGURE_CAPTION_MEDIA_DIR"/[0-9]*.mmd; do
         [ -e "$mmd_file" ] || continue
