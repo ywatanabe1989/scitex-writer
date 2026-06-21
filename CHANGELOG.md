@@ -7,6 +7,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.18.0] - 2026-06-21
+
+### Changed
+- **Reconcile `develop` and `main` into a single 2.18.0 release.** `develop`'s
+  single-seam `_compile` design (`run_compile(..., command_runner=...)`) and its
+  no-mocks `_compile` test suite are the canonical implementation; `main`'s
+  parallel 4-seam rewrite (`runner_fn`/`validator_fn`/`output_finder_fn`/
+  `script_resolver_fn`) is dropped. The develop test suite covers every
+  behavioral scenario the main suite exercised (renamed/consolidated), minus the
+  signature-introspection tests that were specific to the dropped 4-seam design.
+
+### Added (salvaged from `main`)
+- **Mermaid crash-early precheck** (`_utils/_mermaid_precheck.py`,
+  `check_mmdc_or_raise`): fail loudly with an actionable message when `mmdc`'s
+  headless-Chromium dependency is broken (missing `libnspr4` under apptainer)
+  instead of SIGSEGV-ing mid-compile (#132).
+
+### Fixed (salvaged from `main`)
+- **Packaging:** `[tool.hatch.build.targets.sdist]` now ships only the Python
+  package + project metadata and excludes the top-level manuscript scratch
+  directories, whose absolute-path symlinks made `hatchling` sdist builds fail
+  with `tarfile.AbsoluteLinkError` (#1f4e039).
+- **CLA workflow:** `cla.yml` reads `GH_PERSONAL_ACCESS_TOKEN` (PS-168).
+- Author metadata email corrected to `ywatanabe@scitex.ai`.
+
 ## [2.17.3] - 2026-06-03
 
 ### Changed
