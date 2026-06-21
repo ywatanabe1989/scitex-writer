@@ -12,6 +12,9 @@ be lazy-imported inside the function bodies — not at module top.
 import importlib
 
 
-def test_module_imports():
-    """Smoke: target module imports without error."""
-    importlib.import_module("scitex_writer._utils._verify_tree_structure")
+def test_module_exposes_project_validation_error():
+    # Arrange
+    # Act
+    module = importlib.import_module("scitex_writer._utils._verify_tree_structure")
+    # Assert
+    assert hasattr(module, "ProjectValidationError")

@@ -99,9 +99,10 @@ create_log_dirs() {
     done
 }
 
-# Create container cache directory
+# Create container directory under the per-package convention
+# (operator design 8566 + sac PR #293): ~/.scitex/writer/containers/.
 create_container_dirs() {
-    mkdir -p "$PROJECT_ROOT/.cache/containers"
+    mkdir -p "$HOME/.scitex/writer/containers"
     mkdir -p "$PROJECT_ROOT/scripts/containers"
 
     # Create README for containers directory
@@ -118,12 +119,18 @@ This directory contains Apptainer/Singularity container definition files.
 
 ## Usage
 
-Build containers:
+Build the canonical SIFs via the scitex-writer CLI (uses scitex-container under
+the hood for uniform versioning + .def-hash + build-log pinning):
+
 ```bash
-./scripts/installation/download_containers.sh
+scitex-writer containers install texlive -y
+scitex-writer containers install mermaid -y
 ```
 
-Containers are cached in `.cache/containers/` after first build/download.
+Artifacts land under `~/.scitex/writer/containers/<tool>.sif` per the
+operator-design-8566 / sac-PR-#293 per-package convention. The legacy bulk
+downloader at `./scripts/installation/download_containers.sh` still works
+and is being kept until the build path is verified across hosts.
 EOF
     fi
 }

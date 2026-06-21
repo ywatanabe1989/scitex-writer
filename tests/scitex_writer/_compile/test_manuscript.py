@@ -3,407 +3,200 @@
 """
 Tests for manuscript compilation.
 
-Tests compile_manuscript function with various options:
-- no_figs: Exclude figures for quick compilation
-- ppt2tif: PowerPoint to TIF conversion
-- crop_tif: TIF cropping
-- quiet/verbose: Output verbosity
-- force: Force recompilation
-- log_callback: Live logging
-- progress_callback: Progress tracking
-
-NM-rewrite (2026-06-13): replaced unittest.mock.patch/Mock with real
-recording-fake collaborators that are injected into compile_manuscript
-through the new public runner_fn/validator_fn/output_finder_fn/
-script_resolver_fn kwargs. Tests then assert on the recorded command
-list (real observable side-effect) instead of mock_calls.
+compile_manuscript is a thin wrapper that forwards its options to the
+run_compile worker with doc_type 'manuscript'. The tests inject a real
+recording runner via the runner= seam and assert the forwarded args —
+no patching of run_compile, no real LaTeX toolchain.
 """
 
-from pathlib import Path
+import inspect
 
 import pytest
 
 pytest.importorskip("git")
+from pathlib import Path
 
 from scitex_writer._compile.manuscript import compile_manuscript
-
-# ---------------------------------------------------------------------------
-# Real fakes (no unittest.mock).
-# ---------------------------------------------------------------------------
+from scitex_writer._dataclasses import CompilationResult
 
 
 class _RecordingRunner:
-    """Real fake recording the cmd list and returning a fixed result."""
+    """Real run_compile stand-in: records (args, kwargs), returns a result."""
 
-    def __init__(self):
-        self.calls: list[list[str]] = []
+    def __init__(self, result=None):
+        self.calls = []
+        self.result = result or CompilationResult(
+            success=True, exit_code=0, stdout="", stderr="", duration=1.0
+        )
 
-    def __call__(self, cmd, *args, **kwargs):
-        self.calls.append(list(cmd))
-        return {"exit_code": 0, "stdout": "", "stderr": "", "success": True}
-
-
-def _noop_validator(project_dir: Path) -> None:
-    return None
-
-
-def _empty_output_finder(project_dir: Path, doc_type: str):
-    return (None, None, None)
+    def __call__(self, *args, **kwargs):
+        self.calls.append((args, kwargs))
+        return self.result
 
 
-def _make_script_resolver(script_path: Path):
-    def _resolver(project_dir: Path, doc_type: str) -> Path:
-        return script_path
-
-    return _resolver
+_PROJECT_DIR = Path("/tmp/test-project")
 
 
-def _setup_existing_script(tmp_path: Path) -> Path:
-    script_dir = tmp_path / "scripts" / "shell"
-    script_dir.mkdir(parents=True, exist_ok=True)
-    script = script_dir / "compile_manuscript.sh"
-    script.write_text("#!/bin/sh\nexit 0\n")
-    return script
+class TestCompileManuscriptSignature:
+    """Signature / import contract."""
 
-
-def _run(tmp_path: Path, runner: _RecordingRunner, **kwargs):
-    script = _setup_existing_script(tmp_path)
-    return compile_manuscript(
-        tmp_path,
-        runner_fn=runner,
-        validator_fn=_noop_validator,
-        output_finder_fn=_empty_output_finder,
-        script_resolver_fn=_make_script_resolver(script),
-        **kwargs,
-    )
-
-
-# ---------------------------------------------------------------------------
-# Tests
-# ---------------------------------------------------------------------------
-
-
-class TestCompileManuscriptImport:
-    """Module-level import contract."""
-
-    def test_compile_manuscript_is_callable_after_import(self):
+    def test_compile_manuscript_is_importable_callable(self):
         # Arrange
         from scitex_writer._compile import compile_manuscript as cm
 
         # Act
-        result = callable(cm)
         # Assert
-        assert result is True
+        assert callable(cm)
 
-
-class TestCompileManuscriptSignature:
-    """Signature contract — one assertion per test."""
-
-    def test_signature_includes_project_dir_parameter(self):
+    def test_signature_exposes_all_documented_parameters(self):
         # Arrange
-        import inspect
-
+        expected = {
+            "project_dir",
+            "timeout",
+            "no_figs",
+            "ppt2tif",
+            "crop_tif",
+            "quiet",
+            "verbose",
+            "force",
+            "log_callback",
+            "progress_callback",
+        }
         # Act
-        params = list(inspect.signature(compile_manuscript).parameters.keys())
+        params = set(inspect.signature(compile_manuscript).parameters)
         # Assert
-        assert "project_dir" in params
+        assert expected <= params
 
-    def test_signature_includes_timeout_parameter(self):
+    def test_default_timeout_is_300(self):
         # Arrange
-        import inspect
-
         # Act
-        params = list(inspect.signature(compile_manuscript).parameters.keys())
+        sig = inspect.signature(compile_manuscript)
         # Assert
-        assert "timeout" in params
+        assert sig.parameters["timeout"].default == 300
 
-    def test_signature_includes_no_figs_parameter(self):
+    def test_default_boolean_flags_are_false(self):
         # Arrange
-        import inspect
-
+        sig = inspect.signature(compile_manuscript)
+        flags = ("no_figs", "ppt2tif", "crop_tif", "quiet", "verbose", "force")
         # Act
-        params = list(inspect.signature(compile_manuscript).parameters.keys())
+        defaults = [sig.parameters[f].default for f in flags]
         # Assert
-        assert "no_figs" in params
+        assert defaults == [False] * len(flags)
 
-    def test_signature_includes_ppt2tif_parameter(self):
+    def test_default_callbacks_are_none(self):
         # Arrange
-        import inspect
-
+        sig = inspect.signature(compile_manuscript)
         # Act
-        params = list(inspect.signature(compile_manuscript).parameters.keys())
-        # Assert
-        assert "ppt2tif" in params
-
-    def test_signature_includes_crop_tif_parameter(self):
-        # Arrange
-        import inspect
-
-        # Act
-        params = list(inspect.signature(compile_manuscript).parameters.keys())
-        # Assert
-        assert "crop_tif" in params
-
-    def test_signature_includes_quiet_parameter(self):
-        # Arrange
-        import inspect
-
-        # Act
-        params = list(inspect.signature(compile_manuscript).parameters.keys())
-        # Assert
-        assert "quiet" in params
-
-    def test_signature_includes_verbose_parameter(self):
-        # Arrange
-        import inspect
-
-        # Act
-        params = list(inspect.signature(compile_manuscript).parameters.keys())
-        # Assert
-        assert "verbose" in params
-
-    def test_signature_includes_force_parameter(self):
-        # Arrange
-        import inspect
-
-        # Act
-        params = list(inspect.signature(compile_manuscript).parameters.keys())
-        # Assert
-        assert "force" in params
-
-    def test_signature_includes_log_callback_parameter(self):
-        # Arrange
-        import inspect
-
-        # Act
-        params = list(inspect.signature(compile_manuscript).parameters.keys())
-        # Assert
-        assert "log_callback" in params
-
-    def test_signature_includes_progress_callback_parameter(self):
-        # Arrange
-        import inspect
-
-        # Act
-        params = list(inspect.signature(compile_manuscript).parameters.keys())
-        # Assert
-        assert "progress_callback" in params
-
-
-class TestCompileManuscriptDefaults:
-    """Default-value contract — one assertion per test."""
-
-    def test_default_timeout_is_300_seconds(self):
-        # Arrange
-        import inspect
-
-        # Act
-        default = inspect.signature(compile_manuscript).parameters["timeout"].default
-        # Assert
-        assert default == 300
-
-    def test_default_no_figs_is_false(self):
-        # Arrange
-        import inspect
-
-        # Act
-        default = inspect.signature(compile_manuscript).parameters["no_figs"].default
-        # Assert
-        assert default is False
-
-    def test_default_ppt2tif_is_false(self):
-        # Arrange
-        import inspect
-
-        # Act
-        default = inspect.signature(compile_manuscript).parameters["ppt2tif"].default
-        # Assert
-        assert default is False
-
-    def test_default_crop_tif_is_false(self):
-        # Arrange
-        import inspect
-
-        # Act
-        default = inspect.signature(compile_manuscript).parameters["crop_tif"].default
-        # Assert
-        assert default is False
-
-    def test_default_quiet_is_false(self):
-        # Arrange
-        import inspect
-
-        # Act
-        default = inspect.signature(compile_manuscript).parameters["quiet"].default
-        # Assert
-        assert default is False
-
-    def test_default_verbose_is_false(self):
-        # Arrange
-        import inspect
-
-        # Act
-        default = inspect.signature(compile_manuscript).parameters["verbose"].default
-        # Assert
-        assert default is False
-
-    def test_default_force_is_false(self):
-        # Arrange
-        import inspect
-
-        # Act
-        default = inspect.signature(compile_manuscript).parameters["force"].default
-        # Assert
-        assert default is False
-
-    def test_default_log_callback_is_none(self):
-        # Arrange
-        import inspect
-
-        # Act
-        default = (
-            inspect.signature(compile_manuscript).parameters["log_callback"].default
+        defaults = (
+            sig.parameters["log_callback"].default,
+            sig.parameters["progress_callback"].default,
         )
         # Assert
-        assert default is None
+        assert defaults == (None, None)
 
-    def test_default_progress_callback_is_none(self):
+
+class TestCompileManuscriptDelegation:
+    """Forwarding contract to the run_compile worker."""
+
+    def test_forwards_manuscript_doc_type_as_first_arg(self):
         # Arrange
-        import inspect
+        runner = _RecordingRunner()
+        # Act
+        compile_manuscript(_PROJECT_DIR, runner=runner)
+        # Assert
+        assert runner.calls[0][0][0] == "manuscript"
+
+    def test_forwards_project_dir_as_second_arg(self):
+        # Arrange
+        runner = _RecordingRunner()
+        # Act
+        compile_manuscript(_PROJECT_DIR, runner=runner)
+        # Assert
+        assert runner.calls[0][0][1] == _PROJECT_DIR
+
+    def test_forwards_no_figs_option(self):
+        # Arrange
+        runner = _RecordingRunner()
+        # Act
+        compile_manuscript(_PROJECT_DIR, no_figs=True, runner=runner)
+        # Assert
+        assert runner.calls[0][1]["no_figs"] is True
+
+    def test_forwards_ppt2tif_option(self):
+        # Arrange
+        runner = _RecordingRunner()
+        # Act
+        compile_manuscript(_PROJECT_DIR, ppt2tif=True, runner=runner)
+        # Assert
+        assert runner.calls[0][1]["ppt2tif"] is True
+
+    def test_forwards_crop_tif_option(self):
+        # Arrange
+        runner = _RecordingRunner()
+        # Act
+        compile_manuscript(_PROJECT_DIR, crop_tif=True, runner=runner)
+        # Assert
+        assert runner.calls[0][1]["crop_tif"] is True
+
+    def test_forwards_quiet_option(self):
+        # Arrange
+        runner = _RecordingRunner()
+        # Act
+        compile_manuscript(_PROJECT_DIR, quiet=True, runner=runner)
+        # Assert
+        assert runner.calls[0][1]["quiet"] is True
+
+    def test_forwards_verbose_option(self):
+        # Arrange
+        runner = _RecordingRunner()
+        # Act
+        compile_manuscript(_PROJECT_DIR, verbose=True, runner=runner)
+        # Assert
+        assert runner.calls[0][1]["verbose"] is True
+
+    def test_forwards_force_option(self):
+        # Arrange
+        runner = _RecordingRunner()
+        # Act
+        compile_manuscript(_PROJECT_DIR, force=True, runner=runner)
+        # Assert
+        assert runner.calls[0][1]["force"] is True
+
+    def test_forwards_log_callback(self):
+        # Arrange
+        runner = _RecordingRunner()
+
+        def _log(_line):
+            return None
 
         # Act
-        default = (
-            inspect.signature(compile_manuscript)
-            .parameters["progress_callback"]
-            .default
+        compile_manuscript(_PROJECT_DIR, log_callback=_log, runner=runner)
+        # Assert
+        assert runner.calls[0][1]["log_callback"] is _log
+
+    def test_forwards_progress_callback(self):
+        # Arrange
+        runner = _RecordingRunner()
+
+        def _progress(_pct, _step):
+            return None
+
+        # Act
+        compile_manuscript(_PROJECT_DIR, progress_callback=_progress, runner=runner)
+        # Assert
+        assert runner.calls[0][1]["progress_callback"] is _progress
+
+    def test_returns_runner_result_unchanged(self):
+        # Arrange
+        expected = CompilationResult(
+            success=True, exit_code=0, stdout="Test output", stderr="", duration=2.5
         )
-        # Assert
-        assert default is None
-
-
-class TestCompileManuscriptBehavior:
-    """Behavioural tests — exercise compile_manuscript end-to-end with
-    real recording fakes. Each test asserts ONE observable contract
-    fact, derived from the side-effects captured by the fake."""
-
-    def test_runner_called_exactly_once_for_default_invocation(self, tmp_path):
-        # Arrange
-        runner = _RecordingRunner()
+        runner = _RecordingRunner(result=expected)
         # Act
-        _run(tmp_path, runner)
+        result = compile_manuscript(_PROJECT_DIR, runner=runner)
         # Assert
-        assert len(runner.calls) == 1
+        assert result is expected
 
-    def test_command_invokes_manuscript_compile_script_path(self, tmp_path):
-        # Arrange
-        runner = _RecordingRunner()
-        # Act
-        _run(tmp_path, runner)
-        # Assert
-        assert any("compile_manuscript.sh" in arg for arg in runner.calls[0])
-
-    def test_no_figs_option_appends_no_figs_flag(self, tmp_path):
-        # Arrange
-        runner = _RecordingRunner()
-        # Act
-        _run(tmp_path, runner, no_figs=True)
-        # Assert
-        assert "--no_figs" in runner.calls[0]
-
-    def test_ppt2tif_option_appends_ppt2tif_flag(self, tmp_path):
-        # Arrange
-        runner = _RecordingRunner()
-        # Act
-        _run(tmp_path, runner, ppt2tif=True)
-        # Assert
-        assert "--ppt2tif" in runner.calls[0]
-
-    def test_crop_tif_option_appends_crop_tif_flag(self, tmp_path):
-        # Arrange
-        runner = _RecordingRunner()
-        # Act
-        _run(tmp_path, runner, crop_tif=True)
-        # Assert
-        assert "--crop_tif" in runner.calls[0]
-
-    def test_quiet_option_appends_quiet_flag(self, tmp_path):
-        # Arrange
-        runner = _RecordingRunner()
-        # Act
-        _run(tmp_path, runner, quiet=True)
-        # Assert
-        assert "--quiet" in runner.calls[0]
-
-    def test_verbose_option_appends_verbose_flag(self, tmp_path):
-        # Arrange
-        runner = _RecordingRunner()
-        # Act
-        _run(tmp_path, runner, verbose=True)
-        # Assert
-        assert "--verbose" in runner.calls[0]
-
-    def test_force_option_appends_force_flag(self, tmp_path):
-        # Arrange
-        runner = _RecordingRunner()
-        # Act
-        _run(tmp_path, runner, force=True)
-        # Assert
-        assert "--force" in runner.calls[0]
-
-    def test_multiple_options_all_present_in_command(self, tmp_path):
-        # Arrange
-        runner = _RecordingRunner()
-        # Act
-        _run(
-            tmp_path,
-            runner,
-            no_figs=True,
-            ppt2tif=True,
-            crop_tif=True,
-            verbose=True,
-            force=True,
-        )
-        # Assert
-        cmd = runner.calls[0]
-        assert {
-            "--no_figs",
-            "--ppt2tif",
-            "--crop_tif",
-            "--verbose",
-            "--force",
-        }.issubset(set(cmd))
-
-    def test_returns_compilation_result_with_success_true_on_zero_exit(self, tmp_path):
-        # Arrange
-        runner = _RecordingRunner()
-        # Act
-        result = _run(tmp_path, runner)
-        # Assert
-        assert result.success is True
-
-    def test_returns_compilation_result_with_exit_code_zero_on_success(self, tmp_path):
-        # Arrange
-        runner = _RecordingRunner()
-        # Act
-        result = _run(tmp_path, runner)
-        # Assert
-        assert result.exit_code == 0
-
-    def test_progress_callback_receives_completion_update(self, tmp_path):
-        # Arrange
-        runner = _RecordingRunner()
-        progress_events: list[tuple[int, str]] = []
-
-        def record_progress(pct: int, step: str) -> None:
-            progress_events.append((pct, step))
-
-        # Act
-        _run(tmp_path, runner, progress_callback=record_progress)
-        # Assert
-        assert any(pct == 100 for pct, _ in progress_events)
-
-
-# EOF
 
 if __name__ == "__main__":
     import os

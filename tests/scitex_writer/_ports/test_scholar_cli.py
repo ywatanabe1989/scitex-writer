@@ -5,83 +5,56 @@ from __future__ import annotations
 
 from pathlib import Path
 
-import pytest
-
 from scitex_writer._ports import scholar_cli
 
 
-@pytest.fixture
-def stub_which():
-    """Replace shutil.which on the scholar_cli module; restore on teardown."""
-    original = scholar_cli.shutil.which
-    state = {"return": None}
-
-    def _which(_name):
-        return state["return"]
-
-    scholar_cli.shutil.which = _which
-    try:
-        yield state
-    finally:
-        scholar_cli.shutil.which = original
-
-
-@pytest.fixture
-def stub_python_module():
-    """Replace _python_module_available; restore on teardown."""
-    original = scholar_cli._python_module_available
-    state = {"return": False}
-
-    def _avail():
-        return state["return"]
-
-    scholar_cli._python_module_available = _avail
-    try:
-        yield state
-    finally:
-        scholar_cli._python_module_available = original
-
-
-def test_scholar_cli_on_path_returns_true_when_binary_present(stub_which):
-    """Verify scholar_cli_on_path returns True when which() finds the binary."""
+def test_on_path_true_when_which_finds_the_binary():
     # Arrange
-    stub_which["return"] = "/usr/bin/stub"
+    which = lambda _name: "/usr/bin/stub"  # noqa: E731 - tiny injected fake
+    module_check = lambda: False  # noqa: E731
     # Act
-    result = scholar_cli.scholar_cli_on_path()
+    result = scholar_cli.scholar_cli_on_path(which=which, module_check=module_check)
     # Assert
     assert result is True
 
 
-def test_scholar_cli_on_path_falls_back_to_module_when_binary_missing(stub_which):
-    """Verify the python-module fallback decides the result when which() is None."""
+def test_on_path_falls_back_to_python_module_when_binary_absent():
     # Arrange
-    stub_which["return"] = None
-    expected = scholar_cli._python_module_available()
+    which = lambda _name: None  # noqa: E731 - binary not on PATH
+    module_check = lambda: True  # noqa: E731 - module importable
     # Act
-    result = scholar_cli.scholar_cli_on_path()
+    result = scholar_cli.scholar_cli_on_path(which=which, module_check=module_check)
     # Assert
-    assert result is expected
+    assert result is True
 
 
-def test_enrich_bib_returns_false_when_cli_unavailable(stub_which, stub_python_module):
-    """Verify enrich_bib returns ok=False when neither CLI nor module is available."""
+def test_on_path_false_when_neither_binary_nor_module_present():
     # Arrange
-    stub_which["return"] = None
-    stub_python_module["return"] = False
+    which = lambda _name: None  # noqa: E731
+    module_check = lambda: False  # noqa: E731
     # Act
-    ok, _msg = scholar_cli.enrich_bib(Path("/tmp/x.bib"), "proj")
+    result = scholar_cli.scholar_cli_on_path(which=which, module_check=module_check)
+    # Assert
+    assert result is False
+
+
+def test_enrich_bib_without_cli_reports_failure():
+    # Arrange
+    cli_available = lambda: False  # noqa: E731 - scholar not installed
+    # Act
+    ok, _msg = scholar_cli.enrich_bib(
+        Path("/tmp/x.bib"), "proj", cli_available=cli_available
+    )
     # Assert
     assert ok is False
 
 
-def test_enrich_bib_install_message_mentions_pip_install(
-    stub_which, stub_python_module
-):
-    """Verify enrich_bib install hint mentions 'pip install' when no CLI."""
+def test_enrich_bib_without_cli_message_points_at_pip_install():
     # Arrange
-    stub_which["return"] = None
-    stub_python_module["return"] = False
+    cli_available = lambda: False  # noqa: E731
     # Act
-    _ok, msg = scholar_cli.enrich_bib(Path("/tmp/x.bib"), "proj")
+    _ok, msg = scholar_cli.enrich_bib(
+        Path("/tmp/x.bib"), "proj", cli_available=cli_available
+    )
     # Assert
     assert "pip install" in msg

@@ -15,14 +15,6 @@ permissions:
 jobs:
   CLAssistant:
     runs-on: ubuntu-latest
-    # Robust gate: the `github.event.issue.pull_request` field has proven
-    # unreliable on closed-issue comments — the action still fires and errors
-    # with "Could not resolve to a PullRequest". PR URLs always contain
-    # `/pull/`; non-PR issue URLs contain `/issues/`. Use the URL shape
-    # instead.
-    if: |
-      github.event_name == 'pull_request_target' ||
-      (github.event_name == 'issue_comment' && contains(github.event.issue.html_url, '/pull/'))
     steps:
       - name: CLA Assistant
         uses: contributor-assistant/github-action@v2.6.1
@@ -33,7 +25,7 @@ jobs:
           path-to-signatures: "signatures/cla.json"
           path-to-document: "https://github.com/ywatanabe1989/scitex-writer/blob/main/CLA.md"
           branch: "cla-signatures"
-          allowlist: bot*,ywatanabe1989
+          allowlist: bot*,ywatanabe1989,LLEmacs
           custom-allsigned-prcomment: |
             Thank you for signing the SciTeX CLA. Your contribution can now be reviewed.
           custom-notsigned-prcomment: |

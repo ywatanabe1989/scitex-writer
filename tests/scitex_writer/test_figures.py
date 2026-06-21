@@ -3,11 +3,9 @@
 import importlib
 
 
-def test_figures_module_imports_without_error():
-    """Smoke: target module imports without error and is not None."""
+def test_module_exposes_convert():
     # Arrange
-    target = "scitex_writer.figures"
     # Act
-    module = importlib.import_module(target)
+    module = importlib.import_module("scitex_writer.figures")
     # Assert
-    assert module is not None
+    assert hasattr(module, "convert")

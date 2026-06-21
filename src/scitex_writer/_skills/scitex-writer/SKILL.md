@@ -1,7 +1,7 @@
 ---
 name: scitex-writer
 description: |
-  [WHAT] End-to-end LaTeX manuscript toolchain — 45 MCP tools — project (clone/info/get_pdf), compile (manuscript / supplementary / revision with tracked changes), BibTeX (add/list/get/remove/merge, dedup by DOI), figures + tables (add/list/remove/archive, csv_to_latex, pdf_to_images), claims (`\vclaim{}` linked to scitex-clew session hashes for verifiable assertions), checks (float order, references), export + Overleaf migration, per-journal guidelines, AI2 Asta prompts.
+  [WHAT] End-to-end LaTeX manuscript toolchain — 44 MCP tools — project (clone/info/get_pdf), compile (manuscript / supplementary / revision with tracked changes), BibTeX (add/list/get/remove/merge, dedup by DOI), figures + tables (add/list/remove/archive, csv_to_latex, pdf_to_images), claims (`\vclaim{}` linked to scitex-clew session hashes for verifiable assertions), checks (float order, references), export + Overleaf migration, per-journal guidelines, AI2 Asta prompts.
   [WHEN] Use whenever the user asks to compile manuscript / build PDF / supplementary / revision with tracked changes, add figure/table/bibentry, merge or dedup .
   [HOW] `pip install scitex-writer` then `import scitex_writer`; see leaf skills for details.
 tags: [scitex-writer]
@@ -16,8 +16,6 @@ interfaces:
 ---
 
 # scitex-writer
-
-> **Interfaces:** Python ⭐ · CLI ⭐⭐⭐ · MCP ⭐⭐⭐ · Skills ⭐⭐ · Hook — · HTTP —
 
 LaTeX manuscript compilation framework. Compiles manuscripts,
 supplementary materials, and revisions with tracked changes. Manages

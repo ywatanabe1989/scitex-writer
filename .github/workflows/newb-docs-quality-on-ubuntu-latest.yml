@@ -1,4 +1,4 @@
-name: Newb
+name: newb
 
 # Doc-quality verification — fresh Claude agent reads only the package's
 # docs in a hard-isolated container, then tries to install + import +
@@ -9,7 +9,7 @@ name: Newb
 # are intentionally NOT enabled here (LLM API cost + run time).
 on:
   schedule:
-    - cron: "0 4 * * 1"        # weekly Monday 04:00 UTC
+    - cron: "0 17 * * 1"  # weekly Mon 17:00 UTC (~Tue 02:00 JST)
   workflow_dispatch:
 
 jobs:
@@ -44,6 +44,12 @@ jobs:
 
       - name: Run newb (verbose so the log shows per-prompt timing)
         env:
+          # newb's own secret — the `NEWB_` prefix is owned by the newb
+          # distribution; PS-168 (narrowed) accepts cross-package
+          # prefixes from any ECOSYSTEM entry, so this needs no extra
+          # SCITEX_DEV_-prefix wrapper. Double-prefixing
+          # (SCITEX_DEV_NEWB_*) was tried briefly and reverted per the
+          # operator: stacking two prefixes obscures the meaning.
           NEWB_ANTHROPIC_API_KEY: ${{ secrets.NEWB_ANTHROPIC_API_KEY }}
           # Resource caps so an attacker who hijacked the docs-reading
           # agent can't DoS via memory/pid exhaustion. Generous enough

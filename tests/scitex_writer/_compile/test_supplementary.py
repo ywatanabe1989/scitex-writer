@@ -3,337 +3,182 @@
 """
 Tests for supplementary materials compilation.
 
-Tests compile_supplementary function with various options:
-- no_figs: Exclude figures (default includes figures)
-- ppt2tif: PowerPoint to TIF conversion
-- crop_tif: TIF cropping
-- quiet: Output verbosity
-- log_callback: Live logging
-- progress_callback: Progress tracking
-
-NM-rewrite (2026-06-13): replaced unittest.mock.patch/Mock with real
-recording-fake collaborators injected through the new public
-runner_fn/validator_fn/output_finder_fn/script_resolver_fn kwargs.
+compile_supplementary is a thin wrapper that forwards its options to the
+run_compile worker with doc_type 'supplementary'. The tests inject a real
+recording runner via the runner= seam and assert the forwarded args — no
+patching of run_compile, no real LaTeX toolchain.
 """
 
-from pathlib import Path
+import inspect
 
 import pytest
 
 pytest.importorskip("git")
+from pathlib import Path
 
 from scitex_writer._compile.supplementary import compile_supplementary
-
-# ---------------------------------------------------------------------------
-# Real fakes
-# ---------------------------------------------------------------------------
+from scitex_writer._dataclasses import CompilationResult
 
 
 class _RecordingRunner:
-    def __init__(self):
-        self.calls: list[list[str]] = []
+    """Real run_compile stand-in: records (args, kwargs), returns a result."""
 
-    def __call__(self, cmd, *args, **kwargs):
-        self.calls.append(list(cmd))
-        return {"exit_code": 0, "stdout": "", "stderr": "", "success": True}
+    def __init__(self, result=None):
+        self.calls = []
+        self.result = result or CompilationResult(
+            success=True, exit_code=0, stdout="", stderr="", duration=1.0
+        )
 
-
-def _noop_validator(project_dir: Path) -> None:
-    return None
-
-
-def _empty_output_finder(project_dir: Path, doc_type: str):
-    return (None, None, None)
+    def __call__(self, *args, **kwargs):
+        self.calls.append((args, kwargs))
+        return self.result
 
 
-def _make_script_resolver(script_path: Path):
-    def _resolver(project_dir: Path, doc_type: str) -> Path:
-        return script_path
-
-    return _resolver
+_PROJECT_DIR = Path("/tmp/test-project")
 
 
-def _setup_existing_script(tmp_path: Path) -> Path:
-    script_dir = tmp_path / "scripts" / "shell"
-    script_dir.mkdir(parents=True, exist_ok=True)
-    script = script_dir / "compile_supplementary.sh"
-    script.write_text("#!/bin/sh\nexit 0\n")
-    return script
+class TestCompileSupplementarySignature:
+    """Signature / import contract."""
 
-
-def _run(tmp_path: Path, runner: _RecordingRunner, **kwargs):
-    script = _setup_existing_script(tmp_path)
-    return compile_supplementary(
-        tmp_path,
-        runner_fn=runner,
-        validator_fn=_noop_validator,
-        output_finder_fn=_empty_output_finder,
-        script_resolver_fn=_make_script_resolver(script),
-        **kwargs,
-    )
-
-
-# ---------------------------------------------------------------------------
-# Tests
-# ---------------------------------------------------------------------------
-
-
-class TestCompileSupplementaryImport:
-    def test_compile_supplementary_is_callable_after_import(self):
+    def test_compile_supplementary_is_importable_callable(self):
         # Arrange
         from scitex_writer._compile import compile_supplementary as cs
 
         # Act
-        result = callable(cs)
         # Assert
-        assert result is True
+        assert callable(cs)
 
-
-class TestCompileSupplementarySignature:
-    def test_signature_includes_project_dir_parameter(self):
+    def test_signature_exposes_all_documented_parameters(self):
         # Arrange
-        import inspect
-
+        expected = {
+            "project_dir",
+            "timeout",
+            "no_figs",
+            "ppt2tif",
+            "crop_tif",
+            "quiet",
+            "log_callback",
+            "progress_callback",
+        }
         # Act
-        params = list(inspect.signature(compile_supplementary).parameters.keys())
+        params = set(inspect.signature(compile_supplementary).parameters)
         # Assert
-        assert "project_dir" in params
+        assert expected <= params
 
-    def test_signature_includes_timeout_parameter(self):
+    def test_default_timeout_is_300(self):
         # Arrange
-        import inspect
-
         # Act
-        params = list(inspect.signature(compile_supplementary).parameters.keys())
+        sig = inspect.signature(compile_supplementary)
         # Assert
-        assert "timeout" in params
+        assert sig.parameters["timeout"].default == 300
 
-    def test_signature_includes_no_figs_parameter(self):
+    def test_default_boolean_flags_are_false(self):
         # Arrange
-        import inspect
-
+        sig = inspect.signature(compile_supplementary)
+        flags = ("no_figs", "ppt2tif", "crop_tif", "quiet")
         # Act
-        params = list(inspect.signature(compile_supplementary).parameters.keys())
+        defaults = [sig.parameters[f].default for f in flags]
         # Assert
-        assert "no_figs" in params
+        assert defaults == [False] * len(flags)
 
-    def test_signature_includes_ppt2tif_parameter(self):
+    def test_default_callbacks_are_none(self):
         # Arrange
-        import inspect
-
+        sig = inspect.signature(compile_supplementary)
         # Act
-        params = list(inspect.signature(compile_supplementary).parameters.keys())
-        # Assert
-        assert "ppt2tif" in params
-
-    def test_signature_includes_crop_tif_parameter(self):
-        # Arrange
-        import inspect
-
-        # Act
-        params = list(inspect.signature(compile_supplementary).parameters.keys())
-        # Assert
-        assert "crop_tif" in params
-
-    def test_signature_includes_quiet_parameter(self):
-        # Arrange
-        import inspect
-
-        # Act
-        params = list(inspect.signature(compile_supplementary).parameters.keys())
-        # Assert
-        assert "quiet" in params
-
-    def test_signature_includes_log_callback_parameter(self):
-        # Arrange
-        import inspect
-
-        # Act
-        params = list(inspect.signature(compile_supplementary).parameters.keys())
-        # Assert
-        assert "log_callback" in params
-
-    def test_signature_includes_progress_callback_parameter(self):
-        # Arrange
-        import inspect
-
-        # Act
-        params = list(inspect.signature(compile_supplementary).parameters.keys())
-        # Assert
-        assert "progress_callback" in params
-
-
-class TestCompileSupplementaryDefaults:
-    def test_default_timeout_is_300_seconds(self):
-        # Arrange
-        import inspect
-
-        # Act
-        default = inspect.signature(compile_supplementary).parameters["timeout"].default
-        # Assert
-        assert default == 300
-
-    def test_default_no_figs_is_false(self):
-        # Arrange
-        import inspect
-
-        # Act
-        default = inspect.signature(compile_supplementary).parameters["no_figs"].default
-        # Assert
-        assert default is False
-
-    def test_default_ppt2tif_is_false(self):
-        # Arrange
-        import inspect
-
-        # Act
-        default = inspect.signature(compile_supplementary).parameters["ppt2tif"].default
-        # Assert
-        assert default is False
-
-    def test_default_crop_tif_is_false(self):
-        # Arrange
-        import inspect
-
-        # Act
-        default = (
-            inspect.signature(compile_supplementary).parameters["crop_tif"].default
+        defaults = (
+            sig.parameters["log_callback"].default,
+            sig.parameters["progress_callback"].default,
         )
         # Assert
-        assert default is False
+        assert defaults == (None, None)
 
-    def test_default_quiet_is_false(self):
+
+class TestCompileSupplementaryDelegation:
+    """Forwarding contract to the run_compile worker."""
+
+    def test_forwards_supplementary_doc_type_as_first_arg(self):
         # Arrange
-        import inspect
-
+        runner = _RecordingRunner()
         # Act
-        default = inspect.signature(compile_supplementary).parameters["quiet"].default
+        compile_supplementary(_PROJECT_DIR, runner=runner)
         # Assert
-        assert default is False
+        assert runner.calls[0][0][0] == "supplementary"
 
-    def test_default_log_callback_is_none(self):
+    def test_forwards_project_dir_as_second_arg(self):
         # Arrange
-        import inspect
+        runner = _RecordingRunner()
+        # Act
+        compile_supplementary(_PROJECT_DIR, runner=runner)
+        # Assert
+        assert runner.calls[0][0][1] == _PROJECT_DIR
+
+    def test_forwards_no_figs_option(self):
+        # Arrange
+        runner = _RecordingRunner()
+        # Act
+        compile_supplementary(_PROJECT_DIR, no_figs=True, runner=runner)
+        # Assert
+        assert runner.calls[0][1]["no_figs"] is True
+
+    def test_forwards_ppt2tif_option(self):
+        # Arrange
+        runner = _RecordingRunner()
+        # Act
+        compile_supplementary(_PROJECT_DIR, ppt2tif=True, runner=runner)
+        # Assert
+        assert runner.calls[0][1]["ppt2tif"] is True
+
+    def test_forwards_crop_tif_option(self):
+        # Arrange
+        runner = _RecordingRunner()
+        # Act
+        compile_supplementary(_PROJECT_DIR, crop_tif=True, runner=runner)
+        # Assert
+        assert runner.calls[0][1]["crop_tif"] is True
+
+    def test_forwards_quiet_option(self):
+        # Arrange
+        runner = _RecordingRunner()
+        # Act
+        compile_supplementary(_PROJECT_DIR, quiet=True, runner=runner)
+        # Assert
+        assert runner.calls[0][1]["quiet"] is True
+
+    def test_forwards_log_callback(self):
+        # Arrange
+        runner = _RecordingRunner()
+
+        def _log(_line):
+            return None
 
         # Act
-        default = (
-            inspect.signature(compile_supplementary).parameters["log_callback"].default
+        compile_supplementary(_PROJECT_DIR, log_callback=_log, runner=runner)
+        # Assert
+        assert runner.calls[0][1]["log_callback"] is _log
+
+    def test_forwards_progress_callback(self):
+        # Arrange
+        runner = _RecordingRunner()
+
+        def _progress(_pct, _step):
+            return None
+
+        # Act
+        compile_supplementary(_PROJECT_DIR, progress_callback=_progress, runner=runner)
+        # Assert
+        assert runner.calls[0][1]["progress_callback"] is _progress
+
+    def test_returns_runner_result_unchanged(self):
+        # Arrange
+        expected = CompilationResult(
+            success=True, exit_code=0, stdout="Test output", stderr="", duration=2.5
         )
-        # Assert
-        assert default is None
-
-    def test_default_progress_callback_is_none(self):
-        # Arrange
-        import inspect
-
+        runner = _RecordingRunner(result=expected)
         # Act
-        default = (
-            inspect.signature(compile_supplementary)
-            .parameters["progress_callback"]
-            .default
-        )
+        result = compile_supplementary(_PROJECT_DIR, runner=runner)
         # Assert
-        assert default is None
+        assert result is expected
 
-
-class TestCompileSupplementaryBehavior:
-    def test_runner_called_exactly_once_for_default_invocation(self, tmp_path):
-        # Arrange
-        runner = _RecordingRunner()
-        # Act
-        _run(tmp_path, runner)
-        # Assert
-        assert len(runner.calls) == 1
-
-    def test_command_invokes_supplementary_compile_script_path(self, tmp_path):
-        # Arrange
-        runner = _RecordingRunner()
-        # Act
-        _run(tmp_path, runner)
-        # Assert
-        assert any("compile_supplementary.sh" in arg for arg in runner.calls[0])
-
-    def test_default_invocation_includes_figs_flag(self, tmp_path):
-        """Supplementary defaults to figures included → --figs flag present."""
-        # Arrange
-        runner = _RecordingRunner()
-        # Act
-        _run(tmp_path, runner)
-        # Assert
-        assert "--figs" in runner.calls[0]
-
-    def test_no_figs_option_suppresses_figs_flag(self, tmp_path):
-        # Arrange
-        runner = _RecordingRunner()
-        # Act
-        _run(tmp_path, runner, no_figs=True)
-        # Assert
-        assert "--figs" not in runner.calls[0]
-
-    def test_ppt2tif_option_appends_ppt2tif_flag(self, tmp_path):
-        # Arrange
-        runner = _RecordingRunner()
-        # Act
-        _run(tmp_path, runner, ppt2tif=True)
-        # Assert
-        assert "--ppt2tif" in runner.calls[0]
-
-    def test_crop_tif_option_appends_crop_tif_flag(self, tmp_path):
-        # Arrange
-        runner = _RecordingRunner()
-        # Act
-        _run(tmp_path, runner, crop_tif=True)
-        # Assert
-        assert "--crop_tif" in runner.calls[0]
-
-    def test_quiet_option_appends_quiet_flag(self, tmp_path):
-        # Arrange
-        runner = _RecordingRunner()
-        # Act
-        _run(tmp_path, runner, quiet=True)
-        # Assert
-        assert "--quiet" in runner.calls[0]
-
-    def test_multiple_options_all_present_in_command(self, tmp_path):
-        # Arrange
-        runner = _RecordingRunner()
-        # Act
-        _run(tmp_path, runner, ppt2tif=True, crop_tif=True, quiet=True)
-        # Assert
-        cmd = runner.calls[0]
-        assert {"--ppt2tif", "--crop_tif", "--quiet"}.issubset(set(cmd))
-
-    def test_progress_callback_receives_completion_update(self, tmp_path):
-        # Arrange
-        runner = _RecordingRunner()
-        progress_events: list[tuple[int, str]] = []
-
-        def record_progress(pct: int, step: str) -> None:
-            progress_events.append((pct, step))
-
-        # Act
-        _run(tmp_path, runner, progress_callback=record_progress)
-        # Assert
-        assert any(pct == 100 for pct, _ in progress_events)
-
-    def test_returns_compilation_result_with_success_true_on_zero_exit(self, tmp_path):
-        # Arrange
-        runner = _RecordingRunner()
-        # Act
-        result = _run(tmp_path, runner)
-        # Assert
-        assert result.success is True
-
-    def test_returns_compilation_result_with_exit_code_zero_on_success(self, tmp_path):
-        # Arrange
-        runner = _RecordingRunner()
-        # Act
-        result = _run(tmp_path, runner)
-        # Assert
-        assert result.exit_code == 0
-
-
-# EOF
 
 if __name__ == "__main__":
     import os

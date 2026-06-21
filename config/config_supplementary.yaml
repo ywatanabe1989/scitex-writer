@@ -32,9 +32,11 @@ paths:
   diff_tex: "./02_supplementary/supplementary_diff.tex"
   diff_pdf: "./02_supplementary/supplementary_diff.pdf"
   archive_dir: "./02_supplementary/archive"
-  texlive_apptainer_sif: "./.cache/containers/texlive_container.sif"
-  mermaid_apptainer_sif: "./.cache/containers/mermaid_container.sif"
-  imagemagick_apptainer_sif: "./.cache/containers/imagemagick_container.sif"
+  # Canonical convention: ~/.scitex/writer/containers/<tool>.sif
+  # (see config_manuscript.yaml for the full migration note).
+  texlive_apptainer_sif: "~/.scitex/writer/containers/texlive.sif"
+  mermaid_apptainer_sif: "~/.scitex/writer/containers/mermaid.sif"
+  imagemagick_apptainer_sif: "~/.scitex/writer/containers/imagemagick.sif"
   
 figures:
   dir: "./02_supplementary/contents/figures"

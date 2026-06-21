@@ -30,11 +30,7 @@ def compile_supplementary(
     quiet: bool = False,
     log_callback: Optional[Callable[[str], None]] = None,
     progress_callback: Optional[Callable[[int, str], None]] = None,
-    *,
-    runner_fn: Optional[Callable[..., dict]] = None,
-    validator_fn: Optional[Callable[[Path], None]] = None,
-    output_finder_fn: Optional[Callable[[Path, str], tuple]] = None,
-    script_resolver_fn: Optional[Callable[[Path, str], Path]] = None,
+    runner: Optional[Callable[..., CompilationResult]] = None,
 ) -> CompilationResult:
     """
     Compile supplementary materials with optional callbacks.
@@ -81,8 +77,13 @@ def compile_supplementary(
     ...     no_figs=True,
     ...     quiet=True
     ... )
+
+    ``runner`` defaults to
+    :func:`scitex_writer._compile._runner.run_compile`; exposed for
+    injection without patching module internals.
     """
-    return run_compile(
+    runner = runner or run_compile
+    return runner(
         "supplementary",
         project_dir,
         timeout=timeout,
@@ -92,10 +93,6 @@ def compile_supplementary(
         quiet=quiet,
         log_callback=log_callback,
         progress_callback=progress_callback,
-        runner_fn=runner_fn,
-        validator_fn=validator_fn,
-        output_finder_fn=output_finder_fn,
-        script_resolver_fn=script_resolver_fn,
     )
 
 

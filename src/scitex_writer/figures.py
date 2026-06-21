@@ -67,6 +67,19 @@ def add(
 ) -> dict:
     """Add a figure (copy image + create caption) to the project.
 
+    Design note (2026-06-12, operator decision 1b):
+        Figure *ingestion* (this function) keeps `shutil.copy2` — the
+        source path is a user-owned file outside the project, and the
+        project must remain self-contained after ingestion. Symlinking
+        here would create a dangling reference if the user later moves
+        or deletes the source.
+
+        In contrast, figure *placement into jpg_for_compilation*
+        (`scripts/shell/modules/process_figures_modules/02_format_conversion.src`)
+        was switched to a symlink — that target lives entirely inside the
+        project's derived tree and benefits from automatic propagation of
+        upstream edits.
+
     Args:
         project_dir: Path to scitex-writer project.
         name: Figure name (without extension).

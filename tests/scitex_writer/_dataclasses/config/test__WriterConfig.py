@@ -12,11 +12,9 @@ be lazy-imported inside the function bodies — not at module top.
 import importlib
 
 
-def test_writer_config_module_imports_without_error():
-    """Smoke: target module imports without error and is not None."""
+def test_module_exposes_writer_config():
     # Arrange
-    target = "scitex_writer._dataclasses.config._WriterConfig"
     # Act
-    module = importlib.import_module(target)
+    module = importlib.import_module("scitex_writer._dataclasses.config._WriterConfig")
     # Assert
-    assert module is not None
+    assert hasattr(module, "WriterConfig")

@@ -3,276 +3,246 @@
 
 import subprocess
 
-import pytest
-
-from scitex_writer._utils import _watch as watch_mod
 from scitex_writer._utils._watch import watch_manuscript
 
 
 class _FakeStdout:
-    """Mimics subprocess Popen.stdout for readline-iteration tests."""
+    """Real iterable stdout stand-in driven by a fixed list of lines."""
 
-    def __init__(self, lines=None, side_effect=None):
-        self._lines = list(lines or [])
-        self._side_effect = side_effect
+    def __init__(self, lines):
+        self._lines = list(lines)
 
     def readline(self):
-        if self._side_effect is not None:
-            exc = self._side_effect
-            # Raise once, then clear so subsequent calls return ""
-            self._side_effect = None
-            raise exc
-        if self._lines:
-            return self._lines.pop(0)
-        return ""
+        # iter(readline, "") stops at the first "" -> append "" to end.
+        return self._lines.pop(0) if self._lines else ""
 
 
-class _FakePopen:
-    """Drop-in replacement for subprocess.Popen capturing call args."""
+class _FakeProcess:
+    """Hand-rolled stand-in for the subprocess.Popen object.
 
-    def __init__(self, lines=None, readline_exc=None):
-        self.stdout = _FakeStdout(lines, readline_exc)
+    Records terminate/kill/wait calls so tests can assert on them, and
+    streams a fixed set of stdout lines. ``readline_raises`` lets a test
+    drive the KeyboardInterrupt / generic-exception code paths.
+    """
+
+    def __init__(self, lines=None, readline_raises=None):
+        if readline_raises is not None:
+            self.stdout = _RaisingStdout(readline_raises)
+        else:
+            self.stdout = _FakeStdout((lines or []) + [""])
         self.wait_calls = []
-        self.terminate_calls = 0
-        self.kill_calls = 0
-        self.last_args = None
-        self.last_kwargs = None
-
-    def __call__(self, *args, **kwargs):
-        # Capture invocation for test inspection.
-        self.last_args = args
-        self.last_kwargs = kwargs
-        return self
+        self.terminate_count = 0
+        self.kill_count = 0
 
     def wait(self, timeout=None):
         self.wait_calls.append(timeout)
 
     def terminate(self):
-        self.terminate_calls += 1
+        self.terminate_count += 1
 
     def kill(self):
-        self.kill_calls += 1
+        self.kill_count += 1
 
 
-@pytest.fixture
-def fake_popen():
-    """Replace subprocess.Popen on the _watch module with a recorder."""
-    fake = _FakePopen(lines=[""])
-    original = watch_mod.subprocess.Popen
-    watch_mod.subprocess.Popen = fake
-    try:
-        yield fake
-    finally:
-        watch_mod.subprocess.Popen = original
+class _RaisingStdout:
+    def __init__(self, exc):
+        self._exc = exc
+
+    def readline(self):
+        raise self._exc
 
 
-@pytest.fixture
-def project_with_compile_script(tmp_path):
-    """Project dir containing a compile script."""
+class _RecordingPopen:
+    """Real callable matching subprocess.Popen's call shape.
+
+    Records the positional command and keyword settings, and returns a
+    pre-seeded _FakeProcess. Injected via the watch_manuscript ``popen=``
+    seam — no patching of subprocess.Popen.
+    """
+
+    def __init__(self, process):
+        self._process = process
+        self.calls = []
+
+    def __call__(self, cmd, **kwargs):
+        self.calls.append((cmd, kwargs))
+        return self._process
+
+
+def _make_compile_script(tmp_path):
     compile_script = tmp_path / "compile"
     compile_script.write_text("#!/bin/bash\necho 'compiling'")
-    return tmp_path
-
-
-class _CallbackRecorder:
-    """Records callback invocations, optionally raising."""
-
-    def __init__(self, raise_exc=None):
-        self.call_count = 0
-        self.raise_exc = raise_exc
-
-    def __call__(self):
-        self.call_count += 1
-        if self.raise_exc is not None:
-            raise self.raise_exc
+    return compile_script
 
 
 class TestWatchManuscriptCompileScript:
     """Tests for watch_manuscript compile script handling."""
 
-    def test_does_not_invoke_popen_when_script_missing(self, tmp_path, fake_popen):
-        """Verify Popen is not called when compile script doesn't exist."""
+    def test_does_not_launch_process_when_compile_script_missing(self, tmp_path):
         # Arrange
-        # tmp_path has no compile script
+        popen = _RecordingPopen(_FakeProcess())
         # Act
-        watch_manuscript(tmp_path)
+        watch_manuscript(tmp_path, popen=popen)
         # Assert
-        assert fake_popen.last_args is None
+        assert popen.calls == []
 
-    def test_creates_correct_command_for_watch_mode(
-        self, project_with_compile_script, fake_popen
-    ):
-        """Verify correct command is built for watch mode."""
+    def test_builds_watch_command_from_compile_script(self, tmp_path):
         # Arrange
-        expected_cmd = [
-            str(project_with_compile_script / "compile"),
-            "-m",
-            "-w",
-        ]
+        compile_script = _make_compile_script(tmp_path)
+        popen = _RecordingPopen(_FakeProcess())
         # Act
-        watch_manuscript(project_with_compile_script)
+        watch_manuscript(tmp_path, popen=popen)
         # Assert
-        assert fake_popen.last_args[0] == expected_cmd
+        assert popen.calls[0][0] == [str(compile_script), "-m", "-w"]
 
 
 class TestWatchManuscriptProcess:
     """Tests for watch_manuscript process handling."""
 
-    def test_runs_popen_with_project_dir_as_cwd(
-        self, project_with_compile_script, fake_popen
-    ):
-        """Verify Popen receives the project dir as cwd."""
+    def test_runs_process_in_project_dir(self, tmp_path):
         # Arrange
-        # fake_popen replaces subprocess.Popen
+        _make_compile_script(tmp_path)
+        popen = _RecordingPopen(_FakeProcess())
         # Act
-        watch_manuscript(project_with_compile_script)
+        watch_manuscript(tmp_path, popen=popen)
         # Assert
-        assert fake_popen.last_kwargs["cwd"] == project_with_compile_script
+        assert popen.calls[0][1]["cwd"] == tmp_path
 
-    def test_runs_popen_with_pipe_stdout(self, project_with_compile_script, fake_popen):
-        """Verify Popen routes stdout through a pipe."""
+    def test_runs_process_capturing_stdout_pipe(self, tmp_path):
         # Arrange
-        # fake_popen replaces subprocess.Popen
+        _make_compile_script(tmp_path)
+        popen = _RecordingPopen(_FakeProcess())
         # Act
-        watch_manuscript(project_with_compile_script)
+        watch_manuscript(tmp_path, popen=popen)
         # Assert
-        assert fake_popen.last_kwargs["stdout"] == subprocess.PIPE
+        assert popen.calls[0][1]["stdout"] == subprocess.PIPE
 
-    def test_runs_popen_with_stderr_redirected_to_stdout(
-        self, project_with_compile_script, fake_popen
-    ):
-        """Verify Popen redirects stderr to stdout."""
+    def test_runs_process_merging_stderr_into_stdout(self, tmp_path):
         # Arrange
-        # fake_popen replaces subprocess.Popen
+        _make_compile_script(tmp_path)
+        popen = _RecordingPopen(_FakeProcess())
         # Act
-        watch_manuscript(project_with_compile_script)
+        watch_manuscript(tmp_path, popen=popen)
         # Assert
-        assert fake_popen.last_kwargs["stderr"] == subprocess.STDOUT
+        assert popen.calls[0][1]["stderr"] == subprocess.STDOUT
 
-    def test_runs_popen_with_text_mode_enabled(
-        self, project_with_compile_script, fake_popen
-    ):
-        """Verify Popen runs in text mode."""
+    def test_runs_process_in_text_mode(self, tmp_path):
         # Arrange
-        # fake_popen replaces subprocess.Popen
+        _make_compile_script(tmp_path)
+        popen = _RecordingPopen(_FakeProcess())
         # Act
-        watch_manuscript(project_with_compile_script)
+        watch_manuscript(tmp_path, popen=popen)
         # Assert
-        assert fake_popen.last_kwargs["text"] is True
+        assert popen.calls[0][1]["text"] is True
 
-    def test_runs_popen_with_line_buffering(
-        self, project_with_compile_script, fake_popen
-    ):
-        """Verify Popen uses line-buffered output."""
+    def test_runs_process_line_buffered(self, tmp_path):
         # Arrange
-        # fake_popen replaces subprocess.Popen
+        _make_compile_script(tmp_path)
+        popen = _RecordingPopen(_FakeProcess())
         # Act
-        watch_manuscript(project_with_compile_script)
+        watch_manuscript(tmp_path, popen=popen)
         # Assert
-        assert fake_popen.last_kwargs["bufsize"] == 1
+        assert popen.calls[0][1]["bufsize"] == 1
 
-    def test_waits_for_process_completion_with_supplied_timeout(
-        self, project_with_compile_script, fake_popen
-    ):
-        """Verify process.wait is invoked with the supplied timeout."""
+    def test_waits_for_process_with_supplied_timeout(self, tmp_path):
         # Arrange
-        # fake_popen replaces subprocess.Popen
+        _make_compile_script(tmp_path)
+        process = _FakeProcess()
+        popen = _RecordingPopen(process)
         # Act
-        watch_manuscript(project_with_compile_script, timeout=30)
+        watch_manuscript(tmp_path, timeout=30, popen=popen)
         # Assert
-        assert fake_popen.wait_calls == [30]
+        assert process.wait_calls == [30]
 
 
 class TestWatchManuscriptCallback:
     """Tests for watch_manuscript callback handling."""
 
-    def test_invokes_callback_on_compilation_event(
-        self, project_with_compile_script, fake_popen
-    ):
-        """Verify callback is called when 'Compilation' appears in output."""
+    def test_callback_fires_once_on_compilation_line(self, tmp_path):
         # Arrange
-        fake_popen.stdout = _FakeStdout(["Starting...\n", "Compilation complete\n", ""])
-        callback = _CallbackRecorder()
+        _make_compile_script(tmp_path)
+        process = _FakeProcess(["Starting...\n", "Compilation complete\n"])
+        popen = _RecordingPopen(process)
+        calls = []
         # Act
-        watch_manuscript(project_with_compile_script, on_compile=callback)
+        watch_manuscript(tmp_path, on_compile=lambda: calls.append(1), popen=popen)
         # Assert
-        assert callback.call_count == 1
+        assert calls == [1]
 
-    def test_does_not_invoke_callback_without_compilation_keyword(
-        self, project_with_compile_script, fake_popen
-    ):
-        """Verify callback is not called for non-compilation output."""
+    def test_callback_not_fired_without_compilation_line(self, tmp_path):
         # Arrange
-        fake_popen.stdout = _FakeStdout(["Starting...\n", "Processing files...\n", ""])
-        callback = _CallbackRecorder()
+        _make_compile_script(tmp_path)
+        process = _FakeProcess(["Starting...\n", "Processing files...\n"])
+        popen = _RecordingPopen(process)
+        calls = []
         # Act
-        watch_manuscript(project_with_compile_script, on_compile=callback)
+        watch_manuscript(tmp_path, on_compile=lambda: calls.append(1), popen=popen)
         # Assert
-        assert callback.call_count == 0
+        assert calls == []
 
-    def test_callback_error_does_not_abort_watch_loop(
-        self, project_with_compile_script, fake_popen
-    ):
-        """Verify watch_manuscript returns normally if callback raises."""
+    def test_callback_exception_does_not_propagate(self, tmp_path):
         # Arrange
-        fake_popen.stdout = _FakeStdout(["Compilation complete\n", ""])
-        callback = _CallbackRecorder(raise_exc=Exception("Callback failed"))
+        _make_compile_script(tmp_path)
+        process = _FakeProcess(["Compilation complete\n"])
+        popen = _RecordingPopen(process)
+
+        def _boom():
+            raise RuntimeError("Callback failed")
+
+        completed = False
         # Act
-        watch_manuscript(project_with_compile_script, on_compile=callback)
+        watch_manuscript(tmp_path, on_compile=_boom, popen=popen)
+        completed = True
         # Assert
-        assert callback.call_count == 1
+        assert completed is True
 
 
 class TestWatchManuscriptExceptions:
     """Tests for watch_manuscript exception handling."""
 
-    def test_keyboard_interrupt_terminates_process(
-        self, project_with_compile_script, fake_popen
-    ):
-        """Verify KeyboardInterrupt triggers process.terminate()."""
+    def test_keyboard_interrupt_terminates_process(self, tmp_path):
         # Arrange
-        fake_popen.stdout = _FakeStdout(side_effect=KeyboardInterrupt())
+        _make_compile_script(tmp_path)
+        process = _FakeProcess(readline_raises=KeyboardInterrupt())
+        popen = _RecordingPopen(process)
         # Act
-        watch_manuscript(project_with_compile_script)
+        watch_manuscript(tmp_path, popen=popen)
         # Assert
-        assert fake_popen.terminate_calls == 1
+        assert process.terminate_count == 1
 
-    def test_generic_runtime_error_terminates_process(
-        self, project_with_compile_script, fake_popen
-    ):
-        """Verify generic exceptions trigger process.terminate()."""
+    def test_generic_exception_terminates_process(self, tmp_path):
         # Arrange
-        fake_popen.stdout = _FakeStdout(side_effect=RuntimeError("Connection lost"))
+        _make_compile_script(tmp_path)
+        process = _FakeProcess(readline_raises=RuntimeError("Connection lost"))
+        popen = _RecordingPopen(process)
         # Act
-        watch_manuscript(project_with_compile_script)
+        watch_manuscript(tmp_path, popen=popen)
         # Assert
-        assert fake_popen.terminate_calls == 1
+        assert process.terminate_count == 1
 
 
 class TestWatchManuscriptParameters:
     """Tests for watch_manuscript parameter defaults."""
 
-    def test_runs_without_explicit_interval_argument(
-        self, project_with_compile_script, fake_popen
-    ):
-        """Verify watch_manuscript runs without an explicit interval argument."""
+    def test_runs_with_default_parameters(self, tmp_path):
         # Arrange
-        # fake_popen replaces subprocess.Popen
+        _make_compile_script(tmp_path)
+        process = _FakeProcess()
+        popen = _RecordingPopen(process)
         # Act
-        watch_manuscript(project_with_compile_script)
+        watch_manuscript(tmp_path, popen=popen)
         # Assert
-        assert fake_popen.wait_calls == [None]
+        assert len(popen.calls) == 1
 
-    def test_timeout_defaults_to_none_in_wait_call(
-        self, project_with_compile_script, fake_popen
-    ):
-        """Verify timeout defaults to None when not supplied."""
+    def test_default_timeout_is_none(self, tmp_path):
         # Arrange
-        # fake_popen replaces subprocess.Popen
+        _make_compile_script(tmp_path)
+        process = _FakeProcess()
+        popen = _RecordingPopen(process)
         # Act
-        watch_manuscript(project_with_compile_script)
+        watch_manuscript(tmp_path, popen=popen)
         # Assert
-        assert fake_popen.wait_calls == [None]
+        assert process.wait_calls == [None]
 
 
 if __name__ == "__main__":

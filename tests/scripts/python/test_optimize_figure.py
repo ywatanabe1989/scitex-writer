@@ -12,6 +12,8 @@ import pytest
 ROOT_DIR = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(ROOT_DIR / "scripts" / "python"))
 
+pytest.importorskip("PIL")
+
 # Check for PIL dependency
 try:
     from optimize_figure import crop_whitespace, enhance_image_quality, optimize_figure
@@ -36,77 +38,73 @@ def test_compute_optimal_size_within_limits():
     """Test that image already within limits returns same dimensions."""
     # Use larger dimensions that are above 80% of publication_width_px threshold
     # Arrange
-    # Act
-    # Assert
-    width, height = 2_000, 1_600
-    max_width, max_height = 3_000, 3_000
+    width, height = 2000, 1600
+    max_width, max_height = 3000, 3000
 
+    # Act
     new_w, new_h = compute_optimal_size(width, height, max_width, max_height)
 
     # Should not change since within limits and good resolution
-    assert new_w == 2_000
-    assert new_h == 1_600
+    # Assert
+    assert (new_w == 2000) and (new_h == 1600)
 
 
 @pytest.mark.skipif(not HAS_COMPUTE, reason="compute_optimal_size not available")
 def test_compute_optimal_size_width_limit():
     """Test that wide image gets scaled to fit max_width."""
     # Arrange
-    # Act
-    # Assert
-    width, height = 3_000, 1_000
-    max_width, max_height = 2_000, 2_000
+    width, height = 3000, 1000
+    max_width, max_height = 2000, 2000
 
+    # Act
     new_w, new_h = compute_optimal_size(width, height, max_width, max_height)
 
-    assert new_w == 2_000  # Width limited
-    assert new_h < 1_000  # Height scaled proportionally
+    # Assert
+    assert (new_w == 2000) and (new_h < 1000)
 
 
 @pytest.mark.skipif(not HAS_COMPUTE, reason="compute_optimal_size not available")
 def test_compute_optimal_size_height_limit():
     """Test that tall image gets scaled to fit max_height."""
     # Arrange
-    # Act
-    # Assert
-    width, height = 1_000, 3_000
-    max_width, max_height = 2_000, 2_000
+    width, height = 1000, 3000
+    max_width, max_height = 2000, 2000
 
+    # Act
     new_w, new_h = compute_optimal_size(width, height, max_width, max_height)
 
-    assert new_h == 2_000  # Height limited
-    assert new_w < 1_000  # Width scaled proportionally
+    # Assert
+    assert (new_h == 2000) and (new_w < 1000)
 
 
 @pytest.mark.skipif(not HAS_COMPUTE, reason="compute_optimal_size not available")
 def test_compute_optimal_size_even_dimensions():
     """Test that result has even width and height."""
     # Arrange
-    # Act
-    # Assert
-    width, height = 2_501, 1_501
-    max_width, max_height = 2_000, 2_000
+    width, height = 2501, 1501
+    max_width, max_height = 2000, 2000
 
+    # Act
     new_w, new_h = compute_optimal_size(width, height, max_width, max_height)
 
-    assert new_w % 2 == 0  # Even width
-    assert new_h % 2 == 0  # Even height
+    # Assert
+    assert (new_w % 2 == 0) and (new_h % 2 == 0)
 
 
 @pytest.mark.skipif(not HAS_COMPUTE, reason="compute_optimal_size not available")
 def test_compute_optimal_size_aspect_ratio_preserved():
     """Test that aspect ratio is approximately preserved."""
     # Arrange
-    # Act
-    # Assert
-    width, height = 1_600, 1_000
+    width, height = 1600, 1000
     max_width, max_height = 800, 800
 
     new_w, new_h = compute_optimal_size(width, height, max_width, max_height)
 
     original_ratio = width / height
+    # Act
     new_ratio = new_w / new_h
     # Allow small difference due to rounding
+    # Assert
     assert abs(original_ratio - new_ratio) < 0.01
 
 
@@ -116,8 +114,6 @@ def test_crop_whitespace_removes_padding():
     """Test that crop_whitespace removes white borders."""
     # Create image with white border
     # Arrange
-    # Act
-    # Assert
     img = Image.new("RGB", (200, 200), color="white")
     # Add colored content in center
     pixels = img.load()
@@ -125,26 +121,24 @@ def test_crop_whitespace_removes_padding():
         for j in range(50, 150):
             pixels[j, i] = (255, 0, 0)  # Red square
 
+    # Act
     cropped = crop_whitespace(img, padding=5)
 
     # Should be smaller than original
-    assert cropped.width < 200
-    assert cropped.height < 200
-    # Should be around 100x100 + padding
-    assert 100 <= cropped.width <= 120
-    assert 100 <= cropped.height <= 120
+    # Assert
+    assert (cropped.width < 200) and (cropped.height < 200) and (100 <= cropped.width <= 120) and (100 <= cropped.height <= 120)
 
 
 @pytest.mark.skipif(not HAS_PIL, reason="PIL (Pillow) not available")
 def test_crop_whitespace_no_content_returns_original():
     """Test that all-white image returns original."""
     # Arrange
-    # Act
-    # Assert
     img = Image.new("RGB", (100, 100), color="white")
 
+    # Act
     cropped = crop_whitespace(img)
 
+    # Assert
     assert cropped.size == img.size
 
 
@@ -152,8 +146,6 @@ def test_crop_whitespace_no_content_returns_original():
 def test_crop_whitespace_padding_parameter():
     """Test that padding parameter is respected."""
     # Arrange
-    # Act
-    # Assert
     img = Image.new("RGB", (200, 200), color="white")
     pixels = img.load()
     for i in range(80, 120):
@@ -161,11 +153,12 @@ def test_crop_whitespace_padding_parameter():
             pixels[j, i] = (0, 0, 255)  # Blue square
 
     cropped_small = crop_whitespace(img, padding=5)
+    # Act
     cropped_large = crop_whitespace(img, padding=20)
 
     # Larger padding should result in larger image
-    assert cropped_large.width > cropped_small.width
-    assert cropped_large.height > cropped_small.height
+    # Assert
+    assert (cropped_large.width > cropped_small.width) and (cropped_large.height > cropped_small.height)
 
 
 # Tests for enhance_image_quality (requires PIL)
@@ -173,12 +166,12 @@ def test_crop_whitespace_padding_parameter():
 def test_enhance_image_quality_returns_rgb():
     """Test that RGBA image is converted to RGB."""
     # Arrange
-    # Act
-    # Assert
     img = Image.new("RGBA", (100, 100), color=(255, 0, 0, 128))
 
+    # Act
     enhanced = enhance_image_quality(img)
 
+    # Assert
     assert enhanced.mode == "RGB"
 
 
@@ -186,12 +179,12 @@ def test_enhance_image_quality_returns_rgb():
 def test_enhance_image_quality_preserves_dimensions():
     """Test that enhancement preserves image dimensions."""
     # Arrange
-    # Act
-    # Assert
     img = Image.new("RGB", (150, 200), color="blue")
 
+    # Act
     enhanced = enhance_image_quality(img)
 
+    # Assert
     assert enhanced.size == img.size
 
 
@@ -199,12 +192,12 @@ def test_enhance_image_quality_preserves_dimensions():
 def test_enhance_image_quality_returns_image():
     """Test that enhancement returns a PIL Image."""
     # Arrange
-    # Act
-    # Assert
     img = Image.new("RGB", (100, 100), color="green")
 
+    # Act
     enhanced = enhance_image_quality(img)
 
+    # Assert
     assert isinstance(enhanced, Image.Image)
 
 
@@ -214,29 +207,28 @@ def test_optimize_figure_creates_output(tmp_path):
     """Test that optimize_figure creates output file."""
     # Create test image
     # Arrange
-    # Act
-    # Assert
     img = Image.new("RGB", (300, 200), color="red")
     input_path = tmp_path / "input.jpg"
     output_path = tmp_path / "output.jpg"
     img.save(str(input_path))
 
+    # Act
     result = optimize_figure(str(input_path), str(output_path), no_crop=True)
 
-    assert result == str(output_path)
-    assert output_path.exists()
+    # Assert
+    assert (result == str(output_path)) and (output_path.exists())
 
 
 @pytest.mark.skipif(not HAS_PIL, reason="PIL (Pillow) not available")
 def test_optimize_figure_missing_input_returns_none(tmp_path):
     """Test that optimize_figure returns None for missing file."""
     # Arrange
-    # Act
-    # Assert
     output_path = tmp_path / "output.jpg"
 
+    # Act
     result = optimize_figure("/nonexistent/input.jpg", str(output_path))
 
+    # Assert
     assert result is None
 
 
@@ -244,8 +236,6 @@ def test_optimize_figure_missing_input_returns_none(tmp_path):
 def test_optimize_figure_auto_output_path(tmp_path):
     """Test that optimize_figure generates output path automatically."""
     # Arrange
-    # Act
-    # Assert
     img = Image.new("RGB", (200, 200), color="blue")
     input_path = tmp_path / "test.jpg"
     img.save(str(input_path))
@@ -253,9 +243,10 @@ def test_optimize_figure_auto_output_path(tmp_path):
     result = optimize_figure(str(input_path), output_path=None)
 
     # Should create test_optimized.jpg
+    # Act
     expected_path = tmp_path / "test_optimized.jpg"
-    assert result == str(expected_path)
-    assert expected_path.exists()
+    # Assert
+    assert (result == str(expected_path)) and (expected_path.exists())
 
 
 @pytest.mark.skipif(not HAS_PIL, reason="PIL (Pillow) not available")
@@ -263,8 +254,6 @@ def test_optimize_figure_with_crop(tmp_path):
     """Test that optimize_figure crops whitespace when enabled."""
     # Create image with white border
     # Arrange
-    # Act
-    # Assert
     img = Image.new("RGB", (400, 400), color="white")
     pixels = img.load()
     for i in range(100, 300):
@@ -275,16 +264,17 @@ def test_optimize_figure_with_crop(tmp_path):
     output_path = tmp_path / "cropped.jpg"
     img.save(str(input_path))
 
+    # Act
     result = optimize_figure(
         str(input_path),
         str(output_path),
         no_crop=False,
-        max_width=5_000,
-        max_height=5_000,
+        max_width=5000,
+        max_height=5000,
     )
 
-    assert result is not None
-    assert output_path.exists()
+    # Assert
+    assert (result is not None) and (output_path.exists())
     # The function successfully runs with cropping enabled
     # Actual dimensions depend on scaling logic, so just verify file was created
 
@@ -294,24 +284,19 @@ def test_optimize_figure_respects_max_dimensions(tmp_path):
     """Test that optimize_figure respects max width/height."""
     # Create large image
     # Arrange
-    # Act
-    # Assert
-    img = Image.new("RGB", (3_000, 2_000), color="yellow")
+    img = Image.new("RGB", (3000, 2000), color="yellow")
     input_path = tmp_path / "large.jpg"
     output_path = tmp_path / "resized.jpg"
     img.save(str(input_path))
 
     result = optimize_figure(
-        str(input_path),
-        str(output_path),
-        max_width=1_000,
-        max_height=1_000,
-        no_crop=True,
+        str(input_path), str(output_path), max_width=1000, max_height=1000, no_crop=True
     )
 
+    # Act
     result_img = Image.open(result)
-    assert result_img.width <= 1_000
-    assert result_img.height <= 1_000
+    # Assert
+    assert (result_img.width <= 1000) and (result_img.height <= 1000)
 
 
 @pytest.mark.skipif(not HAS_PIL, reason="PIL (Pillow) not available")
@@ -319,17 +304,16 @@ def test_optimize_figure_different_formats(tmp_path):
     """Test that optimize_figure handles different image formats."""
     # Test with PNG
     # Arrange
-    # Act
-    # Assert
     img = Image.new("RGB", (200, 200), color="purple")
     input_path = tmp_path / "test.png"
     output_path = tmp_path / "test_out.png"
     img.save(str(input_path))
 
+    # Act
     result = optimize_figure(str(input_path), str(output_path))
 
-    assert result is not None
-    assert output_path.exists()
+    # Assert
+    assert (result is not None) and (output_path.exists())
 
 
 if __name__ == "__main__":

@@ -3,11 +3,9 @@
 import importlib
 
 
-def test_tables_module_imports_without_error():
-    """Smoke: target module imports without error and is not None."""
+def test_module_exposes_csv_to_latex():
     # Arrange
-    target = "scitex_writer.tables"
     # Act
-    module = importlib.import_module(target)
+    module = importlib.import_module("scitex_writer.tables")
     # Assert
-    assert module is not None
+    assert hasattr(module, "csv_to_latex")

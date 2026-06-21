@@ -23,6 +23,8 @@ CROSS_PACKAGE_IMPORTS = [
     "scitex_app._django",
     "scitex_app._standalone",
     "scitex_clew",
+    "scitex_container.apptainer",
+    "scitex_dev",
     "scitex_dev._cli._completion",
     "scitex_dev.cli",
     "scitex_dev.decorators",
@@ -37,4 +39,8 @@ CROSS_PACKAGE_IMPORTS = [
 @pytest.mark.parametrize("module_name", CROSS_PACKAGE_IMPORTS)
 def test_cross_package_import(module_name):
     """Importing scitex-writer's declared cross-package dependency must succeed."""
-    pytest.importorskip(module_name)
+    # Arrange
+    # Act
+    module = pytest.importorskip(module_name)
+    # Assert
+    assert module is not None

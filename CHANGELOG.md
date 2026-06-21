@@ -7,6 +7,76 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.18.0] - 2026-06-21
+
+### Changed
+- **Reconcile `develop` and `main` into a single 2.18.0 release.** `develop`'s
+  single-seam `_compile` design (`run_compile(..., command_runner=...)`) and its
+  no-mocks `_compile` test suite are the canonical implementation; `main`'s
+  parallel 4-seam rewrite (`runner_fn`/`validator_fn`/`output_finder_fn`/
+  `script_resolver_fn`) is dropped. The develop test suite covers every
+  behavioral scenario the main suite exercised (renamed/consolidated), minus the
+  signature-introspection tests that were specific to the dropped 4-seam design.
+
+### Added (salvaged from `main`)
+- **Mermaid crash-early precheck** (`_utils/_mermaid_precheck.py`,
+  `check_mmdc_or_raise`): fail loudly with an actionable message when `mmdc`'s
+  headless-Chromium dependency is broken (missing `libnspr4` under apptainer)
+  instead of SIGSEGV-ing mid-compile (#132).
+
+### Fixed (salvaged from `main`)
+- **Packaging:** `[tool.hatch.build.targets.sdist]` now ships only the Python
+  package + project metadata and excludes the top-level manuscript scratch
+  directories, whose absolute-path symlinks made `hatchling` sdist builds fail
+  with `tarfile.AbsoluteLinkError` (#1f4e039).
+- **CLA workflow:** `cla.yml` reads `GH_PERSONAL_ACCESS_TOKEN` (PS-168).
+- Author metadata email corrected to `ywatanabe@scitex.ai`.
+
+## [2.17.3] - 2026-06-03
+
+### Changed
+- **Adopt the per-package `~/.scitex/writer/containers/<tool>.sif` convention
+  for SIF paths (#117).** Configs, shell modules, installation scripts, and
+  Makefile now point at the canonical per-package containers root (operator
+  design 8566 + sac PR #293). `command_switching.src` extracts a shared
+  `_writer_resolve_sif(tool, var)` helper that resolves canonical first,
+  falls back to the legacy `./.cache/containers/<tool>_container.sif` with a
+  `[DEPRECATED]` log line on hit (keeps pre-migration caches working until
+  rebuilt via `scitex-writer containers install <tool>`). The canonical
+  `~/.scitex/writer/containers/texlive.sif` artifact built earlier today is
+  picked up immediately on upgrade — no rebuild required for texlive.
+  Mermaid / tectonic / imagemagick still need their builds in a separate
+  follow-up (P1.b of the brand-wide ecosystem containers/bin migration).
+- 4-way duplication across `setup_latex_container`,
+  `setup_tectonic_container`, `setup_mermaid_container`,
+  `setup_imagemagick_container` collapsed via the shared resolver helper:
+  `command_switching.src` 528 → 507 lines.
+
+## [2.17.2] - 2026-05-26
+
+### Fixed
+- **sdist build failure** — absolute symlinks (`00_shared/scholar/library`)
+  in the repo root now excluded from the source distribution via
+  `[tool.hatch.build.targets.sdist] exclude`. v2.17.1 release aborted at
+  the build step; this is the corrected release.
+
+## [2.17.1] - 2026-05-26
+
+### Changed
+- **Test suite fully de-mocked.** Every `unittest.mock`/`pytest-mock`/`monkeypatch`
+  call replaced with real seams (injectable `clone_fn`, `command_runner`, `handler`
+  callables) and hand-rolled fakes (skeleton project directory, fake `Popen` process,
+  real filesystem operations on `tmp_path`). 1092→47 PA-307 TQ violations (-95.7%).
+  Covers: `compile_content`, `Writer`, `manuscript`/`supplementary`/`revision`,
+  `runner`, `checks`, `watch`, `migration`, `scholar_cli`, `thumbnails`,
+  `clone_writer_project`, `ensure_project_exists`, `argv`-dependent CLI tests,
+  smoke imports.
+
+### Fixed
+- **Audit gate PATH resolution** — `test_audit_all_clean` now prepends
+  `sys.exec_prefix/bin` to `PATH` so the project venv's `scitex-dev` is resolved
+  before any system-installed copy that cannot locate the repo root.
+
 ## [2.17.0] - 2026-05-08
 
 ### Changed (BREAKING — MCP tool names)
@@ -360,7 +430,10 @@ Closes issue **#82** — Flask `_editor` app fully ported to Django `_django`, r
 - Restructured project for better modularity
 - Separated configuration from scripts
 
-[Unreleased]: https://github.com/ywatanabe1989/scitex-writer/compare/v2.9.0...HEAD
+[Unreleased]: https://github.com/ywatanabe1989/scitex-writer/compare/v2.17.2...HEAD
+[2.17.2]: https://github.com/ywatanabe1989/scitex-writer/compare/v2.17.1...v2.17.2
+[2.17.1]: https://github.com/ywatanabe1989/scitex-writer/compare/v2.17.0...v2.17.1
+[2.17.0]: https://github.com/ywatanabe1989/scitex-writer/compare/v2.9.0...v2.17.0
 [2.9.0]: https://github.com/ywatanabe1989/scitex-writer/compare/v2.8.1...v2.9.0
 [2.8.1]: https://github.com/ywatanabe1989/scitex-writer/compare/v2.8.0...v2.8.1
 [2.8.0]: https://github.com/ywatanabe1989/scitex-writer/compare/v2.7.2...v2.8.0

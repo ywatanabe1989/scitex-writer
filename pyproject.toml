@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "scitex-writer"
-version = "2.17.0"
+version = "2.18.0"
 description = "LaTeX manuscript compilation system for scientific documents with MCP server"
 readme = "README.md"
 license = "AGPL-3.0-only"
@@ -41,7 +41,7 @@ classifiers = [
 dependencies = [
     "click>=8.0",
     "fastmcp>=2.0.0",
-    "scitex-dev>=0.1.0",
+    "scitex-dev>=0.11.7",
     "django>=4.2",
     # scitex-ui ships `standalone_shell.html` + shell CSS that the editor
     # and viewer templates extend. Loading either page without scitex-ui
@@ -131,6 +131,9 @@ python_files = ["test_*.py"]
 addopts = "-v --tb=short"
 
 [tool.coverage.run]
+parallel = true
+source = ["scitex_writer"]
+concurrency = ["multiprocessing", "thread"]
 omit = [
     "src/scitex_writer/_django/*",
     "src/scitex_writer/_mcp/handlers/*",

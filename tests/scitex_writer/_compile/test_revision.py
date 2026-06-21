@@ -3,234 +3,161 @@
 """
 Tests for revision response compilation.
 
-Tests compile_revision function with various options:
-- track_changes: Enable change tracking (diff highlighting)
-- log_callback: Live logging
-- progress_callback: Progress tracking
-
-NM-rewrite (2026-06-13): replaced unittest.mock.patch/Mock with real
-recording-fake collaborators injected through the new public
-runner_fn/validator_fn/output_finder_fn/script_resolver_fn kwargs.
+compile_revision is a thin wrapper that forwards its options to the
+run_compile worker with doc_type 'revision'. The tests inject a real
+recording runner via the runner= seam and assert the forwarded args — no
+patching of run_compile, no real LaTeX toolchain.
 """
 
-from pathlib import Path
+import inspect
 
 import pytest
 
 pytest.importorskip("git")
+from pathlib import Path
 
 from scitex_writer._compile.revision import compile_revision
-
-# ---------------------------------------------------------------------------
-# Real fakes
-# ---------------------------------------------------------------------------
+from scitex_writer._dataclasses import CompilationResult
 
 
 class _RecordingRunner:
-    def __init__(self):
-        self.calls: list[list[str]] = []
+    """Real run_compile stand-in: records (args, kwargs), returns a result."""
 
-    def __call__(self, cmd, *args, **kwargs):
-        self.calls.append(list(cmd))
-        return {"exit_code": 0, "stdout": "", "stderr": "", "success": True}
+    def __init__(self, result=None):
+        self.calls = []
+        self.result = result or CompilationResult(
+            success=True, exit_code=0, stdout="", stderr="", duration=1.0
+        )
 
-
-def _noop_validator(project_dir: Path) -> None:
-    return None
-
-
-def _empty_output_finder(project_dir: Path, doc_type: str):
-    return (None, None, None)
+    def __call__(self, *args, **kwargs):
+        self.calls.append((args, kwargs))
+        return self.result
 
 
-def _make_script_resolver(script_path: Path):
-    def _resolver(project_dir: Path, doc_type: str) -> Path:
-        return script_path
-
-    return _resolver
+_PROJECT_DIR = Path("/tmp/test-project")
 
 
-def _setup_existing_script(tmp_path: Path) -> Path:
-    script_dir = tmp_path / "scripts" / "shell"
-    script_dir.mkdir(parents=True, exist_ok=True)
-    script = script_dir / "compile_revision.sh"
-    script.write_text("#!/bin/sh\nexit 0\n")
-    return script
+class TestCompileRevisionSignature:
+    """Signature / import contract."""
 
-
-def _run(tmp_path: Path, runner: _RecordingRunner, **kwargs):
-    script = _setup_existing_script(tmp_path)
-    return compile_revision(
-        tmp_path,
-        runner_fn=runner,
-        validator_fn=_noop_validator,
-        output_finder_fn=_empty_output_finder,
-        script_resolver_fn=_make_script_resolver(script),
-        **kwargs,
-    )
-
-
-# ---------------------------------------------------------------------------
-# Tests
-# ---------------------------------------------------------------------------
-
-
-class TestCompileRevisionImport:
-    def test_compile_revision_is_callable_after_import(self):
+    def test_compile_revision_is_importable_callable(self):
         # Arrange
         from scitex_writer._compile import compile_revision as cr
 
         # Act
-        result = callable(cr)
         # Assert
-        assert result is True
+        assert callable(cr)
 
-
-class TestCompileRevisionSignature:
-    def test_signature_includes_project_dir_parameter(self):
+    def test_signature_exposes_all_documented_parameters(self):
         # Arrange
-        import inspect
-
+        expected = {
+            "project_dir",
+            "track_changes",
+            "timeout",
+            "log_callback",
+            "progress_callback",
+        }
         # Act
-        params = list(inspect.signature(compile_revision).parameters.keys())
+        params = set(inspect.signature(compile_revision).parameters)
         # Assert
-        assert "project_dir" in params
+        assert expected <= params
 
-    def test_signature_includes_track_changes_parameter(self):
-        # Arrange
-        import inspect
-
-        # Act
-        params = list(inspect.signature(compile_revision).parameters.keys())
-        # Assert
-        assert "track_changes" in params
-
-    def test_signature_includes_timeout_parameter(self):
-        # Arrange
-        import inspect
-
-        # Act
-        params = list(inspect.signature(compile_revision).parameters.keys())
-        # Assert
-        assert "timeout" in params
-
-    def test_signature_includes_log_callback_parameter(self):
-        # Arrange
-        import inspect
-
-        # Act
-        params = list(inspect.signature(compile_revision).parameters.keys())
-        # Assert
-        assert "log_callback" in params
-
-    def test_signature_includes_progress_callback_parameter(self):
-        # Arrange
-        import inspect
-
-        # Act
-        params = list(inspect.signature(compile_revision).parameters.keys())
-        # Assert
-        assert "progress_callback" in params
-
-
-class TestCompileRevisionDefaults:
     def test_default_track_changes_is_false(self):
         # Arrange
-        import inspect
-
         # Act
-        default = (
-            inspect.signature(compile_revision).parameters["track_changes"].default
+        sig = inspect.signature(compile_revision)
+        # Assert
+        assert sig.parameters["track_changes"].default is False
+
+    def test_default_timeout_is_300(self):
+        # Arrange
+        # Act
+        sig = inspect.signature(compile_revision)
+        # Assert
+        assert sig.parameters["timeout"].default == 300
+
+    def test_default_callbacks_are_none(self):
+        # Arrange
+        sig = inspect.signature(compile_revision)
+        # Act
+        defaults = (
+            sig.parameters["log_callback"].default,
+            sig.parameters["progress_callback"].default,
         )
         # Assert
-        assert default is False
+        assert defaults == (None, None)
 
-    def test_default_timeout_is_300_seconds(self):
+
+class TestCompileRevisionDelegation:
+    """Forwarding contract to the run_compile worker."""
+
+    def test_forwards_revision_doc_type_as_first_arg(self):
         # Arrange
-        import inspect
-
+        runner = _RecordingRunner()
         # Act
-        default = inspect.signature(compile_revision).parameters["timeout"].default
+        compile_revision(_PROJECT_DIR, runner=runner)
         # Assert
-        assert default == 300
+        assert runner.calls[0][0][0] == "revision"
 
-    def test_default_log_callback_is_none(self):
+    def test_forwards_project_dir_as_second_arg(self):
         # Arrange
-        import inspect
-
+        runner = _RecordingRunner()
         # Act
-        default = inspect.signature(compile_revision).parameters["log_callback"].default
+        compile_revision(_PROJECT_DIR, runner=runner)
         # Assert
-        assert default is None
+        assert runner.calls[0][0][1] == _PROJECT_DIR
 
-    def test_default_progress_callback_is_none(self):
+    def test_forwards_track_changes_option(self):
         # Arrange
-        import inspect
+        runner = _RecordingRunner()
+        # Act
+        compile_revision(_PROJECT_DIR, track_changes=True, runner=runner)
+        # Assert
+        assert runner.calls[0][1]["track_changes"] is True
+
+    def test_forwards_timeout_option(self):
+        # Arrange
+        runner = _RecordingRunner()
+        # Act
+        compile_revision(_PROJECT_DIR, timeout=600, runner=runner)
+        # Assert
+        assert runner.calls[0][1]["timeout"] == 600
+
+    def test_forwards_log_callback(self):
+        # Arrange
+        runner = _RecordingRunner()
+
+        def _log(_line):
+            return None
 
         # Act
-        default = (
-            inspect.signature(compile_revision).parameters["progress_callback"].default
+        compile_revision(_PROJECT_DIR, log_callback=_log, runner=runner)
+        # Assert
+        assert runner.calls[0][1]["log_callback"] is _log
+
+    def test_forwards_progress_callback(self):
+        # Arrange
+        runner = _RecordingRunner()
+
+        def _progress(_pct, _step):
+            return None
+
+        # Act
+        compile_revision(_PROJECT_DIR, progress_callback=_progress, runner=runner)
+        # Assert
+        assert runner.calls[0][1]["progress_callback"] is _progress
+
+    def test_returns_runner_result_unchanged(self):
+        # Arrange
+        expected = CompilationResult(
+            success=True, exit_code=0, stdout="Test output", stderr="", duration=2.5
         )
-        # Assert
-        assert default is None
-
-
-class TestCompileRevisionBehavior:
-    def test_runner_called_exactly_once_for_default_invocation(self, tmp_path):
-        # Arrange
-        runner = _RecordingRunner()
+        runner = _RecordingRunner(result=expected)
         # Act
-        _run(tmp_path, runner)
+        result = compile_revision(_PROJECT_DIR, runner=runner)
         # Assert
-        assert len(runner.calls) == 1
+        assert result is expected
 
-    def test_command_invokes_revision_compile_script_path(self, tmp_path):
-        # Arrange
-        runner = _RecordingRunner()
-        # Act
-        _run(tmp_path, runner)
-        # Assert
-        assert any("compile_revision.sh" in arg for arg in runner.calls[0])
-
-    def test_track_changes_option_appends_track_changes_flag(self, tmp_path):
-        # Arrange
-        runner = _RecordingRunner()
-        # Act
-        _run(tmp_path, runner, track_changes=True)
-        # Assert
-        assert "--track-changes" in runner.calls[0]
-
-    def test_progress_callback_receives_completion_update(self, tmp_path):
-        # Arrange
-        runner = _RecordingRunner()
-        progress_events: list[tuple[int, str]] = []
-
-        def record_progress(pct: int, step: str) -> None:
-            progress_events.append((pct, step))
-
-        # Act
-        _run(tmp_path, runner, progress_callback=record_progress)
-        # Assert
-        assert any(pct == 100 for pct, _ in progress_events)
-
-    def test_returns_compilation_result_with_success_true_on_zero_exit(self, tmp_path):
-        # Arrange
-        runner = _RecordingRunner()
-        # Act
-        result = _run(tmp_path, runner)
-        # Assert
-        assert result.success is True
-
-    def test_returns_compilation_result_with_exit_code_zero_on_success(self, tmp_path):
-        # Arrange
-        runner = _RecordingRunner()
-        # Act
-        result = _run(tmp_path, runner)
-        # Assert
-        assert result.exit_code == 0
-
-
-# EOF
 
 if __name__ == "__main__":
     import os

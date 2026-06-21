@@ -3,11 +3,9 @@
 import importlib
 
 
-def test_writer_module_imports_without_error():
-    """Smoke: target module imports without error and is not None."""
+def test_module_exposes_manuscript_tree():
     # Arrange
-    target = "scitex_writer.writer"
     # Act
-    module = importlib.import_module(target)
+    module = importlib.import_module("scitex_writer.writer")
     # Assert
-    assert module is not None
+    assert hasattr(module, "ManuscriptTree")

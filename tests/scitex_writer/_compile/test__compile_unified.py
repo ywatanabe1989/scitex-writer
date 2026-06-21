@@ -12,6 +12,9 @@ be lazy-imported inside the function bodies — not at module top.
 import importlib
 
 
-def test_module_imports():
-    """Smoke: target module imports without error."""
-    importlib.import_module("scitex_writer._compile._compile_unified")
+def test_module_exposes_compile():
+    # Arrange
+    # Act
+    module = importlib.import_module("scitex_writer._compile._compile_unified")
+    # Assert
+    assert hasattr(module, "compile")

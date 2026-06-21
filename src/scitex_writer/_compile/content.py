@@ -17,6 +17,8 @@ import tempfile
 from pathlib import Path
 from typing import Literal, Optional
 
+from .._dataclasses import CompilationResult
+
 
 def _get_scripts_dir(project_dir: Optional[str] = None) -> Path:
     """Get the scripts directory, preferring package scripts over project.
@@ -51,7 +53,7 @@ def compile_content(
     name: str = "content",
     timeout: int = 60,
     keep_aux: bool = False,
-) -> dict:
+) -> CompilationResult:
     """Compile raw LaTeX content to PDF.
 
     Creates a standalone document from the provided LaTeX content and compiles
@@ -76,9 +78,21 @@ def compile_content(
 
     Returns
     -------
-    dict
-        Result with keys: success, output_pdf, temp_dir, color_mode,
-        log, message/error.
+    CompilationResult
+        Unified compile-result dataclass. Always carries ``success``,
+        ``exit_code``, ``stdout``, ``stderr``, ``output_pdf``,
+        ``log_file``, ``color_mode``, ``temp_dir``, ``message`` —
+        regardless of which code path (success / failure / timeout /
+        internal exception) the call took.
+
+        Migrated from the legacy ad-hoc dict return in 2026-06-10 (G1
+        of the proj-scitex-hub triage, follow-up to G2 #124 atomic
+        publish + G3 #125 flock serialization). Callers that previously
+        did ``result["success"]`` now use ``result.success``;
+        ``result.get("temp_dir")`` becomes ``result.temp_dir``; etc.
+        The Django consumer can serialize the dataclass via
+        ``dataclasses.asdict(result)`` if a dict-shaped JSON payload is
+        still required on the wire.
     """
     # Sanitize name: strip .tex extension if present
     if name.endswith(".tex"):
@@ -93,6 +107,7 @@ def compile_content(
         body_file = temp_dir / "body.tex"
         tex_file = temp_dir / f"{name}.tex"
         pdf_file = temp_dir / f"{name}.pdf"
+        log_path = temp_dir / f"{name}.log"
 
         # Write body content
         body_file.write_text(latex_content, encoding="utf-8")
@@ -119,11 +134,17 @@ def compile_content(
             timeout=30,
         )
         if build_result.returncode != 0:
-            return {
-                "success": False,
-                "output_pdf": None,
-                "error": f"Document build failed: {build_result.stderr}",
-            }
+            return CompilationResult(
+                success=False,
+                exit_code=build_result.returncode,
+                stdout=_truncate(build_result.stdout),
+                stderr=_truncate(build_result.stderr),
+                output_pdf=None,
+                log_file=None,
+                color_mode=color_mode,
+                temp_dir=temp_dir,
+                message=f"Document build failed: {_truncate(build_result.stderr, 200)}",
+            )
 
         # Step 2: Compile to PDF
         compile_cmd = [
@@ -155,60 +176,78 @@ def compile_content(
             timeout=timeout + 10,
         )
 
-        # Read log file
-        log_content = _read_log(temp_dir, name)
-
         # Determine final PDF path
-        final_pdf = pdf_file
+        final_pdf: Optional[Path] = pdf_file if pdf_file.exists() else None
         if compile_result.returncode == 0 and preview_dir:
             preview_pdf = preview_dir / f"{name}.pdf"
             if preview_pdf.exists():
                 final_pdf = preview_pdf
 
+        # log_file: the on-disk log path if it exists, else None.
+        log_file: Optional[Path] = log_path if log_path.exists() else None
+
         if compile_result.returncode == 0 and pdf_file.exists():
-            return {
-                "success": True,
-                "output_pdf": str(final_pdf),
-                "temp_dir": str(temp_dir),
-                "color_mode": color_mode,
-                "log": log_content,
-                "message": f"Content compiled successfully: {name}",
-            }
-        else:
-            return {
-                "success": False,
-                "output_pdf": None,
-                "temp_dir": str(temp_dir),
-                "color_mode": color_mode,
-                "log": log_content,
-                "stdout": _truncate(compile_result.stdout),
-                "stderr": _truncate(compile_result.stderr),
-                "error": f"Compilation failed with exit code {compile_result.returncode}",
-            }
+            return CompilationResult(
+                success=True,
+                exit_code=0,
+                stdout=_truncate(compile_result.stdout),
+                stderr=_truncate(compile_result.stderr),
+                output_pdf=final_pdf,
+                log_file=log_file,
+                color_mode=color_mode,
+                temp_dir=temp_dir,
+                message=f"Content compiled successfully: {name}",
+            )
+        return CompilationResult(
+            success=False,
+            exit_code=compile_result.returncode,
+            stdout=_truncate(compile_result.stdout),
+            stderr=_truncate(compile_result.stderr),
+            output_pdf=None,
+            log_file=log_file,
+            color_mode=color_mode,
+            temp_dir=temp_dir,
+            message=f"Compilation failed with exit code {compile_result.returncode}",
+        )
 
     except subprocess.TimeoutExpired:
-        return {
-            "success": False,
-            "error": f"Content compilation timed out after {timeout} seconds",
-        }
+        # exit_code 124 is the POSIX `timeout(1)` convention; preserves
+        # caller's ability to distinguish "took too long" from "latexmk
+        # rejected the source" (which surfaces as 1 / 12 etc.).
+        return CompilationResult(
+            success=False,
+            exit_code=124,
+            stdout="",
+            stderr=f"Content compilation timed out after {timeout} seconds",
+            output_pdf=None,
+            log_file=None,
+            color_mode=color_mode,
+            temp_dir=None,
+            message=f"Content compilation timed out after {timeout} seconds",
+        )
     except Exception as e:
-        return {
-            "success": False,
-            "error": str(e),
-        }
-
-
-def _read_log(temp_dir: Path, name: str) -> str:
-    """Read and truncate log file."""
-    log_file = temp_dir / f"{name}.log"
-    if log_file.exists():
-        content = log_file.read_text(encoding="utf-8", errors="replace")
-        return content[-5000:] if len(content) > 5000 else content
-    return ""
+        # exit_code -1 = our own internal error wrapper, never produced
+        # by latexmk or `timeout`. Lets the Django view branch on
+        # `exit_code == -1` to render "internal error, retry" rather
+        # than the latexmk-flavoured failure UX.
+        return CompilationResult(
+            success=False,
+            exit_code=-1,
+            stdout="",
+            stderr=str(e),
+            output_pdf=None,
+            log_file=None,
+            color_mode=color_mode,
+            temp_dir=None,
+            message=str(e),
+        )
 
 
 def _truncate(text: str, limit: int = 2000) -> str:
-    """Truncate text to limit."""
+    """Truncate text to limit. Used for stdout/stderr capture so the
+    CompilationResult never carries multi-MB blobs through the Django
+    JSON layer. The full latexmk log stays available via
+    ``CompilationResult.log_file`` (path to the on-disk .log)."""
     return text[-limit:] if len(text) > limit else text
 
 

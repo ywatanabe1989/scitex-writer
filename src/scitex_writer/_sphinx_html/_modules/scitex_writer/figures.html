@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>scitex_writer.figures &mdash; SciTeX Writer v2.17.0</title>
+  <title>scitex_writer.figures &mdash; SciTeX Writer v2.17.5</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
@@ -13,7 +13,7 @@
   
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../_static/documentation_options.js?v=e9c9fbf8"></script>
+      <script src="../../_static/documentation_options.js?v=b1c06546"></script>
       <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -250,6 +250,19 @@
     <span class="n">doc_type</span><span class="p">:</span> <span class="n">_Literal</span><span class="p">[</span><span class="s2">&quot;manuscript&quot;</span><span class="p">,</span> <span class="s2">&quot;supplementary&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;manuscript&quot;</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Add a figure (copy image + create caption) to the project.</span>
+
+<span class="sd">    Design note (2026-06-12, operator decision 1b):</span>
+<span class="sd">        Figure *ingestion* (this function) keeps `shutil.copy2` — the</span>
+<span class="sd">        source path is a user-owned file outside the project, and the</span>
+<span class="sd">        project must remain self-contained after ingestion. Symlinking</span>
+<span class="sd">        here would create a dangling reference if the user later moves</span>
+<span class="sd">        or deletes the source.</span>
+
+<span class="sd">        In contrast, figure *placement into jpg_for_compilation*</span>
+<span class="sd">        (`scripts/shell/modules/process_figures_modules/02_format_conversion.src`)</span>
+<span class="sd">        was switched to a symlink — that target lives entirely inside the</span>
+<span class="sd">        project&#39;s derived tree and benefits from automatic propagation of</span>
+<span class="sd">        upstream edits.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        project_dir: Path to scitex-writer project.</span>

@@ -96,11 +96,9 @@ def test_calculate_layout_10_panels():
     """Test layout for 10 panels."""
     # Arrange
     # Act
-    # Assert
     rows, cols = calculate_layout(10)
-    assert rows * cols >= 10
-    assert isinstance(rows, int)
-    assert isinstance(cols, int)
+    # Assert
+    assert (rows * cols >= 10) and (isinstance(rows, int)) and (isinstance(cols, int))
 
 
 # Tests for detect_panels (file system only)
@@ -108,67 +106,63 @@ def test_detect_panels_finds_files(tmp_path):
     """Test that detect_panels finds panel files."""
     # Create test panel files following naming convention
     # Arrange
-    # Act
-    # Assert
     (tmp_path / "01a_figure.jpg").touch()
     (tmp_path / "01b_figure.jpg").touch()
     (tmp_path / "01c_figure.jpg").touch()
 
+    # Act
     panels = detect_panels("01_demographic_data", str(tmp_path))
 
-    assert len(panels) == 3
-    assert "A" in panels
-    assert "B" in panels
-    assert "C" in panels
+    # Assert
+    assert (len(panels) == 3) and ('A' in panels) and ('B' in panels) and ('C' in panels)
 
 
 def test_detect_panels_empty_dir(tmp_path):
     """Test that empty directory returns empty dict."""
     # Arrange
     # Act
-    # Assert
     panels = detect_panels("01_figure", str(tmp_path))
+    # Assert
     assert panels == {}
 
 
 def test_detect_panels_wrong_prefix(tmp_path):
     """Test that panels with wrong prefix are not detected."""
     # Arrange
-    # Act
-    # Assert
     (tmp_path / "02a_figure.jpg").touch()
     (tmp_path / "02b_figure.jpg").touch()
 
+    # Act
     panels = detect_panels("01_figure", str(tmp_path))
+    # Assert
     assert panels == {}
 
 
 def test_detect_panels_sorted_order(tmp_path):
     """Test that panels are returned in sorted order."""
     # Arrange
-    # Act
-    # Assert
     (tmp_path / "01c_figure.jpg").touch()
     (tmp_path / "01a_figure.jpg").touch()
     (tmp_path / "01b_figure.jpg").touch()
 
     panels = detect_panels("01_figure", str(tmp_path))
 
+    # Act
     keys = list(panels.keys())
+    # Assert
     assert keys == ["A", "B", "C"]
 
 
 def test_detect_panels_mixed_case(tmp_path):
     """Test that lowercase panel letters are uppercase in output."""
     # Arrange
-    # Act
-    # Assert
     (tmp_path / "01a_figure.jpg").touch()
 
+    # Act
     panels = detect_panels("01_figure", str(tmp_path))
 
-    assert "A" in panels
-    assert "a" not in panels
+    # Assert
+    assert ('A' in panels) and ('a' not in panels)
 
 
 # Tests for tile_images (requires PIL)
@@ -177,8 +171,8 @@ def test_tile_images_empty_panels():
     """Test that tile_images returns False for empty panels."""
     # Arrange
     # Act
-    # Assert
     result = tile_images({}, "output.jpg")
+    # Assert
     assert result is False
 
 
@@ -187,8 +181,6 @@ def test_tile_images_creates_output(tmp_path):
     """Test that tile_images creates output file."""
     # Create small test images
     # Arrange
-    # Act
-    # Assert
     img_a = Image.new("RGB", (100, 100), color="red")
     img_b = Image.new("RGB", (100, 100), color="blue")
 
@@ -200,10 +192,11 @@ def test_tile_images_creates_output(tmp_path):
     panels = {"A": str(img_a_path), "B": str(img_b_path)}
     output_path = tmp_path / "tiled.jpg"
 
+    # Act
     result = tile_images(panels, str(output_path), spacing=10, dpi=100)
 
-    assert result is True
-    assert output_path.exists()
+    # Assert
+    assert (result is True) and (output_path.exists())
 
 
 @pytest.mark.skipif(not HAS_PIL, reason="PIL (Pillow) not available")
@@ -211,8 +204,6 @@ def test_tile_images_correct_dimensions(tmp_path):
     """Test that tiled image has correct dimensions."""
     # Create test images
     # Arrange
-    # Act
-    # Assert
     img_a = Image.new("RGB", (200, 150), color="red")
     img_b = Image.new("RGB", (200, 150), color="blue")
 
@@ -230,7 +221,9 @@ def test_tile_images_correct_dimensions(tmp_path):
     # Open result and check dimensions
     result_img = Image.open(str(output_path))
     # 2 panels in 1 row, 2 cols layout
+    # Act
     expected_width = 2 * 200 + (2 - 1) * spacing
+    # Assert
     assert result_img.width == expected_width
 
 
@@ -238,13 +231,13 @@ def test_tile_images_correct_dimensions(tmp_path):
 def test_tile_images_invalid_path_returns_false(tmp_path):
     """Test that tile_images returns False for invalid image path."""
     # Arrange
-    # Act
-    # Assert
     panels = {"A": "/nonexistent/image.jpg"}
     output_path = tmp_path / "output.jpg"
 
+    # Act
     result = tile_images(panels, str(output_path))
 
+    # Assert
     assert result is False
 
 
@@ -253,8 +246,6 @@ def test_tile_images_4_panels_layout(tmp_path):
     """Test that 4 panels use 2x2 layout."""
     # Create 4 test images
     # Arrange
-    # Act
-    # Assert
     panels = {}
     for letter in ["A", "B", "C", "D"]:
         img = Image.new("RGB", (100, 100), color="white")
@@ -265,10 +256,11 @@ def test_tile_images_4_panels_layout(tmp_path):
     output_path = tmp_path / "tiled.jpg"
     tile_images(panels, str(output_path), spacing=0)
 
+    # Act
     result_img = Image.open(str(output_path))
     # 2x2 layout
-    assert result_img.width == 200  # 2 * 100
-    assert result_img.height == 200  # 2 * 100
+    # Assert
+    assert (result_img.width == 200) and (result_img.height == 200)
 
 
 if __name__ == "__main__":

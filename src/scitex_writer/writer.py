@@ -213,6 +213,7 @@ class Writer:
         timeout: int = 300,
         log_callback: Optional[Callable[[str], None]] = None,
         progress_callback: Optional[Callable[[int, str], None]] = None,
+        runner: Optional[Callable[..., CompilationResult]] = None,
     ) -> CompilationResult:
         """
         Compile manuscript to PDF with optional live callbacks.
@@ -239,8 +240,14 @@ class Writer:
         >>> result = writer.compile_manuscript()
         >>> if result.success:
         ...     print(f"PDF created: {result.output_pdf}")
+
+        ``runner`` is the underlying compile implementation; it defaults
+        to :func:`scitex_writer._compile.compile_manuscript`. Exposed so
+        callers and tests can supply an alternate implementation without
+        patching module internals.
         """
-        return compile_manuscript(
+        runner = runner or compile_manuscript
+        return runner(
             self.project_dir,
             timeout=timeout,
             log_callback=log_callback,
@@ -252,6 +259,7 @@ class Writer:
         timeout: int = 300,
         log_callback: Optional[Callable[[str], None]] = None,
         progress_callback: Optional[Callable[[int, str], None]] = None,
+        runner: Optional[Callable[..., CompilationResult]] = None,
     ) -> CompilationResult:
         """
         Compile supplementary materials to PDF with optional live callbacks.
@@ -278,8 +286,13 @@ class Writer:
         >>> result = writer.compile_supplementary()
         >>> if result.success:
         ...     print(f"PDF created: {result.output_pdf}")
+
+        ``runner`` defaults to
+        :func:`scitex_writer._compile.compile_supplementary`; exposed for
+        injection without patching module internals.
         """
-        return compile_supplementary(
+        runner = runner or compile_supplementary
+        return runner(
             self.project_dir,
             timeout=timeout,
             log_callback=log_callback,
@@ -292,6 +305,7 @@ class Writer:
         timeout: int = 300,
         log_callback: Optional[Callable[[str], None]] = None,
         progress_callback: Optional[Callable[[int, str], None]] = None,
+        runner: Optional[Callable[..., CompilationResult]] = None,
     ) -> CompilationResult:
         """
         Compile revision document with optional change tracking and live callbacks.
@@ -320,8 +334,13 @@ class Writer:
         >>> result = writer.compile_revision(track_changes=True)
         >>> if result.success:
         ...     print(f"Revision PDF: {result.output_pdf}")
+
+        ``runner`` defaults to
+        :func:`scitex_writer._compile.compile_revision`; exposed for
+        injection without patching module internals.
         """
-        return compile_revision(
+        runner = runner or compile_revision
+        return runner(
             self.project_dir,
             track_changes=track_changes,
             timeout=timeout,
@@ -440,9 +459,19 @@ class Writer:
             and hasattr(getattr(tree_or_contents, attr, None), "path")
         ]
 
-    def watch(self, on_compile: Optional[Callable] = None) -> None:
-        """Auto-recompile on file changes."""
-        watch_manuscript(self.project_dir, on_compile=on_compile)
+    def watch(
+        self,
+        on_compile: Optional[Callable] = None,
+        runner: Optional[Callable] = None,
+    ) -> None:
+        """Auto-recompile on file changes.
+
+        ``runner`` defaults to
+        :func:`scitex_writer._utils._watch.watch_manuscript`; exposed for
+        injection without patching module internals.
+        """
+        runner = runner or watch_manuscript
+        runner(self.project_dir, on_compile=on_compile)
 
     def get_pdf(self, doc_type: str = "manuscript") -> Optional[Path]:
         """Get output PDF path (Read)."""

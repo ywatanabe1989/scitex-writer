@@ -147,6 +147,46 @@ fi
 # Create output directory
 mkdir -p "$OUTPUT_DIR"
 
+# Per-(project, section, color_mode) serialization via flock(2).
+#
+# Background (G3, follow-up to G2 atomic publish, 2026-06-10):
+# G2 made the .preview publish atomic so concurrent compiles never
+# observe a half-written PDF. But the underlying latexmk run still
+# races: two simultaneous compiles for the same (project, section,
+# color_mode) triple share $OUTPUT_DIR (or worse, a single project's
+# tmp dir resolved per-invocation), step on each other's .aux / .log /
+# .fdb_latexmk intermediates, and produce non-deterministic exit codes.
+# The UI's Compile-on-Change loop fires the same triple repeatedly,
+# so this is the live failure mode.
+#
+# Strategy: take an exclusive flock on a lockfile derived from the
+# triple — keyed off $PREVIEW_DIR (which is the project's `.preview/`
+# directory, unique per project) + $JOB_NAME (which encodes section +
+# color, since content.py composes the basename as `<section>_<color>`
+# or similar). Same triple → same lockfile → strict serialization.
+# Different triple → different lockfile → no contention.
+#
+# fd 200 holds the lock for the entire script lifetime; the kernel
+# auto-releases on script exit (close-on-exec semantics on fd close).
+# `-w $TIMEOUT` bounds the wait so a wedged previous compile cannot
+# starve a new request indefinitely — if the lock cannot be acquired
+# within $TIMEOUT seconds, exit with a clear error rather than blocking
+# the daphne worker forever.
+#
+# Only fires when --preview-dir is given (i.e., when there is a shared
+# destination that could race). CLI single-shot use cases (no preview
+# dir → no shared destination) skip the lock and stay non-blocking.
+if [ -n "$PREVIEW_DIR" ]; then
+    mkdir -p "$PREVIEW_DIR"
+    LOCK_FILE="$PREVIEW_DIR/.lock.$JOB_NAME"
+    exec 200>"$LOCK_FILE"
+    if ! flock -x -w "$TIMEOUT" 200; then
+        log_error "Could not acquire compile lock $LOCK_FILE within ${TIMEOUT}s — concurrent compile of $JOB_NAME holding it longer than expected"
+        exit 1
+    fi
+    log_info "Acquired compile lock: $LOCK_FILE"
+fi
+
 log_info "Compiling content: $JOB_NAME (color_mode=$COLOR_MODE)"
 
 # Run latexmk (no bibliography processing for content/preview)
@@ -176,11 +216,43 @@ fi
 
 log_success "PDF generated: $PDF_FILE"
 
-# Copy to preview directory if specified
+# Copy to preview directory if specified — atomic (tmp + mv -f).
+#
+# Background (2026-06-10, proj-scitex-hub diagnosis confirmed in prod by
+# lead): the UI's Compile-on-Change auto-firing for the same
+# (project, section, color_mode) triple causes daphne's asyncio +
+# sync_to_async threadpool to invoke compile_content() concurrently
+# against the same .preview/<job_name>.pdf destination. The previous
+# `cp $PDF_FILE $PREVIEW_DIR/` is a raw write under `set -e` and races
+# (mid-write open + read, partial flushes, cp itself short-circuiting
+# with a non-zero exit) — surfacing as `Compilation failed with exit
+# code N` at content.py:186 even though the compile itself succeeded.
+#
+# Atomic write: stage to a uniquely-named temp file (PID-suffixed so
+# parallel processes do not collide on the tmp slot itself) inside the
+# SAME directory as the publish target, then `mv -f` it into place.
+# `mv` within one filesystem is rename(2), which is atomic — concurrent
+# readers either see the OLD pdf or the NEW pdf, never a half-written
+# fd. The `.` prefix on the tmp name keeps it out of normal directory
+# listings if any reader walks $PREVIEW_DIR.
+#
+# Failure modes are explicit (non-zero exit + cleanup) rather than
+# inheriting `set -e`'s opaque propagation, so content.py sees a
+# coherent error code instead of the indeterminate exit 12 race.
 if [ -n "$PREVIEW_DIR" ]; then
     mkdir -p "$PREVIEW_DIR"
-    cp "$PDF_FILE" "$PREVIEW_DIR/"
-    log_info "Copied to preview: $PREVIEW_DIR/$JOB_NAME.pdf"
+    PREVIEW_TMP="$PREVIEW_DIR/.$JOB_NAME.pdf.tmp.$$"
+    if ! cp "$PDF_FILE" "$PREVIEW_TMP"; then
+        log_error "Failed to stage PDF to $PREVIEW_TMP"
+        rm -f "$PREVIEW_TMP"
+        exit 1
+    fi
+    if ! mv -f "$PREVIEW_TMP" "$PREVIEW_DIR/$JOB_NAME.pdf"; then
+        log_error "Failed to publish PDF to $PREVIEW_DIR/$JOB_NAME.pdf"
+        rm -f "$PREVIEW_TMP"
+        exit 1
+    fi
+    log_info "Copied to preview: $PREVIEW_DIR/$JOB_NAME.pdf (atomic)"
 fi
 
 # Cleanup auxiliary files

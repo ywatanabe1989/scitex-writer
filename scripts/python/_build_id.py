@@ -6,7 +6,7 @@
 # Build IDs let a compiled PDF be uniquely identified after it leaves the
 # repo (e.g. when emailed to a collaborator). The ID is embedded in the
 # PDF /Info dictionary via \hypersetup{pdfsubject=build:...} and recorded
-# in `.scitex/writer/builds/builds.json` so later runs can list, diff, or
+# in `.scitex/writer/runtime/builds/builds.json` so later runs can list, diff, or
 # reproduce a specific build.
 
 from __future__ import annotations
@@ -58,7 +58,7 @@ def register_build(
     output_tex: Path,
     project_root: Optional[Path] = None,
 ) -> Optional[Path]:
-    """Append a build record to `.scitex/writer/builds/builds.json`.
+    """Append a build record to `.scitex/writer/runtime/builds/builds.json`.
 
     Best-effort: returns None on any failure so registry writes never
     break compilation. Keeps the last 500 entries.
@@ -66,8 +66,23 @@ def register_build(
     try:
         if project_root is None:
             project_root = Path(os.environ.get("PROJECT_ROOT") or os.getcwd()).resolve()
-        registry_dir = project_root / ".scitex" / "writer" / "builds"
+        # Canonical location per PS-102: regenerable data under runtime/
+        registry_dir = project_root / ".scitex" / "writer" / "runtime" / "builds"
         registry_dir.mkdir(parents=True, exist_ok=True)
+
+        # Back-compat: migrate legacy builds/ -> runtime/builds/ (one-time)
+        legacy = project_root / ".scitex" / "writer" / "builds"
+        if legacy.is_dir() and legacy != registry_dir:
+            legacy_json = legacy / "builds.json"
+            if legacy_json.exists() and not registry_path.exists():
+                try:
+                    legacy_json.rename(registry_path)
+                except OSError:
+                    pass  # best-effort migration
+            try:
+                legacy.rmdir()  # succeeds only if empty after migration
+            except OSError:
+                pass
         registry_path = registry_dir / "builds.json"
 
         entry = {

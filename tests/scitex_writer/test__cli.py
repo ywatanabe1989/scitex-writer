@@ -3,11 +3,9 @@
 import importlib
 
 
-def test_cli_module_imports_without_error():
-    """Smoke: target module imports without error and is not None."""
+def test_module_exposes_bib_group():
     # Arrange
-    target = "scitex_writer._cli"
     # Act
-    module = importlib.import_module(target)
+    module = importlib.import_module("scitex_writer._cli")
     # Assert
-    assert module is not None
+    assert hasattr(module, "bib_group")

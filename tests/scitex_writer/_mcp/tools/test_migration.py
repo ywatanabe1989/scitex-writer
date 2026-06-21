@@ -1,14 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# File: tests/scitex_writer/_mcp/tools/test_migration.py
+# File: tests/python/test_migration.py
 
-"""Tests for the migration module (Overleaf import/export).
-
-Wave 2 cluster C cleanup: PA-306 no-mocks + PA-307 (TQ001/TQ002/TQ003/TQ007).
-The `clone_writer_project` collaborator is replaced via a hand-rolled fake
-swapped onto the production module's attribute (no `unittest.mock`,
-no `pytest_mock`, no `monkeypatch`).
-"""
+"""Tests for the migration module (Overleaf import/export)."""
 
 import zipfile
 from pathlib import Path
@@ -121,46 +115,46 @@ Discussion text here.
     return zip_path
 
 
-def _make_fake_clone():
-    """Build a hand-rolled fake `clone_writer_project` callable.
+def _skeleton_clone(project_dir, git_strategy="child", **kwargs):
+    """Real local stand-in for clone_writer_project.
 
-    The fake materialises the minimal scitex-writer directory layout the
-    importer expects, so the production overlay code can run end-to-end
-    against real `tmp_path` filesystem state.
+    Materializes the minimal scitex-writer skeleton on disk instead of
+    cloning the template repo over the network. Injected via the
+    ``clone_fn`` seam on ``from_overleaf`` so the import runs offline —
+    this is a hand-rolled fake collaborator passed as an argument, not a
+    monkey-patch of internals.
     """
-
-    def fake_clone(project_dir, git_strategy="child", **kwargs):
-        p = Path(project_dir)
-        p.mkdir(parents=True, exist_ok=True)
-        (p / "00_shared" / "bib_files").mkdir(parents=True)
-        (p / "00_shared" / "latex_styles").mkdir(parents=True)
-        (p / "01_manuscript" / "contents" / "figures" / "caption_and_media").mkdir(
-            parents=True
-        )
-        (p / "01_manuscript" / "contents" / "tables" / "caption_and_media").mkdir(
-            parents=True
-        )
-        for sec in ["abstract", "introduction", "methods", "results", "discussion"]:
-            (p / "01_manuscript" / "contents" / f"{sec}.tex").write_text("")
-        return True
-
-    return fake_clone
+    p = Path(project_dir)
+    p.mkdir(parents=True, exist_ok=True)
+    (p / "00_shared" / "bib_files").mkdir(parents=True)
+    (p / "00_shared" / "latex_styles").mkdir(parents=True)
+    (p / "01_manuscript" / "contents" / "figures" / "caption_and_media").mkdir(
+        parents=True
+    )
+    (p / "01_manuscript" / "contents" / "tables" / "caption_and_media").mkdir(
+        parents=True
+    )
+    for sec in ["abstract", "introduction", "methods", "results", "discussion"]:
+        (p / "01_manuscript" / "contents" / f"{sec}.tex").write_text("")
+    return True
 
 
 @pytest.fixture
-def fake_clone_writer_project():
-    """Swap `clone_writer_project` for the fake on the production module.
+def imported_project(simple_overleaf_zip, tmp_path):
+    """Run from_overleaf once (offline) and return (result, out_path).
 
-    Uses bare `setattr`+restore (no `monkeypatch`, no `unittest.mock`).
+    Shared across the import-success assertions so each test exercises one
+    behaviour with a single assertion without re-running the import.
     """
-    from scitex_writer._project import _create as create_mod
+    from scitex_writer.migration import from_overleaf
 
-    original = create_mod.clone_writer_project
-    create_mod.clone_writer_project = _make_fake_clone()
-    try:
-        yield
-    finally:
-        create_mod.clone_writer_project = original
+    out = tmp_path / "imported_project"
+    result = from_overleaf(
+        str(simple_overleaf_zip),
+        output_dir=str(out),
+        clone_fn=_skeleton_clone,
+    )
+    return result, out
 
 
 # ---------------------------------------------------------------------------
@@ -169,50 +163,33 @@ def fake_clone_writer_project():
 
 
 class TestParsing:
-    def test_detect_main_tex_returns_non_none_when_documentclass_present(
-        self, tmp_path
-    ):
+    def test_detect_main_tex(self, tmp_path):
+        # Arrange
         from scitex_writer.migration._parsing import detect_main_tex
 
-        # Arrange
         (tmp_path / "main.tex").write_text(r"\documentclass{article}", encoding="utf-8")
         (tmp_path / "helper.tex").write_text(r"\section{Foo}", encoding="utf-8")
 
         # Act
         result = detect_main_tex(tmp_path)
-
         # Assert
-        assert result is not None
-
-    def test_detect_main_tex_returns_main_tex_filename(self, tmp_path):
-        from scitex_writer.migration._parsing import detect_main_tex
-
-        # Arrange
-        (tmp_path / "main.tex").write_text(r"\documentclass{article}", encoding="utf-8")
-        (tmp_path / "helper.tex").write_text(r"\section{Foo}", encoding="utf-8")
-
-        # Act
-        result = detect_main_tex(tmp_path)
-
-        # Assert
-        assert result.name == "main.tex"
+        assert (result is not None) and (result.name == "main.tex")
 
     def test_detect_main_tex_no_documentclass(self, tmp_path):
+        # Arrange
         from scitex_writer.migration._parsing import detect_main_tex
 
-        # Arrange
         (tmp_path / "notes.tex").write_text("Just some text", encoding="utf-8")
 
         # Act
         result = detect_main_tex(tmp_path)
-
         # Assert
         assert result is None
 
     def test_detect_main_tex_prefers_main(self, tmp_path):
+        # Arrange
         from scitex_writer.migration._parsing import detect_main_tex
 
-        # Arrange
         (tmp_path / "main.tex").write_text(r"\documentclass{article}", encoding="utf-8")
         (tmp_path / "paper.tex").write_text(
             r"\documentclass{article}", encoding="utf-8"
@@ -220,194 +197,84 @@ class TestParsing:
 
         # Act
         result = detect_main_tex(tmp_path)
-
         # Assert
         assert result.name == "main.tex"
 
-    def test_classify_section_by_filename_intro(self):
-        from scitex_writer.migration._parsing import classify_section
-
+    def test_classify_section_by_filename(self):
         # Arrange
-        path = Path("intro.tex")
-
         # Act
-        result = classify_section(path, "")
+        from scitex_writer.migration._parsing import classify_section
 
         # Assert
-        assert result == "introduction"
+        assert (
+            (classify_section(Path("intro.tex"), "") == "introduction")
+            and (classify_section(Path("methods.tex"), "") == "methods")
+            and (classify_section(Path("results.tex"), "") == "results")
+            and (classify_section(Path("discussion.tex"), "") == "discussion")
+            and (classify_section(Path("abstract.tex"), "") == "abstract")
+            and (classify_section(Path("random.tex"), "") is None)
+        )
 
-    def test_classify_section_by_filename_methods(self):
-        from scitex_writer.migration._parsing import classify_section
-
+    def test_classify_section_by_heading_classify_section_path_ch1_tex_content_introduction(
+        self,
+    ):
         # Arrange
-        path = Path("methods.tex")
+        from scitex_writer.migration._parsing import classify_section
 
         # Act
-        result = classify_section(path, "")
-
-        # Assert
-        assert result == "methods"
-
-    def test_classify_section_by_filename_results(self):
-        from scitex_writer.migration._parsing import classify_section
-
-        # Arrange
-        path = Path("results.tex")
-
-        # Act
-        result = classify_section(path, "")
-
-        # Assert
-        assert result == "results"
-
-    def test_classify_section_by_filename_discussion(self):
-        from scitex_writer.migration._parsing import classify_section
-
-        # Arrange
-        path = Path("discussion.tex")
-
-        # Act
-        result = classify_section(path, "")
-
-        # Assert
-        assert result == "discussion"
-
-    def test_classify_section_by_filename_abstract(self):
-        from scitex_writer.migration._parsing import classify_section
-
-        # Arrange
-        path = Path("abstract.tex")
-
-        # Act
-        result = classify_section(path, "")
-
-        # Assert
-        assert result == "abstract"
-
-    def test_classify_section_by_filename_unknown_returns_none(self):
-        from scitex_writer.migration._parsing import classify_section
-
-        # Arrange
-        path = Path("random.tex")
-
-        # Act
-        result = classify_section(path, "")
-
-        # Assert
-        assert result is None
-
-    def test_classify_section_by_heading_introduction(self):
-        from scitex_writer.migration._parsing import classify_section
-
-        # Arrange
         content = r"\section{Introduction and Background}"
-
         # Act
-        result = classify_section(Path("ch1.tex"), content)
-
         # Assert
-        assert result == "introduction"
+        assert classify_section(Path("ch1.tex"), content) == "introduction"
 
-    def test_classify_section_by_heading_experimental_is_methods(self):
+    def test_classify_section_by_heading_classify_section_path_ch2_tex_content_methods(
+        self,
+    ):
+        # Arrange
         from scitex_writer.migration._parsing import classify_section
 
-        # Arrange
+        content = r"\section{Introduction and Background}"
+        # Act
         content = r"\section{Experimental Procedure}"
-
         # Act
-        result = classify_section(Path("ch2.tex"), content)
-
         # Assert
-        assert result == "methods"
+        assert classify_section(Path("ch2.tex"), content) == "methods"
 
-    def test_extract_metadata_returns_title(self):
+    def test_extract_metadata_meta_title_my_great_paper_and_meta_authors_block_a(self):
+        # Arrange
         from scitex_writer.migration._parsing import extract_metadata
 
-        # Arrange
         content = r"""
 \title{My Great Paper}
 \author{Alice Bob}
 \keywords{science, testing}
 """
-
         # Act
         meta = extract_metadata(content)
-
         # Assert
-        assert meta["title"] == "My Great Paper"
+        assert (
+            (meta["title"] == "My Great Paper")
+            and (meta["authors_block"] == "Alice Bob")
+            and (meta["keywords"] == "science, testing")
+        )
 
-    def test_extract_metadata_returns_authors_block(self):
+    def test_extract_metadata_empty(self):
+        # Arrange
         from scitex_writer.migration._parsing import extract_metadata
 
-        # Arrange
-        content = r"""
-\title{My Great Paper}
-\author{Alice Bob}
-\keywords{science, testing}
-"""
-
         # Act
-        meta = extract_metadata(content)
-
+        meta = extract_metadata("No metadata here")
         # Assert
-        assert meta["authors_block"] == "Alice Bob"
+        assert (
+            (meta["title"] is None)
+            and (meta["authors_block"] is None)
+            and (meta["keywords"] is None)
+        )
 
-    def test_extract_metadata_returns_keywords(self):
-        from scitex_writer.migration._parsing import extract_metadata
-
+    def test_split_inline_sections(self):
         # Arrange
-        content = r"""
-\title{My Great Paper}
-\author{Alice Bob}
-\keywords{science, testing}
-"""
-
-        # Act
-        meta = extract_metadata(content)
-
-        # Assert
-        assert meta["keywords"] == "science, testing"
-
-    def test_extract_metadata_empty_title_is_none(self):
-        from scitex_writer.migration._parsing import extract_metadata
-
-        # Arrange
-        content = "No metadata here"
-
-        # Act
-        meta = extract_metadata(content)
-
-        # Assert
-        assert meta["title"] is None
-
-    def test_extract_metadata_empty_authors_block_is_none(self):
-        from scitex_writer.migration._parsing import extract_metadata
-
-        # Arrange
-        content = "No metadata here"
-
-        # Act
-        meta = extract_metadata(content)
-
-        # Assert
-        assert meta["authors_block"] is None
-
-    def test_extract_metadata_empty_keywords_is_none(self):
-        from scitex_writer.migration._parsing import extract_metadata
-
-        # Arrange
-        content = "No metadata here"
-
-        # Act
-        meta = extract_metadata(content)
-
-        # Assert
-        assert meta["keywords"] is None
-
-    def test_split_inline_sections_includes_introduction(self):
         from scitex_writer.migration._parsing import split_inline_sections
 
-        # Arrange
         content = r"""
 \section{Introduction}
 Intro text.
@@ -416,73 +283,34 @@ Methods text.
 \section{Conclusion}
 Conclusion text.
 """
-
         # Act
         sections = split_inline_sections(content)
-
         # Assert
-        assert "introduction" in sections
+        assert (
+            ("introduction" in sections)
+            and ("methods" in sections)
+            and ("discussion" in sections)
+        )
 
-    def test_split_inline_sections_includes_methods(self):
-        from scitex_writer.migration._parsing import split_inline_sections
-
+    def test_unique_dest_unique_dest_f_f(self, tmp_path):
         # Arrange
-        content = r"""
-\section{Introduction}
-Intro text.
-\section{Methods}
-Methods text.
-\section{Conclusion}
-Conclusion text.
-"""
-
-        # Act
-        sections = split_inline_sections(content)
-
-        # Assert
-        assert "methods" in sections
-
-    def test_split_inline_sections_maps_conclusion_to_discussion(self):
-        from scitex_writer.migration._parsing import split_inline_sections
-
-        # Arrange
-        content = r"""
-\section{Introduction}
-Intro text.
-\section{Methods}
-Methods text.
-\section{Conclusion}
-Conclusion text.
-"""
-
-        # Act
-        sections = split_inline_sections(content)
-
-        # Assert
-        assert "discussion" in sections
-
-    def test_unique_dest_returns_unchanged_when_not_taken(self, tmp_path):
         from scitex_writer.migration._parsing import unique_dest
 
-        # Arrange
+        # Act
         f = tmp_path / "test.txt"
-
         # Act
-        result = unique_dest(f)
-
         # Assert
-        assert result == f
+        assert unique_dest(f) == f
 
-    def test_unique_dest_appends_suffix_when_already_exists(self, tmp_path):
+    def test_unique_dest_result_name_equals_test_1_txt(self, tmp_path):
+        # Arrange
         from scitex_writer.migration._parsing import unique_dest
 
-        # Arrange
         f = tmp_path / "test.txt"
         f.write_text("existing")
-
         # Act
         result = unique_dest(f)
-
+        # Act
         # Assert
         assert result.name == "test_1.txt"
 
@@ -493,393 +321,224 @@ Conclusion text.
 
 
 class TestImport:
-    def test_import_dry_run_reports_success(self, simple_overleaf_zip, tmp_path):
-        from scitex_writer.migration import from_overleaf
-
-        # Arrange
-        output_dir = str(tmp_path / "output")
-
-        # Act
-        result = from_overleaf(
-            str(simple_overleaf_zip), output_dir=output_dir, dry_run=True
-        )
-
-        # Assert
-        assert result["success"] is True
-
-    def test_import_dry_run_flag_propagates_to_result(
+    def test_import_dry_run_result_success_is_true_and_result_dry_run_is_true_and_mappin(
         self, simple_overleaf_zip, tmp_path
     ):
-        from scitex_writer.migration import from_overleaf
-
         # Arrange
-        output_dir = str(tmp_path / "output")
+        from scitex_writer.migration import from_overleaf
 
         # Act
         result = from_overleaf(
-            str(simple_overleaf_zip), output_dir=output_dir, dry_run=True
+            str(simple_overleaf_zip),
+            output_dir=str(tmp_path / "output"),
+            dry_run=True,
+        )
+        # Act
+        # Assert
+        assert (
+            (result["success"] is True)
+            and (result["dry_run"] is True)
+            and ("mapping_report" in result)
         )
 
-        # Assert
-        assert result["dry_run"] is True
-
-    def test_import_dry_run_includes_mapping_report(
+    def test_import_dry_run_report_main_tex_main_tex_and_introduction_in_report_sections(
         self, simple_overleaf_zip, tmp_path
     ):
+        # Arrange
         from scitex_writer.migration import from_overleaf
 
-        # Arrange
-        output_dir = str(tmp_path / "output")
-
-        # Act
         result = from_overleaf(
-            str(simple_overleaf_zip), output_dir=output_dir, dry_run=True
+            str(simple_overleaf_zip),
+            output_dir=str(tmp_path / "output"),
+            dry_run=True,
+        )
+        # Act
+        report = result["mapping_report"]
+        # Act
+        # Assert
+        assert (
+            (report["main_tex"] == "main.tex")
+            and ("introduction" in report["sections"])
+            and (len(report["bib_files"]) == 1)
+            and (len(report["images"]) >= 1)
         )
 
-        # Assert
-        assert "mapping_report" in result
-
-    def test_import_dry_run_mapping_report_records_main_tex(
-        self, simple_overleaf_zip, tmp_path
-    ):
-        from scitex_writer.migration import from_overleaf
-
+    def test_import_nonexistent_zip(self):
         # Arrange
-        output_dir = str(tmp_path / "output")
+        from scitex_writer.migration import from_overleaf
 
         # Act
-        result = from_overleaf(
-            str(simple_overleaf_zip), output_dir=output_dir, dry_run=True
-        )
-
+        result = from_overleaf("/nonexistent/file.zip")
         # Assert
-        assert result["mapping_report"]["main_tex"] == "main.tex"
+        assert (result["success"] is False) and ("not found" in result["error"].lower())
 
-    def test_import_dry_run_mapping_report_classifies_introduction(
-        self, simple_overleaf_zip, tmp_path
-    ):
+    def test_import_invalid_zip(self, tmp_path):
+        # Arrange
         from scitex_writer.migration import from_overleaf
 
-        # Arrange
-        output_dir = str(tmp_path / "output")
-
-        # Act
-        result = from_overleaf(
-            str(simple_overleaf_zip), output_dir=output_dir, dry_run=True
-        )
-
-        # Assert
-        assert "introduction" in result["mapping_report"]["sections"]
-
-    def test_import_dry_run_mapping_report_lists_bib_file(
-        self, simple_overleaf_zip, tmp_path
-    ):
-        from scitex_writer.migration import from_overleaf
-
-        # Arrange
-        output_dir = str(tmp_path / "output")
-
-        # Act
-        result = from_overleaf(
-            str(simple_overleaf_zip), output_dir=output_dir, dry_run=True
-        )
-
-        # Assert
-        assert len(result["mapping_report"]["bib_files"]) == 1
-
-    def test_import_dry_run_mapping_report_lists_image(
-        self, simple_overleaf_zip, tmp_path
-    ):
-        from scitex_writer.migration import from_overleaf
-
-        # Arrange
-        output_dir = str(tmp_path / "output")
-
-        # Act
-        result = from_overleaf(
-            str(simple_overleaf_zip), output_dir=output_dir, dry_run=True
-        )
-
-        # Assert
-        assert len(result["mapping_report"]["images"]) >= 1
-
-    def test_import_nonexistent_zip_reports_failure(self):
-        from scitex_writer.migration import from_overleaf
-
-        # Arrange
-        missing_path = "/nonexistent/file.zip"
-
-        # Act
-        result = from_overleaf(missing_path)
-
-        # Assert
-        assert result["success"] is False
-
-    def test_import_nonexistent_zip_error_mentions_not_found(self):
-        from scitex_writer.migration import from_overleaf
-
-        # Arrange
-        missing_path = "/nonexistent/file.zip"
-
-        # Act
-        result = from_overleaf(missing_path)
-
-        # Assert
-        assert "not found" in result["error"].lower()
-
-    def test_import_invalid_zip_reports_failure(self, tmp_path):
-        from scitex_writer.migration import from_overleaf
-
-        # Arrange
         fake = tmp_path / "fake.zip"
         fake.write_text("not a zip")
-
         # Act
         result = from_overleaf(str(fake))
-
         # Assert
-        assert result["success"] is False
-
-    def test_import_invalid_zip_error_mentions_not_a_valid_zip(self, tmp_path):
-        from scitex_writer.migration import from_overleaf
-
-        # Arrange
-        fake = tmp_path / "fake.zip"
-        fake.write_text("not a zip")
-
-        # Act
-        result = from_overleaf(str(fake))
-
-        # Assert
-        assert "not a valid zip" in result["error"].lower()
-
-    def test_import_output_exists_no_force_reports_failure(
-        self, simple_overleaf_zip, tmp_path
-    ):
-        from scitex_writer.migration import from_overleaf
-
-        # Arrange
-        out = tmp_path / "existing"
-        out.mkdir()
-
-        # Act
-        result = from_overleaf(str(simple_overleaf_zip), output_dir=str(out))
-
-        # Assert
-        assert result["success"] is False
-
-    def test_import_output_exists_no_force_error_mentions_already_exists(
-        self, simple_overleaf_zip, tmp_path
-    ):
-        from scitex_writer.migration import from_overleaf
-
-        # Arrange
-        out = tmp_path / "existing"
-        out.mkdir()
-
-        # Act
-        result = from_overleaf(str(simple_overleaf_zip), output_dir=str(out))
-
-        # Assert
-        assert "already exists" in result["error"].lower()
-
-    def test_import_inline_dry_run_reports_success(self, inline_overleaf_zip, tmp_path):
-        from scitex_writer.migration import from_overleaf
-
-        # Arrange
-        output_dir = str(tmp_path / "inline_out")
-
-        # Act
-        result = from_overleaf(
-            str(inline_overleaf_zip), output_dir=output_dir, dry_run=True
+        assert (result["success"] is False) and (
+            "not a valid zip" in result["error"].lower()
         )
 
-        # Assert
-        assert result["success"] is True
+    def test_import_output_exists_no_force(self, simple_overleaf_zip, tmp_path):
+        # Arrange
+        from scitex_writer.migration import from_overleaf
 
-    def test_import_inline_dry_run_metadata_title_is_extracted(
+        out = tmp_path / "existing"
+        out.mkdir()
+        # Act
+        result = from_overleaf(str(simple_overleaf_zip), output_dir=str(out))
+        # Assert
+        assert (result["success"] is False) and (
+            "already exists" in result["error"].lower()
+        )
+
+    def test_import_inline_dry_run_result_success_is_true(
         self, inline_overleaf_zip, tmp_path
     ):
-        from scitex_writer.migration import from_overleaf
-
         # Arrange
-        output_dir = str(tmp_path / "inline_out")
+        from scitex_writer.migration import from_overleaf
 
         # Act
         result = from_overleaf(
-            str(inline_overleaf_zip), output_dir=output_dir, dry_run=True
+            str(inline_overleaf_zip),
+            output_dir=str(tmp_path / "inline_out"),
+            dry_run=True,
         )
-
-        # Assert
-        assert result["mapping_report"]["metadata"]["title"] == "Inline Paper"
-
-    def test_import_success_creates_project_reports_success(
-        self, simple_overleaf_zip, tmp_path, fake_clone_writer_project
-    ):
-        from scitex_writer.migration import from_overleaf
-
-        # Arrange
-        out = tmp_path / "imported_project"
-
         # Act
-        result = from_overleaf(str(simple_overleaf_zip), output_dir=str(out))
-
         # Assert
         assert result["success"] is True
 
-    def test_import_success_creates_project_dry_run_flag_false(
-        self, simple_overleaf_zip, tmp_path, fake_clone_writer_project
+    def test_import_inline_dry_run_report_metadata_title_inline_paper(
+        self, inline_overleaf_zip, tmp_path
     ):
+        # Arrange
         from scitex_writer.migration import from_overleaf
 
-        # Arrange
-        out = tmp_path / "imported_project"
-
+        result = from_overleaf(
+            str(inline_overleaf_zip),
+            output_dir=str(tmp_path / "inline_out"),
+            dry_run=True,
+        )
         # Act
-        result = from_overleaf(str(simple_overleaf_zip), output_dir=str(out))
+        report = result["mapping_report"]
+        # Act
+        # Assert
+        assert report["metadata"]["title"] == "Inline Paper"
 
+    def test_import_success_reports_success(self, imported_project):
+        # Arrange
+        result, _out = imported_project
+        # Act
+        # Assert
+        assert result["success"] is True
+
+    def test_import_success_is_not_a_dry_run(self, imported_project):
+        # Arrange
+        result, _out = imported_project
+        # Act
         # Assert
         assert result["dry_run"] is False
 
-    def test_import_success_creates_output_directory(
-        self, simple_overleaf_zip, tmp_path, fake_clone_writer_project
-    ):
-        from scitex_writer.migration import from_overleaf
-
+    def test_import_success_creates_output_directory(self, imported_project):
         # Arrange
-        out = tmp_path / "imported_project"
-
+        _result, out = imported_project
         # Act
-        from_overleaf(str(simple_overleaf_zip), output_dir=str(out))
-
         # Assert
         assert out.exists()
 
-    def test_import_success_writes_introduction_section(
-        self, simple_overleaf_zip, tmp_path, fake_clone_writer_project
-    ):
-        from scitex_writer.migration import from_overleaf
-
+    def test_import_writes_introduction_section_file(self, imported_project):
         # Arrange
-        out = tmp_path / "imported_project"
-
+        _result, out = imported_project
         # Act
-        from_overleaf(str(simple_overleaf_zip), output_dir=str(out))
-
+        intro = out / "01_manuscript" / "contents" / "introduction.tex"
         # Assert
-        assert (out / "01_manuscript" / "contents" / "introduction.tex").exists()
+        assert intro.exists()
 
-    def test_import_success_introduction_section_content_contains_keyword(
-        self, simple_overleaf_zip, tmp_path, fake_clone_writer_project
+    def test_import_introduction_section_contains_overleaf_content(
+        self, imported_project
     ):
-        from scitex_writer.migration import from_overleaf
-
         # Arrange
-        out = tmp_path / "imported_project"
-
+        _result, out = imported_project
+        intro = out / "01_manuscript" / "contents" / "introduction.tex"
         # Act
-        from_overleaf(str(simple_overleaf_zip), output_dir=str(out))
-
+        intro_text = intro.read_text()
         # Assert
-        intro_text = (
-            out / "01_manuscript" / "contents" / "introduction.tex"
-        ).read_text()
         assert "introduction" in intro_text.lower()
 
-    def test_import_success_copies_bib_file(
-        self, simple_overleaf_zip, tmp_path, fake_clone_writer_project
-    ):
-        from scitex_writer.migration import from_overleaf
-
+    def test_import_copies_at_least_one_bib_file(self, imported_project):
         # Arrange
-        out = tmp_path / "imported_project"
-
+        _result, out = imported_project
         # Act
-        from_overleaf(str(simple_overleaf_zip), output_dir=str(out))
-
-        # Assert
         bib_files = list((out / "00_shared" / "bib_files").glob("*.bib"))
+        # Assert
         assert len(bib_files) >= 1
 
-    def test_import_success_copies_image(
-        self, simple_overleaf_zip, tmp_path, fake_clone_writer_project
-    ):
-        from scitex_writer.migration import from_overleaf
-
+    def test_import_copies_at_least_one_figure(self, imported_project):
         # Arrange
-        out = tmp_path / "imported_project"
-
+        _result, out = imported_project
+        figures = out / "01_manuscript" / "contents" / "figures" / "caption_and_media"
         # Act
-        from_overleaf(str(simple_overleaf_zip), output_dir=str(out))
-
+        images = list(figures.glob("*"))
         # Assert
-        images = list(
-            (out / "01_manuscript" / "contents" / "figures" / "caption_and_media").glob(
-                "*"
-            )
-        )
         assert len(images) >= 1
 
-    def test_import_success_writes_title_file(
-        self, simple_overleaf_zip, tmp_path, fake_clone_writer_project
-    ):
-        from scitex_writer.migration import from_overleaf
-
+    def test_import_writes_title_file(self, imported_project):
         # Arrange
-        out = tmp_path / "imported_project"
-
+        _result, out = imported_project
         # Act
-        from_overleaf(str(simple_overleaf_zip), output_dir=str(out))
-
+        title_file = out / "00_shared" / "title.tex"
         # Assert
-        assert (out / "00_shared" / "title.tex").exists()
+        assert title_file.exists()
 
-    def test_import_success_title_file_contains_paper_title(
-        self, simple_overleaf_zip, tmp_path, fake_clone_writer_project
-    ):
-        from scitex_writer.migration import from_overleaf
-
+    def test_import_title_file_contains_overleaf_title(self, imported_project):
         # Arrange
-        out = tmp_path / "imported_project"
-
+        _result, out = imported_project
         # Act
-        from_overleaf(str(simple_overleaf_zip), output_dir=str(out))
-
-        # Assert
         title = (out / "00_shared" / "title.tex").read_text()
+        # Assert
         assert "Test Paper Title" in title
 
-    def test_import_force_overwrites_reports_success(
-        self, simple_overleaf_zip, tmp_path, fake_clone_writer_project
+    def test_import_force_reports_success_when_output_dir_preexists(
+        self, simple_overleaf_zip, tmp_path
     ):
+        # Arrange
         from scitex_writer.migration import from_overleaf
 
-        # Arrange
         out = tmp_path / "force_project"
         out.mkdir()
         (out / "marker.txt").write_text("old")
-
         # Act
         result = from_overleaf(
-            str(simple_overleaf_zip), output_dir=str(out), force=True
+            str(simple_overleaf_zip),
+            output_dir=str(out),
+            force=True,
+            clone_fn=_skeleton_clone,
         )
-
         # Assert
         assert result["success"] is True
 
-    def test_import_force_overwrites_removes_old_marker_file(
-        self, simple_overleaf_zip, tmp_path, fake_clone_writer_project
+    def test_import_force_replaces_preexisting_output_dir_contents(
+        self, simple_overleaf_zip, tmp_path
     ):
+        # Arrange
         from scitex_writer.migration import from_overleaf
 
-        # Arrange
         out = tmp_path / "force_project"
         out.mkdir()
         (out / "marker.txt").write_text("old")
-
         # Act
-        from_overleaf(str(simple_overleaf_zip), output_dir=str(out), force=True)
-
+        from_overleaf(
+            str(simple_overleaf_zip),
+            output_dir=str(out),
+            force=True,
+            clone_fn=_skeleton_clone,
+        )
         # Assert
         assert not (out / "marker.txt").exists()
 
@@ -891,11 +550,7 @@ class TestImport:
 
 @pytest.fixture
 def mock_scitex_project(tmp_path):
-    """Create a minimal scitex-writer project structure for export testing.
-
-    Note: the fixture name is historical; nothing here uses mocking. It builds
-    a real on-disk project layout under `tmp_path`.
-    """
+    """Create a minimal scitex-writer project structure for export testing."""
     proj = tmp_path / "mock_project"
     proj.mkdir()
 
@@ -929,229 +584,125 @@ def mock_scitex_project(tmp_path):
 
 
 class TestExport:
-    def test_export_nonexistent_project_reports_failure(self):
+    def test_export_nonexistent_project(self):
+        # Arrange
         from scitex_writer.migration import to_overleaf
 
-        # Arrange
-        missing_path = "/nonexistent/project"
-
         # Act
-        result = to_overleaf(missing_path)
-
+        result = to_overleaf("/nonexistent/project")
         # Assert
         assert result["success"] is False
 
-    def test_export_not_a_project_reports_failure(self, tmp_path):
+    def test_export_not_a_project(self, tmp_path):
+        # Arrange
         from scitex_writer.migration import to_overleaf
 
+        # Act
+        result = to_overleaf(str(tmp_path))
+        # Assert
+        assert (result["success"] is False) and (
+            "does not look like" in result["error"].lower()
+        )
+
+    def test_export_dry_run(self, mock_scitex_project):
         # Arrange
-        bare_dir = str(tmp_path)
+        from scitex_writer.migration import to_overleaf
 
         # Act
-        result = to_overleaf(bare_dir)
+        result = to_overleaf(str(mock_scitex_project), dry_run=True)
 
         # Assert
-        assert result["success"] is False
+        assert (
+            (result["success"] is True)
+            and (result["dry_run"] is True)
+            and (result["file_count"] > 0)
+            and ("main.tex" in result["files_included"])
+            and ("references.bib" in result["files_included"])
+        )
 
-    def test_export_not_a_project_error_mentions_does_not_look_like(self, tmp_path):
+    @pytest.fixture
+    def exported_zip(self, mock_scitex_project, tmp_path):
+        """Export the mock project to a real ZIP once; return (result, path)."""
         from scitex_writer.migration import to_overleaf
 
+        zip_out = tmp_path / "export.zip"
+        result = to_overleaf(str(mock_scitex_project), output_path=str(zip_out))
+        return result, zip_out
+
+    def test_export_creates_zip_reports_success(self, exported_zip):
         # Arrange
-        bare_dir = str(tmp_path)
-
+        result, _zip_out = exported_zip
         # Act
-        result = to_overleaf(bare_dir)
-
-        # Assert
-        assert "does not look like" in result["error"].lower()
-
-    def test_export_dry_run_reports_success(self, mock_scitex_project):
-        from scitex_writer.migration import to_overleaf
-
-        # Arrange
-        project_dir = str(mock_scitex_project)
-
-        # Act
-        result = to_overleaf(project_dir, dry_run=True)
-
         # Assert
         assert result["success"] is True
 
-    def test_export_dry_run_flag_propagates_to_result(self, mock_scitex_project):
-        from scitex_writer.migration import to_overleaf
-
+    def test_export_creates_zip_is_not_dry_run(self, exported_zip):
         # Arrange
-        project_dir = str(mock_scitex_project)
-
+        result, _zip_out = exported_zip
         # Act
-        result = to_overleaf(project_dir, dry_run=True)
-
-        # Assert
-        assert result["dry_run"] is True
-
-    def test_export_dry_run_reports_positive_file_count(self, mock_scitex_project):
-        from scitex_writer.migration import to_overleaf
-
-        # Arrange
-        project_dir = str(mock_scitex_project)
-
-        # Act
-        result = to_overleaf(project_dir, dry_run=True)
-
-        # Assert
-        assert result["file_count"] > 0
-
-    def test_export_dry_run_includes_main_tex_in_files_included(
-        self, mock_scitex_project
-    ):
-        from scitex_writer.migration import to_overleaf
-
-        # Arrange
-        project_dir = str(mock_scitex_project)
-
-        # Act
-        result = to_overleaf(project_dir, dry_run=True)
-
-        # Assert
-        assert "main.tex" in result["files_included"]
-
-    def test_export_dry_run_includes_references_bib_in_files_included(
-        self, mock_scitex_project
-    ):
-        from scitex_writer.migration import to_overleaf
-
-        # Arrange
-        project_dir = str(mock_scitex_project)
-
-        # Act
-        result = to_overleaf(project_dir, dry_run=True)
-
-        # Assert
-        assert "references.bib" in result["files_included"]
-
-    def test_export_creates_zip_reports_success(self, mock_scitex_project, tmp_path):
-        from scitex_writer.migration import to_overleaf
-
-        # Arrange
-        zip_out = tmp_path / "export.zip"
-
-        # Act
-        result = to_overleaf(str(mock_scitex_project), output_path=str(zip_out))
-
-        # Assert
-        assert result["success"] is True
-
-    def test_export_creates_zip_dry_run_flag_false(self, mock_scitex_project, tmp_path):
-        from scitex_writer.migration import to_overleaf
-
-        # Arrange
-        zip_out = tmp_path / "export.zip"
-
-        # Act
-        result = to_overleaf(str(mock_scitex_project), output_path=str(zip_out))
-
         # Assert
         assert result["dry_run"] is False
 
-    def test_export_creates_zip_file_on_disk(self, mock_scitex_project, tmp_path):
-        from scitex_writer.migration import to_overleaf
-
+    def test_export_creates_zip_file_on_disk(self, exported_zip):
         # Arrange
-        zip_out = tmp_path / "export.zip"
-
+        _result, zip_out = exported_zip
         # Act
-        to_overleaf(str(mock_scitex_project), output_path=str(zip_out))
-
         # Assert
         assert zip_out.exists()
 
-    def test_export_creates_zip_contains_main_tex(self, mock_scitex_project, tmp_path):
-        from scitex_writer.migration import to_overleaf
-
+    def test_export_zip_includes_main_tex(self, exported_zip):
         # Arrange
-        zip_out = tmp_path / "export.zip"
-
+        _result, zip_out = exported_zip
         # Act
-        to_overleaf(str(mock_scitex_project), output_path=str(zip_out))
-
-        # Assert
         with zipfile.ZipFile(zip_out) as zf:
-            assert "main.tex" in zf.namelist()
-
-    def test_export_creates_zip_contains_references_bib(
-        self, mock_scitex_project, tmp_path
-    ):
-        from scitex_writer.migration import to_overleaf
-
-        # Arrange
-        zip_out = tmp_path / "export.zip"
-
-        # Act
-        to_overleaf(str(mock_scitex_project), output_path=str(zip_out))
-
+            names = zf.namelist()
         # Assert
+        assert "main.tex" in names
+
+    def test_export_zip_includes_references_bib(self, exported_zip):
+        # Arrange
+        _result, zip_out = exported_zip
+        # Act
         with zipfile.ZipFile(zip_out) as zf:
-            assert "references.bib" in zf.namelist()
-
-    def test_export_creates_zip_contains_sections_dir(
-        self, mock_scitex_project, tmp_path
-    ):
-        from scitex_writer.migration import to_overleaf
-
-        # Arrange
-        zip_out = tmp_path / "export.zip"
-
-        # Act
-        to_overleaf(str(mock_scitex_project), output_path=str(zip_out))
-
+            names = zf.namelist()
         # Assert
+        assert "references.bib" in names
+
+    def test_export_zip_includes_a_sections_entry(self, exported_zip):
+        # Arrange
+        _result, zip_out = exported_zip
+        # Act
         with zipfile.ZipFile(zip_out) as zf:
-            assert any("sections/" in n for n in zf.namelist())
-
-    def test_export_creates_zip_contains_images_dir(
-        self, mock_scitex_project, tmp_path
-    ):
-        from scitex_writer.migration import to_overleaf
-
-        # Arrange
-        zip_out = tmp_path / "export.zip"
-
-        # Act
-        to_overleaf(str(mock_scitex_project), output_path=str(zip_out))
-
+            names = zf.namelist()
         # Assert
+        assert any("sections/" in n for n in names)
+
+    def test_export_zip_includes_an_images_entry(self, exported_zip):
+        # Arrange
+        _result, zip_out = exported_zip
+        # Act
         with zipfile.ZipFile(zip_out) as zf:
-            assert any("images/" in n for n in zf.namelist())
-
-    def test_export_creates_zip_main_tex_has_documentclass(
-        self, mock_scitex_project, tmp_path
-    ):
-        from scitex_writer.migration import to_overleaf
-
-        # Arrange
-        zip_out = tmp_path / "export.zip"
-
-        # Act
-        to_overleaf(str(mock_scitex_project), output_path=str(zip_out))
-
+            names = zf.namelist()
         # Assert
+        assert any("images/" in n for n in names)
+
+    def test_export_main_tex_has_documentclass(self, exported_zip):
+        # Arrange
+        _result, zip_out = exported_zip
+        # Act
         with zipfile.ZipFile(zip_out) as zf:
             main_content = zf.read("main.tex").decode()
-            assert r"\documentclass" in main_content
-
-    def test_export_creates_zip_main_tex_has_title(self, mock_scitex_project, tmp_path):
-        from scitex_writer.migration import to_overleaf
-
-        # Arrange
-        zip_out = tmp_path / "export.zip"
-
-        # Act
-        to_overleaf(str(mock_scitex_project), output_path=str(zip_out))
-
         # Assert
+        assert "\\documentclass" in main_content
+
+    def test_export_main_tex_carries_project_title(self, exported_zip):
+        # Arrange
+        _result, zip_out = exported_zip
+        # Act
         with zipfile.ZipFile(zip_out) as zf:
             main_content = zf.read("main.tex").decode()
-            assert r"\title{My Test Title}" in main_content
+        # Assert
+        assert "\\title{My Test Title}" in main_content
 
 
 # ---------------------------------------------------------------------------
@@ -1160,77 +711,47 @@ class TestExport:
 
 
 class TestModuleAPI:
-    def test_migration_in_package_all(self):
+    def test_migration_in_all(self):
+        # Arrange
+        # Act
         import scitex_writer as sw
 
-        # Arrange
-        all_names = sw.__all__
-
-        # Act
-        present = "migration" in all_names
-
         # Assert
-        assert present is True
+        assert "migration" in sw.__all__
 
-    def test_from_overleaf_is_callable(self):
+    def test_from_overleaf_callable(self):
+        # Arrange
+        # Act
         from scitex_writer import migration
 
-        # Arrange
-        target = migration.from_overleaf
-
-        # Act
-        is_callable = callable(target)
-
         # Assert
-        assert is_callable is True
+        assert callable(migration.from_overleaf)
 
-    def test_to_overleaf_is_callable(self):
+    def test_to_overleaf_callable(self):
+        # Arrange
+        # Act
         from scitex_writer import migration
 
-        # Arrange
-        target = migration.to_overleaf
-
-        # Act
-        is_callable = callable(target)
-
         # Assert
-        assert is_callable is True
+        assert callable(migration.to_overleaf)
 
-    def test_cli_migration_help_exits_zero(self):
+    def test_cli_help_result_returncode_equals_n_0_and_import_in_re(self):
+        # Arrange
         import subprocess
 
-        # Arrange
-        cmd = ["scitex-writer", "migration", "--help"]
-
         # Act
-        result = subprocess.run(cmd, capture_output=True, text=True, timeout=10)
-
+        result = subprocess.run(
+            ["scitex-writer", "migration", "--help"],
+            capture_output=True,
+            text=True,
+            timeout=10,
+        )
         # Assert
-        assert result.returncode == 0
-
-    def test_cli_migration_help_mentions_import(self):
-        import subprocess
-
-        # Arrange
-        cmd = ["scitex-writer", "migration", "--help"]
-
-        # Act
-        result = subprocess.run(cmd, capture_output=True, text=True, timeout=10)
-
-        # Assert
-        assert "import" in result.stdout
-
-    def test_cli_migration_help_mentions_export(self):
-        import subprocess
-
-        # Arrange
-        cmd = ["scitex-writer", "migration", "--help"]
-
-        # Act
-        result = subprocess.run(cmd, capture_output=True, text=True, timeout=10)
-
-        # Assert
-        assert "export" in result.stdout
+        assert (
+            (result.returncode == 0)
+            and ("import" in result.stdout)
+            and ("export" in result.stdout)
+        )
 
 
 # EOF

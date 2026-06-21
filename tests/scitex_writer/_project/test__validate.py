@@ -9,8 +9,8 @@ from scitex_writer._project._validate import validate_structure
 class TestValidateStructureSuccess:
     """Tests for validate_structure when structure is valid."""
 
-    def test_passes_with_all_required_directories_present(self, tmp_path):
-        """Verify validate_structure does not raise with complete structure."""
+    def test_returns_none_with_all_required_directories(self, tmp_path):
+        """validate_structure returns None (no raise) for a complete structure."""
         # Arrange
         (tmp_path / "01_manuscript").mkdir()
         (tmp_path / "02_supplementary").mkdir()
@@ -20,8 +20,8 @@ class TestValidateStructureSuccess:
         # Assert
         assert result is None
 
-    def test_passes_with_extra_directories_present(self, tmp_path):
-        """Verify validate_structure does not raise when extra directories exist."""
+    def test_returns_none_with_extra_directories(self, tmp_path):
+        """validate_structure tolerates extra directories and returns None."""
         # Arrange
         (tmp_path / "01_manuscript").mkdir()
         (tmp_path / "02_supplementary").mkdir()
@@ -37,69 +37,67 @@ class TestValidateStructureSuccess:
 class TestValidateStructureFailure:
     """Tests for validate_structure when structure is invalid."""
 
-    def test_raises_runtime_error_when_manuscript_directory_missing(self, tmp_path):
+    def test_raises_when_manuscript_missing(self, tmp_path):
         """Verify raises RuntimeError when 01_manuscript is missing."""
         # Arrange
         (tmp_path / "02_supplementary").mkdir()
-        (tmp_path / "03_revision").mkdir()
         # Act
-        ctx = pytest.raises(RuntimeError, match="01_manuscript")
+        (tmp_path / "03_revision").mkdir()
+
         # Assert
-        with ctx:
+        with pytest.raises(RuntimeError, match="01_manuscript"):
             validate_structure(tmp_path)
 
-    def test_raises_runtime_error_when_supplementary_directory_missing(self, tmp_path):
+    def test_raises_when_supplementary_missing(self, tmp_path):
         """Verify raises RuntimeError when 02_supplementary is missing."""
         # Arrange
         (tmp_path / "01_manuscript").mkdir()
-        (tmp_path / "03_revision").mkdir()
         # Act
-        ctx = pytest.raises(RuntimeError, match="02_supplementary")
+        (tmp_path / "03_revision").mkdir()
+
         # Assert
-        with ctx:
+        with pytest.raises(RuntimeError, match="02_supplementary"):
             validate_structure(tmp_path)
 
-    def test_raises_runtime_error_when_revision_directory_missing(self, tmp_path):
+    def test_raises_when_revision_missing(self, tmp_path):
         """Verify raises RuntimeError when 03_revision is missing."""
         # Arrange
         (tmp_path / "01_manuscript").mkdir()
-        (tmp_path / "02_supplementary").mkdir()
         # Act
-        ctx = pytest.raises(RuntimeError, match="03_revision")
+        (tmp_path / "02_supplementary").mkdir()
+
         # Assert
-        with ctx:
+        with pytest.raises(RuntimeError, match="03_revision"):
             validate_structure(tmp_path)
 
-    def test_raises_runtime_error_when_all_required_directories_missing(self, tmp_path):
+    def test_raises_when_all_missing(self, tmp_path):
         """Verify raises RuntimeError when all required dirs are missing."""
         # Arrange
-        # tmp_path is empty
         # Act
-        ctx = pytest.raises(RuntimeError, match="01_manuscript")
         # Assert
-        with ctx:
+        with pytest.raises(RuntimeError, match="01_manuscript"):
             validate_structure(tmp_path)
 
-    def test_error_message_contains_expected_path_phrase(self, tmp_path):
-        """Verify error message contains the expected directory path phrase."""
+    def test_error_message_points_at_the_missing_directory_path(self, tmp_path):
+        """The RuntimeError message names the absolute path it expected."""
         # Arrange
-        # tmp_path has no required dirs
-        captured = {}
-
         # Act
-        try:
-            validate_structure(tmp_path)
-        except RuntimeError as e:
-            captured["msg"] = str(e)
         # Assert
-        assert "expected at:" in captured.get("msg", "")
+        with pytest.raises(RuntimeError, match="expected at:"):
+            validate_structure(tmp_path)
 
 
 class TestValidateStructureEdgeCases:
     """Tests for validate_structure edge cases."""
 
-    def test_file_named_like_required_directory_does_not_raise(self, tmp_path):
-        """Verify does not raise when file (not directory) named like required dir exists."""
+    def test_file_named_like_required_dir_passes_existence_only_check(self, tmp_path):
+        """A plain file (not a dir) named 01_manuscript still satisfies the
+        existence-only check, so validate_structure returns None.
+
+        This pins the current contract: validate_structure tests `.exists()`,
+        not `.is_dir()`. If the check is tightened later, this test should
+        flip to `pytest.raises`.
+        """
         # Arrange
         (tmp_path / "01_manuscript").write_text("not a directory")
         (tmp_path / "02_supplementary").mkdir()
@@ -109,8 +107,8 @@ class TestValidateStructureEdgeCases:
         # Assert
         assert result is None
 
-    def test_nested_project_directory_passes_with_required_dirs(self, tmp_path):
-        """Verify validate_structure works with nested project directory."""
+    def test_returns_none_for_valid_nested_project_directory(self, tmp_path):
+        """validate_structure works on a project nested below tmp_path."""
         # Arrange
         nested = tmp_path / "projects" / "my_paper"
         nested.mkdir(parents=True)

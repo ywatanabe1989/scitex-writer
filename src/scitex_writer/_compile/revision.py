@@ -24,11 +24,7 @@ def compile_revision(
     timeout: int = 300,
     log_callback: Optional[Callable[[str], None]] = None,
     progress_callback: Optional[Callable[[int, str], None]] = None,
-    *,
-    runner_fn: Optional[Callable[..., dict]] = None,
-    validator_fn: Optional[Callable[[Path], None]] = None,
-    output_finder_fn: Optional[Callable[[Path, str], tuple]] = None,
-    script_resolver_fn: Optional[Callable[[Path, str], Path]] = None,
+    runner: Optional[Callable[..., CompilationResult]] = None,
 ) -> CompilationResult:
     """
     Compile revision responses with optional callbacks.
@@ -66,18 +62,19 @@ def compile_revision(
     ...     project_dir=Path("~/my-paper"),
     ...     track_changes=True
     ... )
+
+    ``runner`` defaults to
+    :func:`scitex_writer._compile._runner.run_compile`; exposed for
+    injection without patching module internals.
     """
-    return run_compile(
+    runner = runner or run_compile
+    return runner(
         "revision",
         project_dir,
         timeout=timeout,
         track_changes=track_changes,
         log_callback=log_callback,
         progress_callback=progress_callback,
-        runner_fn=runner_fn,
-        validator_fn=validator_fn,
-        output_finder_fn=output_finder_fn,
-        script_resolver_fn=script_resolver_fn,
     )
 
 

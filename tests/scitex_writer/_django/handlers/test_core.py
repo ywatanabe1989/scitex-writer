@@ -3,5 +3,9 @@
 import importlib
 
 
-def test_module_imports():
-    importlib.import_module("scitex_writer._django.handlers.core")
+def test_module_exposes_handle_ping():
+    # Arrange
+    # Act
+    module = importlib.import_module("scitex_writer._django.handlers.core")
+    # Assert
+    assert hasattr(module, "handle_ping")

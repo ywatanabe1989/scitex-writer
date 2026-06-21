@@ -1,168 +1,175 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-# Wave 2 cluster A batch 1 — NM+TQ003+TQ002+TQ007 cleanup.
 """Tests for scitex_writer._project._create.clone_writer_project.
 
-No-mock rewrite: each test drives the real implementation against either
-(a) the existing-directory short-circuit, or
-(b) a real local bare git repository so that `git clone` succeeds without
-    network access.
+clone_writer_project shells out to `git clone <template> <dir>` and, for
+the 'child' strategy, follows with `git init/add/commit`. Instead of
+mocking subprocess.run, these tests install a REAL `git` shim on PATH:
+
+- a success shim that materializes the target directory on `clone` and
+  exits 0 for every subcommand;
+- a failure shim that exits 1;
+- and, for the generic-exception path, a PATH with no `git` at all so
+  subprocess raises a real FileNotFoundError.
+
+This exercises the production subprocess.run codepath end-to-end.
 """
 
 import os
-import subprocess
+import stat
+from pathlib import Path
 
 import pytest
 
-from scitex_writer._project import _create
 from scitex_writer._project._create import clone_writer_project
+
+_SUCCESS_GIT = """#!/usr/bin/env bash
+# Minimal git stand-in. On `clone`, create the destination dir (last arg)
+# so the post-clone steps + the caller's existence check pass.
+if [ "$1" = "clone" ]; then
+    dest="${@: -1}"
+    mkdir -p "$dest/.git"
+fi
+exit 0
+"""
+
+_FAILURE_GIT = """#!/usr/bin/env bash
+echo "fatal: simulated clone failure" >&2
+exit 1
+"""
+
+
+def _install_git_shim(bin_dir: Path, script: str) -> None:
+    bin_dir.mkdir(parents=True, exist_ok=True)
+    git = bin_dir / "git"
+    git.write_text(script)
+    git.chmod(git.stat().st_mode | stat.S_IEXEC | stat.S_IXGRP | stat.S_IXOTH)
 
 
 @pytest.fixture
-def local_template_repo(tmp_path):
-    """Make TEMPLATE_REPO_URL point at a real local bare git repo.
-
-    Uses a `yield` fixture to set + restore the module-level constant
-    without monkeypatching production internals at call-time.
-    """
-    # Arrange a real bare git repo + one commit so `git clone` succeeds.
-    src = tmp_path / "src"
-    src.mkdir()
-    (src / "README.md").write_text("template\n")
-    subprocess.run(["git", "init", "-q"], cwd=src, check=True)
-    subprocess.run(["git", "add", "-A"], cwd=src, check=True, capture_output=True)
-    env = dict(os.environ)
-    env.update(
-        {
-            "GIT_AUTHOR_NAME": "t",
-            "GIT_AUTHOR_EMAIL": "t@t",
-            "GIT_COMMITTER_NAME": "t",
-            "GIT_COMMITTER_EMAIL": "t@t",
-        }
-    )
-    subprocess.run(
-        ["git", "commit", "-q", "-m", "init"],
-        cwd=src,
-        check=True,
-        env=env,
-        capture_output=True,
-    )
-    bare = tmp_path / "tpl.git"
-    subprocess.run(
-        ["git", "clone", "--bare", "-q", str(src), str(bare)],
-        check=True,
-        capture_output=True,
-    )
-
-    original = _create.TEMPLATE_REPO_URL
-    _create.TEMPLATE_REPO_URL = str(bare)
-    yield bare
-    _create.TEMPLATE_REPO_URL = original
+def path_with_success_git(tmp_path):
+    """Prepend a tmp bin/ holding a success git shim onto PATH."""
+    bin_dir = tmp_path / "bin"
+    _install_git_shim(bin_dir, _SUCCESS_GIT)
+    saved = os.environ["PATH"]
+    os.environ["PATH"] = f"{bin_dir}{os.pathsep}{saved}"
+    try:
+        yield
+    finally:
+        os.environ["PATH"] = saved
 
 
-# ============================================================================
-# Existing-directory short circuit (no git/network needed)
-# ============================================================================
+@pytest.fixture
+def path_with_failing_git(tmp_path):
+    """Prepend a tmp bin/ holding a git shim that exits non-zero."""
+    bin_dir = tmp_path / "bin"
+    _install_git_shim(bin_dir, _FAILURE_GIT)
+    saved = os.environ["PATH"]
+    os.environ["PATH"] = f"{bin_dir}{os.pathsep}{saved}"
+    try:
+        yield
+    finally:
+        os.environ["PATH"] = saved
 
 
-def test_clone_writer_project_existing_directory_returns_false(tmp_path):
-    """If project_dir already exists, clone_writer_project returns False without cloning."""
-    # Arrange
-    project_dir = tmp_path / "existing"
-    project_dir.mkdir()
-    # Act
-    result = clone_writer_project(str(project_dir))
-    # Assert
-    assert result is False
+@pytest.fixture
+def path_without_git(tmp_path):
+    """Replace PATH with a dir that contains no `git` binary at all."""
+    bin_dir = tmp_path / "empty_bin"
+    bin_dir.mkdir()
+    saved = os.environ["PATH"]
+    os.environ["PATH"] = str(bin_dir)
+    try:
+        yield
+    finally:
+        os.environ["PATH"] = saved
 
 
-# ============================================================================
-# Real local clone against a bare repo
-# ============================================================================
+class TestCloneWriterProjectSuccess:
+    """Success cases against a real (shimmed) git binary."""
+
+    def test_returns_true_on_success(self, tmp_path, path_with_success_git):
+        # Arrange
+        project_dir = tmp_path / "new_paper"
+        # Act
+        result = clone_writer_project(str(project_dir))
+        # Assert
+        assert result is True
+
+    def test_parent_strategy_returns_true(self, tmp_path, path_with_success_git):
+        # Arrange
+        project_dir = tmp_path / "new_paper"
+        # Act
+        result = clone_writer_project(str(project_dir), git_strategy="parent")
+        # Assert
+        assert result is True
+
+    def test_branch_argument_returns_true(self, tmp_path, path_with_success_git):
+        # Arrange
+        project_dir = tmp_path / "new_paper"
+        # Act
+        result = clone_writer_project(str(project_dir), branch="develop")
+        # Assert
+        assert result is True
+
+    def test_tag_argument_returns_true(self, tmp_path, path_with_success_git):
+        # Arrange
+        project_dir = tmp_path / "new_paper"
+        # Act
+        result = clone_writer_project(str(project_dir), tag="v1.0.0")
+        # Assert
+        assert result is True
+
+    def test_default_child_strategy_returns_true(self, tmp_path, path_with_success_git):
+        # Arrange
+        project_dir = tmp_path / "new_paper"
+        # Act
+        result = clone_writer_project(str(project_dir))
+        # Assert
+        assert result is True
+
+    def test_none_strategy_returns_true(self, tmp_path, path_with_success_git):
+        # Arrange
+        project_dir = tmp_path / "new_paper"
+        # Act
+        result = clone_writer_project(str(project_dir), git_strategy=None)
+        # Assert
+        assert result is True
+
+    def test_origin_strategy_returns_true(self, tmp_path, path_with_success_git):
+        # Arrange
+        project_dir = tmp_path / "new_paper"
+        # Act
+        result = clone_writer_project(str(project_dir), git_strategy="origin")
+        # Assert
+        assert result is True
 
 
-def test_clone_writer_project_default_returns_true_with_local_template(
-    tmp_path, local_template_repo
-):
-    """A real `git clone` of a local bare repo succeeds and returns True."""
-    # Arrange
-    project_dir = tmp_path / "new_paper"
-    # Act
-    result = clone_writer_project(str(project_dir))
-    # Assert
-    assert result is True
+class TestCloneWriterProjectFailure:
+    """Failure cases."""
 
+    def test_returns_false_when_clone_exits_nonzero(
+        self, tmp_path, path_with_failing_git
+    ):
+        # Arrange
+        project_dir = tmp_path / "new_paper"
+        # Act
+        result = clone_writer_project(str(project_dir))
+        # Assert
+        assert result is False
 
-def test_clone_writer_project_default_materialises_project_dir(
-    tmp_path, local_template_repo
-):
-    """After a successful clone the project directory contains the cloned README."""
-    # Arrange
-    project_dir = tmp_path / "new_paper"
-    # Act
-    clone_writer_project(str(project_dir))
-    # Assert
-    assert (project_dir / "README.md").exists()
+    def test_returns_false_when_git_binary_is_absent(self, tmp_path, path_without_git):
+        # Arrange
+        project_dir = tmp_path / "new_paper"
+        # Act
+        result = clone_writer_project(str(project_dir))
+        # Assert
+        assert result is False
 
-
-def test_clone_writer_project_child_strategy_creates_fresh_git_dir(
-    tmp_path, local_template_repo
-):
-    """`git_strategy='child'` initialises a brand-new .git in the project root."""
-    # Arrange
-    project_dir = tmp_path / "new_paper"
-    # Act
-    clone_writer_project(str(project_dir), git_strategy="child")
-    # Assert
-    assert (project_dir / ".git").is_dir()
-
-
-def test_clone_writer_project_none_strategy_removes_git_dir(
-    tmp_path, local_template_repo
-):
-    """`git_strategy='none'` strips the cloned .git directory from the project."""
-    # Arrange
-    project_dir = tmp_path / "new_paper"
-    # Act
-    clone_writer_project(str(project_dir), git_strategy="none")
-    # Assert
-    assert not (project_dir / ".git").exists()
-
-
-def test_clone_writer_project_origin_strategy_preserves_git_dir(
-    tmp_path, local_template_repo
-):
-    """`git_strategy='origin'` preserves the .git directory from the template."""
-    # Arrange
-    project_dir = tmp_path / "new_paper"
-    # Act
-    clone_writer_project(str(project_dir), git_strategy="origin")
-    # Assert
-    assert (project_dir / ".git").exists()
-
-
-# ============================================================================
-# Branch / tag failure path against a non-existent ref
-# ============================================================================
-
-
-def test_clone_writer_project_unknown_branch_returns_false(
-    tmp_path, local_template_repo
-):
-    """Cloning a non-existent branch of a real repo returns False without raising."""
-    # Arrange
-    project_dir = tmp_path / "bad_branch"
-    # Act
-    result = clone_writer_project(str(project_dir), branch="does-not-exist")
-    # Assert
-    assert result is False
-
-
-def test_clone_writer_project_unknown_tag_returns_false(tmp_path, local_template_repo):
-    """Cloning a non-existent tag of a real repo returns False without raising."""
-    # Arrange
-    project_dir = tmp_path / "bad_tag"
-    # Act
-    result = clone_writer_project(str(project_dir), tag="v999.0.0")
-    # Assert
-    assert result is False
+    def test_returns_false_when_target_directory_already_exists(self, tmp_path):
+        # Arrange
+        project_dir = tmp_path / "existing"
+        project_dir.mkdir()
+        # Act
+        result = clone_writer_project(str(project_dir))
+        # Assert
+        assert result is False

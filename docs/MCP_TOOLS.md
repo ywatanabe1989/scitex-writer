@@ -1,4 +1,4 @@
-# SciTeX Writer MCP Tools (36 total)
+# SciTeX Writer MCP Tools (44 total)
 
 Model Context Protocol tools for AI agent integration.
 
@@ -6,7 +6,7 @@ Model Context Protocol tools for AI agent integration.
 scitex-writer mcp list-tools    # List all tools
 scitex-writer mcp start         # Start MCP server (stdio)
 scitex-writer mcp doctor        # Health check
-scitex-writer mcp installation  # Show Claude Desktop config
+scitex-writer mcp install       # Show Claude Desktop config guide
 ```
 
 ## Tools by Module
@@ -21,22 +21,11 @@ scitex-writer mcp installation  # Show Claude Desktop config
 | `writer_merge_bibfiles` | Merge all .bib files into one, with deduplication |
 | `writer_remove_bibentry` | Remove a BibTeX entry by citation key |
 
-### compile (4 tools)
+### checks (2 tools)
 | Tool | Description |
 |------|-------------|
-| `writer_compile_content` | Compile raw LaTeX content to PDF with color modes |
-| `writer_compile_manuscript` | Compile manuscript LaTeX document to PDF |
-| `writer_compile_revision` | Compile revision document to PDF with change tracking |
-| `writer_compile_supplementary` | Compile supplementary materials to PDF |
-
-### figures (5 tools)
-| Tool | Description |
-|------|-------------|
-| `writer_add_figure` | Add a figure (copy image + create caption) |
-| `writer_convert_figure` | Convert figure between formats (e.g., PDF to PNG) |
-| `writer_list_figures` | List all figures in a writer project |
-| `writer_pdf_to_images` | Render PDF pages as images |
-| `writer_remove_figure` | Remove a figure (image + caption) |
+| `writer_checks_references` | Check all LaTeX `\ref{}` / `\cite{}` resolve correctly |
+| `writer_checks_float_order` | Audit float (figure/table) numbering order |
 
 ### claim (6 tools)
 | Tool | Description |
@@ -48,15 +37,28 @@ scitex-writer mcp installation  # Show Claude Desktop config
 | `writer_remove_claim` | Delete a claim by ID |
 | `writer_render_claims` | Generate claims_rendered.tex for LaTeX compilation |
 
+### compile (4 tools)
+| Tool | Description |
+|------|-------------|
+| `writer_compile_content` | Compile raw LaTeX content to PDF with color modes |
+| `writer_compile_manuscript` | Compile manuscript LaTeX document to PDF |
+| `writer_compile_revision` | Compile revision document to PDF with change tracking |
+| `writer_compile_supplementary` | Compile supplementary materials to PDF |
+
 ### export (1 tool)
 | Tool | Description |
 |------|-------------|
 | `writer_export_manuscript` | Export manuscript for arXiv submission |
 
-### general (1 tool)
+### figures (6 tools)
 | Tool | Description |
 |------|-------------|
-| `usage` | Get usage guide for SciTeX Writer |
+| `writer_add_figure` | Add a figure (copy image + create caption) |
+| `writer_figures_archive` | Move a figure to legacy/ instead of deleting |
+| `writer_figures_convert` | Convert figure between formats (e.g., PDF to PNG) |
+| `writer_figures_list` | List all figures in a writer project |
+| `writer_figures_pdf_to_images` | Render PDF pages as images |
+| `writer_figures_remove` | Remove a figure (image + caption) |
 
 ### guidelines (3 tools)
 | Tool | Description |
@@ -64,6 +66,12 @@ scitex-writer mcp installation  # Show Claude Desktop config
 | `writer_guideline_build` | Build editing prompt by combining guideline with draft |
 | `writer_guideline_get` | Get IMRAD writing guideline for a manuscript section |
 | `writer_guideline_list` | List available IMRAD writing guideline sections |
+
+### migration (2 tools)
+| Tool | Description |
+|------|-------------|
+| `writer_migration_from_overleaf` | Import an Overleaf ZIP into a scitex-writer project |
+| `writer_migration_to_overleaf` | Export a scitex-writer project as an Overleaf-compatible ZIP |
 
 ### project (4 tools)
 | Tool | Description |
@@ -78,7 +86,13 @@ scitex-writer mcp installation  # Show Claude Desktop config
 |------|-------------|
 | `writer_prompts_asta` | Generate AI2 Asta prompt for finding related papers |
 
-### tables (5 tools)
+### skills (2 tools)
+| Tool | Description |
+|------|-------------|
+| `writer_skills_list` | List available skill pages |
+| `writer_skills_get` | Get the content of a specific skill page |
+
+### tables (6 tools)
 | Tool | Description |
 |------|-------------|
 | `writer_add_table` | Add a new table (CSV + caption) to the project |
@@ -86,6 +100,12 @@ scitex-writer mcp installation  # Show Claude Desktop config
 | `writer_latex_to_csv` | Convert LaTeX table to CSV format |
 | `writer_list_tables` | List all tables in a writer project |
 | `writer_remove_table` | Remove a table (CSV + caption) from the project |
+| `writer_tables_archive` | Move a table to legacy/ instead of deleting |
+
+### update (1 tool)
+| Tool | Description |
+|------|-------------|
+| `writer_update_project` | Update engine files from upstream template, preserving user content |
 
 ## Claude Desktop Configuration
 
