@@ -1283,25 +1283,12 @@ def figures_archive(name, project, doc_type, dry_run, yes, as_json):
 
 
 # =========================================================================
-# check group  (fast pre-compile checks — section limits, references)
+# check-limits / check-references  (fast pre-compile checks; flat verb-noun
+# per §1 — top-level commands are verb-noun, e.g. compile-manuscript)
 # =========================================================================
 
 
-@main_group.group("check", invoke_without_command=True)
-@click.pass_context
-def check_group(ctx):
-    """Fast pre-compile checks (section word limits, reference cap).
-
-    \b
-    Example:
-        $ scitex-writer check limits
-        $ scitex-writer check limits --strict
-    """
-    if ctx.invoked_subcommand is None:
-        click.echo(ctx.get_help())
-
-
-@check_group.command("limits")
+@main_group.command("check-limits")
 @click.option("-p", "--project", default=".", help="Project path.")
 @click.option("-t", "--doc-type", type=_DOC_TYPE, default="manuscript")
 @click.option(
@@ -1321,9 +1308,9 @@ def check_limits_cmd(project, doc_type, strict, as_json):
 
     \b
     Example:
-        $ scitex-writer check limits
-        $ scitex-writer check limits -t supplementary --strict
-        $ scitex-writer check limits --json
+        $ scitex-writer check-limits
+        $ scitex-writer check-limits -t supplementary --strict
+        $ scitex-writer check-limits --json
     """
     from .. import checks
 
@@ -1340,7 +1327,7 @@ def check_limits_cmd(project, doc_type, strict, as_json):
     return result.get("exit_code", 0)
 
 
-@check_group.command("references")
+@main_group.command("check-references")
 @click.option("-p", "--project", default=".", help="Project path.")
 @click.option(
     "-t",
@@ -1364,8 +1351,8 @@ def check_references_cmd(project, doc_type, parse_log, as_json):
 
     \b
     Example:
-        $ scitex-writer check references
-        $ scitex-writer check references --log
+        $ scitex-writer check-references
+        $ scitex-writer check-references --log
     """
     from .. import checks
 
