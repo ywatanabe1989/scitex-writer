@@ -15,6 +15,7 @@ def csv_to_latex(
     caption: Optional[str] = None,
     label: Optional[str] = None,
     longtable: bool = False,
+    auto_fit: bool = True,
 ) -> dict:
     """Convert CSV file to LaTeX table."""
     try:
@@ -71,6 +72,10 @@ def csv_to_latex(
             lines.append("\\end{table}")
 
         latex_content = "\n".join(lines)
+        if auto_fit and not longtable:
+            from ..._utils._csv_latex import _fit_tabular
+
+            latex_content = _fit_tabular(latex_content)
         if output_path:
             Path(output_path).write_text(latex_content, encoding="utf-8")
 

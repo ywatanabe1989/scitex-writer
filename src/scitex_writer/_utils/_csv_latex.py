@@ -16,6 +16,30 @@ from typing import Optional, Union
 logger = logging.getLogger(__name__)
 
 
+def _fit_tabular(latex: str) -> str:
+    r"""Wrap a tabular so a wide table shrinks to \linewidth instead of
+    overflowing the page (and vanishing from the PDF).
+
+    Scales DOWN only when the table's natural width exceeds \linewidth; narrow
+    tables are left untouched. Self-contained — uses only \resizebox (graphicx,
+    always loaded by the scitex preamble), so no extra package or preamble
+    macro is required. longtable spans pages and cannot be boxed, so callers
+    skip it.
+    """
+    if "\\resizebox" in latex:
+        return latex  # already wrapped — idempotent, never double-wrap
+    open_box = (
+        r"\resizebox{\ifdim\width>\linewidth\linewidth\else\width\fi}{!}{%" + "\n"
+    )
+    return re.sub(
+        r"(\\begin\{tabular\}.*?\\end\{tabular\})",
+        lambda m: open_box + m.group(1) + "\n}",
+        latex,
+        count=1,
+        flags=re.DOTALL,
+    )
+
+
 def csv2latex(
     csv_path: Union[str, Path],
     output_path: Optional[Union[str, Path]] = None,
@@ -25,6 +49,7 @@ def csv2latex(
     longtable: bool = False,
     index: bool = False,
     column_format: Optional[str] = None,
+    auto_fit: bool = True,
     **kwargs,
 ) -> str:
     """
@@ -48,6 +73,9 @@ def csv2latex(
         Include DataFrame index in output
     column_format : str, optional
         LaTeX column format (e.g., 'lcr', 'l|cc|r')
+    auto_fit : bool, default True
+        Wrap the tabular so a wider-than-\\linewidth table shrinks to fit
+        (prevents page overflow / an invisible table). Ignored for longtable.
     **kwargs
         Additional arguments passed to pandas.DataFrame.to_latex()
 
@@ -89,6 +117,10 @@ def csv2latex(
 
     # Convert to LaTeX
     latex_content = df.to_latex(**latex_kwargs)
+
+    # Shrink wide tables to the text width so they never overflow (and vanish).
+    if auto_fit and not longtable:
+        latex_content = _fit_tabular(latex_content)
 
     # Save if output path provided
     if output_path:

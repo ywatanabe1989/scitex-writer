@@ -50,7 +50,7 @@
 \openin\wordcount=#1
 \read\wordcount to \thewordcount
 \closein\wordcount
-\begingroup\sisetup{round-mode=none}\num{\thewordcount}\endgroup%
+\begingroup\sisetup{round-mode=none,group-separator={,},group-minimum-digits=4}\num{\thewordcount}\endgroup%
 }
 
 %% --- Text highlighting ---

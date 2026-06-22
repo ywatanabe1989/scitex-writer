@@ -135,6 +135,35 @@ def check_float_order(
     return _run_script(script, project_path, args, timeout)
 
 
-__all__ = ["check_references", "check_float_order"]
+def check_limits(
+    project_dir: str,
+    doc_type: str = "manuscript",
+    strict: bool = False,
+    timeout: int = 60,
+) -> dict:
+    """Validate per-section word limits + the reference cap (``limits:`` block).
+
+    Fast pre-compile check: reads ``config/config_<doc_type>.yaml`` and compares
+    the ``limits:`` block against ``texcount`` word counts + unique ``\\cite``
+    keys. Over-limit is a warning by default; ``strict`` (or ``limits.strict`` /
+    ``SCITEX_WRITER_LINT_STRICT=1``) promotes breaches to errors and a non-zero
+    exit code.
+
+    Args:
+        project_dir: Project root.
+        doc_type: ``manuscript``, ``supplementary``, or ``revision``.
+        strict: Force strict mode (over-limit => error). Config/env can also
+            enable it; this flag only ever tightens, never loosens.
+        timeout: Subprocess timeout in seconds.
+    """
+    project_path = resolve_project_path(project_dir)
+    script = _script_path(project_path, "check_limits.py")
+    args = ["--doc-type", doc_type]
+    if strict:
+        args.append("--strict")
+    return _run_script(script, project_path, args, timeout)
+
+
+__all__ = ["check_references", "check_float_order", "check_limits"]
 
 # EOF

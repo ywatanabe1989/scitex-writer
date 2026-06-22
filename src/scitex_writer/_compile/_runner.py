@@ -344,7 +344,7 @@ def run_compile(
     # Validate project structure before compilation
     try:
         progress(5, "Validating project structure...")
-        validate_before_compile(project_dir)
+        validate_before_compile(project_dir, doc_type)
         log("[INFO] Project structure validated")
     except Exception as e:
         error_msg = f"[ERROR] Validation failed: {e}"

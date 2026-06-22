@@ -1283,6 +1283,106 @@ def figures_archive(name, project, doc_type, dry_run, yes, as_json):
 
 
 # =========================================================================
+# check group  (fast pre-compile checks — section limits, references)
+# =========================================================================
+
+
+@main_group.group("check", invoke_without_command=True)
+@click.pass_context
+def check_group(ctx):
+    """Fast pre-compile checks (section word limits, reference cap).
+
+    \b
+    Example:
+        $ scitex-writer check limits
+        $ scitex-writer check limits --strict
+    """
+    if ctx.invoked_subcommand is None:
+        click.echo(ctx.get_help())
+
+
+@check_group.command("limits")
+@click.option("-p", "--project", default=".", help="Project path.")
+@click.option("-t", "--doc-type", type=_DOC_TYPE, default="manuscript")
+@click.option(
+    "--strict",
+    is_flag=True,
+    default=False,
+    help="Treat over-limit sections as errors (non-zero exit).",
+)
+@click.option("--json", "as_json", is_flag=True, default=False, help="Emit JSON.")
+def check_limits_cmd(project, doc_type, strict, as_json):
+    """Check section word limits + reference cap against config ``limits:``.
+
+    Reads the ``limits:`` block from config/config_<doc-type>.yaml and compares
+    it to texcount word counts + unique \\cite keys. Over-limit warns by
+    default; --strict (or limits.strict) makes it a non-zero-exit error. This
+    is the same check the compiler runs as a fast pre-flight gate.
+
+    \b
+    Example:
+        $ scitex-writer check limits
+        $ scitex-writer check limits -t supplementary --strict
+        $ scitex-writer check limits --json
+    """
+    from .. import checks
+
+    result = checks.limits(project, doc_type=doc_type, strict=strict)
+    if as_json:
+        _emit_json(result)
+        return 0 if result.get("success") else 1
+    out = (result.get("stdout") or "").rstrip()
+    if out:
+        click.echo(out)
+    err = (result.get("stderr") or "").rstrip()
+    if err:
+        click.echo(err, err=True)
+    return result.get("exit_code", 0)
+
+
+@check_group.command("references")
+@click.option("-p", "--project", default=".", help="Project path.")
+@click.option(
+    "-t",
+    "--doc-type",
+    type=click.Choice(["manuscript", "supplementary", "all"]),
+    default="all",
+)
+@click.option(
+    "--log",
+    "parse_log",
+    is_flag=True,
+    default=False,
+    help="Also parse LaTeX .log files for cross-ref/citation warnings.",
+)
+@click.option("--json", "as_json", is_flag=True, default=False, help="Emit JSON.")
+def check_references_cmd(project, doc_type, parse_log, as_json):
+    """Validate cross-references, citations, labels, and duplicate headings.
+
+    Duplicate \\section headings (e.g. "Figures" rendered twice) are flagged
+    from the compiled manuscript .tex.
+
+    \b
+    Example:
+        $ scitex-writer check references
+        $ scitex-writer check references --log
+    """
+    from .. import checks
+
+    result = checks.references(project, doc_type=doc_type, parse_log=parse_log)
+    if as_json:
+        _emit_json(result)
+        return 0 if result.get("success") else 1
+    out = (result.get("stdout") or "").rstrip()
+    if out:
+        click.echo(out)
+    err = (result.get("stderr") or "").rstrip()
+    if err:
+        click.echo(err, err=True)
+    return result.get("exit_code", 0)
+
+
+# =========================================================================
 # gui (renamed -> launch-gui at top level for §1, alias `gui` preserved)
 # =========================================================================
 

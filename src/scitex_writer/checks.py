@@ -30,6 +30,7 @@ from typing import Literal as _Literal
 from typing import Optional as _Optional
 
 from ._mcp.handlers import check_float_order as _check_float_order
+from ._mcp.handlers import check_limits as _check_limits
 from ._mcp.handlers import check_references as _check_references
 
 try:
@@ -83,6 +84,34 @@ def float_order(
     return handler(project_dir, doc_type, fix, dry_run)
 
 
-__all__ = ["references", "float_order"]
+@_supports_return_as
+def limits(
+    project_dir: str,
+    doc_type: _Literal["manuscript", "supplementary", "revision"] = "manuscript",
+    strict: bool = False,
+    handler: _Optional[_Callable[..., dict]] = None,
+) -> dict:
+    """Validate section word limits + the reference cap (the ``limits:`` block).
+
+    Fast pre-compile check — the same one ``compile`` runs as a gate. Reads the
+    ``limits:`` block from ``config/config_<doc_type>.yaml`` and compares it
+    against ``texcount`` word counts + unique ``\\cite`` keys. Over-limit is a
+    warning by default; ``strict=True`` (or ``limits.strict`` /
+    ``SCITEX_WRITER_LINT_STRICT=1``) makes breaches errors with a non-zero
+    ``exit_code``.
+
+    Returns a dict with ``success``, ``exit_code``, ``stdout``, ``stderr``,
+    and ``summary={passed, warnings, errors}``.
+
+    ``handler`` is the underlying check implementation; it defaults to
+    :func:`scitex_writer._mcp.handlers.check_limits`. Exposed so callers (and
+    tests) can supply an alternate implementation without patching module
+    internals.
+    """
+    handler = handler or _check_limits
+    return handler(project_dir, doc_type, strict)
+
+
+__all__ = ["references", "float_order", "limits"]
 
 # EOF

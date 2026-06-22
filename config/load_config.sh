@@ -91,6 +91,7 @@ if command -v parallel &>/dev/null; then
         'SCITEX_WRITER_FIGURE_TEMPLATE_JPG:.figures.template_jpg' \
         'SCITEX_WRITER_FIGURE_TEMPLATE_PPTX:.figures.template_pptx' \
         'SCITEX_WRITER_FIGURE_TEMPLATE_JNT:.figures.template_jnt' \
+        'SCITEX_WRITER_FIGURE_MAX_HEIGHT_FRAC:.figures.max_height_frac' \
         'SCITEX_WRITER_TABLE_DIR:.tables.dir' \
         'SCITEX_WRITER_TABLE_CAPTION_MEDIA_DIR:.tables.caption_media_dir' \
         'SCITEX_WRITER_TABLE_COMPILED_DIR:.tables.compiled_dir' \
@@ -131,6 +132,7 @@ else
     export SCITEX_WRITER_FIGURE_TEMPLATE_JPG="$(yq -r '.figures.template_jpg' "$CONFIG_FILE")"
     export SCITEX_WRITER_FIGURE_TEMPLATE_PPTX="$(yq -r '.figures.template_pptx' "$CONFIG_FILE")"
     export SCITEX_WRITER_FIGURE_TEMPLATE_JNT="$(yq -r '.figures.template_jnt' "$CONFIG_FILE")"
+    export SCITEX_WRITER_FIGURE_MAX_HEIGHT_FRAC="$(yq -r '.figures.max_height_frac' "$CONFIG_FILE")"
     export SCITEX_WRITER_TABLE_DIR="$(yq -r '.tables.dir' "$CONFIG_FILE")"
     export SCITEX_WRITER_TABLE_CAPTION_MEDIA_DIR="$(yq -r '.tables.caption_media_dir' "$CONFIG_FILE")"
     export SCITEX_WRITER_TABLE_COMPILED_DIR="$(yq -r '.tables.compiled_dir' "$CONFIG_FILE")"
