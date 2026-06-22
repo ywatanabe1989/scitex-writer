@@ -45,6 +45,7 @@ def _write_csv(tmp_path):
 def test_csv2latex_auto_fit_wraps_table_by_default(tmp_path):
     # Arrange
     pytest.importorskip("pandas")
+    pytest.importorskip("jinja2")  # pandas to_latex(caption/label) routes via Styler
     csv = _write_csv(tmp_path)
     # Act
     latex = csv2latex(csv, caption="Cap", label="tab:x")
@@ -55,6 +56,7 @@ def test_csv2latex_auto_fit_wraps_table_by_default(tmp_path):
 def test_csv2latex_auto_fit_false_leaves_table_unwrapped(tmp_path):
     # Arrange
     pytest.importorskip("pandas")
+    pytest.importorskip("jinja2")  # pandas to_latex(caption/label) routes via Styler
     csv = _write_csv(tmp_path)
     # Act
     latex = csv2latex(csv, auto_fit=False)
@@ -65,6 +67,7 @@ def test_csv2latex_auto_fit_false_leaves_table_unwrapped(tmp_path):
 def test_csv2latex_longtable_is_not_wrapped(tmp_path):
     # Arrange
     pytest.importorskip("pandas")
+    pytest.importorskip("jinja2")  # pandas to_latex(caption/label) routes via Styler
     csv = _write_csv(tmp_path)
     # Act
     latex = csv2latex(csv, longtable=True)
