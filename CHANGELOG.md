@@ -7,6 +7,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.19.0] - 2026-06-22
+
+### Added
+- **Config-driven section/reference limits** with a fast pre-compile gate. New
+  `limits:` block in `config/config_manuscript.yaml` (per-IMRD word caps +
+  reference cap) enforced by `scripts/python/check_limits.py` inside
+  `validate_before_compile` (runs before any pdflatex pass). Warn-by-default;
+  `--strict` / `limits.strict` / `SCITEX_WRITER_LINT_STRICT=1` promote breaches
+  to errors (non-zero exit). Exposed via `checks.limits()` and the
+  `scitex-writer check-limits` CLI.
+- **`theme: light|dark` config knob** resolved in `compile_tex_structure.py`
+  (precedence: CLI flag > env > config > light; invalid value fails loud).
+- **Duplicate-heading detector** (`scitex-writer check-references`): flags a
+  `\section` title rendered twice in the compiled manuscript (e.g. "Figures").
+
+### Fixed
+- **Wide tables no longer overflow / vanish**: figures cap `\includegraphics`
+  height at `figures.max_height_frac` (default `0.78\textheight`,
+  `keepaspectratio`) so captions keep their space, and wide tables shrink-to-fit
+  via a shrink-only `\resizebox` in the Python/MCP table paths.
+- **Duplicate "Figures" heading** when a manuscript has no figures: the
+  generated fallback header no longer emits its own `\section*{Figures}`
+  (base.tex is the single source).
+- **Word-count thousands separator**: counts render as `1,259` (was `1259`).
+
 ## [2.18.0] - 2026-06-21
 
 ### Changed
