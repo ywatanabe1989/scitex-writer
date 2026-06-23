@@ -55,7 +55,7 @@ CSV-to-LaTeX), and verifiable claims linked to session hashes.
 ## Scientific writing standards
 
 - [21_writing-proofreading.md](21_writing-proofreading.md) — language rules, corrections, section-specific
-- [22_writing-figures-stats.md](22_writing-figures-stats.md) — figure rules, stats reporting
+- [22_writing-figures-stats.md](22_writing-figures-stats.md) — figure rules, stats reporting, scitex.stats mandate (PRESETS for full anchor: n / dof / effect size / p / stars / test name / H0), long-value footnote rule (overflow location alongside results prose / caption / methods)
 - [23_writing-mermaid.md](23_writing-mermaid.md) — academic mermaid style
 - [24_writing-proofreading-style.md](24_writing-proofreading-style.md) — tone, hedging, transitions, anti-patterns
 - [25_writing-attitude.md](25_writing-attitude.md) — evidence, critical analysis
@@ -69,7 +69,12 @@ CSV-to-LaTeX), and verifiable claims linked to session hashes.
 - [33_writing-discussion.md](33_writing-discussion.md) — 5-section discussion template
 - [34_writing-introduction-example.md](34_writing-introduction-example.md) — intro section tags + example
 - [35_writing-discussion-example.md](35_writing-discussion-example.md) — discussion section tags + example
+- [36_writing-results.md](36_writing-results.md) — per-figure paragraph structure, `\vclaim{}`-anchored claim sentences, results-order = figure-order constraint. V0 SKELETON — awaiting operator iteration to match the 30-33 Nature-style voice.
 
+## Paper-writing flow (agent ↔ user)
+
+- [40_paper-writing-protocol.md](40_paper-writing-protocol.md) — umbrella protocol composing the existing section templates + in-flight discipline into one driven flow. Operator framing: paper-writing is concurrent with experiments (`\vclaim{}` fills as runs land). Cross-section ordering (figures → results → methods → intro → abstract → discussion → tables/SI). Pre-submission checklist. V0 SKELETON for operator iteration.
+- [41_figure-first-communication.md](41_figure-first-communication.md) — figure-first agreement protocol (load-bearing first step of `40`). Step 1: agree on `Fig 1` ... `Fig N` list. Step 2: agree on per-figure `a./b./c.` panel breakdown. Step 3: plot code. Step 4: results-section prose. Pairs with `~/.claude/skills/scitex/scientific/01_figures_02_logic-and-ordering.md` (universal WHY) — this leaf is the HOW. V0 SKELETON for operator co-design.
 
 ## Environment
 
