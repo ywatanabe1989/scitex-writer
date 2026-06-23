@@ -114,7 +114,7 @@ SciTeX Writer solves each of these problems:
 - **Automatic asset conversion** — Figures and tables are converted in parallel from source formats (PNG, SVG, comma-separated values (CSV), Mermaid) to LaTeX-ready output.
 - **Built-in version tracking with diff generation** — Every compilation archives the previous version and generates a `latexdiff` document automatically.
 - **Unified interface** — One tool for compilation, bibliography deduplication, figure/table management, and arXiv export packaging.
-- **39 Model Context Protocol (MCP) tools for AI agents** — AI assistants can compile, edit, and manage manuscripts programmatically.
+- **44 Model Context Protocol (MCP) tools for AI agents** — AI assistants can compile, edit, and manage manuscripts programmatically.
 
 ## Architecture
 
@@ -244,6 +244,13 @@ scitex-writer compile revision                 # Compile revision letter
 # Export - arXiv submission
 scitex-writer export manuscript               # Package for arXiv upload
 
+# Checks - Pre-submission validation
+scitex-writer check-references                 # Cross-refs, citations, labels, duplicate headings
+scitex-writer check-limits                     # Section word limits + reference cap (config-driven)
+
+# Update - Sync engine files from the template
+scitex-writer update-project                   # Preview drifted engine files (safe; pass --yes to apply)
+
 # Bibliography - Reference management
 scitex-writer bib list-files                   # List .bib files
 scitex-writer bib list-entries                 # List all entries
@@ -304,7 +311,7 @@ Turn AI agents into autonomous manuscript compilers.
 | migration | 2 | Overleaf import/export |
 | checks | 2 | Reference integrity, float order |
 | skills | 2 | List and retrieve skill pages |
-| update | 1 | Template update from upstream |
+| update | 1 | Engine-file sync with drift detection |
 
 **Claude Desktop** (`~/.config/Claude/claude_desktop_config.json`):
 
@@ -432,6 +439,7 @@ scitex-writer gui --port 8080        # Custom port
 | **Assets**             | Parallel figure/table processing (PNG, PDF, SVG, Mermaid, CSV)        |
 | **GUI Editor**         | Browser-based editor with PDF preview (`scitex-writer gui`)           |
 | **Dark Mode**          | Monaco/VS Code dark theme for comfortable reading (`--dark-mode`)     |
+| **Section Limits**     | Word caps per IMRAD section + reference cap, checked before compile    |
 | **Multi-Engine**       | Auto-selects best engine (Tectonic 1-3s, latexmk 3-6s, 3-pass 12-18s) |
 | **Cross-Platform**     | Linux, macOS, WSL2, Docker, Singularity, HPC clusters                 |
 
