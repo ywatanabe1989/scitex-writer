@@ -165,11 +165,19 @@ jobs:
           if [ ! -s release-notes.md ]; then
             echo "Release v${VERSION}. See CHANGELOG.md for details." > release-notes.md
           fi
+      # JS action that talks to the GitHub Releases API directly. The bare
+      # Spartan self-hosted runner has NO `gh` CLI, so the old `gh release
+      # create` failed with `gh: command not found` (exit 127) AFTER publish —
+      # PyPI shipped but no Release page. JS actions run fine on the self-hosted
+      # runner (same class as actions/checkout + upload-artifact), so this is the
+      # fail-loud-safe equivalent: CHANGELOG notes + dist/* assets, no `gh` dep.
+      # Needs the job's `permissions: contents: write` (already set); the action
+      # uses ${{ github.token }} by default.
       - name: Create GitHub Release
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          gh release create "${{ needs.build.outputs.version }}" \
-            --title "${{ needs.build.outputs.version }}" \
-            --notes-file release-notes.md \
-            dist/*
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ needs.build.outputs.version }}
+          name: ${{ needs.build.outputs.version }}
+          body_path: release-notes.md
+          files: dist/*
+          fail_on_unmatched_files: true
