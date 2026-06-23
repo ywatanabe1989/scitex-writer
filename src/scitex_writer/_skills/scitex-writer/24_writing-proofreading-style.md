@@ -1,7 +1,7 @@
 ---
 description: |
   [TOPIC] Scientific Writing Proofreading — Style, Tone, and Anti-Patterns
-  [DETAILS] Scientific writing proofreading style — respectful tone, hedging, evidence-based claims, transitional words, terminology conventions, highlights (past-tense + standalone), citation tense by source count, header/title form consistency, anti-patterns (AP1-AP9, AP12), placeholder command, and usage..
+  [DETAILS] Scientific writing proofreading style — respectful tone, hedging, evidence-based claims, transitional words, terminology conventions, statistical symbols in italic/math ($p$, $n$, $R^2$), highlights (past-tense + standalone), citation tense by source count, header/title form consistency, anti-patterns (AP1-AP9, AP12), placeholder command, and usage..
 tags: [scitex-writer-writing-proofreading-style]
 ---
 
@@ -34,6 +34,12 @@ Use "was not designed to X" rather than "does not X" or "cannot X" — this ackn
 - Use "is" only for well-evidenced claims backed by citations; otherwise use "may be" or hedging language
 - Use `N+` suffix for numbers that grow (e.g., "300+ MCP tools") to avoid needing manuscript updates
 - Never attach an authority label to a number without a verifiable citation. E.g. do not call AUC 0.70 a "clinical-utility threshold" with no source — state the number plainly, or cite a real methodological source. A bare "Author YEAR" in running text is NOT a citation; verify the source actually defines it before asserting.
+
+## Statistical Symbols in Italic / Math
+
+All statistical parameters and symbols are set in **math italic**, never upright plain text: `$p$`, `$n$`, `$r$`, `$R^2$`, Cliff's `$\delta$`, Kendall's `$W$`, ICC(3,k), `$F$`, `$\chi^2$`, 95\% CI. "R-squared" is **`$R^2$`** (superscript) — never "R2" or "R^2" as literal text. Report the sample size `$n$` explicitly, including in figure/table captions, e.g. "(primary cohort, $n=9$)".
+
+**CSV-backed tables (csv2latex):** the pipeline ESCAPES LaTeX, so column headers taken from a CSV cannot be math/italic ("r_squared" renders as "r\_squared"; "$R^2$" renders as literal text). Therefore: give CSV columns clean plain headers ("R2", "p", "Slope") AND carry the properly-formatted symbols (`$R^2$`, `$p$`, `$n$`) in the hand-authored `\caption` (which is NOT escaped). The robust fix is to extend the tables pipeline to support formatted/aliased headers.
 
 ## Transitional Words and Paragraph Cohesion
 
