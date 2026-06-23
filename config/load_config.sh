@@ -26,6 +26,26 @@ echo_header() { echo_info "=== $1 ==="; }
 echo_warn() { echo -e "${YELLOW}WARN: $1${NC}"; }
 echo_error_soft() { echo -e "${RED}ERRO: $1${NC}"; }
 
+# Resolve dark mode from config BEFORE the load-cache guard, so `theme: dark`
+# ALWAYS applies -- even when CONFIG_LOADED is inherited (a cached re-source
+# must not silently render the PDF light; dark is an accessibility default).
+# Precedence: an already-set SCITEX_WRITER_DARK_MODE (env / CLI flag) wins.
+if [ -z "${SCITEX_WRITER_DARK_MODE:-}" ]; then
+    _stxw_dt="${1:-${SCITEX_WRITER_DOC_TYPE:-manuscript}}"
+    _stxw_cfg="$THIS_DIR/config_${_stxw_dt}.yaml"
+    if [ -f "$_stxw_cfg" ]; then
+        _stxw_theme="$(yq -r '.theme' "$_stxw_cfg")"
+        case "$_stxw_theme" in
+        dark) export SCITEX_WRITER_DARK_MODE=true ;;
+        light | null | "") export SCITEX_WRITER_DARK_MODE=false ;;
+        *)
+            echo_warning "    invalid theme '$_stxw_theme' in $_stxw_cfg (use: light | dark); defaulting to light"
+            export SCITEX_WRITER_DARK_MODE=false
+            ;;
+        esac
+    fi
+fi
+
 # Skip if already loaded (prevents redundant 4s overhead per load)
 if [ "$CONFIG_LOADED" = "true" ]; then
     return 0
@@ -144,26 +164,6 @@ else
     export SCITEX_WRITER_DARK_LINK_INTERNAL="$(yq -r '.dark_mode.link_internal' "$CONFIG_FILE")"
     export SCITEX_WRITER_DARK_LINK_CITATION="$(yq -r '.dark_mode.link_citation' "$CONFIG_FILE")"
     export SCITEX_WRITER_DARK_LINK_URL="$(yq -r '.dark_mode.link_url' "$CONFIG_FILE")"
-fi
-
-# Bridge the `theme:` config key (SSoT) to SCITEX_WRITER_DARK_MODE so that
-# `theme: dark` renders the PDF in dark mode without needing the --dark-mode
-# flag or the env var. Precedence (matches the config comment): an already-set
-# SCITEX_WRITER_DARK_MODE (env or the CLI flag) wins over the config theme.
-# An invalid theme warns and defaults to light (fail loud, no silent surprise).
-if [ -z "${SCITEX_WRITER_DARK_MODE:-}" ]; then
-    # Plain `.theme` read (Go-yq-safe); a missing key yields "null". Avoid the
-    # `// "default"` operator -- it is brittle across yq builds and a parse error
-    # would silently fall through to light (a silent fallback we must not have).
-    _stxw_theme="$(yq -r '.theme' "$CONFIG_FILE")"
-    case "$_stxw_theme" in
-    dark) export SCITEX_WRITER_DARK_MODE=true ;;
-    light | null | "") export SCITEX_WRITER_DARK_MODE=false ;;
-    *)
-        echo_warning "    invalid theme '$_stxw_theme' in $CONFIG_FILE (use: light | dark); defaulting to light"
-        export SCITEX_WRITER_DARK_MODE=false
-        ;;
-    esac
 fi
 
 if [ "$CONFIG_LOADED" != "true" ]; then
