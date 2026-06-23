@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.20.0] - 2026-06-23
+
+### Added
+- **Drift detection in `update-project`** — the update command now compares a
+  project's active, compiled style files
+  (`01_manuscript/contents/latex_styles/*.tex`, and the supplementary and
+  revision equivalents) against the template and reports any that have drifted,
+  so a project whose engine files fell behind can be brought back in line. Safe
+  by default: it previews changes unless you pass `--yes`, backs up every file
+  it replaces, and refuses to run on a project with uncommitted changes unless
+  you pass `--force`.
+
+### Fixed
+- **Release automation no longer depends on the `gh` command-line tool** — the
+  step that creates the GitHub release page now uses a built-in release action,
+  so it succeeds on build servers that do not ship that tool. Previously the
+  package published to PyPI but the GitHub release page was silently skipped.
+
 ## [2.19.0] - 2026-06-22
 
 ### Added
