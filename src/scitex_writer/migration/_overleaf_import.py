@@ -76,11 +76,11 @@ def from_overleaf(
                 "error": f"Output directory already exists: {out_path}\nUse --force to overwrite.",
             }
 
-        tmp_dir = tempfile.mkdtemp(prefix="scitex_overleaf_import_")
+        tmp_dir = Path(tempfile.mkdtemp(prefix="scitex_overleaf_import_")).resolve()
         warnings = []
 
         try:
-            extracted = _extract_zip(zip_obj, Path(tmp_dir))
+            extracted = _extract_zip(zip_obj, tmp_dir)
             main_tex = detect_main_tex(extracted)
             if not main_tex:
                 return {
