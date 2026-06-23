@@ -1,7 +1,7 @@
 ---
 description: |
   [TOPIC] Scientific Writing Proofreading — Style, Tone, and Anti-Patterns
-  [DETAILS] Scientific writing proofreading style — respectful tone, hedging, transitional words, terminology conventions, anti-patterns (AP1-AP9, AP12), placeholder command, and usage..
+  [DETAILS] Scientific writing proofreading style — respectful tone, hedging, evidence-based claims, transitional words, terminology conventions, highlights (past-tense + standalone), citation tense by source count, header/title form consistency, anti-patterns (AP1-AP9, AP12), placeholder command, and usage..
 tags: [scitex-writer-writing-proofreading-style]
 ---
 
@@ -33,6 +33,7 @@ Use "was not designed to X" rather than "does not X" or "cannot X" — this ackn
 
 - Use "is" only for well-evidenced claims backed by citations; otherwise use "may be" or hedging language
 - Use `N+` suffix for numbers that grow (e.g., "300+ MCP tools") to avoid needing manuscript updates
+- Never attach an authority label to a number without a verifiable citation. E.g. do not call AUC 0.70 a "clinical-utility threshold" with no source — state the number plainly, or cite a real methodological source. A bare "Author YEAR" in running text is NOT a citation; verify the source actually defines it before asserting.
 
 ## Transitional Words and Paragraph Cohesion
 
@@ -58,6 +59,38 @@ On first use of any abbreviation or acronym, spell it out in full followed by th
 - Apply per-document (abstract, main text, supplementary each count as separate documents)
 - The abstract is self-contained: spell out abbreviations even if they appear in the main text
 - Define acronyms and name origins at first appearance, not later
+
+## Highlights (Elsevier-Style Bulleted List)
+
+Journal highlights (a short bulleted list, typically 3–5 bullets) MUST be:
+
+- **Past tense** — report what was done/found, not a present-tense capability: "A GPU-accelerated PAC implementation was developed" (not "GPU PAC makes analysis tractable").
+- **Standalone-understandable** — a reader grasps each bullet without the paper: avoid undefined jargon, name the cohort/disease ("in patients with epilepsy"), keep one idea per bullet.
+- **Real numbers only**, no unsupported claims.
+- **Within the character cap** — Elsevier ≈ 85 characters per bullet.
+
+| DO NOT | DO |
+|--------|-----|
+| "GPU PAC makes multi-year analysis tractable" (present, tool-y) | "A GPU-accelerated PAC implementation was developed" (past) |
+| "Pathological channels are focal and stable" (present) | "Pathological channels were spatially focal and stable for months" (past, standalone) |
+
+## Citation Tense by Source Count
+
+Match verb tense to how many studies support the claim:
+
+- **One study → PAST tense**: "Karoly et al. reported that …", "One study found …".
+- **Multiple studies / an established body of work → PRESENT tense**: "Studies report that …", "PAC reflects …".
+
+This signals to the reader whether a statement is a single result or an established consensus.
+
+## Header and Title Form Consistency
+
+Within each category — subsection headers, figure titles, table titles — keep ONE grammatical form throughout; never mix noun-phrase and full-sentence forms.
+
+- **Noun form** (recommended default): "Temporal stability of the pathological-channel set", "GPU-accelerated phase-amplitude coupling".
+- **Sentence form**: "The pathological-channel set is temporally stable", "GMM bimodality discriminates preictal coupling".
+
+Choose one form per category (noun form is the usual default for section headers and figure/table titles) and apply it to every member. A mix of sentence-form and noun-form headers in the same section reads as inconsistent.
 
 ## Anti-Patterns in Scientific Writing
 
