@@ -23,7 +23,7 @@ def update_project(
     project_dir: str,
     branch: Optional[str] = None,
     tag: Optional[str] = None,
-    dry_run: bool = False,
+    dry_run: bool = True,
     force: bool = False,
 ) -> dict:
     """Update engine files of an existing scitex-writer project.
@@ -82,7 +82,7 @@ def update_project(
         pkg_version = read_version(source_dir)
 
         try:
-            source_files = collect_sync_files(source_dir)
+            source_files = collect_sync_files(source_dir, project_path)
             modified, added, unchanged = compare_files(source_files, project_path)
 
             backup_dir = None

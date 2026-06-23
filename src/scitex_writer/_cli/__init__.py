@@ -1434,10 +1434,16 @@ def launch_gui(project, port, host, no_browser, desktop, dry_run, yes, as_json):
 @click.option("--branch", default=None, help="Pull from a specific template branch.")
 @click.option("--tag", default=None, help="Pull from a specific template tag/version.")
 @click.option(
-    "--dry-run", is_flag=True, default=False, help="Show what would be updated."
+    "--dry-run", is_flag=True, default=False, help="Preview only (this is the default)."
 )
 @click.option("--force", is_flag=True, default=False, help="Skip git safety check.")
-@click.option("--yes", "-y", is_flag=True, default=False, help="Skip confirmations.")
+@click.option(
+    "--yes",
+    "-y",
+    is_flag=True,
+    default=False,
+    help="Apply the update (default is a safe preview).",
+)
 @click.option("--json", "as_json", is_flag=True, default=False, help="Emit JSON.")
 def update_project(project, branch, tag, dry_run, force, yes, as_json):
     """Update engine files in a scitex-writer project, preserving user content.
@@ -1454,8 +1460,10 @@ def update_project(project, branch, tag, dry_run, force, yes, as_json):
     if not project_path.exists():
         click.echo(f"Error: Project not found: {project_path}", err=True)
         return 1
+    # Safe by default: preview unless --yes is given (--dry-run forces preview).
+    preview = dry_run or not yes
     result = update.project(
-        str(project_path), branch=branch, tag=tag, dry_run=dry_run, force=force
+        str(project_path), branch=branch, tag=tag, dry_run=preview, force=force
     )
     if as_json:
         _emit_json(result)
@@ -1465,29 +1473,30 @@ def update_project(project, branch, tag, dry_run, force, yes, as_json):
         return 1
     for w in result.get("warnings", []):
         click.echo(f"Warning: {w}", err=True)
-    mode = " (dry run)" if dry_run else ""
+    mode = " (preview)" if preview else ""
     click.echo(f"\nSciTeX Writer Update{mode}")
-    click.echo(f"Package version: {result.get('version', 'unknown')}")
+    click.echo(f"Template version: {result.get('version', 'unknown')}")
     click.echo(f"Project: {project_path}\n")
     modified = result.get("modified", [])
     added = result.get("added", [])
     unchanged = result.get("unchanged", [])
-    if modified or added or unchanged:
-        click.echo("Files to update:" if dry_run else "Files updated:")
+    if modified or added:
+        click.echo("Engine files drifted from the template:" if preview else "Updated:")
         for p in modified:
-            click.echo(f"  M {p} (modified)")
+            click.echo(f"  M {p} (drifted)")
         for p in added:
-            click.echo(f"  A {p} (new)")
-        for p in unchanged:
-            click.echo(f"  = {p} (unchanged)")
+            click.echo(f"  A {p} (missing)")
         click.echo()
     click.echo(
-        f"  {len(modified)} modified, {len(added)} new, {len(unchanged)} unchanged"
+        f"  {len(modified)} drifted, {len(added)} missing, {len(unchanged)} in sync"
     )
     if result.get("backup_dir"):
         click.echo(f"\n  Backup: {result['backup_dir']}")
-    if dry_run:
-        click.echo("\nRun without --dry-run to apply changes.")
+    if preview and (modified or added):
+        click.echo(
+            "\nPreview only — nothing changed. To apply (a timestamped backup is "
+            f"made first):\n  scitex-writer update-project {project} --yes"
+        )
     return 0
 
 

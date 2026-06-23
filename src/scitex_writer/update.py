@@ -15,7 +15,7 @@ def project(
     project_dir: str = ".",
     branch: Optional[str] = None,
     tag: Optional[str] = None,
-    dry_run: bool = False,
+    dry_run: bool = True,
     force: bool = False,
 ) -> dict:
     """Update engine files in an existing scitex-writer project.
