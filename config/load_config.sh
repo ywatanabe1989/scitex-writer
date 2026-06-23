@@ -146,6 +146,26 @@ else
     export SCITEX_WRITER_DARK_LINK_URL="$(yq -r '.dark_mode.link_url' "$CONFIG_FILE")"
 fi
 
+# Bridge the `theme:` config key (SSoT) to SCITEX_WRITER_DARK_MODE so that
+# `theme: dark` renders the PDF in dark mode without needing the --dark-mode
+# flag or the env var. Precedence (matches the config comment): an already-set
+# SCITEX_WRITER_DARK_MODE (env or the CLI flag) wins over the config theme.
+# An invalid theme warns and defaults to light (fail loud, no silent surprise).
+if [ -z "${SCITEX_WRITER_DARK_MODE:-}" ]; then
+    # Plain `.theme` read (Go-yq-safe); a missing key yields "null". Avoid the
+    # `// "default"` operator -- it is brittle across yq builds and a parse error
+    # would silently fall through to light (a silent fallback we must not have).
+    _stxw_theme="$(yq -r '.theme' "$CONFIG_FILE")"
+    case "$_stxw_theme" in
+    dark) export SCITEX_WRITER_DARK_MODE=true ;;
+    light | null | "") export SCITEX_WRITER_DARK_MODE=false ;;
+    *)
+        echo_warning "    invalid theme '$_stxw_theme' in $CONFIG_FILE (use: light | dark); defaulting to light"
+        export SCITEX_WRITER_DARK_MODE=false
+        ;;
+    esac
+fi
+
 if [ "$CONFIG_LOADED" != "true" ]; then
     # Only show in verbose mode
     if [ "${SCITEX_LOG_LEVEL:-1}" -ge 2 ]; then
