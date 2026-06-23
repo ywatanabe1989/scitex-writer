@@ -1327,6 +1327,51 @@ def check_limits_cmd(project, doc_type, strict, as_json):
     return result.get("exit_code", 0)
 
 
+@main_group.command("check-overflow")
+@click.option("-p", "--project", default=".", help="Project path.")
+@click.option("-t", "--doc-type", type=_DOC_TYPE, default="manuscript")
+@click.option(
+    "--strict",
+    is_flag=True,
+    default=False,
+    help="Treat overflow as errors (non-zero exit).",
+)
+@click.option(
+    "--max-pt",
+    type=float,
+    default=None,
+    help="Ignore boxes overflowing by <= this many pt (default 5; overrides config).",
+)
+@click.option("--json", "as_json", is_flag=True, default=False, help="Emit JSON.")
+def check_overflow_cmd(project, doc_type, strict, max_pt, as_json):
+    """Detect off-page content (wide tables/figures, over-tall pages) from the .log.
+
+    Parses the LaTeX log from the last compile for ``Overfull \\hbox`` / ``\\vbox``
+    boxes -- a table that is not shown entirely appears as a large hbox. Boxes
+    overflowing by <= overflow.max_pt are cosmetic; larger ones warn (or error
+    with --strict). Run AFTER a compile, since it reads the produced log.
+
+    \b
+    Example:
+        $ scitex-writer check-overflow
+        $ scitex-writer check-overflow -t supplementary --strict
+        $ scitex-writer check-overflow --max-pt 2
+    """
+    from .. import checks
+
+    result = checks.overflow(project, doc_type=doc_type, strict=strict, max_pt=max_pt)
+    if as_json:
+        _emit_json(result)
+        return 0 if result.get("success") else 1
+    out = (result.get("stdout") or "").rstrip()
+    if out:
+        click.echo(out)
+    err = (result.get("stderr") or "").rstrip()
+    if err:
+        click.echo(err, err=True)
+    return result.get("exit_code", 0)
+
+
 @main_group.command("check-references")
 @click.option("-p", "--project", default=".", help="Project path.")
 @click.option(

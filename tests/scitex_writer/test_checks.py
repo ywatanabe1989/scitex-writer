@@ -23,12 +23,12 @@ class _RecordingHandler:
         return self.result
 
 
-def test_module_exports_references_float_order_and_limits():
+def test_module_exports_references_float_order_limits_and_overflow():
     # Arrange
     # Act
     exported = checks.__all__
     # Assert
-    assert exported == ["references", "float_order", "limits"]
+    assert exported == ["references", "float_order", "limits", "overflow"]
 
 
 def test_references_forwards_all_arguments_to_handler():

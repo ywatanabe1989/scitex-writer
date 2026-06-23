@@ -151,6 +151,16 @@ dark_mode:
   link_citation: "87CEEB"     # Citations (DarkCyan)
   link_url: "DEB887"          # External URLs (DarkOrange)
 
+overflow:
+  # Off-page content -- wide tables/figures and over-tall pages -- detected from
+  # the LaTeX .log AFTER each compile (a table not shown entirely appears here as
+  # a large hbox). Boxes overflowing by <= max_pt are treated as cosmetic and
+  # ignored; larger ones emit a WARNING with a fix hint and do NOT block the
+  # build. Set strict: true (or pass --strict / SCITEX_WRITER_LINT_STRICT=1) to
+  # promote them to errors (non-zero exit).
+  strict: false
+  max_pt: 5.0              # ignore overflow <= this many points (typeset cosmetic)
+
 limits:
   # Per-section length + reference caps for the MANUSCRIPT. Checked against the
   # word counts already produced in misc.wordcount_dir (abstract/introduction/

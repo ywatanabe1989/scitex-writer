@@ -164,6 +164,47 @@ def check_limits(
     return _run_script(script, project_path, args, timeout)
 
 
-__all__ = ["check_references", "check_float_order", "check_limits"]
+def check_overflow(
+    project_dir: str,
+    doc_type: str = "manuscript",
+    strict: bool = False,
+    max_pt: float | None = None,
+    timeout: int = 60,
+) -> dict:
+    """Detect off-page content (wide tables/figures, over-tall pages).
+
+    Parses the ``.log`` from the last compile for ``Overfull \\hbox`` (too wide)
+    and ``Overfull \\vbox`` (too high) boxes -- a table that is not shown
+    entirely appears here as a large hbox. Boxes overflowing by <=
+    ``overflow.max_pt`` (default 5pt) are treated as cosmetic; larger ones are
+    warnings, or errors under ``strict`` (or ``overflow.strict`` /
+    ``SCITEX_WRITER_LINT_STRICT=1``). Runs AFTER compile -- it needs the log --
+    unlike the pre-compile ``check_limits``.
+
+    Args:
+        project_dir: Project root.
+        doc_type: ``manuscript``, ``supplementary``, or ``revision``.
+        strict: Force strict mode (overflow => error). Config/env can also
+            enable it; this flag only ever tightens, never loosens.
+        max_pt: Ignore boxes overflowing by <= this many pt (overrides the
+            ``overflow.max_pt`` config value when given).
+        timeout: Subprocess timeout in seconds.
+    """
+    project_path = resolve_project_path(project_dir)
+    script = _script_path(project_path, "check_overflow.py")
+    args = ["--doc-type", doc_type]
+    if strict:
+        args.append("--strict")
+    if max_pt is not None:
+        args += ["--max-pt", str(max_pt)]
+    return _run_script(script, project_path, args, timeout)
+
+
+__all__ = [
+    "check_references",
+    "check_float_order",
+    "check_limits",
+    "check_overflow",
+]
 
 # EOF

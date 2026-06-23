@@ -31,6 +31,7 @@ from typing import Optional as _Optional
 
 from ._mcp.handlers import check_float_order as _check_float_order
 from ._mcp.handlers import check_limits as _check_limits
+from ._mcp.handlers import check_overflow as _check_overflow
 from ._mcp.handlers import check_references as _check_references
 
 try:
@@ -112,6 +113,35 @@ def limits(
     return handler(project_dir, doc_type, strict)
 
 
-__all__ = ["references", "float_order", "limits"]
+@_supports_return_as
+def overflow(
+    project_dir: str,
+    doc_type: _Literal["manuscript", "supplementary", "revision"] = "manuscript",
+    strict: bool = False,
+    max_pt: _Optional[float] = None,
+    handler: _Optional[_Callable[..., dict]] = None,
+) -> dict:
+    """Detect off-page content — wide tables/figures and over-tall pages.
+
+    Parses the ``.log`` from the last compile for ``Overfull \\hbox`` (too wide)
+    and ``Overfull \\vbox`` (too high) boxes; a table that is not shown entirely
+    appears as a large hbox. Boxes overflowing by <= ``overflow.max_pt`` (default
+    5pt) are cosmetic and ignored; larger ones are warnings, or errors under
+    ``strict=True`` (or ``overflow.strict`` / ``SCITEX_WRITER_LINT_STRICT=1``)
+    with a non-zero ``exit_code``. Runs AFTER compile — it reads the log —
+    unlike the pre-compile :func:`limits`.
+
+    Returns a dict with ``success``, ``exit_code``, ``stdout``, ``stderr``,
+    and ``summary={passed, warnings, errors}``.
+
+    ``handler`` is the underlying check implementation; it defaults to
+    :func:`scitex_writer._mcp.handlers.check_overflow`. Exposed so callers (and
+    tests) can supply an alternate implementation without patching internals.
+    """
+    handler = handler or _check_overflow
+    return handler(project_dir, doc_type, strict, max_pt)
+
+
+__all__ = ["references", "float_order", "limits", "overflow"]
 
 # EOF
