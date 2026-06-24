@@ -30,9 +30,25 @@ def handle_claims_metadata(request, project):
     if not result.get("success"):
         return JsonResponse(result, status=500)
 
-    # Augment each claim with its Clew verification state if available.
+    # list_claims strips provenance pointers; re-load raw claims.json so we
+    # can pass output_file / session_id into _claim_verification_state.
+    import json as _json
+    raw_path = project.project_dir / "00_shared" / "claims.json"
+    raw_claims = {}
+    if raw_path.exists():
+        try:
+            raw_claims = _json.loads(raw_path.read_text()).get("claims", {})
+        except Exception:
+            raw_claims = {}
+
     for claim in result.get("claims", []):
-        claim["verification"] = _claim_verification_state(project, claim)
+        raw = raw_claims.get(claim.get("claim_id"), {})
+        merged = {
+            **claim,
+            "output_file": raw.get("output_file"),
+            "session_id": raw.get("session_id"),
+        }
+        claim["verification"] = _claim_verification_state(project, merged)
 
     return JsonResponse(result)
 
@@ -127,12 +143,11 @@ def _claim_verification_state(project, claim: dict) -> dict:
     try:
         from scitex_clew import verify_chain
 
-        args = {}
-        if output_file:
-            args["target_file"] = output_file
-        elif session_id:
-            args["session_id"] = session_id
-        status = verify_chain(**args)
+        # scitex_clew.verify_chain takes a single positional `target` argument
+        # (a file path or session id). The viewer originally tried `target_file=`
+        # and `session_id=` kwargs, which raise TypeError on real clew installs.
+        target = output_file or session_id
+        status = verify_chain(target)
         return {
             "state": status.status.name if hasattr(status, "status") else str(status),
             "target_file": output_file,
