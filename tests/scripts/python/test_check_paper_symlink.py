@@ -107,7 +107,8 @@ def _run_off_with_diverged_dir(tmp_path):
 
 def test_off_level_exits_zero(tmp_path):
     """level=off disables enforcement -- exit 0 even over a diverged dir."""
-    # Arrange / Act
+    # Arrange
+    # Act
     proc = _run_off_with_diverged_dir(tmp_path)
     # Assert
     assert proc.returncode == 0
@@ -115,7 +116,8 @@ def test_off_level_exits_zero(tmp_path):
 
 def test_off_level_reports_disabled(tmp_path):
     """level=off says so explicitly rather than silently doing nothing."""
-    # Arrange / Act
+    # Arrange
+    # Act
     proc = _run_off_with_diverged_dir(tmp_path)
     # Assert
     assert "disabled" in proc.stdout
@@ -129,21 +131,24 @@ def _run_repair_missing(tmp_path):
 
 
 def test_repair_missing_exits_zero(tmp_path):
-    # Arrange / Act
+    # Arrange
+    # Act
     proc, _ = _run_repair_missing(tmp_path)
     # Assert
     assert proc.returncode == 0
 
 
 def test_repair_missing_creates_symlink(tmp_path):
-    # Arrange / Act
+    # Arrange
+    # Act
     _, link = _run_repair_missing(tmp_path)
     # Assert
     assert link.is_symlink()
 
 
 def test_repair_missing_symlink_is_relative(tmp_path):
-    # Arrange / Act
+    # Arrange
+    # Act
     _, link = _run_repair_missing(tmp_path)
     # Assert
     assert os.readlink(link) == ".scitex/writer"
@@ -159,28 +164,32 @@ def _run_repair_nondiverged(tmp_path):
 
 
 def test_repair_nondiverged_exits_zero(tmp_path):
-    # Arrange / Act
+    # Arrange
+    # Act
     proc, _ = _run_repair_nondiverged(tmp_path)
     # Assert
     assert proc.returncode == 0
 
 
 def test_repair_nondiverged_becomes_symlink(tmp_path):
-    # Arrange / Act
+    # Arrange
+    # Act
     _, link = _run_repair_nondiverged(tmp_path)
     # Assert
     assert link.is_symlink()
 
 
 def test_repair_nondiverged_makes_one_backup(tmp_path):
-    # Arrange / Act
+    # Arrange
+    # Act
     _run_repair_nondiverged(tmp_path)
     # Assert
     assert len(_backups(tmp_path)) == 1
 
 
 def test_repair_nondiverged_backup_preserves_content(tmp_path):
-    # Arrange / Act
+    # Arrange
+    # Act
     _run_repair_nondiverged(tmp_path)
     # Assert
     assert (_backups(tmp_path)[0] / "a.tex").read_text() == "same"
@@ -197,28 +206,32 @@ def _run_diverged_no_force(tmp_path):
 
 
 def test_diverged_no_force_exits_one(tmp_path):
-    # Arrange / Act
+    # Arrange
+    # Act
     proc, _ = _run_diverged_no_force(tmp_path)
     # Assert
     assert proc.returncode == 1
 
 
 def test_diverged_no_force_leaves_real_dir(tmp_path):
-    # Arrange / Act
+    # Arrange
+    # Act
     _, link = _run_diverged_no_force(tmp_path)
     # Assert
     assert link.is_dir() and not link.is_symlink()
 
 
 def test_diverged_no_force_preserves_unique_content(tmp_path):
-    # Arrange / Act
+    # Arrange
+    # Act
     _, link = _run_diverged_no_force(tmp_path)
     # Assert
     assert (link / "unique.tex").read_text() == "only-in-paper"
 
 
 def test_diverged_no_force_makes_no_backup(tmp_path):
-    # Arrange / Act
+    # Arrange
+    # Act
     _run_diverged_no_force(tmp_path)
     # Assert
     assert not _backups(tmp_path)
@@ -234,28 +247,32 @@ def _run_diverged_force(tmp_path):
 
 
 def test_diverged_force_exits_zero(tmp_path):
-    # Arrange / Act
+    # Arrange
+    # Act
     proc, _ = _run_diverged_force(tmp_path)
     # Assert
     assert proc.returncode == 0
 
 
 def test_diverged_force_becomes_symlink(tmp_path):
-    # Arrange / Act
+    # Arrange
+    # Act
     _, link = _run_diverged_force(tmp_path)
     # Assert
     assert link.is_symlink()
 
 
 def test_diverged_force_makes_one_backup(tmp_path):
-    # Arrange / Act
+    # Arrange
+    # Act
     _run_diverged_force(tmp_path)
     # Assert
     assert len(_backups(tmp_path)) == 1
 
 
 def test_diverged_force_preserves_unique_content(tmp_path):
-    # Arrange / Act
+    # Arrange
+    # Act
     _run_diverged_force(tmp_path)
     # Assert
     assert (_backups(tmp_path)[0] / "unique.tex").read_text() == "only-in-paper"
