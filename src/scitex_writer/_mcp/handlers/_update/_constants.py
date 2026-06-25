@@ -8,9 +8,12 @@ from pathlib import Path
 
 TEMPLATE_REPO_URL = "https://github.com/ywatanabe1989/scitex-writer.git"
 
-# Directories to sync (relative to project root)
+# Directories to sync (relative to project root). The scitex-writer Python
+# package is pip-installed, NOT vendored into consumer projects — syncing
+# src/scitex_writer/ here dumped the whole package (2600+ files) into every
+# paper repo, so it is deliberately excluded. Only the engine/template files
+# the manuscript actually compiles against belong in the manifest.
 SYNC_DIRS = [
-    "src/scitex_writer",
     "scripts",
 ]
 
