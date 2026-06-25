@@ -31,6 +31,7 @@ from typing import Optional as _Optional
 
 from ._mcp.handlers import check_float_order as _check_float_order
 from ._mcp.handlers import check_limits as _check_limits
+from ._mcp.handlers import check_media_provenance as _check_media_provenance
 from ._mcp.handlers import check_overflow as _check_overflow
 from ._mcp.handlers import check_paper_symlink as _check_paper_symlink
 from ._mcp.handlers import check_references as _check_references
@@ -186,6 +187,57 @@ def paper_symlink(
     return handler(project_dir, level, force_after_backup)
 
 
-__all__ = ["references", "float_order", "limits", "overflow", "paper_symlink"]
+@_supports_return_as
+def media_provenance(
+    project_dir: str,
+    doc_type: _Literal["manuscript", "supplementary", "revision", "all"] = "all",
+    level: _Optional[_Literal["off", "warn", "error"]] = None,
+    require_under_scripts: bool = False,
+    handler: _Optional[_Callable[..., dict]] = None,
+) -> dict:
+    """Verify manuscript media are symlinks chained to the producing code.
+
+    Rendered artifacts under ``<doc>/contents/figures/caption_and_media/``
+    (image/pdf/tif/svg) and ``<doc>/contents/tables/caption_and_media/``
+    (``.csv``) should be **symlinks**, not loose committed copies — so a paper
+    stays chained to the scripts that generated it. Caption ``.tex`` files and
+    ``.md/.yaml/.yml/.json`` sidecars (incl. figrecipe recipe yamls) are not
+    media and are ignored.
+
+    This is a **private** convention, never enforced by default:
+
+    * ``off`` — check disabled (the public default).
+    * ``warn`` — report non-symlink media as a warning (``exit_code`` 0).
+    * ``error`` — report non-symlink media as an error (``exit_code`` 1).
+
+    ``require_under_scripts`` is the strict mode: each media symlink must also
+    resolve to a path under the project ``scripts/`` dir. The flag only ever
+    tightens; ``media_provenance.require_under_scripts`` in config can enable it.
+
+    Severity precedence (highest → lowest): the ``level`` argument, env
+    ``SCITEX_WRITER_MEDIA_PROVENANCE``, project ``./config.yaml``
+    (``media_provenance.level``), user ``~/.scitex/writer/config.yaml``, then
+    the ``off`` default.
+
+    Returns a dict with ``success``, ``exit_code``, ``stdout``, ``stderr``,
+    and ``summary={passed, warnings, errors}``.
+
+    ``handler`` is the underlying check implementation; it defaults to
+    :func:`scitex_writer._mcp.handlers.check_media_provenance`. Exposed so
+    callers (and tests) can supply an alternate implementation without patching
+    internals.
+    """
+    handler = handler or _check_media_provenance
+    return handler(project_dir, doc_type, level, require_under_scripts)
+
+
+__all__ = [
+    "references",
+    "float_order",
+    "limits",
+    "overflow",
+    "paper_symlink",
+    "media_provenance",
+]
 
 # EOF

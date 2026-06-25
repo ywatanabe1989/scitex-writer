@@ -240,12 +240,54 @@ def check_paper_symlink(
     return _run_script(script, project_path, args, timeout)
 
 
+def check_media_provenance(
+    project_dir: str,
+    doc_type: str = "all",
+    level: str | None = None,
+    require_under_scripts: bool = False,
+    timeout: int = 60,
+) -> dict:
+    """Verify manuscript media are symlinks (chained to the producing code).
+
+    Rendered artifacts under ``<doc>/contents/figures/caption_and_media/``
+    (image/pdf/tif/svg) and ``<doc>/contents/tables/caption_and_media/``
+    (``.csv``) should be SYMLINKS, not loose committed copies; caption ``.tex``
+    and ``.md/.yaml/.yml/.json`` sidecars are ignored. PRIVATE convention --
+    disabled (``off``) by default, so it never errors-by-default.
+
+    Severity precedence (highest -> lowest): ``level`` arg, env
+    ``SCITEX_WRITER_MEDIA_PROVENANCE``, project ``./config.yaml``
+    (``media_provenance.level``), user ``~/.scitex/writer/config.yaml``, default
+    ``off``. ``require_under_scripts`` (strict mode) additionally requires each
+    media symlink to resolve under the project ``scripts/`` dir; the flag only
+    ever tightens, config can also enable it.
+
+    Args:
+        project_dir: Project root.
+        doc_type: ``manuscript``, ``supplementary``, ``revision``, or ``all``.
+        level: One of ``off``, ``warn``, ``error``. When ``None``, env/config
+            precedence resolves the level.
+        require_under_scripts: Strict mode -- each symlink must resolve under
+            ``scripts/``.
+        timeout: Subprocess timeout in seconds.
+    """
+    project_path = resolve_project_path(project_dir)
+    script = _script_path(project_path, "check_media_provenance.py")
+    args = ["--doc-type", doc_type]
+    if level is not None:
+        args += ["--level", level]
+    if require_under_scripts:
+        args.append("--require-under-scripts")
+    return _run_script(script, project_path, args, timeout)
+
+
 __all__ = [
     "check_references",
     "check_float_order",
     "check_limits",
     "check_overflow",
     "check_paper_symlink",
+    "check_media_provenance",
 ]
 
 # EOF
