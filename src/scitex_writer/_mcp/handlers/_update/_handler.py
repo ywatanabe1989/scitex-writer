@@ -28,8 +28,9 @@ def update_project(
 ) -> dict:
     """Update engine files of an existing scitex-writer project.
 
-    Syncs source code, scripts, and build files from the installed
-    scitex-writer package to the project. User content is never modified.
+    Syncs engine/template files (scripts, build scripts, base.tex, styles,
+    Makefile) from the installed scitex-writer package to the project. The
+    package's own src/ is never vendored in; user content is never modified.
 
     Parameters
     ----------
