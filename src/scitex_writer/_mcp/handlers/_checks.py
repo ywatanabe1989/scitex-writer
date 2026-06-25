@@ -200,11 +200,52 @@ def check_overflow(
     return _run_script(script, project_path, args, timeout)
 
 
+def check_paper_symlink(
+    project_dir: str,
+    level: str | None = None,
+    force_after_backup: bool = False,
+    timeout: int = 60,
+) -> dict:
+    """Detect/repair drift in the top-level ``paper`` -> ``.scitex/writer`` symlink.
+
+    The ``paper -> .scitex/writer`` link is a PRIVATE convention -- disabled
+    (``off``) by default. When ``paper`` silently becomes a REAL directory it
+    diverges into two manuscript copies; this check finds that drift and, only
+    under ``level="repair"``, fixes the safe cases. Diverged content (files in
+    ``paper/`` missing from or differing against ``.scitex/writer``) is NEVER
+    deleted or overwritten: ``repair`` refuses unless ``force_after_backup`` is
+    set, which always moves ``paper/`` to a timestamped backup first.
+
+    Severity precedence (highest -> lowest): ``level`` arg, env
+    ``SCITEX_WRITER_PAPER_SYMLINK``, project ``./config.yaml``
+    (``paper_symlink.level``), user ``~/.scitex/writer/config.yaml``, default
+    ``off``.
+
+    Args:
+        project_dir: Project root (holds ``.scitex/writer`` and the ``paper``
+            link).
+        level: One of ``off``, ``warn``, ``error``, ``repair``. When ``None``,
+            the env/config precedence resolves the level.
+        force_after_backup: On ``repair``, convert even diverged ``paper/`` --
+            but always back it up first. Never deletes content.
+        timeout: Subprocess timeout in seconds.
+    """
+    project_path = resolve_project_path(project_dir)
+    script = _script_path(project_path, "check_paper_symlink.py")
+    args: list[str] = []
+    if level is not None:
+        args += ["--level", level]
+    if force_after_backup:
+        args.append("--force-after-backup")
+    return _run_script(script, project_path, args, timeout)
+
+
 __all__ = [
     "check_references",
     "check_float_order",
     "check_limits",
     "check_overflow",
+    "check_paper_symlink",
 ]
 
 # EOF

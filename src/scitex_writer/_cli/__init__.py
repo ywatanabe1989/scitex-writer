@@ -1372,6 +1372,54 @@ def check_overflow_cmd(project, doc_type, strict, max_pt, as_json):
     return result.get("exit_code", 0)
 
 
+@main_group.command("check-paper-symlink")
+@click.option("-p", "--project", default=".", help="Project path.")
+@click.option(
+    "--level",
+    type=click.Choice(["off", "warn", "error", "repair"]),
+    default=None,
+    help="Severity: off (default), warn, error, or repair. Overrides env/config.",
+)
+@click.option(
+    "--force-after-backup",
+    is_flag=True,
+    default=False,
+    help="On repair, convert even a diverged paper/ dir -- but back it up first.",
+)
+@click.option("--json", "as_json", is_flag=True, default=False, help="Emit JSON.")
+def check_paper_symlink_cmd(project, level, force_after_backup, as_json):
+    """Detect/repair drift in the `paper` -> `.scitex/writer` convenience symlink.
+
+    `paper -> .scitex/writer` is a private convention -- disabled (off) by
+    default. When `paper` silently becomes a REAL directory it diverges into
+    two manuscript copies; this finds that drift. With --level repair it fixes
+    the safe cases, but NEVER deletes diverged content (use --force-after-backup
+    to back it up first). Severity precedence: --level > env
+    SCITEX_WRITER_PAPER_SYMLINK > ./config.yaml > ~/.scitex/writer/config.yaml.
+
+    \b
+    Example:
+        $ scitex-writer check-paper-symlink
+        $ scitex-writer check-paper-symlink --level repair
+        $ scitex-writer check-paper-symlink --level repair --force-after-backup
+    """
+    from .. import checks
+
+    result = checks.paper_symlink(
+        project, level=level, force_after_backup=force_after_backup
+    )
+    if as_json:
+        _emit_json(result)
+        return 0 if result.get("success") else 1
+    out = (result.get("stdout") or "").rstrip()
+    if out:
+        click.echo(out)
+    err = (result.get("stderr") or "").rstrip()
+    if err:
+        click.echo(err, err=True)
+    return result.get("exit_code", 0)
+
+
 @main_group.command("check-references")
 @click.option("-p", "--project", default=".", help="Project path.")
 @click.option(
