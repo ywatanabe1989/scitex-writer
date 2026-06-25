@@ -28,7 +28,13 @@ def test_module_exports_references_float_order_limits_and_overflow():
     # Act
     exported = checks.__all__
     # Assert
-    assert exported == ["references", "float_order", "limits", "overflow"]
+    assert exported == [
+        "references",
+        "float_order",
+        "limits",
+        "overflow",
+        "paper_symlink",
+    ]
 
 
 def test_references_forwards_all_arguments_to_handler():
