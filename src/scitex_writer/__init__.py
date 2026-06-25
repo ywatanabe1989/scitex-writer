@@ -149,7 +149,7 @@ def _resolve_paper_symlink_level(project_dir):
     Mirrors the precedence used by scripts/python/check_paper_symlink.py but
     is kept dependency-free here to avoid an import cycle: env
     ``SCITEX_WRITER_PAPER_SYMLINK`` then ``~/.scitex/writer/config.yaml``'s
-    ``paper_symlink.level``, defaulting to ``off``.
+    ``paper_symlink.level``, defaulting to ``warn``.
     """
     import os
     from pathlib import Path
@@ -172,7 +172,7 @@ def _resolve_paper_symlink_level(project_dir):
                 return level.lower()
         except Exception:
             pass
-    return "off"
+    return "warn"
 
 
 def _maybe_scaffold_paper_symlink(project_dir):

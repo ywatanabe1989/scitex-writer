@@ -208,8 +208,8 @@ def check_paper_symlink(
 ) -> dict:
     """Detect/repair drift in the top-level ``paper`` -> ``.scitex/writer`` symlink.
 
-    The ``paper -> .scitex/writer`` link is a PRIVATE convention -- disabled
-    (``off``) by default. When ``paper`` silently becomes a REAL directory it
+    The ``paper -> .scitex/writer`` link is a PRIVATE convention -- warns
+    (non-fatally) by default. When ``paper`` silently becomes a REAL directory it
     diverges into two manuscript copies; this check finds that drift and, only
     under ``level="repair"``, fixes the safe cases. Diverged content (files in
     ``paper/`` missing from or differing against ``.scitex/writer``) is NEVER
@@ -219,7 +219,7 @@ def check_paper_symlink(
     Severity precedence (highest -> lowest): ``level`` arg, env
     ``SCITEX_WRITER_PAPER_SYMLINK``, project ``./config.yaml``
     (``paper_symlink.level``), user ``~/.scitex/writer/config.yaml``, default
-    ``off``.
+    ``warn``.
 
     Args:
         project_dir: Project root (holds ``.scitex/writer`` and the ``paper``

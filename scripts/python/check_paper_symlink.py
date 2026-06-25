@@ -14,9 +14,10 @@
 #          content.
 #
 #          `paper -> .scitex/writer` is a PRIVATE convention. It is NOT
-#          enforced by default. Severity is a user-level knob with four levels:
-#            off    -- check disabled, zero noise (DEFAULT for the public pkg)
-#            warn   -- report drift as a warning (exit 0)
+#          enforced by default (warn is non-fatal). Severity is a user-level
+#          knob with four levels:
+#            off    -- check disabled, zero noise
+#            warn   -- report drift as a warning (exit 0) -- DEFAULT
 #            error  -- report drift as an error (exit 1)
 #            repair -- actively fix safe cases; refuse to destroy diverged data
 #
@@ -26,7 +27,7 @@
 #            2. env SCITEX_WRITER_PAPER_SYMLINK
 #            3. project ./config.yaml key paper_symlink.level
 #            4. user-wide ~/.scitex/writer/config.yaml key paper_symlink.level
-#            5. default off
+#            5. default warn
 #
 #          SAFETY: on repair, if `paper/` is a real dir whose content is NOT
 #          fully present (same path + same SHA-256) under `.scitex/writer/`,
@@ -62,7 +63,7 @@ WARN_COUNT = 0
 FAIL_COUNT = 0
 
 _LEVELS = ("off", "warn", "error", "repair")
-_DEFAULT_LEVEL = "off"
+_DEFAULT_LEVEL = "warn"
 _CANONICAL_REL = ".scitex/writer"
 
 # How many diverged file paths to print before truncating.
@@ -211,15 +212,15 @@ def _backup_and_link(link, project_dir):
 def main():
     parser = argparse.ArgumentParser(
         description="Detect/repair drift in the top-level `paper` symlink that "
-        "should point at `.scitex/writer`. Private convention -- disabled "
-        "(off) by default; severity is a user-level knob."
+        "should point at `.scitex/writer`. Private convention -- warns by "
+        "default (non-fatal); severity is a user-level knob."
     )
     parser.add_argument("project_dir", nargs="?", default=".")
     parser.add_argument(
         "--level",
         choices=list(_LEVELS),
         default=None,
-        help="Severity: off (default), warn, error, or repair. Overrides env "
+        help="Severity: warn (default), off, error, or repair. Overrides env "
         "and config.",
     )
     parser.add_argument(
