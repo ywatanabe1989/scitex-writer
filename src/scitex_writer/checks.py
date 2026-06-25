@@ -32,6 +32,7 @@ from typing import Optional as _Optional
 from ._mcp.handlers import check_float_order as _check_float_order
 from ._mcp.handlers import check_limits as _check_limits
 from ._mcp.handlers import check_overflow as _check_overflow
+from ._mcp.handlers import check_paper_symlink as _check_paper_symlink
 from ._mcp.handlers import check_references as _check_references
 
 try:
@@ -142,6 +143,48 @@ def overflow(
     return handler(project_dir, doc_type, strict, max_pt)
 
 
-__all__ = ["references", "float_order", "limits", "overflow"]
+@_supports_return_as
+def paper_symlink(
+    project_dir: str,
+    level: _Optional[_Literal["off", "warn", "error", "repair"]] = None,
+    force_after_backup: bool = False,
+    handler: _Optional[_Callable[..., dict]] = None,
+) -> dict:
+    """Detect / repair drift in the ``paper`` -> ``.scitex/writer`` symlink.
+
+    The ``paper -> .scitex/writer`` link is a **private** convention, so it is
+    never enforced by default. Severity is a user-level knob with four levels:
+
+    * ``off`` — check disabled, zero noise. **This is the public default**
+      (when nothing is configured), so the package never errors-by-default.
+    * ``warn`` — report drift as a warning (``exit_code`` 0).
+    * ``error`` — report drift as an error (``exit_code`` 1).
+    * ``repair`` — actively fix the safe cases (create / repoint the symlink;
+      convert a non-diverged real ``paper/`` dir after backing it up).
+
+    Severity precedence (highest → lowest): the ``level`` argument, env
+    ``SCITEX_WRITER_PAPER_SYMLINK``, project ``./config.yaml``
+    (``paper_symlink.level``), user ``~/.scitex/writer/config.yaml``
+    (``paper_symlink.level``), then the ``off`` default.
+
+    Safety: if ``paper/`` is a real directory holding content that is **not**
+    present (same path + same SHA-256) under ``.scitex/writer``, conversion is
+    REFUSED and the directory is preserved — it is never deleted or
+    overwritten. ``force_after_backup=True`` still moves ``paper/`` to a
+    timestamped backup dir before symlinking, so diverged work is never lost.
+
+    Returns a dict with ``success``, ``exit_code``, ``stdout``, ``stderr``,
+    and ``summary={passed, warnings, errors}``.
+
+    ``handler`` is the underlying check implementation; it defaults to
+    :func:`scitex_writer._mcp.handlers.check_paper_symlink`. Exposed so callers
+    (and tests) can supply an alternate implementation without patching
+    internals.
+    """
+    handler = handler or _check_paper_symlink
+    return handler(project_dir, level, force_after_backup)
+
+
+__all__ = ["references", "float_order", "limits", "overflow", "paper_symlink"]
 
 # EOF

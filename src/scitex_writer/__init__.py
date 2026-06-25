@@ -136,9 +136,71 @@ def ensure_workspace(project_dir, git_strategy="child", **kwargs):
 
     writer_path = Path(project_dir) / ".scitex" / "writer"
     if writer_path.exists() and any(writer_path.iterdir()):
+        _maybe_scaffold_paper_symlink(Path(project_dir))
         return writer_path
     Writer(str(writer_path), git_strategy=git_strategy, **kwargs)
+    _maybe_scaffold_paper_symlink(Path(project_dir))
     return writer_path
+
+
+def _resolve_paper_symlink_level(project_dir):
+    """Resolve the paper-symlink severity level (env + config; default ``off``).
+
+    Mirrors the precedence used by scripts/python/check_paper_symlink.py but
+    is kept dependency-free here to avoid an import cycle: env
+    ``SCITEX_WRITER_PAPER_SYMLINK`` then ``~/.scitex/writer/config.yaml``'s
+    ``paper_symlink.level``, defaulting to ``off``.
+    """
+    import os
+    from pathlib import Path
+
+    levels = ("off", "warn", "error", "repair")
+
+    env = os.environ.get("SCITEX_WRITER_PAPER_SYMLINK", "").strip().lower()
+    if env in levels:
+        return env
+
+    user_cfg = Path.home() / ".scitex" / "writer" / "config.yaml"
+    if user_cfg.exists():
+        try:
+            import yaml
+
+            data = yaml.safe_load(user_cfg.read_text(encoding="utf-8")) or {}
+            block = data.get("paper_symlink") if isinstance(data, dict) else None
+            level = block.get("level") if isinstance(block, dict) else None
+            if isinstance(level, str) and level.lower() in levels:
+                return level.lower()
+        except Exception:
+            pass
+    return "off"
+
+
+def _maybe_scaffold_paper_symlink(project_dir):
+    """Create the ``paper -> .scitex/writer`` link ONLY when level == ``repair``.
+
+    The link is a private convention; we scaffold it only when the user has
+    actively opted in (level ``repair``). Idempotent and never clobbers an
+    existing ``paper`` entry of any kind.
+    """
+    import os
+    from pathlib import Path
+
+    if _resolve_paper_symlink_level(project_dir) != "repair":
+        return
+
+    project_dir = Path(project_dir)
+    link = project_dir / "paper"
+    canonical = project_dir / ".scitex" / "writer"
+    # Never clobber an existing entry (symlink, dir, or file).
+    if link.exists() or link.is_symlink():
+        return
+    if not canonical.exists():
+        return
+    try:
+        os.symlink(".scitex/writer", link, target_is_directory=True)
+    except OSError:
+        # Best-effort scaffold; the check/repair command is the primary path.
+        pass
 
 
 __all__ = [

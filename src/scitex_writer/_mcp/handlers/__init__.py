@@ -8,6 +8,7 @@ from ._checks import (
     check_float_order,
     check_limits,
     check_overflow,
+    check_paper_symlink,
     check_references,
 )
 from ._claim import (
@@ -30,6 +31,7 @@ __all__ = [
     "check_float_order",
     "check_limits",
     "check_overflow",
+    "check_paper_symlink",
     "check_references",
     "clone_project",
     "compile_manuscript",
