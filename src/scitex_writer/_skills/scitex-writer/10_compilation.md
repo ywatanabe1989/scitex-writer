@@ -13,7 +13,19 @@ tags: [scitex-writer-compilation]
 ./compile.sh manuscript --quiet    # Main manuscript
 ./compile.sh supplementary --quiet # Supplementary materials
 ./compile.sh revision --quiet      # Revision with tracked changes
+./compile.sh manuscript -dm        # Dark mode (-dm / --dark-mode): dark page, light text
 ```
+
+## Dark mode
+
+Three ways, highest precedence first: the `-dm` / `--dark-mode` compile flag
+> the `SCITEX_WRITER_DARK_MODE=true` env var > `theme: dark` in
+`config/config_<doctype>.yaml` (else light). It recolors the **page and text**
+of the PDF (style: `00_shared/latex_styles/dark_mode.tex`).
+
+Caveat: dark mode does **not** adapt figures — figure media are raster images
+with their own (usually white) backgrounds, so they render as light boxes on a
+dark page. Submission builds should use light mode (the default).
 
 ## Python API
 
@@ -92,3 +104,21 @@ The compile output includes word counts with comma-separated formatting and per-
 **Tables regenerating after removal**: Same issue — move source `.tex` and `.csv` files from `caption_and_media/` to `legacy/`.
 
 **Dark mode when env says false**: Check that `SCITEX_WRITER_DARK_MODE=false` is exported in the shell environment, not just set in a config file.
+
+**Compile aborts: "yq is present but does NOT run"**: config is read with `yq`;
+a broken `yq` (commonly a project `.venv/bin/yq` whose Python shebang no longer
+resolves → "bad interpreter") would otherwise yield empty paths and a cryptic
+`mkdir ''`/`tee ''` failure. The dependency check now probes `yq` for real and
+`load_config.sh` fails loud first. Fix: repair/recreate the venv, or put a
+working `yq` (Go build: https://github.com/mikefarah/yq) first on `PATH`.
+
+**Compile reports "did NOT produce a fresh PDF"**: the 3-pass engine records the
+output PDF's mtime and fails loud if no *newer* PDF was written — so a stale
+pre-existing PDF is never passed off as a successful build (e.g. when the LaTeX
+container can't mount). Fix the engine availability the error names; never trust
+a stale `manuscript.pdf`.
+
+**Dependency check shows a tool as missing even though the binary exists**: the
+check probes EXECUTION (`<tool> --version`), not mere presence — an
+unmountable LaTeX container or a broken shim correctly fails here rather than
+greenlighting a non-functional engine.
