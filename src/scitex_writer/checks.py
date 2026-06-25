@@ -156,9 +156,10 @@ def paper_symlink(
     The ``paper -> .scitex/writer`` link is a **private** convention, so it is
     never enforced by default. Severity is a user-level knob with four levels:
 
-    * ``off`` — check disabled, zero noise. **This is the public default**
-      (when nothing is configured), so the package never errors-by-default.
-    * ``warn`` — report drift as a warning (``exit_code`` 0).
+    * ``off`` — check disabled, zero noise.
+    * ``warn`` — report drift as a warning (``exit_code`` 0). **This is the
+      public default** (when nothing is configured), so the package surfaces
+      drift but never errors-by-default.
     * ``error`` — report drift as an error (``exit_code`` 1).
     * ``repair`` — actively fix the safe cases (create / repoint the symlink;
       convert a non-diverged real ``paper/`` dir after backing it up).
@@ -166,7 +167,7 @@ def paper_symlink(
     Severity precedence (highest → lowest): the ``level`` argument, env
     ``SCITEX_WRITER_PAPER_SYMLINK``, project ``./config.yaml``
     (``paper_symlink.level``), user ``~/.scitex/writer/config.yaml``
-    (``paper_symlink.level``), then the ``off`` default.
+    (``paper_symlink.level``), then the ``warn`` default.
 
     Safety: if ``paper/`` is a real directory holding content that is **not**
     present (same path + same SHA-256) under ``.scitex/writer``, conversion is
