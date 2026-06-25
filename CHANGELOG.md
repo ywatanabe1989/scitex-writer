@@ -7,6 +7,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.21.0] - 2026-06-25
+
+### Added
+- **`paper` symlink check** (`scitex-writer check-paper-symlink`, also
+  `checks.paper_symlink()`) — detects when the top-level `paper` convenience
+  link to `.scitex/writer` has drifted into a real directory (two diverging
+  manuscript copies). Severity is a user-level knob (`off`/`warn`/`error`/
+  `repair`) read from `SCITEX_WRITER_PAPER_SYMLINK` or
+  `~/.scitex/writer/config.yaml`. Repair never destroys diverged content — a
+  divergent `paper/` directory is preserved (backed up) and only converted with
+  an explicit `--force-after-backup`.
+
+### Fixed
+- **`update-project` no longer copies the package's own source into your
+  project** — it previously vendored the entire `scitex_writer` Python package
+  (thousands of files) into every consumer project, which made the updater
+  unusable for re-syncing. It now syncs only the engine/template files
+  (scripts, build scripts, `base.tex`, styles, `Makefile`).
+- **Compile dependency check no longer hangs when a container image cannot be
+  downloaded** — in a restricted or offline shell the check used to stall
+  forever trying to pull a TeX/Mermaid/ImageMagick container. Pulls are now
+  time-boxed (`SCITEX_WRITER_CONTAINER_PULL_TIMEOUT`, default 300s) and fail
+  loud with hints (install natively, pre-build the container, or raise the
+  timeout) instead of hanging.
+
 ## [2.20.0] - 2026-06-23
 
 ### Added

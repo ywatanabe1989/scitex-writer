@@ -81,6 +81,10 @@ def test_compute_divergence_flags_unique_and_differing(tmp_path):
 # ============================================================================
 
 
+def _backups(tmp_path):
+    return list((tmp_path / ".scitex").glob("writer-paper-backup-*"))
+
+
 def test_pass_when_paper_is_correct_symlink(tmp_path):
     """A correct paper -> .scitex/writer symlink passes (exit 0)."""
     # Arrange
@@ -92,80 +96,183 @@ def test_pass_when_paper_is_correct_symlink(tmp_path):
     assert proc.returncode == 0
 
 
-def test_off_level_is_noop(tmp_path):
-    """level=off disables the check entirely (exit 0, no enforcement)."""
-    # Arrange: a diverged real dir that would otherwise be an error.
-    canonical = _make_canonical(tmp_path, {"a.tex": "x"})  # noqa: F841
+def _run_off_with_diverged_dir(tmp_path):
+    """level=off over a diverged real paper/ that would otherwise error."""
+    _make_canonical(tmp_path, {"a.tex": "x"})
     link = tmp_path / "paper"
     link.mkdir()
     (link / "new.tex").write_text("only-in-paper")
+    return _run(tmp_path, "--level", "off")
+
+
+def test_off_level_exits_zero(tmp_path):
+    """level=off disables enforcement -- exit 0 even over a diverged dir."""
+    # Arrange
     # Act
-    proc = _run(tmp_path, "--level", "off")
+    proc = _run_off_with_diverged_dir(tmp_path)
     # Assert
     assert proc.returncode == 0
+
+
+def test_off_level_reports_disabled(tmp_path):
+    """level=off says so explicitly rather than silently doing nothing."""
+    # Arrange
+    # Act
+    proc = _run_off_with_diverged_dir(tmp_path)
+    # Assert
     assert "disabled" in proc.stdout
 
 
-def test_repair_creates_symlink_when_missing(tmp_path):
-    """level=repair creates the symlink when paper is missing & canonical exists."""
-    # Arrange
+def _run_repair_missing(tmp_path):
+    """level=repair when paper is missing and canonical exists."""
     _make_canonical(tmp_path, {"a.tex": "x"})
-    # Act
     proc = _run(tmp_path, "--level", "repair")
+    return proc, tmp_path / "paper"
+
+
+def test_repair_missing_exits_zero(tmp_path):
+    # Arrange
+    # Act
+    proc, _ = _run_repair_missing(tmp_path)
     # Assert
-    link = tmp_path / "paper"
     assert proc.returncode == 0
+
+
+def test_repair_missing_creates_symlink(tmp_path):
+    # Arrange
+    # Act
+    _, link = _run_repair_missing(tmp_path)
+    # Assert
     assert link.is_symlink()
+
+
+def test_repair_missing_symlink_is_relative(tmp_path):
+    # Arrange
+    # Act
+    _, link = _run_repair_missing(tmp_path)
+    # Assert
     assert os.readlink(link) == ".scitex/writer"
 
 
-def test_repair_converts_nondiverged_real_dir_with_backup(tmp_path):
-    """A real, non-diverged paper/ is backed up then replaced by a symlink."""
-    # Arrange
+def _run_repair_nondiverged(tmp_path):
+    """level=repair over a real, non-diverged paper/ dir."""
     _make_canonical(tmp_path, {"a.tex": "same"})
     link = tmp_path / "paper"
     link.mkdir()
     (link / "a.tex").write_text("same")
+    return _run(tmp_path, "--level", "repair"), link
+
+
+def test_repair_nondiverged_exits_zero(tmp_path):
+    # Arrange
     # Act
-    proc = _run(tmp_path, "--level", "repair")
+    proc, _ = _run_repair_nondiverged(tmp_path)
     # Assert
     assert proc.returncode == 0
-    assert link.is_symlink()
-    backups = list((tmp_path / ".scitex").glob("writer-paper-backup-*"))
-    assert len(backups) == 1
-    assert (backups[0] / "a.tex").read_text() == "same"
 
 
-def test_diverged_repair_without_force_refuses(tmp_path):
-    """Diverged real paper/ under repair (no force) refuses: no symlink, dir intact."""
+def test_repair_nondiverged_becomes_symlink(tmp_path):
     # Arrange
+    # Act
+    _, link = _run_repair_nondiverged(tmp_path)
+    # Assert
+    assert link.is_symlink()
+
+
+def test_repair_nondiverged_makes_one_backup(tmp_path):
+    # Arrange
+    # Act
+    _run_repair_nondiverged(tmp_path)
+    # Assert
+    assert len(_backups(tmp_path)) == 1
+
+
+def test_repair_nondiverged_backup_preserves_content(tmp_path):
+    # Arrange
+    # Act
+    _run_repair_nondiverged(tmp_path)
+    # Assert
+    assert (_backups(tmp_path)[0] / "a.tex").read_text() == "same"
+
+
+def _run_diverged_no_force(tmp_path):
+    """level=repair (no force) over a DIVERGED real paper/ dir."""
     _make_canonical(tmp_path, {"a.tex": "canonical"})
     link = tmp_path / "paper"
     link.mkdir()
     (link / "a.tex").write_text("DIVERGED")
     (link / "unique.tex").write_text("only-in-paper")
+    return _run(tmp_path, "--level", "repair"), link
+
+
+def test_diverged_no_force_exits_one(tmp_path):
+    # Arrange
     # Act
-    proc = _run(tmp_path, "--level", "repair")
+    proc, _ = _run_diverged_no_force(tmp_path)
     # Assert
     assert proc.returncode == 1
-    assert link.is_dir() and not link.is_symlink()
-    assert (link / "unique.tex").read_text() == "only-in-paper"
-    assert not list((tmp_path / ".scitex").glob("writer-paper-backup-*"))
 
 
-def test_diverged_force_after_backup_preserves_and_links(tmp_path):
-    """Diverged paper/ with --force-after-backup is moved to backup, then symlinked."""
+def test_diverged_no_force_leaves_real_dir(tmp_path):
     # Arrange
+    # Act
+    _, link = _run_diverged_no_force(tmp_path)
+    # Assert
+    assert link.is_dir() and not link.is_symlink()
+
+
+def test_diverged_no_force_preserves_unique_content(tmp_path):
+    # Arrange
+    # Act
+    _, link = _run_diverged_no_force(tmp_path)
+    # Assert
+    assert (link / "unique.tex").read_text() == "only-in-paper"
+
+
+def test_diverged_no_force_makes_no_backup(tmp_path):
+    # Arrange
+    # Act
+    _run_diverged_no_force(tmp_path)
+    # Assert
+    assert not _backups(tmp_path)
+
+
+def _run_diverged_force(tmp_path):
+    """level=repair --force-after-backup over a DIVERGED real paper/ dir."""
     _make_canonical(tmp_path, {"a.tex": "canonical"})
     link = tmp_path / "paper"
     link.mkdir()
     (link / "unique.tex").write_text("only-in-paper")
+    return _run(tmp_path, "--level", "repair", "--force-after-backup"), link
+
+
+def test_diverged_force_exits_zero(tmp_path):
+    # Arrange
     # Act
-    proc = _run(tmp_path, "--level", "repair", "--force-after-backup")
+    proc, _ = _run_diverged_force(tmp_path)
     # Assert
     assert proc.returncode == 0
+
+
+def test_diverged_force_becomes_symlink(tmp_path):
+    # Arrange
+    # Act
+    _, link = _run_diverged_force(tmp_path)
+    # Assert
     assert link.is_symlink()
-    backups = list((tmp_path / ".scitex").glob("writer-paper-backup-*"))
-    assert len(backups) == 1
-    # Diverged content preserved -- nothing lost.
-    assert (backups[0] / "unique.tex").read_text() == "only-in-paper"
+
+
+def test_diverged_force_makes_one_backup(tmp_path):
+    # Arrange
+    # Act
+    _run_diverged_force(tmp_path)
+    # Assert
+    assert len(_backups(tmp_path)) == 1
+
+
+def test_diverged_force_preserves_unique_content(tmp_path):
+    # Arrange
+    # Act
+    _run_diverged_force(tmp_path)
+    # Assert
+    assert (_backups(tmp_path)[0] / "unique.tex").read_text() == "only-in-paper"
