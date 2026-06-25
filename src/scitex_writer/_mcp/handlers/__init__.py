@@ -7,6 +7,7 @@
 from ._checks import (
     check_float_order,
     check_limits,
+    check_media_provenance,
     check_overflow,
     check_paper_symlink,
     check_references,
@@ -30,6 +31,7 @@ __all__ = [
     "add_claim",
     "check_float_order",
     "check_limits",
+    "check_media_provenance",
     "check_overflow",
     "check_paper_symlink",
     "check_references",

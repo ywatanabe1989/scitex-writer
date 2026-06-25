@@ -34,7 +34,32 @@ def test_module_exports_references_float_order_limits_and_overflow():
         "limits",
         "overflow",
         "paper_symlink",
+        "media_provenance",
     ]
+
+
+def test_media_provenance_forwards_all_arguments_to_handler():
+    # Arrange
+    handler = _RecordingHandler({"success": True})
+    # Act
+    checks.media_provenance(
+        "/path",
+        doc_type="supplementary",
+        level="error",
+        require_under_scripts=True,
+        handler=handler,
+    )
+    # Assert
+    assert handler.calls == [("/path", "supplementary", "error", True)]
+
+
+def test_media_provenance_defaults_are_all_none_level_nonstrict():
+    # Arrange
+    handler = _RecordingHandler({"success": True})
+    # Act
+    checks.media_provenance("/path", handler=handler)
+    # Assert
+    assert handler.calls == [("/path", "all", None, False)]
 
 
 def test_references_forwards_all_arguments_to_handler():
