@@ -148,6 +148,21 @@ check_texcount() {
     return 0
 }
 
+check_yq() {
+    # yq is invoked directly by config/load_config.sh to read every YAML path.
+    # Probe EXECUTION (not mere presence): a present-but-broken yq (e.g. a
+    # .venv/bin/yq whose Python shebang no longer resolves -> "bad interpreter")
+    # must FAIL here, otherwise it passes the gate green and then silently
+    # yields empty paths during config load.
+    if ! command -v yq &>/dev/null || ! yq --version &>/dev/null 2>&1; then
+        echo "- yq"
+        echo "    - Go (recommended): https://github.com/mikefarah/yq"
+        echo "    - If present but failing: a broken venv interpreter -- repair the venv or put a working yq first on PATH"
+        return 1
+    fi
+    return 0
+}
+
 check_xlsx2csv() {
     if ! command -v xlsx2csv &>/dev/null && ! python3 -c "import xlsx2csv" &>/dev/null 2>&1; then
         echo "- xlsx2csv"
@@ -323,6 +338,10 @@ check_all_dependencies() {
         check_bibtexparser >"$temp_dir/req_bibtexparser" 2>&1
         echo $? >"$temp_dir/req_bibtexparser.exit"
     ) &
+    (
+        check_yq >"$temp_dir/req_yq" 2>&1
+        echo $? >"$temp_dir/req_yq.exit"
+    ) &
 
     # Run all optional checks in parallel
     (
@@ -350,7 +369,7 @@ check_all_dependencies() {
     # Collect required results with exit codes
     declare -A tool_status
     local exit_code
-    for tool in pdflatex bibtex latexdiff texcount xlsx2csv csv2latex parallel bibtexparser; do
+    for tool in pdflatex bibtex latexdiff texcount yq xlsx2csv csv2latex parallel bibtexparser; do
         exit_code=$(cat "$temp_dir/req_${tool}.exit" 2>/dev/null || echo 1)
         if [ "$exit_code" -eq 0 ]; then
             tool_status[$tool]="✓"
@@ -391,6 +410,7 @@ check_all_dependencies() {
         printf "      %-20s %s\n" "bibtex" "${tool_status[bibtex]}"
         printf "      %-20s %s\n" "latexdiff" "${tool_status[latexdiff]}"
         printf "      %-20s %s\n" "texcount" "${tool_status[texcount]}"
+        printf "      %-20s %s\n" "yq" "${tool_status[yq]}"
         printf "      %-20s %s\n" "xlsx2csv" "${tool_status[xlsx2csv]}"
         printf "      %-20s %s\n" "csv2latex" "${tool_status[csv2latex]}"
         printf "      %-20s %s\n" "parallel" "${tool_status[parallel]}"
