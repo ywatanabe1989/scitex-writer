@@ -85,6 +85,11 @@ paths:
   imagemagick_apptainer_sif: "~/.scitex/writer/containers/imagemagick.sif"
   
 figures:
+  # Cap figure image height at this fraction of \textheight so the caption
+  # stays on the same page (tall figures otherwise push the caption off-page
+  # or clip it). Applied as \includegraphics[..., totalheight=<frac>\textheight,
+  # keepaspectratio]. Empty/removed -> 0.78.
+  max_height_frac: 0.78
   dir: "./01_manuscript/contents/figures"
   caption_media_dir: "./01_manuscript/contents/figures/caption_and_media"
   jpg_dir: "./01_manuscript/contents/figures/caption_and_media/jpg_for_compilation"
@@ -133,11 +138,46 @@ hot-recompile:
     - "./scripts/shell/modules/*.sh"
     - "./scripts/python/*.py"
 
+theme: light                  # light | dark — `dark` renders the PDF using the
+                              # dark_mode palette below (same effect as
+                              # --dark_mode / SCITEX_WRITER_DARK_MODE=true).
+                              # Precedence: CLI flag > env > this > light.
+                              # An invalid value fails the compile loudly.
+
 dark_mode:
   background: "1E1E1E"        # Monaco/VS Code bg
   foreground: "D4D4D4"        # VS Code default fg
   link_internal: "90C695"     # Figure/Table refs (DarkGreen)
   link_citation: "87CEEB"     # Citations (DarkCyan)
   link_url: "DEB887"          # External URLs (DarkOrange)
+
+overflow:
+  # Off-page content -- wide tables/figures and over-tall pages -- detected from
+  # the LaTeX .log AFTER each compile (a table not shown entirely appears here as
+  # a large hbox). Boxes overflowing by <= max_pt are treated as cosmetic and
+  # ignored; larger ones emit a WARNING with a fix hint and do NOT block the
+  # build. Set strict: true (or pass --strict / SCITEX_WRITER_LINT_STRICT=1) to
+  # promote them to errors (non-zero exit).
+  strict: false
+  max_pt: 5.0              # ignore overflow <= this many points (typeset cosmetic)
+
+limits:
+  # Per-section length + reference caps for the MANUSCRIPT. Checked against the
+  # word counts already produced in misc.wordcount_dir (abstract/introduction/
+  # methods/results/discussion/imrd *_count.txt). Over-limit emits a WARNING with
+  # a hint and does NOT block compilation; set strict: true (or pass --strict /
+  # SCITEX_WRITER_LINT_STRICT=1) to promote breaches to errors (non-zero exit).
+  # Use ~ (null) for "no limit". Counts are words (texcount), not characters.
+  strict: false
+
+  references: ~            # max UNIQUE cited refs (\cite/\citep/...), e.g. 50 or 30
+
+  words:
+    abstract:     ~        # e.g. 250
+    introduction: ~
+    methods:      ~
+    results:      ~
+    discussion:   ~
+    main_text:    ~        # total of introduction+methods+results+discussion (IMRD)
 
 # EOF

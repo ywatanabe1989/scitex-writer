@@ -77,10 +77,10 @@ compile_legends() {
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% FIGURES
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% \clearpage
-\section*{Figures}
-\label{figures}
-\pdfbookmark[1]{Figures}{figures}
+%% The "Figures" \section*, \label{figures}, \pdfbookmark and \clearpage are
+%% emitted once by base.tex (single source of truth). This fallback header
+%% deliberately emits NO heading, so an empty-figures manuscript shows the
+%% "Figures" title exactly once instead of twice.
 EOF
 
     # Process captions for compiled directory

@@ -14,10 +14,49 @@ from check_references import (  # noqa: E402
     collect_tex_files,
     extract_bib_keys,
     extract_citations,
+    extract_headings,
     extract_labels,
     extract_refs,
     infer_auto_labels,
 )
+
+# ============================================================================
+# Test extract_headings (duplicate-heading detector)
+# ============================================================================
+
+
+def test_extract_headings_collects_all_section_titles(tmp_path):
+    """Test that section and subsection titles are collected."""
+    # Arrange
+    tex = tmp_path / "m.tex"
+    tex.write_text("\\section{Intro}\n\\section*{Figures}\n\\subsection*{Sub}")
+    # Act
+    headings = extract_headings([tex])
+    # Assert
+    assert set(headings) == {"Intro", "Figures", "Sub"}
+
+
+def test_extract_headings_records_each_occurrence_of_duplicate(tmp_path):
+    """Test that a title repeated twice is recorded with two locations."""
+    # Arrange
+    tex = tmp_path / "m.tex"
+    tex.write_text("\\section*{Figures}\nbody\n\\section*{Figures}")
+    # Act
+    headings = extract_headings([tex])
+    # Assert
+    assert len(headings["Figures"]) == 2
+
+
+def test_extract_headings_skips_commented_out_section(tmp_path):
+    """Test that a commented-out section is ignored."""
+    # Arrange
+    tex = tmp_path / "m.tex"
+    tex.write_text("\\section{Real}\n% \\section{Commented}")
+    # Act
+    headings = extract_headings([tex])
+    # Assert
+    assert "Commented" not in headings
+
 
 # ============================================================================
 # Test extract_refs
@@ -37,7 +76,12 @@ Results are shown in \ref{tab:01_data}.
     # Act
     refs = extract_refs([tex_file])
     # Assert
-    assert ('fig:01_example' in refs) and ('tab:01_data' in refs) and (len(refs) == 2) and (refs['fig:01_example'][0][1] == 2)
+    assert (
+        ("fig:01_example" in refs)
+        and ("tab:01_data" in refs)
+        and (len(refs) == 2)
+        and (refs["fig:01_example"][0][1] == 2)
+    )
 
 
 def test_extract_refs_skips_comments(tmp_path):
@@ -54,7 +98,11 @@ Some text % inline \ref{fig:inline_comment}
     # Act
     refs = extract_refs([tex_file])
     # Assert
-    assert ('fig:real_ref' in refs) and ('fig:commented_ref' not in refs) and ('fig:inline_comment' not in refs)
+    assert (
+        ("fig:real_ref" in refs)
+        and ("fig:commented_ref" not in refs)
+        and ("fig:inline_comment" not in refs)
+    )
 
 
 def test_extract_refs_skips_macro_args(tmp_path):
@@ -67,7 +115,7 @@ def test_extract_refs_skips_macro_args(tmp_path):
     # Act
     refs = extract_refs([tex_file])
     # Assert
-    assert ('fig:actual_ref' in refs) and ('#1' not in refs)
+    assert ("fig:actual_ref" in refs) and ("#1" not in refs)
 
 
 # ============================================================================
@@ -92,7 +140,11 @@ def test_extract_labels_basic(tmp_path):
     # Act
     labels = extract_labels([tex_file])
     # Assert
-    assert ('fig:01_example' in labels) and ('tab:01_data' in labels) and (len(labels) == 2)
+    assert (
+        ("fig:01_example" in labels)
+        and ("tab:01_data" in labels)
+        and (len(labels) == 2)
+    )
 
 
 def test_extract_labels_skips_comments(tmp_path):
@@ -108,7 +160,7 @@ def test_extract_labels_skips_comments(tmp_path):
     # Act
     labels = extract_labels([tex_file])
     # Assert
-    assert ('sec:real_label' in labels) and ('sec:commented_label' not in labels)
+    assert ("sec:real_label" in labels) and ("sec:commented_label" not in labels)
 
 
 def test_extract_labels_multiple_definitions(tmp_path):
@@ -137,7 +189,7 @@ def test_extract_citations_single(tmp_path):
     # Act
     cites = extract_citations([tex_file])
     # Assert
-    assert ('author2020' in cites) and (len(cites) == 1)
+    assert ("author2020" in cites) and (len(cites) == 1)
 
 
 def test_extract_citations_multi_key(tmp_path):
@@ -148,7 +200,9 @@ def test_extract_citations_multi_key(tmp_path):
     # Act
     cites = extract_citations([tex_file])
     # Assert
-    assert (all((k in cites for k in ['Smith2018', 'Jones2019', 'Brown2020']))) and (len(cites) == 3)
+    assert (all((k in cites for k in ["Smith2018", "Jones2019", "Brown2020"]))) and (
+        len(cites) == 3
+    )
 
 
 def test_extract_citations_variants(tmp_path):
@@ -168,7 +222,7 @@ def test_extract_citations_variants(tmp_path):
     # Act
     cites = extract_citations([tex_file])
     # Assert
-    assert (all((f'ref{i}' in cites for i in range(1, 7)))) and (len(cites) == 6)
+    assert (all((f"ref{i}" in cites for i in range(1, 7)))) and (len(cites) == 6)
 
 
 def test_extract_citations_skips_comments(tmp_path):
@@ -179,7 +233,7 @@ def test_extract_citations_skips_comments(tmp_path):
     # Act
     cites = extract_citations([tex_file])
     # Assert
-    assert ('real_ref' in cites) and ('commented_ref' not in cites)
+    assert ("real_ref" in cites) and ("commented_ref" not in cites)
 
 
 def test_extract_citations_whitespace_handling(tmp_path):
@@ -212,7 +266,9 @@ def test_extract_bib_keys(tmp_path):
     # Act
     keys = extract_bib_keys(tmp_path)
     # Assert
-    assert (all((k in keys for k in ['Smith2020', 'Jones2019', 'Brown2018']))) and (keys['Smith2020'] == bib_file)
+    assert (all((k in keys for k in ["Smith2020", "Jones2019", "Brown2018"]))) and (
+        keys["Smith2020"] == bib_file
+    )
 
 
 def test_extract_bib_keys_multiple_files(tmp_path):
@@ -270,7 +326,9 @@ def test_infer_auto_labels(tmp_path):
     # Act
     labels = infer_auto_labels(doc_dir)
     # Assert
-    assert (all((k in labels for k in ['fig:01_example', 'fig:02_results', 'tab:01_data']))) and (len(labels) == 3)
+    assert (
+        all((k in labels for k in ["fig:01_example", "fig:02_results", "tab:01_data"]))
+    ) and (len(labels) == 3)
 
 
 def test_infer_auto_labels_skips_panels(tmp_path):
@@ -288,7 +346,9 @@ def test_infer_auto_labels_skips_panels(tmp_path):
     # Act
     labels = infer_auto_labels(doc_dir)
     # Assert
-    assert ('fig:01_main' in labels and 'fig:02_other' in labels) and ('fig:01a_panel' not in labels and 'fig:01b_panel' not in labels)
+    assert ("fig:01_main" in labels and "fig:02_other" in labels) and (
+        "fig:01a_panel" not in labels and "fig:01b_panel" not in labels
+    )
 
 
 def test_infer_auto_labels_no_contents_dir(tmp_path):
@@ -454,7 +514,9 @@ def test_auto_labels_vs_explicit(tmp_path):
     all_labels = {**labels, **auto_labels}
 
     # Assert
-    assert (all((k in refs for k in ['fig:01_auto', 'fig:explicit']))) and (all((k in all_labels for k in ['fig:01_auto', 'fig:explicit'])))
+    assert (all((k in refs for k in ["fig:01_auto", "fig:explicit"]))) and (
+        all((k in all_labels for k in ["fig:01_auto", "fig:explicit"]))
+    )
 
 
 if __name__ == "__main__":

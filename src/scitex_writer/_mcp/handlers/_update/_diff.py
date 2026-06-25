@@ -9,30 +9,47 @@ import shutil
 from datetime import datetime
 from pathlib import Path
 
-from ._constants import LEGACY_ENGINE_PATHS, SYNC_DIRS, SYNC_FILES
+from ._constants import (
+    ACTIVE_STYLE_DOC_DIRS,
+    LEGACY_ENGINE_PATHS,
+    SKIP_DIR_NAMES,
+    SYNC_DIRS,
+    SYNC_FILES,
+    TEMPLATE_STYLE_DIR,
+)
 
 
 def file_hash(path: Path) -> str:
     """SHA-256 hash of a file's contents."""
     h = hashlib.sha256()
     with open(path, "rb") as f:
-        for chunk in iter(lambda: f.read(8192), b""):
+        for chunk in iter(lambda: f.read(8_192), b""):
             h.update(chunk)
     return h.hexdigest()
 
 
 def should_skip(rel_path: str) -> bool:
-    """Return True if this relative path should never be synced."""
-    normalized = rel_path.replace("\\", "/")
-    if "__pycache__" in normalized:
+    """Return True if this relative path should never be synced.
+
+    Skips build artifacts, caches, and vendored deps (node_modules, sphinx
+    HTML, ...) so the drift report shows only real, editable engine files.
+    """
+    parts = rel_path.replace("\\", "/").split("/")
+    if any(part in SKIP_DIR_NAMES for part in parts):
         return True
-    if normalized.endswith(".pyc"):
+    if any(part.endswith(".egg-info") for part in parts):
         return True
-    return False
+    return rel_path.endswith((".pyc", ".pyo"))
 
 
-def collect_sync_files(source_root: Path) -> dict[str, Path]:
-    """Collect all files to sync from the source, keyed by relative path."""
+def collect_sync_files(source_root: Path, project_root: Path) -> dict[str, Path]:
+    """Collect template files to sync, keyed by their path in the PROJECT.
+
+    Most files keep the same relative path. Rendering style files are keyed by
+    the ACTIVE compiled path (``<doc>/contents/latex_styles/``) so drift is
+    caught in the copy the manuscript actually compiles, even when that path is
+    a symlink to a diverged directory.
+    """
     files: dict[str, Path] = {}
 
     for sync_dir in SYNC_DIRS:
@@ -62,6 +79,20 @@ def collect_sync_files(source_root: Path) -> dict[str, Path]:
                     rel = str(src_file.relative_to(source_root))
                     if not should_skip(rel):
                         files[rel] = src_file
+
+    # Rendering style files: key by the ACTIVE compiled path, only for doc
+    # types that actually have a latex_styles dir (so we never create style
+    # files where the manuscript would not read them).
+    styles_src = source_root / TEMPLATE_STYLE_DIR
+    if styles_src.is_dir():
+        for src_file in sorted(styles_src.glob("*.tex")):
+            for doc_dir in ACTIVE_STYLE_DOC_DIRS:
+                if not (project_root / doc_dir / "contents" / "latex_styles").exists():
+                    continue
+                active_rel = str(
+                    Path(doc_dir) / "contents" / "latex_styles" / src_file.name
+                )
+                files[active_rel] = src_file
 
     return files
 

@@ -738,10 +738,11 @@ class TestModuleAPI:
     def test_cli_help_result_returncode_equals_n_0_and_import_in_re(self):
         # Arrange
         import subprocess
+        import sys
 
         # Act
         result = subprocess.run(
-            ["scitex-writer", "migration", "--help"],
+            [sys.executable, "-m", "scitex_writer", "migration", "--help"],
             capture_output=True,
             text=True,
             timeout=10,

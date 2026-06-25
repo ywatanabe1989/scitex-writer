@@ -23,12 +23,18 @@ class _RecordingHandler:
         return self.result
 
 
-def test_module_exports_only_references_and_float_order():
+def test_module_exports_references_float_order_limits_and_overflow():
     # Arrange
     # Act
     exported = checks.__all__
     # Assert
-    assert exported == ["references", "float_order"]
+    assert exported == [
+        "references",
+        "float_order",
+        "limits",
+        "overflow",
+        "paper_symlink",
+    ]
 
 
 def test_references_forwards_all_arguments_to_handler():
@@ -47,6 +53,24 @@ def test_references_returns_handler_result_unchanged():
     out = checks.references("/path", handler=handler)
     # Assert
     assert out == {"success": True, "exit_code": 0}
+
+
+def test_limits_forwards_all_arguments_to_handler():
+    # Arrange
+    handler = _RecordingHandler({"success": True})
+    # Act
+    checks.limits("/path", doc_type="supplementary", strict=True, handler=handler)
+    # Assert
+    assert handler.calls == [("/path", "supplementary", True)]
+
+
+def test_limits_default_doc_type_is_manuscript_nonstrict():
+    # Arrange
+    handler = _RecordingHandler({"success": True})
+    # Act
+    checks.limits("/path", handler=handler)
+    # Assert
+    assert handler.calls == [("/path", "manuscript", False)]
 
 
 def test_references_default_doc_type_is_all():

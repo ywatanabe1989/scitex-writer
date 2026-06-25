@@ -48,6 +48,16 @@ compile_figure_tex_files() {
         local figure_title=""
         local image_path=""
         local width="0.9\\textwidth"
+        # Cap figure height so the caption always has room on the page (tall
+        # figures otherwise push the caption off-page / clip it). Tunable via
+        # figures.max_height_frac; unset or yq-"null" (old configs) -> 0.78.
+        local max_height_frac="${SCITEX_WRITER_FIGURE_MAX_HEIGHT_FRAC:-0.78}"
+        if [ -z "$max_height_frac" ] || [ "$max_height_frac" = "null" ]; then
+            max_height_frac="0.78"
+        fi
+        # Keep the \textheight token in a variable (not the echo) so the LaTeX
+        # backslash is emitted verbatim — same pattern as $width above.
+        local max_height="${max_height_frac}\\textheight"
         # shellcheck disable=SC2034  # figure_type retained for template-level dispatch
         local figure_type="image"
         local caption_content=""
@@ -94,7 +104,7 @@ compile_figure_tex_files() {
         [ -n "$figure_title" ] && _fig_bookmark="Figure $figure_number --- ${figure_title%.}"
         echo "    \\pdfbookmark[2]{$_fig_bookmark}{.$figure_number}" >>"$SCITEX_WRITER_FIGURE_COMPILED_FILE"
         echo "    \\centering" >>"$SCITEX_WRITER_FIGURE_COMPILED_FILE"
-        echo "    \\includegraphics[width=$width]{$image_path}" >>"$SCITEX_WRITER_FIGURE_COMPILED_FILE"
+        echo "    \\includegraphics[width=$width,totalheight=$max_height,keepaspectratio]{$image_path}" >>"$SCITEX_WRITER_FIGURE_COMPILED_FILE"
         echo "    $caption_content" >>"$SCITEX_WRITER_FIGURE_COMPILED_FILE"
         # Only add label if caption doesn't already contain one
         if ! echo "$caption_content" | grep -q '\\label{fig:'; then

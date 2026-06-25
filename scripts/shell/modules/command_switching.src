@@ -21,103 +21,10 @@ THIS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 source ./config/load_config.sh $SCITEX_WRITER_DOC_TYPE
 
-# Cache frequently-used checks to avoid redundant calls
-_CACHED_CONTAINER_RUNTIME=""
-_CACHE_CHECKED=false
-_CACHED_MODULE_AVAILABLE=""
-_MODULE_CACHE_CHECKED=false
-
-# Resolve a writer sub-tool SIF path under the per-package convention
-# (operator design 8566 + sac PR #293): ~/.scitex/writer/containers/<tool>.sif.
-# Falls back to legacy ./.cache/containers/<tool>_container.sif for caches built
-# before the migration; deprecation log fires on legacy hit. Sets the named var.
-# Returns 0 if resolved to an existing file, 1 otherwise (var still set to canon
-# so the caller's downloader/builder can populate it at the canonical path).
-_writer_resolve_sif() {
-    local t="$1" var="$2"
-    [ -n "${!var}" ] && [ -f "${!var}" ] && return 0
-    local canon="$HOME/.scitex/writer/containers/$t.sif"
-    [ -f "$canon" ] && { eval "$var=\"\$canon\""; return 0; }
-    local root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../../" && pwd)"
-    local legacy="$root/.cache/containers/${t}_container.sif"
-    [ -f "$legacy" ] && { echo_info "    [DEPRECATED] $legacy — rebuild via 'scitex-writer containers install $t -y' (canonical: $canon)"; eval "$var=\"\$legacy\""; return 0; }
-    eval "$var=\"\$canon\""
-    return 1
-}
-
-# Setup container path (Singularity/Apptainer)
-setup_latex_container() {
-    _writer_resolve_sif texlive SCITEX_WRITER_TEXLIVE_APPTAINER_SIF && return 0
-
-    if [ ! -f "$SCITEX_WRITER_TEXLIVE_APPTAINER_SIF" ]; then
-        echo_info "    Downloading TeXLive container (one-time setup)..."
-        mkdir -p "$(dirname $SCITEX_WRITER_TEXLIVE_APPTAINER_SIF)"
-
-        # Try Apptainer first, then Singularity
-        if command -v apptainer &>/dev/null; then
-            apptainer pull "$SCITEX_WRITER_TEXLIVE_APPTAINER_SIF" docker://texlive/texlive:latest >/dev/null 2>&1
-        elif command -v singularity &>/dev/null; then
-            singularity pull "$SCITEX_WRITER_TEXLIVE_APPTAINER_SIF" docker://texlive/texlive:latest >/dev/null 2>&1
-        else
-            return 1
-        fi
-
-        if [ -f "$SCITEX_WRITER_TEXLIVE_APPTAINER_SIF" ]; then
-            echo_success "    Container downloaded to $SCITEX_WRITER_TEXLIVE_APPTAINER_SIF"
-            export SCITEX_WRITER_TEXLIVE_APPTAINER_SIF="$SCITEX_WRITER_TEXLIVE_APPTAINER_SIF"
-        else
-            return 1
-        fi
-    fi
-
-    return 0
-}
-
-# Get container runtime command if available (cached)
-get_container_runtime() {
-    # Use cache if available
-    if [ "$_CACHE_CHECKED" = true ]; then
-        echo "$_CACHED_CONTAINER_RUNTIME"
-        return
-    fi
-
-    # Check once and cache
-    if command -v apptainer &>/dev/null; then
-        _CACHED_CONTAINER_RUNTIME="apptainer"
-    elif command -v singularity &>/dev/null; then
-        _CACHED_CONTAINER_RUNTIME="singularity"
-    else
-        _CACHED_CONTAINER_RUNTIME=""
-    fi
-
-    _CACHE_CHECKED=true
-    echo "$_CACHED_CONTAINER_RUNTIME"
-}
-
-# Load texlive module if available (cached)
-load_texlive_module() {
-    # Use cache if available
-    if [ "$_MODULE_CACHE_CHECKED" = true ]; then
-        if [ "$_CACHED_MODULE_AVAILABLE" = "true" ]; then
-            module load texlive &>/dev/null
-            return 0
-        else
-            return 1
-        fi
-    fi
-
-    # Check once and cache
-    if command -v module &>/dev/null && module avail texlive &>/dev/null 2>&1; then
-        _CACHED_MODULE_AVAILABLE="true"
-        _MODULE_CACHE_CHECKED=true
-        module load texlive &>/dev/null
-        return 0
-    else
-        _CACHED_MODULE_AVAILABLE="false"
-        _MODULE_CACHE_CHECKED=true
-        return 1
-    fi
-}
+# Container / module runtime layer: runtime + module detection and the
+# time-boxed image pulls (resolve_sif, get_container_runtime, setup_*_container).
+# shellcheck source=/dev/null
+source "$(dirname "${BASH_SOURCE[0]}")/container_runtime.src"
 
 # Get pdflatex command with fallbacks
 # Priority: 1. Native → 2. Singularity → 3. Docker
@@ -302,63 +209,6 @@ get_cmd_tectonic() {
     return 1
 }
 
-# Setup Tectonic container (for tectonic)
-setup_tectonic_container() {
-    _writer_resolve_sif tectonic SCITEX_WRITER_TECTONIC_APPTAINER_SIF && return 0
-
-    if [ ! -f "$SCITEX_WRITER_TECTONIC_APPTAINER_SIF" ]; then
-        echo_info "    Downloading Tectonic container (one-time setup)..."
-        mkdir -p "$(dirname $SCITEX_WRITER_TECTONIC_APPTAINER_SIF)"
-
-        # Try Apptainer first, then Singularity
-        # Using official Tectonic Docker image
-        if command -v apptainer &>/dev/null; then
-            apptainer pull "$SCITEX_WRITER_TECTONIC_APPTAINER_SIF" docker://tectonic/tectonic:latest >/dev/null 2>&1
-        elif command -v singularity &>/dev/null; then
-            singularity pull "$SCITEX_WRITER_TECTONIC_APPTAINER_SIF" docker://tectonic/tectonic:latest >/dev/null 2>&1
-        else
-            return 1
-        fi
-
-        if [ -f "$SCITEX_WRITER_TECTONIC_APPTAINER_SIF" ]; then
-            echo_success "    Container downloaded to $SCITEX_WRITER_TECTONIC_APPTAINER_SIF"
-            export SCITEX_WRITER_TECTONIC_APPTAINER_SIF="$SCITEX_WRITER_TECTONIC_APPTAINER_SIF"
-        else
-            return 1
-        fi
-    fi
-
-    return 0
-}
-
-# Setup Mermaid container (for mmdc)
-setup_mermaid_container() {
-    _writer_resolve_sif mermaid SCITEX_WRITER_MERMAID_APPTAINER_SIF && return 0
-
-    if [ ! -f "$SCITEX_WRITER_MERMAID_APPTAINER_SIF" ]; then
-        echo_info "    Downloading Mermaid container (one-time setup)..."
-        mkdir -p "$(dirname $SCITEX_WRITER_MERMAID_APPTAINER_SIF)"
-
-        # Try Apptainer first, then Singularity
-        if command -v apptainer &>/dev/null; then
-            apptainer pull "$SCITEX_WRITER_MERMAID_APPTAINER_SIF" docker://minlag/mermaid-cli:latest >/dev/null 2>&1
-        elif command -v singularity &>/dev/null; then
-            singularity pull "$SCITEX_WRITER_MERMAID_APPTAINER_SIF" docker://minlag/mermaid-cli:latest >/dev/null 2>&1
-        else
-            return 1
-        fi
-
-        if [ -f "$SCITEX_WRITER_MERMAID_APPTAINER_SIF" ]; then
-            echo_success "    Container downloaded to $SCITEX_WRITER_MERMAID_APPTAINER_SIF"
-            export SCITEX_WRITER_MERMAID_APPTAINER_SIF="$SCITEX_WRITER_MERMAID_APPTAINER_SIF"
-        else
-            return 1
-        fi
-    fi
-
-    return 0
-}
-
 # Get mmdc command with fallbacks
 get_cmd_mmdc() {
     local working_dir="${1:-$(pwd)}"
@@ -412,34 +262,6 @@ check_latex_commands_available() {
     return 0
 }
 
-# Setup ImageMagick container
-setup_imagemagick_container() {
-    _writer_resolve_sif imagemagick SCITEX_WRITER_IMAGEMAGICK_APPTAINER_SIF && return 0
-
-    if [ ! -f "$SCITEX_WRITER_IMAGEMAGICK_APPTAINER_SIF" ]; then
-        echo_info "    Downloading ImageMagick container (one-time setup)..."
-        mkdir -p "$(dirname $SCITEX_WRITER_IMAGEMAGICK_APPTAINER_SIF)"
-
-        # Try Apptainer first, then Singularity
-        if command -v apptainer &>/dev/null; then
-            apptainer pull "$SCITEX_WRITER_IMAGEMAGICK_APPTAINER_SIF" docker://dpokidov/imagemagick:latest >/dev/null 2>&1
-        elif command -v singularity &>/dev/null; then
-            singularity pull "$SCITEX_WRITER_IMAGEMAGICK_APPTAINER_SIF" docker://dpokidov/imagemagick:latest >/dev/null 2>&1
-        else
-            return 1
-        fi
-
-        if [ -f "$SCITEX_WRITER_IMAGEMAGICK_APPTAINER_SIF" ]; then
-            echo_success "    Container downloaded to $SCITEX_WRITER_IMAGEMAGICK_APPTAINER_SIF"
-            export SCITEX_WRITER_IMAGEMAGICK_APPTAINER_SIF="$SCITEX_WRITER_IMAGEMAGICK_APPTAINER_SIF"
-        else
-            return 1
-        fi
-    fi
-
-    return 0
-}
-
 # Get convert command with fallbacks
 # Priority: 1. Native → 2. Singularity → 3. Module
 get_cmd_convert() {
@@ -480,14 +302,8 @@ get_cmd_convert() {
     return 1
 }
 
-# Export functions and cache variables for use in other scripts
-export -f _writer_resolve_sif
-export -f setup_latex_container
-export -f setup_tectonic_container
-export -f setup_mermaid_container
-export -f setup_imagemagick_container
-export -f get_container_runtime
-export -f load_texlive_module
+# Export the command resolvers for use in other scripts (the runtime/setup
+# layer exports itself from container_runtime.src).
 export -f get_cmd_pdflatex
 export -f get_cmd_bibtex
 export -f get_cmd_latexdiff
@@ -497,11 +313,5 @@ export -f get_cmd_texcount
 export -f get_cmd_mmdc
 export -f get_cmd_convert
 export -f check_latex_commands_available
-
-# Export cache variables so subprocesses can use cached values
-export _CACHED_CONTAINER_RUNTIME
-export _CACHE_CHECKED
-export _CACHED_MODULE_AVAILABLE
-export _MODULE_CACHE_CHECKED
 
 # EOF

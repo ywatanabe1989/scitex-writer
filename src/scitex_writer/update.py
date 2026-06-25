@@ -15,7 +15,7 @@ def project(
     project_dir: str = ".",
     branch: Optional[str] = None,
     tag: Optional[str] = None,
-    dry_run: bool = False,
+    dry_run: bool = True,
     force: bool = False,
 ) -> dict:
     """Update engine files in an existing scitex-writer project.
@@ -24,8 +24,8 @@ def project(
     scitex-writer package (or GitHub if branch/tag is specified).
     User content is never modified.
 
-    Files synced:
-        - src/scitex_writer/          (Python source code)
+    Files synced (engine/template only — the package itself is pip-installed,
+    never vendored into the project):
         - scripts/                    (shell compilation scripts)
         - compile.sh                  (main compile entry point)
         - 00_shared/latex_styles/     (LaTeX style files)

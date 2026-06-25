@@ -7,6 +7,74 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.21.0] - 2026-06-25
+
+### Added
+- **`paper` symlink check** (`scitex-writer check-paper-symlink`, also
+  `checks.paper_symlink()`) — detects when the top-level `paper` convenience
+  link to `.scitex/writer` has drifted into a real directory (two diverging
+  manuscript copies). Severity is a user-level knob (`off`/`warn`/`error`/
+  `repair`) read from `SCITEX_WRITER_PAPER_SYMLINK` or
+  `~/.scitex/writer/config.yaml`. Repair never destroys diverged content — a
+  divergent `paper/` directory is preserved (backed up) and only converted with
+  an explicit `--force-after-backup`.
+
+### Fixed
+- **`update-project` no longer copies the package's own source into your
+  project** — it previously vendored the entire `scitex_writer` Python package
+  (thousands of files) into every consumer project, which made the updater
+  unusable for re-syncing. It now syncs only the engine/template files
+  (scripts, build scripts, `base.tex`, styles, `Makefile`).
+- **Compile dependency check no longer hangs when a container image cannot be
+  downloaded** — in a restricted or offline shell the check used to stall
+  forever trying to pull a TeX/Mermaid/ImageMagick container. Pulls are now
+  time-boxed (`SCITEX_WRITER_CONTAINER_PULL_TIMEOUT`, default 300s) and fail
+  loud with hints (install natively, pre-build the container, or raise the
+  timeout) instead of hanging.
+
+## [2.20.0] - 2026-06-23
+
+### Added
+- **Drift detection in `update-project`** — the update command now compares a
+  project's active, compiled style files
+  (`01_manuscript/contents/latex_styles/*.tex`, and the supplementary and
+  revision equivalents) against the template and reports any that have drifted,
+  so a project whose engine files fell behind can be brought back in line. Safe
+  by default: it previews changes unless you pass `--yes`, backs up every file
+  it replaces, and refuses to run on a project with uncommitted changes unless
+  you pass `--force`.
+
+### Fixed
+- **Release automation no longer depends on the `gh` command-line tool** — the
+  step that creates the GitHub release page now uses a built-in release action,
+  so it succeeds on build servers that do not ship that tool. Previously the
+  package published to PyPI but the GitHub release page was silently skipped.
+
+## [2.19.0] - 2026-06-22
+
+### Added
+- **Config-driven section/reference limits** with a fast pre-compile gate. New
+  `limits:` block in `config/config_manuscript.yaml` (per-IMRD word caps +
+  reference cap) enforced by `scripts/python/check_limits.py` inside
+  `validate_before_compile` (runs before any pdflatex pass). Warn-by-default;
+  `--strict` / `limits.strict` / `SCITEX_WRITER_LINT_STRICT=1` promote breaches
+  to errors (non-zero exit). Exposed via `checks.limits()` and the
+  `scitex-writer check-limits` CLI.
+- **`theme: light|dark` config knob** resolved in `compile_tex_structure.py`
+  (precedence: CLI flag > env > config > light; invalid value fails loud).
+- **Duplicate-heading detector** (`scitex-writer check-references`): flags a
+  `\section` title rendered twice in the compiled manuscript (e.g. "Figures").
+
+### Fixed
+- **Wide tables no longer overflow / vanish**: figures cap `\includegraphics`
+  height at `figures.max_height_frac` (default `0.78\textheight`,
+  `keepaspectratio`) so captions keep their space, and wide tables shrink-to-fit
+  via a shrink-only `\resizebox` in the Python/MCP table paths.
+- **Duplicate "Figures" heading** when a manuscript has no figures: the
+  generated fallback header no longer emits its own `\section*{Figures}`
+  (base.tex is the single source).
+- **Word-count thousands separator**: counts render as `1,259` (was `1259`).
+
 ## [2.18.0] - 2026-06-21
 
 ### Changed

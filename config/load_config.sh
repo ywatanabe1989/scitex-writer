@@ -26,6 +26,26 @@ echo_header() { echo_info "=== $1 ==="; }
 echo_warn() { echo -e "${YELLOW}WARN: $1${NC}"; }
 echo_error_soft() { echo -e "${RED}ERRO: $1${NC}"; }
 
+# Resolve dark mode from config BEFORE the load-cache guard, so `theme: dark`
+# ALWAYS applies -- even when CONFIG_LOADED is inherited (a cached re-source
+# must not silently render the PDF light; dark is an accessibility default).
+# Precedence: an already-set SCITEX_WRITER_DARK_MODE (env / CLI flag) wins.
+if [ -z "${SCITEX_WRITER_DARK_MODE:-}" ]; then
+    _stxw_dt="${1:-${SCITEX_WRITER_DOC_TYPE:-manuscript}}"
+    _stxw_cfg="$THIS_DIR/config_${_stxw_dt}.yaml"
+    if [ -f "$_stxw_cfg" ]; then
+        _stxw_theme="$(yq -r '.theme' "$_stxw_cfg")"
+        case "$_stxw_theme" in
+        dark) export SCITEX_WRITER_DARK_MODE=true ;;
+        light | null | "") export SCITEX_WRITER_DARK_MODE=false ;;
+        *)
+            echo_warning "    invalid theme '$_stxw_theme' in $_stxw_cfg (use: light | dark); defaulting to light"
+            export SCITEX_WRITER_DARK_MODE=false
+            ;;
+        esac
+    fi
+fi
+
 # Skip if already loaded (prevents redundant 4s overhead per load)
 if [ "$CONFIG_LOADED" = "true" ]; then
     return 0
@@ -91,6 +111,7 @@ if command -v parallel &>/dev/null; then
         'SCITEX_WRITER_FIGURE_TEMPLATE_JPG:.figures.template_jpg' \
         'SCITEX_WRITER_FIGURE_TEMPLATE_PPTX:.figures.template_pptx' \
         'SCITEX_WRITER_FIGURE_TEMPLATE_JNT:.figures.template_jnt' \
+        'SCITEX_WRITER_FIGURE_MAX_HEIGHT_FRAC:.figures.max_height_frac' \
         'SCITEX_WRITER_TABLE_DIR:.tables.dir' \
         'SCITEX_WRITER_TABLE_CAPTION_MEDIA_DIR:.tables.caption_media_dir' \
         'SCITEX_WRITER_TABLE_COMPILED_DIR:.tables.compiled_dir' \
@@ -131,6 +152,7 @@ else
     export SCITEX_WRITER_FIGURE_TEMPLATE_JPG="$(yq -r '.figures.template_jpg' "$CONFIG_FILE")"
     export SCITEX_WRITER_FIGURE_TEMPLATE_PPTX="$(yq -r '.figures.template_pptx' "$CONFIG_FILE")"
     export SCITEX_WRITER_FIGURE_TEMPLATE_JNT="$(yq -r '.figures.template_jnt' "$CONFIG_FILE")"
+    export SCITEX_WRITER_FIGURE_MAX_HEIGHT_FRAC="$(yq -r '.figures.max_height_frac' "$CONFIG_FILE")"
     export SCITEX_WRITER_TABLE_DIR="$(yq -r '.tables.dir' "$CONFIG_FILE")"
     export SCITEX_WRITER_TABLE_CAPTION_MEDIA_DIR="$(yq -r '.tables.caption_media_dir' "$CONFIG_FILE")"
     export SCITEX_WRITER_TABLE_COMPILED_DIR="$(yq -r '.tables.compiled_dir' "$CONFIG_FILE")"

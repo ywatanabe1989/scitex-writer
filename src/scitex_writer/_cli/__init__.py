@@ -1283,6 +1283,186 @@ def figures_archive(name, project, doc_type, dry_run, yes, as_json):
 
 
 # =========================================================================
+# check-limits / check-references  (fast pre-compile checks; flat verb-noun
+# per §1 — top-level commands are verb-noun, e.g. compile-manuscript)
+# =========================================================================
+
+
+@main_group.command("check-limits")
+@click.option("-p", "--project", default=".", help="Project path.")
+@click.option("-t", "--doc-type", type=_DOC_TYPE, default="manuscript")
+@click.option(
+    "--strict",
+    is_flag=True,
+    default=False,
+    help="Treat over-limit sections as errors (non-zero exit).",
+)
+@click.option("--json", "as_json", is_flag=True, default=False, help="Emit JSON.")
+def check_limits_cmd(project, doc_type, strict, as_json):
+    """Check section word limits + reference cap against config ``limits:``.
+
+    Reads the ``limits:`` block from config/config_<doc-type>.yaml and compares
+    it to texcount word counts + unique \\cite keys. Over-limit warns by
+    default; --strict (or limits.strict) makes it a non-zero-exit error. This
+    is the same check the compiler runs as a fast pre-flight gate.
+
+    \b
+    Example:
+        $ scitex-writer check-limits
+        $ scitex-writer check-limits -t supplementary --strict
+        $ scitex-writer check-limits --json
+    """
+    from .. import checks
+
+    result = checks.limits(project, doc_type=doc_type, strict=strict)
+    if as_json:
+        _emit_json(result)
+        return 0 if result.get("success") else 1
+    out = (result.get("stdout") or "").rstrip()
+    if out:
+        click.echo(out)
+    err = (result.get("stderr") or "").rstrip()
+    if err:
+        click.echo(err, err=True)
+    return result.get("exit_code", 0)
+
+
+@main_group.command("check-overflow")
+@click.option("-p", "--project", default=".", help="Project path.")
+@click.option("-t", "--doc-type", type=_DOC_TYPE, default="manuscript")
+@click.option(
+    "--strict",
+    is_flag=True,
+    default=False,
+    help="Treat overflow as errors (non-zero exit).",
+)
+@click.option(
+    "--max-pt",
+    type=float,
+    default=None,
+    help="Ignore boxes overflowing by <= this many pt (default 5; overrides config).",
+)
+@click.option("--json", "as_json", is_flag=True, default=False, help="Emit JSON.")
+def check_overflow_cmd(project, doc_type, strict, max_pt, as_json):
+    """Detect off-page content (wide tables/figures, over-tall pages) from the .log.
+
+    Parses the LaTeX log from the last compile for ``Overfull \\hbox`` / ``\\vbox``
+    boxes -- a table that is not shown entirely appears as a large hbox. Boxes
+    overflowing by <= overflow.max_pt are cosmetic; larger ones warn (or error
+    with --strict). Run AFTER a compile, since it reads the produced log.
+
+    \b
+    Example:
+        $ scitex-writer check-overflow
+        $ scitex-writer check-overflow -t supplementary --strict
+        $ scitex-writer check-overflow --max-pt 2
+    """
+    from .. import checks
+
+    result = checks.overflow(project, doc_type=doc_type, strict=strict, max_pt=max_pt)
+    if as_json:
+        _emit_json(result)
+        return 0 if result.get("success") else 1
+    out = (result.get("stdout") or "").rstrip()
+    if out:
+        click.echo(out)
+    err = (result.get("stderr") or "").rstrip()
+    if err:
+        click.echo(err, err=True)
+    return result.get("exit_code", 0)
+
+
+@main_group.command("check-paper-symlink")
+@click.option("-p", "--project", default=".", help="Project path.")
+@click.option(
+    "--level",
+    type=click.Choice(["off", "warn", "error", "repair"]),
+    default=None,
+    help="Severity: off (default), warn, error, or repair. Overrides env/config.",
+)
+@click.option(
+    "--force-after-backup",
+    is_flag=True,
+    default=False,
+    help="On repair, convert even a diverged paper/ dir -- but back it up first.",
+)
+@click.option("--json", "as_json", is_flag=True, default=False, help="Emit JSON.")
+def check_paper_symlink_cmd(project, level, force_after_backup, as_json):
+    """Detect/repair drift in the `paper` -> `.scitex/writer` convenience symlink.
+
+    `paper -> .scitex/writer` is a private convention -- disabled (off) by
+    default. When `paper` silently becomes a REAL directory it diverges into
+    two manuscript copies; this finds that drift. With --level repair it fixes
+    the safe cases, but NEVER deletes diverged content (use --force-after-backup
+    to back it up first). Severity precedence: --level > env
+    SCITEX_WRITER_PAPER_SYMLINK > ./config.yaml > ~/.scitex/writer/config.yaml.
+
+    \b
+    Example:
+        $ scitex-writer check-paper-symlink
+        $ scitex-writer check-paper-symlink --level repair
+        $ scitex-writer check-paper-symlink --level repair --force-after-backup
+    """
+    from .. import checks
+
+    result = checks.paper_symlink(
+        project, level=level, force_after_backup=force_after_backup
+    )
+    if as_json:
+        _emit_json(result)
+        return 0 if result.get("success") else 1
+    out = (result.get("stdout") or "").rstrip()
+    if out:
+        click.echo(out)
+    err = (result.get("stderr") or "").rstrip()
+    if err:
+        click.echo(err, err=True)
+    return result.get("exit_code", 0)
+
+
+@main_group.command("check-references")
+@click.option("-p", "--project", default=".", help="Project path.")
+@click.option(
+    "-t",
+    "--doc-type",
+    type=click.Choice(["manuscript", "supplementary", "all"]),
+    default="all",
+)
+@click.option(
+    "--log",
+    "parse_log",
+    is_flag=True,
+    default=False,
+    help="Also parse LaTeX .log files for cross-ref/citation warnings.",
+)
+@click.option("--json", "as_json", is_flag=True, default=False, help="Emit JSON.")
+def check_references_cmd(project, doc_type, parse_log, as_json):
+    """Validate cross-references, citations, labels, and duplicate headings.
+
+    Duplicate \\section headings (e.g. "Figures" rendered twice) are flagged
+    from the compiled manuscript .tex.
+
+    \b
+    Example:
+        $ scitex-writer check-references
+        $ scitex-writer check-references --log
+    """
+    from .. import checks
+
+    result = checks.references(project, doc_type=doc_type, parse_log=parse_log)
+    if as_json:
+        _emit_json(result)
+        return 0 if result.get("success") else 1
+    out = (result.get("stdout") or "").rstrip()
+    if out:
+        click.echo(out)
+    err = (result.get("stderr") or "").rstrip()
+    if err:
+        click.echo(err, err=True)
+    return result.get("exit_code", 0)
+
+
+# =========================================================================
 # gui (renamed -> launch-gui at top level for §1, alias `gui` preserved)
 # =========================================================================
 
@@ -1347,10 +1527,16 @@ def launch_gui(project, port, host, no_browser, desktop, dry_run, yes, as_json):
 @click.option("--branch", default=None, help="Pull from a specific template branch.")
 @click.option("--tag", default=None, help="Pull from a specific template tag/version.")
 @click.option(
-    "--dry-run", is_flag=True, default=False, help="Show what would be updated."
+    "--dry-run", is_flag=True, default=False, help="Preview only (this is the default)."
 )
 @click.option("--force", is_flag=True, default=False, help="Skip git safety check.")
-@click.option("--yes", "-y", is_flag=True, default=False, help="Skip confirmations.")
+@click.option(
+    "--yes",
+    "-y",
+    is_flag=True,
+    default=False,
+    help="Apply the update (default is a safe preview).",
+)
 @click.option("--json", "as_json", is_flag=True, default=False, help="Emit JSON.")
 def update_project(project, branch, tag, dry_run, force, yes, as_json):
     """Update engine files in a scitex-writer project, preserving user content.
@@ -1367,8 +1553,10 @@ def update_project(project, branch, tag, dry_run, force, yes, as_json):
     if not project_path.exists():
         click.echo(f"Error: Project not found: {project_path}", err=True)
         return 1
+    # Safe by default: preview unless --yes is given (--dry-run forces preview).
+    preview = dry_run or not yes
     result = update.project(
-        str(project_path), branch=branch, tag=tag, dry_run=dry_run, force=force
+        str(project_path), branch=branch, tag=tag, dry_run=preview, force=force
     )
     if as_json:
         _emit_json(result)
@@ -1378,29 +1566,30 @@ def update_project(project, branch, tag, dry_run, force, yes, as_json):
         return 1
     for w in result.get("warnings", []):
         click.echo(f"Warning: {w}", err=True)
-    mode = " (dry run)" if dry_run else ""
+    mode = " (preview)" if preview else ""
     click.echo(f"\nSciTeX Writer Update{mode}")
-    click.echo(f"Package version: {result.get('version', 'unknown')}")
+    click.echo(f"Template version: {result.get('version', 'unknown')}")
     click.echo(f"Project: {project_path}\n")
     modified = result.get("modified", [])
     added = result.get("added", [])
     unchanged = result.get("unchanged", [])
-    if modified or added or unchanged:
-        click.echo("Files to update:" if dry_run else "Files updated:")
+    if modified or added:
+        click.echo("Engine files drifted from the template:" if preview else "Updated:")
         for p in modified:
-            click.echo(f"  M {p} (modified)")
+            click.echo(f"  M {p} (drifted)")
         for p in added:
-            click.echo(f"  A {p} (new)")
-        for p in unchanged:
-            click.echo(f"  = {p} (unchanged)")
+            click.echo(f"  A {p} (missing)")
         click.echo()
     click.echo(
-        f"  {len(modified)} modified, {len(added)} new, {len(unchanged)} unchanged"
+        f"  {len(modified)} drifted, {len(added)} missing, {len(unchanged)} in sync"
     )
     if result.get("backup_dir"):
         click.echo(f"\n  Backup: {result['backup_dir']}")
-    if dry_run:
-        click.echo("\nRun without --dry-run to apply changes.")
+    if preview and (modified or added):
+        click.echo(
+            "\nPreview only — nothing changed. To apply (a timestamped backup is "
+            f"made first):\n  scitex-writer update-project {project} --yes"
+        )
     return 0
 
 

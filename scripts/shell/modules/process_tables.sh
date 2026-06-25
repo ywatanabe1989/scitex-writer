@@ -317,8 +317,10 @@ function csv2tex_single_fallback() {
             echo "\\setlength{\\tabcolsep}{6pt}" # Normal spacing
         fi
 
-        # Use resizebox to ensure table fits within text width
-        echo "\\resizebox{\\textwidth}{!}{%"
+        # Shrink-to-fit ONLY: scale a too-wide table down to \linewidth, but
+        # leave a narrow table at its natural width (never stretch it). Matches
+        # the Python csv->latex path (_utils/_csv_latex.py::_fit_tabular).
+        echo "\\resizebox{\\ifdim\\width>\\linewidth\\linewidth\\else\\width\\fi}{!}{%"
         echo "\\begin{tabular}{*{$num_columns}{l}}"
         echo "\\toprule"
 

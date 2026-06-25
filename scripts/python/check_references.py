@@ -170,6 +170,40 @@ def extract_citations(tex_files):
     return dict(cites)
 
 
+def extract_headings(tex_files):
+    """Extract \\section / \\subsection titles from tex files.
+
+    Returns dict: title -> [(file, line_no), ...]
+    """
+    headings = defaultdict(list)
+    pattern = re.compile(r"\\(?:sub)?section\*?\{([^}]+)\}")
+    for f in tex_files:
+        text = f.read_text(encoding="utf-8", errors="replace")
+        for line_no, line in enumerate(text.splitlines(), 1):
+            stripped = line.split("%")[0] if "%" in line else line
+            for m in pattern.finditer(stripped):
+                title = m.group(1).strip()
+                if title:
+                    headings[title].append((f, line_no))
+    return dict(headings)
+
+
+def check_duplicate_headings(headings, doc_label):
+    """Flag section/subsection titles that appear more than once.
+
+    Catches a heading rendered twice — e.g. a "Figures"/"Tables" title emitted
+    by BOTH base.tex and a fallback header.
+    """
+    dupes = {t: locs for t, locs in headings.items() if len(locs) > 1}
+    if not dupes:
+        log_pass(f"No duplicate section headings ({doc_label})")
+    else:
+        log_warn(f"Duplicate section headings ({doc_label}): {len(dupes)}")
+        for title, locations in sorted(dupes.items()):
+            where = ", ".join(f"{f.name}:{ln}" for f, ln in locations)
+            log_detail(f'"{title}" appears {len(locations)}x ({where})')
+
+
 def extract_bib_keys(bib_dir):
     """Extract all entry keys from .bib files.
 
@@ -376,6 +410,28 @@ def main():
     check_multiply_defined(all_labels, "all documents")
     check_orphan_labels(all_refs, all_labels, "all documents")
     check_orphan_bib(all_cites, bib_keys)
+
+    # Duplicate section headings — scan the COMPILED single-file output, where a
+    # duplicate (e.g. base.tex + a fallback header both emitting "Figures")
+    # actually renders. Conditionally-included fallback headers do not appear in
+    # the source files alone.
+    compiled_files = {
+        "manuscript": project_dir / "01_manuscript" / "manuscript.tex",
+        "supplementary": project_dir / "02_supplementary" / "supplementary.tex",
+    }
+    scanned_any = False
+    for doc_label, _ in doc_dirs:
+        compiled = compiled_files.get(doc_label)
+        if compiled and compiled.exists():
+            scanned_any = True
+            check_duplicate_headings(
+                extract_headings([compiled]), f"{doc_label} compiled"
+            )
+    if not scanned_any:
+        print(
+            f"  {DIM}[INFO]{NC} Duplicate-heading scan skipped "
+            f"(no compiled .tex yet — compile first)."
+        )
 
     # Optionally check LaTeX logs
     if args.log:

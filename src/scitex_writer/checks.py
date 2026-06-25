@@ -30,6 +30,9 @@ from typing import Literal as _Literal
 from typing import Optional as _Optional
 
 from ._mcp.handlers import check_float_order as _check_float_order
+from ._mcp.handlers import check_limits as _check_limits
+from ._mcp.handlers import check_overflow as _check_overflow
+from ._mcp.handlers import check_paper_symlink as _check_paper_symlink
 from ._mcp.handlers import check_references as _check_references
 
 try:
@@ -83,6 +86,105 @@ def float_order(
     return handler(project_dir, doc_type, fix, dry_run)
 
 
-__all__ = ["references", "float_order"]
+@_supports_return_as
+def limits(
+    project_dir: str,
+    doc_type: _Literal["manuscript", "supplementary", "revision"] = "manuscript",
+    strict: bool = False,
+    handler: _Optional[_Callable[..., dict]] = None,
+) -> dict:
+    """Validate section word limits + the reference cap (the ``limits:`` block).
+
+    Fast pre-compile check — the same one ``compile`` runs as a gate. Reads the
+    ``limits:`` block from ``config/config_<doc_type>.yaml`` and compares it
+    against ``texcount`` word counts + unique ``\\cite`` keys. Over-limit is a
+    warning by default; ``strict=True`` (or ``limits.strict`` /
+    ``SCITEX_WRITER_LINT_STRICT=1``) makes breaches errors with a non-zero
+    ``exit_code``.
+
+    Returns a dict with ``success``, ``exit_code``, ``stdout``, ``stderr``,
+    and ``summary={passed, warnings, errors}``.
+
+    ``handler`` is the underlying check implementation; it defaults to
+    :func:`scitex_writer._mcp.handlers.check_limits`. Exposed so callers (and
+    tests) can supply an alternate implementation without patching module
+    internals.
+    """
+    handler = handler or _check_limits
+    return handler(project_dir, doc_type, strict)
+
+
+@_supports_return_as
+def overflow(
+    project_dir: str,
+    doc_type: _Literal["manuscript", "supplementary", "revision"] = "manuscript",
+    strict: bool = False,
+    max_pt: _Optional[float] = None,
+    handler: _Optional[_Callable[..., dict]] = None,
+) -> dict:
+    """Detect off-page content — wide tables/figures and over-tall pages.
+
+    Parses the ``.log`` from the last compile for ``Overfull \\hbox`` (too wide)
+    and ``Overfull \\vbox`` (too high) boxes; a table that is not shown entirely
+    appears as a large hbox. Boxes overflowing by <= ``overflow.max_pt`` (default
+    5pt) are cosmetic and ignored; larger ones are warnings, or errors under
+    ``strict=True`` (or ``overflow.strict`` / ``SCITEX_WRITER_LINT_STRICT=1``)
+    with a non-zero ``exit_code``. Runs AFTER compile — it reads the log —
+    unlike the pre-compile :func:`limits`.
+
+    Returns a dict with ``success``, ``exit_code``, ``stdout``, ``stderr``,
+    and ``summary={passed, warnings, errors}``.
+
+    ``handler`` is the underlying check implementation; it defaults to
+    :func:`scitex_writer._mcp.handlers.check_overflow`. Exposed so callers (and
+    tests) can supply an alternate implementation without patching internals.
+    """
+    handler = handler or _check_overflow
+    return handler(project_dir, doc_type, strict, max_pt)
+
+
+@_supports_return_as
+def paper_symlink(
+    project_dir: str,
+    level: _Optional[_Literal["off", "warn", "error", "repair"]] = None,
+    force_after_backup: bool = False,
+    handler: _Optional[_Callable[..., dict]] = None,
+) -> dict:
+    """Detect / repair drift in the ``paper`` -> ``.scitex/writer`` symlink.
+
+    The ``paper -> .scitex/writer`` link is a **private** convention, so it is
+    never enforced by default. Severity is a user-level knob with four levels:
+
+    * ``off`` — check disabled, zero noise. **This is the public default**
+      (when nothing is configured), so the package never errors-by-default.
+    * ``warn`` — report drift as a warning (``exit_code`` 0).
+    * ``error`` — report drift as an error (``exit_code`` 1).
+    * ``repair`` — actively fix the safe cases (create / repoint the symlink;
+      convert a non-diverged real ``paper/`` dir after backing it up).
+
+    Severity precedence (highest → lowest): the ``level`` argument, env
+    ``SCITEX_WRITER_PAPER_SYMLINK``, project ``./config.yaml``
+    (``paper_symlink.level``), user ``~/.scitex/writer/config.yaml``
+    (``paper_symlink.level``), then the ``off`` default.
+
+    Safety: if ``paper/`` is a real directory holding content that is **not**
+    present (same path + same SHA-256) under ``.scitex/writer``, conversion is
+    REFUSED and the directory is preserved — it is never deleted or
+    overwritten. ``force_after_backup=True`` still moves ``paper/`` to a
+    timestamped backup dir before symlinking, so diverged work is never lost.
+
+    Returns a dict with ``success``, ``exit_code``, ``stdout``, ``stderr``,
+    and ``summary={passed, warnings, errors}``.
+
+    ``handler`` is the underlying check implementation; it defaults to
+    :func:`scitex_writer._mcp.handlers.check_paper_symlink`. Exposed so callers
+    (and tests) can supply an alternate implementation without patching
+    internals.
+    """
+    handler = handler or _check_paper_symlink
+    return handler(project_dir, level, force_after_backup)
+
+
+__all__ = ["references", "float_order", "limits", "overflow", "paper_symlink"]
 
 # EOF

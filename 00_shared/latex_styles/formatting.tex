@@ -18,6 +18,19 @@
 \linespread{1.2}
 \linenumbers
 
+%% --- Float placement (reduce stranded whitespace from large/wide floats) ---
+%% LaTeX defaults push a big table/figure onto a near-empty page, leaving the
+%% rest of that page blank. These let floats fill pages more fully before a
+%% float-only page is started, and let a float-only page hold a single large
+%% float without demanding it be nearly full.
+\renewcommand{\topfraction}{0.9}        % a top float may cover up to 90% of a page
+\renewcommand{\bottomfraction}{0.75}
+\renewcommand{\textfraction}{0.1}       % keep >=10% text before forcing a float page
+\renewcommand{\floatpagefraction}{0.7}  % a float-only page must be >=70% full
+\setcounter{topnumber}{3}
+\setcounter{bottomnumber}{2}
+\setcounter{totalnumber}{5}
+
 %% --- Colors ---
 \definecolor{GreenBG}{rgb}{0,1,0}
 \definecolor{RedBG}{rgb}{1,0,0}
@@ -50,7 +63,7 @@
 \openin\wordcount=#1
 \read\wordcount to \thewordcount
 \closein\wordcount
-\begingroup\sisetup{round-mode=none}\num{\thewordcount}\endgroup%
+\begingroup\sisetup{round-mode=none,group-separator={,},group-minimum-digits=4}\num{\thewordcount}\endgroup%
 }
 
 %% --- Text highlighting ---

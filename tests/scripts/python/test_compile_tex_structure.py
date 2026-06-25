@@ -14,6 +14,8 @@ ROOT_DIR = Path(__file__).resolve().parent.parent.parent.parent
 sys.path.insert(0, str(ROOT_DIR / "scripts" / "python"))
 
 from compile_tex_structure import (  # noqa: E402
+    _read_config_theme,
+    _resolve_dark_mode,
     compile_tex_structure,
     expand_inputs,
     generate_signature,
@@ -454,6 +456,86 @@ class TestCompileTexStructure:
         # Act
         # Assert
         assert dark_pos < doc_pos
+
+
+def _theme_project(tmp_path, theme):
+    """Build a minimal project (config/ + 01_manuscript/base.tex) for theme tests."""
+    (tmp_path / "config").mkdir(exist_ok=True)
+    (tmp_path / "01_manuscript").mkdir(exist_ok=True)
+    base = tmp_path / "01_manuscript" / "base.tex"
+    base.write_text("\\begin{document}\nx\n\\end{document}")
+    if theme is not None:
+        (tmp_path / "config" / "config_manuscript.yaml").write_text(f"theme: {theme}\n")
+    return base
+
+
+@pytest.fixture
+def clean_dark_env():
+    """Save/restore the env vars theme resolution reads (no monkeypatch)."""
+    keys = ("SCITEX_WRITER_DARK_MODE", "SCITEX_WRITER_DOC_TYPE")
+    saved = {k: os.environ.get(k) for k in keys}
+    os.environ.pop("SCITEX_WRITER_DARK_MODE", None)
+    os.environ["SCITEX_WRITER_DOC_TYPE"] = "manuscript"
+    yield
+    for k, v in saved.items():
+        if v is None:
+            os.environ.pop(k, None)
+        else:
+            os.environ[k] = v
+
+
+class TestThemeResolution:
+    """theme: light|dark knob (precedence: flag > env > config > light)."""
+
+    def test_resolve_dark_mode_flag_beats_config_light(self, tmp_path, clean_dark_env):
+        # Arrange
+        base = _theme_project(tmp_path, "light")
+        # Act
+        result = _resolve_dark_mode(True, base)
+        # Assert
+        assert result is True
+
+    def test_resolve_dark_mode_config_dark_with_no_flag_or_env(
+        self, tmp_path, clean_dark_env
+    ):
+        # Arrange
+        base = _theme_project(tmp_path, "dark")
+        # Act
+        result = _resolve_dark_mode(False, base)
+        # Assert
+        assert result is True
+
+    def test_resolve_dark_mode_env_false_beats_config_dark(
+        self, tmp_path, clean_dark_env
+    ):
+        # Arrange
+        base = _theme_project(tmp_path, "dark")
+        os.environ["SCITEX_WRITER_DARK_MODE"] = "false"
+        # Act
+        result = _resolve_dark_mode(False, base)
+        # Assert
+        assert result is False
+
+    def test_read_config_theme_invalid_value_raises_systemexit(
+        self, tmp_path, clean_dark_env
+    ):
+        # Arrange
+        base = _theme_project(tmp_path, "drak")
+        # Act
+        raises_systemexit = pytest.raises(SystemExit)
+        # Assert
+        with raises_systemexit:
+            _read_config_theme(base)
+
+    def test_read_config_theme_missing_config_defaults_to_light(
+        self, tmp_path, clean_dark_env
+    ):
+        # Arrange
+        base = _theme_project(tmp_path, None)
+        # Act
+        result = _read_config_theme(base)
+        # Assert
+        assert result == "light"
 
 
 if __name__ == "__main__":
