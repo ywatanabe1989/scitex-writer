@@ -8,50 +8,17 @@
 # per-tool .sif images -- pulling them on first use. Sourced by
 # command_switching.src, which builds the get_cmd_* resolvers on top.
 #
-# FAIL LOUD, NEVER HANG: every image pull is time-boxed. In a restricted or
-# offline shell a `pull docker://...` would otherwise stall forever (the
-# compile's dependency check hung indefinitely on exactly this). A pull that
-# exceeds SCITEX_WRITER_CONTAINER_PULL_TIMEOUT is reported loudly and treated
-# as a failure, and the failure is cached so we do not re-attempt (re-hang) it.
+# FAIL LOUD, NEVER PULL: we resolve only an already-installed .sif. We never
+# `pull docker://...` here -- in a restricted or offline shell that stalls
+# forever and silently greenlights a non-functional engine (the compile's
+# dependency check hung indefinitely on exactly this). When the image is
+# absent we fail loudly with an actionable install hint instead.
 
 # Cache frequently-used checks to avoid redundant calls
 _CACHED_CONTAINER_RUNTIME=""
 _CACHE_CHECKED=false
 _CACHED_MODULE_AVAILABLE=""
 _MODULE_CACHE_CHECKED=false
-
-# Remember a pull that already failed/timed out so we fail fast on the next
-# call instead of re-attempting (and re-hanging) the same unreachable registry.
-_LATEX_PULL_FAILED=false
-_TECTONIC_PULL_FAILED=false
-_MERMAID_PULL_FAILED=false
-_IMAGEMAGICK_PULL_FAILED=false
-
-# Hard time limit (seconds) for a one-time container image pull. Override with
-# SCITEX_WRITER_CONTAINER_PULL_TIMEOUT.
-: "${SCITEX_WRITER_CONTAINER_PULL_TIMEOUT:=300}"
-
-# Pull a container image with a hard timeout, failing loud on stall.
-#   _writer_pull_with_timeout <label> <runtime> <dest_sif> <docker_uri>
-# Returns 0 on success, non-zero on failure/timeout (explained loudly).
-_writer_pull_with_timeout() {
-    local label="$1" runtime="$2" dest="$3" uri="$4"
-    if ! command -v timeout &>/dev/null; then
-        echo_warning "    'timeout' not found; pulling ${label} container without a time limit (may hang)."
-        "$runtime" pull "$dest" "$uri" >/dev/null 2>&1
-        return $?
-    fi
-    timeout "${SCITEX_WRITER_CONTAINER_PULL_TIMEOUT}s" "$runtime" pull "$dest" "$uri" >/dev/null 2>&1
-    local rc=$?
-    if [ "$rc" -eq 124 ]; then
-        echo_error "    ${label} container pull timed out after ${SCITEX_WRITER_CONTAINER_PULL_TIMEOUT}s ($runtime pull $uri)."
-        echo_error "      The image registry is likely unreachable (restricted/offline shell)."
-        echo_error "      Hints: install native LaTeX so no pull is needed; pre-build the .sif on a"
-        echo_error "      networked host and point the matching SCITEX_WRITER_*_APPTAINER_SIF env at it;"
-        echo_error "      or raise SCITEX_WRITER_CONTAINER_PULL_TIMEOUT (seconds)."
-    fi
-    return $rc
-}
 
 # Resolve a writer sub-tool SIF path under the per-package convention
 # (operator design 8566 + sac PR #293): ~/.scitex/writer/containers/<tool>.sif.
@@ -117,70 +84,49 @@ load_texlive_module() {
     fi
 }
 
-# Pull one tool's .sif via the timed helper, caching failure in the named flag.
-#   _writer_setup_container <label> <tool> <sif_var> <docker_uri> <fail_flag_var>
-# Returns 0 when the image is present, 1 otherwise.
-_writer_setup_container() {
-    local label="$1" tool="$2" sif_var="$3" uri="$4" fail_var="$5"
+# Require an already-installed .sif for a sub-tool -- NEVER pull.
+#   _writer_require_container <label> <tool> <sif_var> <install_hint>
+# Returns 0 if the image is present, 1 (loudly) otherwise. We deliberately do
+# NOT download: a `pull docker://...` in a restricted/offline shell hangs and
+# silently greenlights a non-functional engine. Fail loud with an actionable
+# hint so the caller (compile / dependency check) reports honestly.
+_writer_require_container() {
+    local label="$1" tool="$2" sif_var="$3" hint="$4"
     _writer_resolve_sif "$tool" "$sif_var" && return 0
-    [ "${!fail_var}" = true ] && return 1
-
-    if [ ! -f "${!sif_var}" ]; then
-        echo_info "    Downloading ${label} container (one-time setup)..."
-        mkdir -p "$(dirname "${!sif_var}")"
-
-        local runtime
-        runtime=$(get_container_runtime)
-        if [ -z "$runtime" ]; then
-            return 1
-        fi
-        if ! _writer_pull_with_timeout "$label" "$runtime" "${!sif_var}" "$uri"; then
-            eval "$fail_var=true"
-            return 1
-        fi
-
-        if [ -f "${!sif_var}" ]; then
-            echo_success "    Container downloaded to ${!sif_var}"
-            eval "export $sif_var=\"\${$sif_var}\""
-        else
-            eval "$fail_var=true"
-            return 1
-        fi
-    fi
-
-    return 0
+    echo_error "    ${label} container image not found: ${!sif_var}"
+    echo_error "      ${hint}"
+    return 1
 }
 
 # Setup container path (Singularity/Apptainer)
 setup_latex_container() {
-    _writer_setup_container "TeXLive" texlive SCITEX_WRITER_TEXLIVE_APPTAINER_SIF \
-        docker://texlive/texlive:latest _LATEX_PULL_FAILED
+    _writer_require_container "TeXLive" texlive SCITEX_WRITER_TEXLIVE_APPTAINER_SIF \
+        "Install it: 'scitex-writer containers install texlive -y', or set SCITEX_WRITER_TEXLIVE_APPTAINER_SIF to an existing .sif, or install native TeX Live."
 }
 
 # Setup Tectonic container (for tectonic)
 setup_tectonic_container() {
-    _writer_setup_container "Tectonic" tectonic SCITEX_WRITER_TECTONIC_APPTAINER_SIF \
-        docker://tectonic/tectonic:latest _TECTONIC_PULL_FAILED
+    _writer_require_container "Tectonic" tectonic SCITEX_WRITER_TECTONIC_APPTAINER_SIF \
+        "Build tectonic.sif (scripts/containers/tectonic.def) and set SCITEX_WRITER_TECTONIC_APPTAINER_SIF, or install native tectonic."
 }
 
 # Setup Mermaid container (for mmdc)
 setup_mermaid_container() {
-    _writer_setup_container "Mermaid" mermaid SCITEX_WRITER_MERMAID_APPTAINER_SIF \
-        docker://minlag/mermaid-cli:latest _MERMAID_PULL_FAILED
+    _writer_require_container "Mermaid" mermaid SCITEX_WRITER_MERMAID_APPTAINER_SIF \
+        "Provide mermaid.sif and set SCITEX_WRITER_MERMAID_APPTAINER_SIF, or install native mmdc (npm i -g @mermaid-js/mermaid-cli)."
 }
 
 # Setup ImageMagick container
 setup_imagemagick_container() {
-    _writer_setup_container "ImageMagick" imagemagick SCITEX_WRITER_IMAGEMAGICK_APPTAINER_SIF \
-        docker://dpokidov/imagemagick:latest _IMAGEMAGICK_PULL_FAILED
+    _writer_require_container "ImageMagick" imagemagick SCITEX_WRITER_IMAGEMAGICK_APPTAINER_SIF \
+        "Provide imagemagick.sif and set SCITEX_WRITER_IMAGEMAGICK_APPTAINER_SIF, or install native magick/convert."
 }
 
 # Export functions + cache variables for subprocesses
-export -f _writer_pull_with_timeout
 export -f _writer_resolve_sif
 export -f get_container_runtime
 export -f load_texlive_module
-export -f _writer_setup_container
+export -f _writer_require_container
 export -f setup_latex_container
 export -f setup_tectonic_container
 export -f setup_mermaid_container
@@ -190,6 +136,5 @@ export _CACHED_CONTAINER_RUNTIME
 export _CACHE_CHECKED
 export _CACHED_MODULE_AVAILABLE
 export _MODULE_CACHE_CHECKED
-export SCITEX_WRITER_CONTAINER_PULL_TIMEOUT
 
 # EOF
