@@ -71,9 +71,16 @@ compile_with_latexmk() {
         echo_info "    Timeout: ${SCITEX_WRITER_COMPILE_TIMEOUT}s"
     fi
 
-    # Run latexmk with properly quoted array expansion
-    local output=$($timeout_prefix $latexmk_cmd "${opts[@]}" "$tex_file" 2>&1 | grep -v "gocryptfs not found")
+    # Run latexmk with properly quoted array expansion.
+    # Capture latexmk's REAL exit code, then filter the output for display in a
+    # SEPARATE step. Piping latexmk straight into `grep` and reading `$?` would
+    # capture grep's exit, not latexmk's: a failed build still prints output, so
+    # grep exits 0 and the engine falsely reports success -- masking the failure
+    # and letting cleanup keep a stale PDF (the soul.sty silent-failure bug).
+    local output
+    output=$($timeout_prefix $latexmk_cmd "${opts[@]}" "$tex_file" 2>&1)
     local exit_code=$?
+    output=$(printf '%s\n' "$output" | grep -v "gocryptfs not found")
 
     # Check for timeout (exit code 124)
     if [ $exit_code -eq 124 ]; then

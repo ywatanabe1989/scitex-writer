@@ -40,9 +40,55 @@ assert_file_exists() {
     fi
 }
 
-# Add your tests here
-test_placeholder() {
-    echo "TODO: Add tests for compile_latexmk.sh"
+REPO_ROOT="$(realpath "$THIS_DIR/../../../../..")"
+MODULE="$REPO_ROOT/scripts/shell/modules/engines/compile_latexmk.sh"
+
+# Regression: a FAILING latexmk must make compile_with_latexmk return non-zero.
+# The original code read `exit_code=$?` after `latexmk ... | grep`, capturing
+# grep's exit (0, since a failed build still prints output) and falsely
+# reporting success -- which let cleanup keep a stale PDF (soul.sty silent
+# failure). This guards the fix: real latexmk exit code must propagate.
+test_failing_latexmk_propagates_nonzero() {
+    ((TESTS_RUN++))
+    local desc="failing latexmk -> compile_with_latexmk returns non-zero"
+    local workdir
+    workdir="$(mktemp -d)"
+    # Stub `latexmk` that PRINTS output (like a real failed build) then exits 1.
+    cat >"$workdir/latexmk" <<'STUB'
+#!/bin/bash
+echo "! LaTeX Error: File 'soul.sty' not found."
+echo "Emergency stop."
+exit 12
+STUB
+    chmod +x "$workdir/latexmk"
+
+    # Minimal logging shims so the module is callable in isolation.
+    echo_info() { :; }; echo_error() { :; }; echo_success() { :; }
+    echo_warning() { :; }; log_info() { :; }
+    export -f echo_info echo_error echo_success echo_warning log_info 2>/dev/null
+
+    # Sourcing the engine transitively loads config (command_switching.src);
+    # give it the doc-type/root it expects, mirroring a real invocation.
+    export SCITEX_WRITER_DOC_TYPE="${SCITEX_WRITER_DOC_TYPE:-manuscript}"
+    export PROJECT_ROOT="${PROJECT_ROOT:-$REPO_ROOT}"
+    # shellcheck disable=SC1090
+    source "$MODULE"
+    # Force the stub as the latexmk binary, non-auto so a fatal error returns 1.
+    get_cmd_latexmk() { echo "$workdir/latexmk"; }
+    SCITEX_WRITER_ENGINE="latexmk"
+    LOG_DIR="$workdir"
+
+    compile_with_latexmk "$workdir/doc.tex" >/dev/null 2>&1
+    local rc=$?
+    rm -rf "$workdir"
+
+    if [ "$rc" -ne 0 ]; then
+        echo -e "${GREEN}✓${NC} $desc (rc=$rc)"
+        ((TESTS_PASSED++))
+    else
+        echo -e "${RED}✗${NC} $desc (rc=$rc, expected non-zero)"
+        ((TESTS_FAILED++))
+    fi
 }
 
 # Run tests
@@ -50,7 +96,7 @@ main() {
     echo "Testing: compile_latexmk.sh"
     echo "========================================"
 
-    test_placeholder
+    test_failing_latexmk_propagates_nonzero
 
     echo "========================================"
     echo "Results: $TESTS_PASSED/$TESTS_RUN passed"
