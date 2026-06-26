@@ -29,6 +29,7 @@ CROSS_PACKAGE_IMPORTS = [
     "scitex_dev.cli",
     "scitex_dev.decorators",
     "scitex_dev.skills",
+    "scitex_dev.system_deps",
     "scitex_dev.types",
     "scitex_scholar",
     "scitex_ui",
