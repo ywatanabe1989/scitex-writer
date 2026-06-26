@@ -53,6 +53,18 @@ def escape_latex(text):
     return text
 
 
+def _is_verbatim(value) -> bool:
+    """True if a header/cell already carries explicit LaTeX or math.
+
+    A value containing ``$`` (math) or ``\\`` (a LaTeX command) is authored
+    intentionally — pass it through verbatim (no escaping, number-formatting,
+    or title-casing) so e.g. ``$R^2$``, ``$p$``, ``$N_{\\mathrm{perm}}$`` or
+    ``\\textit{r}`` render. Plain values are still escaped (safe). Rare literal
+    ``$`` in plain data must be escaped by the author as ``\\$``.
+    """
+    return "$" in str(value) or "\\" in str(value)
+
+
 def format_number(val):
     """Format numbers appropriately for LaTeX."""
     try:
@@ -166,10 +178,13 @@ def csv_to_latex(csv_file, output_file, caption=None, label=None, max_rows=30):
     # Header row
     headers = []
     for col in df.columns:
-        # Format header
-        header = escape_latex(col)
-        # Remove underscores and capitalize
-        header = header.replace("\\_", " ").title()
+        # Format header. Verbatim if it carries explicit LaTeX/math (e.g.
+        # "$R^2$"); otherwise escape + underscores->spaces. NOT title-cased —
+        # render as authored so acronyms survive ("ROC-AUC" stays "ROC-AUC").
+        if _is_verbatim(col):
+            header = str(col)
+        else:
+            header = escape_latex(col).replace("\\_", " ")
         headers.append(f"\\textbf{{{header}}}")
     lines.append(" & ".join(headers) + " \\\\")
     lines.append("\\midrule")
@@ -186,11 +201,15 @@ def csv_to_latex(csv_file, output_file, caption=None, label=None, max_rows=30):
             if str(val) == "...":
                 is_separator = True
 
-            # Format the value
+            # Format the value. Pass through verbatim if it carries explicit
+            # LaTeX/math ("$p<0.001$"); otherwise number-format + escape.
             if pd.notna(val):
                 if not is_separator:
-                    val = format_number(val)
-                    val = escape_latex(val)
+                    if _is_verbatim(val):
+                        val = str(val)
+                    else:
+                        val = format_number(val)
+                        val = escape_latex(val)
             else:
                 val = "--"  # Display for missing values
 
