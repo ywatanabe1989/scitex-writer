@@ -257,6 +257,16 @@ main() {
     "$PROJECT_ROOT/scripts/shell/modules/check_dependancy_commands.sh"
     log_stage_end "Dependency Check"
 
+    # Provenance / symlink checks (paper_symlink, media_provenance) at their
+    # configured severity -- an error-level violation aborts before compile work
+    # (off/warn never block).
+    log_stage_start "Provenance Checks"
+    if ! "$PROJECT_ROOT/scripts/shell/modules/run_provenance_checks.sh"; then
+        log_error "Provenance check failed (a check is set to error and found a violation)"
+        exit 1
+    fi
+    log_stage_end "Provenance Checks"
+
     # Merge bibliography files if multiple exist
     log_stage_start "Bibliography Merge"
     "$PROJECT_ROOT/scripts/shell/modules/merge_bibliographies.sh"
