@@ -22,10 +22,23 @@ tags: [scitex-writer-env-vars]
 |---|---|---|---|
 | `SCITEX_WRITER_ENGINE` | LaTeX engine (`pdflatex`, `xelatex`, `lualatex`). | `pdflatex` | string |
 | `SCITEX_WRITER_DRAFT_MODE` | Render manuscript in draft mode (faster, no figures). | `false` | bool |
-| `SCITEX_WRITER_DARK_MODE` | Render PDF with dark background (preview only). | `false` | bool |
+| `SCITEX_WRITER_DARK_MODE` | Render PDF with dark page + light text (preview only; equivalent to the `-dm`/`--dark-mode` flag and `theme: dark` config). Does NOT adapt figures — they stay light, so use light mode for submission. | `false` | bool |
 | `SCITEX_WRITER_VERBOSE_PDFLATEX` | Forward full pdflatex output to stderr. | `false` | bool |
 | `SCITEX_WRITER_VERBOSE_BIBTEX` | Forward full bibtex output to stderr. | `false` | bool |
 | `SCITEX_STYLE` | Citation / style override (shared with scitex-plt). | `default` | string |
+
+## Pre-compile / post-compile checks (severity)
+
+Each check resolves a severity; precedence is the CLI flag > the env var below >
+project `./config.yaml` > user `~/.scitex/writer/config.yaml` > the per-check
+default. Setting `off` disables a check; `warn` reports but exits 0; `error`
+exits non-zero.
+
+| Variable | Purpose | Default | Type |
+|---|---|---|---|
+| `SCITEX_WRITER_LINT_STRICT` | Tighten `check-limits` + `check-overflow` warnings to errors (the legacy strict toggle). | `false` | bool |
+| `SCITEX_WRITER_PAPER_SYMLINK` | Severity for the `paper -> .scitex/writer` symlink check (`off`/`warn`/`error`/`repair`). Private convention — default `warn`. | `warn` | enum |
+| `SCITEX_WRITER_MEDIA_PROVENANCE` | Severity for the media-symlink/provenance check on `caption_and_media/` (`off`/`warn`/`error`). Private convention — default `off`. | `off` | enum |
 
 ## Branding & naming
 

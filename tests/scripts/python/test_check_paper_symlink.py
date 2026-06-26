@@ -5,13 +5,16 @@
 import os
 import subprocess
 import sys
+import tempfile
 from pathlib import Path
+
+import pytest
 
 # Add scripts/python to path for imports
 ROOT_DIR = Path(__file__).resolve().parent.parent.parent.parent
 sys.path.insert(0, str(ROOT_DIR / "scripts" / "python"))
 
-from check_paper_symlink import compute_divergence  # noqa: E402
+from check_paper_symlink import compute_divergence, resolve_level  # noqa: E402
 
 _SCRIPT = ROOT_DIR / "scripts" / "python" / "check_paper_symlink.py"
 
@@ -42,6 +45,37 @@ def _run(project, *extra):
         text=True,
         env=env,
     )
+
+
+# ============================================================================
+# resolve_level — default severity (pins the off -> warn flip)
+# ============================================================================
+
+
+@pytest.fixture
+def clean_paper_env():
+    """Isolate env + HOME (real os.environ, restored on teardown) so no stray
+    SCITEX_WRITER_PAPER_SYMLINK or user config.yaml leaks into resolution."""
+    saved = {k: os.environ.get(k) for k in ("SCITEX_WRITER_PAPER_SYMLINK", "HOME")}
+    os.environ.pop("SCITEX_WRITER_PAPER_SYMLINK", None)
+    with tempfile.TemporaryDirectory() as home:
+        os.environ["HOME"] = home
+        yield home
+    for key, val in saved.items():
+        if val is None:
+            os.environ.pop(key, None)
+        else:
+            os.environ[key] = val
+
+
+def test_resolve_level_defaults_to_warn(tmp_path, clean_paper_env):
+    """With no --level, no env, and no config, the default level is warn."""
+    # Arrange
+    project_dir = str(tmp_path)
+    # Act
+    level = resolve_level(None, project_dir)
+    # Assert
+    assert level == "warn"
 
 
 # ============================================================================

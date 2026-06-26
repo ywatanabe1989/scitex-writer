@@ -26,6 +26,29 @@ echo_header() { echo_info "=== $1 ==="; }
 echo_warn() { echo -e "${YELLOW}WARN: $1${NC}"; }
 echo_error_soft() { echo -e "${RED}ERRO: $1${NC}"; }
 
+# Fail loud if yq is missing or broken BEFORE we read any config value. Every
+# path below is extracted with `yq`; a silently-failing yq (e.g. a .venv/bin/yq
+# whose Python shebang no longer resolves -> "bad interpreter") otherwise yields
+# EMPTY paths that cascade into `mkdir ''` / `tee ''` and a cryptic "Failed to
+# compile" far from the real cause. One clear error here beats 30 of those.
+_require_working_yq() {
+    if ! command -v yq &>/dev/null; then
+        echo_error "yq not found on PATH -- required to read the YAML config."
+        echo_error "  Install it (Go: https://github.com/mikefarah/yq) or add a working yq to PATH."
+        exit 1
+    fi
+    if ! yq --version >/dev/null 2>&1; then
+        local _yq_path _yq_err
+        _yq_path="$(command -v yq)"
+        _yq_err="$(yq --version 2>&1 | head -1)"
+        echo_error "yq is present ($_yq_path) but does NOT run: ${_yq_err}"
+        echo_error "  Likely a broken interpreter (e.g. a .venv/bin/yq whose Python shebang no longer resolves)."
+        echo_error "  Fix: repair/recreate the venv, or put a working yq first on PATH; then re-run."
+        exit 1
+    fi
+}
+_require_working_yq
+
 # Resolve dark mode from config BEFORE the load-cache guard, so `theme: dark`
 # ALWAYS applies -- even when CONFIG_LOADED is inherited (a cached re-source
 # must not silently render the PDF light; dark is an accessibility default).
@@ -164,6 +187,29 @@ else
     export SCITEX_WRITER_DARK_LINK_INTERNAL="$(yq -r '.dark_mode.link_internal' "$CONFIG_FILE")"
     export SCITEX_WRITER_DARK_LINK_CITATION="$(yq -r '.dark_mode.link_citation' "$CONFIG_FILE")"
     export SCITEX_WRITER_DARK_LINK_URL="$(yq -r '.dark_mode.link_url' "$CONFIG_FILE")"
+fi
+
+# Fail loud if a critical path came back empty. yq runs fine (probed above), so
+# an empty here means the KEY is missing from $CONFIG_FILE -- abort now with the
+# offending key rather than letting an empty path reach `mkdir ''` / `tee ''`.
+_stxw_missing=""
+for _stxw_pair in \
+    "paths.doc_root_dir:$SCITEX_WRITER_ROOT_DIR" \
+    "paths.doc_log_dir:$LOG_DIR" \
+    "paths.compiled_tex:$SCITEX_WRITER_COMPILED_TEX" \
+    "paths.compiled_pdf:$SCITEX_WRITER_COMPILED_PDF" \
+    "paths.base_tex:$SCITEX_WRITER_BASE_TEX"; do
+    _stxw_key="${_stxw_pair%%:*}"
+    _stxw_val="${_stxw_pair#*:}"
+    if [ -z "$_stxw_val" ] || [ "$_stxw_val" = "null" ]; then
+        _stxw_missing="${_stxw_missing} ${_stxw_key}"
+    fi
+done
+if [ -n "$_stxw_missing" ]; then
+    echo_error "config $CONFIG_FILE is missing required path key(s):${_stxw_missing}"
+    echo_error "  These resolve to empty paths and would break the compile (mkdir/tee on '')."
+    echo_error "  Check $CONFIG_FILE has a complete 'paths:' block (compare against the template)."
+    exit 1
 fi
 
 if [ "$CONFIG_LOADED" != "true" ]; then

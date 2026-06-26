@@ -226,6 +226,14 @@ main() {
     ./scripts/shell/modules/check_dependancy_commands.sh
     log_stage_end "Dependency Check"
 
+    # Provenance / symlink checks at their configured severity (error blocks).
+    log_stage_start "Provenance Checks"
+    if ! ./scripts/shell/modules/run_provenance_checks.sh; then
+        log_error "Provenance check failed (a check is set to error and found a violation)"
+        exit 1
+    fi
+    log_stage_end "Provenance Checks"
+
     # Merge bibliography files if multiple exist
     log_stage_start "Bibliography Merge"
     ./scripts/shell/modules/merge_bibliographies.sh

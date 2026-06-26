@@ -37,6 +37,22 @@ source ./config/load_config.sh "$SCITEX_WRITER_DOC_TYPE"
 source "$(dirname "${BASH_SOURCE[0]}")/command_switching.src"
 log_info "Running ${BASH_SOURCE[0]}..."
 
+# Verify a RESOLVED command actually executes -- not merely that get_cmd_*
+# returned a non-empty string. Probes through the full command incl. any
+# container-exec prefix, so a present-but-unmountable .sif (squashfuse
+# 'fuse: device not found') fails here instead of being greenlit as a working
+# engine. Returns 0 only when the probe runs to a 0 exit within the timeout.
+_probe_runs() {
+    local cmd="$1"
+    [ -z "$cmd" ] && return 1
+    # shellcheck disable=SC2086  # $cmd is a multi-word resolved command line.
+    if command -v timeout &>/dev/null; then
+        timeout 20 $cmd --version &>/dev/null
+    else
+        $cmd --version &>/dev/null
+    fi
+}
+
 # Detect package manager
 detect_package_manager() {
     if command -v apt &>/dev/null; then
@@ -67,7 +83,7 @@ fi
 check_pdflatex() {
     local cmd
     cmd=$(get_cmd_pdflatex "$ORIG_DIR")
-    if [ -z "$cmd" ]; then
+    if [ -z "$cmd" ] || ! _probe_runs "$cmd"; then
         echo "- pdflatex"
         if [ "$PKG_MANAGER" = "apt" ]; then
             echo "    - ${SUDO_PREFIX}apt install texlive-latex-base"
@@ -75,7 +91,7 @@ check_pdflatex() {
             echo "    - ${SUDO_PREFIX}yum install texlive-latex"
         fi
         echo "    - Or use: module load texlive"
-        echo "    - Or use: apptainer/singularity with texlive container"
+        echo "    - Or use: scitex-writer containers install texlive -y"
         return 1
     fi
     return 0
@@ -84,7 +100,7 @@ check_pdflatex() {
 check_bibtex() {
     local cmd
     cmd=$(get_cmd_bibtex "$ORIG_DIR")
-    if [ -z "$cmd" ]; then
+    if [ -z "$cmd" ] || ! _probe_runs "$cmd"; then
         echo "- bibtex"
         if [ "$PKG_MANAGER" = "apt" ]; then
             echo "    - ${SUDO_PREFIX}apt install texlive-bibtex-extra"
@@ -92,7 +108,7 @@ check_bibtex() {
             echo "    - ${SUDO_PREFIX}yum install texlive-bibtex"
         fi
         echo "    - Or use: module load texlive"
-        echo "    - Or use: apptainer/singularity with texlive container"
+        echo "    - Or use: scitex-writer containers install texlive -y"
         return 1
     fi
     return 0
@@ -101,7 +117,7 @@ check_bibtex() {
 check_latexdiff() {
     local cmd
     cmd=$(get_cmd_latexdiff "$ORIG_DIR")
-    if [ -z "$cmd" ]; then
+    if [ -z "$cmd" ] || ! _probe_runs "$cmd"; then
         echo "- latexdiff"
         if [ "$PKG_MANAGER" = "apt" ]; then
             echo "    - ${SUDO_PREFIX}apt install latexdiff"
@@ -109,7 +125,7 @@ check_latexdiff() {
             echo "    - ${SUDO_PREFIX}yum install texlive-latexdiff"
         fi
         echo "    - Or use: module load texlive"
-        echo "    - Or use: apptainer/singularity with texlive container"
+        echo "    - Or use: scitex-writer containers install texlive -y"
         return 1
     fi
     return 0
@@ -118,7 +134,7 @@ check_latexdiff() {
 check_texcount() {
     local cmd
     cmd=$(get_cmd_texcount "$ORIG_DIR")
-    if [ -z "$cmd" ]; then
+    if [ -z "$cmd" ] || ! _probe_runs "$cmd"; then
         echo "- texcount"
         if [ "$PKG_MANAGER" = "apt" ]; then
             echo "    - ${SUDO_PREFIX}apt install texlive-extra-utils"
@@ -126,7 +142,22 @@ check_texcount() {
             echo "    - ${SUDO_PREFIX}yum install texlive-texcount"
         fi
         echo "    - Or use: module load texlive"
-        echo "    - Or use: apptainer/singularity with texlive container"
+        echo "    - Or use: scitex-writer containers install texlive -y"
+        return 1
+    fi
+    return 0
+}
+
+check_yq() {
+    # yq is invoked directly by config/load_config.sh to read every YAML path.
+    # Probe EXECUTION (not mere presence): a present-but-broken yq (e.g. a
+    # .venv/bin/yq whose Python shebang no longer resolves -> "bad interpreter")
+    # must FAIL here, otherwise it passes the gate green and then silently
+    # yields empty paths during config load.
+    if ! command -v yq &>/dev/null || ! yq --version &>/dev/null 2>&1; then
+        echo "- yq"
+        echo "    - Go (recommended): https://github.com/mikefarah/yq"
+        echo "    - If present but failing: a broken venv interpreter -- repair the venv or put a working yq first on PATH"
         return 1
     fi
     return 0
@@ -191,7 +222,7 @@ check_numpy() {
 check_mmdc() {
     local cmd
     cmd=$(get_cmd_mmdc "$ORIG_DIR")
-    if [ -z "$cmd" ]; then
+    if [ -z "$cmd" ] || ! _probe_runs "$cmd"; then
         echo "- mmdc (optional, for Mermaid diagrams)"
         if ! command -v npm &>/dev/null; then
             echo "    - First install npm/nodejs"
@@ -307,6 +338,10 @@ check_all_dependencies() {
         check_bibtexparser >"$temp_dir/req_bibtexparser" 2>&1
         echo $? >"$temp_dir/req_bibtexparser.exit"
     ) &
+    (
+        check_yq >"$temp_dir/req_yq" 2>&1
+        echo $? >"$temp_dir/req_yq.exit"
+    ) &
 
     # Run all optional checks in parallel
     (
@@ -334,7 +369,7 @@ check_all_dependencies() {
     # Collect required results with exit codes
     declare -A tool_status
     local exit_code
-    for tool in pdflatex bibtex latexdiff texcount xlsx2csv csv2latex parallel bibtexparser; do
+    for tool in pdflatex bibtex latexdiff texcount yq xlsx2csv csv2latex parallel bibtexparser; do
         exit_code=$(cat "$temp_dir/req_${tool}.exit" 2>/dev/null || echo 1)
         if [ "$exit_code" -eq 0 ]; then
             tool_status[$tool]="✓"
@@ -375,6 +410,7 @@ check_all_dependencies() {
         printf "      %-20s %s\n" "bibtex" "${tool_status[bibtex]}"
         printf "      %-20s %s\n" "latexdiff" "${tool_status[latexdiff]}"
         printf "      %-20s %s\n" "texcount" "${tool_status[texcount]}"
+        printf "      %-20s %s\n" "yq" "${tool_status[yq]}"
         printf "      %-20s %s\n" "xlsx2csv" "${tool_status[xlsx2csv]}"
         printf "      %-20s %s\n" "csv2latex" "${tool_status[csv2latex]}"
         printf "      %-20s %s\n" "parallel" "${tool_status[parallel]}"

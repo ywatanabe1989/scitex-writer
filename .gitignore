@@ -699,6 +699,8 @@ flycheck_*.el
 .tmp/
 *.tmp
 /.claude-worktree-symlinks
+# git worktrees created under the repo (never commit them as gitlinks)
+/.worktrees/
 # Claude worktree symlink
 /fix-versioning-with-git
 # Claude worktree symlink

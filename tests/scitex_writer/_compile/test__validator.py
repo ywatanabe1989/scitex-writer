@@ -11,7 +11,64 @@ import pytest
 pytest.importorskip("git")
 from pathlib import Path
 
-from scitex_writer._compile._validator import validate_before_compile
+from scitex_writer._compile._validator import (
+    _validate_provenance,
+    validate_before_compile,
+)
+
+
+class _StubRunner:
+    """Real callable returning a canned check-result envelope.
+
+    Injected via the ``runners=`` seam on _validate_provenance so the gate
+    logic is exercised with real objects (no patching, no Mock) per the
+    repo's no-mocks rule.
+    """
+
+    def __init__(self, result: dict):
+        self.result = result
+
+    def __call__(self, *args):
+        return self.result
+
+
+class TestValidateProvenance:
+    """Test suite for the _validate_provenance compile-gate step."""
+
+    def test_raises_when_check_at_error_with_violation(self):
+        """A check returning a non-zero exit_code aborts the compile."""
+        # Arrange
+        err = {
+            "success": True,
+            "exit_code": 1,
+            "stdout": "media: raw file foo.jpg",
+            "summary": {"errors": 1},
+        }
+        runners = [("media-provenance", _StubRunner(err))]
+        # Act
+        # Assert
+        with pytest.raises(RuntimeError):
+            _validate_provenance(Path("/tmp/whatever"), runners=runners)
+
+    def test_passes_when_no_violation(self):
+        """A check at exit_code 0 does not raise."""
+        # Arrange
+        ok = {"success": True, "exit_code": 0, "summary": {}}
+        runners = [("media-provenance", _StubRunner(ok))]
+        # Act
+        result = _validate_provenance(Path("/tmp/whatever"), runners=runners)
+        # Assert
+        assert result is None
+
+    def test_skips_missing_check_script_without_raising(self):
+        """A check whose script is absent (no exit_code) is skipped, not fatal."""
+        # Arrange
+        missing = {"success": False, "error": "check script not found"}
+        runners = [("media-provenance", _StubRunner(missing))]
+        # Act
+        result = _validate_provenance(Path("/tmp/whatever"), runners=runners)
+        # Assert
+        assert result is None
 
 
 class TestValidateBeforeCompile:
