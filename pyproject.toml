@@ -95,6 +95,9 @@ scitex-writer = "scitex_writer"
 [project.entry-points."scitex_dev.skills"]
 scitex-writer = "scitex_writer"
 
+[project.entry-points."scitex_dev.system_deps"]
+scitex-writer = "scitex_writer._system_deps:provide"
+
 [project.urls]
 Homepage = "https://github.com/ywatanabe1989/scitex-writer"
 Documentation = "https://scitex-writer.readthedocs.io"
