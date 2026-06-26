@@ -7,6 +7,53 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.22.0] - 2026-06-26
+
+### Added
+- **System-deps provider (SSoT for LaTeX apt packages).**
+  `scitex_writer._system_deps:provide()` is registered as a
+  `scitex_dev.system_deps` entry-point, so the ecosystem aggregator and
+  container image builds install scitex-writer's LaTeX toolchain from a single
+  source of truth instead of a hand-maintained list. Declares the texlive set
+  (base/recommended/extra, fonts-recommended/-extra, science, pictures,
+  publishers, luatex, xetex, bibtex-extra, lang-english, plain-generic) plus
+  `latexmk`, `latexdiff`, `chktex`, `texlive-extra-utils`, `parallel`, and
+  `biber`. Standalone emit: `python -m scitex_writer._system_deps`.
+- **`biber` available alongside bibtex.** bibtex/natbib remains the default
+  bibliography path; `biber` is now in the dependency set so biblatex-based
+  manuscripts compile out of the box (opt-in per project; not the default).
+- **`media-provenance` check** (`scitex-writer check-media-provenance`, also
+  `checks.media_provenance()`) — flags figure/table media in
+  `caption_and_media/` that are raw files rather than symlinks generated from
+  `scripts/`. Severity (`off`/`warn`/`error`) and the `require_under_scripts`
+  strict mode are config-driven; default is `off`.
+
+### Changed
+- **Provenance/symlink checks are now enforced at compile time.** Both the
+  shell compile gate (`compile_{manuscript,supplementary,revision}.sh`) and the
+  Python `validate_before_compile()` API path run `paper-symlink` and
+  `media-provenance` at their configured severity before any pdflatex work:
+  `off`/`warn` never block, `error` aborts the compile (fail-loud). Previously
+  setting a check to `error` was a silent no-op at compile time.
+- **`paper-symlink` default severity is now `warn`** (was `off`), so a drifted
+  `paper` link surfaces by default without blocking.
+
+### Fixed
+- **latexmk engine swallowed its real exit code.** `compile_with_latexmk` read
+  `$?` after a `latexmk ... | grep` pipe, capturing grep's exit (always 0 when
+  there is output) instead of latexmk's. A failed build reported success and
+  `cleanup()` kept the stale PDF. It now propagates latexmk's real exit code, so
+  broken builds fail loud and the stale PDF is removed.
+- **Container/compile honesty + fail-loud.** A missing or broken `yq`, or an
+  unavailable pre-built container, now fails loudly with hints instead of
+  cascading from empty paths or silently using a stale artifact.
+- **csv→LaTeX rendering** preserves acronyms and inline math: dropped forced
+  title-casing and passes values containing `$`/`\` through verbatim.
+
+### Docs
+- Recorded writer skill learnings (dark-mode caveat, fail-loud compile,
+  check-severity env vars) and a shared severity-model contract proposal.
+
 ## [2.21.0] - 2026-06-25
 
 ### Added
