@@ -15,9 +15,11 @@ with the _cli split). Standalone interim emit (no scitex-dev needed)::
 
     apt-get install -y --no-install-recommends $(python -m scitex_writer._system_deps)
 
-NOTE: bibliography is the natbib + bibtex path (texlive-bibtex-extra), matching
-texlive.def -- NOT biber/biblatex. NOTE: a manuscript using `bashful` must
-compile with ``--shell-escape`` (a compile flag, not an apt package).
+NOTE: bibtex (texlive-bibtex-extra) is the default natbib bibliography path,
+matching texlive.def. ``biber`` is also included so biblatex-based manuscripts
+compile out of the box -- it does NOT change the default engine (an
+operator/config choice). NOTE: a manuscript using `bashful` must compile with
+``--shell-escape`` (a compile flag, not an apt package).
 """
 
 from __future__ import annotations
@@ -34,7 +36,8 @@ _PACKAGES: list[tuple[str, str]] = [
     ("texlive-publishers", "publisher classes (elsarticle, ...)"),
     ("texlive-luatex", "LuaLaTeX engine"),
     ("texlive-xetex", "XeLaTeX engine"),
-    ("texlive-bibtex-extra", "BibTeX + natbib bibliography path"),
+    ("texlive-bibtex-extra", "BibTeX + natbib bibliography path (default)"),
+    ("biber", "Biber backend for biblatex-based manuscripts (non-default)"),
     ("texlive-lang-english", "English language/hyphenation support"),
     ("texlive-plain-generic", "plain/generic packages"),
     ("latexmk", "compile orchestrator"),
