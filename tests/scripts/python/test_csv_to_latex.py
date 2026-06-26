@@ -459,6 +459,42 @@ class TestCsvToLatex:
         # Assert
         assert "truncated" in content.lower() or "omitted" in content.lower()
 
+    def test_csv_to_latex_preserves_acronym_header(self, tmp_path):
+        """Header acronyms are not title-cased (ROC-AUC stays ROC-AUC)."""
+        # Arrange
+        csv_file = tmp_path / "test.csv"
+        csv_file.write_text("ROC-AUC\n0.9")
+        output_file = tmp_path / "output.tex"
+        csv_to_latex(csv_file, output_file)
+        # Act
+        content = output_file.read_text()
+        # Assert
+        assert "\\textbf{ROC-AUC}" in content
+
+    def test_csv_to_latex_math_header_verbatim(self, tmp_path):
+        """A header carrying $...$ math is passed through unescaped."""
+        # Arrange
+        csv_file = tmp_path / "test.csv"
+        csv_file.write_text("$R^2$\n0.8")
+        output_file = tmp_path / "output.tex"
+        csv_to_latex(csv_file, output_file)
+        # Act
+        content = output_file.read_text()
+        # Assert
+        assert "\\textbf{$R^2$}" in content
+
+    def test_csv_to_latex_math_cell_verbatim(self, tmp_path):
+        """A cell carrying $...$ math is passed through unescaped."""
+        # Arrange
+        csv_file = tmp_path / "test.csv"
+        csv_file.write_text("stat\n$p<0.001$")
+        output_file = tmp_path / "output.tex"
+        csv_to_latex(csv_file, output_file)
+        # Act
+        content = output_file.read_text()
+        # Assert
+        assert "$p<0.001$" in content
+
 
 if __name__ == "__main__":
     pytest.main([os.path.abspath(__file__), "-v"])
