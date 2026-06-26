@@ -28,6 +28,14 @@ def test_apt_packages_has_parallel():
     assert "parallel" in APT_PACKAGES
 
 
+def test_apt_packages_has_both_bibtex_and_biber():
+    # Arrange
+    # Act
+    # Assert: keep-both -- bibtex is the default natbib path, biber lets
+    # biblatex-based projects compile (neurovista coordination, 2026-06-26).
+    assert {"texlive-bibtex-extra", "biber"} <= set(APT_PACKAGES)
+
+
 def test_apt_packages_match_package_table():
     # Arrange
     expected = [pkg for pkg, _ in _PACKAGES]
