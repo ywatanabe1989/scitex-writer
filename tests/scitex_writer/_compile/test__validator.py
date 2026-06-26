@@ -17,49 +17,56 @@ from scitex_writer._compile._validator import (
 )
 
 
-def _patch_checks(monkeypatch, paper_result, media_result):
-    """Replace both provenance check handlers with canned results."""
-    import scitex_writer._mcp.handlers._checks as checks
+class _StubRunner:
+    """Real callable returning a canned check-result envelope.
 
-    monkeypatch.setattr(checks, "check_paper_symlink", lambda *a, **k: paper_result)
-    monkeypatch.setattr(checks, "check_media_provenance", lambda *a, **k: media_result)
+    Injected via the ``runners=`` seam on _validate_provenance so the gate
+    logic is exercised with real objects (no patching, no Mock) per the
+    repo's no-mocks rule.
+    """
+
+    def __init__(self, result: dict):
+        self.result = result
+
+    def __call__(self, *args):
+        return self.result
 
 
 class TestValidateProvenance:
     """Test suite for the _validate_provenance compile-gate step."""
 
-    def test_raises_when_check_at_error_with_violation(self, monkeypatch):
+    def test_raises_when_check_at_error_with_violation(self):
         """A check returning a non-zero exit_code aborts the compile."""
         # Arrange
-        ok = {"success": True, "exit_code": 0, "summary": {}}
         err = {
             "success": True,
             "exit_code": 1,
             "stdout": "media: raw file foo.jpg",
             "summary": {"errors": 1},
         }
-        _patch_checks(monkeypatch, paper_result=ok, media_result=err)
-        # Act / Assert
+        runners = [("media-provenance", _StubRunner(err))]
+        # Act
+        # Assert
         with pytest.raises(RuntimeError):
-            _validate_provenance(Path("/tmp/whatever"))
+            _validate_provenance(Path("/tmp/whatever"), runners=runners)
 
-    def test_passes_when_no_violation(self, monkeypatch):
-        """All checks at exit_code 0 do not raise."""
+    def test_passes_when_no_violation(self):
+        """A check at exit_code 0 does not raise."""
         # Arrange
         ok = {"success": True, "exit_code": 0, "summary": {}}
-        _patch_checks(monkeypatch, paper_result=ok, media_result=ok)
+        runners = [("media-provenance", _StubRunner(ok))]
         # Act
-        result = _validate_provenance(Path("/tmp/whatever"))
+        result = _validate_provenance(Path("/tmp/whatever"), runners=runners)
         # Assert
         assert result is None
 
-    def test_skips_missing_check_script_without_raising(self, monkeypatch):
+    def test_skips_missing_check_script_without_raising(self):
         """A check whose script is absent (no exit_code) is skipped, not fatal."""
         # Arrange
         missing = {"success": False, "error": "check script not found"}
-        _patch_checks(monkeypatch, paper_result=missing, media_result=missing)
+        runners = [("media-provenance", _StubRunner(missing))]
         # Act
-        result = _validate_provenance(Path("/tmp/whatever"))
+        result = _validate_provenance(Path("/tmp/whatever"), runners=runners)
         # Assert
         assert result is None
 
