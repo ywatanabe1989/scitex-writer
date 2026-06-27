@@ -2,15 +2,18 @@
 # -*- coding: utf-8 -*-
 # File: scripts/shell/modules/run_provenance_checks.sh
 #
-# Run the config-driven provenance/symlink checks at their RESOLVED severity
+# Run the config-driven pre-compile checks at their RESOLVED severity
 # (off|warn|error via CLI/env/config). Each underlying script
-# (scripts/python/check_{paper_symlink,media_provenance}.py) resolves its own
-# level and exits non-zero ONLY at error-level with a violation. So:
+# (scripts/python/check_{paper_symlink,media_provenance,caption_footnote}.py)
+# resolves its own level and exits non-zero ONLY at error-level with a
+# violation. So:
 #   off   -> no-op (exit 0)
 #   warn  -> reports, exit 0 (does NOT block the compile)
 #   error -> exit 1 (blocks the compile, fail-loud)
-# This is what makes `paper_symlink: error` / `media_provenance: error` actually
-# enforce at compile time -- previously the compile ran neither check.
+# This is what makes `paper_symlink: error` / `media_provenance: error` /
+# `caption_footnote: error` actually enforce at compile time -- previously the
+# compile ran none of them. caption_footnote defaults to error (a \footnote in
+# a \caption{} is always a fatal compile pattern).
 #
 # Returns the worst exit code across the checks (0 unless a check errored).
 
@@ -21,7 +24,7 @@ PROJECT_ROOT="${PROJECT_ROOT:-$(cd "$THIS_DIR/../../.." && pwd)}"
 PY="${SCITEX_WRITER_PYTHON:-python3}"
 
 rc=0
-for chk in check_paper_symlink check_media_provenance; do
+for chk in check_paper_symlink check_media_provenance check_caption_footnote; do
     script="$THIS_DIR/../../python/${chk}.py"
     [ -f "$script" ] || continue
     "$PY" "$script" "$PROJECT_ROOT" || rc=$?

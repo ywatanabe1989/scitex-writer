@@ -35,7 +35,31 @@ def test_module_exports_references_float_order_limits_and_overflow():
         "overflow",
         "paper_symlink",
         "media_provenance",
+        "caption_footnote",
     ]
+
+
+def test_caption_footnote_forwards_all_arguments_to_handler():
+    # Arrange
+    handler = _RecordingHandler({"success": True})
+    # Act
+    checks.caption_footnote(
+        "/path",
+        doc_type="supplementary",
+        level="error",
+        handler=handler,
+    )
+    # Assert
+    assert handler.calls == [("/path", "supplementary", "error")]
+
+
+def test_caption_footnote_defaults_are_all_doctype_none_level():
+    # Arrange
+    handler = _RecordingHandler({"success": True})
+    # Act
+    checks.caption_footnote("/path", handler=handler)
+    # Assert
+    assert handler.calls == [("/path", "all", None)]
 
 
 def test_media_provenance_forwards_all_arguments_to_handler():
