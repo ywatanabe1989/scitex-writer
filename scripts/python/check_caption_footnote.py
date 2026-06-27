@@ -49,6 +49,9 @@ import re
 import sys
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from _severity import resolve_level  # noqa: E402
+
 # ANSI colors (match check_media_provenance.py / check_paper_symlink.py)
 GREEN = "\033[0;32m"
 YELLOW = "\033[1;33m"
@@ -62,7 +65,6 @@ WARN_COUNT = 0
 FAIL_COUNT = 0
 
 _LEVELS = ("off", "warn", "error")
-_DEFAULT_LEVEL = "error"
 
 _DOC_DIRS = {
     "manuscript": "01_manuscript",
@@ -100,44 +102,6 @@ def log_fail(msg):
 
 def log_detail(msg):
     print(f"    {DIM}{msg}{NC}")
-
-
-def _read_block(config_path):
-    """Read the ``caption_footnote`` mapping from a YAML config, or ``{}``."""
-    if not config_path.exists():
-        return {}
-    try:
-        import yaml
-    except ImportError:
-        return {}
-    try:
-        data = yaml.safe_load(config_path.read_text(encoding="utf-8")) or {}
-    except Exception:
-        return {}
-    if not isinstance(data, dict):
-        return {}
-    block = data.get("caption_footnote")
-    return block if isinstance(block, dict) else {}
-
-
-def _config_blocks(project_dir):
-    proj = _read_block(Path(project_dir) / "config.yaml")
-    user = _read_block(Path.home() / ".scitex" / "writer" / "config.yaml")
-    return proj, user
-
-
-def resolve_level(cli_level, proj_block, user_block):
-    """Resolve the effective severity level via the documented precedence."""
-    if cli_level:
-        return cli_level.lower()
-    env = os.environ.get("SCITEX_WRITER_CAPTION_FOOTNOTE", "").strip().lower()
-    if env in _LEVELS:
-        return env
-    for block in (proj_block, user_block):
-        level = block.get("level")
-        if isinstance(level, str) and level.lower() in _LEVELS:
-            return level.lower()
-    return _DEFAULT_LEVEL
 
 
 def _strip_comments(text):
@@ -278,8 +242,13 @@ def main():
     args = parser.parse_args()
 
     project_dir = Path(args.project_dir).resolve()
-    proj_block, user_block = _config_blocks(project_dir)
-    level = resolve_level(args.level, proj_block, user_block)
+    level = resolve_level(
+        "caption_footnote",
+        args.level,
+        project_dir,
+        default="error",
+        env_var="SCITEX_WRITER_CAPTION_FOOTNOTE",
+    )
 
     print(f"\n{BOLD}=== Caption Footnote Check (level={level}) ==={NC}\n")
 

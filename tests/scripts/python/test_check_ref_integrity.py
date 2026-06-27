@@ -77,7 +77,13 @@ def test_resolve_level_defaults_to_error(tmp_path, clean_env):
     """With no --level, no env, no config, the default level is error."""
     # Arrange
     # Act
-    level = resolve_level(None, str(tmp_path))
+    level = resolve_level(
+        "ref_integrity",
+        None,
+        str(tmp_path),
+        default="error",
+        env_var="SCITEX_WRITER_REF_INTEGRITY",
+    )
     # Assert
     assert level == "error"
 

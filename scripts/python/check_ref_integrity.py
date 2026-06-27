@@ -36,13 +36,13 @@
 # check_references.py (same scripts/python/ dir).
 
 import argparse
-import os
 import re
 import sys
 from pathlib import Path
 
 # Reuse the proven extractors from the sibling check (same dir).
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+from _severity import resolve_level  # noqa: E402
 from check_references import (  # noqa: E402
     collect_tex_files,
     extract_bib_keys,
@@ -64,7 +64,6 @@ WARN_COUNT = 0
 FAIL_COUNT = 0
 
 _LEVELS = ("off", "warn", "error")
-_DEFAULT_LEVEL = "error"
 
 _DOC_DIRS = {
     "manuscript": "01_manuscript",
@@ -102,37 +101,6 @@ def log_detail(msg):
     print(f"    {DIM}{msg}{NC}")
 
 
-def _read_block(config_path):
-    if not config_path.exists():
-        return {}
-    try:
-        import yaml
-    except ImportError:
-        return {}
-    try:
-        data = yaml.safe_load(config_path.read_text(encoding="utf-8")) or {}
-    except Exception:
-        return {}
-    if not isinstance(data, dict):
-        return {}
-    block = data.get("ref_integrity")
-    return block if isinstance(block, dict) else {}
-
-
-def resolve_level(cli_level, project_dir):
-    """Resolve severity via CLI > env > project config > user config > default."""
-    if cli_level:
-        return cli_level.lower()
-    env = os.environ.get("SCITEX_WRITER_REF_INTEGRITY", "").strip().lower()
-    if env in _LEVELS:
-        return env
-    proj = _read_block(Path(project_dir) / "config.yaml")
-    user = _read_block(Path.home() / ".scitex" / "writer" / "config.yaml")
-    for block in (proj, user):
-        level = block.get("level")
-        if isinstance(level, str) and level.lower() in _LEVELS:
-            return level.lower()
-    return _DEFAULT_LEVEL
 
 
 def _read_aux_labels(aux_path):
@@ -175,7 +143,13 @@ def main():
     args = parser.parse_args()
 
     project_dir = Path(args.project_dir).resolve()
-    level = resolve_level(args.level, project_dir)
+    level = resolve_level(
+        "ref_integrity",
+        args.level,
+        project_dir,
+        default="error",
+        env_var="SCITEX_WRITER_REF_INTEGRITY",
+    )
 
     print(f"\n{BOLD}=== Reference Integrity Gate (level={level}) ==={NC}\n")
     if level == "off":
