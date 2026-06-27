@@ -317,6 +317,42 @@ def check_caption_footnote(
     return _run_script(script, project_path, args, timeout)
 
 
+def check_ref_integrity(
+    project_dir: str,
+    doc_type: str = "all",
+    level: str | None = None,
+    timeout: int = 60,
+) -> dict:
+    """Pre-compile reference-integrity gate: validate every reference class.
+
+    Reports ALL problems at once (file:line) across four classes -- figure
+    ``\\ref``, table ``\\ref``, ``\\cite``-key-in-merged-bib, and ``supple-``
+    cross-document xrefs (resolved against the supplement's ``.aux``; a missing
+    supplement ``.aux`` is reported explicitly as "not compiled" rather than as
+    undefined refs) -- then exits non-zero so the compile stage can BLOCK
+    (proceeding only on an explicit ``--yes``). Reuses ``check_references.py``'s
+    extractors.
+
+    Severity precedence (highest -> lowest): ``level`` arg, env
+    ``SCITEX_WRITER_REF_INTEGRITY``, project ``./config.yaml``
+    (``ref_integrity.level``), user ``~/.scitex/writer/config.yaml``, default
+    ``error`` (a broken ref ships a ?-mark / wrong PDF).
+
+    Args:
+        project_dir: Project root.
+        doc_type: ``manuscript``, ``supplementary``, ``revision``, or ``all``.
+        level: One of ``off``, ``warn``, ``error``. When ``None``, env/config
+            precedence resolves the level.
+        timeout: Subprocess timeout in seconds.
+    """
+    project_path = resolve_project_path(project_dir)
+    script = _script_path(project_path, "check_ref_integrity.py")
+    args = ["--doc-type", doc_type]
+    if level is not None:
+        args += ["--level", level]
+    return _run_script(script, project_path, args, timeout)
+
+
 __all__ = [
     "check_references",
     "check_float_order",
@@ -325,6 +361,7 @@ __all__ = [
     "check_paper_symlink",
     "check_media_provenance",
     "check_caption_footnote",
+    "check_ref_integrity",
 ]
 
 # EOF

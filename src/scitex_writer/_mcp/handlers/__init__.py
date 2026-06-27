@@ -11,6 +11,7 @@ from ._checks import (
     check_media_provenance,
     check_overflow,
     check_paper_symlink,
+    check_ref_integrity,
     check_references,
 )
 from ._claim import (
@@ -36,6 +37,7 @@ __all__ = [
     "check_media_provenance",
     "check_overflow",
     "check_paper_symlink",
+    "check_ref_integrity",
     "check_references",
     "clone_project",
     "compile_manuscript",
