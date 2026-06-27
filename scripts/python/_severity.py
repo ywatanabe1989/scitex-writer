@@ -42,7 +42,6 @@ _LINT_STRICT_CHECKS = frozenset({"limits", "overflow"})
 _REPAIR_CHECKS = frozenset({"paper_symlink"})
 
 _TRUTHY = ("1", "true", "yes")
-_USER_CONFIG = Path.home() / ".scitex" / "writer" / "config.yaml"
 
 
 def _valid_levels(check):
@@ -120,7 +119,11 @@ def resolve_level(
         _norm(cli_level, check)
         or _norm(os.environ.get(env_var, ""), check)
         or _read_config_level(Path(project_dir) / "config.yaml", check)
-        or _read_config_level(_USER_CONFIG, check)
+        # Path.home() is resolved at call time (not import) so a changed $HOME
+        # is honored -- matches the sibling check_*.py resolvers.
+        or _read_config_level(
+            Path.home() / ".scitex" / "writer" / "config.yaml", check
+        )
         or _norm(default, check)
         or "error"
     )
