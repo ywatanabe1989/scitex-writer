@@ -72,20 +72,34 @@ def clean_env():
 # ============================================================================
 
 
-def test_resolve_level_defaults_to_error(clean_env):
+def test_resolve_level_defaults_to_error(tmp_path, clean_env):
     """With no --level, no env, no config, the default level is error."""
     # Arrange
     # Act
-    level = resolve_level(None, {}, {})
+    level = resolve_level(
+        "caption_footnote",
+        None,
+        tmp_path,
+        default="error",
+        env_var="SCITEX_WRITER_CAPTION_FOOTNOTE",
+    )
     # Assert
     assert level == "error"
 
 
-def test_resolve_level_cli_overrides(clean_env):
-    """An explicit --level wins over everything else."""
+def test_resolve_level_cli_overrides(tmp_path, clean_env):
+    """An explicit --level wins over a config-set level."""
     # Arrange
+    pytest.importorskip("yaml")
+    _write(tmp_path, "config.yaml", "caption_footnote:\n  level: error\n")
     # Act
-    level = resolve_level("warn", {"level": "error"}, {})
+    level = resolve_level(
+        "caption_footnote",
+        "warn",
+        tmp_path,
+        default="error",
+        env_var="SCITEX_WRITER_CAPTION_FOOTNOTE",
+    )
     # Assert
     assert level == "warn"
 
