@@ -16,6 +16,9 @@ import sys
 from collections import OrderedDict
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from _severity import resolve_level  # noqa: E402
+
 # ANSI colors
 GREEN = "\033[0;32m"
 YELLOW = "\033[1;33m"
@@ -23,6 +26,41 @@ RED = "\033[0;31m"
 DIM = "\033[0;90m"
 BOLD = "\033[1m"
 NC = "\033[0m"
+
+PASS_COUNT = 0
+WARN_COUNT = 0
+FAIL_COUNT = 0
+
+# Effective severity (off|warn|error), set by main() via the shared resolver.
+# Default error preserves the historical "out-of-order float => exit 1" behavior.
+_LEVEL = "error"
+
+
+def log_pass(msg):
+    global PASS_COUNT
+    print(f"  {GREEN}[PASS]{NC} {msg}")
+    PASS_COUNT += 1
+
+
+def log_warn(msg):
+    global WARN_COUNT
+    print(f"  {YELLOW}[WARN]{NC} {msg}")
+    WARN_COUNT += 1
+
+
+def log_fail(msg):
+    """At ``warn``/``off`` a defect is demoted to a non-fatal ``[WARN]``; at
+    ``error`` (default) it is a fatal ``[FAIL]`` that drives exit 1."""
+    global FAIL_COUNT
+    if _LEVEL in ("warn", "off"):
+        log_warn(msg)
+        return
+    print(f"  {RED}[FAIL]{NC} {msg}")
+    FAIL_COUNT += 1
+
+
+def log_detail(msg):
+    print(f"    {DIM}{msg}{NC}")
 
 
 def find_references(content_dir, float_type):
@@ -158,7 +196,7 @@ def check_order(content_dir, float_type, label):
     labels = find_labels(content_dir, float_type)
 
     if not refs:
-        print(f"  {GREEN}[PASS]{NC} {label} references - none found")
+        log_pass(f"{label} references - none found")
         return True, refs, {}
 
     # Check if numbered keys appear in order
@@ -169,7 +207,7 @@ def check_order(content_dir, float_type, label):
             numbered_refs.append((num, name, key, fname, line))
 
     if not numbered_refs:
-        print(f"  {GREEN}[PASS]{NC} {label} references - no numbered references")
+        log_pass(f"{label} references - no numbered references")
         return True, refs, {}
 
     # Check sequential ordering
@@ -181,34 +219,32 @@ def check_order(content_dir, float_type, label):
         expected = list(range(1, len(numbered_refs) + 1))
         actual = numbers
         if actual == expected:
-            print(
-                f"  {GREEN}[PASS]{NC} {label} reference order (1..{len(numbered_refs)})"
-            )
+            log_pass(f"{label} reference order (1..{len(numbered_refs)})")
         else:
-            print(
-                f"  {YELLOW}[WARN]{NC} {label} references sequential but not contiguous: {numbers}"
+            log_warn(
+                f"{label} references sequential but not contiguous: {numbers}"
             )
         return True, refs, {}
 
     # Out of order - build mapping
-    print(f"  {RED}[FAIL]{NC} {label} reference order")
+    log_fail(f"{label} reference order")
     desired_mapping = {}
     for new_num_0, (old_num, name, old_key, fname, line) in enumerate(numbered_refs):
         new_num = new_num_0 + 1
         new_key = f"{new_num:02d}_{name}" if name else f"{new_num:02d}"
         if old_key != new_key:
             desired_mapping[old_key] = new_key
-        print(
-            f"    {DIM}{fname}:{line}: "
-            f"\\ref{{{float_type}:{old_key}}} -> should be {new_num:02d}{NC}"
+        log_detail(
+            f"{fname}:{line}: "
+            f"\\ref{{{float_type}:{old_key}}} -> should be {new_num:02d}"
         )
 
     # Report orphaned labels (defined but never referenced)
     ref_keys = {key for key, _, _ in refs}
     for label_key, info in labels.items():
         if label_key not in ref_keys:
-            print(
-                f"    {YELLOW}[WARN]{NC} \\label{{{float_type}:{label_key}}} "
+            log_warn(
+                f"\\label{{{float_type}:{label_key}}} "
                 f"defined in {info['file'].name}:{info['line']} but never referenced"
             )
 
@@ -348,9 +384,26 @@ def main():
         default="all",
         help="Which document type to check (default: all)",
     )
+    parser.add_argument(
+        "--level",
+        choices=["off", "warn", "error"],
+        default=None,
+        help="Severity: error (default), warn (report but exit 0), or off "
+        "(disable the gate). Overrides env and config. Does NOT disable "
+        "--fix/--dry-run, which always run.",
+    )
     args = parser.parse_args()
 
+    global _LEVEL
     project_dir = Path(args.project_dir).resolve()
+    _LEVEL = resolve_level(
+        "float_order",
+        args.level,
+        project_dir,
+        default="error",
+        env_var="SCITEX_WRITER_FLOAT_ORDER",
+    )
+    fixing = args.fix or args.dry_run
 
     doc_types = []
     if args.doc_type in ("manuscript", "all"):
@@ -365,6 +418,20 @@ def main():
     if not doc_types:
         print(f"{RED}No content directories found in {project_dir}{NC}")
         sys.exit(1)
+
+    # off disables the gate. A requested --fix/--dry-run is an explicit user
+    # action and still runs; level only governs the non-fix gating exit.
+    if _LEVEL == "off" and not fixing:
+        print(f"\n{BOLD}=== Float Reference Order Check (level=off) ==={NC}\n")
+        print(
+            f"  {DIM}[INFO]{NC} float-order check is disabled (level=off). "
+            f"Set float_order.level or --level to enable."
+        )
+        print(
+            f"\n{BOLD}Summary:{NC} {GREEN}0 passed{NC}, "
+            f"{YELLOW}0 warnings{NC}, {RED}0 errors{NC}"
+        )
+        return 0
 
     print(f"\n{BOLD}=== Float Reference Order Check ==={NC}\n")
 
@@ -381,14 +448,18 @@ def main():
                     all_mappings.append((content_dir, float_type, mapping, label))
 
     print()
+    print(
+        f"{BOLD}Summary:{NC} {GREEN}{PASS_COUNT} passed{NC}, "
+        f"{YELLOW}{WARN_COUNT} warnings{NC}, {RED}{FAIL_COUNT} errors{NC}"
+    )
 
     if not has_issues:
-        print(f"{GREEN}All float references are in order.{NC}")
+        print(f"\n{GREEN}All float references are in order.{NC}")
         return 0
 
-    if args.fix or args.dry_run:
+    if fixing:
         mode = "DRY RUN" if args.dry_run else "FIXING"
-        print(f"{BOLD}--- {mode} ---{NC}\n")
+        print(f"\n{BOLD}--- {mode} ---{NC}\n")
         for content_dir, float_type, mapping, label in all_mappings:
             print(f"  {label}: renumbering {len(mapping)} items")
             for old, new in mapping.items():
@@ -399,9 +470,18 @@ def main():
         if not args.dry_run:
             print(f"{GREEN}Renumbering complete. Re-run to verify.{NC}")
         return 0
-    else:
-        print(f"{YELLOW}Run with --fix to auto-renumber, or --dry-run to preview.{NC}")
+
+    # Out-of-order floats, not fixing. At error (default) this gates (exit 1);
+    # at warn the findings were demoted to [WARN] (FAIL_COUNT == 0) and are
+    # non-fatal.
+    if FAIL_COUNT > 0:
+        print(f"\n{YELLOW}Run with --fix to auto-renumber, or --dry-run to preview.{NC}")
         return 1
+    print(
+        f"\n{YELLOW}Out-of-order floats reported (level=warn, non-fatal). "
+        f"Run with --fix to auto-renumber.{NC}"
+    )
+    return 0
 
 
 if __name__ == "__main__":
