@@ -113,12 +113,16 @@ def resolve_level(
         The legacy strict alias (``--strict`` / ``<check>.strict``). None/False
         is a no-op; True tightens a resolved ``warn`` to ``error``.
     """
+    # `default` runs through the same gate as every other source: a default of
+    # `repair` for a non-self-fixing check is rejected (falls to `error`), so
+    # the repair gate is airtight even against a mis-specified caller default.
     level = (
         _norm(cli_level, check)
         or _norm(os.environ.get(env_var, ""), check)
         or _read_config_level(Path(project_dir) / "config.yaml", check)
         or _read_config_level(_USER_CONFIG, check)
-        or default
+        or _norm(default, check)
+        or "error"
     )
 
     # Tightening-only overlays: warn -> error. Never loosen; never touch off.

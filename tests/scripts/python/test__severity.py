@@ -279,6 +279,17 @@ def test_repair_ignored_for_non_repair_check(tmp_path, clean_env):
     assert level == "warn"
 
 
+def test_repair_default_gated_for_non_repair_check(tmp_path, clean_env):
+    """Even a repair *default* cannot smuggle repair into a non-repair check."""
+    # Arrange
+    # Act
+    level = resolve_level(
+        "limits", None, tmp_path, default="repair", env_var="SCITEX_WRITER_LIMITS"
+    )
+    # Assert
+    assert level == "error"
+
+
 # ============================================================================
 # env_truthy + module constants
 # ============================================================================
