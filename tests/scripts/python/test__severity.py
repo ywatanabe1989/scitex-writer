@@ -19,12 +19,18 @@ from _severity import (  # noqa: E402
     resolve_level,
 )
 
-# Every per-check env var the resolver may read, isolated per test.
+# Every per-check env var the resolver may read, isolated per test. The shared
+# self-hosted runners export many SCITEX_* vars in-profile, so a per-check leak
+# would make a test pass/fail by host -- list them all (cheap insurance).
 _ENV_KEYS = (
     "SCITEX_WRITER_LIMITS",
     "SCITEX_WRITER_OVERFLOW",
     "SCITEX_WRITER_PAPER_SYMLINK",
+    "SCITEX_WRITER_MEDIA_PROVENANCE",
     "SCITEX_WRITER_REFERENCES",
+    "SCITEX_WRITER_FLOAT_ORDER",
+    "SCITEX_WRITER_CAPTION_FOOTNOTE",
+    "SCITEX_WRITER_REF_INTEGRITY",
     "SCITEX_WRITER_LINT_STRICT",
 )
 
@@ -158,6 +164,50 @@ def test_invalid_env_value_falls_through(tmp_path, clean_env):
     """A bogus env value is ignored and the default applies."""
     # Arrange
     os.environ["SCITEX_WRITER_LIMITS"] = "nonsense"
+    # Act
+    level = resolve_level(
+        "limits", None, tmp_path, default="warn", env_var="SCITEX_WRITER_LIMITS"
+    )
+    # Assert
+    assert level == "warn"
+
+
+# ============================================================================
+# config `level` YAML-bool coercion (§2 ruling: `level: off` must disable)
+# ============================================================================
+
+
+def test_config_level_off_yaml_bool_disables(tmp_path, clean_env):
+    """`level: off` (YAML 1.1 -> bool False) still disables the check."""
+    # Arrange
+    pytest.importorskip("yaml")
+    _write_yaml(tmp_path / "config.yaml", "limits:\n  level: off\n")
+    # Act
+    level = resolve_level(
+        "limits", None, tmp_path, default="warn", env_var="SCITEX_WRITER_LIMITS"
+    )
+    # Assert
+    assert level == "off"
+
+
+def test_config_level_on_yaml_bool_falls_through(tmp_path, clean_env):
+    """`level: on` (YAML -> bool True) is invalid and falls through to default."""
+    # Arrange
+    pytest.importorskip("yaml")
+    _write_yaml(tmp_path / "config.yaml", "limits:\n  level: on\n")
+    # Act
+    level = resolve_level(
+        "limits", None, tmp_path, default="warn", env_var="SCITEX_WRITER_LIMITS"
+    )
+    # Assert
+    assert level == "warn"
+
+
+def test_config_level_typo_falls_through(tmp_path, clean_env):
+    """A typo'd config level is ignored (treated as unset), not a crash."""
+    # Arrange
+    pytest.importorskip("yaml")
+    _write_yaml(tmp_path / "config.yaml", "limits:\n  level: bogus\n")
     # Act
     level = resolve_level(
         "limits", None, tmp_path, default="warn", env_var="SCITEX_WRITER_LIMITS"

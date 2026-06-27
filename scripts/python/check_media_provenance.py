@@ -50,6 +50,9 @@ import os
 import sys
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from _severity import resolve_level  # noqa: E402
+
 # ANSI colors (match check_paper_symlink.py / check_overflow.py)
 GREEN = "\033[0;32m"
 YELLOW = "\033[1;33m"
@@ -63,7 +66,6 @@ WARN_COUNT = 0
 FAIL_COUNT = 0
 
 _LEVELS = ("off", "warn", "error")
-_DEFAULT_LEVEL = "off"
 
 _DOC_DIRS = {
     "manuscript": "01_manuscript",
@@ -128,23 +130,6 @@ def _config_blocks(project_dir):
     proj = _read_block(Path(project_dir) / "config.yaml")
     user = _read_block(Path.home() / ".scitex" / "writer" / "config.yaml")
     return proj, user
-
-
-def resolve_level(cli_level, proj_block, user_block):
-    """Resolve the effective severity level via the documented precedence."""
-    if cli_level:
-        return cli_level.lower()
-
-    env = os.environ.get("SCITEX_WRITER_MEDIA_PROVENANCE", "").strip().lower()
-    if env in _LEVELS:
-        return env
-
-    for block in (proj_block, user_block):
-        level = block.get("level")
-        if isinstance(level, str) and level.lower() in _LEVELS:
-            return level.lower()
-
-    return _DEFAULT_LEVEL
 
 
 def resolve_require_under_scripts(cli_flag, proj_block, user_block):
@@ -219,7 +204,13 @@ def main():
 
     project_dir = Path(args.project_dir).resolve()
     proj_block, user_block = _config_blocks(project_dir)
-    level = resolve_level(args.level, proj_block, user_block)
+    level = resolve_level(
+        "media_provenance",
+        args.level,
+        project_dir,
+        default="off",
+        env_var="SCITEX_WRITER_MEDIA_PROVENANCE",
+    )
     require_under_scripts = resolve_require_under_scripts(
         args.require_under_scripts, proj_block, user_block
     )

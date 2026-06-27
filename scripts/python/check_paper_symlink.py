@@ -50,6 +50,9 @@ import os
 import sys
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from _severity import resolve_level  # noqa: E402
+
 # ANSI colors (match check_overflow.py / check_limits.py)
 GREEN = "\033[0;32m"
 YELLOW = "\033[1;33m"
@@ -63,7 +66,6 @@ WARN_COUNT = 0
 FAIL_COUNT = 0
 
 _LEVELS = ("off", "warn", "error", "repair")
-_DEFAULT_LEVEL = "warn"
 _CANONICAL_REL = ".scitex/writer"
 
 # How many diverged file paths to print before truncating.
@@ -90,63 +92,6 @@ def log_fail(msg):
 
 def log_detail(msg):
     print(f"    {DIM}{msg}{NC}")
-
-
-def _read_config_level(config_path):
-    """Read ``paper_symlink.level`` from a YAML config, or None.
-
-    Returns the level string when present and valid, else None. A missing
-    file or missing key is simply None (not an error). PyYAML is optional --
-    if it is absent we silently skip config files (env + CLI still work).
-    """
-    if not config_path.exists():
-        return None
-    try:
-        import yaml
-    except ImportError:
-        return None
-    try:
-        data = yaml.safe_load(config_path.read_text(encoding="utf-8")) or {}
-    except Exception:
-        return None
-    if not isinstance(data, dict):
-        return None
-    block = data.get("paper_symlink")
-    if not isinstance(block, dict):
-        return None
-    level = block.get("level")
-    if isinstance(level, str) and level.lower() in _LEVELS:
-        return level.lower()
-    return None
-
-
-def resolve_level(cli_level, project_dir):
-    """Resolve the effective severity level via the documented precedence.
-
-    1. CLI --level
-    2. env SCITEX_WRITER_PAPER_SYMLINK
-    3. project ./config.yaml -> paper_symlink.level
-    4. user ~/.scitex/writer/config.yaml -> paper_symlink.level
-    5. default off
-    """
-    if cli_level:
-        return cli_level.lower()
-
-    env = os.environ.get("SCITEX_WRITER_PAPER_SYMLINK", "").strip().lower()
-    if env in _LEVELS:
-        return env
-
-    proj_level = _read_config_level(Path(project_dir) / "config.yaml")
-    if proj_level:
-        return proj_level
-
-    user_level = _read_config_level(
-        Path.home() / ".scitex" / "writer" / "config.yaml"
-    )
-    if user_level:
-        return user_level
-
-    return _DEFAULT_LEVEL
 
 
 def _sha256(path):
@@ -235,7 +180,13 @@ def main():
     link = project_dir / "paper"
     canonical = project_dir / _CANONICAL_REL
 
-    level = resolve_level(args.level, project_dir)
+    level = resolve_level(
+        "paper_symlink",
+        args.level,
+        project_dir,
+        default="warn",
+        env_var="SCITEX_WRITER_PAPER_SYMLINK",
+    )
 
     print(f"\n{BOLD}=== Paper Symlink Check (level={level}) ==={NC}\n")
 
