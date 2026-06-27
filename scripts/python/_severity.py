@@ -25,6 +25,7 @@
 # `check_*.py` standalones.
 
 import os
+import sys
 from pathlib import Path
 
 # off < warn < error < repair. `repair` is error-semantics plus a safe
@@ -58,6 +59,41 @@ def _norm(value, check):
     return None
 
 
+def _coerce_config_level(raw, check, source):
+    """Coerce a raw config ``level`` value to a valid level, or None.
+
+    YAML 1.1 coerces a bare ``off``/``no``/``false`` to Python ``False``, so
+    ``level: off`` arrives as ``False`` rather than the string ``"off"`` -- per
+    the §2 contract ruling this MUST still disable the check, so ``False`` maps
+    to ``"off"``. A genuinely invalid value (``True`` from ``on``/``yes``, or a
+    typo'd string) is NOT silently dropped: a one-line hint is printed and the
+    value is treated as unset (caller falls through to its default). A missing
+    key (``None``) stays a silent no-op.
+    """
+    if raw is None:
+        return None
+    if isinstance(raw, bool):
+        if raw is False:  # YAML off / no / false -> disable
+            return "off"
+        # True came from on / yes / true -- not a meaningful severity level.
+        _warn_invalid_level(raw, check, source)
+        return None
+    norm = _norm(raw, check)
+    if norm is not None:
+        return norm
+    _warn_invalid_level(raw, check, source)
+    return None
+
+
+def _warn_invalid_level(raw, check, source):
+    """Fail loud (one line) on an invalid config ``level``; never crash."""
+    valid = "/".join(_valid_levels(check))
+    sys.stderr.write(
+        f"[WARN] {source}: {check}.level must be one of {valid}; got {raw!r} "
+        f"-- ignoring (using default). Quote string values, e.g. level: \"off\".\n"
+    )
+
+
 def env_truthy(name):
     """True iff env var ``name`` is set to a truthy token (1/true/yes)."""
     return os.environ.get(name, "").strip().lower() in _TRUTHY
@@ -84,7 +120,7 @@ def _read_config_level(config_path, check):
     block = data.get(check)
     if not isinstance(block, dict):
         return None
-    return _norm(block.get("level"), check)
+    return _coerce_config_level(block.get("level"), check, str(config_path))
 
 
 def resolve_level(

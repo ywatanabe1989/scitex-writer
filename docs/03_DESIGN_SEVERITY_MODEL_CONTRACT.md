@@ -106,6 +106,13 @@ Everything below keeps working **identically to today**:
   bodies collapse into it.
 - Public API (`checks.*`) and MCP handlers keep their signatures; `strict` bools
   stay as aliases (passed in via `legacy_strict`).
+- **Config `level` YAML-bool coercion (D2):** PyYAML (YAML 1.1) coerces a bare
+  `off`/`no`/`false` to `False`, so `level: off` arrives as a bool. Per §2 ("off
+  disables") the shared `_read_config_level` maps `False` → `"off"`. A genuinely
+  invalid value (`True` from `on`/`yes`, or a typo) is **not** silently dropped:
+  one precise `[WARN]` hint is printed and the value is treated as unset (falls
+  through to the default) — never crashing the build over a config typo. A
+  missing key stays a silent no-op.
 
 ## 8. Migration & risk (for the operator to assess)
 
