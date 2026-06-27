@@ -338,6 +338,18 @@ main() {
     ./scripts/shell/modules/cleanup.sh
     log_stage_end "Cleanup"
 
+    # Expose the supplement .aux at doc-root for the main compile's
+    # \externaldocument (base.tex \link{./02_supplementary/supplementary} via
+    # xr-hyper reads ./02_supplementary/supplementary.aux). cleanup.sh sweeps
+    # doc-root *.aux into LOG_DIR, so this MUST run AFTER the Cleanup stage,
+    # else it gets swept back. Co-locating .aux with the doc-root .pdf keeps
+    # both the cross-ref numbers and the hyperlink targets correct.
+    _supp_aux="${LOG_DIR}/${SCITEX_WRITER_DOC_TYPE}.aux"
+    if [ -f "$_supp_aux" ]; then
+        cp -f "$_supp_aux" "./02_supplementary/${SCITEX_WRITER_DOC_TYPE}.aux"
+        echo_info "Exposed $_supp_aux -> ./02_supplementary/${SCITEX_WRITER_DOC_TYPE}.aux (xr-hyper)"
+    fi
+
     # Final steps
     log_stage_start "Directory Tree"
     ./scripts/shell/modules/custom_tree.sh
