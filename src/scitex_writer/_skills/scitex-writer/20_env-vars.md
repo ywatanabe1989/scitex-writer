@@ -41,6 +41,9 @@ exits non-zero.
 | `SCITEX_WRITER_OVERFLOW` | Severity for the off-page overflow check (`off`/`warn`/`error`). Default `warn`; `--strict`/`overflow.strict` tighten to `error`. | `warn` | enum |
 | `SCITEX_WRITER_PAPER_SYMLINK` | Severity for the `paper -> .scitex/writer` symlink check (`off`/`warn`/`error`/`repair`). Private convention — default `warn`. | `warn` | enum |
 | `SCITEX_WRITER_MEDIA_PROVENANCE` | Severity for the media-symlink/provenance check on `caption_and_media/` (`off`/`warn`/`error`). Private convention — default `off`. | `off` | enum |
+| `SCITEX_WRITER_REFERENCES` | Severity for the cross-reference/citation/label check (`off`/`warn`/`error`). Default `error` (a broken `\ref`/`\cite` is a real defect); `warn` reports but exits 0; `off` disables. | `error` | enum |
+| `SCITEX_WRITER_CAPTION_FOOTNOTE` | Severity for the `\footnote`-in-`\caption{}` lint (`off`/`warn`/`error`). Default `error`. | `error` | enum |
+| `SCITEX_WRITER_REF_INTEGRITY` | Severity for the pre-compile reference-integrity gate (`off`/`warn`/`error`). Default `error`. | `error` | enum |
 
 ## Branding & naming
 
