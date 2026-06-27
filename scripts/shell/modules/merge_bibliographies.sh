@@ -44,4 +44,27 @@ elif [ "$bib_file_count" -eq 0 ]; then
     fi
 fi
 
+# ============================================================================
+# Bib freshness guard
+# ============================================================================
+# Force a bibtex rerun when a source .bib is newer than the compiled .bbl.
+# Under latexmk -output-directory + custom BIBINPUTS, a source-only .bib edit
+# can leave the .bbl/.fdb_latexmk looking up-to-date, so bibtex is skipped and
+# the PDF ships with the OLD bibliography (silent wrong output). Clearing the
+# stale .bbl (and latexmk's fdb) forces regeneration. Confirmed on neurovista's
+# manuscript. Safe: worst case is one extra bibtex pass.
+if [ -n "${LOG_DIR:-}" ] && [ -n "${SCITEX_WRITER_DOC_TYPE:-}" ]; then
+    _bbl="${LOG_DIR}/${SCITEX_WRITER_DOC_TYPE}.bbl"
+    if [ -f "$_bbl" ]; then
+        for _bib in "$BIB_DIR"/*.bib ./"$BIB_OUTPUT"; do
+            [ -f "$_bib" ] || continue
+            if [ "$_bib" -nt "$_bbl" ]; then
+                echo_info "Source bib $_bib newer than $_bbl → clearing stale .bbl to force bibtex"
+                rm -f "$_bbl" "${LOG_DIR}/${SCITEX_WRITER_DOC_TYPE}.fdb_latexmk"
+                break
+            fi
+        done
+    fi
+fi
+
 # EOF
