@@ -36,7 +36,9 @@ exits non-zero.
 
 | Variable | Purpose | Default | Type |
 |---|---|---|---|
-| `SCITEX_WRITER_LINT_STRICT` | Tighten `check-limits` + `check-overflow` warnings to errors (the legacy strict toggle). | `false` | bool |
+| `SCITEX_WRITER_LINT_STRICT` | Tighten `check-limits` + `check-overflow` warnings to errors (the legacy strict toggle). Scoped to those two checks only. | `false` | bool |
+| `SCITEX_WRITER_LIMITS` | Severity for the word/reference-limit check (`off`/`warn`/`error`). Default `warn`; `--strict`/`limits.strict` tighten to `error`. | `warn` | enum |
+| `SCITEX_WRITER_OVERFLOW` | Severity for the off-page overflow check (`off`/`warn`/`error`). Default `warn`; `--strict`/`overflow.strict` tighten to `error`. | `warn` | enum |
 | `SCITEX_WRITER_PAPER_SYMLINK` | Severity for the `paper -> .scitex/writer` symlink check (`off`/`warn`/`error`/`repair`). Private convention — default `warn`. | `warn` | enum |
 | `SCITEX_WRITER_MEDIA_PROVENANCE` | Severity for the media-symlink/provenance check on `caption_and_media/` (`off`/`warn`/`error`). Private convention — default `off`. | `off` | enum |
 
