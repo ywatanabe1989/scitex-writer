@@ -3,12 +3,18 @@
 # Test file for: check_references.py
 
 import os
+import subprocess
 import sys
+import tempfile
 from pathlib import Path
+
+import pytest
 
 # Add scripts/python to path for imports
 ROOT_DIR = Path(__file__).resolve().parent.parent.parent.parent
 sys.path.insert(0, str(ROOT_DIR / "scripts" / "python"))
+
+_SCRIPT = ROOT_DIR / "scripts" / "python" / "check_references.py"
 
 from check_references import (  # noqa: E402
     collect_tex_files,
@@ -519,7 +525,78 @@ def test_auto_labels_vs_explicit(tmp_path):
     )
 
 
-if __name__ == "__main__":
-    import pytest
+# ============================================================================
+# Severity level (off / warn / error) — D3b adoption of the shared resolver
+# ============================================================================
 
+
+@pytest.fixture
+def clean_env():
+    """Isolate SCITEX_WRITER_REFERENCES + HOME so no stray env/user config
+    leaks into severity resolution."""
+    saved = {k: os.environ.get(k) for k in ("SCITEX_WRITER_REFERENCES", "HOME")}
+    os.environ.pop("SCITEX_WRITER_REFERENCES", None)
+    with tempfile.TemporaryDirectory() as home:
+        os.environ["HOME"] = home
+        yield home
+    for key, val in saved.items():
+        if val is None:
+            os.environ.pop(key, None)
+        else:
+            os.environ[key] = val
+
+
+def _project_with_broken_ref(tmp_path):
+    """A minimal manuscript with one \\ref to a non-existent label."""
+    contents = tmp_path / "01_manuscript" / "contents"
+    contents.mkdir(parents=True)
+    (contents / "results.tex").write_text("See \\ref{fig:missing}.\n", encoding="utf-8")
+    bib = tmp_path / "00_shared" / "bib_files"
+    bib.mkdir(parents=True)
+    (bib / "bibliography.bib").write_text("", encoding="utf-8")
+    return tmp_path
+
+
+def _run(project, *extra):
+    env = dict(os.environ)
+    env.pop("SCITEX_WRITER_REFERENCES", None)
+    return subprocess.run(
+        [sys.executable, str(_SCRIPT), str(project), "--doc-type", "manuscript", *extra],
+        capture_output=True,
+        text=True,
+        env=env,
+    )
+
+
+def test_default_level_errors_on_broken_ref(tmp_path, clean_env):
+    """With the default level (error), a broken \\ref exits non-zero."""
+    # Arrange
+    _project_with_broken_ref(tmp_path)
+    # Act
+    proc = _run(tmp_path)
+    # Assert
+    assert proc.returncode == 1
+
+
+def test_warn_level_demotes_broken_ref(tmp_path, clean_env):
+    """At --level warn, a broken \\ref is reported but exits zero."""
+    # Arrange
+    _project_with_broken_ref(tmp_path)
+    # Act
+    proc = _run(tmp_path, "--level", "warn")
+    # Assert
+    assert proc.returncode == 0
+
+
+def test_off_level_disables_check(tmp_path, clean_env):
+    """At --level off, the check is disabled and exits zero with a loud note."""
+    # Arrange
+    _project_with_broken_ref(tmp_path)
+    # Act
+    proc = _run(tmp_path, "--level", "off")
+    # Assert
+    assert "disabled (level=off)" in proc.stdout
+
+
+if __name__ == "__main__":
     pytest.main([os.path.abspath(__file__), "-v"])
