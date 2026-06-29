@@ -7,6 +7,50 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.23.0] - 2026-06-29
+
+### Added
+- **Unified pre-check severity framework — all 8 checks on one shared resolver.**
+  New stdlib-only `scripts/python/_severity.py::resolve_level(...)` is the single
+  source of truth for a check's effective level, resolved by the documented
+  precedence (CLI `--level` > per-check `SCITEX_WRITER_<CHECK>` env > project
+  `./config.yaml` `<check>.level` > user config > per-check default), with two
+  tightening-only overlays: the legacy `strict` alias and `SCITEX_WRITER_LINT_STRICT`
+  (scoped to `limits`+`overflow`). `repair` is honored only for `paper_symlink`.
+  Adopted across `limits`, `overflow`, `paper_symlink`, `media_provenance`,
+  `caption_footnote`, `ref_integrity`, `references`, `float_order`. Per-check
+  defaults preserved (back-compat exact); see
+  `docs/03_DESIGN_SEVERITY_MODEL_CONTRACT.md` (§9 ratified). `references` and
+  `float_order` gain an `--level`/env severity knob (default stays `error`); a
+  config `level: off` (which YAML coerces to bool) is honored, with a loud hint
+  on a genuinely invalid value (never crashes the build).
+- **Reference-integrity pre-compile gate** (`scitex-writer check-ref-integrity`,
+  `checks.ref_integrity()`): validates figure/table `\ref`, `\cite`-in-bib, and
+  `supple-` xrefs (with explicit "supplement not compiled" messaging), reports all
+  at once. Default `error`; env `SCITEX_WRITER_REF_INTEGRITY`.
+- **`\footnote`-in-`\caption{}` lint** (`check-caption-footnote`,
+  `checks.caption_footnote()`) — errors by default on a fatal footnote inside a
+  caption argument. Env `SCITEX_WRITER_CAPTION_FOOTNOTE`.
+- **Shared-metadata single source of truth.** Title, authors, journal name, and
+  keywords are now sourced from `00_shared/` by the manuscript, supplementary,
+  AND revision builds (diffs inherit via `latexdiff`), so they can never drift.
+  `00_shared/title.tex` exposes `\scitexmanuscripttitle`; the supplementary title
+  derives from it (`Supplementary Material for: <title>`). `00_shared/{title,
+  authors,...}.tex` are consumer-owned (preserved on re-vendor).
+
+### Fixed
+- **`lineno`↔`siunitx` frontmatter error.** Load `lineno` before `siunitx` so a
+  `siunitx` "Invalid number" no longer aborts at `\end{frontmatter}`.
+- **bibtex not re-run on a `.bib`-only edit (stale `.bbl` → wrong PDF).** The
+  bibliography-merge step clears a stale `.bbl`/`.fdb_latexmk` when any source
+  `.bib` is newer, forcing bibtex to regenerate.
+- **Supplement cross-references rendered as `?`.** The supplement `.aux` is now
+  exposed at doc-root (after the cleanup stage) so `xr-hyper` resolves `supple-`
+  refs from the main document.
+- **Dark-mode table zebra stripe was illegible.** The csv→LaTeX converter emits
+  `\rowcolor{lightgray}` (the theme color, dark-aware: gray 0.95 light / 0.2 dark)
+  instead of a literal `gray!10`, so striped-row text stays readable in both modes.
+
 ## [2.22.0] - 2026-06-26
 
 ### Added
