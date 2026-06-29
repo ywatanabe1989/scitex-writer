@@ -88,10 +88,11 @@ def format_number(val):
 
 
 def _value_decimals(val):
-    """Decimal places a numeric value needs to display, or None if not numeric.
-
-    Integer-valued numbers (incl. ``5.0``) need 0. The ``.6f`` cap strips
-    float-repr noise (e.g. ``0.1+0.2``) before counting.
+    """Decimal places ``val`` shows under :func:`format_number`, or None for a
+    non-number / NaN (or a scientific-notation tiny value, which is left
+    unaligned). Using format_number's own output keeps the column precision in
+    lockstep with the per-cell display (e.g. the 3-dp cap), so alignment never
+    *uncaps* precision — it only pads shorter values to the column max.
     """
     try:
         num = float(val)
@@ -99,10 +100,10 @@ def _value_decimals(val):
         return None
     if num != num:  # NaN
         return None
-    if num.is_integer():
-        return 0
-    trimmed = f"{num:.6f}".rstrip("0")
-    return len(trimmed.split(".")[1]) if "." in trimmed else 0
+    disp = format_number(val)
+    if "e" in disp or "E" in disp:  # scientific notation (very small): unaligned
+        return None
+    return len(disp.split(".")[1]) if "." in disp else 0
 
 
 def column_precision(values):
@@ -121,15 +122,12 @@ def column_precision(values):
 
 
 def _format_aligned(val, precision):
-    """Format ``val`` to a fixed ``precision`` (padding trailing zeros) so a
-    column's numbers line up; fall back to ``format_number`` when ``precision``
-    is None or ``val`` is not a plain number (``--`` / ``...`` / text)."""
-    if precision is None:
+    """Pad ``val`` to a fixed ``precision`` (trailing zeros) so a column's
+    numbers line up. Falls back to ``format_number`` when there's no target
+    precision, or for non-numbers / scientific-notation cells (left as-is)."""
+    if precision is None or _value_decimals(val) is None:
         return format_number(val)
-    try:
-        return f"{float(val):.{precision}f}"
-    except (ValueError, TypeError):
-        return format_number(val)
+    return f"{float(val):.{precision}f}"
 
 
 def csv_to_latex(csv_file, output_file, caption=None, label=None, max_rows=30):

@@ -403,7 +403,8 @@ class TestCsvToLatex:
         assert ('\\toprule' in content) and ('\\midrule' in content) and ('\\bottomrule' in content)
 
     def test_csv_to_latex_number_formatting(self, tmp_path):
-        """Should format numbers appropriately."""
+        """Numbers format to the column precision (3.14159->3.142; the
+        integer-valued 42.0 pads to 42.000 to align with the fractional cell)."""
         # Arrange
         csv_file = tmp_path / "test.csv"
         csv_file.write_text("Value\n3.14159\n42.0")
@@ -413,9 +414,8 @@ class TestCsvToLatex:
 
         # Act
         content = output_file.read_text()
-        # Float should be formatted
         # Assert
-        assert ('3.142' in content) and ('42 ' in content or '42\\\\' in content)
+        assert ('3.142' in content) and ('42.000' in content)
 
     def test_csv_to_latex_column_alignment(self, tmp_path):
         """Should align numeric columns right."""
