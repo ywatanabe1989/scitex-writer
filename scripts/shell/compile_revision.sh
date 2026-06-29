@@ -357,9 +357,12 @@ parse_arguments() {
     ./scripts/shell/modules/compilation_structure_tex_to_compiled_tex.sh
     log_stage_end "TeX Compilation (Structure)"
 
-    # Compile to PDF
+    # Compile to PDF. FAIL LOUD if the revision PDF was not (re)created.
     log_stage_start "PDF Generation"
-    ./scripts/shell/modules/compilation_compiled_tex_to_compiled_pdf.sh
+    if ! ./scripts/shell/modules/compilation_compiled_tex_to_compiled_pdf.sh; then
+        echo_error "PDF generation failed — revision.pdf was not (re)created. Aborting."
+        exit 1
+    fi
     log_stage_end "PDF Generation"
 
     # Skip diff generation for revision (revision document already shows changes inline)

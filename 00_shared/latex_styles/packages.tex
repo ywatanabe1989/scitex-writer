@@ -52,7 +52,11 @@
 \setcitestyle{sort=false}     % Preserve citation order as written
 \usepackage{hyperref}
 \usepackage{xurl}  % break long URLs / DOIs at any character so they wrap instead of overflowing the margin
-\usepackage{microtype}  % subtle protrusion/expansion: fewer overfull \hbox
+%% expansion=false is REQUIRED: font expansion is FATAL on non-scalable fonts
+%% (e.g. elsarticle) -- "pdfTeX error (font expansion): auto expansion is only
+%% possible with scalable fonts" -> no output PDF. Protrusion alone is safe and
+%% gives most of the overfull-\hbox benefit.
+\usepackage[protrusion=true,expansion=false]{microtype}
 \setlength{\emergencystretch}{2em}  % last-resort stretch for long unbreakable words (e.g. "Laplace-approximation")
 
 %% Document features (lineno loaded earlier, before siunitx)
