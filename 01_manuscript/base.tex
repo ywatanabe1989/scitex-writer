@@ -14,7 +14,7 @@
 %% ----------------------------------------
 %% JOURNAL NAME
 %% ----------------------------------------
-\input{./01_manuscript/contents/journal_name}
+\input{./00_shared/journal_name}
 
 %% ----------------------------------------
 %% START of DOCUMENT
@@ -26,11 +26,13 @@
 %% ----------------------------------------
 \begin{frontmatter}
 \input{./01_manuscript/contents/highlights}
-\input{./01_manuscript/contents/title}
-\input{./01_manuscript/contents/authors}
+%% Title + authors are sourced from the 00_shared SSoT (NOT per-part copies) so
+%% the manuscript, supplementary, and revision/diff builds can never drift.
+\input{./00_shared/title}
+\input{./00_shared/authors}
 \input{./01_manuscript/contents/graphical_abstract}
 \input{./01_manuscript/contents/abstract}
-\input{./01_manuscript/contents/keywords}
+\input{./00_shared/keywords}
 \end{frontmatter}
 
 %% ----------------------------------------
