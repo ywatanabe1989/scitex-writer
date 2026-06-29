@@ -20,6 +20,9 @@ import sys
 from collections import defaultdict
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from _severity import resolve_level  # noqa: E402
+
 # ANSI colors
 GREEN = "\033[0;32m"
 YELLOW = "\033[1;33m"
@@ -31,6 +34,10 @@ NC = "\033[0m"
 PASS_COUNT = 0
 WARN_COUNT = 0
 FAIL_COUNT = 0
+
+# Effective severity (off|warn|error), set by main() via the shared resolver.
+# Default error preserves the historical "broken ref => exit 1" behavior.
+_LEVEL = "error"
 
 
 def log_pass(msg):
@@ -46,7 +53,13 @@ def log_warn(msg):
 
 
 def log_fail(msg):
+    """Report a defect. At level ``warn`` it is demoted to a non-fatal
+    ``[WARN]`` (the severity model: ``warn`` reports findings but exits 0);
+    at ``error`` (default) it is a fatal ``[FAIL]`` that drives exit 1."""
     global FAIL_COUNT
+    if _LEVEL == "warn":
+        log_warn(msg)
+        return
     print(f"  {RED}[FAIL]{NC} {msg}")
     FAIL_COUNT += 1
 
@@ -333,7 +346,7 @@ def check_log_warnings(log_file, doc_label):
 
 
 def main():
-    global PASS_COUNT, WARN_COUNT, FAIL_COUNT
+    global PASS_COUNT, WARN_COUNT, FAIL_COUNT, _LEVEL
 
     parser = argparse.ArgumentParser(
         description="Check cross-references, citations, and labels in LaTeX manuscripts"
@@ -355,9 +368,35 @@ def main():
         action="store_true",
         help="Also parse LaTeX .log files for warnings",
     )
+    parser.add_argument(
+        "--level",
+        choices=["off", "warn", "error"],
+        default=None,
+        help="Severity: error (default), warn (report but exit 0), or off "
+        "(disable). Overrides env and config.",
+    )
     args = parser.parse_args()
 
     project_dir = Path(args.project_dir).resolve()
+    _LEVEL = resolve_level(
+        "references",
+        args.level,
+        project_dir,
+        default="error",
+        env_var="SCITEX_WRITER_REFERENCES",
+    )
+    if _LEVEL == "off":
+        print(f"\n{BOLD}=== Reference Check (level=off) ==={NC}\n")
+        print(
+            f"  {DIM}[INFO]{NC} reference check is disabled (level=off). "
+            f"Set references.level or --level to enable."
+        )
+        print(
+            f"\n{BOLD}Summary:{NC} {GREEN}0 passed{NC}, "
+            f"{YELLOW}0 warnings{NC}, {RED}0 errors{NC}"
+        )
+        return 0
+
     bib_dir = project_dir / "00_shared" / "bib_files"
 
     # Collect document directories

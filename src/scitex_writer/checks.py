@@ -29,7 +29,9 @@ from typing import Callable as _Callable
 from typing import Literal as _Literal
 from typing import Optional as _Optional
 
+from ._mcp.handlers import check_caption_footnote as _check_caption_footnote
 from ._mcp.handlers import check_float_order as _check_float_order
+from ._mcp.handlers import check_ref_integrity as _check_ref_integrity
 from ._mcp.handlers import check_limits as _check_limits
 from ._mcp.handlers import check_media_provenance as _check_media_provenance
 from ._mcp.handlers import check_overflow as _check_overflow
@@ -231,6 +233,99 @@ def media_provenance(
     return handler(project_dir, doc_type, level, require_under_scripts)
 
 
+def caption_footnote(
+    project_dir: str,
+    doc_type: _Literal["manuscript", "supplementary", "revision", "all"] = "all",
+    level: _Optional[_Literal["off", "warn", "error"]] = None,
+    handler: _Optional[_Callable[..., dict]] = None,
+) -> dict:
+    """Lint: flag ``\\footnote``/``\\footnotetext`` inside a ``\\caption{}``.
+
+    ``\\footnote`` in a caption is a fatal LaTeX pattern — the caption argument
+    is reprocessed (list-of-figures + heading), yielding
+    ``\\caption@ydblarg`` "extra }" and a runaway ``\\@xfootnote``, fatal in
+    ``figure*``/``table*`` spanning floats. The blessed pattern is
+    ``\\caption[short]{long\\protect\\footnotemark}`` with ``\\footnotetext``
+    **after** the float, so ``\\footnotemark`` in a caption is allowed and is
+    **not** flagged.
+
+    Scans the source ``.tex`` under ``<doc>/contents/`` — every
+    ``caption_and_media/*.tex`` whole-file (the engine wraps it in
+    ``\\caption{}``) plus brace-matched ``\\caption{}`` arguments in other
+    source files. The generated assembled doc is not scanned (it duplicates the
+    sources), keeping this a pre-compile lint.
+
+    Severity:
+
+    * ``error`` — report as an error (``exit_code`` 1). **The default**, because
+      the pattern is always a fatal compile bug; a clean manuscript never fires.
+    * ``warn`` — report as a warning (``exit_code`` 0).
+    * ``off`` — check disabled.
+
+    Severity precedence (highest → lowest): the ``level`` argument, env
+    ``SCITEX_WRITER_CAPTION_FOOTNOTE``, project ``./config.yaml``
+    (``caption_footnote.level``), user ``~/.scitex/writer/config.yaml``, then
+    the ``error`` default.
+
+    Returns a dict with ``success``, ``exit_code``, ``stdout``, ``stderr``,
+    and ``summary={passed, warnings, errors}``.
+
+    ``handler`` is the underlying check implementation; it defaults to
+    :func:`scitex_writer._mcp.handlers.check_caption_footnote`. Exposed so
+    callers (and tests) can supply an alternate implementation without patching
+    internals.
+    """
+    handler = handler or _check_caption_footnote
+    return handler(project_dir, doc_type, level)
+
+
+def ref_integrity(
+    project_dir: str,
+    doc_type: _Literal["manuscript", "supplementary", "revision", "all"] = "all",
+    level: _Optional[_Literal["off", "warn", "error"]] = None,
+    handler: _Optional[_Callable[..., dict]] = None,
+) -> dict:
+    """Pre-compile reference-integrity gate over all four reference classes.
+
+    Validates, reporting **all** problems at once (file:line):
+
+    * **figure** ``\\ref`` resolves to a figure label / auto-label,
+    * **table** ``\\ref`` resolves to a table label / auto-label,
+    * every ``\\cite`` key exists in the merged bibliography,
+    * every ``supple-`` cross-document xref resolves against the supplement's
+      ``.aux`` — and if the supplement has not been compiled (its ``.aux`` is
+      missing) that is reported explicitly as "not compiled", not as a pile of
+      undefined refs.
+
+    Designed to run FIRST, fail-fast: at ``error`` it exits non-zero so the
+    compile stage blocks (proceeding only on an explicit ``--yes``); ``warn``
+    reports without blocking; ``off`` skips. Reuses the ``check_references``
+    extractors.
+
+    Severity:
+
+    * ``error`` — report and exit 1. **The default** (a broken ref ships a
+      ?-mark / wrong PDF).
+    * ``warn`` — report, exit 0 (does not block).
+    * ``off`` — gate disabled.
+
+    Severity precedence (highest → lowest): the ``level`` argument, env
+    ``SCITEX_WRITER_REF_INTEGRITY``, project ``./config.yaml``
+    (``ref_integrity.level``), user ``~/.scitex/writer/config.yaml``, then the
+    ``error`` default.
+
+    Returns a dict with ``success``, ``exit_code``, ``stdout``, ``stderr``,
+    and ``summary={passed, warnings, errors}``.
+
+    ``handler`` is the underlying check implementation; it defaults to
+    :func:`scitex_writer._mcp.handlers.check_ref_integrity`. Exposed so callers
+    (and tests) can supply an alternate implementation without patching
+    internals.
+    """
+    handler = handler or _check_ref_integrity
+    return handler(project_dir, doc_type, level)
+
+
 __all__ = [
     "references",
     "float_order",
@@ -238,6 +333,8 @@ __all__ = [
     "overflow",
     "paper_symlink",
     "media_provenance",
+    "caption_footnote",
+    "ref_integrity",
 ]
 
 # EOF

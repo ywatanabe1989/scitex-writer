@@ -5,11 +5,13 @@
 """MCP Handler implementations for SciTeX Writer."""
 
 from ._checks import (
+    check_caption_footnote,
     check_float_order,
     check_limits,
     check_media_provenance,
     check_overflow,
     check_paper_symlink,
+    check_ref_integrity,
     check_references,
 )
 from ._claim import (
@@ -29,11 +31,13 @@ from ._update import update_project  # noqa: F401 -- now a package
 
 __all__ = [
     "add_claim",
+    "check_caption_footnote",
     "check_float_order",
     "check_limits",
     "check_media_provenance",
     "check_overflow",
     "check_paper_symlink",
+    "check_ref_integrity",
     "check_references",
     "clone_project",
     "compile_manuscript",

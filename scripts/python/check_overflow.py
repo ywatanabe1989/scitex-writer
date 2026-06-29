@@ -21,10 +21,12 @@
 # check_limits.py which runs before. Self-contained: stdlib + optional PyYAML.
 
 import argparse
-import os
 import re
 import sys
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from _severity import resolve_level  # noqa: E402
 
 # ANSI colors (match check_limits.py / check_references.py)
 GREEN = "\033[0;32m"
@@ -201,6 +203,13 @@ def main():
         help="Promote overflow warnings to errors (non-zero exit).",
     )
     parser.add_argument(
+        "--level",
+        choices=["off", "warn", "error"],
+        default=None,
+        help="Severity: warn (default), off, or error. Overrides env and "
+        "config; --strict is a tightening alias for error.",
+    )
+    parser.add_argument(
         "--max-pt",
         type=float,
         default=None,
@@ -219,12 +228,25 @@ def main():
     if cfg is None:
         return 1  # hard error already printed loudly
 
-    strict = (
-        args.strict
-        or bool(cfg.get("strict", False))
-        or os.environ.get("SCITEX_WRITER_LINT_STRICT", "").lower()
-        in ("1", "true", "yes")
+    level = resolve_level(
+        "overflow",
+        args.level,
+        project_dir,
+        default="warn",
+        env_var="SCITEX_WRITER_OVERFLOW",
+        legacy_strict=args.strict or bool(cfg.get("strict", False)),
     )
+    if level == "off":
+        print(
+            f"  {DIM}[INFO]{NC} overflow check is disabled (level=off). "
+            f"Set overflow.level or --level to enable."
+        )
+        print(
+            f"\n{BOLD}Summary:{NC} {GREEN}0 passed{NC}, "
+            f"{YELLOW}0 warnings{NC}, {RED}0 errors{NC}"
+        )
+        return 0
+    strict = level == "error"
     if args.max_pt is not None:
         min_pt = args.max_pt
     elif cfg.get("max_pt") is not None:

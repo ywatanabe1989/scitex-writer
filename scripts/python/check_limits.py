@@ -20,11 +20,13 @@
 # (the same family of commands check_references.py recognises).
 
 import argparse
-import os
 import re
 import subprocess
 import sys
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from _severity import resolve_level  # noqa: E402
 
 # ANSI colors (match check_references.py)
 GREEN = "\033[0;32m"
@@ -202,6 +204,13 @@ def main():
         action="store_true",
         help="Promote over-limit warnings to errors (non-zero exit).",
     )
+    parser.add_argument(
+        "--level",
+        choices=["off", "warn", "error"],
+        default=None,
+        help="Severity: warn (default), off, or error. Overrides env and "
+        "config; --strict is a tightening alias for error.",
+    )
     args = parser.parse_args()
 
     project_dir = Path(args.project_dir).resolve()
@@ -224,12 +233,25 @@ def main():
         )
         return 0
 
-    strict = (
-        args.strict
-        or bool(limits.get("strict", False))
-        or os.environ.get("SCITEX_WRITER_LINT_STRICT", "").lower()
-        in ("1", "true", "yes")
+    level = resolve_level(
+        "limits",
+        args.level,
+        project_dir,
+        default="warn",
+        env_var="SCITEX_WRITER_LIMITS",
+        legacy_strict=args.strict or bool(limits.get("strict", False)),
     )
+    if level == "off":
+        print(
+            f"  {DIM}[INFO]{NC} limit check is disabled (level=off). "
+            f"Set limits.level or --level to enable."
+        )
+        print(
+            f"\n{BOLD}Summary:{NC} {GREEN}0 passed{NC}, "
+            f"{YELLOW}0 warnings{NC}, {RED}0 errors{NC}"
+        )
+        return 0
+    strict = level == "error"
 
     if not doc_dir.exists():
         print(f"{RED}ERROR:{NC} {doc_dir} not found", file=sys.stderr)

@@ -73,7 +73,13 @@ def test_resolve_level_defaults_to_warn(tmp_path, clean_paper_env):
     # Arrange
     project_dir = str(tmp_path)
     # Act
-    level = resolve_level(None, project_dir)
+    level = resolve_level(
+        "paper_symlink",
+        None,
+        project_dir,
+        default="warn",
+        env_var="SCITEX_WRITER_PAPER_SYMLINK",
+    )
     # Assert
     assert level == "warn"
 

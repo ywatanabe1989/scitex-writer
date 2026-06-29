@@ -41,9 +41,10 @@ init_shared() {
 
     cat >"$PROJECT_ROOT/00_shared/title.tex" <<'LATEX'
 %% -*- coding: utf-8 -*-
-\title{
+\newcommand{\scitexmanuscripttitle}{%
 Your Manuscript Title Here
 }
+\title{\scitexmanuscripttitle}
 
 %%%% EOF
 LATEX

@@ -35,7 +35,55 @@ def test_module_exports_references_float_order_limits_and_overflow():
         "overflow",
         "paper_symlink",
         "media_provenance",
+        "caption_footnote",
+        "ref_integrity",
     ]
+
+
+def test_ref_integrity_forwards_all_arguments_to_handler():
+    # Arrange
+    handler = _RecordingHandler({"success": True})
+    # Act
+    checks.ref_integrity(
+        "/path",
+        doc_type="supplementary",
+        level="error",
+        handler=handler,
+    )
+    # Assert
+    assert handler.calls == [("/path", "supplementary", "error")]
+
+
+def test_ref_integrity_defaults_are_all_doctype_none_level():
+    # Arrange
+    handler = _RecordingHandler({"success": True})
+    # Act
+    checks.ref_integrity("/path", handler=handler)
+    # Assert
+    assert handler.calls == [("/path", "all", None)]
+
+
+def test_caption_footnote_forwards_all_arguments_to_handler():
+    # Arrange
+    handler = _RecordingHandler({"success": True})
+    # Act
+    checks.caption_footnote(
+        "/path",
+        doc_type="supplementary",
+        level="error",
+        handler=handler,
+    )
+    # Assert
+    assert handler.calls == [("/path", "supplementary", "error")]
+
+
+def test_caption_footnote_defaults_are_all_doctype_none_level():
+    # Arrange
+    handler = _RecordingHandler({"success": True})
+    # Act
+    checks.caption_footnote("/path", handler=handler)
+    # Assert
+    assert handler.calls == [("/path", "all", None)]
 
 
 def test_media_provenance_forwards_all_arguments_to_handler():

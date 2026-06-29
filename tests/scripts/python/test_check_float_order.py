@@ -3,8 +3,12 @@
 # Test file for: check_float_order.py
 
 import os
+import subprocess
 import sys
+import tempfile
 from pathlib import Path
+
+import pytest
 
 # Add scripts/python to path for imports
 ROOT_DIR = Path(__file__).resolve().parent.parent.parent.parent
@@ -16,6 +20,8 @@ from check_float_order import (  # noqa: E402
     find_labels,
     find_references,
 )
+
+_SCRIPT = ROOT_DIR / "scripts" / "python" / "check_float_order.py"
 
 # ====================================================================
 # Tests for extract_number_and_name
@@ -424,3 +430,95 @@ if __name__ == "__main__":
 # --------------------------------------------------------------------------------
 # End of Source Code from: /home/ywatanabe/proj/scitex-writer/scripts/python/check_float_order.py
 # --------------------------------------------------------------------------------
+
+
+# ============================================================================
+# Severity level (off / warn / error) + --fix×level — D3c adoption
+# ============================================================================
+
+
+@pytest.fixture
+def clean_env():
+    """Isolate SCITEX_WRITER_FLOAT_ORDER + HOME so no stray env/user config
+    leaks into severity resolution."""
+    saved = {k: os.environ.get(k) for k in ("SCITEX_WRITER_FLOAT_ORDER", "HOME")}
+    os.environ.pop("SCITEX_WRITER_FLOAT_ORDER", None)
+    with tempfile.TemporaryDirectory() as home:
+        os.environ["HOME"] = home
+        yield home
+    for key, val in saved.items():
+        if val is None:
+            os.environ.pop(key, None)
+        else:
+            os.environ[key] = val
+
+
+def _project_with_out_of_order_floats(tmp_path):
+    """A manuscript referencing fig:02 before fig:01 (out of order)."""
+    contents = tmp_path / "01_manuscript" / "contents"
+    contents.mkdir(parents=True)
+    (contents / "results.tex").write_text(
+        "See \\ref{fig:02} then \\ref{fig:01}.\n", encoding="utf-8"
+    )
+    return tmp_path
+
+
+def _run(project, *extra):
+    env = dict(os.environ)
+    env.pop("SCITEX_WRITER_FLOAT_ORDER", None)
+    return subprocess.run(
+        [sys.executable, str(_SCRIPT), str(project), "--doc-type", "manuscript", *extra],
+        capture_output=True,
+        text=True,
+        env=env,
+    )
+
+
+def test_default_level_errors_on_out_of_order(tmp_path, clean_env):
+    """With the default level (error), out-of-order floats exit non-zero."""
+    # Arrange
+    _project_with_out_of_order_floats(tmp_path)
+    # Act
+    proc = _run(tmp_path)
+    # Assert
+    assert proc.returncode == 1
+
+
+def test_warn_level_demotes_out_of_order(tmp_path, clean_env):
+    """At --level warn, out-of-order floats are reported but exit zero."""
+    # Arrange
+    _project_with_out_of_order_floats(tmp_path)
+    # Act
+    proc = _run(tmp_path, "--level", "warn")
+    # Assert
+    assert proc.returncode == 0
+
+
+def test_off_level_disables_check(tmp_path, clean_env):
+    """At --level off (no fix), the check is disabled with a loud note."""
+    # Arrange
+    _project_with_out_of_order_floats(tmp_path)
+    # Act
+    proc = _run(tmp_path, "--level", "off")
+    # Assert
+    assert "disabled (level=off)" in proc.stdout
+
+
+def test_off_level_still_runs_dry_run_fix(tmp_path, clean_env):
+    """--dry-run runs regardless of level: off does NOT disable the fixer."""
+    # Arrange
+    _project_with_out_of_order_floats(tmp_path)
+    # Act
+    proc = _run(tmp_path, "--level", "off", "--dry-run")
+    # Assert
+    assert "DRY RUN" in proc.stdout
+
+
+def test_emits_summary_line(tmp_path, clean_env):
+    """check_float_order now emits the contract Summary line."""
+    # Arrange
+    _project_with_out_of_order_floats(tmp_path)
+    # Act
+    proc = _run(tmp_path, "--level", "warn")
+    # Assert
+    assert "Summary:" in proc.stdout

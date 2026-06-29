@@ -12,6 +12,11 @@
 % Include all common color options: table (for colortbl), svgnames (for tcolorbox)
 \usepackage[table,svgnames]{xcolor}
 
+%% Line numbers — MUST load before siunitx: lineno patches the output routine
+%% with \interlinepenalty\linenopenalty, which siunitx's number parser otherwise
+%% chokes on ("Invalid number" at \end{frontmatter}).
+\usepackage{lineno}
+
 %% Mathematics
 \usepackage{amsmath, amssymb, amsthm}
 \usepackage{siunitx}
@@ -46,8 +51,8 @@
 \usepackage{hyperref}
 \usepackage{xurl}  % break long URLs / DOIs at any character so they wrap instead of overflowing the margin
 
-%% Document features
-\usepackage{accsupp, lineno, bashful, lipsum}
+%% Document features (lineno loaded earlier, before siunitx)
+\usepackage{accsupp, bashful, lipsum}
 
 %% Visual enhancements
 \usepackage[most]{tcolorbox}
