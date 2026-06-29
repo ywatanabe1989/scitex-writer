@@ -58,6 +58,22 @@ mv -f 01_manuscript/contents/tables/caption_and_media/*.csv \
 ```
 
 Reference tables as Supplementary Tables (S1, S2, ...) in the manuscript text.
+(Supplementary figures/tables are auto-numbered with the `S` prefix by the
+`02_supplementary` template.)
+
+## CSV table-header conventions
+
+Author CSV column headers as the FINAL rendered label — the csv→LaTeX converter
+passes them through faithfully (it no longer title-cases or strips them):
+
+- **Math** renders when written in `$...$`: `$n_{\mathrm{SZ}}$`, `$F_1$`,
+  `Sens$_{15}$`, `$R^2$` (a header containing `$` or `\` is emitted verbatim).
+- **Human labels** read as written: `SOP (min)`, `# of Patients`, `ROC-AUC` —
+  NOT raw underscore-derived `SOP min` / `n patients` / `n SZ`. Use real words
+  and spaces (or math) in the header, not `snake_case`.
+- Numeric **columns auto-align** to a consistent decimal precision (a column
+  with `0.333` and `0.35` renders `0.333` / `0.350`); all-integer count columns
+  stay bare.
 
 ## Archiving Figures and Tables
 

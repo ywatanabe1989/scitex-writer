@@ -45,11 +45,15 @@
 \usepackage{titlesec}  % For custom section formatting
 
 %% Captions and references
-\usepackage[margin=10pt,font=small,labelfont=bf,labelsep=endash]{caption}
+%% justification=justified + singlelinecheck=false: captions span the full
+%% figure/column width (both edges flush), incl. single-line captions.
+\usepackage[margin=10pt,font=small,labelfont=bf,labelsep=endash,justification=justified,singlelinecheck=false]{caption}
 \usepackage[numbers]{natbib}  % numbers: numeric citations [1], [2]
 \setcitestyle{sort=false}     % Preserve citation order as written
 \usepackage{hyperref}
 \usepackage{xurl}  % break long URLs / DOIs at any character so they wrap instead of overflowing the margin
+\usepackage{microtype}  % subtle protrusion/expansion: fewer overfull \hbox
+\setlength{\emergencystretch}{2em}  % last-resort stretch for long unbreakable words (e.g. "Laplace-approximation")
 
 %% Document features (lineno loaded earlier, before siunitx)
 \usepackage{accsupp, bashful, lipsum}
