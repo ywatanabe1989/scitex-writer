@@ -38,11 +38,13 @@
 \titleformat{\subsubsection}
   {\normalfont\normalsize\bfseries\color{MonacoFg}}{\thesubsubsection}{1em}{}
 
-% Caption labels: same as body text, left-aligned
+% Caption labels: same as body text. Full-width justified (matches the
+% light-mode default in packages.tex) — was raggedright, which left dark-mode
+% captions ragged instead of spanning the figure/column width.
 \captionsetup{
   labelfont={bf,color=MonacoFg},
   textfont={color=MonacoFg},
-  justification=raggedright,
+  justification=justified,
   singlelinecheck=false
 }
 
