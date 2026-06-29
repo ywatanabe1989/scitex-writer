@@ -227,9 +227,13 @@ def csv_to_latex(csv_file, output_file, caption=None, label=None, max_rows=30):
             )
             lines.append("\\midrule")
         else:
-            # Add row coloring for readability (skip separator in count)
+            # Add row coloring for readability (skip separator in count).
+            # Use the theme color `lightgray` (gray 0.95 light mode; redefined to
+            # gray 0.2 in dark_mode.tex) so the zebra stripe stays legible in
+            # BOTH modes. A literal gray!10 stayed light under dark mode, hiding
+            # the light text on the striped rows.
             if idx % 2 == 1:
-                lines.append("\\rowcolor{gray!10}")
+                lines.append("\\rowcolor{lightgray}")
             lines.append(" & ".join(values) + " \\\\")
 
     lines.append("\\bottomrule")

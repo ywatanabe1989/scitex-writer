@@ -46,8 +46,11 @@
   singlelinecheck=false
 }
 
-% Adjust table colors for dark mode
-\definecolor{lightgray}{gray}{0.2}  % Darker "light" gray for table rows
+% Zebra-stripe colour for tables. csv_to_latex.py emits \rowcolor{lightgray}
+% for alternate rows; here we darken it so the stripe stays distinct from the
+% dark page AND keeps the light body text legible (light mode defines it as
+% gray 0.95 in packages.tex). gray 0.2 (~#333) sits just above the #1E1E1E page.
+\definecolor{lightgray}{gray}{0.2}
 
 % Override color commands to work well in dark mode
 \renewcommand{\REDENDS}{\color{white}}    % Reset to white instead of black
