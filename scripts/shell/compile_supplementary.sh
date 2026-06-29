@@ -314,9 +314,12 @@ main() {
     ./scripts/shell/modules/compilation_structure_tex_to_compiled_tex.sh
     log_stage_end "TeX Compilation (Structure)"
 
-    # TeX to PDF
+    # TeX to PDF. FAIL LOUD if the supplementary PDF was not (re)created.
     log_stage_start "PDF Generation"
-    ./scripts/shell/modules/compilation_compiled_tex_to_compiled_pdf.sh
+    if ! ./scripts/shell/modules/compilation_compiled_tex_to_compiled_pdf.sh; then
+        echo_error "PDF generation failed — supplementary.pdf was not (re)created. Aborting."
+        exit 1
+    fi
     log_stage_end "PDF Generation"
 
     # Diff (skip if --no_diff specified)
