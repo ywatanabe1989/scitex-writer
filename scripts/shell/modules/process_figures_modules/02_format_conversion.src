@@ -86,11 +86,15 @@ png2jpg() {
                 temp_copy_needed=true
             fi
 
-            # Convert to JPG (flatten alpha onto white background)
+            # Convert to JPG (flatten alpha onto white). Prefer ImageMagick;
+            # fall back to Pillow; FAIL LOUD if neither exists — never leave the
+            # .jpg missing (which silently breaks the figure's \includegraphics).
             if command -v magick >/dev/null 2>&1; then
                 magick "$work_png_file" -background white -flatten -quality 95 "$jpg_file"
-            else
+            elif command -v convert >/dev/null 2>&1; then
                 convert "$work_png_file" -background white -flatten -quality 95 "$jpg_file"
+            elif ! python3 ./scripts/python/png_to_jpg.py "$jpg_file" --src "$work_png_file"; then
+                echo_error "Failed to convert ${base_name}.png to JPG: no ImageMagick (magick/convert) and the Pillow fallback failed. Install ImageMagick or run 'pip install pillow'."
             fi
 
             # Clean up temp file if created
