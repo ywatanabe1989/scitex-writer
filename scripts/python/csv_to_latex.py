@@ -87,6 +87,49 @@ def format_number(val):
         return val
 
 
+def _value_decimals(val):
+    """Decimal places ``val`` shows under :func:`format_number`, or None for a
+    non-number / NaN (or a scientific-notation tiny value, which is left
+    unaligned). Using format_number's own output keeps the column precision in
+    lockstep with the per-cell display (e.g. the 3-dp cap), so alignment never
+    *uncaps* precision — it only pads shorter values to the column max.
+    """
+    try:
+        num = float(val)
+    except (ValueError, TypeError):
+        return None
+    if num != num:  # NaN
+        return None
+    disp = format_number(val)
+    if "e" in disp or "E" in disp:  # scientific notation (very small): unaligned
+        return None
+    return len(disp.split(".")[1]) if "." in disp else 0
+
+
+def column_precision(values):
+    """Target decimal precision for a column so its numbers align.
+
+    The max decimal places among the column's numeric cells, but only when the
+    column actually has a fractional value. Returns ``None`` for an all-integer
+    or non-numeric column (leave those untouched: counts like ``288`` stay
+    ``288``, never ``288.000``).
+    """
+    decimals = [d for d in (_value_decimals(v) for v in values) if d is not None]
+    if not decimals:
+        return None
+    target = max(decimals)
+    return target if target > 0 else None
+
+
+def _format_aligned(val, precision):
+    """Pad ``val`` to a fixed ``precision`` (trailing zeros) so a column's
+    numbers line up. Falls back to ``format_number`` when there's no target
+    precision, or for non-numbers / scientific-notation cells (left as-is)."""
+    if precision is None or _value_decimals(val) is None:
+        return format_number(val)
+    return f"{float(val):.{precision}f}"
+
+
 def csv_to_latex(csv_file, output_file, caption=None, label=None, max_rows=30):
     """Convert CSV to LaTeX table with proper formatting.
 
@@ -189,7 +232,9 @@ def csv_to_latex(csv_file, output_file, caption=None, label=None, max_rows=30):
     lines.append(" & ".join(headers) + " \\\\")
     lines.append("\\midrule")
 
-    # Data rows
+    # Data rows. Pre-compute each column's decimal precision so its numbers
+    # align (e.g. 0.333 / 0.35 -> 0.333 / 0.350); all-integer columns stay bare.
+    col_prec = {col: column_precision(df[col]) for col in df.columns}
     for idx, row in df.iterrows():
         values = []
         is_separator = False
@@ -208,7 +253,7 @@ def csv_to_latex(csv_file, output_file, caption=None, label=None, max_rows=30):
                     if _is_verbatim(val):
                         val = str(val)
                     else:
-                        val = format_number(val)
+                        val = _format_aligned(val, col_prec[col])
                         val = escape_latex(val)
             else:
                 val = "--"  # Display for missing values
@@ -250,13 +295,15 @@ def csv_to_latex(csv_file, output_file, caption=None, label=None, max_rows=30):
             caption += "}"
         lines.append(caption)
     else:
-        # Generate default caption
+        # Generate default caption. Do NOT .title() the name — preserve the
+        # CSV-derived casing so acronyms survive (ROC-AUC, PR-AUC), matching the
+        # header handling.
         if table_number:
             lines.append(
-                f"\\caption{{\\textbf{{Table {table_number}: {table_name.title()}}}"
+                f"\\caption{{\\textbf{{Table {table_number}: {table_name}}}"
             )
         else:
-            lines.append(f"\\caption{{\\textbf{{{table_name.title()}}}")
+            lines.append(f"\\caption{{\\textbf{{{table_name}}}")
         lines.append("\\\\")
         if truncated:
             lines.append(
