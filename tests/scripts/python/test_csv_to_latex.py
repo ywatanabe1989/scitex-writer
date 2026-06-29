@@ -17,7 +17,12 @@ pytest.importorskip("pandas")
 # Try to import pandas and the functions
 try:
     import pandas as pd  # noqa: F401
-    from csv_to_latex import csv_to_latex, escape_latex, format_number
+    from csv_to_latex import (
+        column_precision,
+        csv_to_latex,
+        escape_latex,
+        format_number,
+    )
 
     HAS_DEPS = True
 except ImportError:
@@ -398,7 +403,8 @@ class TestCsvToLatex:
         assert ('\\toprule' in content) and ('\\midrule' in content) and ('\\bottomrule' in content)
 
     def test_csv_to_latex_number_formatting(self, tmp_path):
-        """Should format numbers appropriately."""
+        """Numbers format to the column precision (3.14159->3.142; the
+        integer-valued 42.0 pads to 42.000 to align with the fractional cell)."""
         # Arrange
         csv_file = tmp_path / "test.csv"
         csv_file.write_text("Value\n3.14159\n42.0")
@@ -408,9 +414,8 @@ class TestCsvToLatex:
 
         # Act
         content = output_file.read_text()
-        # Float should be formatted
         # Assert
-        assert ('3.142' in content) and ('42 ' in content or '42\\\\' in content)
+        assert ('3.142' in content) and ('42.000' in content)
 
     def test_csv_to_latex_column_alignment(self, tmp_path):
         """Should align numeric columns right."""
@@ -507,6 +512,74 @@ class TestCsvToLatex:
         content = output_file.read_text()
         # Assert
         assert ("\\rowcolor{lightgray}" in content) and ("gray!10" not in content)
+
+
+class TestColumnPrecision:
+    """Per-column decimal precision (drives alignment)."""
+
+    def test_picks_max_decimals_of_fractional_column(self):
+        """A fractional column's precision is its max decimal places."""
+        # Arrange
+        # Act
+        prec = column_precision([0.333, 0.35])
+        # Assert
+        assert prec == 3
+
+    def test_all_integer_column_returns_none(self):
+        """An all-integer column gets no precision (stays bare)."""
+        # Arrange
+        # Act
+        prec = column_precision([288, 100])
+        # Assert
+        assert prec is None
+
+    def test_skips_non_numeric_cells(self):
+        """Non-numeric markers (--/...) are ignored when sizing precision."""
+        # Arrange
+        # Act
+        prec = column_precision(["--", 0.35, "..."])
+        # Assert
+        assert prec == 2
+
+
+class TestDecimalAlignment:
+    """End-to-end: csv_to_latex aligns a column's decimals."""
+
+    def test_pads_shorter_value_to_column_precision(self, tmp_path):
+        """0.35 renders as 0.350 when the column also has 0.333."""
+        # Arrange
+        csv_file = tmp_path / "auc.csv"
+        csv_file.write_text("AUC\n0.333\n0.35")
+        output_file = tmp_path / "out.tex"
+        csv_to_latex(csv_file, output_file)
+        # Act
+        content = output_file.read_text()
+        # Assert
+        assert "0.350" in content
+
+    def test_all_integer_column_not_padded(self, tmp_path):
+        """A pure count column keeps bare integers (no 288.000)."""
+        # Arrange
+        csv_file = tmp_path / "n.csv"
+        csv_file.write_text("n_SZ\n288\n100")
+        output_file = tmp_path / "out.tex"
+        csv_to_latex(csv_file, output_file)
+        # Act
+        content = output_file.read_text()
+        # Assert
+        assert "288.000" not in content
+
+    def test_default_caption_preserves_acronym_casing(self, tmp_path):
+        """The auto-caption is not title-cased (ROC-AUC, not Roc-Auc)."""
+        # Arrange
+        csv_file = tmp_path / "05_ROC_AUC.csv"
+        csv_file.write_text("AUC\n0.9")
+        output_file = tmp_path / "out.tex"
+        csv_to_latex(csv_file, output_file)
+        # Act
+        content = output_file.read_text()
+        # Assert
+        assert "Roc Auc" not in content
 
 
 if __name__ == "__main__":

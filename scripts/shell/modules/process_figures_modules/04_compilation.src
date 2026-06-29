@@ -162,16 +162,22 @@ create_placeholder_jpg() {
     local output_file="$1"
     local figure_name="$2"
 
-    # Use ImageMagick to create a placeholder
-    if command -v convert >/dev/null 2>&1; then
+    # Create a placeholder JPG. Prefer ImageMagick; fall back to Pillow; FAIL
+    # LOUD if neither exists. NEVER emit a `.txt` — \includegraphics expects a
+    # `.jpg`, and a stray `.txt` silently breaks the compile.
+    if command -v magick >/dev/null 2>&1; then
+        magick -size 800x600 xc:lightgray \
+            -gravity center -pointsize 48 \
+            -annotate +0+0 "Missing Figure\n$figure_name" \
+            "$output_file"
+    elif command -v convert >/dev/null 2>&1; then
         convert -size 800x600 xc:lightgray \
             -gravity center \
             -pointsize 48 \
             -annotate +0+0 "Missing Figure\n$figure_name" \
             "$output_file"
-    else
-        # Create a minimal placeholder
-        echo "Missing figure: $figure_name" >"${output_file%.jpg}.txt"
+    elif ! python3 ./scripts/python/png_to_jpg.py "$output_file" --placeholder "Missing figure: $figure_name"; then
+        echo_error "Cannot create placeholder for missing figure '$figure_name': no ImageMagick (magick/convert) and the Pillow fallback failed. Install ImageMagick or run 'pip install pillow'."
     fi
 }
 

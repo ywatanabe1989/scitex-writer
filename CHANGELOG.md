@@ -7,6 +7,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.23.1] - 2026-06-29
+
+### Fixed
+- **Compile now FAILS LOUD when no PDF is produced.** `compile_{manuscript,
+  supplementary,revision}.sh` invoked the PDF-generation stage without checking
+  its exit code, so a pdfTeX Fatal error that produced no PDF still exited 0
+  (only printing an `ERRO:` line). Each now propagates the non-zero result and
+  aborts, so a missing/failed PDF can never be mistaken for success (#188).
+- **`microtype` no longer breaks elsarticle.** Font expansion is fatal on
+  non-scalable fonts ("auto expansion is only possible with scalable fonts" →
+  no output PDF); loaded now as `[protrusion=true,expansion=false]` (#188,
+  regression from #187).
+- **png→jpg figure conversion: Pillow fallback + fail-loud.** When ImageMagick
+  is absent the converter now falls back to Pillow, and fails loud if neither
+  backend exists, instead of emitting a `.txt` placeholder that broke
+  `\includegraphics` (#184).
+- **Per-column table decimal alignment.** csv→LaTeX aligns each numeric column
+  to a consistent precision (`0.35` → `0.350` alongside `0.333`; integer-valued
+  cells pad in a fractional column; all-integer columns stay bare). Default
+  caption no longer title-cases the name (acronyms survive) (#185).
+- **Supplementary `S`-prefixed numbering by default** (Figure S1, Table S1) via
+  the `02_supplementary` template (#186).
+
+### Added / Changed
+- **Preamble defaults**: `microtype` (protrusion) + `\emergencystretch` and
+  full-width **justified captions** (light + dark mode) in the shared styles;
+  CSV table-header convention documented (#187).
+
 ## [2.23.0] - 2026-06-29
 
 ### Added

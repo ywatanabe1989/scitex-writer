@@ -376,9 +376,15 @@ main() {
     echo_info "$(get_engine_info "$SELECTED_ENGINE")"
     log_stage_end "Engine Selection"
 
-    # TeX to PDF
+    # TeX to PDF. FAIL LOUD: the module returns non-zero when manuscript.pdf was
+    # not (re)created (engine failure, or a pdfTeX Fatal error that produced no
+    # PDF). Propagate that — never exit 0 with only a printed ERRO, or callers
+    # (and humans) treat a stale/absent PDF as a fresh success.
     log_stage_start "PDF Generation"
-    "$PROJECT_ROOT/scripts/shell/modules/compilation_compiled_tex_to_compiled_pdf.sh"
+    if ! "$PROJECT_ROOT/scripts/shell/modules/compilation_compiled_tex_to_compiled_pdf.sh"; then
+        log_error "PDF generation failed — manuscript.pdf was not (re)created. Aborting."
+        exit 1
+    fi
     log_stage_end "PDF Generation"
 
     # Diff (skip if --no_diff specified)

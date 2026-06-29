@@ -10,6 +10,16 @@
 \input{./02_supplementary/contents/latex_styles/formatting}
 
 %% ----------------------------------------
+%% SUPPLEMENTARY FIGURE/TABLE NUMBERING
+%% ----------------------------------------
+%% Standard supplementary numbering: Figure S1, S2, ... / Table S1, S2, ...
+%% This lives in the SUPPLEMENTARY base only (NOT 00_shared/latex_styles, which
+%% is shared with the manuscript and must keep plain 1, 2, ...). The supplement
+%% compiles as its own document, so counters already start at 0 -> first is S1.
+\renewcommand{\thefigure}{S\arabic{figure}}
+\renewcommand{\thetable}{S\arabic{table}}
+
+%% ----------------------------------------
 %% JOURNAL NAME
 %% ----------------------------------------
 \input{./00_shared/journal_name}
