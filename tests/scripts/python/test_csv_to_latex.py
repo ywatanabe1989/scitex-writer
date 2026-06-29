@@ -495,6 +495,19 @@ class TestCsvToLatex:
         # Assert
         assert "$p<0.001$" in content
 
+    def test_csv_to_latex_zebra_stripe_uses_dark_aware_color(self, tmp_path):
+        """Zebra stripe uses the dark-aware `lightgray` theme color, not a
+        literal gray!10 (which stays light and hides text in dark mode)."""
+        # Arrange
+        csv_file = tmp_path / "test.csv"
+        csv_file.write_text("Name,Age\nAlice,30\nBob,25\nCarol,40")
+        output_file = tmp_path / "output.tex"
+        csv_to_latex(csv_file, output_file)
+        # Act
+        content = output_file.read_text()
+        # Assert
+        assert ("\\rowcolor{lightgray}" in content) and ("gray!10" not in content)
+
 
 if __name__ == "__main__":
     pytest.main([os.path.abspath(__file__), "-v"])
