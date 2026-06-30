@@ -211,6 +211,10 @@ parse_arguments() {
     # Dark mode (black background, white text)
     export SCITEX_WRITER_DARK_MODE=$dark_mode
 
+    # Refuse to compile on a Spartan login node (prohibited heavy compute) —
+    # fail loud with the srun hint before the toolchain probe.
+    ./scripts/shell/modules/check_spartan_login.sh || exit 1
+
     # 1. Check dependencies
     log_stage_start "Dependency Check"
     if ! ./scripts/shell/modules/check_dependancy_commands.sh; then

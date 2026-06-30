@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- **Fail-loud guard against compiling on a Spartan HPC login node.** Running
+  the TeX toolchain (pdflatex/bibtex/latexmk) on a Spartan login node is
+  prohibited heavy compute (admins kill it; the account can be sanctioned).
+  `compile_{manuscript,supplementary,revision}.sh` now abort early
+  (`check_spartan_login.sh`) when on a `spartan-login*` host with no
+  `SLURM_JOB_ID`, printing the `srun … bash scripts/shell/compile_manuscript.sh`
+  pattern (and the `spartan-tex` helper) instead of a misleading "pdflatex
+  missing"/`127`. The check is hostname-based, so it catches absolute-path
+  `pdflatex` invocations that slip past command-name guards; it is a no-op
+  everywhere else and adds no SLURM coupling to the portable engine (HPC
+  incident 2026-07-01, coordinated with scitex-hpc).
+
 ## [2.24.3] - 2026-07-01
 
 ### Fixed
