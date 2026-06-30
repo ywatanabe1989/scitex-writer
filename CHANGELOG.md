@@ -17,6 +17,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `caption_and_media/` each run) and preserves real files, warning about any
   orphan jpg so it can be moved to `caption_and_media/` as a tracked source.
 
+## [2.24.1] - 2026-06-30
+
+### Fixed
+- **Clew presentation layer was broken in 2.24.0.** 2.24.0 shipped only the
+  initial cut of the clew layer; the follow-up fixes were stranded on the
+  feature branch (the PR merged at the first commit). 2.24.1 lands the real
+  layer: the 4-state taxonomy (verified / suspect / unverified / exception),
+  verdict-colored `\uwave` markers (the `soul \hl` that swallowed values +
+  dumped raw `@decorate` text is gone), line-breakable `\clewval`, the
+  self-demonstrating legend, the attestation + explainer, and — critically — a
+  **flattener-safe load** (plain top-level `\input` instead of an
+  `\IfFileExists` wrapper, which the flattener inlined as a macro-argument body
+  and dumped as raw text).
+- **`update-project` re-stamps `00_shared/scitex_writer_version.tex`** to the
+  vendored version, so the "Compiled by SciTeX Writer" colophon + PDF Creator
+  metadata are correct immediately after a re-vendor (no recompile).
+
+### Added
+- **Pre-compile version-freshness gate.** `update-project` stamps the
+  vendored-from version into `00_shared/.scitex-writer-vendored-version`;
+  `check_version_freshness.py` fails loud when the vendored engine is behind
+  the installed scitex-writer. `SCITEX_WRITER_VERSION_FRESHNESS`, default
+  error. Prevents the silent stale-engine class of bug.
+
 ## [2.24.0] - 2026-06-30
 
 ### Added
