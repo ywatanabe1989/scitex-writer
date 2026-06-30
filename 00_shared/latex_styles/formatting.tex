@@ -92,4 +92,29 @@
 \newcommand{\placeholder}[1]{\colorbox{yellow}{\textcolor{red}{\textbf{[#1]}}}}
 \newcommand{\ph}[1]{\placeholder{#1}}
 
+%% --- Controlled inline figure placement ---
+%% By default figures collect in the end "Figures" section. To place a figure
+%% in the main text at a controlled spot, drop \scitexfig{<number>} (e.g.
+%% \scitexfig{01}) where you want it: it renders that figure's float here and
+%% flags it so it is NOT also repeated in the end section. Unplaced figures
+%% still collect at the end (default behaviour preserved). \scitexfigdir points
+%% at the assembler-generated per-figure files; override it for non-manuscript
+%% doctypes. The flag csname uses '@' but is built via \csname (catcode
+%% irrelevant -> flatten-safe; no \makeatletter needed).
+\providecommand{\scitexfigdir}{./01_manuscript/contents/figures/compiled/_placeable}
+\newcommand{\scitexfig}[1]{%
+  \expandafter\gdef\csname scitexfigplaced@#1\endcsname{}%
+  \input{\scitexfigdir/#1}%
+}
+
+%% --- Controlled inline table placement (mirror of \scitexfig) ---
+%% Drop \scitextab{<number>} (e.g. \scitextab{01}) in the body to render that
+%% table here; it is then skipped in the end "Tables" section. Unplaced tables
+%% still collect at the end. Override \scitextabdir for non-manuscript doctypes.
+\providecommand{\scitextabdir}{./01_manuscript/contents/tables/compiled/_placeable}
+\newcommand{\scitextab}[1]{%
+  \expandafter\gdef\csname scitextabplaced@#1\endcsname{}%
+  \input{\scitextabdir/#1}%
+}
+
 %%%% EOF

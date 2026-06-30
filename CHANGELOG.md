@@ -7,6 +7,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- **Controlled inline figure placement (`\scitexfig{<number>}`).** Figures
+  collect in the end "Figures" section by default; to place one in the main
+  text at a controlled spot, drop `\scitexfig{01}` where you want it — it
+  renders that figure's float there and flags it so it is not also repeated at
+  the end. Figures left unplaced still collect at the end (default behaviour
+  unchanged). The assembler now writes per-figure standalone floats to
+  `contents/figures/compiled/_placeable/<number>.tex` and guards each end-block
+  float with `\ifcsname scitexfigplaced@<number>\endcsname`.
+- **Controlled inline table placement (`\scitextab{<number>}`).** Same model
+  for tables: `\scitextab{01}` renders that table where dropped and skips it in
+  the end "Tables" section; unplaced tables still collect at the end. The table
+  assembler writes number-keyed placeable copies and guards the end-block input
+  with `\ifcsname scitextabplaced@<number>\endcsname`.
+
+### Changed
+- **`process_tables.sh` split** — the CSV→LaTeX generation functions
+  (`csv2tex`, `csv2tex_single_fallback`, `csv2tex_fallback`) were extracted
+  verbatim into `process_tables_modules/03_csv2tex.src` (sourced by the
+  orchestrator) to keep the file under the size limit; no behaviour change.
+
 ## [2.24.5] - 2026-07-01
 
 ### Fixed
