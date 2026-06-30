@@ -18,6 +18,28 @@ from ._git_safety import (
 )
 from ._source import find_package_root, read_version
 
+# Dedicated, compile-immutable vendor stamp. Read by check_version_freshness.py
+# (writer compile gate) + scitex-dev's fleet stale-install audit. Do NOT reuse
+# 00_shared/scitex_writer_version.tex (the compile rewrites that from the
+# installed version for PDF metadata).
+VENDOR_STAMP_PATH = "00_shared/.scitex-writer-vendored-version"
+
+
+def _write_vendor_stamp(project_path: Path, pkg_version: str) -> None:
+    """Stamp the version this tree was vendored FROM (best-effort)."""
+    try:
+        stamp = project_path / VENDOR_STAMP_PATH
+        stamp.parent.mkdir(parents=True, exist_ok=True)
+        stamp.write_text(
+            f"{pkg_version}\n"
+            f"# scitex-writer vendored-from version (written by update-project).\n"
+            f"# The compile-time freshness gate compares this to the installed\n"
+            f"# scitex-writer; re-vendor (scitex-writer update-project) when behind.\n",
+            encoding="utf-8",
+        )
+    except OSError:
+        pass
+
 
 def update_project(
     project_dir: str,
@@ -92,6 +114,15 @@ def update_project(
         finally:
             if is_temp:
                 shutil.rmtree(str(source_dir.parent), ignore_errors=True)
+
+        # Stamp the vendored-FROM version so the compile-time freshness gate
+        # (check_version_freshness.py) and the fleet stale-install audit can
+        # detect a stale vendored tree. Distinct from scitex_writer_version.tex
+        # (which the compile rewrites from the installed version for PDF
+        # metadata) -- this stamp is written ONLY here and reflects the version
+        # update-project vendored from. Absent => a pre-feature vendor (stale).
+        if not dry_run:
+            _write_vendor_stamp(project_path, pkg_version)
 
         return {
             "success": True,
