@@ -11,7 +11,7 @@
 %%
 %%   CONTRACT -- scitex-clew emits 00_shared/clew_rendered.tex defining (all
 %%   inside \makeatletter ... \makeatother, claim_id sanitized to [a-zA-Z0-9]):
-%%     \definecolor{clewVerified}{HTML}{..} (+ clewPartial/Mismatch/Registered/
+%%     \definecolor{clewVerified}{HTML}{..} (+ clewSuspect/Mismatch/Registered/
 %%       Exception/Frozen) -- the palette (clew's; writer ships \providecolor
 %%       fallbacks). exception/frozen are their own COLORS (no badge glyph).
 %%     \@namedef{clew@val@<id>}{<value>}    -- registered claim_value (escaped).
@@ -60,7 +60,7 @@
 %% in clew_rendered.tex. These \providecolor lines are only a writer-side
 %% FALLBACK so the doc still compiles if clew did not emit a palette.
 \providecolor{clewVerified}{HTML}{2E7D32}
-\providecolor{clewPartial}{HTML}{F9A825}
+\providecolor{clewSuspect}{HTML}{F9A825}
 \providecolor{clewMismatch}{HTML}{C62828}
 \providecolor{clewRegistered}{HTML}{9E9E9E}
 %% exception/frozen are conveyed by their own wavy-underline COLOR (no badge
@@ -194,7 +194,7 @@
   \par\vspace{0.5em}\noindent{\footnotesize\color{gray}%
     \textbf{Clew status:}\ %
     \clewLabel{clewVerified}{verified}\quad
-    \clewLabel{clewPartial}{partial}\quad
+    \clewLabel{clewSuspect}{suspect}\quad
     \clewLabel{clewMismatch}{mismatch/missing}\quad
     \clewLabel{clewRegistered}{registered}\quad
     \clewLabel{clewException}{exception}\quad
