@@ -78,6 +78,18 @@
   \input{../../00_shared/scitex_writer_version.tex}%
 }{}
 
+%% Clew presentation layer (RENDERING half — writer owns this).
+%% scitex-clew emits 00_shared/clew_rendered.tex (palette + per-claim
+%% value/color/badge + aggregate — the WHAT); this style renders it (the HOW).
+%% Opt-in toggles (clew_presentation.{markers,badge,signature,legend}) default
+%% OFF, so loading the style is a no-op until a manuscript/config enables them.
+\IfFileExists{../../00_shared/latex_styles/clew_presentation.tex}{%
+  \input{../../00_shared/latex_styles/clew_presentation.tex}%
+  \IfFileExists{../../00_shared/clew_rendered.tex}{%
+    \input{../../00_shared/clew_rendered.tex}%
+  }{}%
+}{}
+
 %% EOF
 
 %%%% EOF

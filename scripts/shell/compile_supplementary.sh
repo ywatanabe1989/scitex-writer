@@ -322,6 +322,14 @@ main() {
     fi
     log_stage_end "PDF Generation"
 
+    # Post-compile verification: FAIL LOUD on a deficient PDF (off/warn never block).
+    log_stage_start "Compile Verification"
+    if ! ./scripts/shell/modules/run_compile_verification.sh; then
+        echo_error "Compile verification failed — the PDF is deficient (see above). Aborting."
+        exit 1
+    fi
+    log_stage_end "Compile Verification"
+
     # Diff (skip if --no_diff specified)
     if [ "$no_diff" = false ]; then
         log_stage_start "Diff Generation"

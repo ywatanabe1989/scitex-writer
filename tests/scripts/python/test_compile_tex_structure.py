@@ -14,8 +14,10 @@ ROOT_DIR = Path(__file__).resolve().parent.parent.parent.parent
 sys.path.insert(0, str(ROOT_DIR / "scripts" / "python"))
 
 from compile_tex_structure import (  # noqa: E402
+    _is_style_input,
     _read_config_theme,
     _resolve_dark_mode,
+    _style_fallback,
     compile_tex_structure,
     expand_inputs,
     generate_signature,
@@ -536,6 +538,113 @@ class TestThemeResolution:
         result = _read_config_theme(base)
         # Assert
         assert result == "light"
+
+
+@pytest.fixture
+def chdir_tmp(tmp_path):
+    """Run the test with cwd = tmp_path (real chdir, restored on teardown).
+
+    _style_fallback resolves 00_shared/latex_styles relative to cwd (= project
+    root in the real pipeline, like ./-prefixed inputs). No monkeypatch: we set
+    the real cwd and restore it.
+    """
+    prev = os.getcwd()
+    os.chdir(tmp_path)
+    try:
+        yield tmp_path
+    finally:
+        os.chdir(prev)
+
+
+class TestStyleFallbackAndFailLoud:
+    """latex_styles \\input falls back to 00_shared/latex_styles; a still-missing
+    preamble style input fails loud (no silent broken-PDF on exit 0)."""
+
+    def test_is_style_input_true_for_latex_styles_path(self):
+        # Arrange
+        path = "contents/latex_styles/packages.tex"
+        # Act
+        result = _is_style_input(path)
+        # Assert
+        assert result is True
+
+    def test_is_style_input_false_for_content_path(self):
+        # Arrange
+        path = "contents/methods.tex"
+        # Act
+        result = _is_style_input(path)
+        # Assert
+        assert result is False
+
+    def test_style_fallback_resolves_from_00shared(self, chdir_tmp):
+        """A latex_styles input missing in contents/ resolves to 00_shared."""
+        # Arrange
+        (chdir_tmp / "00_shared" / "latex_styles").mkdir(parents=True)
+        (chdir_tmp / "00_shared" / "latex_styles" / "packages.tex").write_text("PKG")
+        # Act
+        resolved = _style_fallback(
+            Path("01_manuscript/contents/latex_styles/packages.tex")
+        )
+        # Assert
+        assert resolved == Path("00_shared") / "latex_styles" / "packages.tex"
+
+    def test_style_fallback_none_for_non_style(self, chdir_tmp):
+        # Arrange
+        target = Path("01_manuscript/contents/methods.tex")
+        # Act
+        resolved = _style_fallback(target)
+        # Assert
+        assert resolved is None
+
+    def test_expand_resolves_style_via_00shared_fallback(self, chdir_tmp):
+        """A \\input of a contents/latex_styles file inlines the 00_shared copy."""
+        # Arrange
+        (chdir_tmp / "00_shared" / "latex_styles").mkdir(parents=True)
+        (chdir_tmp / "00_shared" / "latex_styles" / "packages.tex").write_text("PKGMARK")
+        (chdir_tmp / "01_manuscript").mkdir(parents=True)
+        base = chdir_tmp / "01_manuscript" / "base.tex"
+        base.write_text("\\input{contents/latex_styles/packages}")
+        errors = []
+        # Act
+        out = expand_inputs(base, errors=errors)
+        # Assert
+        assert ("PKGMARK" in out) and (errors == [])
+
+    def test_missing_style_input_records_fatal_error(self, chdir_tmp):
+        """A style input absent in BOTH contents/ and 00_shared is fail-loud."""
+        # Arrange
+        (chdir_tmp / "01_manuscript").mkdir(parents=True)
+        base = chdir_tmp / "01_manuscript" / "base.tex"
+        base.write_text("\\input{contents/latex_styles/packages}")
+        errors = []
+        # Act
+        out = expand_inputs(base, errors=errors)
+        # Assert
+        assert (len(errors) == 1) and ("FATAL" in out) and ("PKGMARK" not in out)
+
+    def test_missing_non_style_input_is_skipped_not_fatal(self, chdir_tmp):
+        """A missing NON-style \\input keeps the historical skip (not fatal)."""
+        # Arrange
+        (chdir_tmp / "01_manuscript").mkdir(parents=True)
+        base = chdir_tmp / "01_manuscript" / "base.tex"
+        base.write_text("\\input{contents/optional_section}")
+        errors = []
+        # Act
+        out = expand_inputs(base, errors=errors)
+        # Assert
+        assert (errors == []) and ("SKIPPED" in out)
+
+    def test_compile_aborts_on_missing_style_input(self, chdir_tmp):
+        """compile_tex_structure returns False when a preamble style is missing."""
+        # Arrange
+        (chdir_tmp / "01_manuscript").mkdir(parents=True)
+        base = chdir_tmp / "01_manuscript" / "base.tex"
+        base.write_text("\\input{contents/latex_styles/packages}")
+        output = chdir_tmp / "01_manuscript" / "out.tex"
+        # Act
+        success = compile_tex_structure(base_tex=base, output_tex=output, verbose=False)
+        # Assert
+        assert success is False
 
 
 if __name__ == "__main__":

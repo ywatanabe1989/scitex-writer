@@ -1,0 +1,188 @@
+%% -*- coding: utf-8 -*-
+%% File: 00_shared/latex_styles/clew_presentation.tex
+%% Purpose: STATIC style for the clew presentation layer -- the RENDERING half.
+%%
+%%   SCOPE BOUNDARY (operator-ratified): scitex-writer owns the RENDERING (this
+%%   file: the LaTeX macros, soul/ulem composition, badge/colophon/legend
+%%   layout, hyperlinks, icon). scitex-clew owns WHAT to render (the data:
+%%   which claims, their values, the verdict->color mapping, the palette,
+%%   badge states). So writer does NOT parse claims.json or decide colors --
+%%   it consumes a clew-emitted include.
+%%
+%%   CONTRACT -- scitex-clew emits 00_shared/clew_rendered.tex defining (all
+%%   inside \makeatletter ... \makeatother, claim_id sanitized to [a-zA-Z0-9]):
+%%     \definecolor{clewVerified}{HTML}{..} (+ clewPartial/Mismatch/Registered)
+%%       -- the palette (clew's; writer ships \providecolor fallbacks).
+%%     \@namedef{clew@val@<id>}{<value>}    -- registered claim_value (escaped).
+%%     \@namedef{clew@hex@<id>}{<6hex>}     -- resolved verdict color.
+%%     \@namedef{clew@status@<id>}{<status>}.
+%%     \@namedef{clew@exc@<id>}{} / \@namedef{clew@frz@<id>}{}  -- iff flagged.
+%%     \def\clew@total{N} \def\clew@verified{M} \def\clew@allverified{0|1}.
+%%   The OPT-IN toggles (markers/badge/signature/legend) are WRITER presentation
+%%   config -- set by the manuscript preamble or a writer-side config step, NOT
+%%   by clew. (demo/clew_rendered.sample.tex is a hand-written stand-in for
+%%   clew's output, for host-compiling this renderer.)
+%%
+%%   Renders (each an INDEPENDENT opt-in toggle, all default OFF):
+%%     markers   : \clewval{id} / \clewmark{id}{text} -> \uwave + \hl in the
+%%                 claim's verdict color + fontawesome provenance sub-badges.
+%%     badge     : a "Clew Verified" stamp, hyperlinked to the scitex-clew repo.
+%%     signature : a subtle "Compiled by SciTeX Writer." colophon with the navy
+%%                 snake icon, hyperlinked to the scitex-writer repo.
+%%     legend    : a small key of the status colors.
+%%
+%%   SSoT vs decoration: \clewval{id} ALWAYS substitutes the registered value
+%%   (data layer); the wave/hl/color/badges are the opt-in `markers` decoration.
+%%   So markers render INDEPENDENT of the #191 verify gate (a mismatch shows
+%%   RED here even when the gate would block).
+%%
+%%   FRAGILE BIT (host-compile to validate): the soul \hl + ulem \uwave
+%%   composition. If it errors under your class, set \clewpresnosoultrue for a
+%%   wave-only fallback and report back.
+
+%% --- packages (xcolor/hyperref/graphicx are loaded by packages.tex) ---
+\RequirePackage[normalem]{ulem}   % \uwave; normalem keeps \emph italic
+\RequirePackage{soul}             % \hl line-breakable highlight
+\IfFileExists{fontawesome5.sty}{\RequirePackage{fontawesome5}}{%
+  \providecommand{\faLock}{[frozen]}%
+  \providecommand{\faBan}{[exc]}%
+  \providecommand{\faCheckCircle}{[ok]}%
+  \providecommand{\faExclamationTriangle}{[!]}}
+
+%% --- opt-in toggles (default false; clew_rendered.tex flips per config) ---
+\newif\ifclewpresmarkers
+\newif\ifclewpresbadge
+\newif\ifclewpressignature
+\newif\ifclewpreslegend
+\newif\ifclewpresnosoul   % fallback: wave only, no soul highlight
+
+%% --- verdict palette ---
+%% scitex-clew OWNS the palette (what to render). It emits \definecolor{clewX}
+%% in clew_rendered.tex. These \providecolor lines are only a writer-side
+%% FALLBACK so the doc still compiles if clew did not emit a palette.
+\providecolor{clewVerified}{HTML}{2E7D32}
+\providecolor{clewPartial}{HTML}{F9A825}
+\providecolor{clewMismatch}{HTML}{C62828}
+\providecolor{clewRegistered}{HTML}{9E9E9E}
+
+%% --- signature config (overridable before \begin{document}) ---
+\providecommand{\clewSigText}{Compiled by SciTeX Writer.}
+\providecommand{\clewSigURL}{https://github.com/ywatanabe1989/scitex-writer}
+\providecommand{\clewBadgeURL}{https://github.com/ywatanabe1989/scitex-clew}
+\providecommand{\clewSigIcon}{docs/scitex-icon-navy-inverted.png}
+
+\makeatletter
+
+%% Marker composition: highlight (tint of verdict) + wavy underline (verdict).
+%% #1 = 6-hex verdict color, #2 = content.
+\newcommand{\clew@decorate}[2]{%
+  \begingroup
+  \definecolor{clew@verdict}{HTML}{#1}%
+  \ifclewpresnosoul
+    {\color{clew@verdict}\uwave{#2}}%
+  \else
+    \colorlet{clew@tint}{clew@verdict!15!white}%
+    \sethlcolor{clew@tint}%
+    \hl{\color{clew@verdict}\uwave{#2}}%
+  \fi
+  \endgroup}
+
+%% Provenance sub-badges for a (sanitized) claim key, if flagged.
+\newcommand{\clew@badges}[1]{%
+  \ifcsname clew@exc@#1\endcsname\,{\small\faBan}\fi
+  \ifcsname clew@frz@#1\endcsname\,{\small\faLock}\fi}
+
+\makeatother
+
+%% --- \clewval / \clewmark (expl3: robust id-sanitize + csname lookup) ---
+%% claim_id is sanitized to [a-zA-Z0-9] -- the SAME transform gen_clew_marks.py
+%% applies -- so authors write the raw claim_id.
+\ExplSyntaxOn
+\tl_new:N \l__clew_key_tl
+\cs_new_protected:Npn \__clew_key:n #1 {
+  \str_set:Nn \l_tmpa_str {#1}
+  \regex_replace_all:nnN { [^a-zA-Z0-9] } {} \l_tmpa_str
+  \tl_set:Nx \l__clew_key_tl { \str_use:N \l_tmpa_str }
+}
+%% \clewval{id}: substitute the registered value (always); decorate if markers on.
+%% \legacy_if:nTF tests the LaTeX2e \ifclewpresmarkers newif from expl3.
+\NewDocumentCommand \clewval { m } {
+  \__clew_key:n {#1}
+  \cs_if_exist:cTF { clew@val@ \l__clew_key_tl } {
+    \legacy_if:nTF { clewpresmarkers } {
+      \clew@decorate { \use:c { clew@hex@ \l__clew_key_tl } }
+        { \use:c { clew@val@ \l__clew_key_tl } }
+      \clew@badges { \l__clew_key_tl }
+    } {
+      \use:c { clew@val@ \l__clew_key_tl }
+    }
+  } {
+    \msg_warning:nnn { clew } { unknown-claim } {#1}
+    \textbf { [clew:#1?] }
+  }
+}
+%% \clewmark{id}{text}: mark author-supplied text/prose (decoration only).
+\NewDocumentCommand \clewmark { m m } {
+  \__clew_key:n {#1}
+  \legacy_if:nTF { clewpresmarkers } {
+    \cs_if_exist:cTF { clew@hex@ \l__clew_key_tl } {
+      \clew@decorate { \use:c { clew@hex@ \l__clew_key_tl } } {#2}
+      \clew@badges { \l__clew_key_tl }
+    } {
+      #2
+    }
+  } {
+    #2
+  }
+}
+\msg_new:nnn { clew } { unknown-claim }
+  { Clew~claim~'#1'~not~found~in~clew_rendered.tex~(rendering~plain). }
+\ExplSyntaxOff
+
+\makeatletter
+
+%% --- "Clew Verified" badge (hyperlinked to the clew repo) ---
+\newcommand{\clewVerifiedBadge}{%
+  \ifnum\clew@allverified=1
+    \href{\clewBadgeURL}{\colorbox{clewVerified!12!white}{%
+      \textcolor{clewVerified}{\small\faCheckCircle\ Clew Verified}}}%
+  \else
+    \href{\clewBadgeURL}{\colorbox{clewMismatch!12!white}{%
+      \textcolor{clewMismatch}{\small\faExclamationTriangle\ %
+        \clew@total\ claims, \the\numexpr\clew@total-\clew@verified\relax\ unverified}}}%
+  \fi}
+
+%% --- "Compiled by SciTeX Writer." colophon (snake icon + writer-repo link) ---
+\newcommand{\clewSignature}{%
+  \par\vspace{0.8em}\noindent
+  {\footnotesize\color{gray}%
+    \href{\clewSigURL}{%
+      \IfFileExists{\clewSigIcon}{\raisebox{-0.25em}{\includegraphics[height=1em]{\clewSigIcon}}\,}{}%
+      \clewSigText}}\par}
+
+%% --- status legend ---
+\newcommand{\clewLegend}{%
+  \par\vspace{0.5em}\noindent{\footnotesize\color{gray}%
+    \textbf{Clew status:}\ %
+    \textcolor{clewVerified}{\rule{0.8em}{0.8em}}~verified\quad
+    \textcolor{clewPartial}{\rule{0.8em}{0.8em}}~partial\quad
+    \textcolor{clewMismatch}{\rule{0.8em}{0.8em}}~mismatch/missing\quad
+    \textcolor{clewRegistered}{\rule{0.8em}{0.8em}}~registered\quad
+    {\small\faBan}~exception\quad{\small\faLock}~frozen\par}}
+
+%% Auto-placement: badge at top, legend + signature at the end. Manual macros
+%% (\clewVerifiedBadge etc.) stay available for explicit placement.
+\AtBeginDocument{\ifclewpresbadge\par\noindent\clewVerifiedBadge\par\fi}
+\AtEndDocument{%
+  \ifclewpreslegend\clewLegend\fi
+  \ifclewpressignature\clewSignature\fi}
+
+%% Safe fallbacks: if clew_rendered.tex was NOT input (no claims / layer off),
+%% \clewval / \clewmark still compile (plain passthrough), and the aggregate
+%% macros exist so the badge code never errors.
+\providecommand{\clew@total}{0}
+\providecommand{\clew@verified}{0}
+\providecommand{\clew@allverified}{0}
+
+\makeatother
+%% EOF
