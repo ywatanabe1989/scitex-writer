@@ -168,9 +168,17 @@
 %% --- bottom-RIGHT colophon + attestation (both carry the snake icon) ---
 %% The snake icon (writer-repo for the colophon, clew-repo for the attestation
 %% per the operator -- same snake on both lines).
+%% Force-expand \clewSigIcon to a LITERAL path before \IfFileExists so the
+%% guard actually tests the file. Passing the bare macro (\IfFileExists{\clewSigIcon})
+%% can leave it unexpanded (texlive vintage / flatten context), so the false
+%% branch never fires and a MISSING icon crashes \includegraphics with
+%% "File `\clewSigIcon ' not found". With the icon absent this now degrades to a
+%% text-only colophon instead of a fatal error.
 \newcommand{\clewColophonIcon}{%
-  \IfFileExists{\clewSigIcon}{%
-    \raisebox{-0.25em}{\includegraphics[height=1em]{\clewSigIcon}}\,}{}}
+  \begingroup\edef\clew@sigiconpath{\clewSigIcon}%
+  \expandafter\IfFileExists\expandafter{\clew@sigiconpath}%
+    {\raisebox{-0.25em}{\includegraphics[height=1em]{\clew@sigiconpath}}\,}{}%
+  \endgroup}
 %% "Compiled by SciTeX Writer." -> writer repo, right-aligned.
 \newcommand{\clewSignature}{%
   \par\vspace{0.8em}%
