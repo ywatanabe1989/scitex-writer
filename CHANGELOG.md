@@ -8,6 +8,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Fixed
+- **Flattener no longer injects before a `\begin{document}` that appears inside
+  a comment.** The build-metadata (`_build_id.inject_build_metadata`) and
+  dark-mode injections targeted `\begin{document}` with a plain `str.replace`,
+  which also matched the literal inside a preamble *comment* (e.g.
+  `clew_presentation.tex`'s "overridable before `\begin{document}`"). With the
+  clew layer active this injected the dark-mode override block mid-preamble —
+  before the base `\newcommand`s (`\REDENDS`/`\hlref` undefined) — and
+  de-commented the comment tail (`\begin{document}) ---` emitted as code →
+  "Missing \begin{document}"), producing ~25 LaTeX errors + page-1 garbage on a
+  reflatten. Both injections now anchor to the real line-start `\begin{document}`
+  (first match only), so a `\begin{document}` inside any comment is ignored.
 - **Clew colophon/signature no longer crashes the compile when the icon asset
   is absent.** `\clewColophonIcon` guarded `\includegraphics{\clewSigIcon}` with
   `\IfFileExists{\clewSigIcon}{…}{}`, but the bare macro could reach the test
