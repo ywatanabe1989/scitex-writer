@@ -349,11 +349,18 @@ def compile_tex_structure(
             dark_mode_injection = ""
 
         if dark_mode_injection:
-            # Inject dark mode styling before \begin{document}
-            # Leave hyperref/link colors untouched (use document defaults)
-            expanded_content = expanded_content.replace(
-                r"\begin{document}",
-                dark_mode_injection + r"\begin{document}",
+            # Inject dark mode styling before the REAL \begin{document}.
+            # Anchor to a line-start match, first occurrence only: a plain
+            # str.replace() also matched \begin{document} inside COMMENTS (e.g.
+            # clew_presentation.tex's "overridable before \begin{document})"),
+            # injecting the dark-mode block mid-preamble (before base defs ->
+            # "\REDENDS undefined") and de-commenting the tail. A function
+            # replacement keeps backslashes in the injection literal.
+            expanded_content = re.sub(
+                r"(?m)^([ \t]*)\\begin\{document\}",
+                lambda m: dark_mode_injection + m.group(0),
+                expanded_content,
+                count=1,
             )
 
     # Write output
