@@ -154,8 +154,10 @@ def inject_build_metadata(content: str, build_id: str) -> str:
         + "-" * 76
         + "\n"
     )
+    # End with a newline (not a space) so the marker stays at LINE START — a
+    # later line-anchored injection (dark mode) must still be able to find it.
     return marker_re.sub(
-        lambda m: r"\makeatletter " + block + r"\makeatother " + m.group(0),
+        lambda m: "\\makeatletter " + block + "\\makeatother\n" + m.group(0),
         content,
         count=1,
     )
