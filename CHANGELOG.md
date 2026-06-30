@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- **Clew colophon/signature no longer crashes the compile when the icon asset
+  is absent.** `\clewColophonIcon` guarded `\includegraphics{\clewSigIcon}` with
+  `\IfFileExists{\clewSigIcon}{…}{}`, but the bare macro could reach the test
+  unexpanded (texlive vintage / flattened context), so the false branch never
+  fired and a missing `\clewSigIcon` (default `docs/scitex-icon-navy-inverted.png`,
+  not vendored) hard-failed with `File \`\clewSigIcon ' not found` whenever the
+  signature/colophon was enabled (`\clewpressignaturetrue`). The path is now
+  force-expanded to a literal before `\IfFileExists`, so an absent icon degrades
+  to a text-only colophon instead of crashing.
+
 ## [2.24.4] - 2026-07-01
 
 ### Added
