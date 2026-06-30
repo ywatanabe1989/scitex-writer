@@ -252,6 +252,11 @@ main() {
     # Dark mode (black background, white text)
     export SCITEX_WRITER_DARK_MODE=$dark_mode
 
+    # Refuse to compile on a Spartan login node (prohibited heavy compute) —
+    # fail loud with the srun hint BEFORE the toolchain probe, which would
+    # otherwise mis-report the login-node guard's [BLOCKED] as "pdflatex broken".
+    "$PROJECT_ROOT/scripts/shell/modules/check_spartan_login.sh" || exit 1
+
     # Check dependencies
     log_stage_start "Dependency Check"
     "$PROJECT_ROOT/scripts/shell/modules/check_dependancy_commands.sh"
