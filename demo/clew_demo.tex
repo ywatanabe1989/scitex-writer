@@ -1,14 +1,12 @@
 %% Demo for the clew presentation layer — host-compile from the REPO ROOT:
 %%   pdflatex demo/clew_demo.tex   (twice, for hyperref)
-%% Shows: inline markers (\uwave + \hl in verdict color) with green verified
-%% values and a RED mismatch, the ⊘/🔒 sub-badges, the clew-repo-linked
-%% "Clew Verified" badge, the writer-repo-linked snake colophon, and the legend.
+%% Shows: inline markers (verdict-colored wavy underline) with green verified
+%% values, a RED unverified value, suspect/exception in their own colors, the
+%% clew-repo-linked "Clew Verified" badge, the snake colophon, and the legend.
 %% All four toggles are forced on below (in production they are opt-in config).
 %%
 %% NOTE: demo/clew_rendered.sample.tex is a STAND-IN for scitex-clew's emitted
-%% output. If the soul \hl + ulem \uwave composition errors under your class,
-%% add \clewpresnosoultrue before \begin{document} for the wave-only fallback,
-%% and tell scitex-writer.
+%% output.
 \documentclass[11pt]{article}
 \usepackage[T1]{fontenc}
 \usepackage[utf8]{inputenc}
@@ -26,11 +24,16 @@
 \clewpresmarkerstrue
 \clewpresbadgetrue
 \clewpressignaturetrue
-\clewpreslegendtrue
+\clewpresattesttrue
+\clewpresexplainertrue
+%% \clewpreslegendtrue  % standalone legend; omitted here — the explainer
+%%                       % section below already embeds the legend key.
 
 \begin{document}
 
 \section*{Clew presentation layer — demo}
+
+\clewExplainer
 
 \noindent
 Inline value substitution (SSoT — the number IS the registered value), with
@@ -43,11 +46,11 @@ verify gate's verdict:
 \clewval{table1_event_completion}.
 
 \medskip\noindent
-A verified claim carrying a \emph{frozen} lineage badge:
+A \emph{suspect} claim, shown in the suspect color:
 \clewval{methods_sequential_predictor}.
 
 \medskip\noindent
-A verified claim carrying an \emph{exception} badge:
+A claim with an \emph{exception}, shown in the exception color:
 \clewval{discussion_effect_sizes}.
 
 \medskip\noindent
