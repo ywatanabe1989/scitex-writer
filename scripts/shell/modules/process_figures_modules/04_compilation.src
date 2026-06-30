@@ -94,24 +94,43 @@ compile_figure_tex_files() {
             image_path="$figure_path_base/${figure_number}.jpg"
         fi
 
-        # Write figure environment
-        echo "% Figure $figure_number" >>"$SCITEX_WRITER_FIGURE_COMPILED_FILE"
-
-        # Use [htbp] for all figures to allow flexible placement
-        echo "\\begin{figure*}[htbp]" >>"$SCITEX_WRITER_FIGURE_COMPILED_FILE"
-
         local _fig_bookmark="Figure $figure_number"
         [ -n "$figure_title" ] && _fig_bookmark="Figure $figure_number --- ${figure_title%.}"
-        echo "    \\pdfbookmark[2]{$_fig_bookmark}{.$figure_number}" >>"$SCITEX_WRITER_FIGURE_COMPILED_FILE"
-        echo "    \\centering" >>"$SCITEX_WRITER_FIGURE_COMPILED_FILE"
-        echo "    \\includegraphics[width=$width,totalheight=$max_height,keepaspectratio]{$image_path}" >>"$SCITEX_WRITER_FIGURE_COMPILED_FILE"
-        echo "    $caption_content" >>"$SCITEX_WRITER_FIGURE_COMPILED_FILE"
+
+        local _label_line=""
         # Only add label if caption doesn't already contain one
         if ! echo "$caption_content" | grep -q '\\label{fig:'; then
-            echo "    \\label{fig:${figure_id}}" >>"$SCITEX_WRITER_FIGURE_COMPILED_FILE"
+            _label_line="    \\label{fig:${figure_id}}"
         fi
-        echo "\\end{figure*}" >>"$SCITEX_WRITER_FIGURE_COMPILED_FILE"
-        echo "" >>"$SCITEX_WRITER_FIGURE_COMPILED_FILE"
+
+        # Build the standalone float into a per-figure PLACEABLE file so the
+        # author can drop it anywhere in the body with \scitexfig{<number>}
+        # (controlled inline placement). The same float is also emitted into
+        # FINAL (end-of-document block), GUARDED so a figure placed inline is
+        # not duplicated at the end. [htbp] lets LaTeX float it to a nearby
+        # page top/bottom.
+        local placeable_dir="$SCITEX_WRITER_FIGURE_COMPILED_DIR/_placeable"
+        mkdir -p "$placeable_dir" 2>/dev/null
+        local placeable_file="$placeable_dir/${figure_number}.tex"
+        {
+            echo "% Figure $figure_number"
+            echo "\\begin{figure*}[htbp]"
+            echo "    \\pdfbookmark[2]{$_fig_bookmark}{.$figure_number}"
+            echo "    \\centering"
+            echo "    \\includegraphics[width=$width,totalheight=$max_height,keepaspectratio]{$image_path}"
+            echo "    $caption_content"
+            [ -n "$_label_line" ] && echo "$_label_line"
+            echo "\\end{figure*}"
+        } >"$placeable_file"
+
+        # Emit into FINAL, guarded: render here only if NOT already placed
+        # inline via \scitexfig{<number>} (which \gdef-s scitexfigplaced@<number>).
+        {
+            echo "\\ifcsname scitexfigplaced@${figure_number}\\endcsname\\else"
+            cat "$placeable_file"
+            echo "\\fi"
+            echo ""
+        } >>"$SCITEX_WRITER_FIGURE_COMPILED_FILE"
     done
 }
 

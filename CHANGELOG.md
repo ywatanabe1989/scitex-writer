@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- **Controlled inline figure placement (`\scitexfig{<number>}`).** Figures
+  collect in the end "Figures" section by default; to place one in the main
+  text at a controlled spot, drop `\scitexfig{01}` where you want it — it
+  renders that figure's float there and flags it so it is not also repeated at
+  the end. Figures left unplaced still collect at the end (default behaviour
+  unchanged). The assembler now writes per-figure standalone floats to
+  `contents/figures/compiled/_placeable/<number>.tex` and guards each end-block
+  float with `\ifcsname scitexfigplaced@<number>\endcsname`.
+
 ## [2.24.5] - 2026-07-01
 
 ### Fixed
