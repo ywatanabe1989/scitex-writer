@@ -75,17 +75,20 @@
 %% ALL-LETTER names (no @): these are called from the expl3 \clewval/\clewmark
 %% below, and under \ExplSyntaxOn '@' is catcode-12 "other" -- a \clew@... name
 %% would split at \clew and print the "@decorate..." tail as raw text.
-%% #1 = 6-hex verdict color, #2 = content.
-\newcommand{\clewDecorate}[2]{%
+%% #1 = content. The verdict color `clewVerdict` is \definecolor'd by the
+%% (expl3) caller BEFORE this runs -- doing it here via \edef of a \use:c arg
+%% misfired (undefined color -> stray-brace + \SOUL@n cascade -> truncation).
+%% \color is set OUTSIDE \hl (coloring text + wave) to minimise soul/ulem
+%% nesting fragility; \hl supplies only the (tinted) highlight background.
+\newcommand{\clewDecorate}[1]{%
   \begingroup
-  \edef\clewtmphex{#1}% expand the \use:c{clew@hex@id} -> pure 6-hex
-  \definecolor{clewVerdict}{HTML}{\clewtmphex}%
+  \color{clewVerdict}%
   \ifclewpresnosoul
-    {\color{clewVerdict}\uwave{#2}}%
+    \uwave{#1}%
   \else
     \colorlet{clewtint}{clewVerdict!15!white}%
     \sethlcolor{clewtint}%
-    \hl{\color{clewVerdict}\uwave{#2}}%
+    \hl{\uwave{#1}}%
   \fi
   \endgroup}
 
@@ -101,6 +104,7 @@
 %% applies when emitting the macro names -- so authors write the raw claim_id.
 \ExplSyntaxOn
 \tl_new:N \l__clew_key_tl
+\tl_new:N \l__clew_hex_tl
 \cs_new_protected:Npn \__clew_key:n #1 {
   \str_set:Nn \l_tmpa_str {#1}
   \regex_replace_all:nnN { [^a-zA-Z0-9] } {} \l_tmpa_str
@@ -112,8 +116,9 @@
   \__clew_key:n {#1}
   \cs_if_exist:cTF { clew@val@ \l__clew_key_tl } {
     \legacy_if:nTF { clewpresmarkers } {
-      \clewDecorate { \use:c { clew@hex@ \l__clew_key_tl } }
-        { \use:c { clew@val@ \l__clew_key_tl } }
+      \tl_set:Nx \l__clew_hex_tl { \use:c { clew@hex@ \l__clew_key_tl } }
+      \definecolor { clewVerdict } { HTML } { \l__clew_hex_tl }
+      \clewDecorate { \use:c { clew@val@ \l__clew_key_tl } }
       \clewBadges { \l__clew_key_tl }
     } {
       \use:c { clew@val@ \l__clew_key_tl }
@@ -128,7 +133,9 @@
   \__clew_key:n {#1}
   \legacy_if:nTF { clewpresmarkers } {
     \cs_if_exist:cTF { clew@hex@ \l__clew_key_tl } {
-      \clewDecorate { \use:c { clew@hex@ \l__clew_key_tl } } {#2}
+      \tl_set:Nx \l__clew_hex_tl { \use:c { clew@hex@ \l__clew_key_tl } }
+      \definecolor { clewVerdict } { HTML } { \l__clew_hex_tl }
+      \clewDecorate {#2}
       \clewBadges { \l__clew_key_tl }
     } {
       #2
