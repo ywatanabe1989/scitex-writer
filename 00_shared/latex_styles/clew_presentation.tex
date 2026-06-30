@@ -98,6 +98,7 @@
 \ExplSyntaxOn
 \tl_new:N \l__clew_key_tl
 \tl_new:N \l__clew_hex_tl
+\tl_new:N \l__clew_val_tl
 \cs_new_protected:Npn \__clew_key:n #1 {
   \str_set:Nn \l_tmpa_str {#1}
   \regex_replace_all:nnN { [^a-zA-Z0-9] } {} \l_tmpa_str
@@ -111,7 +112,12 @@
     \legacy_if:nTF { clewpresmarkers } {
       \tl_set:Nx \l__clew_hex_tl { \use:c { clew@hex@ \l__clew_key_tl } }
       \definecolor { clewVerdict } { HTML } { \l__clew_hex_tl }
-      \clewDecorate { \use:c { clew@val@ \l__clew_key_tl } }
+      %% One-level expand the value to LITERAL tokens (spaces, $...$, \_ kept)
+      %% then pass them via :NV so \uwave sees real space tokens and can break
+      %% mid-value. Passing the bare \use:c macro gave \uwave one unbreakable
+      %% chunk -> right-margin overflow (whereas \clewmark's literal #2 wraps).
+      \tl_set:Nv \l__clew_val_tl { clew@val@ \l__clew_key_tl }
+      \exp_args:NV \clewDecorate \l__clew_val_tl
       \clewBadges { \l__clew_key_tl }
     } {
       \use:c { clew@val@ \l__clew_key_tl }
@@ -163,13 +169,16 @@
       \clewSigText}}\par}
 
 %% --- status legend ---
+%% Swatches are mini wavy-underline samples (NOT filled squares) so a reader
+%% connects each color to the wavy MARKER style at a glance (operator UX note).
+\newcommand{\clewSwatch}[1]{{\color{#1}\uwave{\hphantom{nn}}}}
 \newcommand{\clewLegend}{%
   \par\vspace{0.5em}\noindent{\footnotesize\color{gray}%
     \textbf{Clew status:}\ %
-    \textcolor{clewVerified}{\rule{0.8em}{0.8em}}~verified\quad
-    \textcolor{clewPartial}{\rule{0.8em}{0.8em}}~partial\quad
-    \textcolor{clewMismatch}{\rule{0.8em}{0.8em}}~mismatch/missing\quad
-    \textcolor{clewRegistered}{\rule{0.8em}{0.8em}}~registered\quad
+    \clewSwatch{clewVerified}~verified\quad
+    \clewSwatch{clewPartial}~partial\quad
+    \clewSwatch{clewMismatch}~mismatch/missing\quad
+    \clewSwatch{clewRegistered}~registered\quad
     {\small\faBan}~exception\quad{\small\faLock}~frozen\par}}
 
 %% Auto-placement: badge at top, legend + signature at the end. Manual macros
