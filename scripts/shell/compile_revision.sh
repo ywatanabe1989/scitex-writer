@@ -227,6 +227,15 @@ parse_arguments() {
     fi
     log_stage_end "Provenance Checks"
 
+    # Regenerate claims_rendered.tex from claims.json (\vclaim SSoT) so a stale
+    # file can never ship outdated values; fails loud if rendering errors.
+    log_stage_start "Claims Render"
+    if ! ./scripts/shell/modules/render_claims.sh; then
+        echo -e "${RED}ERRO: Claims render failed (claims.json present but rendering errored) -- fix claims.json; compiling would ship a stale claims_rendered.tex${NC}"
+        exit 1
+    fi
+    log_stage_end "Claims Render"
+
     # 2. Merge bibliography files if multiple exist
     log_stage_start "Bibliography Merge"
     ./scripts/shell/modules/merge_bibliographies.sh
