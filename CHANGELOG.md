@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- **Figure assembler no longer destroys user-placed jpgs.** `init_figures`
+  previously ran a blanket `rm -rf jpg_for_compilation/*` at the start of every
+  figure run, silently deleting real figures materialized directly in
+  `jpg_for_compilation/` that have no `caption_and_media/` source to regenerate
+  from (they became 9KB "Missing Figure" placeholders → PDF embedded 0 images).
+  The clean step now removes only derived **symlinks** (re-created from
+  `caption_and_media/` each run) and preserves real files, warning about any
+  orphan jpg so it can be moved to `caption_and_media/` as a tracked source.
+
 ## [2.24.1] - 2026-06-30
 
 ### Fixed
