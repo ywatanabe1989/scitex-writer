@@ -267,6 +267,15 @@ main() {
     fi
     log_stage_end "Provenance Checks"
 
+    # Regenerate claims_rendered.tex from claims.json (\vclaim SSoT) so a stale
+    # file can never ship outdated values; fails loud if rendering errors.
+    log_stage_start "Claims Render"
+    if ! "$PROJECT_ROOT/scripts/shell/modules/render_claims.sh"; then
+        log_error "Claims render failed (claims.json present but rendering errored) -- fix claims.json; compiling would ship a stale claims_rendered.tex"
+        exit 1
+    fi
+    log_stage_end "Claims Render"
+
     # Merge bibliography files if multiple exist
     log_stage_start "Bibliography Merge"
     "$PROJECT_ROOT/scripts/shell/modules/merge_bibliographies.sh"
