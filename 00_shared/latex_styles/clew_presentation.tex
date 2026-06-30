@@ -189,18 +189,20 @@
   {\footnotesize\color{gray}\raggedleft
     \href{\clewAttestURL}{\clewColophonIcon\clewAttestText}\par}}
 
-%% --- status legend ---
-%% Swatches are mini wavy-underline samples (NOT filled squares) so a reader
-%% connects each color to the wavy MARKER style at a glance (operator UX note).
-\newcommand{\clewSwatch}[1]{{\color{#1}\uwave{\hphantom{nn}}}}
+%% --- status legend (SELF-DEMONSTRATING) ---
+%% Each label word is rendered in its OWN marker style -- the word "verified"
+%% is itself green+wavy, "mismatch/missing" red+wavy, etc., and exception/frozen
+%% carry their badge. So the legend exemplifies the markers rather than showing
+%% an abstract swatch (operator: 自己説明的 / self-explanatory).
+\newcommand{\clewLabel}[2]{{\color{#1}\uwave{#2}}}
 \newcommand{\clewLegend}{%
   \par\vspace{0.5em}\noindent{\footnotesize\color{gray}%
     \textbf{Clew status:}\ %
-    \clewSwatch{clewVerified}~verified\quad
-    \clewSwatch{clewPartial}~partial\quad
-    \clewSwatch{clewMismatch}~mismatch/missing\quad
-    \clewSwatch{clewRegistered}~registered\quad
-    {\small\faBan}~exception\quad{\small\faLock}~frozen\par}}
+    \clewLabel{clewVerified}{verified}\quad
+    \clewLabel{clewPartial}{partial}\quad
+    \clewLabel{clewMismatch}{mismatch/missing}\quad
+    \clewLabel{clewRegistered}{registered}\quad
+    exception\,{\small\faBan}\quad frozen\,{\small\faLock}\par}}
 
 %% --- clew explainer section (clew provides \clewExplainerBody content;
 %% writer provides this minimal, accessible layout). Author-placed: call
