@@ -10,6 +10,8 @@
 \definecolor{clewPartial}{HTML}{F9A825}
 \definecolor{clewMismatch}{HTML}{C62828}
 \definecolor{clewRegistered}{HTML}{9E9E9E}
+\definecolor{clewException}{HTML}{6A1B9A}
+\definecolor{clewFrozen}{HTML}{1565C0}
 
 %% --- aggregate ---
 \def\clew@total{8}
@@ -42,17 +44,16 @@
 \@namedef{clew@hex@resultsperpatientauc}{2E7D32}
 \@namedef{clew@status@resultsperpatientauc}{verified}
 
-%% methods_sequential_predictor [verified, frozen lineage]
+%% methods_sequential_predictor [frozen lineage -> frozen color]
 \@namedef{clew@val@methodssequentialpredictor}{sequential predictor: 1452 held-out scores/arm; cohort-mean repro clinical\_only 0.686, plus\_sle 0.626}
-\@namedef{clew@hex@methodssequentialpredictor}{2E7D32}
-\@namedef{clew@status@methodssequentialpredictor}{verified}
-\@namedef{clew@frz@methodssequentialpredictor}{}
+%% frozen lineage -> conveyed by the frozen COLOR (no badge)
+\@namedef{clew@hex@methodssequentialpredictor}{1565C0}
+\@namedef{clew@status@methodssequentialpredictor}{frozen}
 
-%% discussion_effect_sizes [verified, has exception]
+%% discussion_effect_sizes [exception -> exception COLOR, no badge]
 \@namedef{clew@val@discussioneffectsizes}{effect sizes small (within Cliff's $|\delta|<$0.147); Spearman $+$0.21}
-\@namedef{clew@hex@discussioneffectsizes}{2E7D32}
-\@namedef{clew@status@discussioneffectsizes}{verified}
-\@namedef{clew@exc@discussioneffectsizes}{}
+\@namedef{clew@hex@discussioneffectsizes}{6A1B9A}
+\@namedef{clew@status@discussioneffectsizes}{exception}
 
 %% table1_event_completion [MISMATCH — stale v4i] -> RED
 \@namedef{clew@val@table1eventcompletion}{Table 1 --- per-patient event completion}
