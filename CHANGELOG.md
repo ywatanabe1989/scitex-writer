@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.24.3] - 2026-07-01
+
+### Fixed
+- **`claims_rendered.tex` is regenerated fresh on every compile (no stale
+  `\vclaim` values).** The shell compile path (`compile_{manuscript,
+  supplementary,revision}.sh`) never regenerated `00_shared/claims_rendered.tex`
+  from `00_shared/claims.json` (the `\vclaim` value SSoT), so a stale or
+  hand-edited file — e.g. a legacy "CLEW PROTOTYPE" block — could ship outdated
+  values into the PDF. A new "Claims Render" pre-flight stage (`render_claims.sh`
+  / `render_claims.py`) now regenerates it before flattening: a no-op when
+  `claims.json` is absent, and **fail-loud** (non-zero) when it exists but
+  rendering errors. The MCP compile path's `_auto_render_claims` no longer
+  swallows render failures silently — it raises, so a broken `claims.json` can
+  never silently produce a stale `claims_rendered.tex` (#205).
+
 ## [2.24.2] - 2026-06-30
 
 ### Fixed
