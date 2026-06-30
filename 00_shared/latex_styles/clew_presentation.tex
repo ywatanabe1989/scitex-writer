@@ -71,32 +71,34 @@
 \providecommand{\clewBadgeURL}{https://github.com/ywatanabe1989/scitex-clew}
 \providecommand{\clewSigIcon}{docs/scitex-icon-navy-inverted.png}
 
-\makeatletter
-
 %% Marker composition: highlight (tint of verdict) + wavy underline (verdict).
+%% ALL-LETTER names (no @): these are called from the expl3 \clewval/\clewmark
+%% below, and under \ExplSyntaxOn '@' is catcode-12 "other" -- a \clew@... name
+%% would split at \clew and print the "@decorate..." tail as raw text.
 %% #1 = 6-hex verdict color, #2 = content.
-\newcommand{\clew@decorate}[2]{%
+\newcommand{\clewDecorate}[2]{%
   \begingroup
-  \definecolor{clew@verdict}{HTML}{#1}%
+  \edef\clewtmphex{#1}% expand the \use:c{clew@hex@id} -> pure 6-hex
+  \definecolor{clewVerdict}{HTML}{\clewtmphex}%
   \ifclewpresnosoul
-    {\color{clew@verdict}\uwave{#2}}%
+    {\color{clewVerdict}\uwave{#2}}%
   \else
-    \colorlet{clew@tint}{clew@verdict!15!white}%
-    \sethlcolor{clew@tint}%
-    \hl{\color{clew@verdict}\uwave{#2}}%
+    \colorlet{clewtint}{clewVerdict!15!white}%
+    \sethlcolor{clewtint}%
+    \hl{\color{clewVerdict}\uwave{#2}}%
   \fi
   \endgroup}
 
-%% Provenance sub-badges for a (sanitized) claim key, if flagged.
-\newcommand{\clew@badges}[1]{%
+%% Provenance sub-badges for a (sanitized) claim key, if flagged. \ifcsname
+%% compares by character codes (not catcodes), so these still match the
+%% @-named \@namedef flags emitted by clew_rendered.tex.
+\newcommand{\clewBadges}[1]{%
   \ifcsname clew@exc@#1\endcsname\,{\small\faBan}\fi
   \ifcsname clew@frz@#1\endcsname\,{\small\faLock}\fi}
 
-\makeatother
-
 %% --- \clewval / \clewmark (expl3: robust id-sanitize + csname lookup) ---
-%% claim_id is sanitized to [a-zA-Z0-9] -- the SAME transform gen_clew_marks.py
-%% applies -- so authors write the raw claim_id.
+%% claim_id is sanitized to [a-zA-Z0-9] -- the SAME transform scitex-clew
+%% applies when emitting the macro names -- so authors write the raw claim_id.
 \ExplSyntaxOn
 \tl_new:N \l__clew_key_tl
 \cs_new_protected:Npn \__clew_key:n #1 {
@@ -110,15 +112,15 @@
   \__clew_key:n {#1}
   \cs_if_exist:cTF { clew@val@ \l__clew_key_tl } {
     \legacy_if:nTF { clewpresmarkers } {
-      \clew@decorate { \use:c { clew@hex@ \l__clew_key_tl } }
+      \clewDecorate { \use:c { clew@hex@ \l__clew_key_tl } }
         { \use:c { clew@val@ \l__clew_key_tl } }
-      \clew@badges { \l__clew_key_tl }
+      \clewBadges { \l__clew_key_tl }
     } {
       \use:c { clew@val@ \l__clew_key_tl }
     }
   } {
     \msg_warning:nnn { clew } { unknown-claim } {#1}
-    \textbf { [clew:#1?] }
+    \texttt { [clew: \tl_to_str:n {#1} ?] }
   }
 }
 %% \clewmark{id}{text}: mark author-supplied text/prose (decoration only).
@@ -126,8 +128,8 @@
   \__clew_key:n {#1}
   \legacy_if:nTF { clewpresmarkers } {
     \cs_if_exist:cTF { clew@hex@ \l__clew_key_tl } {
-      \clew@decorate { \use:c { clew@hex@ \l__clew_key_tl } } {#2}
-      \clew@badges { \l__clew_key_tl }
+      \clewDecorate { \use:c { clew@hex@ \l__clew_key_tl } } {#2}
+      \clewBadges { \l__clew_key_tl }
     } {
       #2
     }
