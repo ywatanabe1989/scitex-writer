@@ -16,8 +16,9 @@
 #            PRIMARY (log-independent): N = \includegraphics count in the
 #              compiled .tex; M = embedded-image count in the PDF (pdfimages,
 #              poppler). N>0 and M==0 -> FAIL; 0<M<N -> WARN. Needs poppler;
-#              when absent the image check is skipped with a warning (the
-#              container has no poppler -- the real compile host does).
+#              when absent the image check is skipped with a warning. The
+#              compute env that actually compiles has poppler (e.g. Spartan via
+#              `module load texlive`); a bare laptop/container may not.
 #            SECONDARY (log scan): missing-graphics / "File `..' not found" /
 #              "There were undefined references" / "Citation `..' undefined" in
 #              the LaTeX .log. The intentional scitex self-citation NUDGE
