@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.24.2] - 2026-06-30
+
 ### Fixed
 - **Figure assembler no longer destroys user-placed jpgs.** `init_figures`
   previously ran a blanket `rm -rf jpg_for_compilation/*` at the start of every
