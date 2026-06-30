@@ -1,7 +1,7 @@
 %% Demo for the clew presentation layer — host-compile from the REPO ROOT:
 %%   pdflatex demo/clew_demo.tex   (twice, for hyperref)
 %% Shows: inline markers (verdict-colored wavy underline) with green verified
-%% values, a RED mismatch, exception/frozen in their own colors, the
+%% values, a RED unverified value, suspect/exception in their own colors, the
 %% clew-repo-linked "Clew Verified" badge, the snake colophon, and the legend.
 %% All four toggles are forced on below (in production they are opt-in config).
 %%
@@ -46,7 +46,7 @@ verify gate's verdict:
 \clewval{table1_event_completion}.
 
 \medskip\noindent
-A claim with \emph{frozen} lineage, shown in the frozen color:
+A \emph{suspect} claim, shown in the suspect color:
 \clewval{methods_sequential_predictor}.
 
 \medskip\noindent

@@ -11,12 +11,12 @@
 %%
 %%   CONTRACT -- scitex-clew emits 00_shared/clew_rendered.tex defining (all
 %%   inside \makeatletter ... \makeatother, claim_id sanitized to [a-zA-Z0-9]):
-%%     \definecolor{clewVerified}{HTML}{..} (+ clewSuspect/Mismatch/Registered/
-%%       Exception/Frozen) -- the palette (clew's; writer ships \providecolor
-%%       fallbacks). exception/frozen are their own COLORS (no badge glyph).
+%%     \definecolor{clewVerified}{HTML}{..} (+ clewSuspect/clewUnverified/
+%%       clewException) -- the 4-state palette (clew's; writer ships
+%%       \providecolor fallbacks). Every status, incl. exception, is a COLOR
+%%       (no badge glyph). 4 states: verified / suspect / unverified / exception.
 %%     \@namedef{clew@val@<id>}{<value>}    -- registered claim_value (escaped).
-%%     \@namedef{clew@hex@<id>}{<6hex>}     -- final per-claim color (clew folds
-%%                                             exception/frozen into this).
+%%     \@namedef{clew@hex@<id>}{<6hex>}     -- final per-claim color.
 %%     \@namedef{clew@status@<id>}{<status>}.
 %%     \def\clew@total{N} \def\clew@verified{M} \def\clew@allverified{0|1}.
 %%   The OPT-IN toggles (markers/badge/signature/legend) are WRITER presentation
@@ -26,7 +26,7 @@
 %%
 %%   Renders (each an INDEPENDENT opt-in toggle, all default OFF):
 %%     markers   : \clewval{id} / \clewmark{id}{text} -> a status-colored
-%%                 wavy underline (\uwave); status incl. exception/frozen.
+%%                 wavy underline (\uwave); 4 states incl. exception.
 %%     badge     : a "Clew Verified" stamp, hyperlinked to the scitex-clew repo.
 %%     signature : a subtle "Compiled by SciTeX Writer." colophon with the navy
 %%                 snake icon, hyperlinked to the scitex-writer repo.
@@ -34,8 +34,8 @@
 %%
 %%   SSoT vs decoration: \clewval{id} ALWAYS substitutes the registered value
 %%   (data layer); the wave+color+badges are the opt-in `markers` decoration.
-%%   So markers render INDEPENDENT of the #191 verify gate (a mismatch shows
-%%   RED here even when the gate would block).
+%%   So markers render INDEPENDENT of the #191 verify gate (an unverified value
+%%   shows RED here even when the gate would block).
 %%
 %%   A simultaneous highlight was intentionally dropped: soul \hl cannot coexist
 %%   with ulem \uwave (nesting swallows the argument) nor with the inline math in
@@ -61,12 +61,10 @@
 %% FALLBACK so the doc still compiles if clew did not emit a palette.
 \providecolor{clewVerified}{HTML}{2E7D32}
 \providecolor{clewSuspect}{HTML}{F9A825}
-\providecolor{clewMismatch}{HTML}{C62828}
-\providecolor{clewRegistered}{HTML}{9E9E9E}
-%% exception/frozen are conveyed by their own wavy-underline COLOR (no badge
-%% glyph). clew provides the real 2 colors (overrides these placeholders).
+\providecolor{clewUnverified}{HTML}{C62828}
+%% exception is conveyed by its own wavy-underline COLOR (no badge glyph).
+%% clew provides the real color (overrides this placeholder).
 \providecolor{clewException}{HTML}{6A1B9A}
-\providecolor{clewFrozen}{HTML}{1565C0}
 
 %% --- signature config (overridable before \begin{document}) ---
 \providecommand{\clewSigText}{Compiled by SciTeX Writer.}
@@ -162,8 +160,8 @@
     \href{\clewBadgeURL}{\colorbox{clewVerified!12!white}{%
       \textcolor{clewVerified}{\small\faCheckCircle\ Clew Verified}}}%
   \else
-    \href{\clewBadgeURL}{\colorbox{clewMismatch!12!white}{%
-      \textcolor{clewMismatch}{\small\faExclamationTriangle\ %
+    \href{\clewBadgeURL}{\colorbox{clewUnverified!12!white}{%
+      \textcolor{clewUnverified}{\small\faExclamationTriangle\ %
         \clew@total\ claims, \the\numexpr\clew@total-\clew@verified\relax\ unverified}}}%
   \fi}
 
@@ -185,20 +183,18 @@
 
 %% --- status legend (SELF-DEMONSTRATING) ---
 %% Each label word is rendered in its OWN marker color -- "verified" green+wavy,
-%% "mismatch/missing" red+wavy, "exception"/"frozen" in their own colors -- so
-%% the legend exemplifies the markers rather than showing an abstract swatch
-%% (operator: 自己説明的 / self-explanatory). No badge glyphs: every status,
-%% incl. exception/frozen, is a colored wavy underline.
+%% "unverified" red+wavy, "exception" in its own color -- so the legend
+%% exemplifies the markers rather than showing an abstract swatch (operator:
+%% 自己説明的 / self-explanatory). No badge glyphs: every one of the 4 states is
+%% a colored wavy underline.
 \newcommand{\clewLabel}[2]{{\color{#1}\uwave{#2}}}
 \newcommand{\clewLegend}{%
   \par\vspace{0.5em}\noindent{\footnotesize\color{gray}%
     \textbf{Clew status:}\ %
     \clewLabel{clewVerified}{verified}\quad
     \clewLabel{clewSuspect}{suspect}\quad
-    \clewLabel{clewMismatch}{mismatch/missing}\quad
-    \clewLabel{clewRegistered}{registered}\quad
-    \clewLabel{clewException}{exception}\quad
-    \clewLabel{clewFrozen}{frozen}\par}}
+    \clewLabel{clewUnverified}{unverified}\quad
+    \clewLabel{clewException}{exception}\par}}
 
 %% --- clew explainer section (clew provides \clewExplainerBody content;
 %% writer provides this minimal, accessible layout). Author-placed: call
