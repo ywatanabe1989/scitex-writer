@@ -45,6 +45,7 @@ exits non-zero.
 | `SCITEX_WRITER_FLOAT_ORDER` | Severity for the figure/table reference-order check (`off`/`warn`/`error`). Default `error`. `--level` governs only the gating exit; `--fix`/`--dry-run` always run regardless of level. | `error` | enum |
 | `SCITEX_WRITER_CAPTION_FOOTNOTE` | Severity for the `\footnote`-in-`\caption{}` lint (`off`/`warn`/`error`). Default `error`. | `error` | enum |
 | `SCITEX_WRITER_REF_INTEGRITY` | Severity for the pre-compile reference-integrity gate (`off`/`warn`/`error`). Default `error`. | `error` | enum |
+| `SCITEX_WRITER_COMPILE_ARTIFACTS` | Severity for the POST-compile verification gate (`off`/`warn`/`error`). Default `error`. Fails loud when the compiled `.tex` references `\includegraphics` (N>0) but the PDF embeds 0 images (silent figure miss), plus secondary log deficiency signals. PDF embedding check needs poppler (`pdfimages`); skipped-with-warning when absent. | `error` | enum |
 
 > **`references` vs `ref_integrity` are separate knobs.** `references` is the
 > advisory cross-reference/citation/label *report*; `ref_integrity` is the
