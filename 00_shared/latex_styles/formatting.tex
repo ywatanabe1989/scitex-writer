@@ -107,4 +107,14 @@
   \input{\scitexfigdir/#1}%
 }
 
+%% --- Controlled inline table placement (mirror of \scitexfig) ---
+%% Drop \scitextab{<number>} (e.g. \scitextab{01}) in the body to render that
+%% table here; it is then skipped in the end "Tables" section. Unplaced tables
+%% still collect at the end. Override \scitextabdir for non-manuscript doctypes.
+\providecommand{\scitextabdir}{./01_manuscript/contents/tables/compiled/_placeable}
+\newcommand{\scitextab}[1]{%
+  \expandafter\gdef\csname scitextabplaced@#1\endcsname{}%
+  \input{\scitextabdir/#1}%
+}
+
 %%%% EOF
