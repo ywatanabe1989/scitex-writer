@@ -23,6 +23,7 @@ sys.path.insert(0, str(ROOT_DIR / "scripts" / "python"))
 from check_clew_verify import (  # noqa: E402
     _is_research_project,
     resolve_level,
+    resolve_require_claims,
     resolve_strict,
 )
 
@@ -104,21 +105,29 @@ def test_research_marker_detected(tmp_path):
     """A .scitex/dev/config.yaml project-type: research is recognised."""
     # Arrange
     _mark_research(tmp_path)
-    # Act / Assert
-    assert _is_research_project(tmp_path) is True
+    # Act
+    detected = _is_research_project(tmp_path)
+    # Assert
+    assert detected is True
 
 
 def test_non_research_when_marker_absent(tmp_path):
     """No marker file => not a research project."""
-    # Arrange / Act / Assert
-    assert _is_research_project(tmp_path) is False
+    # Arrange
+    project = tmp_path
+    # Act
+    detected = _is_research_project(project)
+    # Assert
+    assert detected is False
 
 
 def test_default_off_for_non_research(tmp_path, clean_env):
     """Non-research projects default to off (gate disabled)."""
-    # Arrange / Act
+    # Arrange
+    project = tmp_path
+    # Act
     level = resolve_level(
-        "clew_verify", None, tmp_path,
+        "clew_verify", None, project,
         default="off", env_var="SCITEX_WRITER_CLEW_VERIFY",
     )
     # Assert
@@ -132,21 +141,31 @@ def test_default_off_for_non_research(tmp_path, clean_env):
 
 def test_non_research_passes_without_clew(tmp_path, clean_env):
     """A non-research project compiles fine with no clew and no claims."""
-    # Arrange (no marker, no clew bin)
+    # Arrange
+    project = tmp_path
     # Act
-    proc = _run(tmp_path, clew_bin=tmp_path / "does_not_exist")
+    proc = _run(project, clew_bin=tmp_path / "does_not_exist")
     # Assert
     assert proc.returncode == 0
 
 
-def test_research_missing_clew_warns_not_blocks(tmp_path, clean_env):
-    """Research project + clew CLI absent => WARN, never block (exit 0)."""
+def test_research_missing_clew_does_not_block(tmp_path, clean_env):
+    """Research project + clew CLI absent => never block (exit 0)."""
     # Arrange
     _mark_research(tmp_path)
     # Act
     proc = _run(tmp_path, clew_bin=tmp_path / "no_such_clew")
     # Assert
     assert proc.returncode == 0
+
+
+def test_research_missing_clew_reports_not_found(tmp_path, clean_env):
+    """Research project + clew CLI absent => a 'not found' warning is printed."""
+    # Arrange
+    _mark_research(tmp_path)
+    # Act
+    proc = _run(tmp_path, clew_bin=tmp_path / "no_such_clew")
+    # Assert
     assert "not found" in proc.stdout
 
 
@@ -208,7 +227,7 @@ def test_warn_level_does_not_block(tmp_path, clean_env):
 
 def test_cli_error_overrides_non_research_default(tmp_path, clean_env):
     """--level error forces the gate ON for a non-research project."""
-    # Arrange (no research marker)
+    # Arrange
     clew = _make_fake_clew(tmp_path)
     # Act
     proc = _run(tmp_path, "--level", "error", clew_bin=clew, clew_exit=12)
@@ -227,18 +246,101 @@ def test_env_level_enables_gate(tmp_path, clean_env):
 
 
 def test_strict_flag_passed_through_to_clew(tmp_path, clean_env):
-    """--strict is forwarded to the clew invocation."""
+    """--strict is forwarded to the clew invocation (echoed on the failure path)."""
     # Arrange
     _mark_research(tmp_path)
     clew = _make_fake_clew(tmp_path)
     # Act
-    proc = _run(tmp_path, "--strict", clew_bin=clew, clew_exit=0)
+    proc = _run(tmp_path, "--strict", clew_bin=clew, clew_exit=12)
     # Assert
     assert "--strict" in proc.stdout
 
 
-def test_resolve_strict_cli_tightens(tmp_path):
-    """The --strict CLI flag wins regardless of config."""
-    # Arrange / Act / Assert
-    assert resolve_strict(True, tmp_path) is True
-    assert resolve_strict(False, tmp_path) is False
+def test_resolve_strict_cli_true_tightens(tmp_path):
+    """The --strict CLI flag forces strict on regardless of config."""
+    # Arrange
+    project = tmp_path
+    # Act
+    result = resolve_strict(True, project)
+    # Assert
+    assert result is True
+
+
+def test_resolve_strict_default_false(tmp_path):
+    """With no flag and no config, strict resolves false."""
+    # Arrange
+    project = tmp_path
+    # Act
+    result = resolve_strict(False, project)
+    # Assert
+    assert result is False
+
+
+# ============================================================================
+# require_claims (ADR-0021 tightening) -- NO_CLAIMS + missing-clew hard-fail
+# ============================================================================
+
+
+def test_require_claims_blocks_no_claims(tmp_path, clean_env):
+    """research + NO_CLAIMS(20) + --require-claims => exit 1 (hard-fail)."""
+    # Arrange
+    _mark_research(tmp_path)
+    clew = _make_fake_clew(tmp_path)
+    # Act
+    proc = _run(tmp_path, "--require-claims", clew_bin=clew, clew_exit=20)
+    # Assert
+    assert proc.returncode == 1
+
+
+def test_require_claims_blocks_missing_clew(tmp_path, clean_env):
+    """research + missing clew + --require-claims => exit 1 (hard-fail)."""
+    # Arrange
+    _mark_research(tmp_path)
+    # Act
+    proc = _run(tmp_path, "--require-claims", clew_bin=tmp_path / "no_such_clew")
+    # Assert
+    assert proc.returncode == 1
+
+
+def test_no_claims_stays_soft_without_require_claims(tmp_path, clean_env):
+    """Without --require-claims, NO_CLAIMS(20) stays a warning (exit 0)."""
+    # Arrange
+    _mark_research(tmp_path)
+    clew = _make_fake_clew(tmp_path)
+    # Act
+    proc = _run(tmp_path, clew_bin=clew, clew_exit=20)
+    # Assert
+    assert proc.returncode == 0
+
+
+def test_require_claims_still_gated_by_level(tmp_path, clean_env):
+    """require_claims reclassifies as failure, but --level warn still exits 0."""
+    # Arrange
+    _mark_research(tmp_path)
+    clew = _make_fake_clew(tmp_path)
+    # Act
+    proc = _run(
+        tmp_path, "--require-claims", "--level", "warn", clew_bin=clew, clew_exit=20
+    )
+    # Assert
+    assert proc.returncode == 0
+
+
+def test_resolve_require_claims_cli_true_tightens(tmp_path):
+    """The --require-claims CLI flag forces it on regardless of config."""
+    # Arrange
+    project = tmp_path
+    # Act
+    result = resolve_require_claims(True, project)
+    # Assert
+    assert result is True
+
+
+def test_resolve_require_claims_default_false(tmp_path):
+    """With no flag and no config, require_claims resolves false."""
+    # Arrange
+    project = tmp_path
+    # Act
+    result = resolve_require_claims(False, project)
+    # Assert
+    assert result is False
