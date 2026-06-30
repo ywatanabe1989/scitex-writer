@@ -3,8 +3,8 @@
 %% Purpose: STATIC style for the clew presentation layer -- the RENDERING half.
 %%
 %%   SCOPE BOUNDARY (operator-ratified): scitex-writer owns the RENDERING (this
-%%   file: the LaTeX macros, soul/ulem composition, badge/colophon/legend
-%%   layout, hyperlinks, icon). scitex-clew owns WHAT to render (the data:
+%%   file: the LaTeX macros, ulem wavy-underline composition, badge/colophon/
+%%   legend layout, hyperlinks, icon). scitex-clew owns WHAT to render (the data:
 %%   which claims, their values, the verdict->color mapping, the palette,
 %%   badge states). So writer does NOT parse claims.json or decide colors --
 %%   it consumes a clew-emitted include.
@@ -24,25 +24,24 @@
 %%   clew's output, for host-compiling this renderer.)
 %%
 %%   Renders (each an INDEPENDENT opt-in toggle, all default OFF):
-%%     markers   : \clewval{id} / \clewmark{id}{text} -> \uwave + \hl in the
-%%                 claim's verdict color + fontawesome provenance sub-badges.
+%%     markers   : \clewval{id} / \clewmark{id}{text} -> a verdict-colored
+%%                 wavy underline (\uwave) + fontawesome provenance sub-badges.
 %%     badge     : a "Clew Verified" stamp, hyperlinked to the scitex-clew repo.
 %%     signature : a subtle "Compiled by SciTeX Writer." colophon with the navy
 %%                 snake icon, hyperlinked to the scitex-writer repo.
 %%     legend    : a small key of the status colors.
 %%
 %%   SSoT vs decoration: \clewval{id} ALWAYS substitutes the registered value
-%%   (data layer); the wave/hl/color/badges are the opt-in `markers` decoration.
+%%   (data layer); the wave+color+badges are the opt-in `markers` decoration.
 %%   So markers render INDEPENDENT of the #191 verify gate (a mismatch shows
 %%   RED here even when the gate would block).
 %%
-%%   FRAGILE BIT (host-compile to validate): the soul \hl + ulem \uwave
-%%   composition. If it errors under your class, set \clewpresnosoultrue for a
-%%   wave-only fallback and report back.
+%%   A simultaneous highlight was intentionally dropped: soul \hl cannot coexist
+%%   with ulem \uwave (nesting swallows the argument) nor with the inline math in
+%%   real claim values. The verdict-colored wavy underline is the robust spec.
 
 %% --- packages (xcolor/hyperref/graphicx are loaded by packages.tex) ---
 \RequirePackage[normalem]{ulem}   % \uwave; normalem keeps \emph italic
-\RequirePackage{soul}             % \hl line-breakable highlight
 \IfFileExists{fontawesome5.sty}{\RequirePackage{fontawesome5}}{%
   \providecommand{\faLock}{[frozen]}%
   \providecommand{\faBan}{[exc]}%
@@ -54,7 +53,6 @@
 \newif\ifclewpresbadge
 \newif\ifclewpressignature
 \newif\ifclewpreslegend
-\newif\ifclewpresnosoul   % fallback: wave only, no soul highlight
 
 %% --- verdict palette ---
 %% scitex-clew OWNS the palette (what to render). It emits \definecolor{clewX}
@@ -75,22 +73,17 @@
 %% ALL-LETTER names (no @): these are called from the expl3 \clewval/\clewmark
 %% below, and under \ExplSyntaxOn '@' is catcode-12 "other" -- a \clew@... name
 %% would split at \clew and print the "@decorate..." tail as raw text.
-%% #1 = content. The verdict color `clewVerdict` is \definecolor'd by the
-%% (expl3) caller BEFORE this runs -- doing it here via \edef of a \use:c arg
-%% misfired (undefined color -> stray-brace + \SOUL@n cascade -> truncation).
-%% \color is set OUTSIDE \hl (coloring text + wave) to minimise soul/ulem
-%% nesting fragility; \hl supplies only the (tinted) highlight background.
+%% #1 = content. Renders a verdict-COLORED wavy underline (ulem \uwave) -- the
+%% original render spec ("wavy underline in clew node colors"). The verdict
+%% color `clewVerdict` is \definecolor'd by the (expl3) caller before this runs.
+%%
+%% NOTE: a simultaneous soul \hl HIGHLIGHT was dropped. soul cannot coexist
+%% with (a) ulem \uwave nested in \hl (swallows the argument; \SOUL@n errors)
+%% nor (b) the inline math ($\times$, $>$, $|\delta|<$) present in real claim
+%% values. ulem \uwave handles both robustly. A highlight-too needs a non-soul
+%% mechanism (tikz background / lua-ul under xelatex) -- deferred to the operator.
 \newcommand{\clewDecorate}[1]{%
-  \begingroup
-  \color{clewVerdict}%
-  \ifclewpresnosoul
-    \uwave{#1}%
-  \else
-    \colorlet{clewtint}{clewVerdict!15!white}%
-    \sethlcolor{clewtint}%
-    \hl{\uwave{#1}}%
-  \fi
-  \endgroup}
+  {\color{clewVerdict}\uwave{#1}}}
 
 %% Provenance sub-badges for a (sanitized) claim key, if flagged. \ifcsname
 %% compares by character codes (not catcodes), so these still match the

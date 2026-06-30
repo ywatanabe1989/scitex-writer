@@ -1,14 +1,12 @@
 %% Demo for the clew presentation layer — host-compile from the REPO ROOT:
 %%   pdflatex demo/clew_demo.tex   (twice, for hyperref)
-%% Shows: inline markers (\uwave + \hl in verdict color) with green verified
+%% Shows: inline markers (verdict-colored wavy underline) with green verified
 %% values and a RED mismatch, the ⊘/🔒 sub-badges, the clew-repo-linked
 %% "Clew Verified" badge, the writer-repo-linked snake colophon, and the legend.
 %% All four toggles are forced on below (in production they are opt-in config).
 %%
 %% NOTE: demo/clew_rendered.sample.tex is a STAND-IN for scitex-clew's emitted
-%% output. If the soul \hl + ulem \uwave composition errors under your class,
-%% add \clewpresnosoultrue before \begin{document} for the wave-only fallback,
-%% and tell scitex-writer.
+%% output.
 \documentclass[11pt]{article}
 \usepackage[T1]{fontenc}
 \usepackage[utf8]{inputenc}
