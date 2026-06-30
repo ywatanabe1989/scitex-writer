@@ -7,6 +7,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.24.0] - 2026-06-30
+
+### Added
+- **Clew provenance layer (opt-in rendering).** `00_shared/latex_styles/clew_presentation.tex`
+  renders clew-registered claims inline: `\clewval{id}` substitutes the
+  registered value (SSoT) with a verdict-colored wavy underline, `\clewmark{id}{text}`
+  marks prose, plus a "Clew Verified" badge, a "Compiled by SciTeX Writer."
+  colophon (snake icon), and a self-demonstrating legend. 4-state palette
+  (verified / suspect / unverified / exception); writer owns the *rendering*,
+  scitex-clew emits the *data* (`00_shared/clew_rendered.tex`). All four
+  features are independent opt-in toggles, default off (#192).
+- **Pre-compile clew provenance gate.** `check_clew_verify.py` re-verifies every
+  clew-registered claim against its bound source before compiling; default
+  `error` for research projects, with a `require_claims` tightening knob
+  (`SCITEX_WRITER_CLEW_VERIFY`) (#191).
+- **Post-compile verification gate (fail loud on a deficient PDF).** A new
+  "Compile Verification" stage fails the compile non-zero when the compiled
+  `.tex` references `\includegraphics` (N>0) but the PDF embeds 0 images — a
+  silent figure-miss that a clean log would not catch — plus secondary log
+  deficiency signals (`SCITEX_WRITER_COMPILE_ARTIFACTS`, default error) (#194).
+
+### Fixed
+- **Fresh-checkout compiles no longer silently break.** The flattener now
+  resolves preamble style `\input`s against `00_shared/latex_styles` when
+  absent from `contents/` (the dev symlink is not committed), and FAILS LOUD if
+  a preamble style is still missing — instead of emitting `% SKIPPED` and
+  producing a broken PDF on exit 0 (#193).
+
 ## [2.23.1] - 2026-06-29
 
 ### Fixed
