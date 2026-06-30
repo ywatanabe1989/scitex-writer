@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.24.5] - 2026-07-01
+
 ### Fixed
 - **Flattener no longer injects before a `\begin{document}` that appears inside
   a comment.** The build-metadata (`_build_id.inject_build_metadata`) and
