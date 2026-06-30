@@ -41,6 +41,28 @@ def _write_vendor_stamp(project_path: Path, pkg_version: str) -> None:
         pass
 
 
+def _restamp_version_tex(project_path: Path, pkg_version: str) -> None:
+    """Re-stamp 00_shared/scitex_writer_version.tex to the vendored version.
+
+    The compile (_compile.py) rewrites this from the installed __version__ for
+    PDF metadata, but only AT compile time -- so after a re-vendor the visible
+    "Compiled by SciTeX Writer vX" colophon + PDF Creator would still show the
+    OLD version until the next compile. Re-stamp it here so it is correct
+    immediately (mirrors _compile.py's format). Best-effort.
+    """
+    try:
+        version_tex = project_path / "00_shared" / "scitex_writer_version.tex"
+        if not version_tex.parent.exists():
+            return
+        version_tex.write_text(
+            f"\\def\\ScitexWriterVersion{{{pkg_version}}}\n"
+            f"\\hypersetup{{pdfcreator={{Compiled by scitex-writer v{pkg_version}}}}}\n",
+            encoding="utf-8",
+        )
+    except OSError:
+        pass
+
+
 def update_project(
     project_dir: str,
     branch: Optional[str] = None,
@@ -123,6 +145,9 @@ def update_project(
         # update-project vendored from. Absent => a pre-feature vendor (stale).
         if not dry_run:
             _write_vendor_stamp(project_path, pkg_version)
+            # Also refresh the visible colophon / PDF-Creator stamp so it shows
+            # the vendored version immediately (without waiting for a recompile).
+            _restamp_version_tex(project_path, pkg_version)
 
         return {
             "success": True,
