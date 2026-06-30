@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.24.4] - 2026-07-01
+
 ### Added
 - **Fail-loud guard against compiling on a Spartan HPC login node.** Running
   the TeX toolchain (pdflatex/bibtex/latexmk) on a Spartan login node is
