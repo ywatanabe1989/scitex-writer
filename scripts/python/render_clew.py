@@ -1,0 +1,211 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+# File: scripts/python/render_clew.py
+# Purpose: Pre-compile generation step -- emit 00_shared/clew_rendered.tex from
+#          scitex-clew's runtime export (.scitex/clew/runtime/claims.json,
+#          schema v1.3) before the manuscript is flattened. scitex-clew stays
+#          RENDERER-AGNOSTIC (it exports JSON, not TeX by design), so turning
+#          that JSON into the LaTeX the clew presentation layer consumes is
+#          WRITER's job. packages.tex already \input{00_shared/clew_rendered.tex}
+#          (skipped if absent), so once this writes the file it is picked up.
+#
+#          Output contract (see 00_shared/latex_styles/clew_presentation.tex +
+#          demo/clew_rendered.sample.tex):
+#            \makeatletter
+#            \definecolor{clewVerified|Suspect|Unverified|Exception}{HTML}{hex}
+#            \def\clew@total{N} \def\clew@verified{M} \def\clew@allverified{0|1}
+#            \@namedef{clew@val@<id>}{value}      (id sanitized to [a-zA-Z0-9])
+#            \@namedef{clew@hex@<id>}{6hex}
+#            \@namedef{clew@status@<id>}{status}
+#            \makeatother
+#
+#          Claim VALUES are emitted VERBATIM -- clew provides display-ready
+#          strings (the sample carries intentional math like $\times$ and
+#          pre-escaped \_), so we do NOT re-escape (that would double-escape).
+#
+#          FAIL LOUD: if claims.json exists but is malformed / unreadable, exit
+#          non-zero so the compile aborts rather than shipping a stale or empty
+#          clew_rendered.tex. No-op (exit 0) when claims.json is absent -- the
+#          clew layer is optional.
+#
+# Usage:
+#   python render_clew.py [project_dir]
+
+import json
+import re
+import sys
+from pathlib import Path
+
+CLAIMS_JSON = ".scitex/clew/runtime/claims.json"
+OUTPUT_TEX = "00_shared/clew_rendered.tex"
+
+# status -> the \definecolor name the presentation layer expects.
+_STATUS_COLOR = {
+    "verified": "clewVerified",
+    "suspect": "clewSuspect",
+    "unverified": "clewUnverified",
+    "exception": "clewException",
+}
+# Fallback palette (matches clew_presentation.tex's \providecolor + the sample);
+# only used when claims.json does not carry a palette hex for a state.
+_DEFAULT_PALETTE = {
+    "verified": "2E7D32",
+    "suspect": "F9A825",
+    "unverified": "C62828",
+    "exception": "6A1B9A",
+}
+
+
+def sanitize_id(claim_id):
+    """[a-zA-Z0-9]-only key -- the SAME transform clew_presentation.tex applies
+    to \\clewval{id}, so the emitted macro name matches the call site."""
+    return re.sub(r"[^a-zA-Z0-9]", "", str(claim_id))
+
+
+def _hex(value):
+    """Normalize a color to bare 6-hex uppercase, or None."""
+    if not value:
+        return None
+    h = str(value).lstrip("#").strip().upper()
+    return h if re.fullmatch(r"[0-9A-F]{6}", h) else None
+
+
+def _first(d, *keys):
+    """First present, non-empty value among ``keys`` in dict ``d``."""
+    for k in keys:
+        v = d.get(k)
+        if v not in (None, ""):
+            return v
+    return None
+
+
+def _claim_value(claim):
+    """The display string for a claim. clew stores it display-ready; try the
+    documented/likely field names in order."""
+    v = _first(claim, "value", "display_value", "latex", "rendered_value", "text")
+    return "" if v is None else str(v)
+
+
+def _resolve_palette(data):
+    """status -> hex, from the top-level palette (dict or list of entries),
+    falling back to the default palette for any missing state."""
+    palette = dict(_DEFAULT_PALETTE)
+    raw = data.get("palette") or data.get("display_palette") or {}
+    if isinstance(raw, dict):
+        for status, color in raw.items():
+            h = _hex(color if not isinstance(color, dict) else _first(color, "hex", "color"))
+            if h:
+                palette[str(status).lower()] = h
+    return palette
+
+
+def _aggregate(data, claims):
+    """(total, verified, allverified) from the attestation block, else counted
+    from the claims themselves."""
+    att = data.get("attestation") or {}
+    verified = att.get("verified_count")
+    unverified = att.get("unverified_count")
+    if isinstance(verified, int) and isinstance(unverified, int):
+        total = verified + unverified
+    else:
+        total = len(claims)
+        verified = sum(1 for c in claims if str(c.get("status", "")).lower() == "verified")
+    allverified = 1 if (total > 0 and verified == total) else 0
+    return total, verified, allverified
+
+
+def _iter_claims(data):
+    """The claim records, whether claims.json stores them as a list or a dict
+    keyed by claim_id."""
+    claims = data.get("claims", data)
+    if isinstance(claims, dict):
+        out = []
+        for cid, rec in claims.items():
+            rec = dict(rec)
+            rec.setdefault("claim_id", cid)
+            out.append(rec)
+        return out
+    return list(claims) if isinstance(claims, list) else []
+
+
+def render_clew_tex(data):
+    r"""Render the clew_rendered.tex body from a parsed claims.json (v1.3)."""
+    claims = _iter_claims(data)
+    palette = _resolve_palette(data)
+    total, verified, allverified = _aggregate(data, claims)
+
+    lines = ["\\makeatletter", ""]
+    lines.append("%% --- palette (from clew claims.json; writer has \\providecolor fallbacks) ---")
+    for status, name in _STATUS_COLOR.items():
+        lines.append(f"\\definecolor{{{name}}}{{HTML}}{{{palette[status]}}}")
+    lines += ["", "%% --- aggregate ---"]
+    lines.append(f"\\def\\clew@total{{{total}}}")
+    lines.append(f"\\def\\clew@verified{{{verified}}}")
+    lines.append(f"\\def\\clew@allverified{{{allverified}}}")
+    lines += ["", "%% --- per-claim data (id sanitized to [a-zA-Z0-9]) ---"]
+
+    for claim in claims:
+        cid = sanitize_id(_first(claim, "claim_id", "id") or "")
+        if not cid:
+            continue
+        status = str(claim.get("status", "")).strip().lower()
+        color = _hex(_first(claim, "color", "hex")) or palette.get(status)
+        value = _claim_value(claim)
+        lines.append(f"%% {claim.get('claim_id', cid)} [{status or 'unknown'}]")
+        lines.append(f"\\@namedef{{clew@val@{cid}}}{{{value}}}")
+        if color:
+            lines.append(f"\\@namedef{{clew@hex@{cid}}}{{{color}}}")
+        if status:
+            lines.append(f"\\@namedef{{clew@status@{cid}}}{{{status}}}")
+        lines.append("")
+
+    lines.append("\\makeatother")
+    return "\n".join(lines) + "\n"
+
+
+def main(argv):
+    project_dir = argv[1] if len(argv) > 1 else "."
+    project_path = Path(project_dir).resolve()
+    claims_json = project_path / CLAIMS_JSON
+
+    if not claims_json.exists():
+        return 0  # clew layer optional -- no-op
+
+    try:
+        data = json.loads(claims_json.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        print(
+            f"ERRO:     Cannot read clew claims.json ({claims_json}): {exc}. "
+            f"Fix it or remove it; compiling now would ship a stale/empty "
+            f"clew_rendered.tex.",
+            file=sys.stderr,
+        )
+        return 1
+
+    try:
+        tex = render_clew_tex(data)
+    except Exception as exc:  # malformed schema -- surface, don't ship stale
+        print(
+            f"ERRO:     Failed to render clew_rendered.tex from {claims_json}: "
+            f"{exc}.",
+            file=sys.stderr,
+        )
+        return 1
+
+    out = project_path / OUTPUT_TEX
+    try:
+        out.parent.mkdir(parents=True, exist_ok=True)
+        out.write_text(tex, encoding="utf-8")
+    except OSError as exc:
+        print(f"ERRO:     Cannot write {out}: {exc}", file=sys.stderr)
+        return 1
+
+    n = len(_iter_claims(data))
+    print(f"INFO:     Rendered clew_rendered.tex ({n} claims) from clew claims.json")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main(sys.argv))
+
+# EOF
