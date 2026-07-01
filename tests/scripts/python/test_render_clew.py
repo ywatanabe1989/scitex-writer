@@ -227,6 +227,17 @@ class TestCitationAndFigureClaims:
         # Assert
         assert "\\@namedef{clew@hex@figures01mainjpg}{C62828}" in tex
 
+    def test_display_color_field_is_honored_over_palette(self):
+        # Arrange: clew 0.4.0 emits per-entry `display_color` (frozen name).
+        data = {"claims": [{
+            "claim_id": "c", "claim_type": "value", "status": "verified",
+            "claim_value": "x", "display_color": "#123ABC",
+        }]}
+        # Act
+        tex = render_clew_tex(data)
+        # Assert
+        assert "\\@namedef{clew@hex@c}{123ABC}" in tex
+
 
 if __name__ == "__main__":
     import pytest

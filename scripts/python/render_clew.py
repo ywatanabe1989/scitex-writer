@@ -171,7 +171,9 @@ def render_clew_tex(data):
         # field if clew emitted one (v1.3), else the palette entry for the
         # verdict (0.2.19 has no color, so derive it).
         verdict = _verdict(claim)
-        color = _hex(_first(claim, "color", "hex")) or palette.get(verdict)
+        # `display_color` is the frozen contract name (clew 0.4.0 emits it);
+        # color/hex are accepted aliases. Fall back to the verdict palette.
+        color = _hex(_first(claim, "display_color", "color", "hex")) or palette.get(verdict)
         value = _claim_value(claim)
         lines.append(f"%% {claim.get('claim_id', cid)} [{verdict}]")
         lines.append(f"\\@namedef{{clew@val@{cid}}}{{{value}}}")
