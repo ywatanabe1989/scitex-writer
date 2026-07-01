@@ -280,6 +280,50 @@ class TestDeduplicateEntries:
         # Assert
         assert (len(unique) == 1) and (stats['total_input'] == 2) and (stats['unique_output'] == 1) and (stats['duplicates_found'] == 1)
 
+    def test_deduplicate_by_cite_key(self):
+        """Should deduplicate a repeated cite key (bibtex 'repeated entry')."""
+        # Arrange: a stub entry duplicated across input files. No DOI, and the
+        # stub's title/year need not match -- the shared cite key alone is what
+        # breaks bibtex, so it must collapse to one entry.
+        entries = [
+            {"ID": "PintoOrellana2023StatisticalIFF", "title": "Statistical IFF", "year": "2023"},
+            {"ID": "PintoOrellana2023StatisticalIFF", "note": "Auto-generated stub; replace before submission"},
+        ]
+
+        # Act
+        unique, stats = deduplicate_entries(entries)
+
+        # Assert
+        assert (len(unique) == 1) and (stats["duplicates_found"] == 1) and (stats["duplicates_merged"] == 1)
+
+    def test_deduplicate_cite_key_takes_precedence_over_differing_content(self):
+        """A repeated cite key collapses even when DOI/title differ."""
+        # Arrange
+        entries = [
+            {"ID": "dupkey", "doi": "10.1/a", "title": "Title A", "year": "2023"},
+            {"ID": "dupkey", "doi": "10.2/b", "title": "Title B", "year": "2024"},
+        ]
+
+        # Act
+        unique, stats = deduplicate_entries(entries)
+
+        # Assert
+        assert len(unique) == 1
+
+    def test_deduplicate_distinct_cite_keys_kept(self):
+        """Distinct cite keys with no DOI/title overlap must both survive."""
+        # Arrange
+        entries = [
+            {"ID": "keyA", "author": "Alice"},
+            {"ID": "keyB", "author": "Bob"},
+        ]
+
+        # Act
+        unique, stats = deduplicate_entries(entries)
+
+        # Assert
+        assert (len(unique) == 2) and (stats["duplicates_found"] == 0)
+
     def test_deduplicate_by_title_year(self):
         """Should deduplicate by normalized title + year."""
         # Arrange
