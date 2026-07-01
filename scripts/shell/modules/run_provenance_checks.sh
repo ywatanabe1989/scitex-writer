@@ -16,7 +16,11 @@
 # a \caption{} is always a fatal compile pattern). clew_verify is the
 # provenance GATE (ADR-0021): it re-verifies every clew-registered claim
 # against its bound source and defaults to error for research projects
-# (.scitex/dev/config.yaml project-type: research), off otherwise.
+# (.scitex/dev/config.yaml project-type: research), off otherwise. citations is
+# the CITATION GATE: it fails the build when a cited reference is an unresolved
+# scholar stub (auto-generated placeholder), also error for research / warn
+# otherwise -- the compiler-owns half of the citation->clew verification
+# contract (a stub \cite can never reach a compiled research manuscript).
 #
 # Returns the worst exit code across the checks (0 unless a check errored).
 
@@ -27,7 +31,7 @@ PROJECT_ROOT="${PROJECT_ROOT:-$(cd "$THIS_DIR/../../.." && pwd)}"
 PY="${SCITEX_WRITER_PYTHON:-python3}"
 
 rc=0
-for chk in check_paper_symlink check_media_provenance check_caption_footnote check_clew_verify check_version_freshness; do
+for chk in check_paper_symlink check_media_provenance check_caption_footnote check_clew_verify check_citations check_version_freshness; do
     script="$THIS_DIR/../../python/${chk}.py"
     [ -f "$script" ] || continue
     "$PY" "$script" "$PROJECT_ROOT" || rc=$?
