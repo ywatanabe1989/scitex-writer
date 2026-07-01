@@ -189,6 +189,45 @@ class TestClew0219Schema:
         assert "\\@namedef{clew@val@x}{$80\\times$}" in tex
 
 
+class TestCitationAndFigureClaims:
+    """render_clew is claim_type-agnostic: citation (keyed by bibkey) and figure
+    (keyed by save-path) claims get the same clew@hex/status@<id> macros the
+    \\clewcite / \\clewfig macros read."""
+
+    def test_verified_citation_emits_green_hex_by_bibkey(self):
+        # Arrange
+        data = {"claims": [{
+            "claim_id": "Kuhlmann2018", "claim_type": "citation",
+            "status": "verified", "verified_at": "2026-07-01T00:00:00Z",
+        }]}
+        # Act
+        tex = render_clew_tex(data)
+        # Assert
+        assert "\\@namedef{clew@hex@Kuhlmann2018}{2E7D32}" in tex
+
+    def test_unverified_citation_emits_red_hex_by_bibkey(self):
+        # Arrange
+        data = {"claims": [{
+            "claim_id": "Freestone2015", "claim_type": "citation",
+            "status": "registered", "verified_at": None,
+        }]}
+        # Act
+        tex = render_clew_tex(data)
+        # Assert
+        assert "\\@namedef{clew@hex@Freestone2015}{C62828}" in tex
+
+    def test_figure_claim_keyed_by_sanitized_save_path(self):
+        # Arrange
+        data = {"claims": [{
+            "claim_id": "figures/01_main.jpg", "claim_type": "figure",
+            "status": "registered", "verified_at": None,
+        }]}
+        # Act
+        tex = render_clew_tex(data)
+        # Assert
+        assert "\\@namedef{clew@hex@figures01mainjpg}{C62828}" in tex
+
+
 if __name__ == "__main__":
     import pytest
 
