@@ -19,9 +19,12 @@
 #              when absent the image check is skipped with a warning. The
 #              compute env that actually compiles has poppler (e.g. Spartan via
 #              `module load texlive`); a bare laptop/container may not.
-#            SECONDARY (log scan): missing-graphics / "File `..' not found" /
-#              "There were undefined references" / "Citation `..' undefined" in
-#              the LaTeX .log. The intentional scitex self-citation NUDGE
+#            SECONDARY (log scan): missing-graphics / "File `..' not found" in
+#              the LaTeX .log; and UNDEFINED cross-references / citations -- it
+#              LISTS the exact unresolved \ref / \cite keys (the ?? / [?] that
+#              render in the PDF), e.g. "undefined reference(s): tab:2_scorecard,
+#              tab:3_clinical", falling back to the aggregate "There were
+#              undefined references". The intentional scitex self-citation NUDGE
 #              ("SciTeX Writer citation not found") is NOT a trigger.
 #
 #          Severity precedence (highest -> lowest):
@@ -65,14 +68,24 @@ FAIL_COUNT = 0
 
 _LEVELS = ("off", "warn", "error")
 
-# Secondary log-scan deficiency patterns. The scitex self-citation nudge is a
-# stdout print (not in the .log) AND intentional -- never a trigger.
-_LOG_PATTERNS = (
+# Secondary log-scan: missing-file/graphic patterns. The scitex self-citation
+# nudge is a stdout print (not in the .log) AND intentional -- never a trigger.
+_FILE_PATTERNS = (
     (re.compile(r"File [`'][^']+' not found"), "missing file/graphic"),
     (re.compile(r"!\s*LaTeX Error: File [`'][^']+' not found"), "missing input file"),
-    (re.compile(r"There were undefined references"), "undefined references"),
-    (re.compile(r"Citation [`'][^']+' (?:on page .*)?undefined"), "undefined citation"),
 )
+
+# Undefined cross-reference / citation warnings. LaTeX emits one line PER
+# unresolved key, e.g. "LaTeX Warning: Reference `tab:foo' on page 3 undefined
+# on input line 42." -- capturing the key lets the gate LIST exactly which
+# \ref/\cite are unresolved (the ?? / [?] that must never ship) instead of a
+# bare "undefined references". The aggregate line is the catch-all fallback.
+_UNDEF_REF_RE = re.compile(r"Reference [`']([^']+)'[^\n]*?undefined")
+_UNDEF_CITE_RE = re.compile(r"Citation [`']([^']+)'[^\n]*?undefined")
+_UNDEF_AGG_RE = re.compile(r"There were undefined references")
+
+# Cap names listed in one report line.
+_MAX_NAMES = 25
 
 
 def log_pass(msg):
@@ -139,6 +152,36 @@ def count_pdf_images(pdf_path):
     return len(rows)
 
 
+def _dedupe(names):
+    """Order-preserving de-dup (LaTeX repeats a warning per page)."""
+    seen = set()
+    out = []
+    for n in names:
+        if n not in seen:
+            seen.add(n)
+            out.append(n)
+    return out
+
+
+def extract_undefined(text):
+    """Return (undefined_refs, undefined_cites) key names from a LaTeX log.
+
+    Each is an order-preserving, de-duplicated list of the keys LaTeX reported
+    as undefined (the ?? / [?] that render in the PDF).
+    """
+    return (
+        _dedupe(_UNDEF_REF_RE.findall(text)),
+        _dedupe(_UNDEF_CITE_RE.findall(text)),
+    )
+
+
+def _fmt_names(names):
+    """Comma-join names, capped at _MAX_NAMES with a '(+N more)' suffix."""
+    shown = ", ".join(names[:_MAX_NAMES])
+    extra = len(names) - _MAX_NAMES
+    return shown + (f" (+{extra} more)" if extra > 0 else "")
+
+
 def _scan_log(log_path, report):
     """Secondary: scan the LaTeX log for deficiency signals (not the self-cite
     nudge). ``report`` is log_fail or log_warn per resolved level."""
@@ -148,9 +191,19 @@ def _scan_log(log_path, report):
         text = Path(log_path).read_text(encoding="utf-8", errors="replace")
     except OSError:
         return
-    for pattern, label in _LOG_PATTERNS:
+    for pattern, label in _FILE_PATTERNS:
         if pattern.search(text):
             report(f"log: {label}")
+    # Undefined \ref / \cite -- list the exact keys (?? / [?] in the PDF).
+    refs, cites = extract_undefined(text)
+    if refs:
+        report(f"{len(refs)} undefined reference(s) [?? in PDF]: {_fmt_names(refs)}")
+    if cites:
+        report(f"{len(cites)} undefined citation(s) [[?] in PDF]: {_fmt_names(cites)}")
+    # Aggregate fallback: catch "There were undefined references" even if the
+    # per-key warnings were absent (e.g. a truncated / hint-only log).
+    if not refs and not cites and _UNDEF_AGG_RE.search(text):
+        report("log: there were undefined references (unresolved \\ref/\\cite)")
 
 
 def main():

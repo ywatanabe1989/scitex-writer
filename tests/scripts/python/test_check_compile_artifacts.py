@@ -20,6 +20,7 @@ sys.path.insert(0, str(ROOT_DIR / "scripts" / "python"))
 from check_compile_artifacts import (  # noqa: E402
     count_includegraphics,
     count_pdf_images,
+    extract_undefined,
 )
 
 _SCRIPT = ROOT_DIR / "scripts" / "python" / "check_compile_artifacts.py"
@@ -226,3 +227,65 @@ def test_log_scan_ignores_scitex_citation_nudge(tmp_path):
                 "--log", str(tmp_path / "c.log"), rows=0)
     # Assert
     assert proc.returncode == 0
+
+
+# ============================================================================
+# extract_undefined  (list the exact ?? / [?] keys from the log)
+# ============================================================================
+
+
+def test_extract_undefined_returns_reference_keys():
+    # Arrange
+    log = "LaTeX Warning: Reference `tab:foo' on page 3 undefined on input line 42.\n"
+    # Act
+    refs, cites = extract_undefined(log)
+    # Assert
+    assert refs == ["tab:foo"]
+
+
+def test_extract_undefined_returns_citation_keys():
+    # Arrange
+    log = "LaTeX Warning: Citation `Kuhlmann2018' on page 2 undefined on input line 9.\n"
+    # Act
+    refs, cites = extract_undefined(log)
+    # Assert
+    assert cites == ["Kuhlmann2018"]
+
+
+def test_extract_undefined_dedupes_repeated_keys():
+    # Arrange: LaTeX repeats the same warning once per page.
+    log = (
+        "LaTeX Warning: Reference `tab:x' on page 1 undefined on input line 5.\n"
+        "LaTeX Warning: Reference `tab:x' on page 2 undefined on input line 6.\n"
+    )
+    # Act
+    refs, cites = extract_undefined(log)
+    # Assert
+    assert refs == ["tab:x"]
+
+
+def test_extract_undefined_empty_when_clean():
+    # Arrange
+    log = "This is a clean log with no undefined warnings.\n"
+    # Act
+    refs, cites = extract_undefined(log)
+    # Assert
+    assert (refs == []) and (cites == [])
+
+
+def test_undefined_reference_log_fails_and_lists_the_key(tmp_path):
+    # Arrange: 0 figures (primary check passes) + a log with an undefined \ref.
+    _write(tmp_path, "compiled.tex", _TEX_0)
+    _write(tmp_path, "out.pdf", "%PDF-1.5\n")
+    _write(
+        tmp_path,
+        "c.log",
+        "LaTeX Warning: Reference `tab:2_scorecard' on page 3 undefined on input line 42.\n"
+        "LaTeX Warning: There were undefined references.\n",
+    )
+    # Act
+    proc = _run(tmp_path, "--compiled-tex", str(tmp_path / "compiled.tex"),
+                "--pdf", str(tmp_path / "out.pdf"),
+                "--log", str(tmp_path / "c.log"), rows=0)
+    # Assert
+    assert (proc.returncode == 1) and ("tab:2_scorecard" in proc.stdout)
