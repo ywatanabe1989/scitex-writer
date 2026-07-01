@@ -22,8 +22,10 @@ _OUT = "00_shared/clew_presentation_toggles.tex"
 
 class TestResolveToggles:
     def test_scalar_on_enables_the_full_master_set(self):
-        # Arrange / Act
-        toggles = resolve_toggles("on", None)
+        # Arrange
+        config_value = "on"
+        # Act
+        toggles = resolve_toggles(config_value, None)
         # Assert: master set on, attest off.
         assert (
             toggles["markers"] and toggles["badge"] and toggles["legend"]
@@ -32,42 +34,53 @@ class TestResolveToggles:
         )
 
     def test_scalar_off_disables_everything(self):
-        # Arrange / Act
-        toggles = resolve_toggles("off", None)
+        # Arrange
+        config_value = "off"
+        # Act
+        toggles = resolve_toggles(config_value, None)
         # Assert
         assert not any(toggles.values())
 
     def test_absent_config_defaults_all_off(self):
-        # Arrange / Act
-        toggles = resolve_toggles(None, None)
+        # Arrange
+        config_value = None
+        # Act
+        toggles = resolve_toggles(config_value, None)
         # Assert
         assert not any(toggles.values())
 
     def test_mapping_is_explicit_per_key(self):
-        # Arrange / Act
-        toggles = resolve_toggles({"markers": True, "badge": False}, None)
+        # Arrange
+        config_value = {"markers": True, "badge": False}
+        # Act
+        toggles = resolve_toggles(config_value, None)
         # Assert
         assert toggles["markers"] and not toggles["badge"] and not toggles["legend"]
 
     def test_env_master_on_overrides_config_off(self):
-        # Arrange / Act
-        toggles = resolve_toggles("off", "on")
+        # Arrange
+        config_value = "off"
+        # Act
+        toggles = resolve_toggles(config_value, "on")
         # Assert
         assert toggles["markers"] and toggles["badge"]
 
     def test_unknown_mapping_key_is_ignored(self):
         # Arrange: a future toggle whose \newif is not defined yet.
+        config_value = {"legend_first": True, "markers": True}
         # Act
-        toggles = resolve_toggles({"legend_first": True, "markers": True}, None)
+        toggles = resolve_toggles(config_value, None)
         # Assert
         assert ("legend_first" not in toggles) and toggles["markers"]
 
     def test_malformed_scalar_raises(self):
         # Arrange
         raises = pytest.raises(ValueError)
-        # Act / Assert
+        # Act
+        act = lambda: resolve_toggles("maybe", None)  # noqa: E731
+        # Assert
         with raises:
-            resolve_toggles("maybe", None)
+            act()
 
 
 class TestRenderTogglesTex:
