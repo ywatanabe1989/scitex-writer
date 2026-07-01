@@ -12,6 +12,7 @@ from check_citations import (  # noqa: E402
     audit_citations,
     extract_cited_keys,
     iter_bib_entries,
+    resolve_bib_paths,
     stub_reason,
 )
 
@@ -104,6 +105,46 @@ class TestAuditCitations:
     def test_clean_citation_passes(self):
         stubs, missing, no_doi = audit_citations({"Good2020"}, self._ENTRIES)
         assert (stubs == []) and (missing == []) and (no_doi == [])
+
+
+class TestResolveBibPaths:
+    def _make_tree(self, tmp_path):
+        """A project whose contents/bibliography.bib is a symlink chain to the
+        real (legacy-style) enriched bib -- mirrors the live neurovista tree."""
+        real = tmp_path / "shared" / "bib_files" / "enriched.bib"
+        real.parent.mkdir(parents=True)
+        real.write_text("@article{Foo2020,\n  doi = {10.1/x}\n}\n")
+        mid = tmp_path / "shared" / "bibliography.bib"
+        mid.symlink_to(real)
+        contents = tmp_path / "01_manuscript" / "contents"
+        contents.mkdir(parents=True)
+        link = contents / "bibliography.bib"
+        link.symlink_to(mid)
+        tex = contents / "main.tex"
+        tex.write_text(r"\bibliography{bibliography}" + "\n\\cite{Foo2020}")
+        return tex, real
+
+    def test_follows_symlink_chain_from_bibliography_command(self, tmp_path):
+        tex, real = self._make_tree(tmp_path)
+        resolved = resolve_bib_paths(tmp_path, [str(tex)], None)
+        assert resolved == [real.resolve()]
+
+    def test_explicit_bib_arg_wins(self, tmp_path):
+        tex, real = self._make_tree(tmp_path)
+        other = tmp_path / "other.bib"
+        other.write_text("@article{Bar,\n doi={10.2/y}\n}\n")
+        resolved = resolve_bib_paths(tmp_path, [str(tex)], str(other))
+        assert resolved == [other.resolve()]
+
+    def test_addbibresource_with_extension(self, tmp_path):
+        contents = tmp_path / "01_manuscript" / "contents"
+        contents.mkdir(parents=True)
+        bib = contents / "refs.bib"
+        bib.write_text("@article{Baz,\n doi={10.3/z}\n}\n")
+        tex = contents / "main.tex"
+        tex.write_text(r"\addbibresource{refs.bib}")
+        resolved = resolve_bib_paths(tmp_path, [str(tex)], None)
+        assert resolved == [bib.resolve()]
 
 
 if __name__ == "__main__":

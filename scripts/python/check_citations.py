@@ -18,6 +18,13 @@
 #          same report once clew defines its batch lookup; until then this gate
 #          catches the stub stamps scholar already writes.
 #
+#          The gate reads the bib that bibtex actually reads: it parses the
+#          \bibliography{}/\addbibresource{} target from the tex and resolves it
+#          relative to the tex, FOLLOWING SYMLINKS (real trees point
+#          contents/bibliography.bib at a possibly-legacy enriched bib, not
+#          necessarily 00_shared). --bib overrides; conventional fallbacks apply
+#          only when no \bibliography target is found.
+#
 #          A STUB is detected by the markers scholar stamps into the entry:
 #            * note    contains "Auto-generated stub"   (STUB_NOTE_MARKERS)
 #            * journal contains "Pending scitex-scholar metadata lookup"
@@ -79,7 +86,16 @@ _CITE_CMD = (
 # Optional [..] pre/post-notes, then the mandatory {key,key,...}.
 _CITE_RE = re.compile(_CITE_CMD + r"\s*(?:\[[^\]]*\]\s*){0,2}\{([^}]*)\}")
 
-_DEFAULT_BIB = "00_shared/bib_files/bibliography.bib"
+# \bibliography{a,b} (bibtex) and \addbibresource{a.bib} (biblatex).
+_BIB_CMD_RE = re.compile(r"\\(?:bibliography|addbibresource)\s*\{([^}]*)\}")
+
+# Conventional fallbacks, tried (and symlink-resolved) when no \bibliography
+# command is found in the tex. contents/bibliography.bib is the compile-tree
+# entry point and is typically a symlink into the real (possibly legacy) bib.
+_FALLBACK_BIBS = (
+    "01_manuscript/contents/bibliography.bib",
+    "00_shared/bib_files/bibliography.bib",
+)
 
 
 def log_pass(msg):
@@ -226,6 +242,64 @@ def _resolve_tex_paths(project_dir, tex_args):
     return sorted(str(p) for p in Path(project_dir).rglob("*.tex"))
 
 
+def _resolve_one_bib(raw, base_dirs):
+    """Resolve a single \\bibliography argument to a real, existing file.
+
+    Tries the argument (with and without a .bib suffix) under each base dir, and
+    returns the FIRST that exists -- symlink-resolved (Path.resolve follows the
+    whole chain, so contents/bibliography.bib -> ... -> the real enriched bib).
+    Returns None if nothing resolves.
+    """
+    candidates = [raw]
+    if not raw.lower().endswith(".bib"):
+        candidates.append(raw + ".bib")
+    for base in base_dirs:
+        for cand in candidates:
+            p = (base / cand) if not os.path.isabs(cand) else Path(cand)
+            if p.is_file():
+                return p.resolve()
+    return None
+
+
+def resolve_bib_paths(project_dir, tex_paths, bib_arg):
+    r"""Resolve the bibliography file(s) that bibtex actually reads.
+
+    The compile tree points \cite resolution at whatever
+    ``\bibliography{}`` / ``\addbibresource{}`` names -- and in real projects
+    that is a SYMLINK (e.g. contents/bibliography.bib -> a legacy enriched bib),
+    NOT necessarily 00_shared. So we parse the bib command from the tex, resolve
+    its path relative to the tex file (then the project root), and follow the
+    symlink. Precedence: explicit --bib > \bibliography targets from the tex >
+    conventional fallbacks. All results are symlink-resolved and de-duplicated.
+    """
+    if bib_arg:
+        p = Path(bib_arg)
+        return [p.resolve()] if p.is_file() else []
+
+    project_dir = Path(project_dir)
+    resolved = []
+    seen = set()
+
+    def _add(path):
+        if path is not None and path not in seen:
+            seen.add(path)
+            resolved.append(path)
+
+    for tex in tex_paths:
+        tex_dir = Path(tex).resolve().parent
+        text = _load_text([tex])
+        for m in _BIB_CMD_RE.finditer(text):
+            for raw in m.group(1).split(","):
+                raw = raw.strip()
+                if raw:
+                    _add(_resolve_one_bib(raw, [tex_dir, project_dir]))
+
+    if not resolved:
+        for fb in _FALLBACK_BIBS:
+            _add(_resolve_one_bib(fb, [project_dir]))
+    return resolved
+
+
 def _is_research_project(project_dir):
     """True iff .scitex/dev/config.yaml marks this a ``project-type: research``.
 
@@ -295,7 +369,9 @@ def main():
     parser.add_argument(
         "--bib",
         default=None,
-        help=f"Bibliography .bib to read entries from (default: {_DEFAULT_BIB}).",
+        help="Bibliography .bib to read entries from. Default: resolve the "
+        "\\bibliography{}/\\addbibresource{} target from the tex (symlink-"
+        "followed), else conventional fallbacks.",
     )
     parser.add_argument(
         "--level",
@@ -328,12 +404,6 @@ def main():
 
     report = log_fail if level == "error" else log_warn
 
-    bib_path = Path(args.bib) if args.bib else project_dir / _DEFAULT_BIB
-    if not bib_path.is_file():
-        log_warn(f"bibliography not found: {bib_path} -- nothing to check.")
-        _summary()
-        return 1 if FAIL_COUNT > 0 else 0
-
     tex_paths = _resolve_tex_paths(project_dir, args.tex)
     cited_keys = extract_cited_keys(_load_text(tex_paths))
     if not cited_keys:
@@ -342,7 +412,25 @@ def main():
         _summary()
         return 1 if FAIL_COUNT > 0 else 0
 
-    entries = dict(iter_bib_entries(bib_path.read_text(encoding="utf-8", errors="replace")))
+    bib_paths = resolve_bib_paths(project_dir, tex_paths, args.bib)
+    if not bib_paths:
+        log_warn(
+            "no bibliography resolved (no \\bibliography target found and no "
+            "fallback bib exists) -- nothing to check."
+        )
+        _summary()
+        return 1 if FAIL_COUNT > 0 else 0
+    for bp in bib_paths:
+        log_detail(f"reading bib: {bp}")
+
+    # Merge entries across all resolved bibs; first occurrence of a key wins
+    # (matches bibtex, which uses the first entry it sees for a key).
+    entries = {}
+    for bp in bib_paths:
+        for key, fields in iter_bib_entries(
+            bp.read_text(encoding="utf-8", errors="replace")
+        ):
+            entries.setdefault(key, fields)
     stubs, missing, no_doi = audit_citations(cited_keys, entries)
 
     if stubs:
@@ -364,7 +452,7 @@ def main():
     if missing:
         log_warn(f"{len(missing)} cited key(s) have no bibliography entry:")
         for key in missing:
-            log_detail(f"\\cite{{{key}}} -> no entry in {bib_path.name}")
+            log_detail(f"\\cite{{{key}}} -> no entry in the resolved bib(s)")
     if no_doi:
         log_detail(
             f"note: {len(no_doi)} cited entry(ies) have no DOI (not a failure): "
