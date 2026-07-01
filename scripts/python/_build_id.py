@@ -119,6 +119,9 @@ def register_build(
         return None
 
 
+BUILD_BLOCK_SENTINEL = "% --- scitex-writer build identifier "
+
+
 def inject_build_metadata(content: str, build_id: str) -> str:
     r"""Inject ``\hypersetup{pdfsubject=build:...}`` before ``\begin{document}``.
 
@@ -136,8 +139,14 @@ def inject_build_metadata(content: str, build_id: str) -> str:
     if marker_re.search(content) is None:
         return content
 
+    # Idempotent: a repeated flatten (e.g. `--dark-mode` reruns the flattener on
+    # already-injected content) must NOT stack a second build block before
+    # \begin{document}. The sentinel comment is unique to this block.
+    if BUILD_BLOCK_SENTINEL in content:
+        return content
+
     block = (
-        "% --- scitex-writer build identifier "
+        BUILD_BLOCK_SENTINEL
         + "-" * 38
         + "\n"
         + f"\\providecommand{{\\scitexBuildID}}{{build:{build_id}}}\n"
