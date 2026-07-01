@@ -87,6 +87,24 @@ compiled_tex_to_pdf() {
     return $ret
 }
 
+# Ground-truth page count of the PDF just produced by the engine. pdfTeX writes
+# "Output written on <path> (N pages, ...)" to the .log ONLY when it finalized a
+# PDF this run, so that line is the per-run source of truth (immune to a stale
+# PDF left by a previous successful compile). Falls back to pdfinfo. Prints the
+# page count, or 0 if it cannot be established.
+pdf_produced_pagecount() {
+    local pdf_path="$1"
+    local log_file="${LOG_DIR}/$(basename "${pdf_path%.pdf}").log"
+    local pages=""
+    if [ -f "$log_file" ]; then
+        pages=$(grep -oE "Output written on [^(]*\([0-9]+ page" "$log_file" 2>/dev/null | grep -oE "[0-9]+ page" | grep -oE "^[0-9]+" | tail -1)
+    fi
+    if [ -z "$pages" ] && command -v pdfinfo >/dev/null 2>&1; then
+        pages=$(pdfinfo "$pdf_path" 2>/dev/null | awk '/^Pages:/ {print $2}')
+    fi
+    echo "${pages:-0}"
+}
+
 cleanup() {
     local compile_result=${1:-1}
 
@@ -101,17 +119,40 @@ cleanup() {
     pdf_basename=$(basename "$pdf_file")
     local pdf_in_logs="${LOG_DIR}/${pdf_basename}"
 
+    # Track whether a PDF was produced by THIS run (present in logs/). A stale
+    # PDF from a previous compile is NOT fresh, so it can never be mistaken for
+    # a valid new output below.
+    local fresh_pdf=false
     if [ -f "$pdf_in_logs" ]; then
         # Move PDF from logs/ to final location
         mv "$pdf_in_logs" "$pdf_file"
+        fresh_pdf=true
         log_info "    Moved PDF: $pdf_in_logs -> $pdf_file"
     fi
 
     if [ "$compile_result" -ne 0 ]; then
-        echo_error "    PDF compilation failed (exit code: $compile_result)"
-        # Remove stale PDF from previous compilation to avoid false positive
-        [ -f "$pdf_file" ] && rm -f "$pdf_file"
-        return 1
+        # A non-zero engine exit is NOT always fatal: latexmk returns non-zero
+        # on a non-fatal bibtex warning (e.g. a malformed/stub .bib entry ->
+        # "repeated entry" / "skipping whatever remains" -> exit 12) even when
+        # pdfTeX finalized a complete PDF. Losing a valid multi-page PDF over
+        # one stub reference is worse than shipping it with a warning. So: if a
+        # PDF was freshly produced this run with pages>0, PROMOTE it and
+        # downgrade to WARN; otherwise fail loud (delete stale, return 1).
+        local produced_pages=0
+        if [ "$fresh_pdf" = true ] && [ -f "$pdf_file" ]; then
+            produced_pages=$(pdf_produced_pagecount "$pdf_file")
+        fi
+        if [ "$fresh_pdf" = true ] && [ "${produced_pages:-0}" -gt 0 ] 2>/dev/null; then
+            echo_warning "    Engine exited non-zero (code: $compile_result) but a valid PDF was produced (${produced_pages} pages)."
+            echo_warning "    Promoting $pdf_file anyway — this is usually a non-fatal bib/citation warning (e.g. a stub entry)."
+            echo_warning "    → Fix before submission: inspect ${LOG_DIR}/${pdf_basename%.pdf}.{log,blg} for the offending entry."
+            # Fall through to the promotion/symlink path below.
+        else
+            echo_error "    PDF compilation failed (exit code: $compile_result)"
+            # Remove stale PDF from previous compilation to avoid false positive
+            [ -f "$pdf_file" ] && rm -f "$pdf_file"
+            return 1
+        fi
     fi
 
     if [ -f "$pdf_file" ]; then
@@ -161,6 +202,10 @@ main() {
     cleanup "$compile_result"
 }
 
-main
+# Only auto-run when executed directly, not when sourced (so tests can source
+# the file and exercise pdf_produced_pagecount / cleanup in isolation).
+if [ "${BASH_SOURCE[0]}" = "${0}" ]; then
+    main
+fi
 
 # EOF
