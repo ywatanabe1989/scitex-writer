@@ -676,5 +676,62 @@ class TestStyleFallbackAndFailLoud:
         assert success is False
 
 
+class TestCitationBannerInjection:
+    """The flattener injects the banner artifact after \\begin{document}."""
+
+    def _project_with_banner(self, tmp_path):
+        man = tmp_path / "01_manuscript"
+        man.mkdir(parents=True)
+        base = man / "base.tex"
+        base.write_text("\\begin{document}\n\\maketitle\nBody\n\\end{document}\n")
+        artifact = tmp_path / ".scitex" / "writer" / ".citation_banner.tex"
+        artifact.parent.mkdir(parents=True)
+        artifact.write_text(
+            "% scitex-writer citation banner (auto-generated)\nBANNERBODY\n"
+        )
+        return base, man / "out.tex"
+
+    def test_banner_artifact_is_injected_into_output(self, tmp_path):
+        # Arrange
+        base, out = self._project_with_banner(tmp_path)
+        # Act
+        compile_tex_structure(base_tex=base, output_tex=out, verbose=False)
+        # Assert
+        assert "scitex-writer citation banner" in out.read_text()
+
+    def test_banner_is_injected_after_begin_document(self, tmp_path):
+        # Arrange
+        base, out = self._project_with_banner(tmp_path)
+        # Act
+        compile_tex_structure(base_tex=base, output_tex=out, verbose=False)
+        # Assert
+        content = out.read_text()
+        assert content.index("\\begin{document}") < content.index(
+            "scitex-writer citation banner"
+        )
+
+    def test_no_banner_injected_when_artifact_absent(self, tmp_path):
+        # Arrange
+        man = tmp_path / "01_manuscript"
+        man.mkdir(parents=True)
+        base = man / "base.tex"
+        base.write_text("\\begin{document}\nBody\n\\end{document}\n")
+        out = man / "out.tex"
+        # Act
+        compile_tex_structure(base_tex=base, output_tex=out, verbose=False)
+        # Assert
+        assert "citation banner" not in out.read_text()
+
+    def test_reflatten_does_not_duplicate_the_banner(self, tmp_path):
+        # Arrange
+        base, out = self._project_with_banner(tmp_path)
+        compile_tex_structure(base_tex=base, output_tex=out, verbose=False)
+        # Act: flatten the already-injected output again.
+        out2 = base.parent / "out2.tex"
+        compile_tex_structure(base_tex=out, output_tex=out2, verbose=False)
+        # Assert
+        assert out2.read_text().count("scitex-writer citation banner") == 1
+
+
 if __name__ == "__main__":
     pytest.main([os.path.abspath(__file__), "-v"])
