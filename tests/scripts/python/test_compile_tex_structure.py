@@ -476,7 +476,6 @@ class TestCompileTexStructure:
             base_tex=base_file, output_tex=first, verbose=False, dark_mode=True
         )
         sentinel = "Dark mode styling (inlined at compile time)"
-        assert first.read_text().count(sentinel) == 1
 
         # Act: reflatten the already-dark output again with dark_mode=True.
         second = man_dir / "second.tex"
@@ -484,8 +483,10 @@ class TestCompileTexStructure:
             base_tex=first, output_tex=second, verbose=False, dark_mode=True
         )
 
-        # Assert: still exactly one dark-mode block.
-        assert second.read_text().count(sentinel) == 1
+        # Assert: one block after the first flatten, still one after reflatten.
+        first_count = first.read_text().count(sentinel)
+        second_count = second.read_text().count(sentinel)
+        assert (first_count == 1) and (second_count == 1)
 
 
 def _theme_project(tmp_path, theme):
