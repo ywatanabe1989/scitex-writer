@@ -459,6 +459,35 @@ class TestCompileTexStructure:
         # Assert
         assert dark_pos < doc_pos
 
+    def test_dark_mode_injection_is_idempotent_on_reflatten(self, tmp_path):
+        """Re-flattening dark-mode output must NOT stack a second dark block."""
+        # Arrange
+        dark_mode_dir = tmp_path / "00_shared" / "latex_styles"
+        dark_mode_dir.mkdir(parents=True)
+        (dark_mode_dir / "dark_mode.tex").write_text(
+            "% Dark mode test content\n\\pagecolor{black}\n\\color{white}"
+        )
+        man_dir = tmp_path / "01_manuscript"
+        man_dir.mkdir(parents=True)
+        base_file = man_dir / "base.tex"
+        base_file.write_text("\\begin{document}\nContent\n\\end{document}")
+        first = man_dir / "first.tex"
+        compile_tex_structure(
+            base_tex=base_file, output_tex=first, verbose=False, dark_mode=True
+        )
+        sentinel = "Dark mode styling (inlined at compile time)"
+
+        # Act: reflatten the already-dark output again with dark_mode=True.
+        second = man_dir / "second.tex"
+        compile_tex_structure(
+            base_tex=first, output_tex=second, verbose=False, dark_mode=True
+        )
+
+        # Assert: one block after the first flatten, still one after reflatten.
+        first_count = first.read_text().count(sentinel)
+        second_count = second.read_text().count(sentinel)
+        assert (first_count == 1) and (second_count == 1)
+
 
 def _theme_project(tmp_path, theme):
     """Build a minimal project (config/ + 01_manuscript/base.tex) for theme tests."""

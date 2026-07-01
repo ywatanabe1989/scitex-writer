@@ -24,6 +24,10 @@ from _build_id import (  # noqa: E402
 )
 from _tex_signature import generate_signature  # noqa: E402
 
+# Unique marker for the inlined dark-mode block; also used as the idempotency
+# sentinel so a repeated flatten does not stack a second copy.
+DARK_MODE_SENTINEL = "% Dark mode styling (inlined at compile time)"
+
 
 def _is_style_input(input_file: str) -> bool:
     r"""True if an \input target is a preamble style file (latex_styles/)."""
@@ -340,12 +344,17 @@ def compile_tex_structure(
             for old_hex, new_hex in color_subs.items():
                 dark_mode_content = dark_mode_content.replace(old_hex, new_hex)
             dark_mode_injection = (
-                "\n% Dark mode styling (inlined at compile time)\n"
-                + dark_mode_content
-                + "\n"
+                "\n" + DARK_MODE_SENTINEL + "\n" + dark_mode_content + "\n"
             )
         else:
             print(f"WARNING: Dark mode file not found: {dark_mode_file}")
+            dark_mode_injection = ""
+
+        # Idempotent: a repeated flatten (running the flattener again on content
+        # that already carries the dark-mode block) must NOT stack a second copy
+        # before \begin{document} -- that duplicated the override and, pre-fix,
+        # surfaced as \REDENDS/\hlref-undefined and a stray \begin{document}.
+        if DARK_MODE_SENTINEL in expanded_content:
             dark_mode_injection = ""
 
         if dark_mode_injection:
