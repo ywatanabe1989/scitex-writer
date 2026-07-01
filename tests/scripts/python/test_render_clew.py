@@ -129,6 +129,66 @@ class TestRenderClewTex:
         assert "AUC $\\times$ 0.58, clinical\\_only" in tex
 
 
+class TestClew0219Schema:
+    """clew 0.2.19: claim_value field, no color/palette/attestation, status
+    'registered' + verified_at (null = not chain-verified)."""
+
+    _CLAIM = {
+        "claim_id": "results_perpatient_auc",
+        "claim_value": "0.651",
+        "claim_type": "value",
+        "status": "registered",
+        "verified_at": None,
+    }
+
+    def test_reads_the_claim_value_field(self):
+        # Arrange
+        data = {"claims": [self._CLAIM]}
+        # Act
+        tex = render_clew_tex(data)
+        # Assert
+        assert "\\@namedef{clew@val@resultsperpatientauc}{0.651}" in tex
+
+    def test_registered_unverified_renders_red(self):
+        # Arrange: no verified_at -> unverified verdict -> red palette hex.
+        data = {"claims": [self._CLAIM]}
+        # Act
+        tex = render_clew_tex(data)
+        # Assert
+        assert ("\\@namedef{clew@status@resultsperpatientauc}{unverified}" in tex) and (
+            "\\@namedef{clew@hex@resultsperpatientauc}{C62828}" in tex
+        )
+
+    def test_registered_with_verified_at_renders_verified(self):
+        # Arrange
+        claim = dict(self._CLAIM, verified_at="2026-07-01T00:00:00Z")
+        data = {"claims": [claim]}
+        # Act
+        tex = render_clew_tex(data)
+        # Assert
+        assert "\\@namedef{clew@status@resultsperpatientauc}{verified}" in tex
+
+    def test_aggregate_computed_without_attestation_block(self):
+        # Arrange: 2 registered (unverified) + 1 verified, no attestation.
+        data = {"claims": [
+            dict(self._CLAIM, claim_id="a"),
+            dict(self._CLAIM, claim_id="b"),
+            dict(self._CLAIM, claim_id="c", verified_at="2026-07-01T00:00:00Z"),
+        ]}
+        # Act
+        tex = render_clew_tex(data)
+        # Assert
+        assert ("\\def\\clew@total{3}" in tex) and ("\\def\\clew@verified{1}" in tex)
+
+    def test_math_value_emitted_verbatim(self):
+        # Arrange: real 0.2.19 value strings carry LaTeX math.
+        data = {"claims": [dict(self._CLAIM, claim_id="x", claim_value="$80\\times$")]}
+        # Act
+        tex = render_clew_tex(data)
+        # Assert
+        assert "\\@namedef{clew@val@x}{$80\\times$}" in tex
+
+
 if __name__ == "__main__":
     import pytest
 

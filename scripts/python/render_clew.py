@@ -81,9 +81,26 @@ def _first(d, *keys):
 
 def _claim_value(claim):
     """The display string for a claim. clew stores it display-ready; try the
-    documented/likely field names in order."""
-    v = _first(claim, "value", "display_value", "latex", "rendered_value", "text")
+    known field names in order (`claim_value` is the clew 0.2.19 key)."""
+    v = _first(
+        claim, "claim_value", "value", "display_value", "latex", "rendered_value", "text"
+    )
     return "" if v is None else str(v)
+
+
+def _verdict(claim):
+    """Map a claim to one of the 4 presentation states (verified / suspect /
+    unverified / exception).
+
+    clew v1.3 emits a 4-state ``status`` directly (pass through). clew 0.2.19
+    emits ``status: registered`` + a ``verified_at`` (or null) and NO
+    verdict/color -- so a claim is ``verified`` only once chain-verified
+    (``verified_at`` set), else ``unverified`` (red). A registered-but-unverified
+    claim renders RED, honestly (never green until verified)."""
+    status = str(claim.get("status", "")).strip().lower()
+    if status in _STATUS_COLOR:
+        return status
+    return "verified" if claim.get("verified_at") else "unverified"
 
 
 def _resolve_palette(data):
@@ -108,8 +125,9 @@ def _aggregate(data, claims):
     if isinstance(verified, int) and isinstance(unverified, int):
         total = verified + unverified
     else:
+        # clew 0.2.19: no attestation block -- count via the resolved verdict.
         total = len(claims)
-        verified = sum(1 for c in claims if str(c.get("status", "")).lower() == "verified")
+        verified = sum(1 for c in claims if _verdict(c) == "verified")
     allverified = 1 if (total > 0 and verified == total) else 0
     return total, verified, allverified
 
@@ -148,15 +166,18 @@ def render_clew_tex(data):
         cid = sanitize_id(_first(claim, "claim_id", "id") or "")
         if not cid:
             continue
-        status = str(claim.get("status", "")).strip().lower()
-        color = _hex(_first(claim, "color", "hex")) or palette.get(status)
+        # Resolve the 4-state verdict (v1.3 status pass-through, or 0.2.19
+        # registered->verified/unverified), then the color: a per-claim color
+        # field if clew emitted one (v1.3), else the palette entry for the
+        # verdict (0.2.19 has no color, so derive it).
+        verdict = _verdict(claim)
+        color = _hex(_first(claim, "color", "hex")) or palette.get(verdict)
         value = _claim_value(claim)
-        lines.append(f"%% {claim.get('claim_id', cid)} [{status or 'unknown'}]")
+        lines.append(f"%% {claim.get('claim_id', cid)} [{verdict}]")
         lines.append(f"\\@namedef{{clew@val@{cid}}}{{{value}}}")
         if color:
             lines.append(f"\\@namedef{{clew@hex@{cid}}}{{{color}}}")
-        if status:
-            lines.append(f"\\@namedef{{clew@status@{cid}}}{{{status}}}")
+        lines.append(f"\\@namedef{{clew@status@{cid}}}{{{verdict}}}")
         lines.append("")
 
     lines.append("\\makeatother")
