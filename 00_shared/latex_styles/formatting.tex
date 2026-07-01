@@ -58,10 +58,23 @@
 \newcommand{\GREENENDS}{\color{black}}
 
 %% --- Word count ---
+%% A word-count file is decorative. It may be MISSING (not yet generated, or the
+%% path is CWD-relative and pdflatex ran from another dir). Guard the read: a
+%% missing/unopened stream must NOT reach a bare \read, which would block on the
+%% terminal and, under -interaction=nonstopmode, EMERGENCY-STOP the whole
+%% compile ("<read N>") -> no PDF -> empty .aux -> bibtex finds no \citation ->
+%% every \cite undefined (??/[?]). \ifeof after \openin is true when the file
+%% could not be opened (or is empty); default to 0 + a loud \typeout warning and
+%% keep compiling.
 \newread\wordcount
 \newcommand\readwordcount[1]{%
-\openin\wordcount=#1
-\read\wordcount to \thewordcount
+\def\thewordcount{0}%
+\openin\wordcount=#1\relax
+\ifeof\wordcount
+  \typeout{WARNING: scitex-writer: word-count file '#1' not found or empty; using 0.}%
+\else
+  \read\wordcount to \thewordcount
+\fi
 \closein\wordcount
 \begingroup\sisetup{round-mode=none,group-separator={,},group-minimum-digits=4}\num{\thewordcount}\endgroup%
 }
