@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.24.7] - 2026-07-01
+
+### Added
+- **Citation gate (`check_citations.py`) — fail the build on unresolved scholar
+  stubs.** A new pre-compile check (in the `run_provenance_checks.sh` roster)
+  scans the manuscript's `\cite` keys and fails when a cited reference is an
+  auto-generated scholar stub (`note` contains "Auto-generated stub" or
+  `journal` contains "Pending scitex-scholar metadata lookup"). A stub citation
+  can never reach a compiled research manuscript. Defaults to **error** for
+  research projects (`.scitex/dev/config.yaml project-type: research`), **warn**
+  otherwise; overridable via `citations.level` / `SCITEX_WRITER_CITATIONS` /
+  `--level`. It reads the bib that bibtex actually reads: the
+  `\bibliography{}`/`\addbibresource{}` target resolved relative to the tex and
+  **symlink-followed** (real trees point `contents/bibliography.bib` at a
+  possibly-legacy enriched bib, not `00_shared`). "No DOI" is deliberately NOT a
+  stub trigger (books/arXiv/conference refs legitimately lack one) — surfaced as
+  info only, to avoid false positives. This is the compiler-owns half of the
+  citation→clew verification contract; the clew-verified half slots in behind
+  the same report once scitex-clew defines its batch lookup.
+
 ## [2.24.6] - 2026-07-01
 
 ### Fixed
