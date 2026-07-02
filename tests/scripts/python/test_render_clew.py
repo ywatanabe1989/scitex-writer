@@ -227,6 +227,44 @@ class TestCitationAndFigureClaims:
         # Assert
         assert "\\@namedef{clew@hex@figures01mainjpg}{C62828}" in tex
 
+    def test_v15_failed_status_maps_to_red_bucket(self):
+        # Arrange: unified schema 1.5 renamed the red state unverified->failed.
+        data = {"claims": [{
+            "claim_id": "Stub2023", "claim_type": "citation",
+            "status": "failed", "claim_value": "",
+        }]}
+        # Act
+        tex = render_clew_tex(data)
+        # Assert
+        assert ("\\@namedef{clew@status@Stub2023}{unverified}" in tex) and (
+            "\\@namedef{clew@hex@Stub2023}{C62828}" in tex
+        )
+
+    def test_v15_palette_failed_key_lands_on_red_color(self):
+        # Arrange: 1.5 palette keys the red state "failed" (cf222e).
+        data = {
+            "palette": {"verified": "2da44e", "suspect": "d29922",
+                        "failed": "cf222e", "exception": "8250df"},
+            "claims": [{"claim_id": "c", "claim_type": "value",
+                        "status": "failed", "claim_value": "x"}],
+        }
+        # Act
+        tex = render_clew_tex(data)
+        # Assert
+        assert "\\definecolor{clewUnverified}{HTML}{CF222E}" in tex
+
+    def test_v15_nested_attestation_counts_shape(self):
+        # Arrange: 1.5 attestation nests counts {total, verified, ...}.
+        data = {
+            "attestation": {"badge_state": "partial",
+                            "counts": {"total": 5, "verified": 2}},
+            "claims": [],
+        }
+        # Act
+        tex = render_clew_tex(data)
+        # Assert
+        assert ("\\def\\clew@total{5}" in tex) and ("\\def\\clew@verified{2}" in tex)
+
     def test_display_color_field_is_honored_over_palette(self):
         # Arrange: clew 0.4.0 emits per-entry `display_color` (frozen name).
         data = {"claims": [{

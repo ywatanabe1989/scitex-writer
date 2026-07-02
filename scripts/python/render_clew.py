@@ -46,6 +46,14 @@ _STATUS_COLOR = {
     "unverified": "clewUnverified",
     "exception": "clewException",
 }
+# Schema-version tolerance: clew's unified feed 1.5 RENAMED the red state
+# "unverified" -> "failed" (and 1.3 claims.json "partial" -> "suspect").
+# Normalize incoming status/palette keys to the internal 4 buckets above, so
+# BOTH the pre-1.5 and 1.5+ feeds render correctly with no version gate.
+_STATUS_SYNONYMS = {
+    "failed": "unverified",
+    "partial": "suspect",
+}
 # Fallback palette (matches clew_presentation.tex's \providecolor + the sample);
 # only used when claims.json does not carry a palette hex for a state.
 _DEFAULT_PALETTE = {
@@ -98,6 +106,7 @@ def _verdict(claim):
     (``verified_at`` set), else ``unverified`` (red). A registered-but-unverified
     claim renders RED, honestly (never green until verified)."""
     status = str(claim.get("status", "")).strip().lower()
+    status = _STATUS_SYNONYMS.get(status, status)  # 1.5 "failed" -> red bucket
     if status in _STATUS_COLOR:
         return status
     return "verified" if claim.get("verified_at") else "unverified"
@@ -105,27 +114,35 @@ def _verdict(claim):
 
 def _resolve_palette(data):
     """status -> hex, from the top-level palette (dict or list of entries),
-    falling back to the default palette for any missing state."""
+    falling back to the default palette for any missing state. Palette keys
+    are normalized through the status synonyms (1.5 keys the red state
+    "failed"), so the feed's hex lands on the right internal bucket."""
     palette = dict(_DEFAULT_PALETTE)
     raw = data.get("palette") or data.get("display_palette") or {}
     if isinstance(raw, dict):
         for status, color in raw.items():
             h = _hex(color if not isinstance(color, dict) else _first(color, "hex", "color"))
+            key = _STATUS_SYNONYMS.get(str(status).lower(), str(status).lower())
             if h:
-                palette[str(status).lower()] = h
+                palette[key] = h
     return palette
 
 
 def _aggregate(data, claims):
     """(total, verified, allverified) from the attestation block, else counted
-    from the claims themselves."""
+    from the claims themselves. Accepts both attestation shapes: the flat
+    {verified_count, unverified_count} (<=1.4) and the 1.5 nested
+    {counts: {total, verified, ...}, badge_state}."""
     att = data.get("attestation") or {}
-    verified = att.get("verified_count")
-    unverified = att.get("unverified_count")
-    if isinstance(verified, int) and isinstance(unverified, int):
-        total = verified + unverified
-    else:
-        # clew 0.2.19: no attestation block -- count via the resolved verdict.
+    counts = att.get("counts") if isinstance(att.get("counts"), dict) else {}
+    verified = counts.get("verified", att.get("verified_count"))
+    total = counts.get("total")
+    if not isinstance(total, int):
+        unverified = att.get("unverified_count")
+        if isinstance(verified, int) and isinstance(unverified, int):
+            total = verified + unverified
+    if not (isinstance(total, int) and isinstance(verified, int)):
+        # No usable attestation -- count via the resolved verdict.
         total = len(claims)
         verified = sum(1 for c in claims if _verdict(c) == "verified")
     allverified = 1 if (total > 0 and verified == total) else 0

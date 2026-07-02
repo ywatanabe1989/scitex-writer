@@ -233,13 +233,16 @@
 %% exemplifies the markers rather than showing an abstract swatch (operator:
 %% 自己説明的 / self-explanatory). No badge glyphs: every one of the 4 states is
 %% a colored wavy underline.
+%% NB: state names follow clew's unified schema 1.5 (the red state is "failed";
+%% the internal color macro stays clewUnverified for back-compat with existing
+%% clew_rendered.tex files).
 \newcommand{\clewLabel}[2]{{\color{#1}\uwave{#2}}}
 \newcommand{\clewLegend}{%
   \par\vspace{0.5em}\noindent{\footnotesize\color{gray}%
     \textbf{Clew status:}\ %
     \clewLabel{clewVerified}{verified}\quad
     \clewLabel{clewSuspect}{suspect}\quad
-    \clewLabel{clewUnverified}{unverified}\quad
+    \clewLabel{clewUnverified}{failed}\quad
     \clewLabel{clewException}{exception}\par}}
 
 %% --- clew explainer section (clew provides \clewExplainerBody content;
