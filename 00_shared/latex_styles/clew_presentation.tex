@@ -99,6 +99,11 @@
 \newcommand{\clewDecorate}[1]{%
   {\color{clewVerdict}\uwave{#1}}}
 
+%% Figure provenance CHIP: a small verdict-colored filled square, appended to a
+%% figure caption (a wavy underline is for inline text/cites; a figure mark is a
+%% discrete chip). Uses clewVerdict, \definecolor'd by \clewfig before this runs.
+\newcommand{\clewFigChip}{\,{\color{clewVerdict}\rule[0pt]{0.6em}{0.6em}}}
+
 %% --- \clewval / \clewmark (expl3: robust id-sanitize + csname lookup) ---
 %% claim_id is sanitized to [a-zA-Z0-9] -- the SAME transform scitex-clew
 %% applies when emitting the macro names -- so authors write the raw claim_id.
@@ -148,6 +153,39 @@
     #2
   }
 }
+%% \clewcite{bibkey}: \cite the key with a verdict-colored wavy underline
+%% (parallel to \clewval -- same 4-state color). Falls back to a plain \cite
+%% when markers are off OR the key is not a registered citation-claim, so it is
+%% always safe to use in place of \cite. Matches by claim_id == the BibTeX key
+%% (sanitized to [a-zA-Z0-9], same as clew emits).
+\NewDocumentCommand \clewcite { m } {
+  \__clew_key:n {#1}
+  \legacy_if:nTF { clewpresmarkers } {
+    \cs_if_exist:cTF { clew@hex@ \l__clew_key_tl } {
+      \tl_set:Nx \l__clew_hex_tl { \use:c { clew@hex@ \l__clew_key_tl } }
+      \definecolor { clewVerdict } { HTML } { \l__clew_hex_tl }
+      \clewDecorate { \cite {#1} }
+    } {
+      \cite {#1}
+    }
+  } {
+    \cite {#1}
+  }
+}
+%% \clewfig{figure_id}: a verdict-colored provenance chip for a figure caption
+%% (figure_id = the figure save-path == the join key). Renders NOTHING when
+%% markers are off or the figure is not a registered figure-claim, so it is safe
+%% wherever figrecipe emits it into a caption.
+\NewDocumentCommand \clewfig { m } {
+  \__clew_key:n {#1}
+  \legacy_if:nTF { clewpresmarkers } {
+    \cs_if_exist:cTF { clew@hex@ \l__clew_key_tl } {
+      \tl_set:Nx \l__clew_hex_tl { \use:c { clew@hex@ \l__clew_key_tl } }
+      \definecolor { clewVerdict } { HTML } { \l__clew_hex_tl }
+      \clewFigChip
+    } { }
+  } { }
+}
 \msg_new:nnn { clew } { unknown-claim }
   { Clew~claim~'#1'~not~found~in~clew_rendered.tex~(rendering~plain). }
 \ExplSyntaxOff
@@ -195,13 +233,16 @@
 %% exemplifies the markers rather than showing an abstract swatch (operator:
 %% 自己説明的 / self-explanatory). No badge glyphs: every one of the 4 states is
 %% a colored wavy underline.
+%% NB: state names follow clew's unified schema 1.5 (the red state is "failed";
+%% the internal color macro stays clewUnverified for back-compat with existing
+%% clew_rendered.tex files).
 \newcommand{\clewLabel}[2]{{\color{#1}\uwave{#2}}}
 \newcommand{\clewLegend}{%
   \par\vspace{0.5em}\noindent{\footnotesize\color{gray}%
     \textbf{Clew status:}\ %
     \clewLabel{clewVerified}{verified}\quad
     \clewLabel{clewSuspect}{suspect}\quad
-    \clewLabel{clewUnverified}{unverified}\quad
+    \clewLabel{clewUnverified}{failed}\quad
     \clewLabel{clewException}{exception}\par}}
 
 %% --- clew explainer section (clew provides \clewExplainerBody content;

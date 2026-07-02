@@ -96,6 +96,12 @@
 %% clew_rendered.tex is skipped (non-style, optional until clew generates it).
 \input{../../00_shared/latex_styles/clew_presentation.tex}
 \input{../../00_shared/clew_rendered.tex}
+%% Writer opt-in: sets the \clewpres* toggles resolved from
+%% .scitex/writer/config.yaml (clew_presentation) by render_clew_toggles.py.
+%% AFTER clew_presentation.tex (which defines the \newif's, default OFF) so it
+%% overrides them. Non-style + optional -> the flattener skips it when absent
+%% (clew presentation OFF), same as clew_rendered.tex.
+\input{../../00_shared/clew_presentation_toggles.tex}
 
 %% EOF
 
