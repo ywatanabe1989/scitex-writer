@@ -192,3 +192,29 @@ export function listTables(docType: string): Promise<TablesResponse> {
     `api/tables?doc_type=${encodeURIComponent(docType)}`,
   );
 }
+
+// Manuscript findings feed (dynamic-paper notifications) — the signals the
+// compile pipeline already computes (undefined refs/cites, unverified claims),
+// served as a feed the Details pane renders as quiet inline notifications.
+export type FindingSeverity = "info" | "advice" | "warning" | "error";
+export interface Finding {
+  id: string;
+  kind: string;
+  severity: FindingSeverity;
+  message: string;
+  location: { file: string | null; line: number | null; page: number | null };
+  claim_id: string | null;
+  source: string;
+}
+export interface FindingsFeed {
+  schema: string;
+  summary: {
+    total: number;
+    by_severity: Record<string, number>;
+    by_kind: Record<string, number>;
+  };
+  findings: Finding[];
+}
+export function manuscriptFindings(): Promise<FindingsFeed> {
+  return apiGet<FindingsFeed>("api/findings");
+}

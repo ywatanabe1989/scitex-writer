@@ -4,10 +4,11 @@
  * Project Info · Shortcuts. Collapsed/expanded state stored in localStorage.
  */
 
-import { projectInfo } from "./api";
-import type { ProjectInfo } from "./api";
+import { manuscriptFindings, projectInfo } from "./api";
+import type { FindingsFeed, ProjectInfo } from "./api";
 
 type SectionId =
+  | "notifications"
   | "compile-preview"
   | "compile-full"
   | "overleaf"
@@ -33,16 +34,31 @@ export class DetailsPanel {
     preview: "idle",
     full: "idle",
   };
+  private findings: FindingsFeed | null = null;
 
   constructor(container: HTMLElement) {
     this.container = container;
     this.open = this.loadOpenState();
     this.render();
     void this.loadProject();
+    void this.refreshFindings();
   }
 
   setCompileStatus(mode: "preview" | "full", status: string): void {
     this.compileState[mode] = status;
+    this.render();
+  }
+
+  /** Re-fetch the manuscript-findings feed (call after each compile — the feed
+   * is rewritten by the "Manuscript Findings" compile stage). Best-effort: a
+   * fetch failure leaves the pane showing "no notifications", never an error. */
+  async refreshFindings(): Promise<void> {
+    try {
+      this.findings = await manuscriptFindings();
+    } catch (err) {
+      console.warn("[details] findings fetch failed", err);
+      this.findings = null;
+    }
     this.render();
   }
 
@@ -76,6 +92,12 @@ export class DetailsPanel {
     };
 
     return [
+      {
+        id: "notifications",
+        title: "Notifications",
+        icon: "fa-bell",
+        render: () => this.renderFindings(),
+      },
       {
         id: "compile-preview",
         title: "Compilation — Preview",
@@ -148,6 +170,55 @@ export class DetailsPanel {
     ];
   }
 
+  /** Render the findings feed as a quiet digest: a severity summary line, then
+   * one row per finding (most-severe first, already sorted by the feed). An
+   * empty feed reads "the paper is quiet" — verified claims never appear. */
+  private renderFindings(): string {
+    const feed = this.findings;
+    if (!feed || feed.summary.total === 0) {
+      return `<p class="details-hint">✓ No notifications — the paper is quiet.</p>`;
+    }
+    const dotColor: Record<string, string> = {
+      error: "var(--danger, #dc2626)",
+      warning: "var(--warning, #d97706)",
+      advice: "var(--info, #2563eb)",
+      info: "#888",
+    };
+    const sev = feed.summary.by_severity;
+    const chips = ["error", "warning", "advice", "info"]
+      .filter((s) => sev[s])
+      .map((s) => `${sev[s]} ${s}`)
+      .join(" · ");
+    const CAP = 50;
+    const rows = feed.findings
+      .slice(0, CAP)
+      .map((f) => {
+        const color = dotColor[f.severity] || "#888";
+        const loc =
+          f.location && f.location.file
+            ? `<span class="details-mono">${escapeHtml(f.location.file)}${
+                f.location.line ? ":" + f.location.line : ""
+              }</span>`
+            : "";
+        return `
+          <div class="details-row" title="${escapeHtml(f.kind)} · ${escapeHtml(f.source)}">
+            <span><span class="details-dot" style="background:${color}"></span> ${escapeHtml(f.message)}</span>
+            ${loc}
+          </div>`;
+      })
+      .join("");
+    const more =
+      feed.findings.length > CAP
+        ? `<p class="details-hint">+${feed.findings.length - CAP} more (showing first ${CAP}).</p>`
+        : "";
+    return `
+      <p class="details-hint">${chips}</p>
+      ${rows}
+      ${more}
+      <p class="details-hint">Refreshes on compile. Verified claims stay silent.</p>
+    `;
+  }
+
   private render(): void {
     const sections = this.sections();
     this.container.innerHTML = `
@@ -190,7 +261,7 @@ export class DetailsPanel {
       if (!raw) return new Set(["compile-preview", "project"]);
       return new Set(JSON.parse(raw));
     } catch {
-      return new Set(["compile-preview", "project"]);
+      return new Set(["notifications", "compile-preview", "project"]);
     }
   }
 
