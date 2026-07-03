@@ -276,6 +276,28 @@ class TestCitationAndFigureClaims:
         # Assert
         assert "\\@namedef{clew@hex@c}{123ABC}" in tex
 
+    def test_v16_unsourced_status_folds_to_amber_suspect(self):
+        # Arrange: clew 1.6 adds an `unsourced` state; writer folds it to suspect.
+        data = {"claims": [{"claim_id": "u", "claim_type": "value",
+                            "status": "unsourced", "claim_value": "x"}]}
+        # Act
+        tex = render_clew_tex(data)
+        # Assert
+        assert "\\@namedef{clew@status@u}{suspect}" in tex
+
+    def test_v16_unsourced_palette_key_preserves_suspect_color(self):
+        # Arrange: clew 1.6 palette carries BOTH suspect and unsourced hexes.
+        data = {
+            "palette": {"verified": "2da44e", "suspect": "d29922",
+                        "unsourced": "b26a00", "failed": "cf222e",
+                        "exception": "8250df"},
+            "claims": [],
+        }
+        # Act
+        tex = render_clew_tex(data)
+        # Assert
+        assert "\\definecolor{clewSuspect}{HTML}{D29922}" in tex
+
 
 if __name__ == "__main__":
     import pytest

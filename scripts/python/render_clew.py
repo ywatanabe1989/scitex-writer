@@ -12,7 +12,7 @@
 #          Output contract (see 00_shared/latex_styles/clew_presentation.tex +
 #          demo/clew_rendered.sample.tex):
 #            \makeatletter
-#            \definecolor{clewVerified|Suspect|Unsourced|Unverified|Exception}{HTML}{hex}
+#            \definecolor{clewVerified|Suspect|Unverified|Exception}{HTML}{hex}
 #            \def\clew@total{N} \def\clew@verified{M} \def\clew@allverified{0|1}
 #            \@namedef{clew@val@<id>}{value}      (id sanitized to [a-zA-Z0-9])
 #            \@namedef{clew@hex@<id>}{6hex}
@@ -40,38 +40,29 @@ CLAIMS_JSON = ".scitex/clew/runtime/claims.json"
 OUTPUT_TEX = "00_shared/clew_rendered.tex"
 
 # status -> the \definecolor name the presentation layer expects.
-# `unsourced` (clew unified 1.6 / claims.json 1.4, additive) is its OWN amber
-# bucket -- "unproven, not wrong" -- distinct from the red `unverified`/`failed`
-# mismatch-or-missing state; it is NOT folded into red.
 _STATUS_COLOR = {
     "verified": "clewVerified",
     "suspect": "clewSuspect",
-    "unsourced": "clewUnsourced",
     "unverified": "clewUnverified",
     "exception": "clewException",
 }
 # Schema-version tolerance: clew's unified feed 1.5 RENAMED the red state
 # "unverified" -> "failed" (and 1.3 claims.json "partial" -> "suspect").
-# Normalize incoming status/palette keys to the internal buckets above, so
-# BOTH the pre-1.5 and 1.5+ feeds render correctly with no version gate.
-# `unsourced` is deliberately absent here: it is its own bucket, never a synonym.
+# Normalize incoming status/palette keys to the internal 4 buckets above, so
+# every feed version renders correctly with no version gate.
+# NB: clew 1.6's `unsourced` (unproven-source) state is folded onto the amber
+# `suspect` bucket in _verdict() ONLY -- NOT here -- because this map is also
+# applied to palette keys, and clew emits BOTH `suspect` and `unsourced` hexes;
+# a synonym here would let unsourced clobber the suspect palette color.
 _STATUS_SYNONYMS = {
     "failed": "unverified",
     "partial": "suspect",
 }
 # Fallback palette (matches clew_presentation.tex's \providecolor + the sample);
 # only used when claims.json does not carry a palette hex for a state.
-# These are FALLBACK-ONLY: clew's emitted top-level palette is the single
-# source of truth (rendered into \definecolor by _resolve_palette below), and
-# each claim's per-entry display_color overrides even that. This dict only
-# fills a state clew did not emit. unsourced amber MIRRORS clew's current
-# registered-source-gate emission (b26a00, unified 1.6) so there is no drift;
-# when clew+figrecipe converge one canonical CUD-safe palette, render inherits
-# it via the emitted palette with NO change here.
 _DEFAULT_PALETTE = {
     "verified": "2E7D32",
     "suspect": "F9A825",
-    "unsourced": "B26A00",
     "unverified": "C62828",
     "exception": "6A1B9A",
 }
@@ -117,9 +108,15 @@ def _verdict(claim):
     emits ``status: registered`` + a ``verified_at`` (or null) and NO
     verdict/color -- so a claim is ``verified`` only once chain-verified
     (``verified_at`` set), else ``unverified`` (red). A registered-but-unverified
-    claim renders RED, honestly (never green until verified)."""
+    claim renders RED, honestly (never green until verified).
+
+    clew 1.6's ``unsourced`` (unproven-source) state folds onto the amber
+    ``suspect`` bucket -- the writer keeps a single amber "questionable" state
+    rather than a separate unsourced bucket (operator decision)."""
     status = str(claim.get("status", "")).strip().lower()
     status = _STATUS_SYNONYMS.get(status, status)  # 1.5 "failed" -> red bucket
+    if status == "unsourced":
+        return "suspect"  # clew 1.6 unproven-source -> amber suspect (one amber state)
     if status in _STATUS_COLOR:
         return status
     return "verified" if claim.get("verified_at") else "unverified"
