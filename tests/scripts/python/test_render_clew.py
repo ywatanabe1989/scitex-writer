@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 # Test file for: render_clew.py (clew_rendered.tex emit from claims.json v1.3)
 
+import os
 import sys
 from pathlib import Path
 
@@ -156,7 +157,7 @@ class TestClew0219Schema:
         tex = render_clew_tex(data)
         # Assert
         assert ("\\@namedef{clew@status@resultsperpatientauc}{unverified}" in tex) and (
-            "\\@namedef{clew@hex@resultsperpatientauc}{FF4632}" in tex
+            "\\@namedef{clew@hex@resultsperpatientauc}{CF222E}" in tex
         )
 
     def test_registered_with_verified_at_renders_verified(self):
@@ -203,7 +204,7 @@ class TestCitationAndFigureClaims:
         # Act
         tex = render_clew_tex(data)
         # Assert
-        assert "\\@namedef{clew@hex@Kuhlmann2018}{14B414}" in tex
+        assert "\\@namedef{clew@hex@Kuhlmann2018}{2DA44E}" in tex
 
     def test_unverified_citation_emits_red_hex_by_bibkey(self):
         # Arrange
@@ -214,7 +215,7 @@ class TestCitationAndFigureClaims:
         # Act
         tex = render_clew_tex(data)
         # Assert
-        assert "\\@namedef{clew@hex@Freestone2015}{FF4632}" in tex
+        assert "\\@namedef{clew@hex@Freestone2015}{CF222E}" in tex
 
     def test_figure_claim_keyed_by_sanitized_save_path(self):
         # Arrange
@@ -225,7 +226,7 @@ class TestCitationAndFigureClaims:
         # Act
         tex = render_clew_tex(data)
         # Assert
-        assert "\\@namedef{clew@hex@figures01mainjpg}{FF4632}" in tex
+        assert "\\@namedef{clew@hex@figures01mainjpg}{CF222E}" in tex
 
     def test_v15_failed_status_maps_to_red_bucket(self):
         # Arrange: unified schema 1.5 renamed the red state unverified->failed.
@@ -237,7 +238,7 @@ class TestCitationAndFigureClaims:
         tex = render_clew_tex(data)
         # Assert
         assert ("\\@namedef{clew@status@Stub2023}{unverified}" in tex) and (
-            "\\@namedef{clew@hex@Stub2023}{FF4632}" in tex
+            "\\@namedef{clew@hex@Stub2023}{CF222E}" in tex
         )
 
     def test_v15_palette_failed_key_lands_on_red_color(self):
@@ -297,6 +298,55 @@ class TestCitationAndFigureClaims:
         tex = render_clew_tex(data)
         # Assert
         assert "\\definecolor{clewSuspect}{HTML}{D29922}" in tex
+
+
+class TestClewVersion:
+    """render_clew stamps the clew TOOL version (\\clew@version) for the rendered
+    provenance attestation -- from the export's own stamp, else the CLI version
+    captured into SCITEX_WRITER_CLEW_VERSION by render_clew.sh."""
+
+    def test_version_from_export_stamp_is_emitted(self, monkeypatch):
+        # Arrange
+        monkeypatch.delenv("SCITEX_WRITER_CLEW_VERSION", raising=False)
+        data = {"clew_version": "0.8.0", "claims": []}
+        # Act
+        tex = render_clew_tex(data)
+        # Assert
+        assert "\\def\\clew@version{0.8.0}" in tex
+
+    def test_version_from_env_when_export_has_no_stamp(self, monkeypatch):
+        # Arrange
+        monkeypatch.setenv("SCITEX_WRITER_CLEW_VERSION", "0.9.1")
+        # Act
+        tex = render_clew_tex({"claims": []})
+        # Assert
+        assert "\\def\\clew@version{0.9.1}" in tex
+
+    def test_no_version_macro_when_source_unknown(self, monkeypatch):
+        # Arrange
+        monkeypatch.delenv("SCITEX_WRITER_CLEW_VERSION", raising=False)
+        # Act
+        tex = render_clew_tex({"claims": []})
+        # Assert
+        assert "\\def\\clew@version" not in tex
+
+    def test_version_sanitized_to_latex_safe_token(self, monkeypatch):
+        # Arrange
+        monkeypatch.delenv("SCITEX_WRITER_CLEW_VERSION", raising=False)
+        data = {"clew_version": "0.8.0\\evil{}", "claims": []}
+        # Act
+        tex = render_clew_tex(data)
+        # Assert
+        assert "\\def\\clew@version{0.8.0evil}" in tex
+
+    def test_bare_schema_version_is_not_used_as_tool_version(self, monkeypatch):
+        # Arrange: top-level `version` is the SCHEMA version, not the tool version.
+        monkeypatch.delenv("SCITEX_WRITER_CLEW_VERSION", raising=False)
+        data = {"version": "1.6", "claims": []}
+        # Act
+        tex = render_clew_tex(data)
+        # Assert
+        assert "\\def\\clew@version" not in tex
 
 
 if __name__ == "__main__":

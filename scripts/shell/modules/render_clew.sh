@@ -33,6 +33,15 @@ if command -v "$CLEW_BIN" >/dev/null 2>&1; then
     if ! (cd "$PROJECT_ROOT" && "$CLEW_BIN" export-claims --unified) >/dev/null 2>&1; then
         echo "WARN: clew export-claims --unified failed; using existing claims.json (if any)." >&2
     fi
+    # Capture the clew TOOL version so render_clew can stamp the rendered
+    # provenance attestation ("audited by SciTeX Clew vX.Y.Z"). The export's
+    # own version stamp (if any) still wins inside render_clew.py; this is the
+    # fallback source. First semver-looking token from `clew --version`.
+    if [ -z "${SCITEX_WRITER_CLEW_VERSION:-}" ]; then
+        SCITEX_WRITER_CLEW_VERSION="$("$CLEW_BIN" --version 2>/dev/null \
+            | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1)"
+        export SCITEX_WRITER_CLEW_VERSION
+    fi
 fi
 
 exec "$PY" "$PROJECT_ROOT/scripts/python/render_clew.py" "$PROJECT_ROOT"

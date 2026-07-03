@@ -59,15 +59,17 @@
 %% scitex-clew OWNS the palette (what to render). It emits \definecolor{clewX}
 %% in clew_rendered.tex. These \providecolor lines are only a writer-side
 %% FALLBACK so the doc still compiles if clew did not emit a palette.
-%% SciTeX-STANDARD palette (figrecipe colors/_PARAMS.py, the SoT): SciTeXGreen
-%% / SciTeXYellow / SciTeXRed / SciTeXPurple -- chosen to read on BOTH dark and
-%% light backgrounds. clew's emitted \definecolor overrides these fallbacks.
-\providecolor{clewVerified}{HTML}{14B414}
-\providecolor{clewSuspect}{HTML}{E6A014}
-\providecolor{clewUnverified}{HTML}{FF4632}
+%% CUD-safe fallback palette -- clew's canonical colorblind-safe reader hexes
+%% (match clew's emitted display_palette; all clear the dE>=12 CVD floor). clew's
+%% emitted \definecolor overrides these. Operator (Q1=b): provenance marks use
+%% clew's CUD-safe palette, not the raw figrecipe hexes (green/yellow collapse
+%% under protanopia). figrecipe colors are luminance-tuned, not CVD-categorical.
+\providecolor{clewVerified}{HTML}{2DA44E}
+\providecolor{clewSuspect}{HTML}{D29922}
+\providecolor{clewUnverified}{HTML}{CF222E}
 %% exception is conveyed by its own wavy-underline COLOR (no badge glyph).
 %% clew provides the real color (overrides this placeholder).
-\providecolor{clewException}{HTML}{C832FF}
+\providecolor{clewException}{HTML}{8250DF}
 
 %% --- signature config (overridable before \begin{document}) ---
 \providecommand{\clewSigText}{Compiled by SciTeX Writer.}
@@ -75,8 +77,10 @@
 \providecommand{\clewBadgeURL}{https://github.com/ywatanabe1989/scitex-clew}
 \providecommand{\clewSigIcon}{docs/scitex-icon-navy-inverted.png}
 %% Clew attestation line (clew owns the text; writer renders it). Default
-%% overridable by clew_rendered.tex / the manuscript.
-\providecommand{\clewAttestText}{Provenance checked by SciTeX Clew.}
+%% overridable by clew_rendered.tex / the manuscript. "audited" (honest) not
+%% "checked/verified"; no trailing period so the tool version reads cleanly
+%% after it ("... SciTeX Clew v0.8.0").
+\providecommand{\clewAttestText}{Provenance audited by SciTeX Clew}
 \providecommand{\clewAttestURL}{https://github.com/ywatanabe1989/scitex-clew}
 %% Clew explainer body (clew provides the CONTENT; writer provides the section
 %% layout). Sensible writer-side default until clew emits its own.
@@ -225,10 +229,15 @@
   \par\vspace{0.8em}%
   {\footnotesize\color{gray}\raggedleft
     \href{\clewSigURL}{\clewColophonIcon\clewSigText}\par}}
-%% "Provenance checked by SciTeX Clew." -> clew repo, right-aligned, same snake.
+%% Tool-version suffix: " vX.Y.Z" when render_clew stamped \clew@version (from
+%% the clew export or `clew --version`); nothing when absent. \@empty test =
+%% the \providecommand{}{} fallback below.
+\newcommand{\clewVersionSuffix}{%
+  \ifx\clew@version\@empty\else\ v\clew@version\fi}
+%% "Provenance audited by SciTeX Clew vX.Y.Z" -> clew repo, right-aligned, same snake.
 \newcommand{\clewAttestation}{%
   {\footnotesize\color{gray}\raggedleft
-    \href{\clewAttestURL}{\clewColophonIcon\clewAttestText}\par}}
+    \href{\clewAttestURL}{\clewColophonIcon\clewAttestText\clewVersionSuffix}\par}}
 
 %% --- status legend (SELF-DEMONSTRATING) ---
 %% Each label word is rendered in its OWN marker color -- "verified" green+wavy,
@@ -279,6 +288,7 @@
 \providecommand{\clew@total}{0}
 \providecommand{\clew@verified}{0}
 \providecommand{\clew@allverified}{0}
+\providecommand{\clew@version}{}
 
 \makeatother
 %% EOF
