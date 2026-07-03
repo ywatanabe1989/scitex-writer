@@ -12,7 +12,7 @@
 #          Output contract (see 00_shared/latex_styles/clew_presentation.tex +
 #          demo/clew_rendered.sample.tex):
 #            \makeatletter
-#            \definecolor{clewVerified|Suspect|Unverified|Exception}{HTML}{hex}
+#            \definecolor{clewVerified|Suspect|Unsourced|Unverified|Exception}{HTML}{hex}
 #            \def\clew@total{N} \def\clew@verified{M} \def\clew@allverified{0|1}
 #            \@namedef{clew@val@<id>}{value}      (id sanitized to [a-zA-Z0-9])
 #            \@namedef{clew@hex@<id>}{6hex}
@@ -40,25 +40,38 @@ CLAIMS_JSON = ".scitex/clew/runtime/claims.json"
 OUTPUT_TEX = "00_shared/clew_rendered.tex"
 
 # status -> the \definecolor name the presentation layer expects.
+# `unsourced` (clew unified 1.6 / claims.json 1.4, additive) is its OWN amber
+# bucket -- "unproven, not wrong" -- distinct from the red `unverified`/`failed`
+# mismatch-or-missing state; it is NOT folded into red.
 _STATUS_COLOR = {
     "verified": "clewVerified",
     "suspect": "clewSuspect",
+    "unsourced": "clewUnsourced",
     "unverified": "clewUnverified",
     "exception": "clewException",
 }
 # Schema-version tolerance: clew's unified feed 1.5 RENAMED the red state
 # "unverified" -> "failed" (and 1.3 claims.json "partial" -> "suspect").
-# Normalize incoming status/palette keys to the internal 4 buckets above, so
+# Normalize incoming status/palette keys to the internal buckets above, so
 # BOTH the pre-1.5 and 1.5+ feeds render correctly with no version gate.
+# `unsourced` is deliberately absent here: it is its own bucket, never a synonym.
 _STATUS_SYNONYMS = {
     "failed": "unverified",
     "partial": "suspect",
 }
 # Fallback palette (matches clew_presentation.tex's \providecolor + the sample);
 # only used when claims.json does not carry a palette hex for a state.
+# These are FALLBACK-ONLY: clew's emitted top-level palette is the single
+# source of truth (rendered into \definecolor by _resolve_palette below), and
+# each claim's per-entry display_color overrides even that. This dict only
+# fills a state clew did not emit. unsourced amber MIRRORS clew's current
+# registered-source-gate emission (b26a00, unified 1.6) so there is no drift;
+# when clew+figrecipe converge one canonical CUD-safe palette, render inherits
+# it via the emitted palette with NO change here.
 _DEFAULT_PALETTE = {
     "verified": "2E7D32",
     "suspect": "F9A825",
+    "unsourced": "B26A00",
     "unverified": "C62828",
     "exception": "6A1B9A",
 }
