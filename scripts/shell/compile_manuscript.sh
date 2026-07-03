@@ -387,6 +387,18 @@ main() {
     fi
     log_stage_end "PDF Generation"
 
+    # Manuscript Findings feed (ADVISORY): aggregate the signals the compile
+    # already produced (undefined \ref/\cite in the log, unverified clew claims)
+    # into .scitex/writer/findings.json — the data layer the writer UI's Details
+    # pane renders as quiet inline notifications ("the paper reacts to your
+    # work"). Runs BEFORE Cleanup so the log + claims are still present. NEVER
+    # fatal: a feed must not break a compile.
+    log_stage_start "Manuscript Findings"
+    "${SCITEX_WRITER_PYTHON:-python3}" \
+        "$PROJECT_ROOT/scripts/python/manuscript_findings.py" "$PROJECT_ROOT" \
+        || echo_warning "Manuscript findings feed skipped (non-fatal)"
+    log_stage_end "Manuscript Findings"
+
     # Diff (skip if --no_diff specified)
     if [ "$no_diff" = false ]; then
         log_stage_start "Diff Generation"
