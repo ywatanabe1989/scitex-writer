@@ -59,12 +59,15 @@
 %% scitex-clew OWNS the palette (what to render). It emits \definecolor{clewX}
 %% in clew_rendered.tex. These \providecolor lines are only a writer-side
 %% FALLBACK so the doc still compiles if clew did not emit a palette.
-\providecolor{clewVerified}{HTML}{2E7D32}
-\providecolor{clewSuspect}{HTML}{F9A825}
-\providecolor{clewUnverified}{HTML}{C62828}
+%% SciTeX-STANDARD palette (figrecipe colors/_PARAMS.py, the SoT): SciTeXGreen
+%% / SciTeXYellow / SciTeXRed / SciTeXPurple -- chosen to read on BOTH dark and
+%% light backgrounds. clew's emitted \definecolor overrides these fallbacks.
+\providecolor{clewVerified}{HTML}{14B414}
+\providecolor{clewSuspect}{HTML}{E6A014}
+\providecolor{clewUnverified}{HTML}{FF4632}
 %% exception is conveyed by its own wavy-underline COLOR (no badge glyph).
 %% clew provides the real color (overrides this placeholder).
-\providecolor{clewException}{HTML}{6A1B9A}
+\providecolor{clewException}{HTML}{C832FF}
 
 %% --- signature config (overridable before \begin{document}) ---
 \providecommand{\clewSigText}{Compiled by SciTeX Writer.}

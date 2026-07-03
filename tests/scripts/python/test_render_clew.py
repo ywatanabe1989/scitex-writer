@@ -156,7 +156,7 @@ class TestClew0219Schema:
         tex = render_clew_tex(data)
         # Assert
         assert ("\\@namedef{clew@status@resultsperpatientauc}{unverified}" in tex) and (
-            "\\@namedef{clew@hex@resultsperpatientauc}{C62828}" in tex
+            "\\@namedef{clew@hex@resultsperpatientauc}{FF4632}" in tex
         )
 
     def test_registered_with_verified_at_renders_verified(self):
@@ -203,7 +203,7 @@ class TestCitationAndFigureClaims:
         # Act
         tex = render_clew_tex(data)
         # Assert
-        assert "\\@namedef{clew@hex@Kuhlmann2018}{2E7D32}" in tex
+        assert "\\@namedef{clew@hex@Kuhlmann2018}{14B414}" in tex
 
     def test_unverified_citation_emits_red_hex_by_bibkey(self):
         # Arrange
@@ -214,7 +214,7 @@ class TestCitationAndFigureClaims:
         # Act
         tex = render_clew_tex(data)
         # Assert
-        assert "\\@namedef{clew@hex@Freestone2015}{C62828}" in tex
+        assert "\\@namedef{clew@hex@Freestone2015}{FF4632}" in tex
 
     def test_figure_claim_keyed_by_sanitized_save_path(self):
         # Arrange
@@ -225,7 +225,7 @@ class TestCitationAndFigureClaims:
         # Act
         tex = render_clew_tex(data)
         # Assert
-        assert "\\@namedef{clew@hex@figures01mainjpg}{C62828}" in tex
+        assert "\\@namedef{clew@hex@figures01mainjpg}{FF4632}" in tex
 
     def test_v15_failed_status_maps_to_red_bucket(self):
         # Arrange: unified schema 1.5 renamed the red state unverified->failed.
@@ -237,7 +237,7 @@ class TestCitationAndFigureClaims:
         tex = render_clew_tex(data)
         # Assert
         assert ("\\@namedef{clew@status@Stub2023}{unverified}" in tex) and (
-            "\\@namedef{clew@hex@Stub2023}{C62828}" in tex
+            "\\@namedef{clew@hex@Stub2023}{FF4632}" in tex
         )
 
     def test_v15_palette_failed_key_lands_on_red_color(self):

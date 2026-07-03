@@ -58,13 +58,16 @@ _STATUS_SYNONYMS = {
     "failed": "unverified",
     "partial": "suspect",
 }
-# Fallback palette (matches clew_presentation.tex's \providecolor + the sample);
-# only used when claims.json does not carry a palette hex for a state.
+# Fallback palette -- the SciTeX-standard colors (figrecipe colors/_PARAMS.py,
+# the palette single-source-of-truth). Only used when claims.json carries no
+# palette hex for a state; clew's emitted palette + per-claim display_color
+# still override. Keeping the fallback ON the SciTeX standard means one palette
+# = SciTeX everywhere even if clew emits nothing.
 _DEFAULT_PALETTE = {
-    "verified": "2E7D32",
-    "suspect": "F9A825",
-    "unverified": "C62828",
-    "exception": "6A1B9A",
+    "verified": "14B414",    # SciTeXGreen
+    "suspect": "E6A014",     # SciTeXYellow (single amber "questionable" state)
+    "unverified": "FF4632",  # SciTeXRed
+    "exception": "C832FF",   # SciTeXPurple
 }
 
 
