@@ -169,15 +169,19 @@ def _aggregate(data, claims):
 def _clew_version(data):
     """The scitex-clew TOOL version that produced this export, for the rendered
     provenance attestation. Prefer the export's own stamp (authoritative for
-    THIS file); fall back to the CLI version render_clew.sh captured into
-    SCITEX_WRITER_CLEW_VERSION. A bare top-level ``version`` is deliberately NOT
-    read -- that is the SCHEMA version, not the tool version. Sanitized to a
-    LaTeX-safe [0-9A-Za-z.-] token (never trust the string blindly)."""
+    THIS file -- the version that produced it, not whatever CLI is installed);
+    fall back to the CLI version render_clew.sh captured into
+    SCITEX_WRITER_CLEW_VERSION. clew stamps it at ``attestation.version``
+    (= importlib.metadata.version("scitex-clew") at export time). A bare
+    TOP-LEVEL ``version`` is deliberately NOT read -- that is the SCHEMA
+    version, not the tool version. Sanitized to a LaTeX-safe [0-9A-Za-z.-]
+    token (never trust the string blindly)."""
     v = _first(data, "clew_version", "tool_version", "generator_version")
     if not v:
         att = data.get("attestation")
         if isinstance(att, dict):
-            v = att.get("clew_version") or att.get("tool_version")
+            # attestation.version = the producing scitex-clew tool version.
+            v = att.get("version") or att.get("clew_version") or att.get("tool_version")
     if not v:
         v = os.environ.get("SCITEX_WRITER_CLEW_VERSION")
     v = "" if v is None else str(v).strip()

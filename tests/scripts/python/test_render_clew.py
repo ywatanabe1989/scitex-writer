@@ -322,6 +322,15 @@ class TestClewVersion:
         # Assert
         assert "\\def\\clew@version{0.9.1}" in tex
 
+    def test_version_from_attestation_version_field(self, monkeypatch):
+        # Arrange: clew stamps the producing tool version at attestation.version.
+        monkeypatch.delenv("SCITEX_WRITER_CLEW_VERSION", raising=False)
+        data = {"attestation": {"version": "0.8.1", "counts": {"total": 0, "verified": 0}}, "claims": []}
+        # Act
+        tex = render_clew_tex(data)
+        # Assert
+        assert "\\def\\clew@version{0.8.1}" in tex
+
     def test_no_version_macro_when_source_unknown(self, monkeypatch):
         # Arrange
         monkeypatch.delenv("SCITEX_WRITER_CLEW_VERSION", raising=False)
