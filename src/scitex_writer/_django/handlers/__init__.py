@@ -14,7 +14,7 @@ from .claim import (
 from .compile import handle_compile, handle_compile_status, handle_pdf
 from .core import handle_ping, handle_project_info
 from .files import handle_file, handle_list_files, handle_sections
-from .findings import handle_findings
+from .hints import handle_hints
 from .media import handle_figures, handle_tables, handle_thumbnail
 from .scholar import (
     handle_scholar_add_to_manuscript,
@@ -57,8 +57,8 @@ HANDLERS = {
     "api/claims-metadata":    (handle_claims_metadata, ("GET",)),
     "api/dag":                (handle_dag,            ("GET",)),
 
-    # Manuscript findings feed (dynamic-paper notifications)
-    "api/findings":           (handle_findings,       ("GET",)),
+    # Manuscript hints feed (dynamic-paper inline hints)
+    "api/hints":              (handle_hints,          ("GET",)),
 
     # Scholar bridge (optional; degrades when scitex-scholar absent)
     "api/scholar/status":            (handle_scholar_status,            ("GET",)),
@@ -77,8 +77,8 @@ __all__ = [
     "handle_add_claim",
     "handle_citation",  # dispatched parametrically by views.api_dispatch
     "handle_claim_chain",
-    "handle_findings",
     "handle_get_claim",
+    "handle_hints",
     "handle_list_claims",
     "handle_remove_claim",
 ]

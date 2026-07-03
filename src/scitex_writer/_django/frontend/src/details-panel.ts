@@ -4,11 +4,11 @@
  * Project Info · Shortcuts. Collapsed/expanded state stored in localStorage.
  */
 
-import { manuscriptFindings, projectInfo } from "./api";
-import type { FindingsFeed, ProjectInfo } from "./api";
+import { manuscriptHints, projectInfo } from "./api";
+import type { HintsFeed, ProjectInfo } from "./api";
 
 type SectionId =
-  | "notifications"
+  | "hints"
   | "compile-preview"
   | "compile-full"
   | "overleaf"
@@ -34,14 +34,14 @@ export class DetailsPanel {
     preview: "idle",
     full: "idle",
   };
-  private findings: FindingsFeed | null = null;
+  private hints: HintsFeed | null = null;
 
   constructor(container: HTMLElement) {
     this.container = container;
     this.open = this.loadOpenState();
     this.render();
     void this.loadProject();
-    void this.refreshFindings();
+    void this.refreshHints();
   }
 
   setCompileStatus(mode: "preview" | "full", status: string): void {
@@ -49,15 +49,15 @@ export class DetailsPanel {
     this.render();
   }
 
-  /** Re-fetch the manuscript-findings feed (call after each compile — the feed
-   * is rewritten by the "Manuscript Findings" compile stage). Best-effort: a
-   * fetch failure leaves the pane showing "no notifications", never an error. */
-  async refreshFindings(): Promise<void> {
+  /** Re-fetch the manuscript-hints feed (call after each compile — the feed is
+   * rewritten by the "Manuscript Hints" compile stage). Best-effort: a fetch
+   * failure leaves the pane showing "no hints", never an error. */
+  async refreshHints(): Promise<void> {
     try {
-      this.findings = await manuscriptFindings();
+      this.hints = await manuscriptHints();
     } catch (err) {
-      console.warn("[details] findings fetch failed", err);
-      this.findings = null;
+      console.warn("[details] hints fetch failed", err);
+      this.hints = null;
     }
     this.render();
   }
@@ -93,10 +93,10 @@ export class DetailsPanel {
 
     return [
       {
-        id: "notifications",
-        title: "Notifications",
+        id: "hints",
+        title: "Hints",
         icon: "fa-bell",
-        render: () => this.renderFindings(),
+        render: () => this.renderHints(),
       },
       {
         id: "compile-preview",
@@ -170,13 +170,13 @@ export class DetailsPanel {
     ];
   }
 
-  /** Render the findings feed as a quiet digest: a severity summary line, then
-   * one row per finding (most-severe first, already sorted by the feed). An
-   * empty feed reads "the paper is quiet" — verified claims never appear. */
-  private renderFindings(): string {
-    const feed = this.findings;
+  /** Render the hints feed as a quiet digest: a severity summary line, then one
+   * row per hint (most-severe first, already sorted by the feed). An empty feed
+   * reads "the paper is quiet" — verified claims never appear. */
+  private renderHints(): string {
+    const feed = this.hints;
     if (!feed || feed.summary.total === 0) {
-      return `<p class="details-hint">✓ No notifications — the paper is quiet.</p>`;
+      return `<p class="details-hint">✓ No hints — the paper is quiet.</p>`;
     }
     const dotColor: Record<string, string> = {
       error: "var(--danger, #dc2626)",
@@ -190,7 +190,7 @@ export class DetailsPanel {
       .map((s) => `${sev[s]} ${s}`)
       .join(" · ");
     const CAP = 50;
-    const rows = feed.findings
+    const rows = feed.hints
       .slice(0, CAP)
       .map((f) => {
         const color = dotColor[f.severity] || "#888";
@@ -208,8 +208,8 @@ export class DetailsPanel {
       })
       .join("");
     const more =
-      feed.findings.length > CAP
-        ? `<p class="details-hint">+${feed.findings.length - CAP} more (showing first ${CAP}).</p>`
+      feed.hints.length > CAP
+        ? `<p class="details-hint">+${feed.hints.length - CAP} more (showing first ${CAP}).</p>`
         : "";
     return `
       <p class="details-hint">${chips}</p>
@@ -261,7 +261,7 @@ export class DetailsPanel {
       if (!raw) return new Set(["compile-preview", "project"]);
       return new Set(JSON.parse(raw));
     } catch {
-      return new Set(["notifications", "compile-preview", "project"]);
+      return new Set(["hints", "compile-preview", "project"]);
     }
   }
 

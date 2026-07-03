@@ -297,10 +297,10 @@ async function bootstrap(): Promise<void> {
     });
 
   // After compile, invalidate so the next Claims-tab open re-fetches, and
-  // refresh the manuscript-findings feed (the compile just rewrote it).
+  // refresh the manuscript-hints feed (the compile just rewrote it).
   compile?.onAfterCompile?.(() => {
     if (claimsLoaded) void claimsTab?.refresh();
-    void details?.refreshFindings();
+    void details?.refreshHints();
   });
 
   // Initial load: discover doc types then load the first section of the first type
