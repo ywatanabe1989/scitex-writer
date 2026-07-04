@@ -13,6 +13,7 @@ def register_all_tools(mcp: FastMCP) -> None:
     from . import (
         bib,
         checks,
+        citation_style,
         claim,
         compile,
         export,
@@ -36,6 +37,7 @@ def register_all_tools(mcp: FastMCP) -> None:
     guidelines.register_tools(mcp)
     prompts.register_tools(mcp)
     claim.register_tools(mcp)
+    citation_style.register_tools(mcp)
     update.register_tools(mcp)
     migration.register_tools(mcp)
     skills.register_tools(mcp)

@@ -15,7 +15,7 @@ Each document type includes:
 from .config import WriterConfig
 from .contents import ManuscriptContents, RevisionContents, SupplementaryContents
 from .core import Document, DocumentSection
-from .results import CompilationResult, LaTeXIssue
+from .results import CitationStyleResult, CompilationResult, LaTeXIssue
 
 # Tree structures (internal use)
 from .tree import (
@@ -36,6 +36,7 @@ __all__ = [
     "SupplementaryContents",
     "RevisionContents",
     # Configuration and results
+    "CitationStyleResult",
     "CompilationResult",
     "WriterConfig",
     "LaTeXIssue",
