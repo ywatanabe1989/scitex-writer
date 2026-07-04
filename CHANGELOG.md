@@ -7,6 +7,152 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.24.6] - 2026-07-01
+
+### Fixed
+- **Compile no longer discards a valid PDF over a non-fatal bibtex/latexmk
+  exit.** `latexmk` returns non-zero (exit 12) on a *non-fatal* bibtex warning
+  (e.g. a malformed/stub `.bib` entry → "repeated entry" / "I'm skipping
+  whatever remains of this entry") even when pdfTeX finalized a complete PDF.
+  `cleanup()` treated any non-zero exit as fatal, deleted the just-produced PDF,
+  and aborted — losing a valid multi-page PDF over one stub reference. It now
+  promotes a PDF that was *freshly produced this run* (present in `logs/`) with
+  pages > 0 — read from pdfTeX's per-run `"Output written on … (N pages"` log
+  line (immune to a stale PDF), with a `pdfinfo` fallback — and downgrades to a
+  WARN pointing at `logs/*.{log,blg}`. The fail-loud-on-no-PDF guarantee
+  (2.23.1) is preserved: a stale PDF can never be mistaken for new output.
+- **Bibliography merge now de-dupes by cite key.** `deduplicate_entries`
+  matched only on DOI and (title, year); a stub entry duplicated across input
+  `.bib` files (same cite key, no DOI, differing/absent title) slipped through
+  twice → bibtex "repeated entry" → dropped reference. Cite key (entry `ID`) is
+  now the first dedup key, since a repeated cite key is exactly what breaks
+  bibtex.
+- **Flattener injections are idempotent on reflatten.** A repeated
+  `--dark-mode` compile re-runs the flattener on content that already carries
+  the injected blocks; the dark-mode and build-id (`_build_id`) injections both
+  matched the first real `\begin{document}` every run and stacked a second copy
+  (duplicated dark-mode override → `\REDENDS`/`\hlref` undefined + stray
+  `\begin{document}`). Both are now guarded by a unique sentinel so a second
+  flatten is a no-op.
+
+## [2.24.5] - 2026-07-01
+
+### Fixed
+- **Flattener no longer injects before a `\begin{document}` that appears inside
+  a comment.** The build-metadata (`_build_id.inject_build_metadata`) and
+  dark-mode injections targeted `\begin{document}` with a plain `str.replace`,
+  which also matched the literal inside a preamble *comment* (e.g.
+  `clew_presentation.tex`'s "overridable before `\begin{document}`"). With the
+  clew layer active this injected the dark-mode override block mid-preamble —
+  before the base `\newcommand`s (`\REDENDS`/`\hlref` undefined) — and
+  de-commented the comment tail (`\begin{document}) ---` emitted as code →
+  "Missing \begin{document}"), producing ~25 LaTeX errors + page-1 garbage on a
+  reflatten. Both injections now anchor to the real line-start `\begin{document}`
+  (first match only), so a `\begin{document}` inside any comment is ignored.
+- **Clew colophon/signature no longer crashes the compile when the icon asset
+  is absent.** `\clewColophonIcon` guarded `\includegraphics{\clewSigIcon}` with
+  `\IfFileExists{\clewSigIcon}{…}{}`, but the bare macro could reach the test
+  unexpanded (texlive vintage / flattened context), so the false branch never
+  fired and a missing `\clewSigIcon` (default `docs/scitex-icon-navy-inverted.png`,
+  not vendored) hard-failed with `File \`\clewSigIcon ' not found` whenever the
+  signature/colophon was enabled (`\clewpressignaturetrue`). The path is now
+  force-expanded to a literal before `\IfFileExists`, so an absent icon degrades
+  to a text-only colophon instead of crashing.
+
+## [2.24.4] - 2026-07-01
+
+### Added
+- **Fail-loud guard against compiling on a Spartan HPC login node.** Running
+  the TeX toolchain (pdflatex/bibtex/latexmk) on a Spartan login node is
+  prohibited heavy compute (admins kill it; the account can be sanctioned).
+  `compile_{manuscript,supplementary,revision}.sh` now abort early
+  (`check_spartan_login.sh`) when on a `spartan-login*` host with no
+  `SLURM_JOB_ID`, printing the `srun … bash scripts/shell/compile_manuscript.sh`
+  pattern (and the `spartan-tex` helper) instead of a misleading "pdflatex
+  missing"/`127`. The check is hostname-based, so it catches absolute-path
+  `pdflatex` invocations that slip past command-name guards; it is a no-op
+  everywhere else and adds no SLURM coupling to the portable engine (HPC
+  incident 2026-07-01, coordinated with scitex-hpc).
+
+## [2.24.3] - 2026-07-01
+
+### Fixed
+- **`claims_rendered.tex` is regenerated fresh on every compile (no stale
+  `\vclaim` values).** The shell compile path (`compile_{manuscript,
+  supplementary,revision}.sh`) never regenerated `00_shared/claims_rendered.tex`
+  from `00_shared/claims.json` (the `\vclaim` value SSoT), so a stale or
+  hand-edited file — e.g. a legacy "CLEW PROTOTYPE" block — could ship outdated
+  values into the PDF. A new "Claims Render" pre-flight stage (`render_claims.sh`
+  / `render_claims.py`) now regenerates it before flattening: a no-op when
+  `claims.json` is absent, and **fail-loud** (non-zero) when it exists but
+  rendering errors. The MCP compile path's `_auto_render_claims` no longer
+  swallows render failures silently — it raises, so a broken `claims.json` can
+  never silently produce a stale `claims_rendered.tex` (#205).
+
+## [2.24.2] - 2026-06-30
+
+### Fixed
+- **Figure assembler no longer destroys user-placed jpgs.** `init_figures`
+  previously ran a blanket `rm -rf jpg_for_compilation/*` at the start of every
+  figure run, silently deleting real figures materialized directly in
+  `jpg_for_compilation/` that have no `caption_and_media/` source to regenerate
+  from (they became 9KB "Missing Figure" placeholders → PDF embedded 0 images).
+  The clean step now removes only derived **symlinks** (re-created from
+  `caption_and_media/` each run) and preserves real files, warning about any
+  orphan jpg so it can be moved to `caption_and_media/` as a tracked source.
+
+## [2.24.1] - 2026-06-30
+
+### Fixed
+- **Clew presentation layer was broken in 2.24.0.** 2.24.0 shipped only the
+  initial cut of the clew layer; the follow-up fixes were stranded on the
+  feature branch (the PR merged at the first commit). 2.24.1 lands the real
+  layer: the 4-state taxonomy (verified / suspect / unverified / exception),
+  verdict-colored `\uwave` markers (the `soul \hl` that swallowed values +
+  dumped raw `@decorate` text is gone), line-breakable `\clewval`, the
+  self-demonstrating legend, the attestation + explainer, and — critically — a
+  **flattener-safe load** (plain top-level `\input` instead of an
+  `\IfFileExists` wrapper, which the flattener inlined as a macro-argument body
+  and dumped as raw text).
+- **`update-project` re-stamps `00_shared/scitex_writer_version.tex`** to the
+  vendored version, so the "Compiled by SciTeX Writer" colophon + PDF Creator
+  metadata are correct immediately after a re-vendor (no recompile).
+
+### Added
+- **Pre-compile version-freshness gate.** `update-project` stamps the
+  vendored-from version into `00_shared/.scitex-writer-vendored-version`;
+  `check_version_freshness.py` fails loud when the vendored engine is behind
+  the installed scitex-writer. `SCITEX_WRITER_VERSION_FRESHNESS`, default
+  error. Prevents the silent stale-engine class of bug.
+
+## [2.24.0] - 2026-06-30
+
+### Added
+- **Clew provenance layer (opt-in rendering).** `00_shared/latex_styles/clew_presentation.tex`
+  renders clew-registered claims inline: `\clewval{id}` substitutes the
+  registered value (SSoT) with a verdict-colored wavy underline, `\clewmark{id}{text}`
+  marks prose, plus a "Clew Verified" badge, a "Compiled by SciTeX Writer."
+  colophon (snake icon), and a self-demonstrating legend. 4-state palette
+  (verified / suspect / unverified / exception); writer owns the *rendering*,
+  scitex-clew emits the *data* (`00_shared/clew_rendered.tex`). All four
+  features are independent opt-in toggles, default off (#192).
+- **Pre-compile clew provenance gate.** `check_clew_verify.py` re-verifies every
+  clew-registered claim against its bound source before compiling; default
+  `error` for research projects, with a `require_claims` tightening knob
+  (`SCITEX_WRITER_CLEW_VERIFY`) (#191).
+- **Post-compile verification gate (fail loud on a deficient PDF).** A new
+  "Compile Verification" stage fails the compile non-zero when the compiled
+  `.tex` references `\includegraphics` (N>0) but the PDF embeds 0 images — a
+  silent figure-miss that a clean log would not catch — plus secondary log
+  deficiency signals (`SCITEX_WRITER_COMPILE_ARTIFACTS`, default error) (#194).
+
+### Fixed
+- **Fresh-checkout compiles no longer silently break.** The flattener now
+  resolves preamble style `\input`s against `00_shared/latex_styles` when
+  absent from `contents/` (the dev symlink is not committed), and FAILS LOUD if
+  a preamble style is still missing — instead of emitting `% SKIPPED` and
+  producing a broken PDF on exit 0 (#193).
+
 ## [2.23.1] - 2026-06-29
 
 ### Fixed
