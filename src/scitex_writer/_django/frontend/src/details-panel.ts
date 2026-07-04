@@ -4,10 +4,11 @@
  * Project Info · Shortcuts. Collapsed/expanded state stored in localStorage.
  */
 
-import { projectInfo } from "./api";
-import type { ProjectInfo } from "./api";
+import { manuscriptHints, projectInfo } from "./api";
+import type { HintsFeed, ProjectInfo } from "./api";
 
 type SectionId =
+  | "hints"
   | "compile-preview"
   | "compile-full"
   | "overleaf"
@@ -33,16 +34,31 @@ export class DetailsPanel {
     preview: "idle",
     full: "idle",
   };
+  private hints: HintsFeed | null = null;
 
   constructor(container: HTMLElement) {
     this.container = container;
     this.open = this.loadOpenState();
     this.render();
     void this.loadProject();
+    void this.refreshHints();
   }
 
   setCompileStatus(mode: "preview" | "full", status: string): void {
     this.compileState[mode] = status;
+    this.render();
+  }
+
+  /** Re-fetch the manuscript-hints feed (call after each compile — the feed is
+   * rewritten by the "Manuscript Hints" compile stage). Best-effort: a fetch
+   * failure leaves the pane showing "no hints", never an error. */
+  async refreshHints(): Promise<void> {
+    try {
+      this.hints = await manuscriptHints();
+    } catch (err) {
+      console.warn("[details] hints fetch failed", err);
+      this.hints = null;
+    }
     this.render();
   }
 
@@ -76,6 +92,12 @@ export class DetailsPanel {
     };
 
     return [
+      {
+        id: "hints",
+        title: "Hints",
+        icon: "fa-bell",
+        render: () => this.renderHints(),
+      },
       {
         id: "compile-preview",
         title: "Compilation — Preview",
@@ -148,6 +170,55 @@ export class DetailsPanel {
     ];
   }
 
+  /** Render the hints feed as a quiet digest: a severity summary line, then one
+   * row per hint (most-severe first, already sorted by the feed). An empty feed
+   * reads "the paper is quiet" — verified claims never appear. */
+  private renderHints(): string {
+    const feed = this.hints;
+    if (!feed || feed.summary.total === 0) {
+      return `<p class="details-hint">✓ No hints — the paper is quiet.</p>`;
+    }
+    const dotColor: Record<string, string> = {
+      error: "var(--danger, #dc2626)",
+      warning: "var(--warning, #d97706)",
+      advice: "var(--info, #2563eb)",
+      info: "#888",
+    };
+    const sev = feed.summary.by_severity;
+    const chips = ["error", "warning", "advice", "info"]
+      .filter((s) => sev[s])
+      .map((s) => `${sev[s]} ${s}`)
+      .join(" · ");
+    const CAP = 50;
+    const rows = feed.hints
+      .slice(0, CAP)
+      .map((f) => {
+        const color = dotColor[f.severity] || "#888";
+        const loc =
+          f.location && f.location.file
+            ? `<span class="details-mono">${escapeHtml(f.location.file)}${
+                f.location.line ? ":" + f.location.line : ""
+              }</span>`
+            : "";
+        return `
+          <div class="details-row" title="${escapeHtml(f.kind)} · ${escapeHtml(f.source)}">
+            <span><span class="details-dot" style="background:${color}"></span> ${escapeHtml(f.message)}</span>
+            ${loc}
+          </div>`;
+      })
+      .join("");
+    const more =
+      feed.hints.length > CAP
+        ? `<p class="details-hint">+${feed.hints.length - CAP} more (showing first ${CAP}).</p>`
+        : "";
+    return `
+      <p class="details-hint">${chips}</p>
+      ${rows}
+      ${more}
+      <p class="details-hint">Refreshes on compile. Verified claims stay silent.</p>
+    `;
+  }
+
   private render(): void {
     const sections = this.sections();
     this.container.innerHTML = `
@@ -190,7 +261,7 @@ export class DetailsPanel {
       if (!raw) return new Set(["compile-preview", "project"]);
       return new Set(JSON.parse(raw));
     } catch {
-      return new Set(["compile-preview", "project"]);
+      return new Set(["hints", "compile-preview", "project"]);
     }
   }
 
