@@ -6,12 +6,14 @@ from ._CompilationResult import CompilationResult
 from ._LaTeXIssue import LaTeXIssue
 from ._SaveSectionsResponse import SaveSectionsResponse
 from ._SectionReadResponse import SectionReadResponse
+from ._WordCountResult import WordCountResult
 
 __all__ = [
     "CompilationResult",
     "LaTeXIssue",
     "SaveSectionsResponse",
     "SectionReadResponse",
+    "WordCountResult",
 ]
 
 # EOF
