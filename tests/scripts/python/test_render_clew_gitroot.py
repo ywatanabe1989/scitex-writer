@@ -12,6 +12,10 @@ from render_clew import (  # noqa: E402
     CLAIMS_JSON,
     _resolve_claims_json,
 )
+from render_clew_toggles import (  # noqa: E402
+    CONFIG_YAML,
+    _resolve_config_yaml,
+)
 
 
 class TestResolveClaimsJson:
@@ -54,6 +58,39 @@ class TestResolveClaimsJson:
         resolved = _resolve_claims_json(project)
         # Assert
         assert resolved == project / CLAIMS_JSON
+
+
+class TestResolveConfigYaml:
+    def test_nested_writer_resolves_git_root_config(self, tmp_path):
+        # Arrange: writer vendored under an outer git repo; config at the outer
+        # git root's .scitex/writer/, NOT doubly-nested under the writer subdir.
+        (tmp_path / ".git").mkdir()
+        writer = tmp_path / ".scitex" / "writer"
+        writer.mkdir(parents=True)
+        (writer / "config.yaml").write_text("clew_presentation: on\n")
+        # Act
+        resolved = _resolve_config_yaml(writer)
+        # Assert
+        assert resolved == tmp_path / CONFIG_YAML
+
+    def test_flat_project_resolves_its_own_config(self, tmp_path):
+        # Arrange
+        (tmp_path / ".git").mkdir()
+        (tmp_path / ".scitex" / "writer").mkdir(parents=True)
+        (tmp_path / CONFIG_YAML).write_text("clew_presentation: on\n")
+        # Act
+        resolved = _resolve_config_yaml(tmp_path)
+        # Assert
+        assert resolved == tmp_path / CONFIG_YAML
+
+    def test_no_git_root_falls_back_to_project_path(self, tmp_path):
+        # Arrange
+        project = tmp_path / "proj"
+        project.mkdir()
+        # Act
+        resolved = _resolve_config_yaml(project)
+        # Assert
+        assert resolved == project / CONFIG_YAML
 
 
 if __name__ == "__main__":
