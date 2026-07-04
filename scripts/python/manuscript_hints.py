@@ -51,6 +51,15 @@ from pathlib import Path
 SCHEMA = "manuscript-hints/1"
 OUTPUT_JSON = ".scitex/writer/hints.json"
 CLAIMS_JSON = ".scitex/clew/runtime/claims.json"
+
+# The `source` labels THIS writer producer authoritatively owns in the shared
+# feed. Merge-by-source (write_feed) replaces only these on each writer run and
+# preserves every other producer's entries (clew, figrecipe, ...) untouched, so
+# the feed is multi-producer without any producer importing another. "latex-log"
+# = writer's own \ref/\cite log producer; "scitex-clew" is INTERIM (writer reads
+# the clew ledger until scitex-clew ships export_manuscript_hints, at which point
+# this tuple drops to ("latex-log",) and clew owns "scitex-clew").
+WRITER_SOURCES = ("latex-log", "scitex-clew")
 # The LaTeX engine log the compile writes; hints read it for unresolved refs.
 _LOG_CANDIDATES = (
     "logs/manuscript.log",
@@ -234,9 +243,53 @@ def build_feed(hints):
     return {"schema": SCHEMA, "summary": summarize(ordered), "hints": ordered}
 
 
-def write_feed(project_dir, feed):
-    """Atomic write of the feed to <project>/.scitex/writer/hints.json."""
-    out = Path(project_dir).resolve() / OUTPUT_JSON
+def _read_existing_hints(project_path):
+    """Existing feed's hints list, or [] when the sidecar is absent/malformed.
+
+    An unreadable or non-conforming file is treated as empty rather than an
+    error -- this is an advisory feed, and a merge must never crash a compile."""
+    p = project_path / OUTPUT_JSON
+    if not p.exists():
+        return []
+    try:
+        data = json.loads(p.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return []
+    hints = data.get("hints") if isinstance(data, dict) else None
+    return [h for h in hints if isinstance(h, dict)] if isinstance(hints, list) else []
+
+
+def merge_by_source(existing_hints, new_hints, owned_sources):
+    """Multi-producer merge: replace ONLY the producer's own sources.
+
+    Each producer (writer, clew, figrecipe, ...) writes into the shared feed but
+    owns only its own ``source`` labels. Existing hints whose source is in
+    ``owned_sources`` are dropped (the producer re-emits its current set --
+    possibly empty, which is how STALE entries clear); every other source's hints
+    are preserved verbatim. The producer never needs to know about, or import,
+    the others. Returns the merged hint list (preserved-others + new)."""
+    owned = {owned_sources} if isinstance(owned_sources, str) else set(owned_sources)
+    preserved = [h for h in existing_hints if h.get("source") not in owned]
+    return preserved + list(new_hints)
+
+
+def write_feed(project_dir, feed, owned_sources=None):
+    """Atomic write of the feed to <project>/.scitex/writer/hints.json.
+
+    When ``owned_sources`` is given, merge-by-source: read the existing sidecar,
+    preserve every other producer's hints, replace only this producer's own
+    sources with ``feed``'s hints, and rebuild the summary/ordering over the
+    union. When ``owned_sources`` is None the feed is written as-is (single
+    producer / full-overwrite -- backward compatible)."""
+    project_path = Path(project_dir).resolve()
+    out = project_path / OUTPUT_JSON
+    if owned_sources is not None:
+        merged = merge_by_source(
+            _read_existing_hints(project_path),
+            feed.get("hints", []),
+            owned_sources,
+        )
+        feed = build_feed(merged)
     out.parent.mkdir(parents=True, exist_ok=True)
     tmp = out.with_suffix(".json.tmp")
     tmp.write_text(json.dumps(feed, indent=2, ensure_ascii=False), encoding="utf-8")
@@ -247,7 +300,8 @@ def write_feed(project_dir, feed):
 def main(argv):
     project_dir = argv[1] if len(argv) > 1 else "."
     feed = build_feed(collect_hints(project_dir))
-    out = write_feed(project_dir, feed)
+    # Merge-by-source: writer owns WRITER_SOURCES, preserves other producers'.
+    out = write_feed(project_dir, feed, owned_sources=WRITER_SOURCES)
     print(f"INFO:     Wrote manuscript hints feed ({feed['summary']['total']}) -> {out}")
     return 0  # advisory feed: never gate the compile
 

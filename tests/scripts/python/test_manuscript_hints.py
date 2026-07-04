@@ -10,10 +10,12 @@ ROOT_DIR = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(ROOT_DIR / "scripts" / "python"))
 
 from manuscript_hints import (  # noqa: E402
+    WRITER_SOURCES,
     build_feed,
     collect_hints,
     hints_from_claims,
     hints_from_log,
+    merge_by_source,
     summarize,
     write_feed,
 )
@@ -182,6 +184,93 @@ class TestCollectAndWrite:
         found = collect_hints(str(empty_project))
         # Assert
         assert found == []
+
+
+class TestMergeBySourceHelper:
+    _EXISTING = [
+        {"id": "reference:x", "source": "latex-log"},
+        {"id": "claim:a", "source": "scitex-clew"},
+        {"id": "fig:1", "source": "figrecipe"},
+    ]
+
+    def test_merge_preserves_foreign_producer_hints(self):
+        # Arrange
+        new = [{"id": "reference:y", "source": "latex-log"}]
+        # Act
+        merged = merge_by_source(list(self._EXISTING), new, WRITER_SOURCES)
+        # Assert
+        assert {h["id"] for h in merged if h["source"] == "figrecipe"} == {"fig:1"}
+
+    def test_merge_replaces_owned_source_hints(self):
+        # Arrange
+        new = [{"id": "reference:y", "source": "latex-log"}]
+        # Act
+        merged = merge_by_source(list(self._EXISTING), new, WRITER_SOURCES)
+        # Assert
+        assert [h["id"] for h in merged if h["source"] == "latex-log"] == ["reference:y"]
+
+    def test_merge_empty_new_clears_stale_owned_hints(self):
+        # Arrange
+        empty_new = []
+        # Act
+        merged = merge_by_source(list(self._EXISTING), empty_new, WRITER_SOURCES)
+        # Assert
+        assert all(h["source"] not in WRITER_SOURCES for h in merged)
+
+    def test_merge_accepts_single_source_string(self):
+        # Arrange
+        new = [{"id": "reference:y", "source": "latex-log"}]
+        # Act
+        merged = merge_by_source(list(self._EXISTING), new, "latex-log")
+        # Assert
+        assert {h["id"] for h in merged if h["source"] == "scitex-clew"} == {"claim:a"}
+
+
+class TestWriteFeedMergeBySource:
+    def _seed(self, tmp_path):
+        seed = build_feed([
+            {"id": "fig:1", "kind": "figure", "severity": "warning",
+             "message": "stale", "location": {}, "claim_id": None,
+             "source": "figrecipe"},
+        ])
+        sidecar = tmp_path / ".scitex" / "writer" / "hints.json"
+        sidecar.parent.mkdir(parents=True, exist_ok=True)
+        sidecar.write_text(json.dumps(seed))
+        return sidecar
+
+    def test_write_with_owned_sources_preserves_other_producer(self, tmp_path):
+        # Arrange
+        self._seed(tmp_path)
+        writer_feed = build_feed([
+            {"id": "reference:z", "kind": "reference", "severity": "warning",
+             "message": "undef", "location": {}, "claim_id": None,
+             "source": "latex-log"}])
+        # Act
+        out = write_feed(str(tmp_path), writer_feed, owned_sources=WRITER_SOURCES)
+        # Assert
+        assert any(h["source"] == "figrecipe" for h in json.loads(Path(out).read_text())["hints"])
+
+    def test_write_without_owned_sources_overwrites(self, tmp_path):
+        # Arrange
+        self._seed(tmp_path)
+        writer_feed = build_feed([
+            {"id": "reference:z", "kind": "reference", "severity": "warning",
+             "message": "undef", "location": {}, "claim_id": None,
+             "source": "latex-log"}])
+        # Act
+        out = write_feed(str(tmp_path), writer_feed)
+        # Assert
+        assert [h["id"] for h in json.loads(Path(out).read_text())["hints"]] == ["reference:z"]
+
+    def test_write_merge_survives_malformed_existing_sidecar(self, tmp_path):
+        # Arrange
+        sidecar = tmp_path / ".scitex" / "writer" / "hints.json"
+        sidecar.parent.mkdir(parents=True, exist_ok=True)
+        sidecar.write_text("{ this is not valid json")
+        # Act
+        out = write_feed(str(tmp_path), build_feed([]), owned_sources=WRITER_SOURCES)
+        # Assert
+        assert json.loads(Path(out).read_text())["hints"] == []
 
 
 if __name__ == "__main__":
