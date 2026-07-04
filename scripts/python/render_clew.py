@@ -102,7 +102,13 @@ def _claim_value(claim):
     """The display string for a claim. clew stores it display-ready; try the
     known field names in order (`claim_value` is the clew 0.2.19 key)."""
     v = _first(
-        claim, "claim_value", "value", "display_value", "latex", "rendered_value", "text"
+        claim,
+        "claim_value",
+        "value",
+        "display_value",
+        "latex",
+        "rendered_value",
+        "text",
     )
     return "" if v is None else str(v)
 
@@ -138,7 +144,9 @@ def _resolve_palette(data):
     raw = data.get("palette") or data.get("display_palette") or {}
     if isinstance(raw, dict):
         for status, color in raw.items():
-            h = _hex(color if not isinstance(color, dict) else _first(color, "hex", "color"))
+            h = _hex(
+                color if not isinstance(color, dict) else _first(color, "hex", "color")
+            )
             key = _STATUS_SYNONYMS.get(str(status).lower(), str(status).lower())
             if h:
                 palette[key] = h
@@ -209,7 +217,9 @@ def render_clew_tex(data):
     total, verified, allverified = _aggregate(data, claims)
 
     lines = ["\\makeatletter", ""]
-    lines.append("%% --- palette (from clew claims.json; writer has \\providecolor fallbacks) ---")
+    lines.append(
+        "%% --- palette (from clew claims.json; writer has \\providecolor fallbacks) ---"
+    )
     for status, name in _STATUS_COLOR.items():
         lines.append(f"\\definecolor{{{name}}}{{HTML}}{{{palette[status]}}}")
     lines += ["", "%% --- aggregate ---"]
@@ -232,7 +242,9 @@ def render_clew_tex(data):
         verdict = _verdict(claim)
         # `display_color` is the frozen contract name (clew 0.4.0 emits it);
         # color/hex are accepted aliases. Fall back to the verdict palette.
-        color = _hex(_first(claim, "display_color", "color", "hex")) or palette.get(verdict)
+        color = _hex(_first(claim, "display_color", "color", "hex")) or palette.get(
+            verdict
+        )
         value = _claim_value(claim)
         lines.append(f"%% {claim.get('claim_id', cid)} [{verdict}]")
         lines.append(f"\\@namedef{{clew@val@{cid}}}{{{value}}}")
@@ -245,10 +257,40 @@ def render_clew_tex(data):
     return "\n".join(lines) + "\n"
 
 
+def _find_git_root(start):
+    """Nearest ancestor of ``start`` containing ``.git`` (a git root), or None.
+    Bounded walk so a pathological tree can't spin."""
+    cur = start
+    for _ in range(64):
+        if (cur / ".git").exists():
+            return cur
+        if cur.parent == cur:
+            return None
+        cur = cur.parent
+    return None
+
+
+def _resolve_claims_json(project_path):
+    r"""Locate .scitex/clew/runtime/claims.json the way clew resolves its OWN db:
+    at the GIT ROOT. This makes NESTED-writer projects work -- when scitex-writer
+    is vendored UNDER an outer repo (e.g. at ``.scitex/writer/``) whose
+    ``.scitex/clew`` at the git root is the real feed, clew writes the export at
+    the git root, so render_clew must READ it there too (not under the writer
+    subdir). Preference: git-root/.scitex/clew when that dir exists; else fall
+    back to project_path/.scitex/clew -- the flat/common case (project IS its own
+    git root) is unchanged, and a stray empty .scitex/clew under the writer
+    subdir is ignored in favor of the real git-root feed. (nested-writer bug
+    surfaced by paper-neurovista, 2026-07-04.)"""
+    root = _find_git_root(project_path)
+    if root is not None and (root / ".scitex" / "clew").is_dir():
+        return root / ".scitex" / "clew" / "runtime" / "claims.json"
+    return project_path / CLAIMS_JSON
+
+
 def main(argv):
     project_dir = argv[1] if len(argv) > 1 else "."
     project_path = Path(project_dir).resolve()
-    claims_json = project_path / CLAIMS_JSON
+    claims_json = _resolve_claims_json(project_path)
 
     if not claims_json.exists():
         return 0  # clew layer optional -- no-op
@@ -268,8 +310,7 @@ def main(argv):
         tex = render_clew_tex(data)
     except Exception as exc:  # malformed schema -- surface, don't ship stale
         print(
-            f"ERRO:     Failed to render clew_rendered.tex from {claims_json}: "
-            f"{exc}.",
+            f"ERRO:     Failed to render clew_rendered.tex from {claims_json}: {exc}.",
             file=sys.stderr,
         )
         return 1
