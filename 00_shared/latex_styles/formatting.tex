@@ -102,4 +102,22 @@
 \newcommand{\placeholder}[1]{\colorbox{yellow}{\textcolor{red}{\textbf{[#1]}}}}
 \newcommand{\ph}[1]{\placeholder{#1}}
 
+%% --- Inline citation-verification render (clew) ---
+%% \clewverified{<cite text>}{<status>}{<source url>}: per-claim trust signal
+%% sharing clew's verify_citations result with the page-1 banner. A "verified"
+%% status renders the text underlined + hyperlinked to its source; any other
+%% status (unverified/stub/unknown) renders bare -- "unverified = no
+%% decoration". Provided (not new) so it is a safe no-op default before the
+%% clew wiring lands and callers may already define their own. No '@' catcodes,
+%% so it survives flattening without \makeatletter.
+\providecommand{\clewverifiedstatus}{verified}
+\providecommand{\clewverified}[3]{%
+  \def\clewgivenstatus{#2}%
+  \ifx\clewgivenstatus\clewverifiedstatus
+    \href{#3}{\ul{#1}}%
+  \else
+    #1%
+  \fi
+}
+
 %%%% EOF

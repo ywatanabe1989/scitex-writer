@@ -2,12 +2,14 @@
 # -*- coding: utf-8 -*-
 # Test file for: check_citations.py (compiler-owns citation stub gate)
 
+import subprocess
 import sys
 from pathlib import Path
 
 ROOT_DIR = Path(__file__).resolve().parent.parent.parent.parent
 sys.path.insert(0, str(ROOT_DIR / "scripts" / "python"))
 
+from _citation_banner import banner_tex_path  # noqa: E402
 from check_citations import (  # noqa: E402
     audit_citations,
     extract_cited_keys,
@@ -15,6 +17,24 @@ from check_citations import (  # noqa: E402
     resolve_bib_paths,
     stub_reason,
 )
+
+_CHECK = str(ROOT_DIR / "scripts" / "python" / "check_citations.py")
+
+
+def _make_project_with_stub(tmp_path):
+    """A minimal project citing one real ref + one scholar stub."""
+    bib_dir = tmp_path / "00_shared" / "bib_files"
+    bib_dir.mkdir(parents=True)
+    (bib_dir / "bibliography.bib").write_text(
+        "@article{Berens2009,\n title={CircStat},\n doi={10.18637/jss.v031.i10}\n}\n"
+        "@article{Stub2023,\n journal={Pending scitex-scholar metadata lookup},\n"
+        " note={Auto-generated stub; replace before submission.}\n}\n"
+    )
+    man = tmp_path / "01_manuscript"
+    man.mkdir(parents=True)
+    tex = man / "main.tex"
+    tex.write_text(r"We cite \citep{Berens2009} and \cite{Stub2023}.")
+    return tex
 
 
 class TestExtractCitedKeys:
@@ -218,6 +238,62 @@ class TestResolveBibPaths:
         resolved = resolve_bib_paths(tmp_path, [str(tex)], None)
         # Assert
         assert resolved == [bib.resolve()]
+
+
+class TestBannerModeCli:
+    def test_banner_mode_exits_zero_so_compile_proceeds(self, tmp_path):
+        # Arrange
+        tex = _make_project_with_stub(tmp_path)
+        # Act
+        proc = subprocess.run(
+            [sys.executable, _CHECK, str(tmp_path), "--tex", str(tex), "--level", "banner"],
+            capture_output=True, text=True,
+        )
+        # Assert
+        assert proc.returncode == 0
+
+    def test_banner_mode_writes_the_banner_artifact(self, tmp_path):
+        # Arrange
+        tex = _make_project_with_stub(tmp_path)
+        # Act
+        subprocess.run(
+            [sys.executable, _CHECK, str(tmp_path), "--tex", str(tex), "--level", "banner"],
+            capture_output=True, text=True,
+        )
+        # Assert
+        assert banner_tex_path(tmp_path).is_file()
+
+    def test_strict_error_mode_fails_and_writes_no_banner(self, tmp_path):
+        # Arrange
+        tex = _make_project_with_stub(tmp_path)
+        # Act
+        proc = subprocess.run(
+            [sys.executable, _CHECK, str(tmp_path), "--tex", str(tex), "--level", "error"],
+            capture_output=True, text=True,
+        )
+        # Assert
+        assert (proc.returncode == 1) and (not banner_tex_path(tmp_path).exists())
+
+    def test_clean_run_removes_a_stale_banner(self, tmp_path):
+        # Arrange: leave a stale banner, then run against a stub-free project.
+        bib_dir = tmp_path / "00_shared" / "bib_files"
+        bib_dir.mkdir(parents=True)
+        (bib_dir / "bibliography.bib").write_text(
+            "@article{Berens2009,\n title={CircStat},\n doi={10.1/x}\n}\n"
+        )
+        man = tmp_path / "01_manuscript"
+        man.mkdir(parents=True)
+        tex = man / "main.tex"
+        tex.write_text(r"\citep{Berens2009}")
+        banner_tex_path(tmp_path).parent.mkdir(parents=True, exist_ok=True)
+        banner_tex_path(tmp_path).write_text("stale banner")
+        # Act
+        subprocess.run(
+            [sys.executable, _CHECK, str(tmp_path), "--tex", str(tex), "--level", "banner"],
+            capture_output=True, text=True,
+        )
+        # Assert
+        assert not banner_tex_path(tmp_path).exists()
 
 
 if __name__ == "__main__":
