@@ -54,6 +54,10 @@
 \newif\ifclewpreslegend
 \newif\ifclewpresattest      % "Provenance checked by SciTeX Clew." line
 \newif\ifclewpresexplainer   % renderable clew explainer section
+\newif\ifclewpreslegendfirst % opt-in: emit \clewLegend at the TOP of page 1
+                             % (config key legend_first). Independent of
+                             % \ifclewpreslegend (end-of-doc) and NOT in the
+                             % master set, so master-on won't double-render it.
 
 %% --- verdict palette ---
 %% scitex-clew OWNS the palette (what to render). It emits \definecolor{clewX}
@@ -273,10 +277,16 @@
       \end{minipage}}\par\medskip
   \fi}
 
-%% Auto-placement: badge at top; legend, signature + attestation at the end.
+%% Auto-placement: badge (+ opt-in legend_first) at top; legend, signature +
+%% attestation at the end.
 %% Manual macros (\clewVerifiedBadge, \clewExplainer, ...) stay available for
 %% explicit placement.
-\AtBeginDocument{\ifclewpresbadge\par\noindent\clewVerifiedBadge\par\fi}
+%% legend_first reuses \clewLegend UNCHANGED, auto-placed at page-1 top (before
+%% the badge). Opt-in and NOT in the master set, so it never double-renders with
+%% the end-of-doc \ifclewpreslegend.
+\AtBeginDocument{%
+  \ifclewpreslegendfirst\clewLegend\fi
+  \ifclewpresbadge\par\noindent\clewVerifiedBadge\par\fi}
 \AtEndDocument{%
   \ifclewpreslegend\clewLegend\fi
   \ifclewpressignature\clewSignature\fi

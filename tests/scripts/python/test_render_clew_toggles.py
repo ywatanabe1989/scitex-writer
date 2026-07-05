@@ -28,8 +28,11 @@ class TestResolveToggles:
         toggles = resolve_toggles(config_value, None)
         # Assert: master set on, attest off.
         assert (
-            toggles["markers"] and toggles["badge"] and toggles["legend"]
-            and toggles["explainer"] and toggles["signature"]
+            toggles["markers"]
+            and toggles["badge"]
+            and toggles["legend"]
+            and toggles["explainer"]
+            and toggles["signature"]
             and not toggles["attest"]
         )
 
@@ -67,11 +70,36 @@ class TestResolveToggles:
 
     def test_unknown_mapping_key_is_ignored(self):
         # Arrange: a future toggle whose \newif is not defined yet.
-        config_value = {"legend_first": True, "markers": True}
+        config_value = {"future_toggle": True, "markers": True}
         # Act
         toggles = resolve_toggles(config_value, None)
         # Assert
-        assert ("legend_first" not in toggles) and toggles["markers"]
+        assert ("future_toggle" not in toggles) and toggles["markers"]
+
+    def test_legend_first_mapping_key_enables_only_itself(self):
+        # Arrange: opt-in page-1 legend via the mapping key.
+        config_value = {"legend_first": True}
+        # Act
+        toggles = resolve_toggles(config_value, None)
+        # Assert
+        assert toggles["legend_first"] and not toggles["legend"]
+
+    def test_legend_first_env_master_on_does_not_enable_it(self):
+        # Arrange: master ON enables the full set but NOT legend_first
+        # (excluded from _MASTER_SET to avoid a double-rendered legend).
+        config_value = None
+        # Act
+        toggles = resolve_toggles(config_value, "on")
+        # Assert
+        assert not toggles["legend_first"]
+
+    def test_legend_first_defaults_off(self):
+        # Arrange
+        config_value = None
+        # Act
+        toggles = resolve_toggles(config_value, None)
+        # Assert
+        assert not toggles["legend_first"]
 
     def test_malformed_scalar_raises(self):
         # Arrange
@@ -86,19 +114,43 @@ class TestResolveToggles:
 class TestRenderTogglesTex:
     def test_emits_true_line_only_for_enabled_toggles(self):
         # Arrange
-        toggles = {"markers": True, "badge": False, "legend": True,
-                   "explainer": False, "signature": False, "attest": False}
+        toggles = {
+            "markers": True,
+            "badge": False,
+            "legend": True,
+            "explainer": False,
+            "signature": False,
+            "attest": False,
+        }
         # Act
         tex = render_toggles_tex(toggles)
         # Assert
         assert ("\\clewpresmarkerstrue" in tex) and ("\\clewpresbadgetrue" not in tex)
+
+    def test_legend_first_emits_underscoreless_newif_macro(self):
+        # Arrange: the config key has an underscore; the \newif control
+        # sequence must not (LaTeX forbids '_' in a control sequence).
+        toggles = {
+            "markers": False,
+            "badge": False,
+            "legend": False,
+            "explainer": False,
+            "signature": False,
+            "attest": False,
+            "legend_first": True,
+        }
+        # Act
+        tex = render_toggles_tex(toggles)
+        # Assert
+        assert "\\clewpreslegendfirsttrue" in tex
 
 
 class TestCli:
     def _run(self, project_dir):
         return subprocess.run(
             [sys.executable, str(_SCRIPT), str(project_dir)],
-            capture_output=True, text=True,
+            capture_output=True,
+            text=True,
             env={"PATH": __import__("os").environ["PATH"]},
         )
 

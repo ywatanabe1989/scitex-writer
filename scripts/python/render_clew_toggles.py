@@ -36,10 +36,30 @@ OUTPUT_TEX = "00_shared/clew_presentation_toggles.tex"
 ENV_VAR = "SCITEX_WRITER_CLEW_PRESENTATION"
 
 # The \newif toggles defined in clew_presentation.tex (do NOT emit one whose
-# \newif is undefined -- e.g. a future legend_first -- or LaTeX errors).
-_KNOWN = ("markers", "badge", "legend", "explainer", "signature", "attest")
-# The co-author-facing "full set" a master ON enables.
+# \newif is undefined or LaTeX errors).
+_KNOWN = (
+    "markers",
+    "badge",
+    "legend",
+    "explainer",
+    "signature",
+    "attest",
+    "legend_first",
+)
+# The co-author-facing "full set" a master ON enables. `legend_first` is
+# DELIBERATELY excluded: master-on already enables end-of-doc `legend`, so
+# adding `legend_first` too would render the legend twice (page-1 top AND
+# end-of-doc). It is opt-in ONLY (a mapping key or the env master cannot turn
+# it on) so an author enables it knowingly.
 _MASTER_SET = ("markers", "badge", "legend", "explainer", "signature")
+
+
+# Config key -> LaTeX \newif stem. A \newif control sequence cannot contain an
+# underscore, so `legend_first` maps to `\clewpreslegendfirst`. Keys without an
+# underscore map to themselves.
+def _macro_stem(name):
+    return name.replace("_", "")
+
 
 _TRUTHY = ("1", "true", "yes", "on")
 _FALSY = ("0", "false", "no", "off")
@@ -104,18 +124,14 @@ def resolve_toggles(config_value, env_value):
         for key, val in config_value.items():
             name = str(key).strip().lower()
             if name not in _KNOWN:
-                continue  # ignore unknown/future keys (e.g. legend_first)
+                continue  # ignore unknown/future keys (no defined \newif)
             b = _scalar_bool(val)
             if b is None:
-                raise ValueError(
-                    f"clew_presentation.{name}={val!r} is not true/false"
-                )
+                raise ValueError(f"clew_presentation.{name}={val!r} is not true/false")
             toggles[name] = b
         return toggles
 
-    raise ValueError(
-        f"clew_presentation={config_value!r} must be on/off or a mapping"
-    )
+    raise ValueError(f"clew_presentation={config_value!r} must be on/off or a mapping")
 
 
 def render_toggles_tex(toggles):
@@ -129,7 +145,7 @@ def render_toggles_tex(toggles):
     ]
     for name in _KNOWN:
         if toggles.get(name):
-            lines.append(f"\\clewpres{name}true")
+            lines.append(f"\\clewpres{_macro_stem(name)}true")
     return "\n".join(lines) + "\n"
 
 
