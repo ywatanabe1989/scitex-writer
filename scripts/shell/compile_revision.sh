@@ -211,6 +211,10 @@ parse_arguments() {
     # Dark mode (black background, white text)
     export SCITEX_WRITER_DARK_MODE=$dark_mode
 
+    # Refuse to compile on a Spartan login node (prohibited heavy compute) —
+    # fail loud with the srun hint before the toolchain probe.
+    ./scripts/shell/modules/check_spartan_login.sh || exit 1
+
     # 1. Check dependencies
     log_stage_start "Dependency Check"
     if ! ./scripts/shell/modules/check_dependancy_commands.sh; then
@@ -226,6 +230,15 @@ parse_arguments() {
         exit 1
     fi
     log_stage_end "Provenance Checks"
+
+    # Regenerate claims_rendered.tex from claims.json (\vclaim SSoT) so a stale
+    # file can never ship outdated values; fails loud if rendering errors.
+    log_stage_start "Claims Render"
+    if ! ./scripts/shell/modules/render_claims.sh; then
+        echo -e "${RED}ERRO: Claims render failed (claims.json present but rendering errored) -- fix claims.json; compiling would ship a stale claims_rendered.tex${NC}"
+        exit 1
+    fi
+    log_stage_end "Claims Render"
 
     # 2. Merge bibliography files if multiple exist
     log_stage_start "Bibliography Merge"
@@ -364,6 +377,14 @@ parse_arguments() {
         exit 1
     fi
     log_stage_end "PDF Generation"
+
+    # Post-compile verification: FAIL LOUD on a deficient PDF (off/warn never block).
+    log_stage_start "Compile Verification"
+    if ! ./scripts/shell/modules/run_compile_verification.sh; then
+        echo_error "Compile verification failed — the PDF is deficient (see above). Aborting."
+        exit 1
+    fi
+    log_stage_end "Compile Verification"
 
     # Skip diff generation for revision (revision document already shows changes inline)
     echo_info "Skipping diff generation (revision document shows changes inline)"

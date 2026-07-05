@@ -14,6 +14,7 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import re
 import subprocess
 from datetime import datetime, timezone
 from pathlib import Path
@@ -118,6 +119,9 @@ def register_build(
         return None
 
 
+BUILD_BLOCK_SENTINEL = "% --- scitex-writer build identifier "
+
+
 def inject_build_metadata(content: str, build_id: str) -> str:
     r"""Inject ``\hypersetup{pdfsubject=build:...}`` before ``\begin{document}``.
 
@@ -126,12 +130,23 @@ def inject_build_metadata(content: str, build_id: str) -> str:
     ``\scitexBuildIDFootnote`` macros so document templates can opt into
     a tiny footer, colophon, or watermark without further changes here.
     """
-    marker = r"\begin{document}"
-    if marker not in content:
+    # Match the REAL document-body marker at line start, not a \begin{document}
+    # appearing inside a comment (e.g. clew_presentation.tex's "overridable
+    # before \begin{document})"). A plain str.replace(..., 1) hit that earlier
+    # comment occurrence first, injecting the build block mid-preamble and
+    # de-commenting the tail.
+    marker_re = re.compile(r"(?m)^[ \t]*\\begin\{document\}")
+    if marker_re.search(content) is None:
+        return content
+
+    # Idempotent: a repeated flatten (e.g. `--dark-mode` reruns the flattener on
+    # already-injected content) must NOT stack a second build block before
+    # \begin{document}. The sentinel comment is unique to this block.
+    if BUILD_BLOCK_SENTINEL in content:
         return content
 
     block = (
-        "% --- scitex-writer build identifier "
+        BUILD_BLOCK_SENTINEL
         + "-" * 38
         + "\n"
         + f"\\providecommand{{\\scitexBuildID}}{{build:{build_id}}}\n"
@@ -148,8 +163,12 @@ def inject_build_metadata(content: str, build_id: str) -> str:
         + "-" * 76
         + "\n"
     )
-    return content.replace(
-        marker, r"\makeatletter " + block + r"\makeatother " + marker, 1
+    # End with a newline (not a space) so the marker stays at LINE START — a
+    # later line-anchored injection (dark mode) must still be able to find it.
+    return marker_re.sub(
+        lambda m: "\\makeatletter " + block + "\\makeatother\n" + m.group(0),
+        content,
+        count=1,
     )
 
 

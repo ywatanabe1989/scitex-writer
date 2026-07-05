@@ -252,6 +252,11 @@ main() {
     # Dark mode (black background, white text)
     export SCITEX_WRITER_DARK_MODE=$dark_mode
 
+    # Refuse to compile on a Spartan login node (prohibited heavy compute) —
+    # fail loud with the srun hint BEFORE the toolchain probe, which would
+    # otherwise mis-report the login-node guard's [BLOCKED] as "pdflatex broken".
+    "$PROJECT_ROOT/scripts/shell/modules/check_spartan_login.sh" || exit 1
+
     # Check dependencies
     log_stage_start "Dependency Check"
     "$PROJECT_ROOT/scripts/shell/modules/check_dependancy_commands.sh"
@@ -266,6 +271,15 @@ main() {
         exit 1
     fi
     log_stage_end "Provenance Checks"
+
+    # Regenerate claims_rendered.tex from claims.json (\vclaim SSoT) so a stale
+    # file can never ship outdated values; fails loud if rendering errors.
+    log_stage_start "Claims Render"
+    if ! "$PROJECT_ROOT/scripts/shell/modules/render_claims.sh"; then
+        log_error "Claims render failed (claims.json present but rendering errored) -- fix claims.json; compiling would ship a stale claims_rendered.tex"
+        exit 1
+    fi
+    log_stage_end "Claims Render"
 
     # Merge bibliography files if multiple exist
     log_stage_start "Bibliography Merge"
@@ -386,6 +400,16 @@ main() {
         exit 1
     fi
     log_stage_end "PDF Generation"
+
+    # Post-compile verification: FAIL LOUD on a deficient PDF (figures
+    # referenced but not embedded, log deficiency signals). off/warn never
+    # block. Catches a false-success compile that exits 0 with a broken PDF.
+    log_stage_start "Compile Verification"
+    if ! "$PROJECT_ROOT/scripts/shell/modules/run_compile_verification.sh"; then
+        log_error "Compile verification failed — the PDF is deficient (see above). Aborting."
+        exit 1
+    fi
+    log_stage_end "Compile Verification"
 
     # Manuscript Hints feed (ADVISORY): aggregate the signals the compile
     # already produced (undefined \ref/\cite in the log, unverified clew claims)

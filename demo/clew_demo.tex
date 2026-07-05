@@ -1,0 +1,65 @@
+%% Demo for the clew presentation layer — host-compile from the REPO ROOT:
+%%   pdflatex demo/clew_demo.tex   (twice, for hyperref)
+%% Shows: inline markers (verdict-colored wavy underline) with green verified
+%% values, a RED unverified value, suspect/exception in their own colors, the
+%% clew-repo-linked "Clew Verified" badge, the snake colophon, and the legend.
+%% All four toggles are forced on below (in production they are opt-in config).
+%%
+%% NOTE: demo/clew_rendered.sample.tex is a STAND-IN for scitex-clew's emitted
+%% output.
+\documentclass[11pt]{article}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[margin=1in]{geometry}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{hyperref}
+
+%% writer RENDERING layer (macros + toggles default off + \providecolor fallbacks)
+\input{00_shared/latex_styles/clew_presentation.tex}
+%% clew DATA layer (sample stand-in: palette + per-claim + aggregate)
+\input{demo/clew_rendered.sample.tex}
+
+%% enable every feature for the demo (production: opt-in config knobs)
+\clewpresmarkerstrue
+\clewpresbadgetrue
+\clewpressignaturetrue
+\clewpresattesttrue
+\clewpresexplainertrue
+%% \clewpreslegendtrue  % standalone legend; omitted here — the explainer
+%%                       % section below already embeds the legend key.
+
+\begin{document}
+
+\section*{Clew presentation layer — demo}
+
+\clewExplainer
+
+\noindent
+Inline value substitution (SSoT — the number IS the registered value), with
+the verified marker rendered green:
+\clewval{results_perpatient_auc}.
+
+\medskip\noindent
+A claim whose source has drifted renders \textbf{red}, regardless of the
+verify gate's verdict:
+\clewval{table1_event_completion}.
+
+\medskip\noindent
+A \emph{suspect} claim, shown in the suspect color:
+\clewval{methods_sequential_predictor}.
+
+\medskip\noindent
+A claim with an \emph{exception}, shown in the exception color:
+\clewval{discussion_effect_sizes}.
+
+\medskip\noindent
+Marking author prose (not a substituted value) with \verb|\clewmark|:
+\clewmark{abstract_strongest_patients}{Our strongest patients were P03, P13,
+and P11.}
+
+\medskip\noindent
+An unknown claim id degrades to a visible warning marker:
+\clewval{not_a_real_claim}.
+
+\end{document}
