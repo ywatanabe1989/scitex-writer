@@ -34,10 +34,41 @@ of the package and are referenced from skills, READMEs, and external docs.
 
 from __future__ import annotations
 
-from ._core import main, main_group
 from . import commands  # noqa: F401 (registers all commands on main_group)
+from ._core import main, main_group
 
-__all__ = ["main", "main_group"]
+# Backward-compat re-exports: before the monolith split every subcommand
+# group (``bib_group``, ``compile_group``, ...) lived directly in this
+# module's namespace. Command bodies now live in ``.commands.<mod>``, but
+# the group objects are re-exported here so ``scitex_writer._cli.bib_group``
+# (etc.) keeps working for any caller/test that imports them off this
+# module, per the module docstring's "preserves ... the ``_cli.py``
+# re-export" guarantee.
+from .commands.bib import bib_group
+from .commands.compile import compile_group
+from .commands.export import export_group
+from .commands.figures import figures_group
+from .commands.guidelines import guidelines_group
+from .commands.introspect import introspect_group
+from .commands.mcp import mcp_group
+from .commands.migration import migration_group
+from .commands.prompts import prompts_group
+from .commands.tables import tables_group
+
+__all__ = [
+    "main",
+    "main_group",
+    "bib_group",
+    "compile_group",
+    "export_group",
+    "figures_group",
+    "guidelines_group",
+    "introspect_group",
+    "mcp_group",
+    "migration_group",
+    "prompts_group",
+    "tables_group",
+]
 
 
 # EOF
