@@ -58,6 +58,29 @@ export class SectionTabs {
     if (section) this.chooseSection(section);
   }
 
+  /** Locate a loaded section by a file reference (exact path, or basename of
+   * the path / filename). Returns null when no section matches — used by the
+   * hints "jump to source" path, where a hint's ``location.file`` may be a bare
+   * name rather than the full section path. */
+  findByFile(file: string): SectionEntry | null {
+    if (!file) return null;
+    const base = file.split("/").pop() || file;
+    return (
+      this.sections.find((s) => s.path === file) ||
+      this.sections.find((s) => (s.path.split("/").pop() || s.path) === base) ||
+      this.sections.find((s) => s.filename === base) ||
+      null
+    );
+  }
+
+  /** Reflect a section as active in the dropdown WITHOUT firing onSelect —
+   * used after a programmatic load (the caller already loaded the file) so the
+   * dropdown stays in sync without triggering a second load. */
+  markActive(section: SectionEntry): void {
+    this.active = section;
+    this.select.value = section.path;
+  }
+
   private chooseSection(section: SectionEntry): void {
     this.active = section;
     this.select.value = section.path;

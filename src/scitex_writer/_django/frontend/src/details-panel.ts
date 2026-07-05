@@ -5,7 +5,7 @@
  */
 
 import { manuscriptHints, projectInfo } from "./api";
-import type { HintsFeed, ProjectInfo } from "./api";
+import type { Hint, HintsFeed, ProjectInfo } from "./api";
 
 type SectionId =
   | "hints"
@@ -26,6 +26,18 @@ interface SectionDef {
 
 const STORAGE_KEY = "writer-details-open";
 
+/** Optional navigation hooks so a hint row can jump the editor / PDF to the
+ * location the hint points at. Both are optional: when a host wires neither
+ * (e.g. the read-only viewer), hint rows fall back to plain, non-clickable
+ * text — exactly the pre-anchor behaviour. */
+export interface DetailsPanelOptions {
+  /** Jump the editor to a source file+line (undefined \\ref target, unverified
+   * claim, ...). Wired to the Monaco reveal path in index.ts. */
+  onJumpToLocation?: (file: string, line: number) => void;
+  /** Jump the PDF viewer to a page (1-based). Wired where a PDF viewer exists. */
+  onJumpToPage?: (page: number) => void;
+}
+
 export class DetailsPanel {
   private container: HTMLElement;
   private open: Set<SectionId>;
@@ -35,9 +47,13 @@ export class DetailsPanel {
     full: "idle",
   };
   private hints: HintsFeed | null = null;
+  private onJumpToLocation: ((file: string, line: number) => void) | undefined;
+  private onJumpToPage: ((page: number) => void) | undefined;
 
-  constructor(container: HTMLElement) {
+  constructor(container: HTMLElement, options: DetailsPanelOptions = {}) {
     this.container = container;
+    this.onJumpToLocation = options.onJumpToLocation;
+    this.onJumpToPage = options.onJumpToPage;
     this.open = this.loadOpenState();
     this.render();
     void this.loadProject();
@@ -194,16 +210,10 @@ export class DetailsPanel {
       .slice(0, CAP)
       .map((f) => {
         const color = dotColor[f.severity] || "#888";
-        const loc =
-          f.location && f.location.file
-            ? `<span class="details-mono">${escapeHtml(f.location.file)}${
-                f.location.line ? ":" + f.location.line : ""
-              }</span>`
-            : "";
         return `
           <div class="details-row" title="${escapeHtml(f.kind)} · ${escapeHtml(f.source)}">
             <span><span class="details-dot" style="background:${color}"></span> ${escapeHtml(f.message)}</span>
-            ${loc}
+            ${this.renderHintLocation(f)}
           </div>`;
       })
       .join("");
@@ -217,6 +227,46 @@ export class DetailsPanel {
       ${more}
       <p class="details-hint">Refreshes on compile. Verified claims stay silent.</p>
     `;
+  }
+
+  /** The right-aligned location cell for one hint row.
+   *
+   * - `file`+`line` present and an editor-jump hook is wired → a clickable
+   *   `file:line` anchor that reveals that source line in the editor.
+   * - `page` present and a PDF-jump hook is wired → a clickable `p.N` anchor
+   *   that scrolls the PDF viewer to that page (additive, shown alongside).
+   * - otherwise → plain, non-clickable text (`file:line`, or `line N`, or
+   *   nothing) — preserving the pre-anchor behaviour for hosts that wire no
+   *   navigation and for hints that carry no jumpable location. */
+  private renderHintLocation(hint: Hint): string {
+    const loc = hint.location;
+    if (!loc) return "";
+    const parts: string[] = [];
+
+    if (loc.file && loc.line != null) {
+      const label = `${escapeHtml(loc.file)}:${loc.line}`;
+      parts.push(
+        this.onJumpToLocation
+          ? `<a href="#" class="details-hint-jump" data-jump-file="${escapeHtml(
+              loc.file,
+            )}" data-jump-line="${loc.line}" title="Jump to ${label}">${label}</a>`
+          : `<span class="details-mono">${label}</span>`,
+      );
+    } else if (loc.file) {
+      parts.push(`<span class="details-mono">${escapeHtml(loc.file)}</span>`);
+    } else if (loc.line != null) {
+      parts.push(`<span class="details-mono">line ${loc.line}</span>`);
+    }
+
+    if (loc.page != null && this.onJumpToPage) {
+      parts.push(
+        `<a href="#" class="details-hint-jump" data-jump-page="${loc.page}" title="Jump to page ${loc.page} in the PDF">p.${loc.page}</a>`,
+      );
+    } else if (loc.page != null) {
+      parts.push(`<span class="details-mono">p.${loc.page}</span>`);
+    }
+
+    return parts.join(" ");
   }
 
   private render(): void {
@@ -251,6 +301,26 @@ export class DetailsPanel {
           else this.open.add(id);
           this.saveOpenState();
           this.render();
+        });
+      });
+
+    // Hint location anchors → editor / PDF jump. Only present when the host
+    // wired the corresponding callback (see renderHintLocation).
+    this.container
+      .querySelectorAll<HTMLElement>(".details-hint-jump")
+      .forEach((el) => {
+        el.addEventListener("click", (event) => {
+          event.preventDefault();
+          const page = el.dataset.jumpPage;
+          if (page != null) {
+            this.onJumpToPage?.(Number(page));
+            return;
+          }
+          const file = el.dataset.jumpFile;
+          const line = el.dataset.jumpLine;
+          if (file && line != null) {
+            this.onJumpToLocation?.(file, Number(line));
+          }
         });
       });
   }
