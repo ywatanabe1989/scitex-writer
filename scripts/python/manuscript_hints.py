@@ -70,9 +70,17 @@ _LOG_CANDIDATES = (
 # Severity order (low -> high) for summary sorting / UI grouping.
 _SEVERITY_ORDER = ("info", "advice", "warning", "error")
 
-# LaTeX log patterns for unresolved cross-references / citations.
-_UNDEF_REF_RE = re.compile(r"Reference [`']([^'\n]+)' [^\n]*?undefined")
-_UNDEF_CITE_RE = re.compile(r"Citation [`']([^'\n]+)' [^\n]*?undefined")
+# LaTeX log patterns for unresolved cross-references / citations. The optional
+# trailing group captures the source line LaTeX reports the warning against --
+# it emits "... undefined on input line <N>." for each unresolved token. When
+# the log wrapped the warning across lines the marker may be absent; the group
+# is optional so the token is still captured (with line -> None) in that case.
+_UNDEF_REF_RE = re.compile(
+    r"Reference [`']([^'\n]+)' [^\n]*?undefined(?: on input line (\d+))?"
+)
+_UNDEF_CITE_RE = re.compile(
+    r"Citation [`']([^'\n]+)' [^\n]*?undefined(?: on input line (\d+))?"
+)
 
 # clew claim status -> severity. verified is intentionally SILENT (a verified
 # claim needs no hint -- "silent collect, notify what matters"). unsourced folds
@@ -103,31 +111,62 @@ def _hint(kind, severity, message, source, location=None, claim_id=None, hid=Non
     }
 
 
+def _log_location(line):
+    """A location dict from a LaTeX-log "on input line <N>" marker.
+
+    ``line`` is the raw regex group (a numeric string or None). Returns None
+    when no line was recovered so the hint keeps its default location -- the
+    log does not name the source file for these warnings, so ``file`` stays
+    None; only the line is genuinely recoverable (never fabricated)."""
+    if not line:
+        return None
+    return {"file": None, "line": int(line), "page": None}
+
+
 def hints_from_log(log_text):
     """Unresolved cross-references / citations from a LaTeX engine log.
 
     Deduplicated by key: LaTeX repeats the warning on every pass, and a key can
-    recur across pages -- the UI wants ONE hint per unresolved token. (The
-    \\cite branch is INTERIM -- scitex-clew's verify-citations will own citation
-    hints via its producer; \\ref stays here as latex structure.)"""
+    recur across pages -- the UI wants ONE hint per unresolved token. The FIRST
+    occurrence wins, carrying its "on input line <N>" marker into
+    ``location.line`` when the log reports one (the UI turns that into a
+    click-to-jump anchor). (The \\cite branch is INTERIM -- scitex-clew's
+    verify-citations will own citation hints via its producer; \\ref stays here
+    as latex structure.)"""
     out = []
     seen = set()
-    for key in _UNDEF_REF_RE.findall(log_text or ""):
+    for m in _UNDEF_REF_RE.finditer(log_text or ""):
+        key = m.group(1)
         if ("reference", key) in seen:
             continue
         seen.add(("reference", key))
-        out.append(_hint(
-            "reference", "warning",
-            f"Reference '{key}' is undefined -- add a \\label or fix the \\ref.",
-            "latex-log", claim_id=None, hid=f"reference:{key}"))
-    for key in _UNDEF_CITE_RE.findall(log_text or ""):
+        out.append(
+            _hint(
+                "reference",
+                "warning",
+                f"Reference '{key}' is undefined -- add a \\label or fix the \\ref.",
+                "latex-log",
+                location=_log_location(m.group(2)),
+                claim_id=None,
+                hid=f"reference:{key}",
+            )
+        )
+    for m in _UNDEF_CITE_RE.finditer(log_text or ""):
+        key = m.group(1)
         if ("citation", key) in seen:
             continue
         seen.add(("citation", key))
-        out.append(_hint(
-            "citation", "warning",
-            f"Citation '{key}' is undefined -- add it to the bibliography.",
-            "latex-log", claim_id=key, hid=f"citation:{key}"))
+        out.append(
+            _hint(
+                "citation",
+                "warning",
+                f"Citation '{key}' is undefined -- add it to the bibliography.",
+                "latex-log",
+                location=_log_location(m.group(2)),
+                claim_id=key,
+                hid=f"citation:{key}",
+            )
+        )
     return out
 
 
@@ -158,7 +197,9 @@ def _iter_claims(data):
                 rec.setdefault("claim_id", cid)
                 out.append(rec)
         return out
-    return [c for c in claims if isinstance(c, dict)] if isinstance(claims, list) else []
+    return (
+        [c for c in claims if isinstance(c, dict)] if isinstance(claims, list) else []
+    )
 
 
 def hints_from_claims(data):
@@ -179,17 +220,21 @@ def hints_from_claims(data):
         value = _claim_value(claim)
         shown = (value[:60] + "...") if len(value) > 63 else value
         detail = f" ('{shown}')" if shown else ""
-        out.append(_hint(
-            _claim_kind(claim), severity,
-            f"Claim{detail} is not verified to a source ({status}).",
-            "scitex-clew",
-            location={
-                "file": claim.get("file_path"),
-                "line": claim.get("line_number"),
-                "page": None,
-            },
-            claim_id=cid or None,
-            hid=f"claim:{cid or shown}"))
+        out.append(
+            _hint(
+                _claim_kind(claim),
+                severity,
+                f"Claim{detail} is not verified to a source ({status}).",
+                "scitex-clew",
+                location={
+                    "file": claim.get("file_path"),
+                    "line": claim.get("line_number"),
+                    "page": None,
+                },
+                claim_id=cid or None,
+                hid=f"claim:{cid or shown}",
+            )
+        )
     return out
 
 
@@ -302,7 +347,9 @@ def main(argv):
     feed = build_feed(collect_hints(project_dir))
     # Merge-by-source: writer owns WRITER_SOURCES, preserves other producers'.
     out = write_feed(project_dir, feed, owned_sources=WRITER_SOURCES)
-    print(f"INFO:     Wrote manuscript hints feed ({feed['summary']['total']}) -> {out}")
+    print(
+        f"INFO:     Wrote manuscript hints feed ({feed['summary']['total']}) -> {out}"
+    )
     return 0  # advisory feed: never gate the compile
 
 
