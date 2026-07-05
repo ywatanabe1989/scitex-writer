@@ -5,9 +5,20 @@ All notable changes to SciTeX Writer will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [2.24.8] - 2026-07-06
 
 ### Added
+- **Pure-Python `count_words` and `citation_style` (Python + MCP).** The two
+  remaining shell-port slices now have native Python implementations exposed as
+  MCP tools, and the previously-unregistered `checks.py` MCP tools (slice 3, 6
+  tools) are wired into the engine — the manuscript-checks surface is now fully
+  callable from Python/MCP without shelling out.
+- **Interactive inline manuscript hints.** The Details pane gains click-to-jump
+  hint rows: latex-log `\ref`/`\cite` hints carry a resolved `location.line`, so
+  a hint links straight to the offending manuscript line. Backed by a
+  multi-producer, merge-by-source findings feed (`write_feed`), a compile-stage
+  API endpoint, and a Details-pane Notifications section (the dynamic-paper data
+  layer).
 - **Controlled inline figure placement (`\scitexfig{<number>}`).** Figures
   collect in the end "Figures" section by default; to place one in the main
   text at a controlled spot, drop `\scitexfig{01}` where you want it — it
@@ -21,12 +32,43 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   the end "Tables" section; unplaced tables still collect at the end. The table
   assembler writes number-keyed placeable copies and guards the end-block input
   with `\ifcsname scitextabplaced@<number>\endcsname`.
+- **clew page-1 legend toggle (`legend_first`).** Opt-in one-key toggle to render
+  the clew legend on page 1, wired through env var + `.scitex` config; the
+  `render_clew_toggles` step emits `\clewpres*` marks from the config.
+- **Citation banner + clew-verified render.** A page-1 red citation banner keyed
+  to a configurable citation level, plus inline `\clewcite` (citation) and
+  `\clewfig` (figure) marks. The compile step now emits `clew_rendered.tex` from
+  the clew runtime `claims.json`, stamps the clew tool version onto the
+  provenance attestation (read from `attestation.version`), and aligns the clew
+  palette to the SciTeX-standard dark/light colors. `render_clew` tolerates the
+  clew 0.2.19 / unified 1.5 / 1.6 schemas.
+- **Exact undefined-reference reporting.** The post-compile check now lists the
+  precise undefined `\ref`/`\cite` keys instead of a generic warning.
 
 ### Changed
+- **CLI monolith split.** The `_cli` monolith was refactored into per-command
+  modules to clear the line-limit, with backward-compat group re-exports
+  preserved.
+- **`findings` renamed to `hints`.** Operator naming decision, applied across the
+  UI surface.
 - **`process_tables.sh` split** — the CSV→LaTeX generation functions
   (`csv2tex`, `csv2tex_single_fallback`, `csv2tex_fallback`) were extracted
   verbatim into `process_tables_modules/03_csv2tex.src` (sourced by the
   orchestrator) to keep the file under the size limit; no behaviour change.
+
+### Fixed
+- **latexmk empty-aux / stale-aux handling.** `\readwordcount` now tolerates a
+  missing file (no emergency stop), and the build forces a clean `latexmk -gg`
+  run so bibtex never reads a stale `.aux`.
+- **Word count never emits an empty value** — an empty count made `siunitx`
+  fatal; it now always emits a number.
+- **Stray "Table 0" / "0tables" artifact suppressed** when a manuscript has no
+  tables present.
+- **Hard compile-timeout ceiling enforced by default** (fail-fast) so a runaway
+  compile can't hang indefinitely.
+- **CI / audit gate fixes** — resolved the `--new-only` base-ref mismatch, dropped
+  a forbidden monkeypatch in clew-version tests, and moved `_system_deps.py` into
+  `_core/` to clear the PS-108b flat-file threshold.
 
 ## [2.24.7] - 2026-07-01
 
