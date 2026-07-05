@@ -281,6 +281,16 @@ main() {
     fi
     log_stage_end "Claims Render"
 
+    # Emit clew_rendered.tex from clew's runtime claims.json (JSON->TeX; clew is
+    # renderer-agnostic) so the clew presentation layer has its data. No-op when
+    # clew has no export; fails loud if the export is present but malformed.
+    log_stage_start "Clew Render"
+    if ! "$PROJECT_ROOT/scripts/shell/modules/render_clew.sh"; then
+        log_error "Clew render failed (clew claims.json present but rendering errored) -- fix .scitex/clew/runtime/claims.json; compiling would ship a stale clew_rendered.tex"
+        exit 1
+    fi
+    log_stage_end "Clew Render"
+
     # Merge bibliography files if multiple exist
     log_stage_start "Bibliography Merge"
     "$PROJECT_ROOT/scripts/shell/modules/merge_bibliographies.sh"

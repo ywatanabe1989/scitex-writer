@@ -44,8 +44,28 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Fetch main ref for --new-only baseline
-        run: git fetch origin main:main
+      - name: Fetch --new-only baseline ref
+        # `--new-only`'s diff-aware compare defaults to `--since develop`
+        # (scitex_dev._cli.audit._diff.worktree_at's `since_ref` default),
+        # and stages the base via `git worktree add --detach <tmp> <ref>`
+        # — which needs a LOCAL ref, not just the remote-tracking
+        # `origin/<ref>`. PRs against this repo target `develop` (see
+        # `gh pr view --json baseRefName`), but the previous step only
+        # ever fetched `main`, so `git worktree add develop` hit "fatal:
+        # invalid reference: develop" and the tool fell back to a full
+        # strict audit (which then finds pre-existing repo-wide debt
+        # unrelated to the PR's own diff). Resolve the actual PR base ref
+        # dynamically so this stays correct for PRs against either
+        # `develop` or `main`, and only fetch it as a local branch if one
+        # doesn't already exist (e.g. a `push` trigger on `develop` itself
+        # already has a local `develop` branch checked out).
+        run: |
+          BASE_REF="${{ github.base_ref }}"
+          BASE_REF="${BASE_REF:-develop}"
+          echo "AUDIT_BASE_REF=${BASE_REF}" >> "$GITHUB_ENV"
+          if ! git rev-parse --verify --quiet "refs/heads/${BASE_REF}" >/dev/null; then
+            git fetch origin "${BASE_REF}:${BASE_REF}"
+          fi
 
       - name: Install package + audit tooling
         run: |
@@ -54,4 +74,4 @@ jobs:
           pip install "scitex-dev[cli-audit]>=0.17.14"
 
       - name: Run scitex-dev ecosystem audit-all
-        run: scitex-dev ecosystem audit-all scitex-writer --new-only --no-version-check
+        run: scitex-dev ecosystem audit-all scitex-writer --new-only --since "${AUDIT_BASE_REF}" --no-version-check
