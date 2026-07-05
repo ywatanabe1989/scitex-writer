@@ -63,6 +63,7 @@ except _PackageNotFoundError:
 _LAZY_SUBMODULES = {
     "bib": ".bib",
     "checks": ".checks",
+    "citation_style": ".citation_style",
     "claim": ".claim",
     "compile": ".compile",
     "count_words": ".count_words",
@@ -209,6 +210,7 @@ __all__ = [
     "usage",
     # Modules
     "checks",
+    "citation_style",
     "claim",
     "compile",
     "count_words",
