@@ -58,8 +58,17 @@
 \newcommand{\GREENENDS}{\color{black}}
 
 %% --- Word count ---
+%% A word-count file is decorative. It may be MISSING (not yet generated, or the
+%% path is CWD-relative and pdflatex ran from another dir). Guard the read: a
+%% missing/unopened stream must NOT reach a bare \read, which would block on the
+%% terminal and, under -interaction=nonstopmode, EMERGENCY-STOP the whole
+%% compile ("<read N>") -> no PDF -> empty .aux -> bibtex finds no \citation ->
+%% every \cite undefined (??/[?]). \ifeof after \openin is true when the file
+%% could not be opened (or is empty); default to 0 + a loud \typeout warning and
+%% keep compiling.
 \newread\wordcount
 \newcommand\readwordcount[1]{%
+\def\thewordcount{0}%
 \openin\wordcount=#1\relax
 % Guard: a missing OR empty count file must NEVER reach \num as an empty
 % argument -- siunitx then errors "Invalid number", which is FATAL and fails
@@ -67,9 +76,9 @@
 % missing file and a 0-byte file; the post-read \ifx catches a blank line.
 % Default to 0 in all those cases. (neurovista incident 2026-07-04.)
 \ifeof\wordcount
-\def\thewordcount{0}%
+  \typeout{WARNING: scitex-writer: word-count file '#1' not found or empty; using 0.}%
 \else
-\read\wordcount to \thewordcount
+  \read\wordcount to \thewordcount
 \fi
 \closein\wordcount
 \ifx\thewordcount\empty\def\thewordcount{0}\fi
