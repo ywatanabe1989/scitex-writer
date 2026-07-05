@@ -4,10 +4,11 @@
  * Project Info · Shortcuts. Collapsed/expanded state stored in localStorage.
  */
 
-import { projectInfo } from "./api";
-import type { ProjectInfo } from "./api";
+import { manuscriptHints, projectInfo } from "./api";
+import type { Hint, HintsFeed, ProjectInfo } from "./api";
 
 type SectionId =
+  | "hints"
   | "compile-preview"
   | "compile-full"
   | "overleaf"
@@ -25,6 +26,18 @@ interface SectionDef {
 
 const STORAGE_KEY = "writer-details-open";
 
+/** Optional navigation hooks so a hint row can jump the editor / PDF to the
+ * location the hint points at. Both are optional: when a host wires neither
+ * (e.g. the read-only viewer), hint rows fall back to plain, non-clickable
+ * text — exactly the pre-anchor behaviour. */
+export interface DetailsPanelOptions {
+  /** Jump the editor to a source file+line (undefined \\ref target, unverified
+   * claim, ...). Wired to the Monaco reveal path in index.ts. */
+  onJumpToLocation?: (file: string, line: number) => void;
+  /** Jump the PDF viewer to a page (1-based). Wired where a PDF viewer exists. */
+  onJumpToPage?: (page: number) => void;
+}
+
 export class DetailsPanel {
   private container: HTMLElement;
   private open: Set<SectionId>;
@@ -33,16 +46,35 @@ export class DetailsPanel {
     preview: "idle",
     full: "idle",
   };
+  private hints: HintsFeed | null = null;
+  private onJumpToLocation: ((file: string, line: number) => void) | undefined;
+  private onJumpToPage: ((page: number) => void) | undefined;
 
-  constructor(container: HTMLElement) {
+  constructor(container: HTMLElement, options: DetailsPanelOptions = {}) {
     this.container = container;
+    this.onJumpToLocation = options.onJumpToLocation;
+    this.onJumpToPage = options.onJumpToPage;
     this.open = this.loadOpenState();
     this.render();
     void this.loadProject();
+    void this.refreshHints();
   }
 
   setCompileStatus(mode: "preview" | "full", status: string): void {
     this.compileState[mode] = status;
+    this.render();
+  }
+
+  /** Re-fetch the manuscript-hints feed (call after each compile — the feed is
+   * rewritten by the "Manuscript Hints" compile stage). Best-effort: a fetch
+   * failure leaves the pane showing "no hints", never an error. */
+  async refreshHints(): Promise<void> {
+    try {
+      this.hints = await manuscriptHints();
+    } catch (err) {
+      console.warn("[details] hints fetch failed", err);
+      this.hints = null;
+    }
     this.render();
   }
 
@@ -76,6 +108,12 @@ export class DetailsPanel {
     };
 
     return [
+      {
+        id: "hints",
+        title: "Hints",
+        icon: "fa-bell",
+        render: () => this.renderHints(),
+      },
       {
         id: "compile-preview",
         title: "Compilation — Preview",
@@ -148,6 +186,89 @@ export class DetailsPanel {
     ];
   }
 
+  /** Render the hints feed as a quiet digest: a severity summary line, then one
+   * row per hint (most-severe first, already sorted by the feed). An empty feed
+   * reads "the paper is quiet" — verified claims never appear. */
+  private renderHints(): string {
+    const feed = this.hints;
+    if (!feed || feed.summary.total === 0) {
+      return `<p class="details-hint">✓ No hints — the paper is quiet.</p>`;
+    }
+    const dotColor: Record<string, string> = {
+      error: "var(--danger, #dc2626)",
+      warning: "var(--warning, #d97706)",
+      advice: "var(--info, #2563eb)",
+      info: "#888",
+    };
+    const sev = feed.summary.by_severity;
+    const chips = ["error", "warning", "advice", "info"]
+      .filter((s) => sev[s])
+      .map((s) => `${sev[s]} ${s}`)
+      .join(" · ");
+    const CAP = 50;
+    const rows = feed.hints
+      .slice(0, CAP)
+      .map((f) => {
+        const color = dotColor[f.severity] || "#888";
+        return `
+          <div class="details-row" title="${escapeHtml(f.kind)} · ${escapeHtml(f.source)}">
+            <span><span class="details-dot" style="background:${color}"></span> ${escapeHtml(f.message)}</span>
+            ${this.renderHintLocation(f)}
+          </div>`;
+      })
+      .join("");
+    const more =
+      feed.hints.length > CAP
+        ? `<p class="details-hint">+${feed.hints.length - CAP} more (showing first ${CAP}).</p>`
+        : "";
+    return `
+      <p class="details-hint">${chips}</p>
+      ${rows}
+      ${more}
+      <p class="details-hint">Refreshes on compile. Verified claims stay silent.</p>
+    `;
+  }
+
+  /** The right-aligned location cell for one hint row.
+   *
+   * - `file`+`line` present and an editor-jump hook is wired → a clickable
+   *   `file:line` anchor that reveals that source line in the editor.
+   * - `page` present and a PDF-jump hook is wired → a clickable `p.N` anchor
+   *   that scrolls the PDF viewer to that page (additive, shown alongside).
+   * - otherwise → plain, non-clickable text (`file:line`, or `line N`, or
+   *   nothing) — preserving the pre-anchor behaviour for hosts that wire no
+   *   navigation and for hints that carry no jumpable location. */
+  private renderHintLocation(hint: Hint): string {
+    const loc = hint.location;
+    if (!loc) return "";
+    const parts: string[] = [];
+
+    if (loc.file && loc.line != null) {
+      const label = `${escapeHtml(loc.file)}:${loc.line}`;
+      parts.push(
+        this.onJumpToLocation
+          ? `<a href="#" class="details-hint-jump" data-jump-file="${escapeHtml(
+              loc.file,
+            )}" data-jump-line="${loc.line}" title="Jump to ${label}">${label}</a>`
+          : `<span class="details-mono">${label}</span>`,
+      );
+    } else if (loc.file) {
+      parts.push(`<span class="details-mono">${escapeHtml(loc.file)}</span>`);
+    } else if (loc.line != null) {
+      parts.push(`<span class="details-mono">line ${loc.line}</span>`);
+    }
+
+    if (loc.page != null && this.onJumpToPage) {
+      parts.push(
+        `<a href="#" class="details-hint-jump" data-jump-page="${loc.page}" title="Jump to page ${loc.page} in the PDF">p.${loc.page}</a>`,
+      );
+    } else if (loc.page != null) {
+      parts.push(`<span class="details-mono">p.${loc.page}</span>`);
+    }
+
+    return parts.join(" ");
+  }
+
   private render(): void {
     const sections = this.sections();
     this.container.innerHTML = `
@@ -182,6 +303,26 @@ export class DetailsPanel {
           this.render();
         });
       });
+
+    // Hint location anchors → editor / PDF jump. Only present when the host
+    // wired the corresponding callback (see renderHintLocation).
+    this.container
+      .querySelectorAll<HTMLElement>(".details-hint-jump")
+      .forEach((el) => {
+        el.addEventListener("click", (event) => {
+          event.preventDefault();
+          const page = el.dataset.jumpPage;
+          if (page != null) {
+            this.onJumpToPage?.(Number(page));
+            return;
+          }
+          const file = el.dataset.jumpFile;
+          const line = el.dataset.jumpLine;
+          if (file && line != null) {
+            this.onJumpToLocation?.(file, Number(line));
+          }
+        });
+      });
   }
 
   private loadOpenState(): Set<SectionId> {
@@ -190,7 +331,7 @@ export class DetailsPanel {
       if (!raw) return new Set(["compile-preview", "project"]);
       return new Set(JSON.parse(raw));
     } catch {
-      return new Set(["compile-preview", "project"]);
+      return new Set(["hints", "compile-preview", "project"]);
     }
   }
 

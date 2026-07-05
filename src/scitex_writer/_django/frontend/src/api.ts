@@ -192,3 +192,29 @@ export function listTables(docType: string): Promise<TablesResponse> {
     `api/tables?doc_type=${encodeURIComponent(docType)}`,
   );
 }
+
+// Manuscript hints feed (dynamic-paper inline hints) — the signals the compile
+// pipeline already computes (undefined refs/cites, unverified claims), served
+// as a feed the Details pane renders as quiet Overleaf/OpenAI-style hints.
+export type HintSeverity = "info" | "advice" | "warning" | "error";
+export interface Hint {
+  id: string;
+  kind: string;
+  severity: HintSeverity;
+  message: string;
+  location: { file: string | null; line: number | null; page: number | null };
+  claim_id: string | null;
+  source: string;
+}
+export interface HintsFeed {
+  schema: string;
+  summary: {
+    total: number;
+    by_severity: Record<string, number>;
+    by_kind: Record<string, number>;
+  };
+  hints: Hint[];
+}
+export function manuscriptHints(): Promise<HintsFeed> {
+  return apiGet<HintsFeed>("api/hints");
+}

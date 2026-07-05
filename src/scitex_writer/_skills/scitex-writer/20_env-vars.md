@@ -47,6 +47,23 @@ exits non-zero.
 | `SCITEX_WRITER_REF_INTEGRITY` | Severity for the pre-compile reference-integrity gate (`off`/`warn`/`error`). Default `error`. | `error` | enum |
 | `SCITEX_WRITER_CLEW_VERIFY` | Severity for the pre-compile clew provenance gate — re-verifies every clew-registered claim against its bound source (`off`/`warn`/`error`). Default `error` for **research** projects (`.scitex/dev/config.yaml` `project-type: research`), `off` otherwise. NO_CLAIMS and a missing `clew` CLI warn (never block) unless `clew_verify.require_claims` is set. `clew_verify.strict` / `--strict` forwards `--strict` to clew; `clew_verify.require_claims` / `--require-claims` makes NO_CLAIMS + missing-clew hard-fail at the resolved level (ADR-0021). | `error` (research) / `off` | enum |
 | `SCITEX_WRITER_CLEW_BIN` | Path to the `clew` executable used by the provenance gate. Defaults to `clew` on `PATH`. | `clew` | path |
+| `SCITEX_WRITER_CLEW_PRESENTATION` | Master ON/OFF switch for the page-1 clew *presentation* layer (marks/badge/legend/explainer/signature), resolved pre-compile by `render_clew_toggles.py`. `on`/`true`/`yes` enables the full co-author-facing set; `off` disables all. Overrides the project `.scitex/writer/config.yaml` `clew_presentation` key (which may instead be a per-toggle mapping — see below). Default off. | `off` | enum |
+
+> **`clew_presentation` toggle set** (config-mapping keys under
+> `.scitex/writer/config.yaml` `clew_presentation:`, each `true`/`false`,
+> absent = off). The env master `SCITEX_WRITER_CLEW_PRESENTATION=on` enables
+> the **master set** (`markers`, `badge`, `legend`, `explainer`, `signature`);
+> `attest` and `legend_first` are **opt-in only** (never enabled by master-on).
+>
+> | key | effect |
+> |---|---|
+> | `markers` | verdict-colored wavy underlines on `\clewval`/`\clewmark`/`\clewcite`/`\clewfig` |
+> | `badge` | "Clew Verified" stamp auto-placed at page-1 top |
+> | `legend` | status-color key auto-placed at end-of-doc |
+> | `explainer` | "How to read provenance marks" box (author-placed via `\clewExplainer`) |
+> | `signature` | "Compiled by SciTeX Writer." colophon at end-of-doc |
+> | `attest` | "Provenance audited by SciTeX Clew" line at end-of-doc (opt-in) |
+> | `legend_first` | auto-emit the status-color key at the **top of page 1** (opt-in; independent of `legend`, excluded from the master set so it never double-renders) |
 | `SCITEX_WRITER_COMPILE_ARTIFACTS` | Severity for the POST-compile verification gate (`off`/`warn`/`error`). Default `error`. Fails loud when the compiled `.tex` references `\includegraphics` (N>0) but the PDF embeds 0 images (silent figure miss), plus secondary log deficiency signals. PDF embedding check needs poppler (`pdfimages`); skipped-with-warning when absent. | `error` | enum |
 | `SCITEX_WRITER_VERSION_FRESHNESS` | Severity for the pre-compile version-freshness gate (`off`/`warn`/`error`). Default `error`. Fails loud when the vendored engine (stamped in `00_shared/.scitex-writer-vendored-version` by `update-project`) is behind the installed scitex-writer — re-vendor with `scitex-writer update-project`. Absent stamp or no installed pkg → warn (never blocks). | `error` | enum |
 

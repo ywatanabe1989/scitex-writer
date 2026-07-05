@@ -8,7 +8,7 @@
 This module contains the usage documentation text, separate from branding logic.
 """
 
-from ._branding import BRAND_ALIAS, BRAND_NAME, get_branded_import_example
+from ._core._branding import BRAND_ALIAS, BRAND_NAME, get_branded_import_example
 
 _USAGE_TEMPLATE = """
 ================================================================================

@@ -54,17 +54,26 @@
 \newif\ifclewpreslegend
 \newif\ifclewpresattest      % "Provenance checked by SciTeX Clew." line
 \newif\ifclewpresexplainer   % renderable clew explainer section
+\newif\ifclewpreslegendfirst % opt-in: emit \clewLegend at the TOP of page 1
+                             % (config key legend_first). Independent of
+                             % \ifclewpreslegend (end-of-doc) and NOT in the
+                             % master set, so master-on won't double-render it.
 
 %% --- verdict palette ---
 %% scitex-clew OWNS the palette (what to render). It emits \definecolor{clewX}
 %% in clew_rendered.tex. These \providecolor lines are only a writer-side
 %% FALLBACK so the doc still compiles if clew did not emit a palette.
-\providecolor{clewVerified}{HTML}{2E7D32}
-\providecolor{clewSuspect}{HTML}{F9A825}
-\providecolor{clewUnverified}{HTML}{C62828}
+%% CUD-safe fallback palette -- clew's canonical colorblind-safe reader hexes
+%% (match clew's emitted display_palette; all clear the dE>=12 CVD floor). clew's
+%% emitted \definecolor overrides these. Operator (Q1=b): provenance marks use
+%% clew's CUD-safe palette, not the raw figrecipe hexes (green/yellow collapse
+%% under protanopia). figrecipe colors are luminance-tuned, not CVD-categorical.
+\providecolor{clewVerified}{HTML}{2DA44E}
+\providecolor{clewSuspect}{HTML}{D29922}
+\providecolor{clewUnverified}{HTML}{CF222E}
 %% exception is conveyed by its own wavy-underline COLOR (no badge glyph).
 %% clew provides the real color (overrides this placeholder).
-\providecolor{clewException}{HTML}{6A1B9A}
+\providecolor{clewException}{HTML}{8250DF}
 
 %% --- signature config (overridable before \begin{document}) ---
 \providecommand{\clewSigText}{Compiled by SciTeX Writer.}
@@ -72,8 +81,10 @@
 \providecommand{\clewBadgeURL}{https://github.com/ywatanabe1989/scitex-clew}
 \providecommand{\clewSigIcon}{docs/scitex-icon-navy-inverted.png}
 %% Clew attestation line (clew owns the text; writer renders it). Default
-%% overridable by clew_rendered.tex / the manuscript.
-\providecommand{\clewAttestText}{Provenance checked by SciTeX Clew.}
+%% overridable by clew_rendered.tex / the manuscript. "audited" (honest) not
+%% "checked/verified"; no trailing period so the tool version reads cleanly
+%% after it ("... SciTeX Clew v0.8.0").
+\providecommand{\clewAttestText}{Provenance audited by SciTeX Clew}
 \providecommand{\clewAttestURL}{https://github.com/ywatanabe1989/scitex-clew}
 %% Clew explainer body (clew provides the CONTENT; writer provides the section
 %% layout). Sensible writer-side default until clew emits its own.
@@ -98,6 +109,11 @@
 %% mechanism (tikz background / lua-ul under xelatex) -- deferred to the operator.
 \newcommand{\clewDecorate}[1]{%
   {\color{clewVerdict}\uwave{#1}}}
+
+%% Figure provenance CHIP: a small verdict-colored filled square, appended to a
+%% figure caption (a wavy underline is for inline text/cites; a figure mark is a
+%% discrete chip). Uses clewVerdict, \definecolor'd by \clewfig before this runs.
+\newcommand{\clewFigChip}{\,{\color{clewVerdict}\rule[0pt]{0.6em}{0.6em}}}
 
 %% --- \clewval / \clewmark (expl3: robust id-sanitize + csname lookup) ---
 %% claim_id is sanitized to [a-zA-Z0-9] -- the SAME transform scitex-clew
@@ -148,6 +164,39 @@
     #2
   }
 }
+%% \clewcite{bibkey}: \cite the key with a verdict-colored wavy underline
+%% (parallel to \clewval -- same 4-state color). Falls back to a plain \cite
+%% when markers are off OR the key is not a registered citation-claim, so it is
+%% always safe to use in place of \cite. Matches by claim_id == the BibTeX key
+%% (sanitized to [a-zA-Z0-9], same as clew emits).
+\NewDocumentCommand \clewcite { m } {
+  \__clew_key:n {#1}
+  \legacy_if:nTF { clewpresmarkers } {
+    \cs_if_exist:cTF { clew@hex@ \l__clew_key_tl } {
+      \tl_set:Nx \l__clew_hex_tl { \use:c { clew@hex@ \l__clew_key_tl } }
+      \definecolor { clewVerdict } { HTML } { \l__clew_hex_tl }
+      \clewDecorate { \cite {#1} }
+    } {
+      \cite {#1}
+    }
+  } {
+    \cite {#1}
+  }
+}
+%% \clewfig{figure_id}: a verdict-colored provenance chip for a figure caption
+%% (figure_id = the figure save-path == the join key). Renders NOTHING when
+%% markers are off or the figure is not a registered figure-claim, so it is safe
+%% wherever figrecipe emits it into a caption.
+\NewDocumentCommand \clewfig { m } {
+  \__clew_key:n {#1}
+  \legacy_if:nTF { clewpresmarkers } {
+    \cs_if_exist:cTF { clew@hex@ \l__clew_key_tl } {
+      \tl_set:Nx \l__clew_hex_tl { \use:c { clew@hex@ \l__clew_key_tl } }
+      \definecolor { clewVerdict } { HTML } { \l__clew_hex_tl }
+      \clewFigChip
+    } { }
+  } { }
+}
 \msg_new:nnn { clew } { unknown-claim }
   { Clew~claim~'#1'~not~found~in~clew_rendered.tex~(rendering~plain). }
 \ExplSyntaxOff
@@ -184,10 +233,15 @@
   \par\vspace{0.8em}%
   {\footnotesize\color{gray}\raggedleft
     \href{\clewSigURL}{\clewColophonIcon\clewSigText}\par}}
-%% "Provenance checked by SciTeX Clew." -> clew repo, right-aligned, same snake.
+%% Tool-version suffix: " vX.Y.Z" when render_clew stamped \clew@version (from
+%% the clew export or `clew --version`); nothing when absent. \@empty test =
+%% the \providecommand{}{} fallback below.
+\newcommand{\clewVersionSuffix}{%
+  \ifx\clew@version\@empty\else\ v\clew@version\fi}
+%% "Provenance audited by SciTeX Clew vX.Y.Z" -> clew repo, right-aligned, same snake.
 \newcommand{\clewAttestation}{%
   {\footnotesize\color{gray}\raggedleft
-    \href{\clewAttestURL}{\clewColophonIcon\clewAttestText}\par}}
+    \href{\clewAttestURL}{\clewColophonIcon\clewAttestText\clewVersionSuffix}\par}}
 
 %% --- status legend (SELF-DEMONSTRATING) ---
 %% Each label word is rendered in its OWN marker color -- "verified" green+wavy,
@@ -195,13 +249,16 @@
 %% exemplifies the markers rather than showing an abstract swatch (operator:
 %% 自己説明的 / self-explanatory). No badge glyphs: every one of the 4 states is
 %% a colored wavy underline.
+%% NB: state names follow clew's unified schema 1.5 (the red state is "failed";
+%% the internal color macro stays clewUnverified for back-compat with existing
+%% clew_rendered.tex files).
 \newcommand{\clewLabel}[2]{{\color{#1}\uwave{#2}}}
 \newcommand{\clewLegend}{%
   \par\vspace{0.5em}\noindent{\footnotesize\color{gray}%
     \textbf{Clew status:}\ %
     \clewLabel{clewVerified}{verified}\quad
     \clewLabel{clewSuspect}{suspect}\quad
-    \clewLabel{clewUnverified}{unverified}\quad
+    \clewLabel{clewUnverified}{failed}\quad
     \clewLabel{clewException}{exception}\par}}
 
 %% --- clew explainer section (clew provides \clewExplainerBody content;
@@ -220,10 +277,16 @@
       \end{minipage}}\par\medskip
   \fi}
 
-%% Auto-placement: badge at top; legend, signature + attestation at the end.
+%% Auto-placement: badge (+ opt-in legend_first) at top; legend, signature +
+%% attestation at the end.
 %% Manual macros (\clewVerifiedBadge, \clewExplainer, ...) stay available for
 %% explicit placement.
-\AtBeginDocument{\ifclewpresbadge\par\noindent\clewVerifiedBadge\par\fi}
+%% legend_first reuses \clewLegend UNCHANGED, auto-placed at page-1 top (before
+%% the badge). Opt-in and NOT in the master set, so it never double-renders with
+%% the end-of-doc \ifclewpreslegend.
+\AtBeginDocument{%
+  \ifclewpreslegendfirst\clewLegend\fi
+  \ifclewpresbadge\par\noindent\clewVerifiedBadge\par\fi}
 \AtEndDocument{%
   \ifclewpreslegend\clewLegend\fi
   \ifclewpressignature\clewSignature\fi
@@ -235,6 +298,7 @@
 \providecommand{\clew@total}{0}
 \providecommand{\clew@verified}{0}
 \providecommand{\clew@allverified}{0}
+\providecommand{\clew@version}{}
 
 \makeatother
 %% EOF

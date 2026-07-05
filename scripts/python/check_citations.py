@@ -58,6 +58,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from _severity import resolve_level  # noqa: E402
+from _citation_banner import reset_banner, write_banner_tex  # noqa: E402
 
 GREEN = "\033[0;32m"
 YELLOW = "\033[1;33m"
@@ -70,7 +71,12 @@ PASS_COUNT = 0
 WARN_COUNT = 0
 FAIL_COUNT = 0
 
-_LEVELS = ("off", "warn", "error")
+_LEVELS = ("off", "warn", "error", "banner")
+
+# Where the banner-mode compile artifact is written. The flattener
+# (compile_tex_structure.py) injects this file after \begin{document} when it
+# exists. Path is derivable identically from the project root on both sides.
+_BANNER_TEX = ".scitex/writer/.citation_banner.tex"
 
 # Scholar stub stamps (lowercase substring match). Authoritative source is
 # scitex-scholar; extend here when scholar adds/renames a stamp field.
@@ -356,7 +362,8 @@ def main():
     parser = argparse.ArgumentParser(
         description="Pre-compile citation gate: FAIL when a cited reference is a "
         "scholar stub (unresolved/placeholder). Defaults ON (error) for research "
-        "projects, warn otherwise."
+        "projects, warn otherwise. `banner` level compiles anyway but stamps a "
+        "red page-1 banner."
     )
     parser.add_argument("project_dir", nargs="?", default=".")
     parser.add_argument(
@@ -377,7 +384,7 @@ def main():
         "--level",
         choices=list(_LEVELS),
         default=None,
-        help="Severity: off, warn, or error. Overrides env and config.",
+        help="Severity: off, warn, error, or banner. Overrides env and config.",
     )
     args = parser.parse_args()
 
@@ -393,6 +400,10 @@ def main():
     )
     kind = "research" if research else "non-research"
     print(f"\n{BOLD}=== Citation Gate (level={level}, {kind}) ==={NC}\n")
+
+    # Always clear a stale banner artifact from a previous compile first, so a
+    # now-clean (or non-banner) run can never re-inject an old banner.
+    reset_banner(project_dir)
 
     if level == "off":
         print(
@@ -440,10 +451,18 @@ def main():
         )
         for key, reason in stubs:
             log_detail(f"\\cite{{{key}}} -> STUB ({reason})")
-        log_detail(
-            "fix: resolve each key via scitex-scholar (DOI + real metadata), or "
-            "remove the citation. Override with citations.level if intended."
-        )
+        if level == "banner":
+            # Accepted-risk draft mode: the compile PROCEEDS but a red page-1
+            # banner (written here, injected by the flattener) makes the
+            # unresolved citations impossible to miss. clew_unreachable stays
+            # False until the clew-verified half is wired in.
+            path = write_banner_tex(project_dir, stubs, clew_unreachable=False)
+            log_detail(f"banner mode: wrote red page-1 banner -> {path}")
+        else:
+            log_detail(
+                "fix: resolve each key via scitex-scholar (DOI + real metadata), "
+                "or remove the citation. Override with citations.level if intended."
+            )
     else:
         log_pass(f"all {len(cited_keys)} cited reference(s) are non-stub entries")
 

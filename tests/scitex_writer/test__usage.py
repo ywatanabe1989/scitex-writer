@@ -28,7 +28,8 @@ def reload_usage():
     def _reload(brand: str | None = None, alias: str | None = None):
         _set("SCITEX_WRITER_BRAND", brand)
         _set("SCITEX_WRITER_ALIAS", alias)
-        from scitex_writer import _branding, _usage
+        from scitex_writer import _usage
+        from scitex_writer._core import _branding
 
         importlib.reload(_branding)
         return importlib.reload(_usage)
@@ -39,7 +40,8 @@ def reload_usage():
         for key, value in saved.items():
             _set(key, value)
         # Restore the modules to their unbranded baseline for other tests.
-        from scitex_writer import _branding, _usage
+        from scitex_writer import _usage
+        from scitex_writer._core import _branding
 
         importlib.reload(_branding)
         importlib.reload(_usage)

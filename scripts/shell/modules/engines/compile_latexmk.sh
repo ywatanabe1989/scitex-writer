@@ -59,6 +59,23 @@ compile_with_latexmk() {
         opts+=("-latexoption=-interaction=nonstopmode")
     fi
 
+    # Force a full, deterministic build (latex -> bibtex -> latex x2), unless in
+    # draft mode. latexmk's "smart incremental" logic can run bibtex against a
+    # STALE/EMPTY .aux under -output-directory when its .fdb_latexmk fingerprint
+    # or the .aux/.bbl desync from the real state (e.g. a manual `rm *.aux`, or a
+    # partially-cleared prior run). bibtex then reports "I found no \citation /
+    # \bibdata / \bibstyle command --- while reading manuscript.aux" -> no .bbl
+    # -> EVERY \cite undefined (?? / [?]) while a PDF is still emitted. -gg cleans
+    # generated files and rebuilds ignoring prior state, so bibtex always reads a
+    # freshly-written aux. The compile re-flattens manuscript.tex each run
+    # (source always changes), so -gg adds little cost over the normal rebuild.
+    # Escape hatch: SCITEX_WRITER_LATEXMK_FORCE_CLEAN=false for incremental.
+    if [ "${SCITEX_WRITER_DRAFT_MODE:-false}" != "true" ] &&
+        [ "${SCITEX_WRITER_LATEXMK_FORCE_CLEAN:-true}" = "true" ]; then
+        opts+=(-gg)
+        echo_info "    Forcing clean full build (-gg) for deterministic bibtex/refs"
+    fi
+
     # Run compilation
     local start=$(date +%s)
 

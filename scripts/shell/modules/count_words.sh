@@ -86,7 +86,16 @@ _count_words() {
         return 1
     fi
 
-    eval "$TEXCOUNT_CMD \"$input_file\" -inc -1 -sum 2> >(grep -v 'gocryptfs not found' >&2)" >"$output_file"
+    # NEVER write an empty/non-numeric count file: an empty file makes the
+    # manuscript's \readwordcount emit \num{} -> siunitx "Invalid number" ->
+    # EVERY latexmk pass fails -> citations render as [?] (neurovista incident
+    # 2026-07-04). So capture texcount, extract the first integer, and default
+    # to 0 when texcount printed nothing (empty section / warning-only output /
+    # texcount hiccup). Fail-safe, never fatal.
+    local _raw _count
+    _raw=$(eval "$TEXCOUNT_CMD \"$input_file\" -inc -1 -sum 2> >(grep -v 'gocryptfs not found' >&2)")
+    _count=$(printf '%s' "$_raw" | grep -oE '[0-9]+' | head -1)
+    echo "${_count:-0}" >"$output_file"
 }
 
 count_tables() {
