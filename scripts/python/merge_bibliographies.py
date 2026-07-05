@@ -67,12 +67,13 @@ def merge_entries(existing: dict, duplicate: dict) -> dict:
 
 def deduplicate_entries(entries: List[dict]) -> tuple[List[dict], dict]:
     """
-    Deduplicate BibTeX entries by DOI and title.
+    Deduplicate BibTeX entries by cite key, DOI, and title.
 
     Returns:
         (unique_entries, stats)
     """
     unique = []
+    id_index = {}  # cite key (entry ID) -> index in unique list
     doi_index = {}  # DOI -> index in unique list
     title_index = {}  # (normalized_title, year) -> index in unique list
     duplicates_found = 0
@@ -83,12 +84,23 @@ def deduplicate_entries(entries: List[dict]) -> tuple[List[dict], dict]:
         title = entry.get("title", "")
         year = entry.get("year", "")
         title_norm = normalize_title(title)
+        cite_key = str(entry.get("ID", "")).strip()
 
         is_duplicate = False
         merge_with_idx = None
 
-        # Check by DOI first (most reliable)
-        if doi and doi in doi_index:
+        # Check by cite key (entry ID) FIRST. A repeated cite key is exactly
+        # what makes bibtex emit "repeated entry" / "I'm skipping whatever
+        # remains of this entry" and drop a whole reference -- so it must never
+        # reach the merged output, regardless of DOI/title. Common with
+        # auto-generated stub entries duplicated across input .bib files.
+        if cite_key and cite_key in id_index:
+            is_duplicate = True
+            merge_with_idx = id_index[cite_key]
+            duplicates_found += 1
+
+        # Check by DOI (most reliable content match)
+        elif doi and doi in doi_index:
             is_duplicate = True
             merge_with_idx = doi_index[doi]
             duplicates_found += 1
@@ -119,6 +131,8 @@ def deduplicate_entries(entries: List[dict]) -> tuple[List[dict], dict]:
             unique.append(entry)
 
             # Index it by position
+            if cite_key:
+                id_index[cite_key] = new_idx
             if doi:
                 doi_index[doi] = new_idx
             if title_norm and year:

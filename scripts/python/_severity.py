@@ -42,12 +42,29 @@ _LINT_STRICT_CHECKS = frozenset({"limits", "overflow"})
 # Only these checks accept the `repair` level (they can self-fix safely).
 _REPAIR_CHECKS = frozenset({"paper_symlink"})
 
+# Only these checks accept the `banner` level. `banner` sits between warn and
+# error: the check still produces output (the compile PROCEEDS), but flags the
+# violation prominently (a red page-1 banner) instead of aborting -- the
+# accepted-risk "co-author draft" mode for the citation gate. Scoped like
+# `repair` so the global off/warn/error ladder is untouched for every other
+# check.
+_BANNER_CHECKS = frozenset({"citations"})
+
 _TRUTHY = ("1", "true", "yes")
 
 
 def _valid_levels(check):
-    """Levels accepted for ``check`` (``repair`` only for self-fixing checks)."""
-    return LEVELS if check in _REPAIR_CHECKS else LEVELS[:3]
+    """Levels accepted for ``check``.
+
+    `repair` (self-fixing checks) and `banner` (the citation gate) are
+    check-scoped extras on top of the universal off/warn/error.
+    """
+    levels = list(LEVELS[:3])  # off, warn, error
+    if check in _REPAIR_CHECKS:
+        levels.append("repair")
+    if check in _BANNER_CHECKS:
+        levels.append("banner")
+    return tuple(levels)
 
 
 def _norm(value, check):

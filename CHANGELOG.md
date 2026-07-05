@@ -28,6 +28,54 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   verbatim into `process_tables_modules/03_csv2tex.src` (sourced by the
   orchestrator) to keep the file under the size limit; no behaviour change.
 
+## [2.24.7] - 2026-07-01
+
+### Added
+- **Citation gate (`check_citations.py`) — fail the build on unresolved scholar
+  stubs.** A new pre-compile check (in the `run_provenance_checks.sh` roster)
+  scans the manuscript's `\cite` keys and fails when a cited reference is an
+  auto-generated scholar stub (`note` contains "Auto-generated stub" or
+  `journal` contains "Pending scitex-scholar metadata lookup"). A stub citation
+  can never reach a compiled research manuscript. Defaults to **error** for
+  research projects (`.scitex/dev/config.yaml project-type: research`), **warn**
+  otherwise; overridable via `citations.level` / `SCITEX_WRITER_CITATIONS` /
+  `--level`. It reads the bib that bibtex actually reads: the
+  `\bibliography{}`/`\addbibresource{}` target resolved relative to the tex and
+  **symlink-followed** (real trees point `contents/bibliography.bib` at a
+  possibly-legacy enriched bib, not `00_shared`). "No DOI" is deliberately NOT a
+  stub trigger (books/arXiv/conference refs legitimately lack one) — surfaced as
+  info only, to avoid false positives. This is the compiler-owns half of the
+  citation→clew verification contract; the clew-verified half slots in behind
+  the same report once scitex-clew defines its batch lookup.
+
+## [2.24.6] - 2026-07-01
+
+### Fixed
+- **Compile no longer discards a valid PDF over a non-fatal bibtex/latexmk
+  exit.** `latexmk` returns non-zero (exit 12) on a *non-fatal* bibtex warning
+  (e.g. a malformed/stub `.bib` entry → "repeated entry" / "I'm skipping
+  whatever remains of this entry") even when pdfTeX finalized a complete PDF.
+  `cleanup()` treated any non-zero exit as fatal, deleted the just-produced PDF,
+  and aborted — losing a valid multi-page PDF over one stub reference. It now
+  promotes a PDF that was *freshly produced this run* (present in `logs/`) with
+  pages > 0 — read from pdfTeX's per-run `"Output written on … (N pages"` log
+  line (immune to a stale PDF), with a `pdfinfo` fallback — and downgrades to a
+  WARN pointing at `logs/*.{log,blg}`. The fail-loud-on-no-PDF guarantee
+  (2.23.1) is preserved: a stale PDF can never be mistaken for new output.
+- **Bibliography merge now de-dupes by cite key.** `deduplicate_entries`
+  matched only on DOI and (title, year); a stub entry duplicated across input
+  `.bib` files (same cite key, no DOI, differing/absent title) slipped through
+  twice → bibtex "repeated entry" → dropped reference. Cite key (entry `ID`) is
+  now the first dedup key, since a repeated cite key is exactly what breaks
+  bibtex.
+- **Flattener injections are idempotent on reflatten.** A repeated
+  `--dark-mode` compile re-runs the flattener on content that already carries
+  the injected blocks; the dark-mode and build-id (`_build_id`) injections both
+  matched the first real `\begin{document}` every run and stacked a second copy
+  (duplicated dark-mode override → `\REDENDS`/`\hlref` undefined + stray
+  `\begin{document}`). Both are now guarded by a unique sentinel so a second
+  flatten is a no-op.
+
 ## [2.24.5] - 2026-07-01
 
 ### Fixed

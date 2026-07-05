@@ -57,3 +57,12 @@ def test_noop_when_only_commented_begin_document():
     out = inject_build_metadata(only_comment, "abc123")
     # Assert
     assert out == only_comment
+
+
+def test_idempotent_on_repeated_injection():
+    # Arrange: reflatten scenario -- inject twice on the same content.
+    once = inject_build_metadata(_CONTENT, "abc123")
+    # Act
+    twice = inject_build_metadata(once, "abc123")
+    # Assert: no second block stacked, output unchanged the second time.
+    assert (twice == once) and (twice.count("scitex-writer build identifier") == 1)

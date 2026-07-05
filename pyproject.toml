@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "scitex-writer"
-version = "2.24.5"
+version = "2.24.7"
 description = "LaTeX manuscript compilation system for scientific documents with MCP server"
 readme = "README.md"
 license = "AGPL-3.0-only"
@@ -96,7 +96,7 @@ scitex-writer = "scitex_writer"
 scitex-writer = "scitex_writer"
 
 [project.entry-points."scitex_dev.system_deps"]
-scitex-writer = "scitex_writer._system_deps:provide"
+scitex-writer = "scitex_writer._core._system_deps:provide"
 
 [project.urls]
 Homepage = "https://github.com/ywatanabe1989/scitex-writer"
