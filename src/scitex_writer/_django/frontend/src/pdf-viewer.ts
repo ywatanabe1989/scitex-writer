@@ -91,6 +91,14 @@ export class PDFViewer {
     return Math.max(0.4, width / 800); // 800px baseline
   }
 
+  /** Scroll a 1-based page into view. Clamped to the rendered range; a no-op
+   * when nothing is rendered yet. Used by the hints "jump to page" anchor. */
+  goToPage(page: number): void {
+    if (this.canvases.length === 0) return;
+    const idx = Math.max(1, Math.min(this.canvases.length, page)) - 1;
+    this.canvases[idx]?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
   setZoom(delta: number): void {
     this.fitMode = "none";
     this.scale = Math.max(0.4, Math.min(3, this.scale + delta));

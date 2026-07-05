@@ -40,8 +40,10 @@ class TestHintsFromLog:
 
     def test_repeated_undefined_key_is_deduplicated(self):
         # Arrange
-        log = ("Reference `fig:1' on page 1 undefined.\n"
-               "Reference `fig:1' on page 2 undefined.\n")
+        log = (
+            "Reference `fig:1' on page 1 undefined.\n"
+            "Reference `fig:1' on page 2 undefined.\n"
+        )
         # Act
         found = hints_from_log(log)
         # Assert
@@ -55,6 +57,49 @@ class TestHintsFromLog:
         # Assert
         assert found == []
 
+    def test_reference_hint_carries_input_line(self):
+        # Arrange
+        log = "LaTeX Warning: Reference `fig:1' on page 2 undefined on input line 9."
+        # Act
+        found = hints_from_log(log)
+        # Assert
+        assert found[0]["location"]["line"] == 9
+
+    def test_citation_hint_carries_input_line(self):
+        # Arrange
+        log = "LaTeX Warning: Citation `Smith2020' undefined on input line 3."
+        # Act
+        found = hints_from_log(log)
+        # Assert
+        assert found[0]["location"]["line"] == 3
+
+    def test_warning_without_input_line_leaves_line_none(self):
+        # Arrange
+        log = "LaTeX Warning: Reference `fig:1' on page 2 undefined."
+        # Act
+        found = hints_from_log(log)
+        # Assert
+        assert found[0]["location"]["line"] is None
+
+    def test_log_hint_leaves_file_none(self):
+        # Arrange
+        log = "LaTeX Warning: Reference `fig:1' undefined on input line 9."
+        # Act
+        found = hints_from_log(log)
+        # Assert
+        assert found[0]["location"]["file"] is None
+
+    def test_first_occurrence_line_wins_on_dedup(self):
+        # Arrange
+        log = (
+            "Reference `fig:1' undefined on input line 4.\n"
+            "Reference `fig:1' undefined on input line 8.\n"
+        )
+        # Act
+        found = hints_from_log(log)
+        # Assert
+        assert found[0]["location"]["line"] == 4
+
 
 class TestHintsFromClaims:
     def test_verified_claim_stays_silent(self):
@@ -67,7 +112,11 @@ class TestHintsFromClaims:
 
     def test_unverified_claim_becomes_warning(self):
         # Arrange
-        data = {"claims": [{"claim_id": "a", "status": "unverified", "claim_value": "p=0.003"}]}
+        data = {
+            "claims": [
+                {"claim_id": "a", "status": "unverified", "claim_value": "p=0.003"}
+            ]
+        }
         # Act
         found = hints_from_claims(data)
         # Assert
@@ -75,7 +124,9 @@ class TestHintsFromClaims:
 
     def test_registered_without_verified_at_reads_unverified(self):
         # Arrange
-        data = {"claims": [{"claim_id": "a", "status": "registered", "verified_at": None}]}
+        data = {
+            "claims": [{"claim_id": "a", "status": "registered", "verified_at": None}]
+        }
         # Act
         found = hints_from_claims(data)
         # Assert
@@ -99,8 +150,16 @@ class TestHintsFromClaims:
 
     def test_hint_carries_claim_id_and_location(self):
         # Arrange
-        data = {"claims": [{"claim_id": "x", "status": "unverified",
-                            "file_path": "results.tex", "line_number": 42}]}
+        data = {
+            "claims": [
+                {
+                    "claim_id": "x",
+                    "status": "unverified",
+                    "file_path": "results.tex",
+                    "line_number": 42,
+                }
+            ]
+        }
         # Act
         found = hints_from_claims(data)
         # Assert
@@ -108,7 +167,9 @@ class TestHintsFromClaims:
 
     def test_value_claim_maps_to_stat_kind(self):
         # Arrange
-        data = {"claims": [{"claim_id": "a", "status": "unverified", "claim_type": "value"}]}
+        data = {
+            "claims": [{"claim_id": "a", "status": "unverified", "claim_type": "value"}]
+        }
         # Act
         found = hints_from_claims(data)
         # Assert
@@ -125,10 +186,24 @@ class TestHintsFromClaims:
 
 class TestBuildFeed:
     _HINTS = [
-        {"id": "a", "kind": "claim", "severity": "advice", "message": "m",
-         "location": {}, "claim_id": None, "source": "scitex-clew"},
-        {"id": "b", "kind": "reference", "severity": "warning", "message": "m",
-         "location": {}, "claim_id": None, "source": "latex-log"},
+        {
+            "id": "a",
+            "kind": "claim",
+            "severity": "advice",
+            "message": "m",
+            "location": {},
+            "claim_id": None,
+            "source": "scitex-clew",
+        },
+        {
+            "id": "b",
+            "kind": "reference",
+            "severity": "warning",
+            "message": "m",
+            "location": {},
+            "claim_id": None,
+            "source": "latex-log",
+        },
     ]
 
     def test_feed_declares_schema_version(self):
@@ -160,10 +235,13 @@ class TestCollectAndWrite:
     def test_collect_reads_log_and_claims_from_project(self, tmp_path):
         # Arrange
         (tmp_path / "logs").mkdir()
-        (tmp_path / "logs" / "manuscript.log").write_text("Citation `Ref1' undefined.\n")
+        (tmp_path / "logs" / "manuscript.log").write_text(
+            "Citation `Ref1' undefined.\n"
+        )
         (tmp_path / ".scitex" / "clew" / "runtime").mkdir(parents=True)
         (tmp_path / ".scitex" / "clew" / "runtime" / "claims.json").write_text(
-            json.dumps({"claims": [{"claim_id": "a", "status": "unverified"}]}))
+            json.dumps({"claims": [{"claim_id": "a", "status": "unverified"}]})
+        )
         # Act
         found = collect_hints(str(tmp_path))
         # Assert
@@ -207,7 +285,9 @@ class TestMergeBySourceHelper:
         # Act
         merged = merge_by_source(list(self._EXISTING), new, WRITER_SOURCES)
         # Assert
-        assert [h["id"] for h in merged if h["source"] == "latex-log"] == ["reference:y"]
+        assert [h["id"] for h in merged if h["source"] == "latex-log"] == [
+            "reference:y"
+        ]
 
     def test_merge_empty_new_clears_stale_owned_hints(self):
         # Arrange
@@ -228,11 +308,19 @@ class TestMergeBySourceHelper:
 
 class TestWriteFeedMergeBySource:
     def _seed(self, tmp_path):
-        seed = build_feed([
-            {"id": "fig:1", "kind": "figure", "severity": "warning",
-             "message": "stale", "location": {}, "claim_id": None,
-             "source": "figrecipe"},
-        ])
+        seed = build_feed(
+            [
+                {
+                    "id": "fig:1",
+                    "kind": "figure",
+                    "severity": "warning",
+                    "message": "stale",
+                    "location": {},
+                    "claim_id": None,
+                    "source": "figrecipe",
+                },
+            ]
+        )
         sidecar = tmp_path / ".scitex" / "writer" / "hints.json"
         sidecar.parent.mkdir(parents=True, exist_ok=True)
         sidecar.write_text(json.dumps(seed))
@@ -241,26 +329,49 @@ class TestWriteFeedMergeBySource:
     def test_write_with_owned_sources_preserves_other_producer(self, tmp_path):
         # Arrange
         self._seed(tmp_path)
-        writer_feed = build_feed([
-            {"id": "reference:z", "kind": "reference", "severity": "warning",
-             "message": "undef", "location": {}, "claim_id": None,
-             "source": "latex-log"}])
+        writer_feed = build_feed(
+            [
+                {
+                    "id": "reference:z",
+                    "kind": "reference",
+                    "severity": "warning",
+                    "message": "undef",
+                    "location": {},
+                    "claim_id": None,
+                    "source": "latex-log",
+                }
+            ]
+        )
         # Act
         out = write_feed(str(tmp_path), writer_feed, owned_sources=WRITER_SOURCES)
         # Assert
-        assert any(h["source"] == "figrecipe" for h in json.loads(Path(out).read_text())["hints"])
+        assert any(
+            h["source"] == "figrecipe"
+            for h in json.loads(Path(out).read_text())["hints"]
+        )
 
     def test_write_without_owned_sources_overwrites(self, tmp_path):
         # Arrange
         self._seed(tmp_path)
-        writer_feed = build_feed([
-            {"id": "reference:z", "kind": "reference", "severity": "warning",
-             "message": "undef", "location": {}, "claim_id": None,
-             "source": "latex-log"}])
+        writer_feed = build_feed(
+            [
+                {
+                    "id": "reference:z",
+                    "kind": "reference",
+                    "severity": "warning",
+                    "message": "undef",
+                    "location": {},
+                    "claim_id": None,
+                    "source": "latex-log",
+                }
+            ]
+        )
         # Act
         out = write_feed(str(tmp_path), writer_feed)
         # Assert
-        assert [h["id"] for h in json.loads(Path(out).read_text())["hints"]] == ["reference:z"]
+        assert [h["id"] for h in json.loads(Path(out).read_text())["hints"]] == [
+            "reference:z"
+        ]
 
     def test_write_merge_survives_malformed_existing_sidecar(self, tmp_path):
         # Arrange

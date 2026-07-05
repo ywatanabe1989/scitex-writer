@@ -82,9 +82,21 @@ async function bootstrap(): Promise<void> {
   const pdf = pdfContainer ? new PDFViewer({ container: pdfContainer }) : null;
   pdf?.renderPlaceholder();
 
-  // Details right panel (Compilation / Overleaf / Prism / Project / Shortcuts)
+  // Details right panel (Hints / Compilation / Overleaf / Prism / Project /
+  // Shortcuts). Hint rows with a source location become click-to-jump anchors:
+  // file+line reveals the line in Monaco (switching sections if needed); page
+  // scrolls the PDF viewer.
   const detailsEl = root.querySelector<HTMLElement>("#details-panel");
-  const details = detailsEl ? new DetailsPanel(detailsEl) : null;
+  const details = detailsEl
+    ? new DetailsPanel(detailsEl, {
+        onJumpToLocation: (file, line) => {
+          void jumpToSourceLocation(file, line);
+        },
+        onJumpToPage: (page) => {
+          pdf?.goToPage(page);
+        },
+      })
+    : null;
 
   // Compile controller — pushes lamp status into the Details panel so
   // Compilation-Preview / Compilation-Full show live status dots.
@@ -330,6 +342,25 @@ async function bootstrap(): Promise<void> {
       console.error("[writer] loadSection failed", err);
       toolbar.setSavedStatus("error");
     }
+  }
+
+  // Reveal a hint's source location: switch to the section that owns the file
+  // (if it differs from the open one and can be resolved), then reveal the
+  // line in Monaco. Reuses the same reveal path as the Claims-tab jump.
+  async function jumpToSourceLocation(
+    file: string,
+    line: number,
+  ): Promise<void> {
+    const mEditor = editor.getEditor();
+    if (!mEditor) return;
+    const match = sections?.findByFile(file);
+    if (match && match.path !== currentPath) {
+      await loadSection(match);
+      sections?.markActive(match);
+    }
+    mEditor.revealLineInCenter(line);
+    mEditor.setPosition({ lineNumber: line, column: 1 });
+    mEditor.focus();
   }
 
   function updateWordCount(): void {
