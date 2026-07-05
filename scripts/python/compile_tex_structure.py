@@ -13,7 +13,6 @@ import argparse
 import os
 import re
 import sys
-from datetime import datetime
 from pathlib import Path
 from typing import Optional, Set
 
@@ -23,57 +22,31 @@ from _build_id import (  # noqa: E402
     inject_build_metadata,
     register_build,
 )
+from _tex_signature import generate_signature  # noqa: E402
+
+# Unique marker for the inlined dark-mode block; also used as the idempotency
+# sentinel so a repeated flatten does not stack a second copy.
+DARK_MODE_SENTINEL = "% Dark mode styling (inlined at compile time)"
 
 
-def generate_signature(source_file: Path = None, build_id: Optional[str] = None) -> str:
+def _is_style_input(input_file: str) -> bool:
+    r"""True if an \input target is a preamble style file (latex_styles/)."""
+    return "latex_styles" in Path(input_file).parts
+
+
+def _style_fallback(input_path: Path) -> Optional[Path]:
+    r"""Resolve a latex_styles \input against 00_shared/latex_styles by basename.
+
+    Preamble styles are \input via contents/latex_styles/ -- a dev-only,
+    UNCOMMITTED symlink to 00_shared/latex_styles that a fresh clone/CI/worktree
+    lacks. Resolved from cwd (= project root), like ./-prefixed inputs. Returns
+    None if not a style input or the fallback is absent.
     """
-    Generate compilation signature comment block.
-
-    Args:
-        source_file: Original source file path (optional)
-
-    Returns:
-        Formatted signature as comment block
-    """
-    # Read version from pyproject.toml (single source of truth)
-    version = "unknown"
-    pyproject_path = Path(__file__).parent.parent.parent / "pyproject.toml"
-    try:
-        with open(pyproject_path, "r") as f:
-            for line in f:
-                if line.startswith("version"):
-                    version = line.split("=")[1].strip().strip('"')
-                    break
-    except Exception:
-        pass
-
-    # Get engine
-    engine = (
-        os.getenv("SCITEX_WRITER_SELECTED_ENGINE", "")
-        or os.getenv("SCITEX_WRITER_ENGINE", "")
-        or "auto"
-    )
-
-    # Get timestamp
-    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-
-    # Format signature
-    signature = f"""% {"=" * 78}
-% SciTeX Writer {version} (https://scitex.ai)
-% LaTeX compilation engine: {engine}
-% Compiled: {timestamp}
-"""
-
-    if build_id:
-        signature += f"% Build ID: build:{build_id}\n"
-
-    if source_file:
-        signature += f"% Source: {source_file}\n"
-
-    signature += f"""% {"=" * 78}
-
-"""
-    return signature
+    if "latex_styles" in input_path.parts:
+        candidate = Path("00_shared") / "latex_styles" / input_path.name
+        if candidate.exists():
+            return candidate
+    return None
 
 
 def expand_inputs(
@@ -81,6 +54,7 @@ def expand_inputs(
     processed: Set[Path] = None,
     depth: int = 0,
     max_depth: int = 10,
+    errors: Optional[list] = None,
 ) -> str:
     r"""
     Recursively expand \input{} commands.
@@ -90,12 +64,17 @@ def expand_inputs(
         processed: Set of already processed files (prevents infinite loops)
         depth: Current recursion depth
         max_depth: Maximum recursion depth
+        errors: Accumulator for FATAL preamble-style misses (fail-loud). The
+            top-level caller passes a list and aborts the compile if it is
+            non-empty after expansion.
 
     Returns:
         Expanded content as string
     """
     if processed is None:
         processed = set()
+    if errors is None:
+        errors = []
 
     if depth > max_depth:
         return f"% ERROR: Max recursion depth ({max_depth}) exceeded\n"
@@ -149,21 +128,42 @@ def expand_inputs(
                     # Path like contents/... is relative to current file
                     input_path = file_path.parent / input_path
 
+            # Fresh-checkout robustness: a latex_styles \input missing in
+            # contents/ falls back to 00_shared/latex_styles (uncommitted dev
+            # symlink -- see _style_fallback).
+            if not input_path.exists():
+                fb = _style_fallback(input_path)
+                if fb is not None:
+                    input_path = fb
+
             # Add header comment
             result_lines.append("")
             result_lines.append("% " + "=" * 70)
             result_lines.append(f"% File: {input_file}")
             result_lines.append("% " + "=" * 70)
 
-            # Recursively expand
-            expanded = expand_inputs(
-                input_path,
-                processed=processed,
-                depth=depth + 1,
-                max_depth=max_depth,
-            )
-
-            result_lines.append(expanded)
+            if input_path.exists():
+                expanded = expand_inputs(
+                    input_path,
+                    processed=processed,
+                    depth=depth + 1,
+                    max_depth=max_depth,
+                    errors=errors,
+                )
+                result_lines.append(expanded)
+            elif _is_style_input(input_file):
+                # FAIL LOUD: a missing PREAMBLE STYLE input silently yields a
+                # broken PDF (undefined \linenumbers etc.) on exit 0.
+                msg = (
+                    f"preamble style input not found: \\input{{{input_file}}} "
+                    f"(searched contents/ and 00_shared/latex_styles/)"
+                )
+                errors.append(msg)
+                result_lines.append(f"% FATAL: {msg}")
+            else:
+                result_lines.append(
+                    f"% SKIPPED: \\input{{{input_file}}} (file not found)"
+                )
             result_lines.append("")
 
         else:
@@ -210,8 +210,24 @@ def compile_tex_structure(
     if verbose:
         print(f"Build ID: build:{build_id}")
 
-    # Expand all inputs recursively
-    expanded_content = expand_inputs(base_tex)
+    # Expand all inputs recursively. A missing PREAMBLE STYLE \input is FATAL
+    # (would silently yield a broken PDF); collect any and abort below.
+    style_errors: list = []
+    expanded_content = expand_inputs(base_tex, errors=style_errors)
+    if style_errors:
+        print(
+            "ERROR: missing preamble style input(s) -- aborting (would produce "
+            "a broken PDF on exit 0):",
+            file=sys.stderr,
+        )
+        for e in style_errors:
+            print(f"  - {e}", file=sys.stderr)
+        print(
+            "  Fix: ensure 00_shared/latex_styles/ holds the style files, or "
+            "that contents/latex_styles resolves to them.",
+            file=sys.stderr,
+        )
+        return False
 
     # Inject PDF metadata + \scitexBuildID macro before \begin{document}
     expanded_content = inject_build_metadata(expanded_content, build_id)
@@ -328,20 +344,32 @@ def compile_tex_structure(
             for old_hex, new_hex in color_subs.items():
                 dark_mode_content = dark_mode_content.replace(old_hex, new_hex)
             dark_mode_injection = (
-                "\n% Dark mode styling (inlined at compile time)\n"
-                + dark_mode_content
-                + "\n"
+                "\n" + DARK_MODE_SENTINEL + "\n" + dark_mode_content + "\n"
             )
         else:
             print(f"WARNING: Dark mode file not found: {dark_mode_file}")
             dark_mode_injection = ""
 
+        # Idempotent: a repeated flatten (running the flattener again on content
+        # that already carries the dark-mode block) must NOT stack a second copy
+        # before \begin{document} -- that duplicated the override and, pre-fix,
+        # surfaced as \REDENDS/\hlref-undefined and a stray \begin{document}.
+        if DARK_MODE_SENTINEL in expanded_content:
+            dark_mode_injection = ""
+
         if dark_mode_injection:
-            # Inject dark mode styling before \begin{document}
-            # Leave hyperref/link colors untouched (use document defaults)
-            expanded_content = expanded_content.replace(
-                r"\begin{document}",
-                dark_mode_injection + r"\begin{document}",
+            # Inject dark mode styling before the REAL \begin{document}.
+            # Anchor to a line-start match, first occurrence only: a plain
+            # str.replace() also matched \begin{document} inside COMMENTS (e.g.
+            # clew_presentation.tex's "overridable before \begin{document})"),
+            # injecting the dark-mode block mid-preamble (before base defs ->
+            # "\REDENDS undefined") and de-commenting the tail. A function
+            # replacement keeps backslashes in the injection literal.
+            expanded_content = re.sub(
+                r"(?m)^([ \t]*)\\begin\{document\}",
+                lambda m: dark_mode_injection + m.group(0),
+                expanded_content,
+                count=1,
             )
 
     # Write output

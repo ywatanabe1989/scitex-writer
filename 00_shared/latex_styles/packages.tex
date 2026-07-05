@@ -78,6 +78,25 @@
   \input{../../00_shared/scitex_writer_version.tex}%
 }{}
 
+%% Clew presentation layer (RENDERING half — writer owns this).
+%% scitex-clew emits 00_shared/clew_rendered.tex (palette + per-claim
+%% value/color/badge + aggregate — the WHAT); this style renders it (the HOW).
+%% Opt-in toggles (clew_presentation.{markers,badge,signature,legend}) default
+%% OFF, so loading the style is a no-op until a manuscript/config enables them.
+%%
+%% PLAIN \input (NOT wrapped in \IfFileExists): the flattener
+%% (compile_tex_structure) inlines \input verbatim AT the \input site. Inside
+%% an \IfFileExists{f}{...} arg that site is a MACRO-ARGUMENT BODY, and a style
+%% file with \ExplSyntaxOn (:/_ as letters) + \newcommand[1]{#1} cannot survive
+%% being grabbed as an argument (catcodes/# misfire -> the block dumps as raw
+%% text in the body). At top level it inlines into the preamble verbatim and
+%% executes correctly. Existence is handled by the flattener (inlines-or-skips
+%% before LaTeX runs); a truly-missing clew_presentation.tex is caught by the
+%% flattener's fail-loud (it is a latex_styles file), and a missing
+%% clew_rendered.tex is skipped (non-style, optional until clew generates it).
+\input{../../00_shared/latex_styles/clew_presentation.tex}
+\input{../../00_shared/clew_rendered.tex}
+
 %% EOF
 
 %%%% EOF

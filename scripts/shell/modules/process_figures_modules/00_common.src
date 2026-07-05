@@ -45,10 +45,23 @@ init_figures() {
         rm -f "$SCITEX_WRITER_FIGURE_COMPILED_DIR"/*.tex
     fi
 
-    # Clean jpg_for_compilation directory
+    # Clean jpg_for_compilation: remove only DERIVED artifacts (symlinks, which
+    # are re-created from caption_and_media each run) and PRESERVE real files.
+    # A blanket `rm -rf` here silently destroyed figures materialized directly
+    # in jpg_for_compilation that have no caption_and_media source to regenerate
+    # from. Surface any such orphan (warn, don't silently keep or delete) so the
+    # user can move it to caption_and_media/ as a tracked source.
     if [ -d "$SCITEX_WRITER_FIGURE_JPG_DIR" ]; then
-        echo_info "Cleaning jpg_for_compilation directory..."
-        rm -rf "${SCITEX_WRITER_FIGURE_JPG_DIR:?}"/*
+        echo_info "Cleaning jpg_for_compilation directory (symlinks; real files preserved)..."
+        find "${SCITEX_WRITER_FIGURE_JPG_DIR:?}" -maxdepth 1 -type l -delete 2>/dev/null
+        for _orphan in "$SCITEX_WRITER_FIGURE_JPG_DIR"/*.jpg; do
+            [ -f "$_orphan" ] || continue
+            local _stem
+            _stem=$(basename "$_orphan" .jpg)
+            if ! ls "$SCITEX_WRITER_FIGURE_CAPTION_MEDIA_DIR/${_stem}".{png,tif,tiff,pptx,mmd,pdf,jpg} >/dev/null 2>&1; then
+                echo_warning "Preserving user-placed $(basename "$_orphan") (no caption_and_media source); move it to caption_and_media/ to track it as a source."
+            fi
+        done
     fi
 }
 

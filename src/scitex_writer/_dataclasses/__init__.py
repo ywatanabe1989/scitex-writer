@@ -15,7 +15,7 @@ Each document type includes:
 from .config import WriterConfig
 from .contents import ManuscriptContents, RevisionContents, SupplementaryContents
 from .core import Document, DocumentSection
-from .results import CitationStyleResult, CompilationResult, LaTeXIssue
+from .results import CitationStyleResult, CompilationResult, LaTeXIssue, WordCountResult
 
 # Tree structures (internal use)
 from .tree import (
@@ -40,6 +40,7 @@ __all__ = [
     "CompilationResult",
     "WriterConfig",
     "LaTeXIssue",
+    "WordCountResult",
     # Tree structures
     "ConfigTree",
     "SharedTree",

@@ -8,15 +8,27 @@ from ..utils import resolve_project_path, run_compile_script
 
 
 def _auto_render_claims(project_path) -> None:
-    """Render claims_rendered.tex if claims.json exists (silent, best-effort)."""
-    claims_json = project_path / "00_shared" / "claims.json"
-    if claims_json.exists():
-        try:
-            from ._claim import render_claims
+    """Regenerate claims_rendered.tex from claims.json (\\vclaim SSoT), fail loud.
 
-            render_claims(str(project_path))
-        except Exception:
-            pass  # Never block compilation due to claims rendering
+    claims.json is the source of truth for \\vclaim values; a stale
+    claims_rendered.tex would ship outdated values into the PDF. If claims.json
+    is absent there is nothing to render. If rendering fails, raise rather than
+    compile with a stale file — a render failure when claims.json is present is
+    always a defect (malformed JSON / broken claim definition).
+    """
+    claims_json = project_path / "00_shared" / "claims.json"
+    if not claims_json.exists():
+        return
+    from ._claim import render_claims
+
+    result = render_claims(str(project_path))
+    if not result.get("success"):
+        raise RuntimeError(
+            f"Failed to render claims_rendered.tex from {claims_json}: "
+            f"{result.get('error', 'unknown error')}. Fix claims.json or the "
+            f"claim definitions; compiling now would ship a stale "
+            f"claims_rendered.tex."
+        )
 
 
 def _inject_version_stamp(project_path) -> None:

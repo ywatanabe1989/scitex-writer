@@ -25,6 +25,7 @@ def register_all_tools(mcp: FastMCP) -> None:
         skills,
         tables,
         update,
+        wordcount,
     )
 
     # Register tools from each module
@@ -42,6 +43,7 @@ def register_all_tools(mcp: FastMCP) -> None:
     migration.register_tools(mcp)
     skills.register_tools(mcp)
     checks.register_tools(mcp)
+    wordcount.register_tools(mcp)
 
 
 __all__ = ["register_all_tools"]
