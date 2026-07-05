@@ -281,6 +281,16 @@ main() {
     fi
     log_stage_end "Claims Render"
 
+    # Emit clew_rendered.tex from clew's runtime claims.json (JSON->TeX; clew is
+    # renderer-agnostic) so the clew presentation layer has its data. No-op when
+    # clew has no export; fails loud if the export is present but malformed.
+    log_stage_start "Clew Render"
+    if ! "$PROJECT_ROOT/scripts/shell/modules/render_clew.sh"; then
+        log_error "Clew render failed (clew claims.json present but rendering errored) -- fix .scitex/clew/runtime/claims.json; compiling would ship a stale clew_rendered.tex"
+        exit 1
+    fi
+    log_stage_end "Clew Render"
+
     # Merge bibliography files if multiple exist
     log_stage_start "Bibliography Merge"
     "$PROJECT_ROOT/scripts/shell/modules/merge_bibliographies.sh"
@@ -410,6 +420,18 @@ main() {
         exit 1
     fi
     log_stage_end "Compile Verification"
+
+    # Manuscript Hints feed (ADVISORY): aggregate the signals the compile
+    # already produced (undefined \ref/\cite in the log, unverified clew claims)
+    # into .scitex/writer/hints.json — the data layer the writer UI's Details
+    # pane renders as quiet inline hints ("the paper reacts to your work").
+    # Runs BEFORE Cleanup so the log + claims are still present. NEVER fatal:
+    # a hints feed must not break a compile.
+    log_stage_start "Manuscript Hints"
+    "${SCITEX_WRITER_PYTHON:-python3}" \
+        "$PROJECT_ROOT/scripts/python/manuscript_hints.py" "$PROJECT_ROOT" \
+        || echo_warning "Manuscript hints feed skipped (non-fatal)"
+    log_stage_end "Manuscript Hints"
 
     # Diff (skip if --no_diff specified)
     if [ "$no_diff" = false ]; then

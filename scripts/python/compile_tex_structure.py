@@ -28,6 +28,13 @@ from _tex_signature import generate_signature  # noqa: E402
 # sentinel so a repeated flatten does not stack a second copy.
 DARK_MODE_SENTINEL = "% Dark mode styling (inlined at compile time)"
 
+# The citation gate (banner mode) writes this artifact under the project root;
+# when present it is injected right AFTER \begin{document} (before \maketitle)
+# so a red "unverified citations" box lands at the top of page 1. Its first
+# line is also the idempotency sentinel (a reflatten must not stack a copy).
+CITATION_BANNER_ARTIFACT = ".scitex/writer/.citation_banner.tex"
+CITATION_BANNER_SENTINEL = "scitex-writer citation banner"
+
 
 def _is_style_input(input_file: str) -> bool:
     r"""True if an \input target is a preamble style file (latex_styles/)."""
@@ -368,6 +375,24 @@ def compile_tex_structure(
             expanded_content = re.sub(
                 r"(?m)^([ \t]*)\\begin\{document\}",
                 lambda m: dark_mode_injection + m.group(0),
+                expanded_content,
+                count=1,
+            )
+
+    # Inject the citation banner (banner-mode compile artifact) at the TOP of
+    # page 1 -- right AFTER \begin{document}, before \maketitle -- so a red
+    # "UNVERIFIED CITATIONS" box is impossible to miss. Idempotent: skip if the
+    # banner sentinel is already present (a reflatten must not stack a copy).
+    banner_file = base_tex.parent.parent / CITATION_BANNER_ARTIFACT
+    if banner_file.is_file() and CITATION_BANNER_SENTINEL not in expanded_content:
+        try:
+            banner_tex = banner_file.read_text(encoding="utf-8")
+        except OSError:
+            banner_tex = ""
+        if banner_tex.strip():
+            expanded_content = re.sub(
+                r"(?m)^([ \t]*)\\begin\{document\}",
+                lambda m: m.group(0) + "\n" + banner_tex,
                 expanded_content,
                 count=1,
             )

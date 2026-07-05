@@ -1,4 +1,4 @@
-"""Tests for ``scitex_writer._branding`` (BRAND_*, rebrand_text, helpers).
+"""Tests for ``scitex_writer._core._branding`` (BRAND_*, rebrand_text, helpers).
 
 Branding is read from env vars at import time. Tests that need a
 custom brand reload the module under monkey-patched env so the new
@@ -33,7 +33,7 @@ def reload_branding():
     def _reload(brand: str | None = None, alias: str | None = None):
         _set("SCITEX_WRITER_BRAND", brand)
         _set("SCITEX_WRITER_ALIAS", alias)
-        from scitex_writer import _branding
+        from scitex_writer._core import _branding
 
         return importlib.reload(_branding)
 
@@ -42,7 +42,7 @@ def reload_branding():
     finally:
         for key, value in saved.items():
             _set(key, value)
-        from scitex_writer import _branding
+        from scitex_writer._core import _branding
 
         importlib.reload(_branding)
 

@@ -7,6 +7,47 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- **Controlled inline figure placement (`\scitexfig{<number>}`).** Figures
+  collect in the end "Figures" section by default; to place one in the main
+  text at a controlled spot, drop `\scitexfig{01}` where you want it — it
+  renders that figure's float there and flags it so it is not also repeated at
+  the end. Figures left unplaced still collect at the end (default behaviour
+  unchanged). The assembler now writes per-figure standalone floats to
+  `contents/figures/compiled/_placeable/<number>.tex` and guards each end-block
+  float with `\ifcsname scitexfigplaced@<number>\endcsname`.
+- **Controlled inline table placement (`\scitextab{<number>}`).** Same model
+  for tables: `\scitextab{01}` renders that table where dropped and skips it in
+  the end "Tables" section; unplaced tables still collect at the end. The table
+  assembler writes number-keyed placeable copies and guards the end-block input
+  with `\ifcsname scitextabplaced@<number>\endcsname`.
+
+### Changed
+- **`process_tables.sh` split** — the CSV→LaTeX generation functions
+  (`csv2tex`, `csv2tex_single_fallback`, `csv2tex_fallback`) were extracted
+  verbatim into `process_tables_modules/03_csv2tex.src` (sourced by the
+  orchestrator) to keep the file under the size limit; no behaviour change.
+
+## [2.24.7] - 2026-07-01
+
+### Added
+- **Citation gate (`check_citations.py`) — fail the build on unresolved scholar
+  stubs.** A new pre-compile check (in the `run_provenance_checks.sh` roster)
+  scans the manuscript's `\cite` keys and fails when a cited reference is an
+  auto-generated scholar stub (`note` contains "Auto-generated stub" or
+  `journal` contains "Pending scitex-scholar metadata lookup"). A stub citation
+  can never reach a compiled research manuscript. Defaults to **error** for
+  research projects (`.scitex/dev/config.yaml project-type: research`), **warn**
+  otherwise; overridable via `citations.level` / `SCITEX_WRITER_CITATIONS` /
+  `--level`. It reads the bib that bibtex actually reads: the
+  `\bibliography{}`/`\addbibresource{}` target resolved relative to the tex and
+  **symlink-followed** (real trees point `contents/bibliography.bib` at a
+  possibly-legacy enriched bib, not `00_shared`). "No DOI" is deliberately NOT a
+  stub trigger (books/arXiv/conference refs legitimately lack one) — surfaced as
+  info only, to avoid false positives. This is the compiler-owns half of the
+  citation→clew verification contract; the clew-verified half slots in behind
+  the same report once scitex-clew defines its batch lookup.
+
 ## [2.24.6] - 2026-07-01
 
 ### Fixed

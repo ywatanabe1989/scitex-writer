@@ -29,30 +29,35 @@ class TestMcpModule:
         # Arrange
         # Act
         from scitex_writer._mcp import mcp
+
         # Act
         # Assert
         assert mcp is not None
 
     def test_mcp_import_mcp_name_equals_get_mcp_server_name(self):
         # Arrange
-        from scitex_writer._mcp import mcp
         # Server name uses branding
         # Act
-        from scitex_writer._branding import get_mcp_server_name
+        from scitex_writer._core._branding import get_mcp_server_name
+        from scitex_writer._mcp import mcp
+
         # Act
         # Assert
         assert mcp.name == get_mcp_server_name()
 
-
     def test_instructions_via_branding(self):
         """Test that instructions are available via branding module."""
         # Arrange
-        from scitex_writer._branding import get_mcp_instructions
+        from scitex_writer._core._branding import get_mcp_instructions
 
         # Act
         instructions = get_mcp_instructions()
         # Assert
-        assert (instructions is not None) and (isinstance(instructions, str)) and ('manuscript' in instructions)
+        assert (
+            (instructions is not None)
+            and (isinstance(instructions, str))
+            and ("manuscript" in instructions)
+        )
 
     def test_run_server_function_exists(self):
         """Test that run_server function exists."""
@@ -107,47 +112,63 @@ class TestInstructionsContent:
     def test_instructions_has_setup(self):
         """Test that instructions contains setup/clone info."""
         # Arrange
-        from scitex_writer._branding import get_mcp_instructions
+        from scitex_writer._core._branding import get_mcp_instructions
 
         # Act
         instructions = get_mcp_instructions()
         # Assert
-        assert ('git clone' in instructions) and ('scitex-writer' in instructions)
+        assert ("git clone" in instructions) and ("scitex-writer" in instructions)
 
     def test_instructions_has_structure(self):
         """Test that instructions contains project structure info."""
         # Arrange
-        from scitex_writer._branding import get_mcp_instructions
+        from scitex_writer._core._branding import get_mcp_instructions
 
         # Act
         instructions = get_mcp_instructions()
         # Assert
-        assert ('00_shared/' in instructions) and ('01_manuscript/' in instructions) and ('02_supplementary/' in instructions) and ('03_revision/' in instructions)
+        assert (
+            ("00_shared/" in instructions)
+            and ("01_manuscript/" in instructions)
+            and ("02_supplementary/" in instructions)
+            and ("03_revision/" in instructions)
+        )
 
     def test_instructions_has_editable_files(self):
         """Test that instructions lists editable files."""
         # Arrange
-        from scitex_writer._branding import get_mcp_instructions
+        from scitex_writer._core._branding import get_mcp_instructions
 
         # Act
         instructions = get_mcp_instructions()
         # Assert
-        assert ('abstract.tex' in instructions) and ('introduction.tex' in instructions) and ('methods.tex' in instructions) and ('results.tex' in instructions) and ('discussion.tex' in instructions)
+        assert (
+            ("abstract.tex" in instructions)
+            and ("introduction.tex" in instructions)
+            and ("methods.tex" in instructions)
+            and ("results.tex" in instructions)
+            and ("discussion.tex" in instructions)
+        )
 
     def test_instructions_has_compile_options(self):
         """Test that instructions lists compile options."""
         # Arrange
-        from scitex_writer._branding import get_mcp_instructions
+        from scitex_writer._core._branding import get_mcp_instructions
 
         # Act
         instructions = get_mcp_instructions()
         # Assert
-        assert ('--draft' in instructions) and ('--no_figs' in instructions) and ('--no_tables' in instructions) and ('--no_diff' in instructions)
+        assert (
+            ("--draft" in instructions)
+            and ("--no_figs" in instructions)
+            and ("--no_tables" in instructions)
+            and ("--no_diff" in instructions)
+        )
 
     def test_instructions_has_output_info(self):
         """Test that instructions lists output files."""
         # Arrange
-        from scitex_writer._branding import get_mcp_instructions
+        from scitex_writer._core._branding import get_mcp_instructions
 
         # Act
         instructions = get_mcp_instructions()
@@ -157,17 +178,17 @@ class TestInstructionsContent:
     def test_instructions_has_scitex_writer_root(self):
         """Test that instructions explains SCITEX_WRITER_ROOT."""
         # Arrange
-        from scitex_writer._branding import get_mcp_instructions
+        from scitex_writer._core._branding import get_mcp_instructions
 
         # Act
         instructions = get_mcp_instructions()
         # Assert
-        assert ('SCITEX_WRITER_ROOT' in instructions) and ('compile.sh' in instructions)
+        assert ("SCITEX_WRITER_ROOT" in instructions) and ("compile.sh" in instructions)
 
     def test_instructions_has_revision_info(self):
         """Test that instructions mentions revision directory."""
         # Arrange
-        from scitex_writer._branding import get_mcp_instructions
+        from scitex_writer._core._branding import get_mcp_instructions
 
         # Act
         instructions = get_mcp_instructions()
@@ -177,12 +198,14 @@ class TestInstructionsContent:
     def test_instructions_has_bib_merge(self):
         """Test that instructions explains bib auto-merge."""
         # Arrange
-        from scitex_writer._branding import get_mcp_instructions
+        from scitex_writer._core._branding import get_mcp_instructions
 
         # Act
         instructions = get_mcp_instructions()
         # Assert
-        assert ('bib_files/' in instructions) and ('auto-merge' in instructions.lower() or 'merge' in instructions.lower())
+        assert ("bib_files/" in instructions) and (
+            "auto-merge" in instructions.lower() or "merge" in instructions.lower()
+        )
 
 
 class TestHandlersModule:
@@ -204,7 +227,20 @@ class TestHandlersModule:
         from scitex_writer._mcp import handlers
 
         # Assert
-        assert (callable(handlers.clone_project)) and (callable(handlers.compile_manuscript)) and (callable(handlers.compile_supplementary)) and (callable(handlers.compile_revision)) and (callable(handlers.get_project_info)) and (callable(handlers.get_pdf)) and (callable(handlers.list_document_types)) and (callable(handlers.csv_to_latex)) and (callable(handlers.latex_to_csv)) and (callable(handlers.pdf_to_images)) and (callable(handlers.list_figures)) and (callable(handlers.convert_figure))
+        assert (
+            (callable(handlers.clone_project))
+            and (callable(handlers.compile_manuscript))
+            and (callable(handlers.compile_supplementary))
+            and (callable(handlers.compile_revision))
+            and (callable(handlers.get_project_info))
+            and (callable(handlers.get_pdf))
+            and (callable(handlers.list_document_types))
+            and (callable(handlers.csv_to_latex))
+            and (callable(handlers.latex_to_csv))
+            and (callable(handlers.pdf_to_images))
+            and (callable(handlers.list_figures))
+            and (callable(handlers.convert_figure))
+        )
 
 
 class TestUtilsModule:
@@ -247,16 +283,16 @@ class TestBranding:
         """Test default branding values."""
         # Arrange
         # Act
-        from scitex_writer._branding import BRAND_ALIAS, BRAND_NAME
+        from scitex_writer._core._branding import BRAND_ALIAS, BRAND_NAME
 
         # Default values when env vars not set
         # Assert
-        assert (BRAND_NAME == 'scitex-writer') and (BRAND_ALIAS == 'sw')
+        assert (BRAND_NAME == "scitex-writer") and (BRAND_ALIAS == "sw")
 
     def test_get_mcp_server_name(self):
         """Test MCP server name generation."""
         # Arrange
-        from scitex_writer._branding import get_mcp_server_name
+        from scitex_writer._core._branding import get_mcp_server_name
 
         # Should replace dots with hyphens
         # Act
@@ -267,7 +303,7 @@ class TestBranding:
     def test_rebrand_text_noop(self):
         """Test rebrand_text returns original when no branding change."""
         # Arrange
-        from scitex_writer._branding import rebrand_text
+        from scitex_writer._core._branding import rebrand_text
 
         text = "import scitex_writer as sw"
         # Act
@@ -278,7 +314,7 @@ class TestBranding:
     def test_rebrand_text_none(self):
         """Test rebrand_text handles None."""
         # Arrange
-        from scitex_writer._branding import rebrand_text
+        from scitex_writer._core._branding import rebrand_text
 
         # Act
         result = rebrand_text(None)

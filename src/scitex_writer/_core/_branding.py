@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # Timestamp: 2026-01-27
-# File: src/scitex_writer/_branding.py
+# File: src/scitex_writer/_core/_branding.py
 
 """Branding configuration for white-label integration.
 
@@ -184,7 +184,7 @@ def get_mcp_instructions() -> str:
     This function delegates to _usage.get_usage() to avoid circular imports
     while maintaining backward compatibility.
     """
-    from ._usage import get_usage
+    from .._usage import get_usage
 
     return get_usage()
 

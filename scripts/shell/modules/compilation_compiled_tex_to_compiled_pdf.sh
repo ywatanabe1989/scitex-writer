@@ -52,6 +52,20 @@ log_info "Running $0 ..."
 compiled_tex_to_pdf() {
     log_info "    Converting $SCITEX_WRITER_COMPILED_TEX to PDF..."
 
+    # Fail-fast ceiling: enforce a hard compile timeout by DEFAULT so a wedged
+    # LaTeX/bibtex run (e.g. a terminal prompt -interaction=nonstopmode cannot
+    # answer) NEVER hangs silently. Every engine already honors
+    # SCITEX_WRITER_COMPILE_TIMEOUT via a `timeout` prefix + exit-124 check;
+    # setting it here at the single dispatch point makes the ceiling opt-OUT
+    # rather than opt-in (previously only diff-compile set it). Diff-compile's
+    # own (shorter) value is preserved -- `:=` defaults only when UNSET. Opt out
+    # with 0/off/none/false (mapped to empty so the engines skip the prefix).
+    : "${SCITEX_WRITER_COMPILE_TIMEOUT:=${SCITEX_WRITER_COMPILE_TIMEOUT_DEFAULT:-300}}"
+    case "${SCITEX_WRITER_COMPILE_TIMEOUT}" in
+    0 | off | none | false | disabled) SCITEX_WRITER_COMPILE_TIMEOUT="" ;;
+    esac
+    export SCITEX_WRITER_COMPILE_TIMEOUT
+
     local tex_file="$SCITEX_WRITER_COMPILED_TEX"
     local engine="${SCITEX_WRITER_SELECTED_ENGINE:-3pass}"
 
