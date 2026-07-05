@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Test file for: src/scitex_writer/_system_deps.py
+# Test file for: src/scitex_writer/_core/_system_deps.py
 
 import pytest
 
-from scitex_writer._system_deps import APT_PACKAGES, _main, _PACKAGES
+from scitex_writer._core._system_deps import _PACKAGES, APT_PACKAGES, _main
 
 
 def test_apt_packages_nonempty():
@@ -55,7 +55,7 @@ def test_main_emits_one_package_per_line(capsys):
 def test_provide_tags_every_dep_with_writer_provider():
     # Arrange
     pytest.importorskip("scitex_dev.system_deps")
-    from scitex_writer._system_deps import provide
+    from scitex_writer._core._system_deps import provide
 
     # Act
     specs = provide()
