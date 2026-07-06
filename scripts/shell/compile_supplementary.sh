@@ -347,6 +347,16 @@ main() {
     fi
     log_stage_end "Compile Verification"
 
+    # Post-compile overflow check: surface off-page content automatically from
+    # the LaTeX .log (warn reports+continues, error blocks, off is a loud no-op;
+    # a missing .log is reported, not fatal).
+    log_stage_start "Overflow Check"
+    if ! ./scripts/shell/modules/run_overflow_check.sh; then
+        echo_error "Overflow check failed — content overflows the page (overflow.level=error). Aborting."
+        exit 1
+    fi
+    log_stage_end "Overflow Check"
+
     # Diff (skip if --no_diff specified)
     if [ "$no_diff" = false ]; then
         log_stage_start "Diff Generation"
