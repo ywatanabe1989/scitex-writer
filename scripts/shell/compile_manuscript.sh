@@ -425,6 +425,18 @@ main() {
     fi
     log_stage_end "Compile Verification"
 
+    # Post-compile overflow check: surface off-page content (wide tables/figures,
+    # over-tall pages) AUTOMATICALLY from the LaTeX .log, so overflow no longer
+    # needs a manual `scitex-writer check-overflow` call. warn (default) reports
+    # and continues; error blocks; off is a loud no-op. A missing .log is
+    # reported, not fatal.
+    log_stage_start "Overflow Check"
+    if ! "$PROJECT_ROOT/scripts/shell/modules/run_overflow_check.sh"; then
+        log_error "Overflow check failed — content overflows the page (overflow.level=error). Aborting."
+        exit 1
+    fi
+    log_stage_end "Overflow Check"
+
     # Manuscript Hints feed (ADVISORY): aggregate the signals the compile
     # already produced (undefined \ref/\cite in the log, unverified clew claims)
     # into .scitex/writer/hints.json — the data layer the writer UI's Details
