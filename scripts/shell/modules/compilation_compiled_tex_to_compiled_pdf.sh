@@ -1,5 +1,9 @@
 #!/bin/bash
 # -*- coding: utf-8 -*-
+# ROLE: engine-vendored — DO NOT edit here. `scitex-writer update-project`
+# overwrites this file on every re-vendor; fix it upstream in the
+# scitex-writer package instead (local edits are lost, and update-project
+# may set it read-only in the consumer workspace after vendoring).
 # Timestamp: "2025-11-11 23:18:00 (ywatanabe)"
 # File: ./scripts/shell/modules/compilation_compiled_tex_to_compiled_pdf.sh
 # Main compilation orchestrator - delegates to engine-specific modules

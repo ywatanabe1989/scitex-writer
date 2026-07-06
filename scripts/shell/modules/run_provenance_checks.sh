@@ -1,5 +1,9 @@
 #!/bin/bash
 # -*- coding: utf-8 -*-
+# ROLE: engine-vendored — DO NOT edit here. `scitex-writer update-project`
+# overwrites this file on every re-vendor; fix it upstream in the
+# scitex-writer package instead (local edits are lost, and update-project
+# may set it read-only in the consumer workspace after vendoring).
 # File: scripts/shell/modules/run_provenance_checks.sh
 #
 # Run the config-driven pre-compile checks at their RESOLVED severity

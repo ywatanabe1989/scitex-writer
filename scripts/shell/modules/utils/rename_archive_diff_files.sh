@@ -1,5 +1,9 @@
 #!/bin/bash
 # -*- coding: utf-8 -*-
+# ROLE: engine-vendored — DO NOT edit here. `scitex-writer update-project`
+# overwrites this file on every re-vendor; fix it upstream in the
+# scitex-writer package instead (local edits are lost, and update-project
+# may set it read-only in the consumer workspace after vendoring).
 # Timestamp: "2025-09-26 23:30:00 (ywatanabe)"
 # File: ./paper/scripts/shell/modules/utils/rename_archive_diff_files.sh
 # Description: One-time script to rename existing diff files from manuscript_diff_vXXX to manuscript_vXXX_diff

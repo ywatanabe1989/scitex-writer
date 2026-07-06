@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+# ROLE: engine-vendored — DO NOT edit here. `scitex-writer update-project`
+# overwrites this file on every re-vendor; fix it upstream in the
+# scitex-writer package instead (local edits are lost, and update-project
+# may set it read-only in the consumer workspace after vendoring).
 # File: scripts/python/check_compile_artifacts.py
 # Purpose: POST-compile verification gate. Catches a FALSE-SUCCESS compile --
 #          one that exits 0 but produced a DEFICIENT PDF -- and fails loud.
