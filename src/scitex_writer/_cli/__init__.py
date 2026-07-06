@@ -34,8 +34,42 @@ of the package and are referenced from skills, READMEs, and external docs.
 
 from __future__ import annotations
 
-from . import commands  # noqa: F401 (registers all commands on main_group)
-from ._core import main, main_group
+import sys as _sys
+
+
+def _is_bare_version_invocation(argv: list[str]) -> bool:
+    """True iff ``argv`` is exactly a single ``--version`` / ``-V`` token."""
+    return argv in (["--version"], ["-V"])
+
+
+# Fast-path a bare ``--version`` / ``-V`` BEFORE importing ``.commands``.
+#
+# Root cause this guards against (fixes the CI regression that appeared once
+# scitex-dev 0.27.0 was installed): importing ``.commands`` eagerly pulls in
+# ``scitex_dev._cli._completion`` to attach shell-completion leaves, which
+# imports ``scitex_dev._cli`` — and *that* package's ``__init__`` has its own
+# module-level fast-path that, when ``sys.argv[1:]`` is a bare
+# ``--version``/``-V``, prints ``scitex-dev <ver>`` and ``raise
+# SystemExit(0)``. So without this guard, ``scitex-writer --version`` (and
+# ``python -m scitex_writer --version``) print scitex-dev's version and exit
+# before scitex-writer's own Click ``version_option`` (in ``._core``) ever
+# runs.
+#
+# We short-circuit here — before that import chain — so scitex-writer's own
+# version wins. The output matches Click's ``version_option`` format (and the
+# ``prog_name="scitex-writer"`` set in ``._core``), so behaviour is identical
+# to a normal Click ``--version`` dispatch. Deliberately narrow: any other
+# argv (a subcommand, ``--version --json``, ``--help``, ``-h``) falls through
+# to the real Click group unchanged.
+if _is_bare_version_invocation(_sys.argv[1:]):
+    from .. import __version__ as _pkg_version
+
+    print(f"scitex-writer, version {_pkg_version}")
+    raise SystemExit(0)
+
+
+from . import commands  # noqa: E402,F401 (registers all commands on main_group)
+from ._core import main, main_group  # noqa: E402
 
 # Backward-compat re-exports: before the monolith split every subcommand
 # group (``bib_group``, ``compile_group``, ...) lived directly in this
