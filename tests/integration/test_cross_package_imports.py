@@ -23,6 +23,7 @@ CROSS_PACKAGE_IMPORTS = [
     "scitex_app._django",
     "scitex_app._standalone",
     "scitex_clew",
+    "scitex_config._ecosystem",
     "scitex_container.apptainer",
     "scitex_dev",
     "scitex_dev._cli._completion",
@@ -32,6 +33,7 @@ CROSS_PACKAGE_IMPORTS = [
     "scitex_dev.system_deps",
     "scitex_dev.types",
     "scitex_scholar",
+    "scitex_todo",
     "scitex_ui",
 ]
 # ===== END AUTO-GENERATED =====

@@ -18,7 +18,7 @@ persist (§3, POST sequence step 4).
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any, Dict, Optional, Union
+from typing import Any, Dict, Optional, Tuple, Union
 
 from ._db import persist as _persist
 from ._record import Annotation
@@ -53,26 +53,31 @@ def _notify(
     *,
     card_id: str,
     store: Optional[PathLike] = None,
-) -> bool:
+) -> Tuple[bool, Optional[str]]:
     """PROVISIONAL: post the annotation summary to a scitex-todo card.
 
-    Returns True on success, False on any failure (fail-soft). ``store``
-    lets tests point at a tmp ``tasks.yaml`` so the real shared store is
-    never written.
+    Returns ``(notified, notify_error)``. The scitex-todo import is LAZY so
+    the module still imports where scitex-todo is absent (e.g. CI). This is
+    fail-soft for PERSISTENCE (a failed notify never rolls back the row)
+    but NOT silent: the reason is surfaced to the caller as ``notify_error``
+    (no swallowed exception). ``store`` lets tests point at a tmp
+    ``tasks.yaml`` so the real shared store is never written.
     """
     try:
         from scitex_todo import comment_task
+    except ImportError:
+        return False, "scitex-todo not installed — notification rail unavailable"
 
+    try:
         comment_task(
             store,
             task_id=card_id,
             text=render_summary(record),
             by=_EMIT_AUTHOR,
         )
-        return True
-    except Exception:
-        # Fail-soft: a broken/absent card must not fail the persist.
-        return False
+        return True, None
+    except Exception as exc:  # noqa: BLE001 — surfaced, not swallowed
+        return False, f"comment_task failed: {exc}"
 
 
 def emit(
@@ -85,16 +90,17 @@ def emit(
 ) -> Dict[str, Any]:
     """Persist the annotation, then emit the provisional notification.
 
-    Returns ``{annotation_id, source_ref, persisted, notified}``. The
-    ``notified`` flag is fail-soft (§3 step 4): a failed notify still
-    returns a persisted record.
+    Returns ``{annotation_id, source_ref, persisted, notified, notify_error}``.
+    ``notified`` is fail-soft (§3 step 4): a failed notify still returns a
+    persisted record, and ``notify_error`` names WHY (never silent).
     """
     record = _persist(annotation, db_path=db_path)
     target_card = card_id or default_card_id(project)
-    notified = _notify(record, card_id=target_card, store=store)
+    notified, notify_error = _notify(record, card_id=target_card, store=store)
     return {
         "annotation_id": record["annotation_id"],
         "source_ref": record["source_ref"],
         "persisted": True,
         "notified": notified,
+        "notify_error": notify_error,
     }
