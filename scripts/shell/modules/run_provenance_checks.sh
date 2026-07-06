@@ -31,6 +31,13 @@
 # process_figures.sh (which creates the placeholder), so at error-level the
 # placeholder path is never reached; defaults to error for research projects,
 # warn otherwise (the public template ships example captions without media).
+# ref_integrity is the REFERENCE-INTEGRITY GATE: it validates every figure/table
+# \ref, every \cite against the merged bib, and every supple- xref against the
+# supplement .aux, reporting ALL problems at once (file:line) BEFORE the
+# expensive LaTeX run -- catching ?-refs and undefined \cites up front instead
+# of buried in the log. Runs automatically (opt-out = level=off); defaults to
+# error for research projects, warn otherwise (a normal single-target compile in
+# a non-research project still succeeds with a loud warning).
 #
 # Returns the worst exit code across the checks (0 unless a check errored).
 
@@ -41,7 +48,7 @@ PROJECT_ROOT="${PROJECT_ROOT:-$(cd "$THIS_DIR/../../.." && pwd)}"
 PY="${SCITEX_WRITER_PYTHON:-python3}"
 
 rc=0
-for chk in check_paper_symlink check_media_provenance check_figure_media check_caption_footnote check_clew_verify check_citations check_version_freshness; do
+for chk in check_paper_symlink check_media_provenance check_figure_media check_ref_integrity check_caption_footnote check_clew_verify check_citations check_version_freshness; do
     script="$THIS_DIR/../../python/${chk}.py"
     [ -f "$script" ] || continue
     "$PY" "$script" "$PROJECT_ROOT" || rc=$?
