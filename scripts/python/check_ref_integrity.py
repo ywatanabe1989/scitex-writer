@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+# ROLE: engine-vendored — DO NOT edit here. `scitex-writer update-project`
+# overwrites this file on every re-vendor; fix it upstream in the
+# scitex-writer package instead (local edits are lost, and update-project
+# may set it read-only in the consumer workspace after vendoring).
 # File: scripts/python/check_ref_integrity.py
 # Purpose: Pre-compile REFERENCE-INTEGRITY gate. Validate every reference class
 #          up front, report ALL problems at once (file:line), then exit non-zero
@@ -17,15 +21,30 @@
 #               explicitly rather than reporting every supple- ref as undefined.
 #
 #          Reuses scripts/python/check_references.py's extractors (don't
-#          rewrite). Severity off|warn|error (DEFAULT error -- a broken ref ships
-#          a ?-mark / wrong PDF):
-#            off   -- skip the gate
+#          rewrite). This gate RUNS AUTOMATICALLY as part of the normal
+#          pre-compile stage (run_provenance_checks.sh), so it is on by default
+#          ("opt-out" model -- opt out by setting the level to `off`).
+#
+#          DEFAULT depends on project type (mirrors check_figure_media /
+#          check_citations / check_clew_verify): a *research* project (marked by
+#          .scitex/dev/config.yaml `project-type: research`) defaults to error
+#          -- a broken ref ships a ?-mark / wrong PDF in a research manuscript --
+#          and a non-research project (the public template) defaults to warn (a
+#          normal single-target compile still succeeds, loud warning only).
+#
+#          Severity off|warn|error:
+#            off   -- skip the gate (prints a loud "disabled (level=off)" note)
 #            warn  -- report problems, exit 0 (does NOT block)
-#            error -- report problems, exit 1 (caller blocks the compile)
-#          Precedence (highest -> lowest): --level, env SCITEX_WRITER_REF_INTEGRITY,
-#          project ./config.yaml ref_integrity.level, user
-#          ~/.scitex/writer/config.yaml, default error. (To migrate onto the
-#          unified scripts/python/_severity.py resolver once that lands.)
+#            error -- report ALL problems, exit 1 (caller blocks the compile
+#                     BEFORE the expensive LaTeX run: fail-fast, report-all)
+#          Precedence (highest -> lowest), via the shared _severity resolver:
+#          --level, env SCITEX_WRITER_REF_INTEGRITY, project ./config.yaml
+#          ref_integrity.level, user ~/.scitex/writer/config.yaml, default
+#          (error for research, warn otherwise).
+#
+#          KNOB NAMING IS PROVISIONAL: the env var name lives in the single
+#          `_REF_INTEGRITY_ENV` constant below so a later rename per the
+#          scitex-dev SciTeX-standard knob contract is a one-line change.
 #
 # Usage:
 #   python check_ref_integrity.py [project_dir]
@@ -65,6 +84,11 @@ FAIL_COUNT = 0
 
 _LEVELS = ("off", "warn", "error")
 
+# SSoT for the per-check env knob. PROVISIONAL: pending the scitex-dev
+# SciTeX-standard knob-naming contract, a later rename is a one-line change
+# here (the CLI flag + config key stay `ref_integrity`).
+_REF_INTEGRITY_ENV = "SCITEX_WRITER_REF_INTEGRITY"
+
 _DOC_DIRS = {
     "manuscript": "01_manuscript",
     "supplementary": "02_supplementary",
@@ -101,6 +125,33 @@ def log_detail(msg):
     print(f"    {DIM}{msg}{NC}")
 
 
+def _is_research_project(project_dir):
+    """True iff .scitex/dev/config.yaml marks this a ``project-type: research``.
+
+    Mirrors check_figure_media / check_citations / check_clew_verify so every
+    gate shares one research-mode signal. PyYAML optional; falls back to a
+    textual marker scan.
+    """
+    cfg = Path(project_dir) / ".scitex" / "dev" / "config.yaml"
+    if not cfg.is_file():
+        return False
+    try:
+        text = cfg.read_text(encoding="utf-8")
+    except OSError:
+        return False
+    try:
+        import yaml
+
+        data = yaml.safe_load(text) or {}
+        if isinstance(data, dict):
+            return str(data.get("project-type", "")).strip().lower() == "research"
+    except Exception:
+        pass
+    for line in text.splitlines():
+        stripped = line.strip()
+        if stripped.startswith("project-type:"):
+            return stripped.split(":", 1)[1].strip().strip("\"'").lower() == "research"
+    return False
 
 
 def _read_aux_labels(aux_path):
@@ -138,22 +189,30 @@ def main():
         "--level",
         choices=list(_LEVELS),
         default=None,
-        help="Severity: off, warn, or error (default). Overrides env and config.",
+        help="Severity: off, warn, or error. Overrides env and config. "
+        "Default: error for research projects, warn otherwise.",
     )
     args = parser.parse_args()
 
     project_dir = Path(args.project_dir).resolve()
+    research = _is_research_project(project_dir)
+    default = "error" if research else "warn"
     level = resolve_level(
         "ref_integrity",
         args.level,
         project_dir,
-        default="error",
-        env_var="SCITEX_WRITER_REF_INTEGRITY",
+        default=default,
+        env_var=_REF_INTEGRITY_ENV,
     )
+    kind = "research" if research else "non-research"
 
-    print(f"\n{BOLD}=== Reference Integrity Gate (level={level}) ==={NC}\n")
+    print(f"\n{BOLD}=== Reference Integrity Gate (level={level}, {kind}) ==={NC}\n")
     if level == "off":
-        print(f"  {DIM}[INFO]{NC} reference-integrity gate is disabled (level=off).")
+        print(
+            f"  {BOLD}{YELLOW}[INFO]{NC} reference-integrity gate is "
+            f"DISABLED (level=off) -- broken \\ref/\\cite/supple- xrefs will "
+            f"NOT be checked before compile."
+        )
         print(
             f"\n{BOLD}Summary:{NC} {GREEN}0 passed{NC}, "
             f"{YELLOW}0 warnings{NC}, {RED}0 errors{NC}"
@@ -186,7 +245,9 @@ def main():
             if key in labels:
                 continue
             for f, line in locs:
-                report(f"{doc_type}: {f.name}:{line}: {_classify(key)} \\ref{{{key}}} -> ?? (no \\label)")
+                report(
+                    f"{doc_type}: {f.name}:{line}: {_classify(key)} \\ref{{{key}}} -> ?? (no \\label)"
+                )
 
         # Class 4: supple- xrefs need the supplement .aux.
         if supple_refs:
@@ -196,10 +257,12 @@ def main():
                     f"{(project_dir / _SUPPLE_AUX)} missing; "
                     f"{len(supple_refs)} supple- xref(s) cannot resolve"
                 )
-                log_detail("fix: run `compile.sh -s` before `compile.sh -m` so the supplement .aux exists.")
+                log_detail(
+                    "fix: run `compile.sh -s` before `compile.sh -m` so the supplement .aux exists."
+                )
             else:
                 for key, locs in sorted(supple_refs.items()):
-                    bare = key[len(_SUPPLE_PREFIX):]
+                    bare = key[len(_SUPPLE_PREFIX) :]
                     if bare in supp_labels:
                         continue
                     for f, line in locs:
@@ -213,7 +276,9 @@ def main():
             if key in bib_keys:
                 continue
             for f, line in locs:
-                report(f"{doc_type}: {f.name}:{line}: \\cite{{{key}}} -> not in bibliography")
+                report(
+                    f"{doc_type}: {f.name}:{line}: \\cite{{{key}}} -> not in bibliography"
+                )
 
     if not any_doc:
         log_pass("no document directories found to check")

@@ -353,6 +353,45 @@ def check_ref_integrity(
     return _run_script(script, project_path, args, timeout)
 
 
+def check_table_decimals(
+    project_dir: str,
+    doc_type: str = "all",
+    level: str | None = None,
+    timeout: int = 60,
+) -> dict:
+    """Safety-net lint: warn on inconsistent per-column decimals in compiled tables.
+
+    The PRIMARY fix (PR #185) makes ``csv_to_latex.py`` per-column decimal-pad
+    (``0.35`` -> ``0.350`` so a column aligns), but that auto-pad runs ONLY on
+    the pandas backend of the CSV->LaTeX pipeline. The external ``csv2latex``
+    binary (chosen with HIGHER priority than pandas) and the AWK fallback do NOT
+    pad, and hand-authored ``.tex`` tables are never touched -- so a real table
+    can still ship mismatched decimals. This lint reads the COMPILED table
+    ``.tex`` (not the source CSV): on the pandas path the cells are already
+    padded uniform, so it does NOT re-flag what the auto-pad fixed; it fires
+    exactly on the un-normalized backends + hand-authored tables.
+
+    Severity precedence (highest -> lowest): ``level`` arg, env
+    ``SCITEX_WRITER_TABLE_DECIMALS``, project ``./config.yaml``
+    (``table_decimals.level``), user ``~/.scitex/writer/config.yaml``, default
+    ``warn`` (a safety net; the auto-pad is the systemic prevention, so this
+    never blocks by default).
+
+    Args:
+        project_dir: Project root.
+        doc_type: ``manuscript``, ``supplementary``, ``revision``, or ``all``.
+        level: One of ``off``, ``warn``, ``error``. When ``None``, env/config
+            precedence resolves the level.
+        timeout: Subprocess timeout in seconds.
+    """
+    project_path = resolve_project_path(project_dir)
+    script = _script_path(project_path, "check_table_decimals.py")
+    args = ["--doc-type", doc_type]
+    if level is not None:
+        args += ["--level", level]
+    return _run_script(script, project_path, args, timeout)
+
+
 __all__ = [
     "check_references",
     "check_float_order",
@@ -362,6 +401,7 @@ __all__ = [
     "check_media_provenance",
     "check_caption_footnote",
     "check_ref_integrity",
+    "check_table_decimals",
 ]
 
 # EOF

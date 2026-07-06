@@ -37,6 +37,7 @@ def test_module_exports_references_float_order_limits_and_overflow():
         "media_provenance",
         "caption_footnote",
         "ref_integrity",
+        "table_decimals",
     ]
 
 

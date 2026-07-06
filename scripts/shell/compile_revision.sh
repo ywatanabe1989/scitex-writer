@@ -1,5 +1,9 @@
 #!/bin/bash
 # -*- coding: utf-8 -*-
+# ROLE: engine-vendored — DO NOT edit here. `scitex-writer update-project`
+# overwrites this file on every re-vendor; fix it upstream in the
+# scitex-writer package instead (local edits are lost, and update-project
+# may set it read-only in the consumer workspace after vendoring).
 # Timestamp: "2025-09-27 15:10:53 (ywatanabe)"
 # File: ./paper/scripts/shell/compile_revision
 
@@ -385,6 +389,16 @@ parse_arguments() {
         exit 1
     fi
     log_stage_end "Compile Verification"
+
+    # Post-compile overflow check: surface off-page content automatically from
+    # the LaTeX .log (warn reports+continues, error blocks, off is a loud no-op;
+    # a missing .log is reported, not fatal).
+    log_stage_start "Overflow Check"
+    if ! ./scripts/shell/modules/run_overflow_check.sh; then
+        echo_error "Overflow check failed — content overflows the page (overflow.level=error). Aborting."
+        exit 1
+    fi
+    log_stage_end "Overflow Check"
 
     # Skip diff generation for revision (revision document already shows changes inline)
     echo_info "Skipping diff generation (revision document shows changes inline)"

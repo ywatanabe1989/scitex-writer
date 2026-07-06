@@ -1,5 +1,9 @@
 #!/bin/bash
 # -*- coding: utf-8 -*-
+# ROLE: engine-vendored — DO NOT edit here. `scitex-writer update-project`
+# overwrites this file on every re-vendor; fix it upstream in the
+# scitex-writer package instead (local edits are lost, and update-project
+# may set it read-only in the consumer workspace after vendoring).
 # Timestamp: "2025-11-11 23:16:00 (ywatanabe)"
 # File: ./scripts/shell/modules/engines/compile_3pass.sh
 # 3-pass compilation engine (most compatible)

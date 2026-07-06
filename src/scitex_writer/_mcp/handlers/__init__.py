@@ -13,6 +13,7 @@ from ._checks import (
     check_paper_symlink,
     check_ref_integrity,
     check_references,
+    check_table_decimals,
 )
 from ._claim import (
     add_claim,
@@ -39,6 +40,7 @@ __all__ = [
     "check_paper_symlink",
     "check_ref_integrity",
     "check_references",
+    "check_table_decimals",
     "clone_project",
     "compile_manuscript",
     "compile_supplementary",

@@ -19,10 +19,12 @@ from django.views.decorators.csrf import csrf_exempt
 
 from .handlers import (
     HANDLERS,
+    handle_add_annotation,
     handle_add_claim,
     handle_citation,
     handle_claim_chain,
     handle_get_claim,
+    handle_list_annotations,
     handle_list_claims,
     handle_remove_claim,
 )
@@ -89,6 +91,12 @@ def api_dispatch(request, endpoint):
         if endpoint == "api/claims":
             handler = (
                 handle_add_claim if request.method == "POST" else handle_list_claims
+            )
+        elif endpoint == "api/annotations":
+            handler = (
+                handle_add_annotation
+                if request.method == "POST"
+                else handle_list_annotations
             )
 
         try:

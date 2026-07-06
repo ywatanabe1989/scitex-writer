@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 """Handler package — thin Django wrappers around scitex-writer internals."""
 
+from .annotation import handle_add_annotation, handle_list_annotations
 from .bib import handle_bib_entries, handle_bib_files
 from .claim import (
     handle_add_claim,
@@ -66,6 +67,9 @@ HANDLERS = {
     "api/scholar/enrich":            (handle_scholar_enrich,            ("POST",)),
     "api/scholar/add-to-manuscript": (handle_scholar_add_to_manuscript, ("POST",)),
 
+    # Annotations (spike 0: persist + emit one text-comment; POST/GET)
+    "api/annotations":        (None,                  ("GET", "POST")),  # dispatched by method
+
     # Claims (non-parameterized)
     "api/claims":             (None,                  ("GET", "POST")),  # dispatched by method
     "api/claims/render":      (handle_render_claims,  ("POST",)),
@@ -74,7 +78,9 @@ HANDLERS = {
 
 __all__ = [
     "HANDLERS",
+    "handle_add_annotation",
     "handle_add_claim",
+    "handle_list_annotations",
     "handle_citation",  # dispatched parametrically by views.api_dispatch
     "handle_claim_chain",
     "handle_get_claim",

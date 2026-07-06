@@ -5,6 +5,33 @@ All notable changes to SciTeX Writer will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.25.0] - 2026-07-06
+
+### Added
+- **PDF annotation → agent feedback loop (design doc).** Design for a loop
+  that turns PDF annotations into actionable agent feedback (#247).
+- **Opt-in page-footer signature.** A visible "SciTeX Writer" page-footer
+  signature, disabled by default (#248).
+- **Annotation persist + emit spike.** The writer-owned slice of the
+  annotation→feedback loop: persist annotations and emit them (#249).
+- **Self-documenting vendored tree.** The vendored tree now carries role
+  hint-comments and is set read-only via `update-project` (#250).
+- **`\captionfootnote` helper.** A footnote-in-caption marker that expands to
+  `\footnotemark` + `\footnotetext` placed after the float (#251).
+- **Combined supplement↔main compile target.** `compile.sh all` / `-a` compiles
+  supplement and main together in one pass for cross-ref resolution (#252).
+- **Pre-compile reference-integrity gate.** Runs by default at `warn`, escalates
+  to `error` in research projects (`project-type: research`); `off` disables —
+  an opt-out model (#254).
+- **Auto-run overflow check after each compile.** A new post-compile "Overflow
+  Check" stage runs automatically (#255).
+- **Table-decimal consistency warn-lint.** Covers the non-pandas /
+  external-`csv2latex` / hand-authored table paths the auto-pad misses (#256).
+
+### Changed
+- **Compiled-PDF signature branding.** The compiled-PDF signature now displays
+  "SciTeX Writer" rather than the lowercase form (#253).
+
 ## [2.24.9] - 2026-07-06
 
 ### Added

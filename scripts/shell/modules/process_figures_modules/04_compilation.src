@@ -1,5 +1,9 @@
 #!/bin/bash
 # -*- coding: utf-8 -*-
+# ROLE: engine-vendored — DO NOT edit here. `scitex-writer update-project`
+# overwrites this file on every re-vendor; fix it upstream in the
+# scitex-writer package instead (local edits are lost, and update-project
+# may set it read-only in the consumer workspace after vendoring).
 # File: process_figures_modules/04_compilation.src
 # Figure compilation and final assembly functions
 
@@ -87,6 +91,29 @@ compile_figure_tex_files() {
             caption_content="\\caption{\\textbf{Figure $figure_number}\\\\Description for figure $figure_number.}"
         fi
 
+        # Footnote-in-caption support: an author may declare a caption-level
+        # footnote with \captionfootnote{...} inside the caption body. A
+        # \footnote inside a float does NOT render; the blessed split is
+        # \caption{...\protect\footnotemark} + \footnotetext{...} AFTER the
+        # float. The helper rewrites the marker to \protect\footnotemark in the
+        # caption and reports the disclosure text, which we emit as
+        # \footnotetext right after \end{figure*} below. No marker present ->
+        # caption_content is byte-for-byte unchanged (default compiles unaffected).
+        local caption_footnote_text=""
+        if printf '%s' "$caption_content" | grep -q '\\captionfootnote'; then
+            local _cf_dir
+            _cf_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+            local _cf_helper="$_cf_dir/../../../python/caption_footnote_split.py"
+            if [ -f "$_cf_helper" ] && command -v python3 >/dev/null 2>&1; then
+                local _cf_out
+                _cf_out="$(mktemp)"
+                caption_content=$(printf '%s' "$caption_content" |
+                    python3 "$_cf_helper" --footnote-out "$_cf_out")
+                [ -s "$_cf_out" ] && caption_footnote_text="$(cat "$_cf_out")"
+                rm -f "$_cf_out"
+            fi
+        fi
+
         # Determine image path (use figure_path_base for tectonic compatibility)
         image_path="$figure_path_base/${figure_id}.jpg"
         if [ ! -f "$image_path" ]; then
@@ -121,6 +148,11 @@ compile_figure_tex_files() {
             echo "    $caption_content"
             [ -n "$_label_line" ] && echo "$_label_line"
             echo "\\end{figure*}"
+            # Emit the caption-declared footnote AFTER the float closes (a
+            # \footnote inside a float does not render). Kept in the placeable
+            # file so it travels with the float in BOTH placement modes (inline
+            # \scitexfig{<n>} and the guarded end-of-document block).
+            [ -n "$caption_footnote_text" ] && echo "\\footnotetext{$caption_footnote_text}"
         } >"$placeable_file"
 
         # Emit into FINAL, guarded: render here only if NOT already placed
