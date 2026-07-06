@@ -31,12 +31,13 @@ from typing import Optional as _Optional
 
 from ._mcp.handlers import check_caption_footnote as _check_caption_footnote
 from ._mcp.handlers import check_float_order as _check_float_order
-from ._mcp.handlers import check_ref_integrity as _check_ref_integrity
 from ._mcp.handlers import check_limits as _check_limits
 from ._mcp.handlers import check_media_provenance as _check_media_provenance
 from ._mcp.handlers import check_overflow as _check_overflow
 from ._mcp.handlers import check_paper_symlink as _check_paper_symlink
+from ._mcp.handlers import check_ref_integrity as _check_ref_integrity
 from ._mcp.handlers import check_references as _check_references
+from ._mcp.handlers import check_table_decimals as _check_table_decimals
 
 try:
     from scitex_dev.decorators import supports_return_as as _supports_return_as
@@ -326,6 +327,51 @@ def ref_integrity(
     return handler(project_dir, doc_type, level)
 
 
+def table_decimals(
+    project_dir: str,
+    doc_type: _Literal["manuscript", "supplementary", "revision", "all"] = "all",
+    level: _Optional[_Literal["off", "warn", "error"]] = None,
+    handler: _Optional[_Callable[..., dict]] = None,
+) -> dict:
+    """Safety-net lint: warn on inconsistent per-column decimals in compiled tables.
+
+    Companion to the PR #185 auto-pad. That auto-pad (``csv_to_latex.py``
+    per-column decimal padding, ``0.35`` -> ``0.350``) is the systemic
+    prevention, but it runs ONLY on the pandas backend of the CSV->LaTeX
+    pipeline. The external ``csv2latex`` binary (selected with HIGHER priority
+    than pandas) and the AWK fallback do not pad, and hand-authored ``.tex``
+    tables are never converted -- so a real table can still ship mismatched
+    decimals. This lint reads the COMPILED table ``.tex`` under
+    ``<doc>/contents/tables/compiled/``: on the pandas path the cells are
+    already padded uniform (it does NOT re-flag what the auto-pad fixed), and it
+    fires exactly on the un-normalized backends + hand-authored tables. A column
+    is flagged only when EVERY data cell is a plain number, the column has a
+    fractional value, and the cells disagree on decimal places.
+
+    Severity:
+
+    * ``warn`` — report inconsistent columns, exit 0. **The default** (a safety
+      net; the auto-pad prevents the misalignment systemically, so this never
+      blocks by default).
+    * ``error`` — report and exit 1 (blocks the compile).
+    * ``off`` — lint disabled.
+
+    Severity precedence (highest → lowest): the ``level`` argument, env
+    ``SCITEX_WRITER_TABLE_DECIMALS``, project ``./config.yaml``
+    (``table_decimals.level``), user ``~/.scitex/writer/config.yaml``, then the
+    ``warn`` default.
+
+    Returns a dict with ``success``, ``exit_code``, ``stdout``, ``stderr``,
+    and ``summary={passed, warnings, errors}``.
+
+    ``handler`` is the underlying check implementation; it defaults to
+    :func:`scitex_writer._mcp.handlers.check_table_decimals`. Exposed so callers
+    can supply an alternate implementation without patching internals.
+    """
+    handler = handler or _check_table_decimals
+    return handler(project_dir, doc_type, level)
+
+
 __all__ = [
     "references",
     "float_order",
@@ -335,6 +381,7 @@ __all__ = [
     "media_provenance",
     "caption_footnote",
     "ref_integrity",
+    "table_decimals",
 ]
 
 # EOF

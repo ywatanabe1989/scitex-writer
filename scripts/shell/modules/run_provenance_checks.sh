@@ -38,6 +38,15 @@
 # of buried in the log. Runs automatically (opt-out = level=off); defaults to
 # error for research projects, warn otherwise (a normal single-target compile in
 # a non-research project still succeeds with a loud warning).
+# table_decimals is the DECIMAL-CONSISTENCY safety-net (card
+# writer-table-decimal-alignment SECONDARY): it reads the COMPILED table .tex and
+# warns when a numeric column's cells disagree on decimal places. The PRIMARY fix
+# (PR #185) makes csv_to_latex.py per-column decimal-pad, but that auto-pad runs
+# ONLY on the pandas backend -- the external csv2latex binary (chosen BEFORE
+# pandas) and the AWK fallback do not pad, and hand-authored .tex tables are never
+# converted. Reading the compiled output means it never re-flags what the auto-pad
+# already normalized; it fires exactly on the un-normalized paths. Defaults to
+# warn (a safety net; the auto-pad is the systemic prevention).
 #
 # Returns the worst exit code across the checks (0 unless a check errored).
 
@@ -48,7 +57,7 @@ PROJECT_ROOT="${PROJECT_ROOT:-$(cd "$THIS_DIR/../../.." && pwd)}"
 PY="${SCITEX_WRITER_PYTHON:-python3}"
 
 rc=0
-for chk in check_paper_symlink check_media_provenance check_figure_media check_ref_integrity check_caption_footnote check_clew_verify check_citations check_version_freshness; do
+for chk in check_paper_symlink check_media_provenance check_figure_media check_ref_integrity check_caption_footnote check_table_decimals check_clew_verify check_citations check_version_freshness; do
     script="$THIS_DIR/../../python/${chk}.py"
     [ -f "$script" ] || continue
     "$PY" "$script" "$PROJECT_ROOT" || rc=$?
