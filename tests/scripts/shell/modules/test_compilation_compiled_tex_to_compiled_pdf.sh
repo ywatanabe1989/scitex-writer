@@ -86,6 +86,58 @@ test_pagecount_zero_when_no_log() {
     rm -rf "$tmp"
 }
 
+# FRESHNESS GATE regression: engine reports success (compile_result=0) but
+# produced NO fresh PDF in LOG_DIR this run, while a STALE PDF from a previous
+# compile still sits at the final location. cleanup() must FAIL LOUD (return 1)
+# instead of passing off the stale PDF as a successful compile.
+test_cleanup_fails_when_stale_pdf_and_no_fresh() {
+    local tmp
+    tmp="$(mktemp -d)"
+    export LOG_DIR="$tmp/logs"
+    mkdir -p "$LOG_DIR"
+    export SCITEX_WRITER_COMPILED_PDF="$tmp/manuscript.pdf"
+    printf 'STALE PDF from a previous run\n' >"$SCITEX_WRITER_COMPILED_PDF"
+    # No manuscript.pdf inside LOG_DIR -> nothing produced this run.
+    ( cleanup 0 ) >/dev/null 2>&1
+    local rc=$?
+    assert_eq "1" "$rc" "cleanup fails loud when success reported but no fresh PDF (stale present)"
+    rm -rf "$tmp"
+}
+
+# The stale PDF must be REMOVED so downstream gates never treat it as valid.
+test_cleanup_removes_stale_pdf_when_no_fresh() {
+    local tmp
+    tmp="$(mktemp -d)"
+    export LOG_DIR="$tmp/logs"
+    mkdir -p "$LOG_DIR"
+    export SCITEX_WRITER_COMPILED_PDF="$tmp/manuscript.pdf"
+    printf 'STALE PDF from a previous run\n' >"$SCITEX_WRITER_COMPILED_PDF"
+    ( cleanup 0 ) >/dev/null 2>&1
+    local present="yes"
+    [ -f "$SCITEX_WRITER_COMPILED_PDF" ] || present="no"
+    assert_eq "no" "$present" "cleanup removes the stale PDF when no fresh PDF was produced"
+    rm -rf "$tmp"
+}
+
+# Positive control: a PDF freshly produced in LOG_DIR this run is promoted and
+# cleanup() returns success (0).
+test_cleanup_succeeds_when_fresh_pdf_produced() {
+    local tmp
+    tmp="$(mktemp -d)"
+    export LOG_DIR="$tmp/logs"
+    mkdir -p "$LOG_DIR"
+    export SCITEX_WRITER_ROOT_DIR="$tmp"
+    export SCITEX_WRITER_DOC_TYPE="manuscript"
+    export SCITEX_WRITER_VERSIONS_DIR="$tmp/archive"
+    export SCITEX_WRITER_COMPILED_PDF="$tmp/manuscript.pdf"
+    # A PDF present in LOG_DIR == produced by THIS run.
+    printf 'FRESH PDF produced this run\n' >"$LOG_DIR/manuscript.pdf"
+    ( cleanup 0 ) >/dev/null 2>&1
+    local rc=$?
+    assert_eq "0" "$rc" "cleanup succeeds when a fresh PDF was produced in LOG_DIR this run"
+    rm -rf "$tmp"
+}
+
 # Run tests
 main() {
     echo "Testing: compilation_compiled_tex_to_compiled_pdf.sh"
@@ -102,6 +154,9 @@ main() {
     test_pagecount_from_log_single_page
     test_pagecount_zero_when_no_output_line
     test_pagecount_zero_when_no_log
+    test_cleanup_fails_when_stale_pdf_and_no_fresh
+    test_cleanup_removes_stale_pdf_when_no_fresh
+    test_cleanup_succeeds_when_fresh_pdf_produced
 
     echo "========================================"
     echo "Results: $TESTS_PASSED/$TESTS_RUN passed"

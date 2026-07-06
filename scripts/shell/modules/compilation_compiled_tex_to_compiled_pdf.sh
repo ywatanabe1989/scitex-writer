@@ -169,6 +169,28 @@ cleanup() {
         fi
     fi
 
+    # FRESHNESS GATE: a compile is a success only if THIS run actually
+    # (re)created the PDF. Every engine writes the PDF into LOG_DIR and the block
+    # above MOVES it to $pdf_file, setting fresh_pdf=true. If fresh_pdf is still
+    # false here, no PDF was produced this run -- so any $pdf_file present is
+    # STALE from a PREVIOUS compile. This happens when an engine returns exit 0
+    # without emitting output (e.g. a silent latexmk/tectonic no-op, or a
+    # container that failed to mount) yet an old PDF is still on disk. Reporting
+    # that stale PDF as success is a silent failure: the user believes they got a
+    # fresh PDF but it is the old one. Fail loud instead. (The 3-pass engine also
+    # guards this at the engine level via an mtime check; this is the central
+    # backstop that additionally covers latexmk / tectonic and the finalization
+    # point where the PDF is promoted.)
+    if [ "$fresh_pdf" != true ]; then
+        echo_error "    PDF was not (re)created this run: $pdf_file"
+        echo_error "      The build likely failed -- a stale PDF from a previous run is present."
+        echo_error "      Refusing to pass off a stale PDF as a fresh compile."
+        echo_error "      Inspect the real error in: ${LOG_DIR}/${pdf_basename%.pdf}.log"
+        # Remove the stale PDF so downstream gates never treat it as valid output.
+        [ -f "$pdf_file" ] && rm -f "$pdf_file"
+        return 1
+    fi
+
     if [ -f "$pdf_file" ]; then
         local size
         size=$(du -h "$pdf_file" | cut -f1)
