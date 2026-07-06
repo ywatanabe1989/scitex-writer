@@ -254,7 +254,7 @@ def test_version_unknown_when_nothing_available(tmp_path):
 def _write_style(styles_dir):
     _write(
         styles_dir / "signature_footer.tex",
-        "% footer style\nCompiled by scitex-writer v__SCITEX_WRITER_VERSION__\n",
+        "% footer style\nCompiled by SciTeX Writer v__SCITEX_WRITER_VERSION__\n",
     )
 
 
@@ -265,7 +265,7 @@ def test_injection_substitutes_version(tmp_path):
     # Act
     injection = build_footer_injection(tmp_path, "4.2.0")
     # Assert
-    assert "Compiled by scitex-writer v4.2.0" in injection
+    assert "Compiled by SciTeX Writer v4.2.0" in injection
 
 
 def test_injection_carries_sentinel(tmp_path):
