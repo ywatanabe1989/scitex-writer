@@ -1,0 +1,34 @@
+%% -*- coding: utf-8 -*-
+%% File: 00_shared/latex_styles/signature_footer.tex
+%% Description: OPT-IN visible on-page footer advertising scitex-writer.
+%%
+%% Injected at compile time by scripts/python/compile_tex_structure.py ONLY when
+%% the SCITEX_WRITER_SIGNATURE_FOOTER feature flag resolves ON (default OFF), so
+%% default compiles are byte-for-byte visually unchanged. This is DISTINCT from
+%% the invisible PDF pdfcreator metadata (00_shared/scitex_writer_version.tex),
+%% which is always emitted -- this adds a VISIBLE page footer.
+%%
+%% The __SCITEX_WRITER_VERSION__ token is substituted with the resolved writer
+%% version before this block is inlined (see _signature_footer.py).
+%%
+%% Rendering: an absolute bottom-centre overlay stamped on EVERY shipped page
+%% via \AtBeginShipout (from atbegshi, always available -- hyperref loads it in
+%% packages.tex) + a TikZ overlay node anchored to the physical page (tikz is
+%% loaded in packages.tex). This is deliberately pagestyle-agnostic: it does
+%% NOT touch \pagestyle, fancyhdr, or the elsarticle \ps@pprintTitle footer, so
+%% existing page numbers / journal headers are preserved. The "current page"
+%% reference settles after the usual 2 compile passes (the default multi-pass
+%% build does this; a single-pass draft may misposition on the first run).
+
+\AtBeginShipout{%
+  \AtBeginShipoutUpperLeft{%
+    \begin{tikzpicture}[remember picture, overlay]%
+      \node[anchor=south, yshift=4pt,
+            font=\ttfamily\scriptsize, text=gray]
+        at (current page.south)
+        {Compiled by scitex-writer v__SCITEX_WRITER_VERSION__};%
+    \end{tikzpicture}%
+  }%
+}
+
+%%%% EOF

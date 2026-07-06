@@ -107,7 +107,7 @@ def _warn_invalid_level(raw, check, source):
     valid = "/".join(_valid_levels(check))
     sys.stderr.write(
         f"[WARN] {source}: {check}.level must be one of {valid}; got {raw!r} "
-        f"-- ignoring (using default). Quote string values, e.g. level: \"off\".\n"
+        f'-- ignoring (using default). Quote string values, e.g. level: "off".\n'
     )
 
 
@@ -116,11 +116,14 @@ def env_truthy(name):
     return os.environ.get(name, "").strip().lower() in _TRUTHY
 
 
-def _read_config_level(config_path, check):
-    """Read ``<check>.level`` from a YAML config, or None.
+def _load_config_data(config_path):
+    """Load a YAML config file into a mapping, or None.
 
-    A missing file/key is None (not an error). PyYAML is optional -- absent it,
-    config files are silently skipped so CLI + env still resolve.
+    Shared loader for every config tier in the precedence ladder (severity
+    levels AND boolean feature toggles). A missing file, absent PyYAML, an
+    unreadable/invalid YAML, or a non-mapping document all degrade to None (the
+    tier is skipped) rather than raising -- so CLI + env still resolve when a
+    config file is broken or PyYAML is not installed.
     """
     if not config_path.exists():
         return None
@@ -132,12 +135,53 @@ def _read_config_level(config_path, check):
         data = yaml.safe_load(config_path.read_text(encoding="utf-8")) or {}
     except Exception:
         return None
-    if not isinstance(data, dict):
+    return data if isinstance(data, dict) else None
+
+
+def _read_config_level(config_path, check):
+    """Read ``<check>.level`` from a YAML config, or None.
+
+    A missing file/key is None (not an error). PyYAML is optional -- absent it,
+    config files are silently skipped so CLI + env still resolve.
+    """
+    data = _load_config_data(config_path)
+    if data is None:
         return None
     block = data.get(check)
     if not isinstance(block, dict):
         return None
     return _coerce_config_level(block.get("level"), check, str(config_path))
+
+
+def read_config_bool(config_path, key):
+    """Read a top-level boolean feature-toggle ``key`` from a YAML config.
+
+    Companion to ``_read_config_level`` for boolean feature FLAGS (on/off
+    toggles) rather than severity LEVELS: it reuses the exact same optional-
+    PyYAML load + YAML-1.1 bool coercion (a bare ``on``/``yes``/``true`` ->
+    True, ``off``/``no``/``false`` -> False). Returns the resolved bool, or
+    None when the key is absent / the file is missing / the value is not
+    boolean -- so the caller falls through to the next precedence tier.
+
+    Public so feature-flag resolvers (e.g. the visible signature footer) can
+    reuse the project ./config.yaml -> user ~/.scitex/writer/config.yaml
+    machinery instead of reinventing it.
+    """
+    data = _load_config_data(config_path)
+    if data is None:
+        return None
+    raw = data.get(key)
+    if isinstance(raw, bool):
+        return raw
+    # Accept the string spellings too (a hand-written value that arrived quoted,
+    # e.g. ``signature_footer: "true"``); anything else is treated as unset.
+    if isinstance(raw, str):
+        low = raw.strip().lower()
+        if low in ("1", "true", "yes", "on"):
+            return True
+        if low in ("0", "false", "no", "off"):
+            return False
+    return None
 
 
 def resolve_level(
@@ -174,9 +218,7 @@ def resolve_level(
         or _read_config_level(Path(project_dir) / "config.yaml", check)
         # Path.home() is resolved at call time (not import) so a changed $HOME
         # is honored -- matches the sibling check_*.py resolvers.
-        or _read_config_level(
-            Path.home() / ".scitex" / "writer" / "config.yaml", check
-        )
+        or _read_config_level(Path.home() / ".scitex" / "writer" / "config.yaml", check)
         or _norm(default, check)
         or "error"
     )
@@ -191,6 +233,12 @@ def resolve_level(
     return level
 
 
-__all__ = ["resolve_level", "env_truthy", "LEVELS", "LINT_STRICT_ENV"]
+__all__ = [
+    "resolve_level",
+    "read_config_bool",
+    "env_truthy",
+    "LEVELS",
+    "LINT_STRICT_ENV",
+]
 
 # EOF
