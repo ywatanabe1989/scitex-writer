@@ -56,7 +56,7 @@ def _restamp_version_tex(project_path: Path, pkg_version: str) -> None:
             return
         version_tex.write_text(
             f"\\def\\ScitexWriterVersion{{{pkg_version}}}\n"
-            f"\\hypersetup{{pdfcreator={{Compiled by scitex-writer v{pkg_version}}}}}\n",
+            f"\\hypersetup{{pdfcreator={{Compiled by SciTeX Writer v{pkg_version}}}}}\n",
             encoding="utf-8",
         )
     except OSError:

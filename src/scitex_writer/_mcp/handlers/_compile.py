@@ -39,7 +39,7 @@ def _inject_version_stamp(project_path) -> None:
         version_tex = project_path / "00_shared" / "scitex_writer_version.tex"
         version_tex.write_text(
             f"\\def\\ScitexWriterVersion{{{__version__}}}\n"
-            f"\\hypersetup{{pdfcreator={{Compiled by scitex-writer v{__version__}}}}}\n"
+            f"\\hypersetup{{pdfcreator={{Compiled by SciTeX Writer v{__version__}}}}}\n"
         )
     except Exception:
         pass  # Never block compilation due to version stamp
