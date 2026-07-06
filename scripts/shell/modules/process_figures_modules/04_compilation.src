@@ -200,7 +200,14 @@ create_placeholder_jpg() {
     fi
 }
 
-# Check and create placeholders for missing figures
+# Check and create placeholders for missing figures.
+#
+# NOTE: a DECLARED-but-missing figure is caught FAIL-LOUD upstream by the
+# figure-media gate (scripts/python/check_figure_media.py, wired into
+# run_provenance_checks.sh) which aborts the compile BEFORE this runs. So at the
+# gate's default (error for research projects) this placeholder path is never
+# reached. It only fills in when the gate is warn/off -- the explicit draft
+# opt-in (e.g. the public template's example figures, which ship without media).
 check_and_create_placeholders() {
     echo_info "Checking for missing figures..."
 
