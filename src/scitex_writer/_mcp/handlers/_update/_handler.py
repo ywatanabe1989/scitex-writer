@@ -221,6 +221,12 @@ def _apply_updates(
         src = source_files[rel]
         dst = project_path / rel
         dst.parent.mkdir(parents=True, exist_ok=True)
+        if dst.exists():
+            # A previous vendor may have set this engine file read-only
+            # (see _set_engine_readonly). Restore the write bit before
+            # overwriting so a re-vendor never fails on the second run --
+            # this is what keeps update-project idempotent.
+            dst.chmod(dst.stat().st_mode | 0o200)
         shutil.copy2(src, dst)
 
     # Ensure compile.sh is executable
@@ -234,7 +240,39 @@ def _apply_updates(
         for script in scripts_dir.rglob("*.sh"):
             script.chmod(script.stat().st_mode | 0o111)
 
+    # Make the freshly-vendored engine files read-only in the consumer
+    # workspace so an accidental local edit fails loudly instead of being
+    # silently lost on the next re-vendor. Done LAST so it sees the final
+    # (post +x) mode bits. PRESERVED_PATHS (consumer-owned) files are never
+    # in the sync set, so they are untouched and stay writable.
+    _set_engine_readonly(project_path, modified + added)
+
     return backup_dir
+
+
+def _set_engine_readonly(project_path: Path, written_rels: list[str]) -> None:
+    """Set freshly-vendored engine files read-only in the CONSUMER workspace.
+
+    Engine-vendored files are overwritten by every re-vendor, so a local edit
+    is always lost -- worse, it silently masks the need to fix the file
+    upstream in scitex-writer (the band-aid class of bug this guards against).
+    Marking them read-only (r-x for executables, r-- otherwise) turns an
+    accidental edit into an immediate, visible permission error, forcing the
+    fix upstream. update-project clears the write bit again before re-writing
+    (see _apply_updates), so this stays idempotent across repeated runs. Git
+    only tracks the +x bit, so these perms live only in the consumer
+    workspace, never in a commit. Best-effort: a chmod failure never aborts a
+    vendor.
+    """
+    for rel in written_rels:
+        dst = project_path / rel
+        if not dst.is_file():
+            continue
+        try:
+            executable = bool(dst.stat().st_mode & 0o111)
+            dst.chmod(0o555 if executable else 0o444)
+        except OSError:
+            pass
 
 
 def _build_message(
