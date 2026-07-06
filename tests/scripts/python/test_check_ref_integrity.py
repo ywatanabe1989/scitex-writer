@@ -38,8 +38,18 @@ def _base_project(tmp_path, body):
     results.tex whose body the caller supplies."""
     _write(tmp_path, f"{_FIG_MEDIA}/01.tex", "Figure one.\n")
     _write(tmp_path, f"{_TAB_MEDIA}/01.tex", "Table one.\n")
-    _write(tmp_path, "00_shared/bib_files/bibliography.bib", "@article{Known2020, title={x}}\n")
+    _write(
+        tmp_path,
+        "00_shared/bib_files/bibliography.bib",
+        "@article{Known2020, title={x}}\n",
+    )
     _write(tmp_path, "01_manuscript/contents/results.tex", body)
+    return tmp_path
+
+
+def _mark_research(tmp_path):
+    """Mark the project a research project (the warn->error escalation signal)."""
+    _write(tmp_path, ".scitex/dev/config.yaml", "project-type: research\n")
     return tmp_path
 
 
@@ -73,17 +83,36 @@ def clean_env():
 # ============================================================================
 
 
-def test_resolve_level_defaults_to_error(tmp_path, clean_env):
-    """With no --level, no env, no config, the default level is error."""
+def test_resolve_level_default_warn_non_research(tmp_path, clean_env):
+    """Non-research default is warn (the opt-out gate does not block)."""
     # Arrange
     # Act
     level = resolve_level(
         "ref_integrity",
         None,
         str(tmp_path),
-        default="error",
+        default="warn",
         env_var="SCITEX_WRITER_REF_INTEGRITY",
     )
+    # Assert
+    assert level == "warn"
+
+
+def test_env_knob_escalates_to_error(tmp_path, clean_env):
+    """The SCITEX_WRITER_REF_INTEGRITY env knob overrides the default to error."""
+    # Arrange
+    os.environ["SCITEX_WRITER_REF_INTEGRITY"] = "error"
+    try:
+        # Act
+        level = resolve_level(
+            "ref_integrity",
+            None,
+            str(tmp_path),
+            default="warn",
+            env_var="SCITEX_WRITER_REF_INTEGRITY",
+        )
+    finally:
+        os.environ.pop("SCITEX_WRITER_REF_INTEGRITY", None)
     # Assert
     assert level == "error"
 
@@ -93,12 +122,43 @@ def test_resolve_level_defaults_to_error(tmp_path, clean_env):
 # ============================================================================
 
 
-def test_undefined_figure_ref_errors(tmp_path, clean_env):
-    """A \\ref to a non-existent figure label blocks (exit 1)."""
+def test_default_non_research_does_not_block(tmp_path, clean_env):
+    """Default (non-research) is warn: a broken \\ref reports but exits 0."""
     # Arrange
     _base_project(tmp_path, "See \\ref{fig:99}.\n")
     # Act
     proc = _run(tmp_path)
+    # Assert
+    assert proc.returncode == 0
+
+
+def test_default_non_research_emits_warning(tmp_path, clean_env):
+    """Default (non-research) still reports the broken \\ref loudly (as a warning)."""
+    # Arrange
+    _base_project(tmp_path, "See \\ref{fig:99}.\n")
+    # Act
+    proc = _run(tmp_path)
+    # Assert
+    assert "1 warnings" in proc.stdout
+
+
+def test_research_project_blocks_by_default(tmp_path, clean_env):
+    """A project-type: research project defaults to error: a broken \\ref blocks."""
+    # Arrange
+    _base_project(tmp_path, "See \\ref{fig:99}.\n")
+    _mark_research(tmp_path)
+    # Act
+    proc = _run(tmp_path)
+    # Assert
+    assert proc.returncode == 1
+
+
+def test_undefined_figure_ref_errors(tmp_path, clean_env):
+    """At --level error a \\ref to a non-existent figure label blocks (exit 1)."""
+    # Arrange
+    _base_project(tmp_path, "See \\ref{fig:99}.\n")
+    # Act
+    proc = _run(tmp_path, "--level", "error")
     # Assert
     assert proc.returncode == 1
 
@@ -114,11 +174,11 @@ def test_resolved_figure_and_table_refs_pass(tmp_path, clean_env):
 
 
 def test_undefined_citation_errors(tmp_path, clean_env):
-    """A \\cite key absent from the bib blocks (exit 1)."""
+    """At --level error a \\cite key absent from the bib blocks (exit 1)."""
     # Arrange
     _base_project(tmp_path, "Cite \\cite{Missing2021}.\n")
     # Act
-    proc = _run(tmp_path)
+    proc = _run(tmp_path, "--level", "error")
     # Assert
     assert proc.returncode == 1
 
@@ -134,11 +194,11 @@ def test_known_citation_passes(tmp_path, clean_env):
 
 
 def test_supple_ref_without_aux_errors(tmp_path, clean_env):
-    """A supple- xref with no supplement .aux blocks (exit 1)."""
+    """At --level error a supple- xref with no supplement .aux blocks (exit 1)."""
     # Arrange
     _base_project(tmp_path, "See \\ref{supple-fig:S01}.\n")
     # Act
-    proc = _run(tmp_path)
+    proc = _run(tmp_path, "--level", "error")
     # Assert
     assert proc.returncode == 1
 
@@ -157,7 +217,9 @@ def test_supple_ref_resolved_by_aux_passes(tmp_path, clean_env):
     """A supple- xref resolves against the supplement .aux \\newlabel (exit 0)."""
     # Arrange
     _base_project(tmp_path, "See \\ref{supple-fig:S01}.\n")
-    _write(tmp_path, "02_supplementary/supplementary.aux", "\\newlabel{fig:S01}{{S1}{1}}\n")
+    _write(
+        tmp_path, "02_supplementary/supplementary.aux", "\\newlabel{fig:S01}{{S1}{1}}\n"
+    )
     # Act
     proc = _run(tmp_path)
     # Assert
@@ -165,16 +227,29 @@ def test_supple_ref_resolved_by_aux_passes(tmp_path, clean_env):
 
 
 def test_reports_all_classes_at_once(tmp_path, clean_env):
-    """One run surfaces every broken class together (3 errors), not one-at-a-time."""
+    """At error one run surfaces every broken class together (3 errors)."""
     # Arrange
     _base_project(
         tmp_path,
         "See \\ref{fig:99}. Cite \\cite{Missing2021}. See \\ref{supple-fig:S01}.\n",
     )
     # Act
-    proc = _run(tmp_path)
+    proc = _run(tmp_path, "--level", "error")
     # Assert
     assert "3 errors" in proc.stdout
+
+
+def test_report_all_then_abort_at_error(tmp_path, clean_env):
+    """Report-all-then-abort: all 3 classes reported AND the run aborts (exit 1)."""
+    # Arrange
+    _base_project(
+        tmp_path,
+        "See \\ref{fig:99}. Cite \\cite{Missing2021}. See \\ref{supple-fig:S01}.\n",
+    )
+    # Act
+    proc = _run(tmp_path, "--level", "error")
+    # Assert
+    assert proc.returncode == 1
 
 
 def test_off_level_skips(tmp_path, clean_env):
@@ -185,6 +260,16 @@ def test_off_level_skips(tmp_path, clean_env):
     proc = _run(tmp_path, "--level", "off")
     # Assert
     assert proc.returncode == 0
+
+
+def test_off_level_prints_loud_disabled_note(tmp_path, clean_env):
+    """--level off is not silent: it prints a loud DISABLED (level=off) note."""
+    # Arrange
+    _base_project(tmp_path, "See \\ref{fig:99}.\n")
+    # Act
+    proc = _run(tmp_path, "--level", "off")
+    # Assert
+    assert "DISABLED (level=off)" in proc.stdout
 
 
 def test_warn_level_does_not_block(tmp_path, clean_env):
