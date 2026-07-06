@@ -21,6 +21,12 @@
 # scholar stub (auto-generated placeholder), also error for research / warn
 # otherwise -- the compiler-owns half of the citation->clew verification
 # contract (a stub \cite can never reach a compiled research manuscript).
+# figure_media is the FIGURE-MEDIA GATE: it fails the build when a figure is
+# DECLARED (a caption .tex) but has NO rendered media asset, so the compile can
+# no longer silently substitute a "Missing Figure" placeholder. It runs BEFORE
+# process_figures.sh (which creates the placeholder), so at error-level the
+# placeholder path is never reached; defaults to error for research projects,
+# warn otherwise (the public template ships example captions without media).
 #
 # Returns the worst exit code across the checks (0 unless a check errored).
 
@@ -31,7 +37,7 @@ PROJECT_ROOT="${PROJECT_ROOT:-$(cd "$THIS_DIR/../../.." && pwd)}"
 PY="${SCITEX_WRITER_PYTHON:-python3}"
 
 rc=0
-for chk in check_paper_symlink check_media_provenance check_caption_footnote check_clew_verify check_citations check_version_freshness; do
+for chk in check_paper_symlink check_media_provenance check_figure_media check_caption_footnote check_clew_verify check_citations check_version_freshness; do
     script="$THIS_DIR/../../python/${chk}.py"
     [ -f "$script" ] || continue
     "$PY" "$script" "$PROJECT_ROOT" || rc=$?

@@ -5,6 +5,26 @@ All notable changes to SciTeX Writer will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.24.9] - 2026-07-06
+
+### Added
+- **`list-deps` command.** `scitex-writer list-deps --apt` prints the system
+  (apt) packages scitex-writer needs, so an environment can be provisioned from
+  a single authoritative list (#244).
+
+### Fixed
+- **`scitex-writer --version` prints its own version.** The flag was shadowed by
+  scitex-dev and reported the wrong package version; it now reports
+  scitex-writer's own version (user-facing regression fix, #243).
+- **Fail loud on a missing figure at compile time.** A referenced figure that is
+  absent now hard-fails the compile instead of silently producing an incomplete
+  PDF (#242).
+- **Stale-PDF freshness guard.** The compile step now fails loud when the output
+  PDF was not actually (re)created, so a stale PDF can never masquerade as a
+  fresh build (#241).
+- **`render_clew` resolves the git root correctly.** clew rendering now anchors
+  to the repository root regardless of the working directory (#240).
+
 ## [2.24.8] - 2026-07-06
 
 ### Added

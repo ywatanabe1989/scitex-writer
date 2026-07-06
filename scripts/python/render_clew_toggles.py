@@ -65,10 +65,37 @@ _TRUTHY = ("1", "true", "yes", "on")
 _FALSY = ("0", "false", "no", "off")
 
 
+def _find_git_root(start):
+    """Nearest ancestor of ``start`` containing ``.git`` (a git root), or None."""
+    cur = Path(start)
+    for _ in range(64):
+        if (cur / ".git").exists():
+            return cur
+        if cur.parent == cur:
+            return None
+        cur = cur.parent
+    return None
+
+
+def _resolve_config_yaml(project_dir):
+    r"""Locate .scitex/writer/config.yaml at the GIT ROOT -- same walk render_clew.py
+    uses for the clew db -- so a NESTED-writer project (writer vendored under an
+    outer repo, e.g. at .scitex/writer/) reads the config at the outer git root
+    rather than a doubly-nested <writer>/.scitex/writer/config.yaml (which is
+    absent, leaving \clewpresmarkers OFF and marks plain). Preference: git-root
+    copy when present; else fall back to PROJECT_ROOT (flat case unchanged).
+    (nested-writer toggle bug surfaced by paper-neurovista, 2026-07-04.)"""
+    project_dir = Path(project_dir)
+    root = _find_git_root(project_dir)
+    if root is not None and (root / CONFIG_YAML).is_file():
+        return root / CONFIG_YAML
+    return project_dir / CONFIG_YAML
+
+
 def _read_config_value(project_dir):
     """Return the raw `clew_presentation` value from the project config, or None
     (PyYAML optional -- absent it, only env resolves)."""
-    cfg = Path(project_dir) / CONFIG_YAML
+    cfg = _resolve_config_yaml(project_dir)
     if not cfg.is_file():
         return None
     try:
