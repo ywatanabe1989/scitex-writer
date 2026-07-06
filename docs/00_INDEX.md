@@ -16,6 +16,11 @@ Procedural documentation for common tasks and workflows:
 Technical design and implementation details:
 - **02_ARCHITECTURE_IMPLEMENTATION.md** - System architecture, technical implementation, and troubleshooting guide
 
+### Design (03_DESIGN_* / 04_DESIGN_*)
+Design contracts and cross-repo agreements (ratified or draft):
+- **03_DESIGN_SEVERITY_MODEL_CONTRACT.md** - Unified `off|warn|error(+repair)` severity model for the check subsystem (ratified)
+- **04_DESIGN_PDF_ANNOTATION_FEEDBACK_LOOP.md** - Writer-owned slice of the PDF annotation → agent feedback loop: annotation persist model + emit bridge + Django shell that mounts live-paper's viewer (draft, for cross-repo sign-off)
+
 ### MCP Tools
 - **MCP_TOOLS.md** - Reference for all 44 MCP tools for AI agent integration
 
