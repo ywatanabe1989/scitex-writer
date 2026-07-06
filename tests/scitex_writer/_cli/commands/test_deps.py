@@ -19,27 +19,27 @@ def runner():
     return CliRunner()
 
 
-def test_module_exposes_deps_cmd():
+def test_module_exposes_list_deps_cmd():
     # Arrange
     name = "scitex_writer._cli.commands.deps"
     # Act
     module = importlib.import_module(name)
     # Assert
-    assert hasattr(module, "deps_cmd")
+    assert hasattr(module, "list_deps_cmd")
 
 
 def test_deps_registered_on_main_group():
     # Arrange
     commands = main_group.commands
     # Act
-    present = "deps" in commands
+    present = "list-deps" in commands
     # Assert
     assert present
 
 
 def test_deps_default_exits_zero(runner):
     # Arrange
-    args = ["deps"]
+    args = ["list-deps"]
     # Act
     result = runner.invoke(main_group, args)
     # Assert
@@ -48,7 +48,7 @@ def test_deps_default_exits_zero(runner):
 
 def test_deps_default_prints_one_package_per_line(runner):
     # Arrange
-    args = ["deps"]
+    args = ["list-deps"]
     # Act
     result = runner.invoke(main_group, args)
     # Assert
@@ -57,7 +57,7 @@ def test_deps_default_prints_one_package_per_line(runner):
 
 def test_deps_apt_exits_zero(runner):
     # Arrange
-    args = ["deps", "--apt"]
+    args = ["list-deps", "--apt"]
     # Act
     result = runner.invoke(main_group, args)
     # Assert
@@ -66,7 +66,7 @@ def test_deps_apt_exits_zero(runner):
 
 def test_deps_apt_starts_with_apt_get_install(runner):
     # Arrange
-    args = ["deps", "--apt"]
+    args = ["list-deps", "--apt"]
     # Act
     result = runner.invoke(main_group, args)
     # Assert
@@ -77,7 +77,7 @@ def test_deps_apt_starts_with_apt_get_install(runner):
 
 def test_deps_apt_contains_every_package(runner):
     # Arrange
-    args = ["deps", "--apt"]
+    args = ["list-deps", "--apt"]
     # Act
     result = runner.invoke(main_group, args)
     # Assert
@@ -86,7 +86,7 @@ def test_deps_apt_contains_every_package(runner):
 
 def test_deps_apt_has_core_latex(runner):
     # Arrange
-    args = ["deps", "--apt"]
+    args = ["list-deps", "--apt"]
     # Act
     result = runner.invoke(main_group, args)
     # Assert
@@ -95,7 +95,7 @@ def test_deps_apt_has_core_latex(runner):
 
 def test_deps_apt_has_parallel(runner):
     # Arrange
-    args = ["deps", "--apt"]
+    args = ["list-deps", "--apt"]
     # Act
     result = runner.invoke(main_group, args)
     # Assert
@@ -104,7 +104,7 @@ def test_deps_apt_has_parallel(runner):
 
 def test_deps_json_lists_packages_in_order(runner):
     # Arrange
-    args = ["deps", "--json"]
+    args = ["list-deps", "--json"]
     # Act
     result = runner.invoke(main_group, args)
     payload = json.loads(result.output)
@@ -114,7 +114,7 @@ def test_deps_json_lists_packages_in_order(runner):
 
 def test_deps_json_tags_every_row_with_writer_provider(runner):
     # Arrange
-    args = ["deps", "--json"]
+    args = ["list-deps", "--json"]
     # Act
     result = runner.invoke(main_group, args)
     payload = json.loads(result.output)

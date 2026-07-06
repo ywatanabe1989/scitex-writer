@@ -2,12 +2,12 @@
 # -*- coding: utf-8 -*-
 # File: src/scitex_writer/_cli/commands/deps.py
 
-"""``deps`` command — scitex-writer's native (apt) system dependencies.
+"""``list-deps`` command — scitex-writer's native (apt) system dependencies.
 
 scitex-writer is the single source of truth for its LaTeX-toolchain apt
 packages (``scitex_writer._core._system_deps``), declared to the ecosystem via
 the ``scitex_dev.system_deps`` entry-point. This command is the leaf-local
-view of that list: ``scitex-writer deps`` prints the apt packages (the
+view of that list: ``scitex-writer list-deps`` prints the apt packages (the
 fleet-wide aggregate across every leaf is a separate surface,
 ``scitex-dev ecosystem system-deps``).
 
@@ -25,11 +25,12 @@ from .._core import main_group
 from .._helpers import _emit_json
 
 # =========================================================================
-# deps  (flat top-level command; verb-noun-free — "deps" is the noun)
+# list-deps  (flat verb-noun top-level command, per §1 — same house style
+# as compile-manuscript / check-limits / export-manuscript)
 # =========================================================================
 
 
-@main_group.command("deps")
+@main_group.command("list-deps")
 @click.option(
     "--apt",
     "as_apt",
@@ -44,7 +45,7 @@ from .._helpers import _emit_json
     default=False,
     help="Emit JSON (package/purpose/provider).",
 )
-def deps_cmd(as_apt, as_json):
+def list_deps_cmd(as_apt, as_json):
     """Print scitex-writer's required system (apt) packages — the LaTeX toolchain.
 
     Default output is one apt package name per line (pipe/build friendly).
@@ -55,9 +56,9 @@ def deps_cmd(as_apt, as_json):
 
     \b
     Example:
-        $ scitex-writer deps
-        $ scitex-writer deps --apt
-        $ scitex-writer deps --json
+        $ scitex-writer list-deps
+        $ scitex-writer list-deps --apt
+        $ scitex-writer list-deps --json
     """
     from ..._core._system_deps import _PACKAGES, APT_PACKAGES
 
