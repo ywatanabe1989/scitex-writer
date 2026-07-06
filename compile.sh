@@ -74,6 +74,9 @@ DOCUMENT TYPES:
     manuscript, -m        Compile manuscript (= ./scripts/shell/compile_manuscript.sh)
     supplementary, -s     Compile supplementary (= ./scripts/shell/compile_supplementary.sh)
     revision, -r          Compile revision (= ./scripts/shell/compile_revision.sh)
+    all, -a               Compile supplement THEN manuscript in dependency order
+                          so main->supplement cross-refs (xr-hyper) resolve in a
+                          single invocation (supplement .aux is produced first).
 
 BUILD INSPECTION:
     builds [-n N]         List recent build IDs embedded in PDFs
@@ -107,11 +110,19 @@ EXAMPLES:
     ./compile.sh manuscript                # Explicitly compile manuscript
     ./compile.sh supplementary             # Compile supplementary materials
     ./compile.sh revision                  # Compile revision responses
+    ./compile.sh all                       # Supplement then manuscript (xr-hyper)
 
     Short forms:
     ./compile.sh -m                        # Compile manuscript
     ./compile.sh -s                        # Compile supplementary
     ./compile.sh -r                        # Compile revision
+    ./compile.sh -a                        # Supplement then manuscript
+
+    Cross-references (main <-> supplement):
+    ./compile.sh all                       # One-shot: resolves \ref into the
+                                           # supplement without a manual -s then -m.
+                                           # Speed flags pass through to both, e.g.:
+    ./compile.sh all --no-diff             # Combined build, skip diff on both
 
     Speed options:
     ./compile.sh -m --no-figs --no-diff    # Fast manuscript (~12s)
@@ -182,6 +193,12 @@ while [ $# -gt 0 ]; do
         DOC_TYPE="revision"
         shift
         ;;
+    all | -a)
+        # Combined target: compile supplement then manuscript in dependency
+        # order so main->supplement cross-refs (xr-hyper) resolve in one call.
+        DOC_TYPE="all"
+        shift
+        ;;
     builds)
         # Inspect the build registry (#77). Delegates to manage_builds.py.
         shift
@@ -221,7 +238,7 @@ while [ $# -gt 0 ]; do
         # Collect remaining arguments
         if [ -z "$DOC_TYPE" ]; then
             echo "ERROR: Unknown document type '$1'"
-            echo "Valid types: manuscript, supplementary, revision"
+            echo "Valid types: manuscript, supplementary, revision, all"
             echo "Use './compile --help' for usage information"
             exit 1
         else
@@ -276,6 +293,24 @@ supplementary)
     ;;
 revision)
     "$PROJECT_ROOT/scripts/shell/compile_revision.sh" ${REMAINING_ARGS:+$REMAINING_ARGS}
+    ;;
+all)
+    # Dependency-ordered combined build for cross-references.
+    #
+    # 1. Supplement FIRST: its compile ends by exposing supplementary.aux at
+    #    doc-root (./02_supplementary/supplementary.aux) — the target that the
+    #    manuscript's xr-hyper \externaldocument/\link reads.
+    # 2. Manuscript SECOND: with the supplement .aux now present, main->supplement
+    #    \ref/\pageref resolve instead of printing "??".
+    #
+    # This replaces the manual "compile.sh -s && compile.sh -m" dance. Reverse
+    # refs (supplement->main) additionally require the manuscript to expose its
+    # own .aux at doc-root; that is a separate follow-up (pairs with
+    # writer-supp-aux-docroot) and would add a third supplement pass here.
+    echo -e "${CYAN}[all] Step 1/2: supplement (produces supplementary.aux)${NC}"
+    "$PROJECT_ROOT/scripts/shell/compile_supplementary.sh" ${REMAINING_ARGS:+$REMAINING_ARGS} || exit $?
+    echo -e "${CYAN}[all] Step 2/2: manuscript (resolves cross-refs into supplement)${NC}"
+    "$PROJECT_ROOT/scripts/shell/compile_manuscript.sh" ${REMAINING_ARGS:+$REMAINING_ARGS}
     ;;
 *)
     echo "Error: Unknown document type: $DOC_TYPE"
