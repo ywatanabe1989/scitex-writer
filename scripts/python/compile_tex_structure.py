@@ -22,6 +22,13 @@ from _build_id import (  # noqa: E402
     inject_build_metadata,
     register_build,
 )
+from _signature_footer import (  # noqa: E402
+    SIGNATURE_FOOTER_SENTINEL,
+    build_footer_injection,
+    resolve_signature_footer_enabled,
+    resolve_writer_version,
+)
+from _tectonic_compat import apply_tectonic_compat  # noqa: E402
 from _tex_signature import generate_signature  # noqa: E402
 
 # Unique marker for the inlined dark-mode block; also used as the idempotency
@@ -186,6 +193,7 @@ def compile_tex_structure(
     verbose: bool = True,
     dark_mode: bool = False,
     tectonic_mode: bool = False,
+    signature_footer: bool = False,
 ) -> bool:
     r"""
     Compile TeX structure by expanding all \input{} commands.
@@ -196,6 +204,7 @@ def compile_tex_structure(
         verbose: Print progress
         dark_mode: Enable dark mode (black background, white text)
         tectonic_mode: Disable incompatible packages for tectonic engine
+        signature_footer: Inject the opt-in visible footer (default OFF)
 
     Returns:
         True if successful
@@ -277,59 +286,7 @@ def compile_tex_structure(
 
     # Apply tectonic compatibility if enabled
     if tectonic_mode:
-        # Comment out incompatible packages
-        expanded_content = re.sub(
-            r"(\\usepackage\{[^}]*lineno[^}]*\})",
-            r"% \1  % Disabled for tectonic",
-            expanded_content,
-        )
-        expanded_content = re.sub(
-            r"(\\usepackage\{[^}]*bashful[^}]*\})",
-            r"% \1  % Disabled for tectonic",
-            expanded_content,
-        )
-        # Comment out \linenumbers command
-        expanded_content = re.sub(
-            r"(^\\linenumbers)",
-            r"% \1  % Disabled for tectonic",
-            expanded_content,
-            flags=re.MULTILINE,
-        )
-
-        # Replace \readwordcount{file} with actual file contents
-        # Find all \readwordcount commands
-        def replace_wordcount(match):
-            file_path = match.group(1)
-            try:
-                # Resolve file path (could be relative or absolute)
-                if not file_path.startswith("/"):
-                    # Paths starting with ./ are relative to project root, not base_tex
-                    if file_path.startswith("./"):
-                        # Use current working directory as base (should be project root)
-                        full_path = Path(file_path)
-                    else:
-                        # Relative to base_tex directory
-                        full_path = base_tex.parent / file_path
-                else:
-                    full_path = Path(file_path)
-
-                # Read the count value
-                with open(full_path, "r") as f:
-                    count_value = f.read().strip()
-
-                # Match the \readwordcount macro's thousands separator (e.g.
-                # 1,259) so tectonic mode (which inlines the raw number) renders
-                # the same as the latexmk/pdflatex path.
-                if count_value.isdigit():
-                    count_value = f"{int(count_value):,}"
-                return count_value
-            except Exception as e:
-                # If file can't be read, return a placeholder with debug info
-                return f"??({e})"
-
-        expanded_content = re.sub(
-            r"\\readwordcount\{([^}]+)\}", replace_wordcount, expanded_content
-        )
+        expanded_content = apply_tectonic_compat(expanded_content, base_tex)
 
     # Inject dark mode styling if enabled
     if dark_mode:
@@ -393,6 +350,24 @@ def compile_tex_structure(
             expanded_content = re.sub(
                 r"(?m)^([ \t]*)\\begin\{document\}",
                 lambda m: m.group(0) + "\n" + banner_tex,
+                expanded_content,
+                count=1,
+            )
+
+    # Inject the OPT-IN visible signature footer before \begin{document} (same
+    # idiom as dark mode). Default OFF -> no injection -> default compiles stay
+    # byte-identical. Idempotent via the sentinel. DISTINCT from the always-on
+    # invisible pdfcreator metadata (00_shared/scitex_writer_version.tex).
+    if signature_footer and SIGNATURE_FOOTER_SENTINEL not in expanded_content:
+        styles_dir = base_tex.parent.parent / "00_shared" / "latex_styles"
+        version = resolve_writer_version()
+        footer_injection = build_footer_injection(styles_dir, version)
+        if footer_injection:
+            if verbose:
+                print(f"Signature footer: enabled (scitex-writer v{version})")
+            expanded_content = re.sub(
+                r"(?m)^([ \t]*)\\begin\{document\}",
+                lambda m: footer_injection + m.group(0),
                 expanded_content,
                 count=1,
             )
@@ -492,6 +467,13 @@ def main():
         action="store_true",
         help="Enable tectonic compatibility (disable incompatible packages)",
     )
+    parser.add_argument(
+        "--signature-footer",
+        action="store_true",
+        help="Inject the opt-in visible 'Compiled by scitex-writer v<version>' "
+        "page footer (default OFF; also settable via "
+        "SCITEX_WRITER_SIGNATURE_FOOTER / config.yaml)",
+    )
 
     args = parser.parse_args()
 
@@ -502,6 +484,12 @@ def main():
         or os.getenv("SCITEX_WRITER_ENGINE", "") == "tectonic"
         or os.getenv("SCITEX_WRITER_SELECTED_ENGINE", "") == "tectonic"
     )
+    # Project root holds ./config.yaml (same tier the _severity resolver reads).
+    # It is base_tex's document-dir parent, matching _read_config_theme above.
+    project_dir = args.base_tex.resolve().parent.parent
+    signature_footer = resolve_signature_footer_enabled(
+        args.signature_footer, project_dir
+    )
 
     success = compile_tex_structure(
         base_tex=args.base_tex,
@@ -509,6 +497,7 @@ def main():
         verbose=not args.quiet,
         dark_mode=dark_mode,
         tectonic_mode=tectonic_mode,
+        signature_footer=signature_footer,
     )
 
     exit(0 if success else 1)
