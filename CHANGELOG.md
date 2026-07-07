@@ -5,6 +5,13 @@ All notable changes to SciTeX Writer will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.25.1] - 2026-07-07
+
+### Fixed
+- **Breakable placeholder-caption edit-path.** The scaffolded placeholder-caption
+  edit-path is now wrapped in a breakable `\url{}` to prevent an Overfull `\hbox`
+  off-page overflow (#259).
+
 ## [2.25.0] - 2026-07-06
 
 ### Added

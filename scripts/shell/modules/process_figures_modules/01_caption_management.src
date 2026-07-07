@@ -32,12 +32,11 @@ ensure_caption() {
             else
                 # Create default caption template
                 local rel_path="${caption_tex_file#./}"
-                local escaped_path="${rel_path//_/\\_}"
                 cat <<EOF >"$caption_tex_file"
 %% Edit this file: $rel_path
 \caption{\textbf{FIGURE TITLE HERE}\\\\
 \smallskip
-FIGURE LEGEND HERE. Edit this caption at \texttt{$escaped_path}.
+FIGURE LEGEND HERE. Edit this caption at \url{$rel_path}.
 }
 %%%% EOF
 EOF
