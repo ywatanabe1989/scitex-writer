@@ -21,6 +21,8 @@
 #            \@namedef{clew@val@<id>}{value}      (id sanitized to [a-zA-Z0-9])
 #            \@namedef{clew@hex@<id>}{6hex}
 #            \@namedef{clew@status@<id>}{status}
+#            \@namedef{clew@link@<id>}{link}      (source path/URL, LaTeX-escaped;
+#                                                  emitted only when non-empty)
 #            \makeatother
 #
 #          Claim VALUES are emitted VERBATIM -- clew provides display-ready
@@ -114,6 +116,42 @@ def _claim_value(claim):
         "rendered_value",
         "text",
     )
+    return "" if v is None else str(v)
+
+
+# LaTeX special characters -> their escaped, display-safe forms. Unlike claim
+# VALUES (which clew emits display-ready and we pass verbatim), the link is a
+# RAW filesystem path / URL (contains _ # % ~ & $ { } etc.), so it MUST be made
+# LaTeX-safe before emission -- a bare `%` would comment out the line, a bare
+# `_` errors outside math, etc. This is the "escape consistent with how the file
+# handles other non-verbatim text" the contract calls for.
+_LATEX_ESCAPES = {
+    "\\": r"\textbackslash{}",
+    "&": r"\&",
+    "%": r"\%",
+    "$": r"\$",
+    "#": r"\#",
+    "_": r"\_",
+    "{": r"\{",
+    "}": r"\}",
+    "~": r"\textasciitilde{}",
+    "^": r"\textasciicircum{}",
+}
+
+
+def _latex_escape(text):
+    """Escape LaTeX-special characters in ``text`` (char-by-char, no re-scan of
+    the replacements) so an arbitrary path/URL is safe to emit into a TeX macro
+    body and to feed hyperref's \\pdfstringdef for the PDF tooltip string."""
+    return "".join(_LATEX_ESCAPES.get(ch, ch) for ch in text)
+
+
+def _claim_link(claim):
+    """The resolvable source pointer for a claim: ``link`` (clew's per-entry
+    source pointer -- a source_file path for value/figure claims, a scholar/doi
+    URL for citation claims), falling back to ``source_file``. Mirrors the
+    _first(...) accessor pattern. Empty string when the claim has no link."""
+    v = _first(claim, "link", "source_file")
     return "" if v is None else str(v)
 
 
@@ -255,6 +293,11 @@ def render_clew_tex(data):
         if color:
             lines.append(f"\\@namedef{{clew@hex@{cid}}}{{{color}}}")
         lines.append(f"\\@namedef{{clew@status@{cid}}}{{{verdict}}}")
+        # Source pointer (LaTeX-escaped): emitted only when the claim carries a
+        # non-empty link, so a link-less claim's tooltip degrades to status-only.
+        link = _claim_link(claim)
+        if link:
+            lines.append(f"\\@namedef{{clew@link@{cid}}}{{{_latex_escape(link)}}}")
         lines.append("")
 
     lines.append("\\makeatother")
