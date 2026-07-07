@@ -82,6 +82,7 @@ export do_force=false # Reserved for force-rebuild logic; exported so --force fl
 no_diff=false
 draft_mode=false
 dark_mode=${SCITEX_WRITER_DARK_MODE:-false}
+clew_overlay=false
 
 usage() {
     echo ""
@@ -121,6 +122,7 @@ usage() {
     echo "  -c,   --crop_tif      Crop TIF whitespace"
     echo "  -q,   --quiet         Minimal output"
     echo "  --force               Force full recompilation"
+    echo "  --clew-overlay        Color \\vclaim values by clew provenance status"
     echo "  -h,   --help          Show this help"
     echo ""
     echo -e "${GRAY}Note: Options accept both hyphens and underscores${NC}"
@@ -191,6 +193,7 @@ parse_arguments() {
         -v | --verbose) do_verbose=true ;;
         -q | --quiet) do_verbose=false ;;
         --force) do_force=true ;;
+        --clew-overlay) clew_overlay=true ;;
         *)
             echo "Unknown option: $1"
             usage
@@ -213,6 +216,7 @@ main() {
     $dark_mode && options_display="${options_display} --dark_mode"
     $do_crop_tif && options_display="${options_display} --crop_tif"
     $do_verbose && options_display="${options_display} --verbose"
+    $clew_overlay && options_display="${options_display} --clew-overlay"
     echo_info "Running $0${options_display}..."
 
     # Verbosity
@@ -224,6 +228,13 @@ main() {
 
     # Dark mode (black background, white text)
     export SCITEX_WRITER_DARK_MODE=$dark_mode
+
+    # Clew overlay (--clew-overlay): alias onto the clew presentation master
+    # switch so \vclaim marks color by clew verdict. Only set when requested,
+    # never clobbering an existing SCITEX_WRITER_CLEW_PRESENTATION when off.
+    if [ "$clew_overlay" = true ]; then
+        export SCITEX_WRITER_CLEW_PRESENTATION=on
+    fi
 
     # Refuse to compile on a Spartan login node (prohibited heavy compute) —
     # fail loud with the srun hint before the toolchain probe.
