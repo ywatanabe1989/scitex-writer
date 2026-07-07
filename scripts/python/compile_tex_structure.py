@@ -48,6 +48,17 @@ DARK_MODE_SENTINEL = "% Dark mode styling (inlined at compile time)"
 CITATION_BANNER_ARTIFACT = ".scitex/writer/.citation_banner.tex"
 CITATION_BANNER_SENTINEL = "scitex-writer citation banner"
 
+# Idempotency sentinel for the auto-injected clew "Provenance marks" intro
+# section (\clewIntro), placed near document start (after \end{frontmatter},
+# else after \begin{document}) when the clew `intro` toggle is active.
+CLEW_INTRO_SENTINEL = "% SciTeX clew intro section (inlined at compile time)"
+
+# Line-anchored detectors for the clew presentation toggles that the flattened
+# content carries (the toggles file is \input via packages.tex, so a
+# \clewpres<name>true line lands in expanded_content when the toggle is on).
+_CLEW_SIGNATURE_TOGGLE_RE = re.compile(r"(?m)^\s*\\clewpressignaturetrue\b")
+_CLEW_INTRO_TOGGLE_RE = re.compile(r"(?m)^\s*\\clewpresintrotrue\b")
+
 
 def _is_style_input(input_file: str) -> bool:
     r"""True if an \input target is a preamble style file (latex_styles/)."""
@@ -363,23 +374,50 @@ def compile_tex_structure(
                 count=1,
             )
 
-    # Inject the OPT-IN visible signature footer before \begin{document} (same
-    # idiom as dark mode). Default OFF -> no injection -> default compiles stay
-    # byte-identical. Idempotent via the sentinel. DISTINCT from the always-on
-    # invisible pdfcreator metadata (00_shared/scitex_writer_version.tex).
-    if signature_footer and SIGNATURE_FOOTER_SENTINEL not in expanded_content:
+    # Inject the OPT-IN per-page bottom-right signature footer before
+    # \begin{document}. Enabled when EITHER the standalone opt-in
+    # (`signature_footer`) OR the clew-presentation `signature` toggle is active
+    # (redesign: one unified knob). DRY single-stamp: the SENTINEL guard inlines
+    # the block AT MOST ONCE even when BOTH sources are on. DISTINCT from the
+    # always-on invisible pdfcreator metadata (scitex_writer_version.tex).
+    clew_signature_on = bool(_CLEW_SIGNATURE_TOGGLE_RE.search(expanded_content))
+    if (signature_footer or clew_signature_on) and (
+        SIGNATURE_FOOTER_SENTINEL not in expanded_content
+    ):
         styles_dir = base_tex.parent.parent / "00_shared" / "latex_styles"
         version = resolve_writer_version()
         footer_injection = build_footer_injection(styles_dir, version)
         if footer_injection:
             if verbose:
-                print(f"Signature footer: enabled (scitex-writer v{version})")
+                src = "opt-in" if signature_footer else "clew signature toggle"
+                print(f"Signature footer: enabled via {src} (v{version})")
             expanded_content = re.sub(
                 r"(?m)^([ \t]*)\\begin\{document\}",
                 lambda m: footer_injection + m.group(0),
                 expanded_content,
                 count=1,
             )
+
+    # Inject the clew "Provenance marks" INTRO section near document start when
+    # the clew `intro` toggle is active: anchor on \end{frontmatter}, else fall
+    # back to just after \begin{document}. Idempotent via the sentinel; gated on
+    # the toggle so it is a no-op for a non-clew doc (\clewIntro undefined there).
+    if _CLEW_INTRO_TOGGLE_RE.search(expanded_content) and (
+        CLEW_INTRO_SENTINEL not in expanded_content
+    ):
+        intro_injection = "\n" + CLEW_INTRO_SENTINEL + "\n\\clewIntro\n"
+        if re.search(r"(?m)^([ \t]*)\\end\{frontmatter\}", expanded_content):
+            anchor = r"(?m)^([ \t]*)\\end\{frontmatter\}"
+        else:
+            anchor = r"(?m)^([ \t]*)\\begin\{document\}"
+        if verbose:
+            print(f"Clew intro: injected (anchor {anchor})")
+        expanded_content = re.sub(
+            anchor,
+            lambda m: m.group(0) + intro_injection,
+            expanded_content,
+            count=1,
+        )
 
     # Write output
     try:

@@ -58,6 +58,9 @@
 \newif\ifclewpreslegend
 \newif\ifclewpresattest      % "Provenance checked by SciTeX Clew." line
 \newif\ifclewpresexplainer   % renderable clew explainer section
+\newif\ifclewpresintro       % top-of-document "Provenance marks" intro section
+                             % (auto-injected after \end{frontmatter} by the
+                             % compile pipeline). Replaces the old bottom legend.
 \newif\ifclewpreslegendfirst % opt-in: emit \clewLegend at the TOP of page 1
                              % (config key legend_first). Independent of
                              % \ifclewpreslegend (end-of-doc) and NOT in the
@@ -297,19 +300,56 @@
       \end{minipage}}\par\medskip
   \fi}
 
-%% Auto-placement: badge (+ opt-in legend_first) at top; legend, signature +
-%% attestation at the end.
-%% Manual macros (\clewVerifiedBadge, \clewExplainer, ...) stay available for
-%% explicit placement.
+%% --- clew provenance INTRO section (replaces the old bottom legend) ---
+%% A top-of-document boxed callout that EXPLAINS the four provenance statuses
+%% with a worked, self-demonstrating example of each -- reusing \clewLabel so
+%% each status word is shown in its own marker color/wavy underline, plus the
+%% \clewExplainerBody prose. This is the explainer content PROMOTED to a
+%% document-start section: the compile pipeline auto-injects \clewIntro right
+%% after \end{frontmatter} (else after \begin{document}) when the `intro`
+%% toggle is on, so a reader meets the legend at the TOP of the paper instead
+%% of a cryptic key buried at the bottom. Gated by the toggle so an explicit
+%% call is a no-op when off. Dependency-light (no tcolorbox) -- same layout
+%% family as \clewExplainer so the demo compiles unchanged.
+\newcommand{\clewIntro}{%
+  \ifclewpresintro
+    \par\medskip\noindent
+    \fcolorbox{gray}{gray!6!white}{%
+      \begin{minipage}{\dimexpr\linewidth-2\fboxsep-2\fboxrule\relax}
+        \small
+        {\bfseries Provenance marks}\par\smallskip
+        \clewExplainerBody\par\smallskip
+        \begin{itemize}\setlength{\itemsep}{2pt}\setlength{\parsep}{0pt}%
+          \item \clewLabel{clewVerified}{verified} --
+                the value matches the analysis output that produced it.
+          \item \clewLabel{clewSuspect}{suspect} --
+                the source drifted since it was last checked; re-verify.
+          \item \clewLabel{clewUnverified}{failed} --
+                the value does not match its recorded source.
+          \item \clewLabel{clewException}{exception} --
+                verification could not be run for this value.
+        \end{itemize}
+      \end{minipage}}\par\medskip
+  \fi}
+
+%% Auto-placement: badge (+ opt-in legend_first) at top; attestation at the end.
+%% Manual macros (\clewVerifiedBadge, \clewExplainer, \clewLegend, \clewIntro,
+%% \clewSignature, ...) stay available for explicit placement.
 %% legend_first reuses \clewLegend UNCHANGED, auto-placed at page-1 top (before
-%% the badge). Opt-in and NOT in the master set, so it never double-renders with
-%% the end-of-doc \ifclewpreslegend.
+%% the badge). Opt-in and NOT in the master set, so it never double-renders.
+%%
+%% NOTE (redesign A/B): the Writer signature is NO LONGER auto-placed here.
+%% \clewSignature stays defined for back-compat, but the "Compiled by SciTeX
+%% Writer vX" mark now renders as a PER-PAGE bottom-right footer, injected by
+%% the compile pipeline (signature_footer.tex) when the `signature` toggle (or
+%% the standalone SCITEX_WRITER_SIGNATURE_FOOTER opt-in) is on -- decoupled from
+%% this bottom colophon. Likewise the bottom \clewLegend is REPLACED by the
+%% top-of-document \clewIntro section (auto-injected by the pipeline); the
+%% macro stays defined for back-compat but is not auto-placed.
 \AtBeginDocument{%
   \ifclewpreslegendfirst\clewLegend\fi
   \ifclewpresbadge\par\noindent\clewVerifiedBadge\par\fi}
 \AtEndDocument{%
-  \ifclewpreslegend\clewLegend\fi
-  \ifclewpressignature\clewSignature\fi
   \ifclewpresattest\clewAttestation\fi}
 
 %% Safe fallbacks: if clew_rendered.tex was NOT input (no claims / layer off),

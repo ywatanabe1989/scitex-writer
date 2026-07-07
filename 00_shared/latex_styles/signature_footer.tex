@@ -15,7 +15,7 @@
 %% The __SCITEX_WRITER_VERSION__ token is substituted with the resolved writer
 %% version before this block is inlined (see _signature_footer.py).
 %%
-%% Rendering: an absolute bottom-centre overlay stamped on EVERY shipped page
+%% Rendering: an absolute bottom-RIGHT overlay stamped on EVERY shipped page
 %% via \AtBeginShipout (from atbegshi, always available -- hyperref loads it in
 %% packages.tex) + a TikZ overlay node anchored to the physical page (tikz is
 %% loaded in packages.tex). This is deliberately pagestyle-agnostic: it does
@@ -23,13 +23,18 @@
 %% existing page numbers / journal headers are preserved. The "current page"
 %% reference settles after the usual 2 compile passes (the default multi-pass
 %% build does this; a single-pass draft may misposition on the first run).
+%%
+%% Anchored bottom-RIGHT (not bottom-centre): the elsarticle \ps@pprintTitle
+%% footer centres \thepage at the bottom of the page, so a bottom-centre node
+%% would collide with the page number. anchor=south east inset from the page's
+%% south-east corner keeps the two clear of each other.
 
 \AtBeginShipout{%
   \AtBeginShipoutUpperLeft{%
     \begin{tikzpicture}[remember picture, overlay]%
-      \node[anchor=south, yshift=4pt,
+      \node[anchor=south east,
             font=\ttfamily\scriptsize, text=gray]
-        at (current page.south)
+        at ([xshift=-8mm, yshift=4pt]current page.south east)
         {Compiled by SciTeX Writer v__SCITEX_WRITER_VERSION__};%
     \end{tikzpicture}%
   }%
