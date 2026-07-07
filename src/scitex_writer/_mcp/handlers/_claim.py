@@ -14,14 +14,17 @@ Usage in LaTeX (after render_claims is called before compile):
 """
 
 import json
-import re
 from pathlib import Path
 from typing import Any, Dict, Optional
 
 from ..utils import resolve_project_path
+from ._claim_format import (
+    CLAIM_TYPES,
+    FORMAT_STYLES,
+    _render_claim,
+    _sanitize_id,
+)
 
-CLAIM_TYPES = ("statistic", "value", "citation", "figure", "table")
-FORMAT_STYLES = ("nature", "apa", "plain")
 CLAIMS_FILE = "00_shared/claims.json"
 CLAIMS_RENDERED = "00_shared/claims_rendered.tex"
 
@@ -50,202 +53,6 @@ def _save_claims(project_path: Path, data: Dict) -> None:
     p.write_text(
         json.dumps(data, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
     )
-
-
-def _sanitize_id(claim_id: str) -> str:
-    """Sanitize claim ID for use in LaTeX macro names (letters only)."""
-    return re.sub(r"[^a-zA-Z0-9]", "", claim_id)
-
-
-def _format_p(p: float, style: str) -> str:
-    """Format p-value according to style."""
-    if p < 0.001:
-        return "< 0.001" if style != "apa" else "< .001"
-    if p < 0.01:
-        fmt = f"{p:.3f}"
-        return fmt if style != "apa" else fmt.lstrip("0")
-    fmt = f"{p:.3f}"
-    return f"= {fmt}" if style != "apa" else f"= {fmt.lstrip('0')}"
-
-
-def _format_statistic(value: Dict, style: str) -> str:
-    """Format a statistic claim."""
-    t = value.get("t")
-    f = value.get("F")
-    df = value.get("df")
-    df1 = value.get("df1")
-    df2 = value.get("df2")
-    p = value.get("p")
-    d = value.get("d")
-    eta2 = value.get("eta2")
-    r = value.get("r")
-
-    parts = []
-
-    if t is not None and df is not None:
-        if style == "plain":
-            parts.append(f"t({df}) = {t:.2f}")
-        else:
-            parts.append(f"$t({df}) = {t:.2f}$")
-    elif f is not None and df1 is not None and df2 is not None:
-        if style == "plain":
-            parts.append(f"F({df1},{df2}) = {f:.2f}")
-        else:
-            parts.append(f"$F({df1},{df2}) = {f:.2f}$")
-    elif r is not None:
-        if style == "plain":
-            parts.append(f"r = {r:.2f}")
-        else:
-            parts.append(f"$r = {r:.2f}$")
-
-    if p is not None:
-        p_str = _format_p(p, style)
-        if style == "plain":
-            parts.append(f"p {p_str}")
-        else:
-            parts.append(f"$p {p_str}$")
-
-    if d is not None:
-        if style == "apa":
-            label = "Cohen's $d$"
-            val_str = f"{d:.2f}"
-            parts.append(f"{label} = {val_str}")
-        elif style == "plain":
-            parts.append(f"d = {d:.2f}")
-        else:
-            parts.append(f"$d = {d:.2f}$")
-    elif eta2 is not None:
-        if style == "plain":
-            parts.append(f"eta2 = {eta2:.3f}")
-        else:
-            label = "$\\eta^2$" if style == "nature" else "$\\eta^2_p$"
-            parts.append(f"{label} = {eta2:.3f}")
-
-    return ", ".join(parts) if parts else str(value)
-
-
-def _format_value(value: Dict, style: str) -> str:
-    """Format a value claim.
-
-    Supported shapes (checked in order):
-
-    1. ``{"template_<style>": "...", ...}`` — per-style format string,
-       rendered with ``template.format(**value)``. ``<style>`` is one of
-       ``nature``, ``apa``, ``plain``. Lets a single claim carry three
-       differently-typeset renderings (useful when math goes into
-       ``$...$`` for nature/apa but stays plain for ``plain`` style).
-
-    2. ``{"template": "...", ...}`` — single style-agnostic format
-       string, rendered with ``template.format(**value)``. Takes the
-       whole value dict as keyword args, so compound claims like
-       ``{"n_sig": 73, "n_tot": 240, "frac": 0.304, ...}`` can pack a
-       rich rendering into one claim ID without exploding the JSON into
-       atomic sub-claims.
-
-    3. ``{"value": X, "unit": Y}`` (legacy single-value shape) — renders
-       as ``X Y`` (plain) or ``$X$ Y`` (nature/apa). Unit optional.
-
-    4. Any other dict — falls back to ``key=val, key=val, ...`` so the
-       claim is at least visible in the rendered tex and users can spot
-       that they need to add a ``template``.
-
-    Parameters
-    ----------
-    value : dict
-        The claim's value payload.
-    style : str
-        One of the FORMAT_STYLES constants (nature, apa, plain).
-    """
-    if not isinstance(value, dict):
-        return str(value)
-
-    # (1) per-style template
-    per_style = value.get(f"template_{style}")
-    if isinstance(per_style, str):
-        try:
-            return per_style.format(**value)
-        except (KeyError, IndexError, ValueError):
-            pass
-
-    # (2) single shared template
-    template = value.get("template")
-    if isinstance(template, str):
-        try:
-            return template.format(**value)
-        except (KeyError, IndexError, ValueError):
-            pass
-
-    # (3) legacy single-value shape
-    if "value" in value:
-        v = _latex_escape_value(value.get("value", ""))
-        unit = _latex_escape_value(value.get("unit", ""))
-        if unit:
-            return f"{v} {unit}" if style == "plain" else f"${v}$ {unit}"
-        return str(v)
-
-    # (4) fallback — flat key=val dump
-    return ", ".join(
-        f"{k}={_latex_escape_value(v)}"
-        for k, v in value.items()
-        if not (isinstance(k, str) and k.startswith("template"))
-    )
-
-
-def _format_citation(value: Dict, style: str) -> str:
-    """Format a citation claim — just returns user-supplied text."""
-    return _latex_escape_value(value.get("text", ""))
-
-
-def _format_figure(value: Dict, style: str) -> str:
-    """Format a figure reference."""
-    label = value.get("label", "")
-    return f"\\ref{{{label}}}"
-
-
-def _format_table(value: Dict, style: str) -> str:
-    """Format a table reference."""
-    label = value.get("label", "")
-    return f"\\ref{{{label}}}"
-
-
-def _latex_escape_value(s: str) -> str:
-    """Escape LaTeX special characters in a claim value string.
-
-    Only the silent-killer specials (`%`, unbalanced `{` / `}`, `&`, `#`,
-    `$`, `_`) are escaped — characters that template-authors might use
-    intentionally (`\\`, `^`, `~`) are left alone. The motivating bug:
-    a claim value of `"25%"` (e.g. bix-6 q5 percentage) was inlined raw
-    into LaTeX, where `%` starts a comment that consumed the closing
-    brace of the surrounding `\\IfFileExists{file}{BODY}` wrapper and
-    triggered a runaway-argument error on every compile. Discovered
-    2026-05-03 in paper-scitex-clew."""
-    if not isinstance(s, str):
-        s = str(s)
-    return (
-        s.replace("\\", "\\textbackslash{}")
-        .replace("&", "\\&")
-        .replace("%", "\\%")
-        .replace("$", "\\$")
-        .replace("#", "\\#")
-        .replace("_", "\\_")
-    )
-
-
-def _render_claim(claim: Dict, style: str) -> str:
-    """Render a single claim as a LaTeX string."""
-    claim_type = claim.get("type", "value")
-    value = claim.get("value", {})
-    if isinstance(value, str):
-        return _latex_escape_value(value)
-    formatters = {
-        "statistic": _format_statistic,
-        "value": _format_value,
-        "citation": _format_citation,
-        "figure": _format_figure,
-        "table": _format_table,
-    }
-    fn = formatters.get(claim_type, _format_value)
-    return fn(value, style)
 
 
 # ---------------------------------------------------------------------------
@@ -515,8 +322,35 @@ def render_claims(project_dir: str) -> Dict:
             "  \\expandafter\\ifx\\csname v@claim@##2@##1\\endcsname\\relax",
             "    [\\texttt{claim:##2}]%",
             "  \\else",
-            "    \\csname v@claim@##2@##1\\endcsname%",
+            "    \\v@claim@maybecolor{##2}{\\csname v@claim@##2@##1\\endcsname}%",
             "  \\fi}",
+            "",
+            "%% \\v@claim@maybecolor{id}{rendered} — clew provenance overlay.",
+            "%% When the clew presentation markers layer is ACTIVE",
+            "%% (\\ifclewpresmarkers, set by --clew-overlay / the master switch)",
+            "%% AND this claim id has a clew color registered (clew@hex@<id>, emitted",
+            "%% into clew_rendered.tex by render_clew using the SAME sanitize as the",
+            "%% v@claim@ names, so keys align), wrap the rendered value in the",
+            "%% verdict-colored decoration the clew layer uses (\\clewDecorate — the",
+            "%% ulem \\uwave span). The value is \\mbox-wrapped first: the \\vclaim",
+            '%% value macro bundles a \\hypertarget, and ulem \\uwave chokes ("Bad',
+            '%% space factor (0)") on that box unless it is a single \\hbox; claim',
+            "%% values are short single units, so this is safe. Falls back to the",
+            "%% PLAIN rendered value (no \\mbox, no wave) in every",
+            "%% other case, guarded by \\@ifundefined so a non-overlay compile (no",
+            "%% clew_rendered.tex, markers off, or claim absent from the clew feed)",
+            "%% never touches an undefined color/toggle macro.",
+            "\\providecommand{\\v@claim@maybecolor}[2]{%",
+            "  \\@ifundefined{clew@hex@##1}{##2}{%",
+            "    \\@ifundefined{ifclewpresmarkers}{##2}{%",
+            "      \\ifclewpresmarkers",
+            "        \\begingroup",
+            "        \\edef\\v@claim@clewhex{\\csname clew@hex@##1\\endcsname}%",
+            "        \\definecolor{clewVerdict}{HTML}{\\v@claim@clewhex}%",
+            "        \\clewDecorate{\\mbox{##2}}%",
+            "        \\endgroup",
+            "      \\else ##2\\fi}}%",
+            "}",
             "",
         ]
 

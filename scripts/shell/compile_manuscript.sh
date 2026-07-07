@@ -90,6 +90,7 @@ export do_force=false # Reserved for force-rebuild logic; exported so --force fl
 no_diff=false
 draft_mode=false
 dark_mode=${SCITEX_WRITER_DARK_MODE:-false}
+clew_overlay=false
 
 # Colors for usage output
 GRAY='\033[0;90m'
@@ -142,6 +143,7 @@ usage() {
     echo "  -c,   --crop_tif      Crop TIF whitespace"
     echo "  -q,   --quiet         Minimal output"
     echo "  --force               Force full recompilation"
+    echo "  --clew-overlay        Color \\vclaim values by clew provenance status"
     echo "  -h,   --help          Show this help"
     echo ""
     echo -e "${GRAY}Note: Options accept both hyphens and underscores${NC}"
@@ -218,6 +220,7 @@ parse_arguments() {
         -v | --verbose) do_verbose=true ;;
         -q | --quiet) do_verbose=false ;;
         --force) do_force=true ;;
+        --clew-overlay) clew_overlay=true ;;
         *)
             echo "Unknown option: $1"
             usage
@@ -240,6 +243,7 @@ main() {
     $dark_mode && options_display="${options_display} --dark_mode"
     $do_crop_tif && options_display="${options_display} --crop_tif"
     $do_verbose && options_display="${options_display} --verbose"
+    $clew_overlay && options_display="${options_display} --clew-overlay"
 
     # Show options only in verbose mode
     if [ "${SCITEX_LOG_LEVEL:-1}" -ge 2 ] && [ -n "$options_display" ]; then
@@ -255,6 +259,15 @@ main() {
 
     # Dark mode (black background, white text)
     export SCITEX_WRITER_DARK_MODE=$dark_mode
+
+    # Clew overlay (--clew-overlay): an alias onto the clew presentation master
+    # switch. `on` makes render_clew_toggles.py enable the provenance marks +
+    # badge/legend/signature/explainer, so \vclaim marks color by clew verdict
+    # with zero author edits. Only set when requested — never clobber an
+    # existing SCITEX_WRITER_CLEW_PRESENTATION coming from config/env when off.
+    if [ "$clew_overlay" = true ]; then
+        export SCITEX_WRITER_CLEW_PRESENTATION=on
+    fi
 
     # Refuse to compile on a Spartan login node (prohibited heavy compute) —
     # fail loud with the srun hint BEFORE the toolchain probe, which would
