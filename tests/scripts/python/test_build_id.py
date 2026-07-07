@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 # Test file for: _build_id.py (inject_build_metadata \begin{document} anchoring)
 
+import json
 import sys
 from pathlib import Path
 
@@ -9,7 +10,7 @@ from pathlib import Path
 ROOT_DIR = Path(__file__).resolve().parent.parent.parent.parent
 sys.path.insert(0, str(ROOT_DIR / "scripts" / "python"))
 
-from _build_id import inject_build_metadata  # noqa: E402
+from _build_id import inject_build_metadata, register_build  # noqa: E402
 
 # A preamble comment whose text contains \begin{document} (e.g. clew's
 # "overridable before \begin{document})"), appearing BEFORE the real marker.
@@ -102,3 +103,21 @@ def test_writer_version_sanitized():
     out = inject_build_metadata(_CONTENT, "abc123", writer_version="2.26.0}\\evil")
     # Assert
     assert "\\def\\writer@version{2.26.0evil}" in out
+
+
+def test_legacy_builds_migrated_to_runtime(tmp_path):
+    # Arrange: a project_root with a legacy .scitex/writer/builds/builds.json.
+    legacy_dir = tmp_path / ".scitex" / "writer" / "builds"
+    legacy_dir.mkdir(parents=True)
+    legacy_record = {"builds": [{"build_id": "legacy1", "doc_type": "manuscript"}]}
+    (legacy_dir / "builds.json").write_text(json.dumps(legacy_record))
+    # Act: register a new build (previously raised NameError, silently swallowed).
+    register_build("new123", "manuscript", Path("out.tex"), project_root=tmp_path)
+    # Assert: legacy record survives in the runtime location.
+    runtime_json = (
+        tmp_path / ".scitex" / "writer" / "runtime" / "builds" / "builds.json"
+    )
+    migrated_ids = [
+        b["build_id"] for b in json.loads(runtime_json.read_text())["builds"]
+    ]
+    assert "legacy1" in migrated_ids

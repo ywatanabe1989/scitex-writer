@@ -74,6 +74,7 @@ def register_build(
         # Canonical location per PS-102: regenerable data under runtime/
         registry_dir = project_root / ".scitex" / "writer" / "runtime" / "builds"
         registry_dir.mkdir(parents=True, exist_ok=True)
+        registry_path = registry_dir / "builds.json"
 
         # Back-compat: migrate legacy builds/ -> runtime/builds/ (one-time)
         legacy = project_root / ".scitex" / "writer" / "builds"
@@ -88,7 +89,6 @@ def register_build(
                 legacy.rmdir()  # succeeds only if empty after migration
             except OSError:
                 pass
-        registry_path = registry_dir / "builds.json"
 
         entry = {
             "build_id": build_id,
