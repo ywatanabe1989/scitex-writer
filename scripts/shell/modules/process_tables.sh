@@ -125,12 +125,11 @@ function ensure_caption() {
             echo_info "    Creating default caption for table $base_name"
             mkdir -p "$(dirname "$caption_file")"
             local rel_path="${caption_file#./}"
-            local escaped_path="${rel_path//_/\\_}"
             cat >"$caption_file" <<EOF
 %% Edit this file: $rel_path
 \\caption{\\textbf{TABLE TITLE HERE}\\\\
 \\smallskip
-TABLE CAPTION HERE. Edit this caption at \\texttt{$escaped_path}.
+TABLE CAPTION HERE. Edit this caption at \\url{$rel_path}.
 }
 EOF
         fi
