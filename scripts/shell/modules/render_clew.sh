@@ -48,4 +48,20 @@ if command -v "$CLEW_BIN" >/dev/null 2>&1; then
     fi
 fi
 
+# Loud-but-graceful degrade for --clew-overlay: the overlay was REQUESTED
+# (master switch on) but no clew feed exists to color from. The presentation
+# layer is DECORATIVE -- it must never abort a compile -- so warn clearly and
+# continue (exit 0, marks simply do not light up). This is distinct from the
+# FAIL-LOUD path for a MALFORMED claims.json, which stays in render_clew.py.
+_clew_pres="$(printf '%s' "${SCITEX_WRITER_CLEW_PRESENTATION:-}" | tr '[:upper:]' '[:lower:]')"
+case "$_clew_pres" in
+1 | true | yes | on)
+    _clew_feed="$PROJECT_ROOT/.scitex/clew/runtime/claims.json"
+    if [ ! -s "$_clew_feed" ]; then
+        echo "WARN: --clew-overlay requested but no clew feed found at $_clew_feed;" >&2
+        echo "      run \`clew export-claims --unified\` first -- compiling without provenance marks." >&2
+    fi
+    ;;
+esac
+
 exec "$PY" "$PROJECT_ROOT/scripts/python/render_clew.py" "$PROJECT_ROOT"
