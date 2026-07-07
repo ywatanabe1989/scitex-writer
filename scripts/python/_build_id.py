@@ -126,13 +126,41 @@ def register_build(
 BUILD_BLOCK_SENTINEL = "% --- scitex-writer build identifier "
 
 
-def inject_build_metadata(content: str, build_id: str) -> str:
+def _writer_version_def(writer_version: Optional[str]) -> str:
+    r"""``\def\writer@version{X}`` line (with trailing newline) for the LIVE
+    scitex-writer version, or '' when unavailable.
+
+    Mirrors clew's ``\def\clew@version`` in clew_rendered.tex: stamps the
+    version that COMPILED the document into a macro the clew presentation-layer
+    colophon reads, so it renders "Compiled by SciTeX Writer vX.Y.Z" (parallel
+    to clew's "Provenance audited by SciTeX Clew vX.Y.Z"). Fail-safe: '' when
+    the version is empty/"unknown" so the colophon degrades to a version-less
+    line and the compile is never broken. Sanitized to LaTeX-safe [0-9A-Za-z.-]
+    (never trust the string blindly), same posture as render_clew's version read.
+    """
+    v = "" if writer_version is None else str(writer_version).strip()
+    if not v or v.lower() == "unknown":
+        return ""
+    v = re.sub(r"[^0-9A-Za-z.\-]", "", v)
+    if not v:
+        return ""
+    return "\\def\\writer@version{" + v + "}\n"
+
+
+def inject_build_metadata(
+    content: str, build_id: str, writer_version: Optional[str] = None
+) -> str:
     r"""Inject ``\hypersetup{pdfsubject=build:...}`` before ``\begin{document}``.
 
     hyperref finalizes PDF /Info at ``\begin{document}``, so the metadata
     must appear before then. Also exposes ``\scitexBuildID`` and
     ``\scitexBuildIDFootnote`` macros so document templates can opt into
     a tiny footer, colophon, or watermark without further changes here.
+
+    When ``writer_version`` is given, ALSO stamps ``\def\writer@version{X}`` in
+    the same ``\makeatletter`` block so the clew presentation-layer colophon can
+    append " vX.Y.Z" to "Compiled by SciTeX Writer" (mirrors clew's
+    ``\clew@version``). Always-on + fail-safe (see ``_writer_version_def``).
     """
     # Match the REAL document-body marker at line start, not a \begin{document}
     # appearing inside a comment (e.g. clew_presentation.tex's "overridable
@@ -163,6 +191,7 @@ def inject_build_metadata(content: str, build_id: str) -> str:
         + "pdfkeywords={scitex-writer}}%\n"
         + "  }{}%\n"
         + "}\n"
+        + _writer_version_def(writer_version)
         + "% "
         + "-" * 76
         + "\n"

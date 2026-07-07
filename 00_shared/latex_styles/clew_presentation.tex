@@ -80,7 +80,11 @@
 \providecolor{clewException}{HTML}{8250DF}
 
 %% --- signature config (overridable before \begin{document}) ---
-\providecommand{\clewSigText}{Compiled by SciTeX Writer.}
+%% No trailing period so the tool version reads cleanly after it ("... SciTeX
+%% Writer v2.26.0"), symmetric with \clewAttestText. The " vX.Y.Z" suffix is
+%% appended by \writerVersionSuffix (see \clewSignature below), mirroring how
+%% \clewVersionSuffix appends the clew version to the attestation line.
+\providecommand{\clewSigText}{Compiled by SciTeX Writer}
 \providecommand{\clewSigURL}{https://github.com/ywatanabe1989/scitex-writer}
 \providecommand{\clewBadgeURL}{https://github.com/ywatanabe1989/scitex-clew}
 \providecommand{\clewSigIcon}{docs/scitex-icon-navy-inverted.png}
@@ -232,16 +236,28 @@
   \expandafter\IfFileExists\expandafter{\clew@sigiconpath}%
     {\raisebox{-0.25em}{\includegraphics[height=1em]{\clew@sigiconpath}}\,}{}%
   \endgroup}
-%% "Compiled by SciTeX Writer." -> writer repo, right-aligned.
+%% "Compiled by SciTeX Writer vX.Y.Z" -> writer repo, right-aligned. The version
+%% suffix MIRRORS the clew attestation line: \writerVersionSuffix appends
+%% " vX.Y.Z" from \writer@version (stamped by the compile pipeline at compile
+%% time), or nothing when unavailable (graceful fallback to a version-less line).
 \newcommand{\clewSignature}{%
   \par\vspace{0.8em}%
   {\footnotesize\color{gray}\raggedleft
-    \href{\clewSigURL}{\clewColophonIcon\clewSigText}\par}}
+    \href{\clewSigURL}{\clewColophonIcon\clewSigText\writerVersionSuffix}\par}}
 %% Tool-version suffix: " vX.Y.Z" when render_clew stamped \clew@version (from
 %% the clew export or `clew --version`); nothing when absent. \@empty test =
 %% the \providecommand{}{} fallback below.
 \newcommand{\clewVersionSuffix}{%
   \ifx\clew@version\@empty\else\ v\clew@version\fi}
+%% Writer tool-version suffix: the WRITER analog of \clewVersionSuffix. " vX.Y.Z"
+%% when the compile stamped \writer@version (compile_tex_structure.py injects the
+%% LIVE scitex-writer version via resolve_writer_version()); nothing when absent,
+%% so a standalone/pipeline-less compile degrades to "Compiled by SciTeX Writer"
+%% and NEVER breaks. Clew stamps the version that AUDITED the doc; writer stamps
+%% the version that COMPILED it -- the freshest source, not the stale vendored
+%% \ScitexWriterVersion.
+\newcommand{\writerVersionSuffix}{%
+  \ifx\writer@version\@empty\else\ v\writer@version\fi}
 %% "Provenance audited by SciTeX Clew vX.Y.Z" -> clew repo, right-aligned, same snake.
 \newcommand{\clewAttestation}{%
   {\footnotesize\color{gray}\raggedleft
@@ -303,6 +319,10 @@
 \providecommand{\clew@verified}{0}
 \providecommand{\clew@allverified}{0}
 \providecommand{\clew@version}{}
+%% Writer version fallback (empty): the compile pipeline \def's this to the LIVE
+%% scitex-writer version before \begin{document}; empty here so a standalone
+%% compile still renders "Compiled by SciTeX Writer" without a version.
+\providecommand{\writer@version}{}
 
 \makeatother
 %% EOF
