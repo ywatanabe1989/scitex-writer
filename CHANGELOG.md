@@ -5,6 +5,11 @@ All notable changes to SciTeX Writer will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.26.0] - 2026-07-07
+
+### Added
+- **Clew provenance overlay (`--clew-overlay`).** New compile toggle (manuscript/revision/supplementary) that colors each claim span by its clew verification verdict (verified/suspect/failed/exception) with a 4-state legend, aliasing onto the `SCITEX_WRITER_CLEW_PRESENTATION` master switch; `\vclaim` marks light up from the clew join with zero author edits, degrading loud-but-graceful when no clew feed is present (#262).
+
 ## [2.25.1] - 2026-07-07
 
 ### Fixed
