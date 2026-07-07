@@ -26,15 +26,24 @@ class TestResolveToggles:
         config_value = "on"
         # Act
         toggles = resolve_toggles(config_value, None)
-        # Assert: master set on, attest off.
+        # Assert: master set on (incl. redesign `intro`), attest off.
         assert (
             toggles["markers"]
             and toggles["badge"]
-            and toggles["legend"]
+            and toggles["intro"]
             and toggles["explainer"]
             and toggles["signature"]
             and not toggles["attest"]
         )
+
+    def test_master_on_enables_intro_not_legend(self):
+        # Arrange: the redesign A/B swap -- master ON drives the top-of-doc
+        # intro, NOT the old bottom legend.
+        config_value = "on"
+        # Act
+        toggles = resolve_toggles(config_value, None)
+        # Assert
+        assert toggles["intro"] and not toggles["legend"]
 
     def test_scalar_off_disables_everything(self):
         # Arrange

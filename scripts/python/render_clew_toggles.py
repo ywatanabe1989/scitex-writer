@@ -49,13 +49,15 @@ _KNOWN = (
     "signature",
     "attest",
     "legend_first",
+    "intro",
 )
-# The co-author-facing "full set" a master ON enables. `legend_first` is
-# DELIBERATELY excluded: master-on already enables end-of-doc `legend`, so
-# adding `legend_first` too would render the legend twice (page-1 top AND
-# end-of-doc). It is opt-in ONLY (a mapping key or the env master cannot turn
-# it on) so an author enables it knowingly.
-_MASTER_SET = ("markers", "badge", "legend", "explainer", "signature")
+# The co-author-facing "full set" a master ON enables. The redesign A/B swap:
+# the top-of-document `intro` section REPLACES the bottom `legend` in the master
+# set (legend stays a KNOWN opt-in key + \clewLegend stays defined for
+# back-compat, just no longer part of master-on). `legend_first` is DELIBERATELY
+# excluded: it would double-render the legend against an explicit end-of-doc
+# `legend`; it is opt-in ONLY so an author enables it knowingly.
+_MASTER_SET = ("markers", "badge", "explainer", "signature", "intro")
 
 
 # Config key -> LaTeX \newif stem. A \newif control sequence cannot contain an
