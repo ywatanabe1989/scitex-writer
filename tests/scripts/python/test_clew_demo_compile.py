@@ -45,12 +45,17 @@ def _decode_tu(raw):
     return out
 
 
-@pytest.fixture(scope="module")
-def compiled_demo(tmp_path_factory):
-    """Compile demo/clew_demo.tex twice (hyperref) into a tmp dir; return the
+@pytest.fixture
+def compiled_demo(tmp_path):
+    """Compile demo/clew_demo.tex twice (hyperref) into a tmp dir; yield the
     return code plus the decompressed PDF bytes so the annotation checks can
-    inspect the tooltip widgets without depending on stream compression."""
-    out_dir = tmp_path_factory.mktemp("clewdemo")
+    inspect the tooltip widgets without depending on stream compression.
+
+    Function-scoped and yield-based on purpose: it mutates state (runs
+    pdflatex, writes files) and acquires an external resource (subprocess),
+    so a session/module fixture returning the artifact would violate
+    STX-TQ004/TQ005. tmp_path auto-cleans after each test."""
+    out_dir = tmp_path
     cmd = [
         "pdflatex",
         "-interaction=nonstopmode",
@@ -69,7 +74,7 @@ def compiled_demo(tmp_path_factory):
         expanded = out_dir / "expanded.pdf"
         doc.save(str(expanded), expand=255, deflate=False)
         raw = expanded.read_bytes()
-    return {"returncode": proc.returncode, "pdf": pdf, "raw": raw}
+    yield {"returncode": proc.returncode, "pdf": pdf, "raw": raw}
 
 
 class TestClewDemoTooltips:
