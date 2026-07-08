@@ -5,6 +5,14 @@ All notable changes to SciTeX Writer will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.26.1] - 2026-07-08
+
+### Fixed
+- **Broken wheels 2.18.0–2.26.0: `import scitex_writer.writer` failed on clean installs.** The sdist `exclude` pattern `"config"` was unanchored, so hatchling (gitignore semantics) also dropped `src/scitex_writer/_dataclasses/config/` — every published wheel since 2.18.0 shipped without `WriterConfig`, raising `ModuleNotFoundError` on a fresh `pip install`. Anchored all `exclude` patterns to the repo root (`"config"` → `"/config"`, etc.) so they only match the intended top-level scratch dirs. Surfaced during a scitex.ai prod outage (hub visitor-slot clones); reported by scitex-hub.
+
+### Added
+- **Release CI gate: wheel-from-sdist import smoke.** The publish workflow now builds the sdist, builds a wheel *from that sdist*, installs it into a clean venv, and asserts `import scitex_writer.writer` — so a wheel missing packaged submodules can never publish again. (The pre-existing `import-smoke` used `pip install -e .`, which installs from the source tree and structurally cannot catch a broken sdist.)
+
 ## [2.26.0] - 2026-07-07
 
 ### Added

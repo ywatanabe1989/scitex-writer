@@ -67,3 +67,24 @@ test -n "$(ls -A dist 2>/dev/null)" || {
     echo "::error::python -m build produced no artifacts in dist/"
     exit 1
 }
+
+# Post-build import gate: install the freshly built wheel into a CLEAN venv and
+# import the public entrypoint. `python -m build` builds the wheel FROM the
+# sdist, so an sdist `exclude` that drops a packaged submodule (the 2.18.0–
+# 2.26.0 _dataclasses/config outage: `import scitex_writer.writer` →
+# ModuleNotFoundError on clean installs) fails HERE, before the artifact is
+# uploaded and long before publish. A clean venv (not the build --target) is
+# used so nothing on PYTHONPATH masks a missing packaged file.
+WHEEL="$(ls dist/*.whl 2>/dev/null | head -1)"
+test -n "$WHEEL" || {
+    echo "::error::no wheel in dist/ to verify"
+    exit 1
+}
+CLEANVENV="$TMPDIR/wheelcheck-venv"
+rm -rf "$CLEANVENV"
+"$PY" -m venv "$CLEANVENV"
+"$CLEANVENV/bin/python" -m pip install --upgrade pip >/dev/null
+"$CLEANVENV/bin/python" -m pip install "$WHEEL"
+"$CLEANVENV/bin/python" -c "import scitex_writer.writer; print('wheel import OK:', '$WHEEL')"
+# Name the exact submodule the outage dropped so a regression is unambiguous.
+"$CLEANVENV/bin/python" -c "from scitex_writer._dataclasses.config import WriterConfig; print('WriterConfig OK')"
