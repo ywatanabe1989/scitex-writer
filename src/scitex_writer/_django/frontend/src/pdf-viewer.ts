@@ -1,33 +1,81 @@
 /**
- * PDF viewer built on pdfjs-dist. Renders every page into a scrollable
- * column with fit-width, zoom-in/out, and re-render on source change.
- * Minimal: no text-layer, no annotation-layer, no find. PR5/6 can add them.
+ * PDF pane — backed by the shared L1 viewer (`@scitex/ui/pdf-viewer`, ADR 0001).
+ *
+ * Swaps Writer's from-scratch pdfjs pane to the shared component (the ADR's
+ * "first consumer" step) WITHOUT changing this class's public surface, so
+ * existing callers (viewer.ts, index.ts, compile.ts) are untouched:
+ *   load / renderPlaceholder / clear / setZoom / setFitWidth / goToPage / zoomPercent
+ *
+ * Zoom/fit/scroll delegate to L1 (setScale / fitWidth / scrollToPage). On top it
+ * adds the pen-annotation loop: L1 hooks (onPenInput / onRegionSelect) →
+ * AnnotationStore (the writer-owned neutral port) → setMarks echo. The store is
+ * the SSoT the controlled overlay renders from; producers mutate it, consumers
+ * read `annotations()` / `exportMarkdown()`.
  */
 
-import * as pdfjs from "pdfjs-dist";
-// Worker shim: same pattern as scitex-ui's Monaco fake-worker.
-// pdfjs refuses to load a worker by default if workerSrc is unset, so we
-// point it to the ESM worker bundled by Vite.
-import PdfWorker from "pdfjs-dist/build/pdf.worker.min.mjs?url";
-
-(pdfjs.GlobalWorkerOptions as { workerSrc: string }).workerSrc = PdfWorker;
+import {
+  createPdfViewer,
+  type Mark,
+  type PdfRect,
+  type PdfTool,
+  type PdfViewerApi,
+  type PenInput,
+} from "@scitex/ui/pdf-viewer";
 
 import { API_BASE, PROJECT_DIR } from "./api";
+import {
+  type Annotation,
+  type AnnotationCategory,
+  AnnotationStore,
+  type AnnotationTool,
+} from "./annotations";
 
 interface PDFViewerOptions {
   container: HTMLElement;
+  /** Called when a new annotation is created (for the comment/details panel). */
+  onAnnotate?: (annotation: Annotation) => void;
 }
 
+/** L1 pen tool → annotation tool (L1 has no underline/box: rect ↦ box). */
+const TOOL_L1_TO_ANN: Record<PdfTool, AnnotationTool> = {
+  highlight: "highlight",
+  rect: "box",
+  freehand: "freehand",
+  circle: "circle",
+  arrow: "arrow",
+};
+
+/** Annotation tool → L1 pen tool (box ↦ rect; underline has no L1 equivalent yet). */
+const TOOL_ANN_TO_L1: Partial<Record<AnnotationTool, PdfTool>> = {
+  highlight: "highlight",
+  box: "rect",
+  freehand: "freehand",
+  circle: "circle",
+  arrow: "arrow",
+};
+
+const MIN_SCALE = 0.4;
+const MAX_SCALE = 3;
+
 export class PDFViewer {
-  private container: HTMLElement;
-  private pdfDoc: pdfjs.PDFDocumentProxy | null = null;
-  private scale = 1.0;
-  private fitMode: "width" | "none" = "width";
-  private canvases: HTMLCanvasElement[] = [];
+  private readonly container: HTMLElement;
+  private readonly api: PdfViewerApi;
+  private readonly store = new AnnotationStore();
+  private readonly onAnnotate?: (annotation: Annotation) => void;
+  private activeCategory: AnnotationCategory = "highlight";
+  private placeholder: HTMLElement | null = null;
 
   constructor(options: PDFViewerOptions) {
     this.container = options.container;
     this.container.classList.add("pdf-viewer-host");
+    this.onAnnotate = options.onAnnotate;
+    this.api = createPdfViewer({
+      container: this.container,
+      hooks: {
+        onPenInput: (input) => this.handlePen(input),
+        onRegionSelect: (region) => this.handleRegion(region),
+      },
+    });
   }
 
   async load(docType: string): Promise<boolean> {
@@ -35,10 +83,10 @@ export class PDFViewer {
       `${API_BASE}api/pdf?doc_type=${encodeURIComponent(docType)}` +
       `&working_dir=${encodeURIComponent(PROJECT_DIR)}` +
       `&t=${Date.now()}`;
+    this.clearPlaceholder();
     try {
-      const task = pdfjs.getDocument({ url });
-      this.pdfDoc = await task.promise;
-      await this.render();
+      await this.api.load(url);
+      this.echoMarks();
       return true;
     } catch (err) {
       console.warn("[pdf-viewer] load failed:", err);
@@ -47,73 +95,145 @@ export class PDFViewer {
     }
   }
 
+  renderPlaceholder(message = "No PDF available."): void {
+    this.clearPlaceholder();
+    const el = document.createElement("div");
+    el.className = "pdf-placeholder";
+    el.innerHTML = `<p>${message}</p><p class="hint">Click Compile to generate.</p>`;
+    this.container.appendChild(el);
+    this.placeholder = el;
+  }
+
+  private clearPlaceholder(): void {
+    this.placeholder?.remove();
+    this.placeholder = null;
+  }
+
   clear(): void {
-    this.pdfDoc = null;
-    this.canvases = [];
-    this.container.innerHTML = "";
-  }
-
-  renderPlaceholder(message: string = "No PDF available."): void {
-    this.clear();
-    const placeholder = document.createElement("div");
-    placeholder.className = "pdf-placeholder";
-    placeholder.innerHTML = `<p>${message}</p><p class="hint">Click Compile to generate.</p>`;
-    this.container.appendChild(placeholder);
-  }
-
-  async render(): Promise<void> {
-    if (!this.pdfDoc) return;
-    this.container.innerHTML = "";
-    this.canvases = [];
-    const renderScale =
-      this.fitMode === "width" ? this.computeFitWidthScale() : this.scale;
-
-    for (let pageNum = 1; pageNum <= this.pdfDoc.numPages; pageNum++) {
-      const page = await this.pdfDoc.getPage(pageNum);
-      const viewport = page.getViewport({ scale: renderScale });
-      const canvas = document.createElement("canvas");
-      const ctx = canvas.getContext("2d");
-      if (!ctx) continue;
-      canvas.width = viewport.width;
-      canvas.height = viewport.height;
-      canvas.className = "pdf-page-canvas";
-      this.container.appendChild(canvas);
-      this.canvases.push(canvas);
-      await page.render({ canvasContext: ctx, viewport }).promise;
-    }
-  }
-
-  private computeFitWidthScale(): number {
-    if (!this.pdfDoc) return 1;
-    const first = this.pdfDoc.numPages > 0 ? 1 : 0;
-    if (!first) return 1;
-    const width = this.container.clientWidth - 32; // padding
-    return Math.max(0.4, width / 800); // 800px baseline
-  }
-
-  /** Scroll a 1-based page into view. Clamped to the rendered range; a no-op
-   * when nothing is rendered yet. Used by the hints "jump to page" anchor. */
-  goToPage(page: number): void {
-    if (this.canvases.length === 0) return;
-    const idx = Math.max(1, Math.min(this.canvases.length, page)) - 1;
-    this.canvases[idx]?.scrollIntoView({ behavior: "smooth", block: "start" });
+    this.store.replaceAll([]);
+    this.echoMarks();
+    this.renderPlaceholder();
   }
 
   setZoom(delta: number): void {
-    this.fitMode = "none";
-    this.scale = Math.max(0.4, Math.min(3, this.scale + delta));
-    void this.render();
+    const next = Math.max(
+      MIN_SCALE,
+      Math.min(MAX_SCALE, this.api.getScale() + delta),
+    );
+    void this.api.setScale(next);
   }
 
   setFitWidth(): void {
-    this.fitMode = "width";
-    this.scale = 1;
-    void this.render();
+    void this.api.fitWidth();
+  }
+
+  /** Scroll a 1-based page into view (the Hints "jump to page" anchor). */
+  goToPage(page: number): void {
+    this.api.scrollToPage(page);
   }
 
   get zoomPercent(): number {
-    const effective =
-      this.fitMode === "width" ? this.computeFitWidthScale() : this.scale;
-    return Math.round(effective * 100);
+    return Math.round(this.api.getScale() * 100);
+  }
+
+  // --- annotation layer -----------------------------------------------------
+
+  /** Category applied to the next mark (the domain buttons). */
+  setCategory(category: AnnotationCategory): void {
+    this.activeCategory = category;
+  }
+
+  /** Active pen tool (maps annotation-tool naming onto L1's PdfTool). */
+  setTool(tool: AnnotationTool): void {
+    const t = TOOL_ANN_TO_L1[tool];
+    if (t) this.api.setTool(t);
+  }
+
+  annotations(): Annotation[] {
+    return this.store.list();
+  }
+
+  /** Update an annotation's note text (from the comment box / voice input). */
+  setAnnotationText(id: string, text: string): void {
+    this.store.update(id, { text });
+    this.echoMarks();
+  }
+
+  removeAnnotation(id: string): void {
+    this.store.remove(id);
+    this.echoMarks();
+  }
+
+  exportMarkdown(title?: string): string {
+    return this.store.toMarkdown(title);
+  }
+
+  destroy(): void {
+    this.api.destroy();
+  }
+
+  private handlePen(input: PenInput): void {
+    const first = input.path[0];
+    if (!first) return;
+    const ann = this.store.add(
+      {
+        page: input.page,
+        anchor: { page: input.page, pdfX: first.x, pdfY: first.y },
+        path: input.path.map((pt) => [pt.x, pt.y] as [number, number]),
+        tool: TOOL_L1_TO_ANN[input.tool],
+        category: this.activeCategory,
+        text: "",
+      },
+      new Date().toISOString(),
+    );
+    this.echoMarks();
+    this.onAnnotate?.(ann);
+  }
+
+  private handleRegion(region: PdfRect): void {
+    const ann = this.store.add(
+      {
+        page: region.page,
+        anchor: { page: region.page, pdfX: region.x, pdfY: region.y },
+        region: {
+          page: region.page,
+          x0: region.x,
+          y0: region.y,
+          x1: region.x + region.w,
+          y1: region.y + region.h,
+        },
+        tool: "box",
+        category: this.activeCategory,
+        text: "",
+      },
+      new Date().toISOString(),
+    );
+    this.echoMarks();
+    this.onAnnotate?.(ann);
+  }
+
+  private echoMarks(): void {
+    this.api.setMarks(this.store.list().map((a) => this.toMark(a)));
+  }
+
+  private toMark(a: Annotation): Mark {
+    const mark: Mark = {
+      id: a.id,
+      page: a.page,
+      tool: TOOL_ANN_TO_L1[a.tool] ?? "highlight",
+      label: a.text || undefined,
+    };
+    if (a.region) {
+      mark.rect = {
+        x: a.region.x0,
+        y: a.region.y0,
+        w: a.region.x1 - a.region.x0,
+        h: a.region.y1 - a.region.y0,
+      };
+    }
+    if (a.path) {
+      mark.path = a.path.map(([x, y]) => ({ x, y }));
+    }
+    return mark;
   }
 }
