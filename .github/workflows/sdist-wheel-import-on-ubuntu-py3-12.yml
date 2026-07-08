@@ -1,0 +1,53 @@
+name: sdist-wheel-import
+
+# Catches "the SDIST drops a packaged submodule, so the wheel built FROM it
+# imports fine from the source tree but ModuleNotFoundErrors on a clean
+# install" — the 2.18.0–2.26.0 outage where an unanchored `exclude = ["config"]`
+# stripped scitex_writer/_dataclasses/config/ from every published wheel.
+#
+# The companion `import-smoke` uses `pip install -e .`, which installs from the
+# SOURCE TREE (where the excluded files still exist) and therefore CANNOT catch
+# a broken sdist. This job builds the sdist, builds a wheel FROM that sdist, and
+# imports the wheel in a CLEAN venv — the only place the exclude actually bites.
+#
+# GitHub-hosted (like import-smoke); the self-hosted release pipeline enforces
+# the same gate inside its SIF (build-in-sif.sh) so a tag can never publish a
+# wheel that fails this check.
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+  workflow_dispatch:
+
+jobs:
+  sdist-wheel-import:
+    name: sdist-wheel-import-on-ubuntu-py3-12
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Build sdist, then a wheel FROM the sdist
+        run: |
+          python -m pip install --upgrade pip build
+          rm -rf dist
+          # `python -m build` builds the sdist, then builds the wheel from that
+          # sdist in isolation — so an sdist exclude that drops files also drops
+          # them from the wheel, exactly reproducing the published-wheel bug.
+          python -m build --outdir dist
+          echo "=== built artifacts ==="
+          ls -l dist
+      - name: Install the wheel into a clean venv and import the entrypoint
+        run: |
+          python -m venv /tmp/clean
+          /tmp/clean/bin/pip install --upgrade pip
+          # Install the BUILT wheel (not `-e .`) so only what the sdist shipped
+          # is importable.
+          /tmp/clean/bin/pip install dist/*.whl
+          /tmp/clean/bin/python -c "import scitex_writer.writer; print('import scitex_writer.writer OK')"
+          # Guard the exact submodule the outage dropped, so a regression is
+          # named rather than surfacing as a generic ImportError elsewhere.
+          /tmp/clean/bin/python -c "from scitex_writer._dataclasses.config import WriterConfig; print('WriterConfig OK')"
