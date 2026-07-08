@@ -8,7 +8,7 @@ import {
   MonacoEditor,
   registerLatexLanguage,
   waitForMonaco,
-} from "@scitex/ui/src/scitex_ui/static/scitex_ui/ts/app/monaco-editor";
+} from "@scitex/ui/monaco-editor";
 
 import { getFile, saveFile, projectInfo } from "./api";
 import type { SectionEntry } from "./api";
