@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "scitex-writer"
-version = "2.26.0"
+version = "2.26.1"
 description = "LaTeX manuscript compilation system for scientific documents with MCP server"
 readme = "README.md"
 license = "AGPL-3.0-only"
@@ -119,13 +119,20 @@ include = [
     "LICENSE",
     "pyproject.toml",
 ]
+# Anchor every pattern to the repo root with a leading "/". Hatchling
+# treats an UNANCHORED name as gitignore-style "match at ANY depth", so a
+# bare "config" also excluded src/scitex_writer/_dataclasses/config/ — which
+# shipped every wheel 2.18.0–2.26.0 without WriterConfig and broke
+# `import scitex_writer.writer` on clean installs (prod outage 2026-07-08).
+# These are all top-level scratch dirs; anchoring keeps them out of the
+# sdist without reaching into the package tree.
 exclude = [
-    "00_shared",
-    "01_manuscript",
-    "02_supplementary",
-    "03_revision",
-    ".scitex",
-    "config",
+    "/00_shared",
+    "/01_manuscript",
+    "/02_supplementary",
+    "/03_revision",
+    "/.scitex",
+    "/config",
 ]
 
 [tool.pytest.ini_options]
