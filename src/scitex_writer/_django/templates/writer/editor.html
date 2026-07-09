@@ -21,6 +21,7 @@
           href="{% static 'writer/favicon-180x180.png' %}">
     <link rel="stylesheet" href="{% static 'writer/assets/index.css' %}">
     <link rel="stylesheet" href="{% static 'writer/css/editor.css' %}">
+    <link rel="stylesheet" href="{% static 'writer/css/annotations.css' %}">
 {% endblock %}
 {% block worktree_title_full %}Project files{% endblock %}
 {% block worktree_data_attrs %}data-working-dir="{{ project_dir|default:'' }}"{% endblock %}
@@ -143,12 +144,16 @@
                 </div>
                 <div class="preview-content" id="preview-content">
                     <div class="preview-view active" id="pdf-view">
+                        <div class="annot-toolbar" id="annot-toolbar"></div>
                         <div class="pdf-container" id="pdf-container">
                             <div class="pdf-placeholder" id="pdf-placeholder">
                                 <p>No PDF available.</p>
                                 <p class="hint">Click Compile to generate.</p>
                             </div>
                         </div>
+                        <aside class="annot-panel"
+                               id="annot-panel"
+                               aria-label="Review comments"></aside>
                     </div>
                     <div class="preview-view" id="bib-view">
                         <div class="bib-list" id="bib-list">
