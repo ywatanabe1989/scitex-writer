@@ -149,11 +149,15 @@ export function mountAnnotationUI(opts: AnnotationUIOptions): AnnotationUIHandle
     toolGroup.appendChild(b);
   }
 
+  const clearBtn = iconButton("fa-trash", "Delete all comments");
+  clearBtn.classList.add("annot-clear");
+  clearBtn.addEventListener("click", clearAll);
+
   const exportBtn = iconButton("fa-file-arrow-down", "Export comments as Markdown");
   exportBtn.classList.add("annot-export");
   exportBtn.addEventListener("click", exportMarkdown);
 
-  toolbar.append(modeGroup, catGroup, toolGroup, exportBtn);
+  toolbar.append(modeGroup, catGroup, toolGroup, clearBtn, exportBtn);
 
   // --- panel ---
   panel.classList.add("annot-panel");
@@ -177,6 +181,17 @@ export function mountAnnotationUI(opts: AnnotationUIOptions): AnnotationUIHandle
     for (const [tool, b] of toolButtons) b.classList.toggle("active", tool === next);
   }
 
+  function clearAll(): void {
+    const items = controller.annotations();
+    if (items.length === 0) return;
+    const ok = globalThis.confirm?.(
+      `Delete all ${items.length} comment${items.length === 1 ? "" : "s"}?`,
+    );
+    if (ok === false) return;
+    for (const annotation of [...items]) controller.removeAnnotation(annotation.id);
+    renderPanel();
+  }
+
   function exportMarkdown(): void {
     const md = controller.exportMarkdown();
     const blob = new Blob([md], { type: "text/markdown" });
@@ -193,6 +208,10 @@ export function mountAnnotationUI(opts: AnnotationUIOptions): AnnotationUIHandle
   function renderPanel(focusId?: string): void {
     const items = controller.annotations();
     panel.replaceChildren();
+    // Visibility is content-based (hidden only when empty), NOT mode-based — so
+    // comments (and their delete buttons) stay reachable in every mode. Losing
+    // access to your own marks when switching to Read was the reported trap.
+    panel.classList.toggle("annot-panel--empty", items.length === 0);
     if (items.length === 0) {
       const empty = document.createElement("p");
       empty.className = "annot-empty";
