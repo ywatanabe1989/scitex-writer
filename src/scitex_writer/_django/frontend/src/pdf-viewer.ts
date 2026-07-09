@@ -64,6 +64,7 @@ export class PDFViewer {
   private readonly store = new AnnotationStore();
   private readonly onAnnotate?: (annotation: Annotation) => void;
   private activeCategory: AnnotationCategory = "highlight";
+  private activeTool: AnnotationTool = "highlight";
   private placeholder: HTMLElement | null = null;
 
   constructor(options: PDFViewerOptions) {
@@ -146,6 +147,7 @@ export class PDFViewer {
 
   /** Active pen tool (maps annotation-tool naming onto L1's PdfTool). */
   setTool(tool: AnnotationTool): void {
+    this.activeTool = tool;
     const t = TOOL_ANN_TO_L1[tool];
     if (t) this.api.setTool(t);
   }
@@ -206,6 +208,10 @@ export class PDFViewer {
   }
 
   private handleRegion(region: PdfRect): void {
+    // Only turn a drag into a persistent box when the box tool is deliberately
+    // active. Otherwise a stray drag (e.g. trying to select text) silently
+    // created an undeletable rectangle — the reported surprise.
+    if (this.activeTool !== "box") return;
     const ann = this.store.add(
       {
         page: region.page,

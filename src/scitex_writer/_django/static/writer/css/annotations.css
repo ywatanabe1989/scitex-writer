@@ -45,8 +45,14 @@
 .annot-btn.active:hover {
   color: #fff;
 }
-.annot-export {
+.annot-clear {
   margin-left: auto;
+}
+.annot-clear:hover {
+  color: #ef4444;
+}
+.annot-export {
+  margin-left: 0;
 }
 
 .annot-panel {
@@ -60,7 +66,9 @@
   background: var(--bg-secondary);
   border-top: 1px solid var(--border-color);
 }
-#annot-panel[data-mode="read"] {
+/* Hide the panel only when there are no comments — never purely by mode, so a
+   mark's delete button stays reachable in Read/Markup/Review alike. */
+.annot-panel--empty {
   display: none;
 }
 .annot-empty {
