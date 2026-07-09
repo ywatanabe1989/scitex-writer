@@ -28,6 +28,7 @@ import {
   type AnnotationCategory,
   AnnotationStore,
   type AnnotationTool,
+  type EditorMode,
 } from "./annotations";
 
 interface PDFViewerOptions {
@@ -147,6 +148,20 @@ export class PDFViewer {
   setTool(tool: AnnotationTool): void {
     const t = TOOL_ANN_TO_L1[tool];
     if (t) this.api.setTool(t);
+  }
+
+  /**
+   * Editor mode (ADR 0001 §2): Read/Review disable pen editing, Markup enables
+   * it. Marks keep rendering in every mode — only the pen overlay's
+   * interactivity toggles, via L1's `setInteractive` (scitex-ui-pdf-viewer-l1).
+   * Guarded with `?.` so this is a no-op until that L1 method lands, keeping the
+   * mode switch shippable in the meantime.
+   */
+  setMode(mode: EditorMode): void {
+    const interactive = mode === "markup";
+    (
+      this.api as { setInteractive?: (enabled: boolean) => void }
+    ).setInteractive?.(interactive);
   }
 
   annotations(): Annotation[] {

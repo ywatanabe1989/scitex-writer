@@ -1,0 +1,159 @@
+/* Annotation / review UI — interactive paper editor (ADR 0001, slice 2).
+ *
+ * Kept in its own file (not editor.css) so the review-tool chrome — mode
+ * switch, domain buttons, comment thread — is a focused, self-contained module,
+ * matching the writer app's CSS-variable palette (var(--accent) etc.).
+ */
+
+/* The PDF view stacks: annotation toolbar, the viewer (flex-grow), comment
+ * panel. Only #pdf-view flips to a flex column — bib/claims views stay block. */
+#pdf-view.active {
+  display: flex;
+  flex-direction: column;
+}
+#pdf-view > .pdf-container {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+.annot-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  flex: 0 0 auto;
+  padding: 4px 8px;
+  background: var(--toolbar-bg);
+  border-bottom: 1px solid var(--border-color);
+}
+.annot-group {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding-right: 6px;
+  border-right: 1px solid var(--border-color);
+}
+.annot-group:last-of-type {
+  border-right: none;
+}
+.annot-modes .annot-btn {
+  font-size: 12px;
+}
+.annot-btn.active {
+  background: var(--accent);
+  color: #fff;
+}
+.annot-btn.active:hover {
+  color: #fff;
+}
+.annot-export {
+  margin-left: auto;
+}
+
+.annot-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 0 0 auto;
+  max-height: 38%;
+  overflow-y: auto;
+  padding: 6px;
+  background: var(--bg-secondary);
+  border-top: 1px solid var(--border-color);
+}
+#annot-panel[data-mode="read"] {
+  display: none;
+}
+.annot-empty {
+  padding: 12px;
+  color: var(--text-muted);
+  font-size: 12px;
+  text-align: center;
+}
+.annot-row {
+  padding: 6px;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-left: 3px solid var(--annot-accent, var(--accent));
+  border-radius: 4px;
+}
+.annot-row[data-category="claim"] {
+  --annot-accent: #3b82f6;
+}
+.annot-row[data-category="question"] {
+  --annot-accent: #8b5cf6;
+}
+.annot-row[data-category="issue"] {
+  --annot-accent: #ef4444;
+}
+.annot-row[data-category="citation-needed"] {
+  --annot-accent: #f59e0b;
+}
+.annot-row[data-category="figure-check"] {
+  --annot-accent: #14b8a6;
+}
+.annot-row[data-category="method-check"] {
+  --annot-accent: #22c55e;
+}
+.annot-row[data-category="highlight"] {
+  --annot-accent: #eab308;
+}
+.annot-row-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+.annot-badge {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+.annot-badge i {
+  color: var(--annot-accent, var(--accent));
+}
+.annot-page {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+.annot-del {
+  margin-left: auto;
+}
+.annot-row-body {
+  display: flex;
+  align-items: flex-start;
+  gap: 4px;
+}
+.annot-text {
+  flex: 1;
+  min-height: 40px;
+  padding: 4px 6px;
+  resize: vertical;
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  font-family: inherit;
+  font-size: 13px;
+}
+.annot-text:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: -1px;
+}
+.annot-mic.listening {
+  color: #ef4444;
+  animation: annot-pulse 1s infinite;
+}
+@keyframes annot-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.4;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .annot-mic.listening {
+    animation: none;
+  }
+}

@@ -15,6 +15,7 @@ import type { SectionEntry } from "./api";
 import { SectionTabs } from "./sections";
 import { countWords, mountToolbar } from "./toolbar";
 import { PDFViewer } from "./pdf-viewer";
+import { type AnnotationUIHandle, mountAnnotationUI } from "./annotation-ui";
 import { CompileController } from "./compile";
 import { InsertPanel } from "./insert-panel";
 import { DetailsPanel } from "./details-panel";
@@ -77,10 +78,29 @@ async function bootstrap(): Promise<void> {
       })
     : null;
 
-  // PDF viewer
+  // PDF viewer + annotation UI (ADR 0001). The viewer produces marks into its
+  // AnnotationStore; the UI (mode switch, domain buttons, comment box, voice,
+  // markdown export) drives it and renders the comment thread. onAnnotate is
+  // forwarded through a mutable handle so the two can be wired in either order.
   const pdfContainer = root.querySelector<HTMLElement>("#pdf-container");
-  const pdf = pdfContainer ? new PDFViewer({ container: pdfContainer }) : null;
+  let annotationUI: AnnotationUIHandle | null = null;
+  const pdf = pdfContainer
+    ? new PDFViewer({
+        container: pdfContainer,
+        onAnnotate: (annotation) => annotationUI?.onAnnotate(annotation),
+      })
+    : null;
   pdf?.renderPlaceholder();
+
+  const annotToolbar = root.querySelector<HTMLElement>("#annot-toolbar");
+  const annotPanel = root.querySelector<HTMLElement>("#annot-panel");
+  if (pdf && annotToolbar && annotPanel) {
+    annotationUI = mountAnnotationUI({
+      toolbar: annotToolbar,
+      panel: annotPanel,
+      controller: pdf,
+    });
+  }
 
   // Details right panel (Hints / Compilation / Overleaf / Prism / Project /
   // Shortcuts). Hint rows with a source location become click-to-jump anchors:
