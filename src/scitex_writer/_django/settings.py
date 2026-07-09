@@ -53,6 +53,14 @@ TEMPLATES = [
         "OPTIONS": {
             "context_processors": [
                 "django.template.context_processors.request",
+                # Enables scitex-ui's element inspector (Alt+I / Ctrl+I) in the
+                # standalone editor: sets `stx_element_inspector_enabled` so the
+                # shared shell's `_element_inspector.html` partial injects the
+                # inspector script (gated on DEBUG/staff, and DEBUG defaults on
+                # for the local `scitex-writer gui` server). Without this the
+                # partial emits only its placeholder comment and Alt+I/Ctrl+I
+                # are no-ops.
+                "scitex_ui.context_processors.element_inspector",
             ],
         },
     },
