@@ -1,36 +1,25 @@
-import { execSync } from "child_process";
 import { fileURLToPath } from "url";
 import { resolve } from "path";
 import { defineConfig } from "vite";
 
 const __dirname = fileURLToPath(new URL(".", import.meta.url));
 
-function discoverScitexUiStatic(): string {
-  if (process.env.SCITEX_UI_STATIC) return process.env.SCITEX_UI_STATIC;
-  try {
-    const path = execSync(
-      'python3 -c "import scitex_ui; print(scitex_ui.get_static_dir())"',
-      { encoding: "utf-8", timeout: 5000 },
-    ).trim();
-    if (path) return path;
-  } catch {
-    /* fall through */
-  }
-  throw new Error(
-    "scitex-ui not found. Install it (pip install scitex-ui) or set SCITEX_UI_STATIC env var.",
-  );
-}
-
-const SCITEX_UI_STATIC = discoverScitexUiStatic();
-
+// `@scitex/ui/*` resolves through the package's own `exports` map via the npm
+// `file:` link (node_modules/@scitex/ui → the sibling scitex-ui checkout), the
+// same way tsc resolves it. The build therefore no longer depends on the
+// installed `scitex_ui` Python package.
+//
+// A previous alias pointed `@scitex/ui` at the scitex-ui repo root and
+// raw-appended subpaths. That broke once scitex-ui moved to exports subpaths at
+// varying depths (e.g. `./monaco-editor` → `ts/app/monaco-editor/index.ts`):
+// the alias produced `<root>/monaco-editor`, which does not exist. tsc resolves
+// via exports, the alias did not — so the mismatch only surfaced at build time,
+// never at typecheck.
 export default defineConfig({
   base: "/static/writer/",
   resolve: {
     alias: {
-      "@scitex/ui": SCITEX_UI_STATIC.replace(
-        /\/src\/scitex_ui\/static\/scitex_ui$/,
-        "",
-      ),
+      // Pin scitex-ui's `monaco-editor` peer import to writer's own copy.
       "monaco-editor": resolve(__dirname, "node_modules/monaco-editor"),
     },
     preserveSymlinks: true,
