@@ -41,12 +41,22 @@ from . import (  # noqa: F401
 # =========================================================================
 # §1 flat top-level aliases — same Click Command objects attached to two
 # parents, so behaviour is identical.
+#
+# `compile` and `check` are noun-groups (scitex CLI canon §1: 3+ sibling
+# verbs -> tree form) — their flat forms are HIDDEN back-compat shims.
+# `export`/`introspect` groups stay hidden this round (1-2 actions; canon
+# prefers the compound-leaf there), so their flat forms stay the VISIBLE
+# surface — unchanged from before.
 # =========================================================================
 
-_alias_top_level(compile.compile_manuscript, "compile-manuscript")
-_alias_top_level(compile.compile_supplementary, "compile-supplementary")
-_alias_top_level(compile.compile_revision, "compile-revision")
-_alias_top_level(compile.compile_content, "compile-content")
+_alias_top_level(compile.compile_manuscript, "compile-manuscript", hidden=True)
+_alias_top_level(compile.compile_supplementary, "compile-supplementary", hidden=True)
+_alias_top_level(compile.compile_revision, "compile-revision", hidden=True)
+_alias_top_level(compile.compile_content, "compile-content", hidden=True)
+_alias_top_level(checks.check_limits_cmd, "check-limits", hidden=True)
+_alias_top_level(checks.check_overflow_cmd, "check-overflow", hidden=True)
+_alias_top_level(checks.check_paper_symlink_cmd, "check-paper-symlink", hidden=True)
+_alias_top_level(checks.check_references_cmd, "check-references", hidden=True)
 _alias_top_level(export.export_manuscript, "export-manuscript")
 _alias_top_level(introspect.introspect_show_api, "show-api")
 
