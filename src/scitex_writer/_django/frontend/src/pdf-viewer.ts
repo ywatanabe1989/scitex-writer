@@ -22,7 +22,7 @@ import {
   type PenInput,
 } from "@scitex/ui/pdf-viewer";
 
-import { API_BASE, PROJECT_DIR } from "./api";
+import { API_BASE, postAnnotation, PROJECT_DIR } from "./api";
 import {
   ANNOTATION_CATEGORIES,
   type Annotation,
@@ -70,6 +70,7 @@ export class PDFViewer {
   private activeCategory: AnnotationCategory = "highlight";
   private activeTool: AnnotationTool = "highlight";
   private currentMode: EditorMode = "markup";
+  private currentDocType = "manuscript";
   private placeholder: HTMLElement | null = null;
 
   constructor(options: PDFViewerOptions) {
@@ -89,6 +90,7 @@ export class PDFViewer {
   }
 
   async load(docType: string): Promise<boolean> {
+    this.currentDocType = docType;
     const url =
       `${API_BASE}api/pdf?doc_type=${encodeURIComponent(docType)}` +
       `&working_dir=${encodeURIComponent(PROJECT_DIR)}` +
@@ -220,6 +222,7 @@ export class PDFViewer {
     );
     this.echoMarks();
     this.onAnnotate?.(ann);
+    this.postToBackend(ann);
   }
 
   private handleRegion(region: PdfRect): void {
@@ -246,6 +249,7 @@ export class PDFViewer {
     );
     this.echoMarks();
     this.onAnnotate?.(ann);
+    this.postToBackend(ann);
   }
 
   /**
@@ -293,6 +297,42 @@ export class PDFViewer {
     );
     this.echoMarks();
     this.onAnnotate?.(ann);
+    this.postToBackend(ann);
+  }
+
+  /**
+   * POST a freshly-created mark to the backend (ADR 0001 pen-tablet feedback
+   * loop, spike 0 — docs/04_DESIGN_PDF_ANNOTATION_FEEDBACK_LOOP.md). Fire and
+   * forget: a failed POST never blocks the client-side mark (it already
+   * rendered via echoMarks) and is surfaced via console.warn, not swallowed.
+   * Backend spike 0 is POST+GET only (no update endpoint yet), so this fires
+   * once at creation; later text edits stay client-side-only until a future
+   * spike adds PATCH. The category label is used as the initial comment when
+   * the mark has none yet — the backend requires non-empty text, and the
+   * category is a real fact about the mark, not invented prose.
+   */
+  private postToBackend(ann: Annotation): void {
+    const region: Record<string, number> = ann.region
+      ? {
+          x0: ann.region.x0,
+          y0: ann.region.y0,
+          x1: ann.region.x1,
+          y1: ann.region.y1,
+        }
+      : { pdfX: ann.anchor.pdfX, pdfY: ann.anchor.pdfY };
+    postAnnotation({
+      page: ann.page,
+      doc_type: this.currentDocType,
+      kind: "text_comment",
+      payload: {
+        text: ann.text.trim() || CATEGORY_LABELS[ann.category],
+        category: ann.category,
+        tool: ann.tool,
+      },
+      region,
+    }).catch((err) => {
+      console.warn("[pdf-viewer] postAnnotation failed:", err);
+    });
   }
 
   private echoMarks(): void {
