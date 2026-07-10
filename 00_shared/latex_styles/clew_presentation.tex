@@ -104,12 +104,20 @@
 \providecommand{\clewAttestText}{Provenance audited by SciTeX Clew}
 \providecommand{\clewAttestURL}{https://github.com/ywatanabe1989/scitex-clew}
 %% Clew explainer body (clew provides the CONTENT; writer provides the section
-%% layout). Sensible writer-side default until clew emits its own.
+%% layout). FAIL-LOUD default (operator incident 2026-07-07): a writer-invented
+%% prose default here once rendered into the PDF unannounced -- a No-Silent-
+%% Fallback violation (and its wording had Clew as the grammatical subject
+%% when the manuscript should be, per operator feedback). Do NOT invent
+%% replacement prose; when clew hasn't supplied its own \clewExplainerBody
+%% (via clew_rendered.tex), show a visible pending-marker + compile warning
+%% instead of guessing text on clew's behalf.
 \providecommand{\clewExplainerBody}{%
-  SciTeX Clew links every reported value to the analysis output that produced
-  it and re-verifies that link when this document is compiled. Marked values
-  carry a wavy underline coloured by verification status, plus optional
-  provenance badges.}
+  \PackageWarningNoLine{scitex-writer}{%
+    Clew provenance wording (\string\clewExplainerBody) not supplied --
+    rendering a pending-marker instead of inventing prose on clew's behalf.
+    Provide it via clew_rendered.tex (scitex-clew's export step) to show the
+    real explanation}%
+  \textit{Provenance wording pending from SciTeX Clew.}}
 
 %% Marker composition: highlight (tint of verdict) + wavy underline (verdict).
 %% ALL-LETTER names (no @): these are called from the expl3 \clewval/\clewmark
