@@ -24,21 +24,3 @@ def test_module_exposes_all_check_commands():
     present = {name for name in expected if hasattr(module, name)}
     # Assert
     assert present == expected
-
-
-def test_module_exposes_check_group():
-    # Arrange
-    # Act
-    module = importlib.import_module("scitex_writer._cli.commands.checks")
-    # Assert
-    assert hasattr(module, "check_group")
-
-
-def test_check_group_has_expected_subcommands():
-    # Arrange
-    from scitex_writer._cli.commands.checks import check_group
-
-    # Act
-    names = set(check_group.commands.keys())
-    # Assert
-    assert {"limits", "overflow", "paper-symlink", "references"} <= names

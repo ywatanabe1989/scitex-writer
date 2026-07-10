@@ -82,24 +82,18 @@ main_group.help = (main_group.help or "").replace("{version}", __version__)
 # =========================================================================
 
 
-def _alias_top_level(cmd: click.Command, new_name: str, *, hidden: bool = False) -> None:
+def _alias_top_level(cmd: click.Command, new_name: str) -> None:
     """Re-attach a Click command at the top level under a flat verb-noun name.
 
-    `hidden=True` marks it a back-compat shim (scitex CLI canon §1/§1b: a
-    noun-group is canonical once a noun has 3+ sibling verbs, e.g.
-    `compile`/`check` — the flat `<verb>-<noun>` form stays reachable but
-    drops out of `--help`). `hidden=False` (default) is for nouns NOT yet
-    grouped this way, where the flat form is still the visible surface.
-
     The `.name` attribute is updated so audit traversal (which classifies by
-    `cmd.name`, not by the parent's commands-dict key) sees the flat form.
+    `cmd.name`, not by the parent's commands-dict key) sees the canonical
+    `<verb>-<noun>` form. The original group registration is preserved on
+    the hidden back-compat group.
     """
     import copy as _copy
 
     clone = _copy.copy(cmd)
     clone.name = new_name
-    if hidden:
-        clone.hidden = True
     main_group.add_command(clone, name=new_name)
 
 
@@ -139,13 +133,15 @@ _TOP_RENAMES = {
     "usage": "show-usage",
 }
 
-# old `<verb> <noun>` -> canonical flat `<verb>-<noun>`, for groups that are
-# STILL hidden this round (export/introspect — 1-2 actions, canon prefers the
-# compound-leaf there). `compile`/`check` are real visible groups now, so
-# typing `compile manuscript` / `check limits` reaches them directly —
-# no rewrite needed (removing their old entries here, since rewriting would
-# incorrectly redirect the group form onto its now-hidden flat alias).
+# old `<verb> <noun>` -> canonical flat `<verb>-<noun>`
+# (groups are kept as hidden back-compat shims; this rewrite is so users
+# typing the old form land on the canonical command path so help/usage
+# reflects current naming).
 _FLAT_RENAMES = {
+    ("compile", "manuscript"): "compile-manuscript",
+    ("compile", "supplementary"): "compile-supplementary",
+    ("compile", "revision"): "compile-revision",
+    ("compile", "content"): "compile-content",
     ("export", "manuscript"): "export-manuscript",
     ("introspect", "api"): "show-api",
     ("introspect", "show-api"): "show-api",

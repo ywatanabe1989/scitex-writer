@@ -19,7 +19,7 @@ from .._helpers import _ENGINE_CHOICES, _emit_json, _print_compile_result
 # =========================================================================
 
 
-@main_group.group("compile", invoke_without_command=True)
+@main_group.group("compile", invoke_without_command=True, hidden=True)
 @click.pass_context
 def compile_group(ctx):
     """Compile LaTeX documents to PDF (manuscript / supplementary / revision / content).
