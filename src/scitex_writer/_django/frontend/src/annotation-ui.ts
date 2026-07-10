@@ -20,9 +20,11 @@ import {
   type Annotation,
   type AnnotationCategory,
   type AnnotationTool,
+  CATEGORY_ICONS,
   CATEGORY_LABELS,
   type EditorMode,
 } from "./annotations";
+import { type ContextMenuItem, showContextMenu } from "./context-menu";
 import { createVoiceInput } from "./voice-input";
 
 /** The slice of PDFViewer the annotation UI drives (structural — keeps them decoupled). */
@@ -32,6 +34,7 @@ export interface AnnotationController {
   setMode(mode: EditorMode): void;
   annotations(): Annotation[];
   setAnnotationText(id: string, text: string): void;
+  setAnnotationCategory(id: string, category: AnnotationCategory): void;
   removeAnnotation(id: string): void;
   exportMarkdown(title?: string): string;
 }
@@ -71,17 +74,6 @@ const PEN_TOOLS: readonly ToolSpec[] = [
   { tool: "arrow", icon: "fa-arrow-right", label: "Arrow" },
   { tool: "freehand", icon: "fa-pen", label: "Freehand" },
 ];
-
-/** FontAwesome glyph per domain category (FA6 — the template already loads it). */
-const CATEGORY_ICONS: Record<AnnotationCategory, string> = {
-  highlight: "fa-highlighter",
-  claim: "fa-flag",
-  question: "fa-circle-question",
-  issue: "fa-triangle-exclamation",
-  "citation-needed": "fa-quote-left",
-  "figure-check": "fa-image",
-  "method-check": "fa-flask",
-};
 
 function iconButton(icon: string, title: string): HTMLButtonElement {
   const b = document.createElement("button");
@@ -229,6 +221,34 @@ export function mountAnnotationUI(opts: AnnotationUIOptions): AnnotationUIHandle
     const row = document.createElement("div");
     row.className = "annot-row";
     row.dataset.category = annotation.category;
+    // Right-click quick menu (operator request): change category or delete
+    // without hunting for the trash icon.
+    row.addEventListener("contextmenu", (event) => {
+      event.preventDefault();
+      const items: ContextMenuItem[] = [
+        ...ANNOTATION_CATEGORIES.filter((c) => c !== annotation.category).map(
+          (category) => ({
+            label: `Set: ${CATEGORY_LABELS[category]}`,
+            icon: CATEGORY_ICONS[category],
+            onSelect: () => {
+              controller.setAnnotationCategory(annotation.id, category);
+              renderPanel();
+            },
+          }),
+        ),
+        { separator: true },
+        {
+          label: "Delete comment",
+          icon: "fa-trash",
+          danger: true,
+          onSelect: () => {
+            controller.removeAnnotation(annotation.id);
+            renderPanel();
+          },
+        },
+      ];
+      showContextMenu(event.clientX, event.clientY, items);
+    });
 
     const head = document.createElement("div");
     head.className = "annot-row-head";

@@ -55,6 +55,20 @@ export const CATEGORY_LABELS: Record<AnnotationCategory, string> = {
   "method-check": "Method check",
 };
 
+/** FontAwesome glyph per domain category — shared by the toolbar buttons
+ * (annotation-ui.ts) and the PDF-area/row right-click menus (context-menu.ts
+ * call sites in pdf-viewer.ts + annotation-ui.ts) so every surface reads
+ * identically. */
+export const CATEGORY_ICONS: Record<AnnotationCategory, string> = {
+  highlight: "fa-highlighter",
+  claim: "fa-flag",
+  question: "fa-circle-question",
+  issue: "fa-triangle-exclamation",
+  "citation-needed": "fa-quote-left",
+  "figure-check": "fa-image",
+  "method-check": "fa-flask",
+};
+
 /** Categories whose marks route to figrecipe (figure-requests/1) vs the hints loop. */
 export const FIGURE_CATEGORIES: readonly AnnotationCategory[] = ["figure-check"];
 
