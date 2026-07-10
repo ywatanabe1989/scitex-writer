@@ -24,12 +24,16 @@ import {
 
 import { API_BASE, PROJECT_DIR } from "./api";
 import {
+  ANNOTATION_CATEGORIES,
   type Annotation,
   type AnnotationCategory,
   AnnotationStore,
   type AnnotationTool,
+  CATEGORY_ICONS,
+  CATEGORY_LABELS,
   type EditorMode,
 } from "./annotations";
+import { type ContextMenuItem, showContextMenu } from "./context-menu";
 
 interface PDFViewerOptions {
   container: HTMLElement;
@@ -65,6 +69,7 @@ export class PDFViewer {
   private readonly onAnnotate?: (annotation: Annotation) => void;
   private activeCategory: AnnotationCategory = "highlight";
   private activeTool: AnnotationTool = "highlight";
+  private currentMode: EditorMode = "markup";
   private placeholder: HTMLElement | null = null;
 
   constructor(options: PDFViewerOptions) {
@@ -78,6 +83,9 @@ export class PDFViewer {
         onRegionSelect: (region) => this.handleRegion(region),
       },
     });
+    this.container.addEventListener("contextmenu", (e) =>
+      this.handleContextMenu(e),
+    );
   }
 
   async load(docType: string): Promise<boolean> {
@@ -160,6 +168,7 @@ export class PDFViewer {
    * mode switch shippable in the meantime.
    */
   setMode(mode: EditorMode): void {
+    this.currentMode = mode;
     const interactive = mode === "markup";
     (
       this.api as { setInteractive?: (enabled: boolean) => void }
@@ -173,6 +182,12 @@ export class PDFViewer {
   /** Update an annotation's note text (from the comment box / voice input). */
   setAnnotationText(id: string, text: string): void {
     this.store.update(id, { text });
+    this.echoMarks();
+  }
+
+  /** Re-categorize an existing annotation (the row right-click menu). */
+  setAnnotationCategory(id: string, category: AnnotationCategory): void {
+    this.store.update(id, { category });
     this.echoMarks();
   }
 
@@ -225,6 +240,53 @@ export class PDFViewer {
         },
         tool: "box",
         category: this.activeCategory,
+        text: "",
+      },
+      new Date().toISOString(),
+    );
+    this.echoMarks();
+    this.onAnnotate?.(ann);
+  }
+
+  /**
+   * Right-click on the PDF area (Markup mode only, operator request — "make
+   * effective use of right-click to enrich the menu"): a quick category-pick
+   * menu that drops a small marker at the exact click point, instead of
+   * requiring toolbar tool+category selection then a drag.
+   */
+  private handleContextMenu(event: MouseEvent): void {
+    if (this.currentMode !== "markup") return;
+    const coords = this.api.getCoords(event.clientX, event.clientY);
+    if (!coords) return;
+    event.preventDefault();
+    const items: ContextMenuItem[] = ANNOTATION_CATEGORIES.map((category) => ({
+      label: CATEGORY_LABELS[category],
+      icon: CATEGORY_ICONS[category],
+      onSelect: () => this.addQuickMark(coords, category),
+    }));
+    showContextMenu(event.clientX, event.clientY, items);
+  }
+
+  /** Drop a small square mark at a point (right-click quick-add). */
+  private addQuickMark(
+    coords: { page: number; pdfX: number; pdfY: number },
+    category: AnnotationCategory,
+  ): void {
+    const { page, pdfX, pdfY } = coords;
+    const size = 8;
+    const ann = this.store.add(
+      {
+        page,
+        anchor: { page, pdfX, pdfY },
+        region: {
+          page,
+          x0: pdfX - size,
+          y0: pdfY - size,
+          x1: pdfX + size,
+          y1: pdfY + size,
+        },
+        tool: "box",
+        category,
         text: "",
       },
       new Date().toISOString(),
