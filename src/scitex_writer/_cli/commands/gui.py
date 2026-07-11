@@ -2,23 +2,130 @@
 # -*- coding: utf-8 -*-
 # File: src/scitex_writer/_cli/commands/gui.py
 
-"""launch-gui command (browser-based editor)."""
+"""`gui` command group (browser-based editor): open / serve / status / stop.
+
+Follows the fleet CLI canon (scitex-dev 19_gui-commands.md): one `gui`
+group with fixed verbs. `serve` runs in the FOREGROUND; `open` auto-serves
+a detached server when none is running, then opens the browser. Runtime
+state lives in `_core/_gui_runtime` so status/stop work from a fresh shell.
+
+`launch-gui` remains as a hidden warn-forward alias for one deprecation
+cycle.
+"""
 
 from __future__ import annotations
 
+import os
+import subprocess
+import sys
+import time
+import webbrowser
 from pathlib import Path
 
 import click
 
 from .._core import main_group
 from .._helpers import _emit_json
+from ..._core import _gui_runtime
+
+
+def _resolve_project(project: str) -> Path | None:
+    project_path = Path(project).resolve()
+    if not project_path.exists():
+        click.echo(f"Error: Project not found: {project_path}", err=True)
+        return None
+    return project_path
+
+
+@main_group.group("gui")
+def gui_group():
+    """Browser-based editor: open, serve, status, stop."""
+
 
 # =========================================================================
-# gui (renamed -> launch-gui at top level for §1, alias `gui` preserved)
+# gui serve — run the server in the foreground
 # =========================================================================
 
 
-@main_group.command("launch-gui")
+@gui_group.command("serve")
+@click.argument("project", default=".", required=False)
+@click.option("--port", type=int, default=5050, help="Server port (default: 5050).")
+@click.option("--host", default="127.0.0.1", help="Host to bind (default: 127.0.0.1).")
+@click.option("--dry-run", is_flag=True, default=False, help="Print, don't launch.")
+@click.option("--json", "as_json", is_flag=True, default=False, help="Emit JSON.")
+def gui_serve(project, port, host, dry_run, as_json):
+    """Run the editor server in the foreground (Ctrl-C to stop).
+
+    \b
+    Example:
+        $ scitex-writer gui serve
+        $ scitex-writer gui serve ~/proj/my-paper --port 5051
+    """
+    project_path = _resolve_project(project)
+    if project_path is None:
+        return 1
+    if dry_run:
+        if as_json:
+            _emit_json({"would_serve": True, "host": host, "port": port})
+        else:
+            click.echo(f"Would serve editor at http://{host}:{port}.")
+        return 0
+    try:
+        from ..._django._server import _find_available_port, run as _run_editor
+    except ImportError as e:
+        click.echo(
+            f"Error: {e}\nInstall with: pip install scitex-writer[editor]", err=True
+        )
+        return 1
+    port = _find_available_port(host, port)
+    _gui_runtime.write_state(os.getpid(), port, host, str(project_path))
+    try:
+        _run_editor(
+            project_dir=str(project_path),
+            port=port,
+            host=host,
+            open_browser=False,
+        )
+    finally:
+        _gui_runtime.clear_state()
+    return 0
+
+
+# =========================================================================
+# gui open — ensure a server is running, then open the browser
+# =========================================================================
+
+
+def _autoserve(project_path: Path, port: int, host: str) -> dict:
+    """Spawn a detached `gui serve` and wait for its state file."""
+    log_path = _gui_runtime.state_path().with_name("gui.log")
+    log_path.parent.mkdir(parents=True, exist_ok=True)
+    cmd = [
+        sys.executable,
+        "-m",
+        "scitex_writer",
+        "gui",
+        "serve",
+        str(project_path),
+        "--port",
+        str(port),
+        "--host",
+        host,
+    ]
+    with open(log_path, "ab") as log:
+        subprocess.Popen(
+            cmd, stdout=log, stderr=log, start_new_session=True
+        )
+    deadline = time.monotonic() + 30.0
+    while time.monotonic() < deadline:
+        current = _gui_runtime.status()
+        if current.get("running"):
+            return current
+        time.sleep(0.3)
+    return {"running": False, "log": str(log_path)}
+
+
+@gui_group.command("open")
 @click.argument("project", default=".", required=False)
 @click.option("--port", type=int, default=5050, help="Server port (default: 5050).")
 @click.option("--host", default="127.0.0.1", help="Host to bind (default: 127.0.0.1).")
@@ -30,42 +137,123 @@ from .._helpers import _emit_json
     help="Launch as desktop window (requires pywebview).",
 )
 @click.option("--dry-run", is_flag=True, default=False, help="Print, don't launch.")
-@click.option("--yes", "-y", is_flag=True, default=False, help="Skip confirmations.")
 @click.option("--json", "as_json", is_flag=True, default=False, help="Emit JSON.")
-def launch_gui(project, port, host, no_browser, desktop, dry_run, yes, as_json):
-    """Launch the browser-based editor for a scitex-writer project.
+def gui_open(project, port, host, no_browser, desktop, dry_run, as_json):
+    """Open the editor, auto-starting a background server when needed.
 
     \b
     Example:
-        $ scitex-writer launch-gui
-        $ scitex-writer launch-gui ~/proj/my-paper --port 5051
+        $ scitex-writer gui open
+        $ scitex-writer gui open ~/proj/my-paper --port 5051
     """
-    project_path = Path(project).resolve()
-    if not project_path.exists():
-        click.echo(f"Error: Project not found: {project_path}", err=True)
+    project_path = _resolve_project(project)
+    if project_path is None:
         return 1
     if dry_run:
         if as_json:
-            _emit_json({"would_launch": True, "host": host, "port": port})
+            _emit_json({"would_open": True, "host": host, "port": port})
         else:
-            click.echo(f"Would launch editor at http://{host}:{port}.")
+            click.echo(f"Would open editor at http://{host}:{port}.")
         return 0
-    try:
-        from ..._django._server import run as _run_editor
-
+    if desktop:
+        try:
+            from ..._django._server import run as _run_editor
+        except ImportError as e:
+            click.echo(
+                f"Error: {e}\nInstall with: pip install scitex-writer[editor]",
+                err=True,
+            )
+            return 1
         _run_editor(
             project_dir=str(project_path),
             port=port,
             host=host,
-            open_browser=not no_browser,
-            desktop=desktop,
+            open_browser=False,
+            desktop=True,
         )
-    except ImportError as e:
-        click.echo(
-            f"Error: {e}\nInstall with: pip install scitex-writer[editor]", err=True
-        )
-        return 1
+        return 0
+    current = _gui_runtime.status()
+    if not current.get("running"):
+        current = _autoserve(project_path, port, host)
+        if not current.get("running"):
+            click.echo(
+                f"Error: server did not come up within 30s; see {current.get('log')}",
+                err=True,
+            )
+            return 1
+    url = current["url"]
+    if not no_browser:
+        webbrowser.open(url)
+    if as_json:
+        _emit_json(current)
+    else:
+        click.echo(f"Editor running at {url}.")
     return 0
+
+
+# =========================================================================
+# gui status / gui stop
+# =========================================================================
+
+
+@gui_group.command("status")
+@click.option("--json", "as_json", is_flag=True, default=False, help="Emit JSON.")
+def gui_status(as_json):
+    """Report whether the editor server is running."""
+    current = _gui_runtime.status()
+    if as_json:
+        _emit_json(current)
+    elif current.get("running"):
+        click.echo(f"Running at {current['url']} (pid {current['pid']}).")
+    else:
+        click.echo("Not running.")
+    return 0
+
+
+@gui_group.command("stop")
+@click.option("--json", "as_json", is_flag=True, default=False, help="Emit JSON.")
+def gui_stop(as_json):
+    """Stop the editor server started by `gui serve` / `gui open`."""
+    result = _gui_runtime.stop()
+    if as_json:
+        _emit_json(result)
+    elif result.get("stopped"):
+        click.echo(f"Stopped (pid {result['pid']}).")
+    else:
+        click.echo("Not running.")
+    return 0
+
+
+# =========================================================================
+# launch-gui — hidden warn-forward alias (one deprecation cycle)
+# =========================================================================
+
+
+@main_group.command("launch-gui", hidden=True)
+@click.argument("project", default=".", required=False)
+@click.option("--port", type=int, default=5050)
+@click.option("--host", default="127.0.0.1")
+@click.option("--no-browser", is_flag=True, default=False)
+@click.option("--desktop", is_flag=True, default=False)
+@click.option("--dry-run", is_flag=True, default=False)
+@click.option("--yes", "-y", is_flag=True, default=False)
+@click.option("--json", "as_json", is_flag=True, default=False)
+@click.pass_context
+def launch_gui(ctx, project, port, host, no_browser, desktop, dry_run, yes, as_json):
+    """Deprecated alias for `gui open`."""
+    click.echo(
+        "Warning: `launch-gui` is deprecated; use `gui open` instead.", err=True
+    )
+    return ctx.invoke(
+        gui_open,
+        project=project,
+        port=port,
+        host=host,
+        no_browser=no_browser,
+        desktop=desktop,
+        dry_run=dry_run,
+        as_json=as_json,
+    )
 
 
 # EOF

@@ -128,7 +128,6 @@ def _mount_optional_subcommands():
 
 
 _TOP_RENAMES = {
-    "gui": "launch-gui",
     "update": "update-project",
     "usage": "show-usage",
 }
