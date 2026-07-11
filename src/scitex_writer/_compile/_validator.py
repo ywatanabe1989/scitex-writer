@@ -36,6 +36,9 @@ def validate_before_compile(project_dir: Path, doc_type: str = "manuscript") -> 
        configured severity. ``off``/``warn`` never block; ``error`` raises
        before any pdflatex work. Mirrors the shell compile gate so the API and
        ``./compile.sh`` paths enforce identically.
+    4. ``contents/latex_styles`` must resolve into ``00_shared/latex_styles``
+       (manuscript/supplementary). A local COPY silently breaks the claims/clew
+       provenance render (``\\IfFileExists`` paths go stale) — always an error.
 
     Parameters
     ----------
@@ -47,12 +50,14 @@ def validate_before_compile(project_dir: Path, doc_type: str = "manuscript") -> 
     Raises
     ------
     RuntimeError
-        If structure verification fails, a limit is exceeded under strict, or a
-        provenance check is at error severity with a violation.
+        If structure verification fails, a limit is exceeded under strict, a
+        provenance check is at error severity with a violation, or
+        ``contents/latex_styles`` has diverged from ``00_shared``.
     """
     verify_tree_structure(project_dir)
     _validate_limits(Path(project_dir), doc_type)
     _validate_provenance(Path(project_dir))
+    _validate_styles_symlink(Path(project_dir), doc_type)
 
 
 def _validate_limits(project_dir: Path, doc_type: str) -> None:
@@ -139,6 +144,54 @@ def _validate_provenance(project_dir: Path, runners=None) -> None:
                 f"{name} check failed at error severity — fix the violation or "
                 "lower its level (off/warn).\n" + findings
             )
+
+
+# Doc types whose contents/latex_styles is canonically a SYMLINK into
+# 00_shared. Revision is exempt: the template ships it a real local dir.
+_STYLES_SYMLINK_DOC_DIRS = {
+    "manuscript": "01_manuscript",
+    "supplementary": "02_supplementary",
+}
+
+
+def _validate_styles_symlink(project_dir: Path, doc_type: str) -> None:
+    """Fail loud when ``contents/latex_styles`` no longer resolves into
+    ``00_shared/latex_styles``.
+
+    Root cause of the neurovista provenance incident (2026-07-08): the symlink
+    was replaced by a local COPY, so the style files' relative ``../../00_shared``
+    paths went stale and every claims/clew ``\\IfFileExists`` include silently
+    skipped — provenance rendering vanished with zero diagnostics. This guard
+    turns that silent divergence into an immediate, actionable compile error.
+    """
+    doc_dir = _STYLES_SYMLINK_DOC_DIRS.get(doc_type)
+    if doc_dir is None:
+        return
+    styles = project_dir / doc_dir / "contents" / "latex_styles"
+    shared = project_dir / "00_shared" / "latex_styles"
+    if not shared.is_dir():
+        # Non-canonical layout (no 00_shared) — nothing to diverge from.
+        return
+    fix_hint = (
+        f"Fix:\n"
+        f"  rm -rf {styles}\n"
+        f"  ln -s ../../00_shared/latex_styles {styles}"
+    )
+    if styles.is_symlink() and not styles.exists():
+        raise RuntimeError(
+            f"{doc_dir}/contents/latex_styles is a BROKEN symlink "
+            f"(-> {styles.readlink()}). {fix_hint}"
+        )
+    if not styles.exists():
+        # Missing entirely is the tree-structure check's concern.
+        return
+    if styles.resolve() != shared.resolve():
+        raise RuntimeError(
+            f"{doc_dir}/contents/latex_styles must resolve into "
+            f"00_shared/latex_styles, but resolves to {styles.resolve()} — "
+            "a local copy here silently breaks claims/clew provenance "
+            f"rendering (stale ../../00_shared paths). {fix_hint}"
+        )
 
 
 __all__ = ["validate_before_compile"]
