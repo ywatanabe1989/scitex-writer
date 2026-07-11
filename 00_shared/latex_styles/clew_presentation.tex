@@ -50,6 +50,12 @@
 \IfFileExists{fontawesome5.sty}{\RequirePackage{fontawesome5}}{%
   \providecommand{\faCheckCircle}{[ok]}%
   \providecommand{\faExclamationTriangle}{[!]}}
+%% \pdftooltip (pdfcomment) renders the per-claim provenance tooltip on each
+%% marker. packages.tex loads pdfcomment BEFORE this style, so the real macro
+%% wins; this \providecommand is a FALLBACK so a standalone / pdfcomment-less
+%% compile degrades to the plain visible content instead of an undefined-macro
+%% error (tooltip silently dropped, marker still renders).
+\providecommand{\pdftooltip}[2]{#1}
 
 %% --- opt-in toggles (default false; clew_rendered.tex flips per config) ---
 \newif\ifclewpresmarkers
@@ -58,6 +64,9 @@
 \newif\ifclewpreslegend
 \newif\ifclewpresattest      % "Provenance checked by SciTeX Clew." line
 \newif\ifclewpresexplainer   % renderable clew explainer section
+\newif\ifclewpresintro       % top-of-document "Provenance marks" intro section
+                             % (auto-injected after \end{frontmatter} by the
+                             % compile pipeline). Replaces the old bottom legend.
 \newif\ifclewpreslegendfirst % opt-in: emit \clewLegend at the TOP of page 1
                              % (config key legend_first). Independent of
                              % \ifclewpreslegend (end-of-doc) and NOT in the
@@ -80,7 +89,11 @@
 \providecolor{clewException}{HTML}{8250DF}
 
 %% --- signature config (overridable before \begin{document}) ---
-\providecommand{\clewSigText}{Compiled by SciTeX Writer.}
+%% No trailing period so the tool version reads cleanly after it ("... SciTeX
+%% Writer v2.26.0"), symmetric with \clewAttestText. The " vX.Y.Z" suffix is
+%% appended by \writerVersionSuffix (see \clewSignature below), mirroring how
+%% \clewVersionSuffix appends the clew version to the attestation line.
+\providecommand{\clewSigText}{Compiled by SciTeX Writer}
 \providecommand{\clewSigURL}{https://github.com/ywatanabe1989/scitex-writer}
 \providecommand{\clewBadgeURL}{https://github.com/ywatanabe1989/scitex-clew}
 \providecommand{\clewSigIcon}{docs/scitex-icon-navy-inverted.png}
@@ -91,12 +104,20 @@
 \providecommand{\clewAttestText}{Provenance audited by SciTeX Clew}
 \providecommand{\clewAttestURL}{https://github.com/ywatanabe1989/scitex-clew}
 %% Clew explainer body (clew provides the CONTENT; writer provides the section
-%% layout). Sensible writer-side default until clew emits its own.
+%% layout). FAIL-LOUD default (operator incident 2026-07-07): a writer-invented
+%% prose default here once rendered into the PDF unannounced -- a No-Silent-
+%% Fallback violation (and its wording had Clew as the grammatical subject
+%% when the manuscript should be, per operator feedback). Do NOT invent
+%% replacement prose; when clew hasn't supplied its own \clewExplainerBody
+%% (via clew_rendered.tex), show a visible pending-marker + compile warning
+%% instead of guessing text on clew's behalf.
 \providecommand{\clewExplainerBody}{%
-  SciTeX Clew links every reported value to the analysis output that produced
-  it and re-verifies that link when this document is compiled. Marked values
-  carry a wavy underline coloured by verification status, plus optional
-  provenance badges.}
+  \PackageWarningNoLine{scitex-writer}{%
+    Clew provenance wording (\string\clewExplainerBody) not supplied --
+    rendering a pending-marker instead of inventing prose on clew's behalf.
+    Provide it via clew_rendered.tex (scitex-clew's export step) to show the
+    real explanation}%
+  \textit{Provenance wording pending from SciTeX Clew.}}
 
 %% Marker composition: highlight (tint of verdict) + wavy underline (verdict).
 %% ALL-LETTER names (no @): these are called from the expl3 \clewval/\clewmark
@@ -126,10 +147,35 @@
 \tl_new:N \l__clew_key_tl
 \tl_new:N \l__clew_hex_tl
 \tl_new:N \l__clew_val_tl
+\tl_new:N \l__clew_tip_tl
 \cs_new_protected:Npn \__clew_key:n #1 {
   \str_set:Nn \l_tmpa_str {#1}
   \regex_replace_all:nnN { [^a-zA-Z0-9] } {} \l_tmpa_str
   \tl_set:Nx \l__clew_key_tl { \str_use:N \l_tmpa_str }
+}
+%% \__clew_tip:nn {sanitized-key} {visible-content}: wrap the visible marker
+%% content in a \pdftooltip whose text is the claim's provenance -- its status
+%% and, when a source pointer was emitted, "status --- source: <link>". GRACEFUL
+%% degradation (mirrors the existing \cs_if_exist fallbacks): when clew@status@
+%% <key> is undefined (clew off / no data) the content renders with NO tooltip;
+%% when status IS defined but clew@link@<key> is not (claim has no link) the
+%% tooltip shows status only. #1 is passed the key tl, expanded inside the :c/:x
+%% csname lookups -- the same \use:c mechanism as \clewval/\clewmark.
+\cs_new_protected:Npn \__clew_tip:nn #1#2 {
+  \cs_if_exist:cTF { clew@status@ #1 } {
+    \tl_set:Nv \l__clew_tip_tl { clew@status@ #1 }
+    \cs_if_exist:cT { clew@link@ #1 } {
+      \tl_put_right:Nn \l__clew_tip_tl { ~---~source:~ }
+      %% :Nv (value-expansion, NOT :Nx) keeps the link's \_ / \# / \% escape
+      %% tokens INTACT so hyperref's \pdfstringdef converts them to the literal
+      %% char; x-expanding them here shatters \_ into low-level tokens ->
+      %% "Token not allowed in a PDF string" -> the char is dropped from the tip.
+      \tl_put_right:Nv \l__clew_tip_tl { clew@link@ #1 }
+    }
+    \pdftooltip {#2} { \tl_use:N \l__clew_tip_tl }
+  } {
+    #2
+  }
 }
 %% \clewval{id}: substitute the registered value (always); decorate if markers on.
 %% \legacy_if:nTF tests the LaTeX2e \ifclewpresmarkers newif from expl3.
@@ -144,7 +190,8 @@
       %% mid-value. Passing the bare \use:c macro gave \uwave one unbreakable
       %% chunk -> right-margin overflow (whereas \clewmark's literal #2 wraps).
       \tl_set:Nv \l__clew_val_tl { clew@val@ \l__clew_key_tl }
-      \exp_args:NV \clewDecorate \l__clew_val_tl
+      \__clew_tip:nn { \l__clew_key_tl }
+        { \exp_args:NV \clewDecorate \l__clew_val_tl }
     } {
       \use:c { clew@val@ \l__clew_key_tl }
     }
@@ -160,7 +207,7 @@
     \cs_if_exist:cTF { clew@hex@ \l__clew_key_tl } {
       \tl_set:Nx \l__clew_hex_tl { \use:c { clew@hex@ \l__clew_key_tl } }
       \definecolor { clewVerdict } { HTML } { \l__clew_hex_tl }
-      \clewDecorate {#2}
+      \__clew_tip:nn { \l__clew_key_tl } { \clewDecorate {#2} }
     } {
       #2
     }
@@ -179,7 +226,7 @@
     \cs_if_exist:cTF { clew@hex@ \l__clew_key_tl } {
       \tl_set:Nx \l__clew_hex_tl { \use:c { clew@hex@ \l__clew_key_tl } }
       \definecolor { clewVerdict } { HTML } { \l__clew_hex_tl }
-      \clewDecorate { \cite {#1} }
+      \__clew_tip:nn { \l__clew_key_tl } { \clewDecorate { \cite {#1} } }
     } {
       \cite {#1}
     }
@@ -197,7 +244,7 @@
     \cs_if_exist:cTF { clew@hex@ \l__clew_key_tl } {
       \tl_set:Nx \l__clew_hex_tl { \use:c { clew@hex@ \l__clew_key_tl } }
       \definecolor { clewVerdict } { HTML } { \l__clew_hex_tl }
-      \clewFigChip
+      \__clew_tip:nn { \l__clew_key_tl } { \clewFigChip }
     } { }
   } { }
 }
@@ -232,16 +279,28 @@
   \expandafter\IfFileExists\expandafter{\clew@sigiconpath}%
     {\raisebox{-0.25em}{\includegraphics[height=1em]{\clew@sigiconpath}}\,}{}%
   \endgroup}
-%% "Compiled by SciTeX Writer." -> writer repo, right-aligned.
+%% "Compiled by SciTeX Writer vX.Y.Z" -> writer repo, right-aligned. The version
+%% suffix MIRRORS the clew attestation line: \writerVersionSuffix appends
+%% " vX.Y.Z" from \writer@version (stamped by the compile pipeline at compile
+%% time), or nothing when unavailable (graceful fallback to a version-less line).
 \newcommand{\clewSignature}{%
   \par\vspace{0.8em}%
   {\footnotesize\color{gray}\raggedleft
-    \href{\clewSigURL}{\clewColophonIcon\clewSigText}\par}}
+    \href{\clewSigURL}{\clewColophonIcon\clewSigText\writerVersionSuffix}\par}}
 %% Tool-version suffix: " vX.Y.Z" when render_clew stamped \clew@version (from
 %% the clew export or `clew --version`); nothing when absent. \@empty test =
 %% the \providecommand{}{} fallback below.
 \newcommand{\clewVersionSuffix}{%
   \ifx\clew@version\@empty\else\ v\clew@version\fi}
+%% Writer tool-version suffix: the WRITER analog of \clewVersionSuffix. " vX.Y.Z"
+%% when the compile stamped \writer@version (compile_tex_structure.py injects the
+%% LIVE scitex-writer version via resolve_writer_version()); nothing when absent,
+%% so a standalone/pipeline-less compile degrades to "Compiled by SciTeX Writer"
+%% and NEVER breaks. Clew stamps the version that AUDITED the doc; writer stamps
+%% the version that COMPILED it -- the freshest source, not the stale vendored
+%% \ScitexWriterVersion.
+\newcommand{\writerVersionSuffix}{%
+  \ifx\writer@version\@empty\else\ v\writer@version\fi}
 %% "Provenance audited by SciTeX Clew vX.Y.Z" -> clew repo, right-aligned, same snake.
 \newcommand{\clewAttestation}{%
   {\footnotesize\color{gray}\raggedleft
@@ -281,19 +340,56 @@
       \end{minipage}}\par\medskip
   \fi}
 
-%% Auto-placement: badge (+ opt-in legend_first) at top; legend, signature +
-%% attestation at the end.
-%% Manual macros (\clewVerifiedBadge, \clewExplainer, ...) stay available for
-%% explicit placement.
+%% --- clew provenance INTRO section (replaces the old bottom legend) ---
+%% A top-of-document boxed callout that EXPLAINS the four provenance statuses
+%% with a worked, self-demonstrating example of each -- reusing \clewLabel so
+%% each status word is shown in its own marker color/wavy underline, plus the
+%% \clewExplainerBody prose. This is the explainer content PROMOTED to a
+%% document-start section: the compile pipeline auto-injects \clewIntro right
+%% after \end{frontmatter} (else after \begin{document}) when the `intro`
+%% toggle is on, so a reader meets the legend at the TOP of the paper instead
+%% of a cryptic key buried at the bottom. Gated by the toggle so an explicit
+%% call is a no-op when off. Dependency-light (no tcolorbox) -- same layout
+%% family as \clewExplainer so the demo compiles unchanged.
+\newcommand{\clewIntro}{%
+  \ifclewpresintro
+    \par\medskip\noindent
+    \fcolorbox{gray}{gray!6!white}{%
+      \begin{minipage}{\dimexpr\linewidth-2\fboxsep-2\fboxrule\relax}
+        \small
+        {\bfseries Provenance marks}\par\smallskip
+        \clewExplainerBody\par\smallskip
+        \begin{itemize}\setlength{\itemsep}{2pt}\setlength{\parsep}{0pt}%
+          \item \clewLabel{clewVerified}{verified} --
+                the value matches the analysis output that produced it.
+          \item \clewLabel{clewSuspect}{suspect} --
+                the source drifted since it was last checked; re-verify.
+          \item \clewLabel{clewUnverified}{failed} --
+                the value does not match its recorded source.
+          \item \clewLabel{clewException}{exception} --
+                verification could not be run for this value.
+        \end{itemize}
+      \end{minipage}}\par\medskip
+  \fi}
+
+%% Auto-placement: badge (+ opt-in legend_first) at top; attestation at the end.
+%% Manual macros (\clewVerifiedBadge, \clewExplainer, \clewLegend, \clewIntro,
+%% \clewSignature, ...) stay available for explicit placement.
 %% legend_first reuses \clewLegend UNCHANGED, auto-placed at page-1 top (before
-%% the badge). Opt-in and NOT in the master set, so it never double-renders with
-%% the end-of-doc \ifclewpreslegend.
+%% the badge). Opt-in and NOT in the master set, so it never double-renders.
+%%
+%% NOTE (redesign A/B): the Writer signature is NO LONGER auto-placed here.
+%% \clewSignature stays defined for back-compat, but the "Compiled by SciTeX
+%% Writer vX" mark now renders as a PER-PAGE bottom-right footer, injected by
+%% the compile pipeline (signature_footer.tex) when the `signature` toggle (or
+%% the standalone SCITEX_WRITER_SIGNATURE_FOOTER opt-in) is on -- decoupled from
+%% this bottom colophon. Likewise the bottom \clewLegend is REPLACED by the
+%% top-of-document \clewIntro section (auto-injected by the pipeline); the
+%% macro stays defined for back-compat but is not auto-placed.
 \AtBeginDocument{%
   \ifclewpreslegendfirst\clewLegend\fi
   \ifclewpresbadge\par\noindent\clewVerifiedBadge\par\fi}
 \AtEndDocument{%
-  \ifclewpreslegend\clewLegend\fi
-  \ifclewpressignature\clewSignature\fi
   \ifclewpresattest\clewAttestation\fi}
 
 %% Safe fallbacks: if clew_rendered.tex was NOT input (no claims / layer off),
@@ -303,6 +399,10 @@
 \providecommand{\clew@verified}{0}
 \providecommand{\clew@allverified}{0}
 \providecommand{\clew@version}{}
+%% Writer version fallback (empty): the compile pipeline \def's this to the LIVE
+%% scitex-writer version before \begin{document}; empty here so a standalone
+%% compile still renders "Compiled by SciTeX Writer" without a version.
+\providecommand{\writer@version}{}
 
 \makeatother
 %% EOF

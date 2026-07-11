@@ -354,4 +354,68 @@ def test_flatten_omits_footer_when_off(tmp_path):
     assert SIGNATURE_FOOTER_SENTINEL not in out_tex.read_text(encoding="utf-8")
 
 
+# ============================================================================
+# redesign A/B: bottom-right anchor + clew-signature-toggle drives the footer
+# ============================================================================
+
+
+def test_real_footer_style_is_anchored_bottom_right(tmp_path):
+    """The shipped footer style anchors its TikZ node at the page south-east."""
+    # Arrange
+    real_style = ROOT_DIR / "00_shared" / "latex_styles" / "signature_footer.tex"
+    _write(tmp_path / "signature_footer.tex", real_style.read_text(encoding="utf-8"))
+    # Act
+    injection = build_footer_injection(tmp_path, "4.2.0")
+    # Assert
+    assert "anchor=south east" in injection
+
+
+def test_real_footer_style_positions_at_page_south_east(tmp_path):
+    """The node is placed relative to `current page.south east` (not .south)."""
+    # Arrange
+    real_style = ROOT_DIR / "00_shared" / "latex_styles" / "signature_footer.tex"
+    _write(tmp_path / "signature_footer.tex", real_style.read_text(encoding="utf-8"))
+    # Act
+    injection = build_footer_injection(tmp_path, "4.2.0")
+    # Assert
+    assert "current page.south east" in injection
+
+
+def _make_project_with_preamble(tmp_path, preamble):
+    """Minimal project whose base.tex carries an extra preamble line."""
+    styles = tmp_path / "00_shared" / "latex_styles"
+    real_style = ROOT_DIR / "00_shared" / "latex_styles" / "signature_footer.tex"
+    _write(styles / "signature_footer.tex", real_style.read_text(encoding="utf-8"))
+    base_tex = tmp_path / "doc" / "base.tex"
+    _write(
+        base_tex,
+        "\\documentclass{article}\n"
+        + preamble
+        + "\n\\begin{document}\nHi\\end{document}\n",
+    )
+    return base_tex
+
+
+def test_clew_signature_toggle_triggers_footer(tmp_path):
+    """clew `signature` toggle ON (opt-in OFF) still injects the footer."""
+    # Arrange
+    base_tex = _make_project_with_preamble(tmp_path, "\\clewpressignaturetrue")
+    out_tex = tmp_path / "out.tex"
+    # Act
+    _flatten(base_tex, out_tex, signature_footer=False)
+    # Assert
+    assert SIGNATURE_FOOTER_SENTINEL in out_tex.read_text(encoding="utf-8")
+
+
+def test_footer_injected_once_when_both_sources_on(tmp_path):
+    """DRY: opt-in AND clew signature toggle both ON -> the block appears once."""
+    # Arrange
+    base_tex = _make_project_with_preamble(tmp_path, "\\clewpressignaturetrue")
+    out_tex = tmp_path / "out.tex"
+    # Act
+    _flatten(base_tex, out_tex, signature_footer=True)
+    # Assert
+    assert out_tex.read_text(encoding="utf-8").count(SIGNATURE_FOOTER_SENTINEL) == 1
+
+
 # EOF

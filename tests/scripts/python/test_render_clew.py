@@ -460,6 +460,96 @@ class TestClewVersion:
         assert "\\def\\clew@version" not in tex
 
 
+class TestClewLinkEmission:
+    """render_clew emits \\@namedef{clew@link@<id>}{<escaped-link>} for each
+    claim carrying a non-empty `link` (source_file path / citation URL). The
+    link is a RAW path/URL, so it is LaTeX-escaped (unlike the display-ready
+    value); a claim with no link emits no link macro (tooltip degrades to
+    status-only)."""
+
+    def test_emits_link_macro_from_link_field(self):
+        # Arrange
+        data = {
+            "claims": [
+                {
+                    "claim_id": "results_repro",
+                    "status": "verified",
+                    "value": "x",
+                    "link": "scripts/eval/repro.py",
+                }
+            ]
+        }
+        # Act
+        tex = render_clew_tex(data)
+        # Assert
+        assert "\\@namedef{clew@link@resultsrepro}{scripts/eval/repro.py}" in tex
+
+    def test_link_underscore_is_latex_escaped(self):
+        # Arrange: a raw path with an underscore must be escaped (\_), not raw.
+        data = {
+            "claims": [{"claim_id": "c", "status": "verified", "link": "a/foo_bar.py"}]
+        }
+        # Act
+        tex = render_clew_tex(data)
+        # Assert
+        assert "\\@namedef{clew@link@c}{a/foo\\_bar.py}" in tex
+
+    def test_link_percent_and_hash_are_latex_escaped(self):
+        # Arrange: `%` would comment out the line and `#` errors if emitted raw.
+        data = {
+            "claims": [{"claim_id": "c", "status": "verified", "link": "a/b%c#L3.py"}]
+        }
+        # Act
+        tex = render_clew_tex(data)
+        # Assert
+        assert "\\@namedef{clew@link@c}{a/b\\%c\\#L3.py}" in tex
+
+    def test_falls_back_to_source_file_when_no_link(self):
+        # Arrange: no `link`, but a `source_file` -- the accessor falls back.
+        data = {
+            "claims": [
+                {
+                    "claim_id": "c",
+                    "status": "verified",
+                    "source_file": "scripts/src.py",
+                }
+            ]
+        }
+        # Act
+        tex = render_clew_tex(data)
+        # Assert
+        assert "\\@namedef{clew@link@c}{scripts/src.py}" in tex
+
+    def test_no_link_macro_when_claim_has_no_link(self):
+        # Arrange: neither link nor source_file -> no clew@link macro at all.
+        data = {"claims": [{"claim_id": "c", "status": "verified", "value": "x"}]}
+        # Act
+        tex = render_clew_tex(data)
+        # Assert
+        assert "\\@namedef{clew@link@c}" not in tex
+
+    def test_citation_link_url_is_emitted(self):
+        # Arrange: citation claims carry a scholar/doi URL in `link`.
+        data = {
+            "claims": [
+                {
+                    "claim_id": "Kuhlmann2018",
+                    "claim_type": "citation",
+                    "status": "verified",
+                    "verified_at": "2026-07-01T00:00:00Z",
+                    "link": "https://doi.org/10.1093/brain/awx173",
+                }
+            ]
+        }
+        # Act
+        tex = render_clew_tex(data)
+        # Assert
+        assert (
+            "\\@namedef{clew@link@Kuhlmann2018}{https://doi.org/10.1093/brain/awx173}"
+            in tex
+        )
+
+
 if __name__ == "__main__":
     import pytest
 

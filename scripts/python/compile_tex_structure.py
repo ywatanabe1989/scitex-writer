@@ -34,6 +34,8 @@ from _signature_footer import (  # noqa: E402
 )
 from _tectonic_compat import apply_tectonic_compat  # noqa: E402
 from _tex_signature import generate_signature  # noqa: E402
+from _theme import read_config_theme as _read_config_theme  # noqa: E402,F401
+from _theme import resolve_dark_mode as _resolve_dark_mode  # noqa: E402
 
 # Unique marker for the inlined dark-mode block; also used as the idempotency
 # sentinel so a repeated flatten does not stack a second copy.
@@ -45,6 +47,17 @@ DARK_MODE_SENTINEL = "% Dark mode styling (inlined at compile time)"
 # line is also the idempotency sentinel (a reflatten must not stack a copy).
 CITATION_BANNER_ARTIFACT = ".scitex/writer/.citation_banner.tex"
 CITATION_BANNER_SENTINEL = "scitex-writer citation banner"
+
+# Idempotency sentinel for the auto-injected clew "Provenance marks" intro
+# section (\clewIntro), placed near document start (after \end{frontmatter},
+# else after \begin{document}) when the clew `intro` toggle is active.
+CLEW_INTRO_SENTINEL = "% SciTeX clew intro section (inlined at compile time)"
+
+# Line-anchored detectors for the clew presentation toggles that the flattened
+# content carries (the toggles file is \input via packages.tex, so a
+# \clewpres<name>true line lands in expanded_content when the toggle is on).
+_CLEW_SIGNATURE_TOGGLE_RE = re.compile(r"(?m)^\s*\\clewpressignaturetrue\b")
+_CLEW_INTRO_TOGGLE_RE = re.compile(r"(?m)^\s*\\clewpresintrotrue\b")
 
 
 def _is_style_input(input_file: str) -> bool:
@@ -249,8 +262,11 @@ def compile_tex_structure(
         )
         return False
 
-    # Inject PDF metadata + \scitexBuildID macro before \begin{document}
-    expanded_content = inject_build_metadata(expanded_content, build_id)
+    # Inject PDF metadata + \scitexBuildID macro (+ the LIVE \writer@version for
+    # the clew colophon "Compiled by SciTeX Writer vX.Y.Z") before \begin{document}
+    expanded_content = inject_build_metadata(
+        expanded_content, build_id, writer_version=resolve_writer_version()
+    )
 
     # Prepend signature (now includes Build ID line)
     signature = generate_signature(source_file=base_tex, build_id=build_id)
@@ -358,23 +374,50 @@ def compile_tex_structure(
                 count=1,
             )
 
-    # Inject the OPT-IN visible signature footer before \begin{document} (same
-    # idiom as dark mode). Default OFF -> no injection -> default compiles stay
-    # byte-identical. Idempotent via the sentinel. DISTINCT from the always-on
-    # invisible pdfcreator metadata (00_shared/scitex_writer_version.tex).
-    if signature_footer and SIGNATURE_FOOTER_SENTINEL not in expanded_content:
+    # Inject the OPT-IN per-page bottom-right signature footer before
+    # \begin{document}. Enabled when EITHER the standalone opt-in
+    # (`signature_footer`) OR the clew-presentation `signature` toggle is active
+    # (redesign: one unified knob). DRY single-stamp: the SENTINEL guard inlines
+    # the block AT MOST ONCE even when BOTH sources are on. DISTINCT from the
+    # always-on invisible pdfcreator metadata (scitex_writer_version.tex).
+    clew_signature_on = bool(_CLEW_SIGNATURE_TOGGLE_RE.search(expanded_content))
+    if (signature_footer or clew_signature_on) and (
+        SIGNATURE_FOOTER_SENTINEL not in expanded_content
+    ):
         styles_dir = base_tex.parent.parent / "00_shared" / "latex_styles"
         version = resolve_writer_version()
         footer_injection = build_footer_injection(styles_dir, version)
         if footer_injection:
             if verbose:
-                print(f"Signature footer: enabled (scitex-writer v{version})")
+                src = "opt-in" if signature_footer else "clew signature toggle"
+                print(f"Signature footer: enabled via {src} (v{version})")
             expanded_content = re.sub(
                 r"(?m)^([ \t]*)\\begin\{document\}",
                 lambda m: footer_injection + m.group(0),
                 expanded_content,
                 count=1,
             )
+
+    # Inject the clew "Provenance marks" INTRO section near document start when
+    # the clew `intro` toggle is active: anchor on \end{frontmatter}, else fall
+    # back to just after \begin{document}. Idempotent via the sentinel; gated on
+    # the toggle so it is a no-op for a non-clew doc (\clewIntro undefined there).
+    if _CLEW_INTRO_TOGGLE_RE.search(expanded_content) and (
+        CLEW_INTRO_SENTINEL not in expanded_content
+    ):
+        intro_injection = "\n" + CLEW_INTRO_SENTINEL + "\n\\clewIntro\n"
+        if re.search(r"(?m)^([ \t]*)\\end\{frontmatter\}", expanded_content):
+            anchor = r"(?m)^([ \t]*)\\end\{frontmatter\}"
+        else:
+            anchor = r"(?m)^([ \t]*)\\begin\{document\}"
+        if verbose:
+            print(f"Clew intro: injected (anchor {anchor})")
+        expanded_content = re.sub(
+            anchor,
+            lambda m: m.group(0) + intro_injection,
+            expanded_content,
+            count=1,
+        )
 
     # Write output
     try:
@@ -397,58 +440,6 @@ def compile_tex_structure(
     except Exception as e:
         print(f"ERROR: Failed to write output: {e}")
         return False
-
-
-def _read_config_theme(base_tex: Path) -> str:
-    """Read ``theme:`` from config/config_<doctype>.yaml — returns 'light' or 'dark'.
-
-    The project root is the parent of the document dir holding base.tex (e.g.
-    ``<root>/01_manuscript/base.tex`` -> ``<root>``), matching how the
-    dark_mode.tex path is resolved above.
-
-    Fail loud (SystemExit) on an invalid theme value so a typo cannot silently
-    render the wrong theme. A missing file / missing PyYAML / unreadable YAML
-    degrade to 'light' (the knob simply has no effect).
-    """
-    doc_type = os.getenv("SCITEX_WRITER_DOC_TYPE", "manuscript")
-    config_path = (
-        base_tex.resolve().parent.parent / "config" / f"config_{doc_type}.yaml"
-    )
-    if not config_path.exists():
-        return "light"
-    try:
-        import yaml
-    except ImportError:
-        return "light"
-    try:
-        data = yaml.safe_load(config_path.read_text(encoding="utf-8")) or {}
-    except yaml.YAMLError:
-        return "light"
-    theme = data.get("theme", "light")
-    theme = "light" if theme is None else str(theme).strip().lower()
-    if theme not in ("light", "dark"):
-        print(
-            f"ERROR: Invalid theme '{theme}' in {config_path.name} — "
-            f"must be 'light' or 'dark'.",
-            file=sys.stderr,
-        )
-        raise SystemExit(2)
-    return theme
-
-
-def _resolve_dark_mode(explicit_flag: bool, base_tex: Path) -> bool:
-    """Resolve effective dark mode with precedence.
-
-    ``--dark-mode`` flag > ``SCITEX_WRITER_DARK_MODE`` env > config ``theme:``
-    > light. Only a *set* (non-empty) env var short-circuits the config, so
-    ``theme: dark`` takes effect when no flag/env is supplied.
-    """
-    if explicit_flag:
-        return True
-    env = os.getenv("SCITEX_WRITER_DARK_MODE")
-    if env is not None and env.strip() != "":
-        return env.strip().lower() == "true"
-    return _read_config_theme(base_tex) == "dark"
 
 
 def main():
@@ -489,7 +480,7 @@ def main():
         or os.getenv("SCITEX_WRITER_SELECTED_ENGINE", "") == "tectonic"
     )
     # Project root holds ./config.yaml (same tier the _severity resolver reads).
-    # It is base_tex's document-dir parent, matching _read_config_theme above.
+    # It is base_tex's document-dir parent, matching _theme.read_config_theme.
     project_dir = args.base_tex.resolve().parent.parent
     signature_footer = resolve_signature_footer_enabled(
         args.signature_footer, project_dir
