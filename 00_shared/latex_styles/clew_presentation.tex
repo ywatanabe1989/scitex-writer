@@ -177,10 +177,29 @@
     #2
   }
 }
+%% \__clew_anchor:nn {sanitized-key} {raw-id}: emit the live-paper PDF anchor
+%% \hypertarget{clew-<raw-id>}{} at the claim's FIRST occurrence only. The
+%% scitex-live-paper web overlay computes its destination as 'clew-'+claim.id
+%% (byte-for-byte the claims.json id, per the 2026-07-04 contract), so the
+%% DESTINATION carries the RAW id while the one-shot flag reuses the sanitized
+%% csname key (clew@anchored@<key>) -- the same raw-dest/sanitized-lookup split
+%% \__clew_tip already relies on. Later references still color/tooltip but do
+%% not re-anchor (hyperref would warn on duplicate destinations). Namespace
+%% clew- is distinct from the legacy vclaim- anchors; both coexist. Degrades
+%% to nothing when hyperref is absent.
+\cs_new_protected:Npn \__clew_anchor:nn #1#2 {
+  \cs_if_exist:NT \hypertarget {
+    \cs_if_exist:cF { clew@anchored@ #1 } {
+      \cs_new_eq:cN { clew@anchored@ #1 } \prg_do_nothing:
+      \hypertarget { clew- \tl_to_str:n {#2} } {}
+    }
+  }
+}
 %% \clewval{id}: substitute the registered value (always); decorate if markers on.
 %% \legacy_if:nTF tests the LaTeX2e \ifclewpresmarkers newif from expl3.
 \NewDocumentCommand \clewval { m } {
   \__clew_key:n {#1}
+  \__clew_anchor:nn { \l__clew_key_tl } {#1}
   \cs_if_exist:cTF { clew@val@ \l__clew_key_tl } {
     \legacy_if:nTF { clewpresmarkers } {
       \tl_set:Nx \l__clew_hex_tl { \use:c { clew@hex@ \l__clew_key_tl } }
@@ -203,6 +222,7 @@
 %% \clewmark{id}{text}: mark author-supplied text/prose (decoration only).
 \NewDocumentCommand \clewmark { m m } {
   \__clew_key:n {#1}
+  \__clew_anchor:nn { \l__clew_key_tl } {#1}
   \legacy_if:nTF { clewpresmarkers } {
     \cs_if_exist:cTF { clew@hex@ \l__clew_key_tl } {
       \tl_set:Nx \l__clew_hex_tl { \use:c { clew@hex@ \l__clew_key_tl } }
