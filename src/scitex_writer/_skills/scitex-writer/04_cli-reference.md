@@ -1,7 +1,7 @@
 ---
 description: |
   [TOPIC] scitex-writer CLI Reference
-  [DETAILS] Top-level subcommands of `scitex-writer` — compile, bib, figures, tables, claims, mcp, migration, guidelines, prompts, launch-gui, etc.
+  [DETAILS] Top-level subcommands of `scitex-writer` — compile, bib, figures, tables, claims, mcp, migration, guidelines, prompts, gui, etc.
 tags: [scitex-writer-cli-reference]
 ---
 
@@ -42,7 +42,10 @@ tags: [scitex-writer-cli-reference]
 | `update-project`   | Update engine files in a scitex-writer project         |
 | `migration`        | Import / export to external platforms (Overleaf)       |
 | `export-manuscript`| Export the manuscript as an arXiv-ready tarball        |
-| `launch-gui`       | Launch the browser-based editor                        |
+| `gui open`         | Open the browser-based editor (auto-starts the server) |
+| `gui serve`        | Run the editor server in the foreground                |
+| `gui status`       | Report whether the editor server is running            |
+| `gui stop`         | Stop the background editor server                      |
 
 ## Reference / helpers
 
