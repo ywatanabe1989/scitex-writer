@@ -118,10 +118,9 @@ class TestValidateStylesSymlink:
         # Arrange
         project = _make_project(tmp_path, styles="copy")
         # Act
-        with pytest.raises(RuntimeError) as excinfo:
-            _validate_styles_symlink(project, "manuscript")
         # Assert
-        assert "ln -s ../../00_shared/latex_styles" in str(excinfo.value)
+        with pytest.raises(RuntimeError, match=r"ln -s \.\./\.\./00_shared/latex_styles"):
+            _validate_styles_symlink(project, "manuscript")
 
     def test_broken_symlink_raises_runtime_error(self, tmp_path):
         """A dangling latex_styles symlink aborts the compile."""
