@@ -25,6 +25,7 @@ from . import (  # noqa: F401
     checks,
     compile,
     deps,
+    engines,
     export,
     figures,
     gui,

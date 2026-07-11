@@ -218,3 +218,30 @@ export interface HintsFeed {
 export function manuscriptHints(): Promise<HintsFeed> {
   return apiGet<HintsFeed>("api/hints");
 }
+
+// PDF annotations (ADR 0001 pen-tablet feedback loop) — POST-only spike 0
+// (docs/04_DESIGN_PDF_ANNOTATION_FEEDBACK_LOOP.md §2.1/§6.1): the backend
+// has no update/resolve endpoint yet, so this posts a mark once at creation;
+// text edits stay client-side-only until a later spike adds PATCH.
+export interface PostAnnotationRequest {
+  page: number;
+  doc_type?: string;
+  kind?: "text_comment";
+  payload: { text: string; [key: string]: unknown };
+  region?: Record<string, number>;
+  build_id?: string;
+  source_ref?: Record<string, unknown>;
+  author?: string;
+}
+export interface PostAnnotationResponse {
+  ok: boolean;
+  annotation_id: string;
+  source_ref: unknown;
+  notified: boolean;
+  notify_error: string | null;
+}
+export function postAnnotation(
+  body: PostAnnotationRequest,
+): Promise<PostAnnotationResponse> {
+  return apiPost<PostAnnotationResponse>("api/annotations", body);
+}

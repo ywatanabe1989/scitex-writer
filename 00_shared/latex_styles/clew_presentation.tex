@@ -104,12 +104,20 @@
 \providecommand{\clewAttestText}{Provenance audited by SciTeX Clew}
 \providecommand{\clewAttestURL}{https://github.com/ywatanabe1989/scitex-clew}
 %% Clew explainer body (clew provides the CONTENT; writer provides the section
-%% layout). Sensible writer-side default until clew emits its own.
+%% layout). FAIL-LOUD default (operator incident 2026-07-07): a writer-invented
+%% prose default here once rendered into the PDF unannounced -- a No-Silent-
+%% Fallback violation (and its wording had Clew as the grammatical subject
+%% when the manuscript should be, per operator feedback). Do NOT invent
+%% replacement prose; when clew hasn't supplied its own \clewExplainerBody
+%% (via clew_rendered.tex), show a visible pending-marker + compile warning
+%% instead of guessing text on clew's behalf.
 \providecommand{\clewExplainerBody}{%
-  SciTeX Clew links every reported value to the analysis output that produced
-  it and re-verifies that link when this document is compiled. Marked values
-  carry a wavy underline coloured by verification status, plus optional
-  provenance badges.}
+  \PackageWarningNoLine{scitex-writer}{%
+    Clew provenance wording (\string\clewExplainerBody) not supplied --
+    rendering a pending-marker instead of inventing prose on clew's behalf.
+    Provide it via clew_rendered.tex (scitex-clew's export step) to show the
+    real explanation}%
+  \textit{Provenance wording pending from SciTeX Clew.}}
 
 %% Marker composition: highlight (tint of verdict) + wavy underline (verdict).
 %% ALL-LETTER names (no @): these are called from the expl3 \clewval/\clewmark
@@ -169,10 +177,29 @@
     #2
   }
 }
+%% \__clew_anchor:nn {sanitized-key} {raw-id}: emit the live-paper PDF anchor
+%% \hypertarget{clew-<raw-id>}{} at the claim's FIRST occurrence only. The
+%% scitex-live-paper web overlay computes its destination as 'clew-'+claim.id
+%% (byte-for-byte the claims.json id, per the 2026-07-04 contract), so the
+%% DESTINATION carries the RAW id while the one-shot flag reuses the sanitized
+%% csname key (clew@anchored@<key>) -- the same raw-dest/sanitized-lookup split
+%% \__clew_tip already relies on. Later references still color/tooltip but do
+%% not re-anchor (hyperref would warn on duplicate destinations). Namespace
+%% clew- is distinct from the legacy vclaim- anchors; both coexist. Degrades
+%% to nothing when hyperref is absent.
+\cs_new_protected:Npn \__clew_anchor:nn #1#2 {
+  \cs_if_exist:NT \hypertarget {
+    \cs_if_exist:cF { clew@anchored@ #1 } {
+      \cs_new_eq:cN { clew@anchored@ #1 } \prg_do_nothing:
+      \hypertarget { clew- \tl_to_str:n {#2} } {}
+    }
+  }
+}
 %% \clewval{id}: substitute the registered value (always); decorate if markers on.
 %% \legacy_if:nTF tests the LaTeX2e \ifclewpresmarkers newif from expl3.
 \NewDocumentCommand \clewval { m } {
   \__clew_key:n {#1}
+  \__clew_anchor:nn { \l__clew_key_tl } {#1}
   \cs_if_exist:cTF { clew@val@ \l__clew_key_tl } {
     \legacy_if:nTF { clewpresmarkers } {
       \tl_set:Nx \l__clew_hex_tl { \use:c { clew@hex@ \l__clew_key_tl } }
@@ -195,6 +222,7 @@
 %% \clewmark{id}{text}: mark author-supplied text/prose (decoration only).
 \NewDocumentCommand \clewmark { m m } {
   \__clew_key:n {#1}
+  \__clew_anchor:nn { \l__clew_key_tl } {#1}
   \legacy_if:nTF { clewpresmarkers } {
     \cs_if_exist:cTF { clew@hex@ \l__clew_key_tl } {
       \tl_set:Nx \l__clew_hex_tl { \use:c { clew@hex@ \l__clew_key_tl } }
