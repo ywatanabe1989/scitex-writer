@@ -20,7 +20,7 @@ def state_file(tmp_path):
 
 def test_read_state_missing_returns_none(state_file):
     # Arrange
-    assert not state_file.exists()
+    # (state_file is never created)
     # Act
     result = _gui_runtime.read_state(state_file)
     # Assert
@@ -61,7 +61,7 @@ def test_write_state_records_started_at(state_file):
 
 def test_clear_state_is_idempotent(state_file):
     # Arrange
-    assert not state_file.exists()
+    _gui_runtime.clear_state(state_file)
     # Act
     _gui_runtime.clear_state(state_file)
     # Assert
@@ -98,7 +98,7 @@ def test_pid_alive_false_for_exited_child():
 
 def test_status_missing_state_reports_not_running(state_file):
     # Arrange
-    assert not state_file.exists()
+    # (state_file is never created)
     # Act
     result = _gui_runtime.status(state_file)
     # Assert
@@ -127,7 +127,7 @@ def test_status_dead_pid_self_heals_state(state_file):
 
 def test_stop_without_state_is_idempotent(state_file):
     # Arrange
-    assert not state_file.exists()
+    # (state_file is never created)
     # Act
     result = _gui_runtime.stop(state_file)
     # Assert

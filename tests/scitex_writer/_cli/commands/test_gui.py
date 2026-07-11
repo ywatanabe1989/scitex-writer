@@ -5,6 +5,7 @@
 """Tests for the `scitex-writer gui` command group (real Click invocation)."""
 
 import json
+import os
 
 import pytest
 from click.testing import CliRunner
@@ -20,10 +21,11 @@ def runner():
 
 
 @pytest.fixture
-def isolated_state(tmp_path, monkeypatch):
+def isolated_state(tmp_path):
     state_file = tmp_path / "gui.json"
-    monkeypatch.setattr(_gui_runtime, "state_path", lambda: state_file)
-    return state_file
+    os.environ["SCITEX_WRITER_GUI_STATE"] = str(state_file)
+    yield state_file
+    os.environ.pop("SCITEX_WRITER_GUI_STATE", None)
 
 
 def test_gui_group_registered_on_main_group():
@@ -136,3 +138,34 @@ def test_gui_stop_json_idempotent(runner, isolated_state):
     payload = json.loads(result.output)
     # Assert
     assert payload == {"stopped": False, "running": False}
+
+
+def test_gui_stop_dry_run_reports_would_stop(runner, isolated_state):
+    # Arrange
+    _gui_runtime.write_state(os.getpid(), 5050, "127.0.0.1", "/proj", isolated_state)
+    args = ["gui", "stop", "--dry-run", "--json"]
+    # Act
+    result = runner.invoke(main_group, args)
+    payload = json.loads(result.output)
+    # Assert
+    assert payload["would_stop"]
+
+
+def test_gui_stop_dry_run_leaves_server_state(runner, isolated_state):
+    # Arrange
+    _gui_runtime.write_state(os.getpid(), 5050, "127.0.0.1", "/proj", isolated_state)
+    args = ["gui", "stop", "--dry-run"]
+    # Act
+    runner.invoke(main_group, args)
+    # Assert
+    assert isolated_state.exists()
+
+
+def test_gui_stop_without_yes_refuses(runner, isolated_state):
+    # Arrange
+    _gui_runtime.write_state(os.getpid(), 5050, "127.0.0.1", "/proj", isolated_state)
+    args = ["gui", "stop"]
+    # Act
+    result = runner.invoke(main_group, args)
+    # Assert
+    assert "without --yes" in result.output and isolated_state.exists()

@@ -199,7 +199,13 @@ def gui_open(project, port, host, no_browser, desktop, dry_run, as_json):
 @gui_group.command("status")
 @click.option("--json", "as_json", is_flag=True, default=False, help="Emit JSON.")
 def gui_status(as_json):
-    """Report whether the editor server is running."""
+    """Report whether the editor server is running.
+
+    \b
+    Example:
+        $ scitex-writer gui status
+        $ scitex-writer gui status --json
+    """
     current = _gui_runtime.status()
     if as_json:
         _emit_json(current)
@@ -211,9 +217,40 @@ def gui_status(as_json):
 
 
 @gui_group.command("stop")
+@click.option("--dry-run", is_flag=True, default=False, help="Print, don't stop.")
+@click.option(
+    "--yes", "-y", is_flag=True, default=False, help="Stop without confirmation."
+)
 @click.option("--json", "as_json", is_flag=True, default=False, help="Emit JSON.")
-def gui_stop(as_json):
-    """Stop the editor server started by `gui serve` / `gui open`."""
+def gui_stop(dry_run, yes, as_json):
+    """Stop the editor server started by `gui serve` / `gui open`.
+
+    \b
+    Example:
+        $ scitex-writer gui stop -y
+        $ scitex-writer gui stop --dry-run
+    """
+    current = _gui_runtime.status()
+    if not current.get("running"):
+        if as_json:
+            _emit_json({"stopped": False, "running": False})
+        else:
+            click.echo("Not running.")
+        return 0
+    if dry_run:
+        would = {"would_stop": True, "pid": current["pid"], "url": current["url"]}
+        if as_json:
+            _emit_json(would)
+        else:
+            click.echo(f"Would stop {current['url']} (pid {current['pid']}).")
+        return 0
+    if not yes:
+        click.echo(
+            f"Refusing to stop {current['url']} (pid {current['pid']}) "
+            "without --yes/-y.",
+            err=True,
+        )
+        return 2
     result = _gui_runtime.stop()
     if as_json:
         _emit_json(result)

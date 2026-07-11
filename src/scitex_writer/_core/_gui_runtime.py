@@ -29,10 +29,15 @@ _STATE_FIELDS = ("pid", "port", "host", "project", "started_at")
 def state_path() -> Path:
     """Resolve the GUI state-file path via the fleet local-state convention.
 
-    Same resolution as ``_annotations/_db.py`` (scope = current git root);
-    swap to the public ``scitex_config.runtime_path`` once it exists
+    ``SCITEX_WRITER_GUI_STATE`` overrides the resolved path (isolated CI
+    runs, tests). Otherwise same resolution as ``_annotations/_db.py``
+    (scope = current git root); swap to the public
+    ``scitex_config.runtime_path`` once it exists
     (card: writer-migrate-runtime-db-path-to-public-scitex-config-api).
     """
+    override = os.environ.get("SCITEX_WRITER_GUI_STATE")
+    if override:
+        return Path(override)
     from scitex_config._ecosystem import local_state
 
     return Path(local_state.runtime_path("writer", "gui.json"))
