@@ -5,6 +5,19 @@ All notable changes to SciTeX Writer will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.27.0] - 2026-07-11
+
+### Added
+- **PDF annotation bridge (editor ↔ backend).** Annotations drawn on the PDF pane (pen strokes, rects, comments) now POST to the backend persist+notify rail, so agents can consume spatial feedback ("here, this spot") from the reviewer (ADR 0001). (#286)
+- **`gui` command group** per the fleet CLI canon: `gui open` (auto-starts a detached server, then opens the browser), `gui serve` (foreground), `gui status`, `gui stop` (`--dry-run`/`--yes`, refuse-without-yes). Server state persists at `<scope>/.scitex/writer/runtime/gui.json` with stale-state self-heal, so status/stop work from any shell. (#287)
+- **`list-engines` verb** — Python port of the LaTeX engine detection (tectonic / latexmk / 3-pass). (#285)
+
+### Changed
+- `launch-gui` is deprecated (hidden warn-forward alias for one cycle); use `gui open`.
+
+### Fixed
+- **clew provenance wording fails loud when missing** instead of being invented. (#283)
+
 ## [2.26.1] - 2026-07-08
 
 ### Fixed
