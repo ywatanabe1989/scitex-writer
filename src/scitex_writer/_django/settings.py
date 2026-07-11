@@ -20,7 +20,13 @@ from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent
 
-SECRET_KEY = os.environ.get("WRITER_DJANGO_SECRET", secrets.token_urlsafe(32))
+# Fleet env-var convention is SCITEX_WRITER_<X>; the unprefixed
+# WRITER_DJANGO_SECRET spelling is honoured for one deprecation cycle.
+SECRET_KEY = (
+    os.environ.get("SCITEX_WRITER_DJANGO_SECRET")
+    or os.environ.get("WRITER_DJANGO_SECRET")
+    or secrets.token_urlsafe(32)
+)
 DEBUG = os.environ.get("DJANGO_DEBUG", "true").lower() == "true"
 ALLOWED_HOSTS = ["127.0.0.1", "localhost", "0.0.0.0", "testserver"]
 

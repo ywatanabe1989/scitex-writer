@@ -49,6 +49,9 @@ def run(
     if not project_path.exists():
         raise FileNotFoundError(f"Project directory not found: {project_path}")
 
+    os.environ["SCITEX_WRITER_WORKING_DIR"] = str(project_path)
+    # Deprecated unprefixed spelling — kept for one cycle so external
+    # launchers/readers keep working while they migrate.
     os.environ["WRITER_WORKING_DIR"] = str(project_path)
     os.environ["SCITEX_WORKING_DIR"] = str(project_path)
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "scitex_writer._django.settings")

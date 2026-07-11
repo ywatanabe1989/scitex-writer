@@ -34,9 +34,15 @@ logger = logging.getLogger(__name__)
 
 
 def _get_project(request):
-    """Resolve the current project from ?working_dir= or WRITER_WORKING_DIR."""
-    working_dir = request.GET.get("working_dir") or os.environ.get(
-        "WRITER_WORKING_DIR", ""
+    """Resolve the current project from ?working_dir= or SCITEX_WRITER_WORKING_DIR.
+
+    The unprefixed WRITER_WORKING_DIR spelling is honoured for one
+    deprecation cycle (fleet env-var convention is SCITEX_WRITER_<X>).
+    """
+    working_dir = (
+        request.GET.get("working_dir")
+        or os.environ.get("SCITEX_WRITER_WORKING_DIR", "")
+        or os.environ.get("WRITER_WORKING_DIR", "")
     )
     if not working_dir:
         return None
