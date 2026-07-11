@@ -64,6 +64,7 @@ _LAZY_SUBMODULES = {
     "bib": ".bib",
     "checks": ".checks",
     "citation_style": ".citation_style",
+    "cleanup": ".cleanup",
     "claim": ".claim",
     "compile": ".compile",
     "count_words": ".count_words",
@@ -211,6 +212,7 @@ __all__ = [
     # Modules
     "checks",
     "citation_style",
+    "cleanup",
     "claim",
     "compile",
     "count_words",
