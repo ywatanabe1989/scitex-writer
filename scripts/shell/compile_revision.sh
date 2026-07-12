@@ -339,15 +339,15 @@ parse_arguments() {
     fig_log="$temp_dir/figures.log"
     tbl_log="$temp_dir/tables.log"
 
-    # Run both in parallel
+    # Figures/tables delegate to the INSTALLED scitex-writer Python engine.
     (
-        ./scripts/shell/modules/process_figures.sh "$no_figs" false false false >"$fig_log" 2>&1
+        ./scripts/shell/modules/run_python_pipeline.sh figures "$no_figs" false false false >"$fig_log" 2>&1
         echo $? >"$temp_dir/fig_exit"
     ) &
     fig_pid=$!
 
     (
-        ./scripts/shell/modules/process_tables.sh "$no_tables" >"$tbl_log" 2>&1
+        ./scripts/shell/modules/run_python_pipeline.sh tables "$no_tables" >"$tbl_log" 2>&1
         echo $? >"$temp_dir/tbl_exit"
     ) &
     tbl_pid=$!
@@ -414,9 +414,9 @@ parse_arguments() {
     # Skip diff generation for revision (revision document already shows changes inline)
     echo_info "Skipping diff generation (revision document shows changes inline)"
 
-    # Archive
+    # Archive (Python archive engine; a dirty tree is skipped, not archived)
     log_stage_start "Archive/Versioning"
-    ./scripts/shell/modules/process_archive.sh
+    ./scripts/shell/modules/run_python_pipeline.sh archive
     log_stage_end "Archive/Versioning"
 
     # Cleanup

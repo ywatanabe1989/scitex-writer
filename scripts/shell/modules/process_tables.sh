@@ -6,6 +6,12 @@
 # may set it read-only in the consumer workspace after vendoring).
 # Timestamp: "2026-01-19 02:59:33 (ywatanabe)"
 # File: ./scripts/shell/modules/process_tables.sh
+#
+# SUPERSEDED (2.29.0) — NOTHING ON THE COMPILE PATH CALLS THIS ANY MORE.
+# The compile scripts now delegate the table stage to the installed Python
+# engine via `modules/run_python_pipeline.sh tables` (-> `scitex-writer tables
+# render`), which fixes this module's backend-dependent math escaping (a cell
+# like `5% ($p<0.05$)` came out mangled). Kept for one release cycle only.
 
 # Literal LaTeX backslashes are written via "\\…" in echo throughout this
 # module; SC2028's "echo may not expand escape sequences" is a false positive

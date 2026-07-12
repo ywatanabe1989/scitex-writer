@@ -7,6 +7,11 @@
 # Timestamp: "2026-01-19 (ywatanabe)"
 # File: ./scripts/shell/modules/process_archive.sh
 # Description: Archive compiled documents with git-based naming (timestamp + commit hash)
+#
+# SUPERSEDED (2.29.0) — NOTHING ON THE COMPILE PATH CALLS THIS ANY MORE.
+# The compile scripts now delegate the archive stage to the installed Python
+# engine via `modules/run_python_pipeline.sh archive` (-> `scitex-writer compile
+# archive`). Kept for one release cycle only.
 
 THIS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 LOG_PATH="$THIS_DIR/.$(basename "$0").log"
