@@ -10,11 +10,15 @@ path (csv2latex binary / AWK fallback) that can silently escape an authored
 ``$p<0.001$`` or ``\textit{r}``.
 """
 
+import shutil
+import subprocess
+
 import pytest
 
 from scitex_writer._utils._csv_table import (
     caption_title,
     is_verbatim,
+    protect_verbatim,
     render_csv_table,
     split_table_name,
 )
@@ -184,6 +188,94 @@ class TestTruncation:
         latex = render_csv_table(csv_file, caption=_CAPTION_NO_LABEL)
         # Assert
         assert "Note: Table truncated to 30 rows from 40 total rows" in latex
+
+
+class TestMixedCellProtection:
+    r"""A cell mixing prose and math is verbatim, but its ``%`` / ``&`` must
+    still be escaped: a bare ``%`` comments out the rest of the LaTeX row
+    (swallowing its ``\\`` terminator and the next row with it), and a bare
+    ``&`` opens a phantom column. Both corrupt SILENTLY -- the table renders
+    wrong rather than failing.
+    """
+
+    def test_percent_beside_math_is_escaped(self, tmp_path):
+        # Arrange
+        csv_file = _write_csv(tmp_path, "metric,value\nrate,5% ($p<0.05$)\n")
+        # Act
+        latex = render_csv_table(csv_file)
+        # Assert
+        assert "5\\% ($p<0.05$)" in latex
+
+    def test_math_survives_beside_the_escaped_percent(self, tmp_path):
+        # Arrange
+        csv_file = _write_csv(tmp_path, "metric,value\nrate,5% ($p<0.05$)\n")
+        # Act
+        latex = render_csv_table(csv_file)
+        # Assert
+        assert "$p<0.05$" in latex
+
+    def test_ampersand_beside_math_is_escaped(self, tmp_path):
+        # Arrange
+        csv_file = _write_csv(tmp_path, "metric,value\ngroups,A & B ($n=3$)\n")
+        # Act
+        latex = render_csv_table(csv_file)
+        # Assert
+        assert "A \\& B ($n=3$)" in latex
+
+    def test_already_escaped_percent_is_not_double_escaped(self, tmp_path):
+        # Arrange
+        csv_file = _write_csv(tmp_path, "metric,value\nrate,5\\% ($p<0.05$)\n")
+        # Act
+        latex = render_csv_table(csv_file)
+        # Assert
+        assert "\\\\%" not in latex
+
+    def test_protect_verbatim_leaves_pure_math_untouched(self):
+        # Arrange
+        cell = "$p<0.001$"
+        # Act
+        protected = protect_verbatim(cell)
+        # Assert
+        assert protected == cell
+
+    def test_clew_macro_cell_survives_protection(self):
+        # Arrange
+        cell = "\\clewval{seizure_rate}"
+        # Act
+        protected = protect_verbatim(cell)
+        # Assert
+        assert protected == cell
+
+
+@pytest.mark.skipif(shutil.which("pdflatex") is None, reason="pdflatex not installed")
+class TestRealCompile:
+    def test_mixed_percent_math_table_compiles_to_pdf(self, tmp_path):
+        # Arrange
+        csv_file = _write_csv(tmp_path, "metric,value\nrate,5% ($p<0.05$)\n")
+        body = render_csv_table(csv_file, caption=_CAPTION_NO_LABEL)
+        doc = tmp_path / "doc.tex"
+        # The fragment uses \toprule (booktabs), \resizebox (graphicx),
+        # \captionsetup (caption) and \pdfbookmark (hyperref) — the real
+        # manuscript loads these via 00_shared/latex_styles/packages.tex.
+        doc.write_text(
+            "\\documentclass{article}\n"
+            "\\usepackage{booktabs}\n"
+            "\\usepackage{graphicx}\n"
+            "\\usepackage{caption}\n"
+            "\\usepackage{hyperref}\n"
+            "\\begin{document}\n"
+            f"{body}\n\\end{{document}}\n",
+            encoding="utf-8",
+        )
+        # Act
+        subprocess.run(
+            ["pdflatex", "-interaction=nonstopmode", "-halt-on-error", doc.name],
+            cwd=tmp_path,
+            capture_output=True,
+            check=True,
+        )
+        # Assert
+        assert (tmp_path / "doc.pdf").exists()
 
 
 class TestFailLoud:
