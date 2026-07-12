@@ -16,9 +16,11 @@ from .config import WriterConfig
 from .contents import ManuscriptContents, RevisionContents, SupplementaryContents
 from .core import Document, DocumentSection
 from .results import (
+    ArchiveResult,
     CitationStyleResult,
     CleanupResult,
     CompilationResult,
+    DiffResult,
     FiguresResult,
     LaTeXIssue,
     TablesResult,
@@ -44,9 +46,11 @@ __all__ = [
     "SupplementaryContents",
     "RevisionContents",
     # Configuration and results
+    "ArchiveResult",
     "CitationStyleResult",
     "CleanupResult",
     "CompilationResult",
+    "DiffResult",
     "WriterConfig",
     "FiguresResult",
     "LaTeXIssue",
