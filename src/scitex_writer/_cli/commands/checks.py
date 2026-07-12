@@ -191,4 +191,70 @@ def check_references_cmd(project, doc_type, parse_log, as_json):
     return result.get("exit_code", 0)
 
 
+@main_group.command("check-citation-trust")
+@click.option("-p", "--project", default=".", help="Project path.")
+@click.option(
+    "--level",
+    type=click.Choice(["off", "warn", "error"]),
+    default=None,
+    help="Severity: off, warn (default), or error. Overrides env/config.",
+)
+@click.option(
+    "--offline",
+    is_flag=True,
+    default=False,
+    help="Never touch the network (deterministic; unresolved != trustworthy).",
+)
+@click.option(
+    "--min-confidence",
+    type=float,
+    default=None,
+    help="Minimum title-match confidence for a VERIFIED verdict (default 0.8).",
+)
+@click.option(
+    "--no-cache",
+    is_flag=True,
+    default=False,
+    help="Ignore (and do not write) the cached verdicts; re-verify everything.",
+)
+@click.option("--json", "as_json", is_flag=True, default=False, help="Emit JSON.")
+def check_citation_trust_cmd(
+    project, level, offline, min_confidence, no_cache, as_json
+):
+    """Verify every \\cite resolves to a REAL, trustworthy source (scitex-scholar).
+
+    Beyond "the key exists in the .bib": each cited entry is resolved against
+    CrossRef/OpenAlex/arXiv/SemanticScholar via scitex-scholar and classified.
+    verified -> pass; unverified/stub/unlinked -> warning; hallucinated -> error.
+    FAILS LOUDLY (never silently passes) when it cannot run -- scholar missing,
+    no network, bib unresolvable. Verdicts are cached under
+    .scitex/writer/runtime/. Note: retracted/predatory venues are NOT checked.
+
+    \b
+    Example:
+        $ scitex-writer check-citation-trust
+        $ scitex-writer check-citation-trust --offline
+        $ scitex-writer check-citation-trust --level error --no-cache
+    """
+    from ... import checks
+
+    result = checks.citation_trust(
+        project,
+        level=level,
+        offline=offline,
+        min_confidence=min_confidence,
+        no_cache=no_cache,
+    )
+    if as_json:
+        _emit_json(result)
+        return 0 if result.get("success") else 1
+    out = (result.get("stdout") or "").rstrip()
+    if out:
+        click.echo(out)
+    err = (result.get("stderr") or "").rstrip()
+    if err:
+        click.echo(err, err=True)
+    return result.get("exit_code", 0)
+
+
 # EOF

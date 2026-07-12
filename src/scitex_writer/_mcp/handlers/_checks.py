@@ -392,6 +392,63 @@ def check_table_decimals(
     return _run_script(script, project_path, args, timeout)
 
 
+def check_citation_trust(
+    project_dir: str,
+    level: str | None = None,
+    offline: bool = False,
+    min_confidence: float | None = None,
+    no_cache: bool = False,
+    timeout: int = 300,
+) -> dict:
+    """Citation-TRUSTWORTHINESS check: does each \\cite resolve to a real source?
+
+    Beyond "the key exists in the .bib" (``check_ref_integrity``) and "the entry
+    is not a scholar stub" (``check_citations``): this RESOLVES every cited entry
+    against the real bibliographic record via scitex-scholar
+    (``scitex_scholar.verify_cites``, the ``scholar`` extra) -- CrossRef /
+    OpenAlex / arXiv / Semantic Scholar -- and flags every citation that cannot
+    be shown to be a real, trustworthy source. Status -> severity: ``verified``
+    -> info (pass), ``unverified``/``stub``/``unlinked`` -> warning,
+    ``hallucinated`` -> error.
+
+    FAIL-LOUD: when verification cannot RUN (scitex-scholar not installed, bib
+    unresolvable, network down, resolver crash) the check reports that condition
+    at the resolved level -- WARN by default, FAIL at ``error`` -- and NEVER
+    reports the citations as trustworthy. Verdicts are cached (scholar has no
+    cache) in ``.scitex/writer/runtime/citation_trust.json``, keyed by cite key +
+    bib-entry content hash.
+
+    KNOWN GAP: scholar does not check retraction status or predatory venues.
+
+    Severity precedence (highest -> lowest): ``level`` arg, env
+    ``SCITEX_WRITER_CITATION_TRUST``, project ``./config.yaml``
+    (``citation_trust.level``), user ``~/.scitex/writer/config.yaml``, default
+    ``warn`` (a network-dependent check must not block a compile by default).
+
+    Args:
+        project_dir: Project root.
+        level: One of ``off``, ``warn``, ``error``. When ``None``, env/config
+            precedence resolves the level.
+        offline: Never touch the network (deterministic; unresolvable entries
+            are reported UNVERIFIED/HALLUCINATED, never as trustworthy).
+        min_confidence: Minimum title-match confidence for a VERIFIED verdict.
+        no_cache: Ignore (and do not write) the verdict cache.
+        timeout: Subprocess timeout in seconds (network resolution is slow).
+    """
+    project_path = resolve_project_path(project_dir)
+    script = _script_path(project_path, "check_citation_trust.py")
+    args: list[str] = []
+    if level is not None:
+        args += ["--level", level]
+    if offline:
+        args.append("--offline")
+    if min_confidence is not None:
+        args += ["--min-confidence", str(min_confidence)]
+    if no_cache:
+        args.append("--no-cache")
+    return _run_script(script, project_path, args, timeout)
+
+
 __all__ = [
     "check_references",
     "check_float_order",
@@ -402,6 +459,7 @@ __all__ = [
     "check_caption_footnote",
     "check_ref_integrity",
     "check_table_decimals",
+    "check_citation_trust",
 ]
 
 # EOF
