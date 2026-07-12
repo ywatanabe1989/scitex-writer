@@ -393,6 +393,83 @@ class TestLatexdiffType:
         assert "--type=CULINECHBAR" not in process_diff_content
 
 
+class TestCompilePathUsesPythonPipelines:
+    """The compile path must reach the PYTHON engine, not the old shell modules.
+
+    `run_compile` shells out to `scripts/shell/compile_<doc_type>.sh`, so the
+    heavy stages those scripts invoke ARE the compile path. Until 2.29.0 they
+    invoked `modules/process_{figures,tables,diff,archive}.sh` — meaning the
+    Python ports (and the four bugs they fixed) were unreachable from a real
+    compile. These tests pin the delegation so it cannot silently regress.
+    """
+
+    SHELL_MODULES = [
+        "process_figures.sh",
+        "process_tables.sh",
+        "process_diff.sh",
+        "process_archive.sh",
+    ]
+
+    def _script_text(self, doc_type: str) -> str:
+        project_root = Path(__file__).resolve().parents[3]
+        return _get_compile_script(project_root, doc_type).read_text()
+
+    def _delegates(self, doc_type: str, stage: str) -> bool:
+        """True iff the compile script launches `stage` via the Python launcher.
+
+        The path may or may not be quoted (`"$PROJECT_ROOT/.../x.sh" figures`
+        vs `./scripts/.../x.sh figures`), so match the launcher + stage pair.
+        """
+        pattern = rf'modules/run_python_pipeline\.sh"?\s+{stage}\b'
+        return re.search(pattern, self._script_text(doc_type)) is not None
+
+    @pytest.mark.parametrize("doc_type", ["manuscript", "supplementary", "revision"])
+    @pytest.mark.parametrize("shell_module", SHELL_MODULES)
+    def test_compile_script_never_invokes_shell_module(self, doc_type, shell_module):
+        # Arrange
+        text = self._script_text(doc_type)
+        # Act
+        invocations = re.findall(rf"modules/{re.escape(shell_module)}", text)
+        # Assert
+        assert invocations == []
+
+    @pytest.mark.parametrize("doc_type", ["manuscript", "supplementary", "revision"])
+    def test_compile_script_delegates_figures_to_python(self, doc_type):
+        # Arrange
+        stage = "figures"
+        # Act
+        delegated = self._delegates(doc_type, stage)
+        # Assert
+        assert delegated
+
+    @pytest.mark.parametrize("doc_type", ["manuscript", "supplementary", "revision"])
+    def test_compile_script_delegates_tables_to_python(self, doc_type):
+        # Arrange
+        stage = "tables"
+        # Act
+        delegated = self._delegates(doc_type, stage)
+        # Assert
+        assert delegated
+
+    @pytest.mark.parametrize("doc_type", ["manuscript", "supplementary"])
+    def test_compile_script_delegates_diff_to_python(self, doc_type):
+        # Arrange
+        stage = "diff"
+        # Act
+        delegated = self._delegates(doc_type, stage)
+        # Assert
+        assert delegated
+
+    @pytest.mark.parametrize("doc_type", ["manuscript", "supplementary", "revision"])
+    def test_compile_script_delegates_archive_to_python(self, doc_type):
+        # Arrange
+        stage = "archive"
+        # Act
+        delegated = self._delegates(doc_type, stage)
+        # Assert
+        assert delegated
+
+
 if __name__ == "__main__":
     import os
 

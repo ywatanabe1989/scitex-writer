@@ -286,15 +286,15 @@ main() {
     local tbl_log="$temp_dir/tables.log"
     local wrd_log="$temp_dir/words.log"
 
-    # Run all three in parallel
+    # Figures/tables delegate to the INSTALLED scitex-writer Python engine.
     (
-        ./scripts/shell/modules/process_figures.sh "$no_figs" "$do_p2t" "$do_verbose" "$do_crop_tif" >"$fig_log" 2>&1
+        ./scripts/shell/modules/run_python_pipeline.sh figures "$no_figs" "$do_p2t" "$do_verbose" "$do_crop_tif" >"$fig_log" 2>&1
         echo $? >"$temp_dir/fig_exit"
     ) &
     local fig_pid=$!
 
     (
-        ./scripts/shell/modules/process_tables.sh "$no_tables" >"$tbl_log" 2>&1
+        ./scripts/shell/modules/run_python_pipeline.sh tables "$no_tables" >"$tbl_log" 2>&1
         echo $? >"$temp_dir/tbl_exit"
     ) &
     local tbl_pid=$!
@@ -368,18 +368,21 @@ main() {
     fi
     log_stage_end "Overflow Check"
 
-    # Diff (skip if --no_diff specified)
+    # Diff (skip if --no_diff). The Python diff engine REFUSES to diff a version
+    # against itself; a failing diff is loud but never aborts the compile.
     if [ "$no_diff" = false ]; then
         log_stage_start "Diff Generation"
-        ./scripts/shell/modules/process_diff.sh
+        if ! ./scripts/shell/modules/run_python_pipeline.sh diff; then
+            echo_warning "Diff generation failed (above); PDF unaffected. Use --no_diff to skip."
+        fi
         log_stage_end "Diff Generation"
     else
         echo_info "Skipping diff generation (--no_diff specified)"
     fi
 
-    # Versioning
+    # Versioning (Python archive engine; a dirty tree is skipped, not archived)
     log_stage_start "Archive/Versioning"
-    ./scripts/shell/modules/process_archive.sh
+    ./scripts/shell/modules/run_python_pipeline.sh archive
     log_stage_end "Archive/Versioning"
 
     # Cleanup
