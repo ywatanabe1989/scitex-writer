@@ -30,6 +30,12 @@ SECRET_KEY = (
 DEBUG = os.environ.get("DJANGO_DEBUG", "true").lower() == "true"
 ALLOWED_HOSTS = ["127.0.0.1", "localhost", "0.0.0.0", "testserver"]
 
+# "hub" | "standalone" — the browser tab alone must distinguish the two
+# (operator request; scitex-hub PR #357 reads the same setting and defaults
+# to "hub"). These settings only boot the STANDALONE server
+# (`scitex-writer gui`), so standalone is the default here.
+SCITEX_APP_MODE = os.environ.get("SCITEX_APP_MODE", "standalone")
+
 INSTALLED_APPS = [
     "django.contrib.contenttypes",
     "django.contrib.staticfiles",
