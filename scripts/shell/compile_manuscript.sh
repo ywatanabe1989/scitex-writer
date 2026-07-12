@@ -91,6 +91,9 @@ no_diff=false
 draft_mode=false
 dark_mode=${SCITEX_WRITER_DARK_MODE:-false}
 clew_overlay=false
+# Set when the PDF stage promoted a real PDF despite a non-zero engine exit.
+# Drives the WITH WARNINGS banner and the script's exit 3.
+compile_warned=false
 
 # Colors for usage output
 GRAY='\033[0;90m'
@@ -99,108 +102,9 @@ GREEN='\033[0;32m'
 YELLOW='\033[0;33m'
 NC='\033[0m'
 
-usage() {
-    echo ""
-    echo -e "${BOLD_CYAN}━━━ compile_manuscript.sh ━━━${NC}"
-    echo -e "${GRAY}Compile main manuscript document${NC}"
-    echo ""
-    echo -e "${BOLD_CYAN}━━━ Structure ━━━${NC}"
-    echo -e "  ${GREEN}01_manuscript/${NC}"
-    echo -e "    contents/"
-    echo -e "      ${YELLOW}abstract.tex${NC}        ${GRAY}# Abstract${NC}"
-    echo -e "      ${YELLOW}introduction.tex${NC}    ${GRAY}# Introduction${NC}"
-    echo -e "      ${YELLOW}methods.tex${NC}         ${GRAY}# Methods${NC}"
-    echo -e "      ${YELLOW}results.tex${NC}         ${GRAY}# Results${NC}"
-    echo -e "      ${YELLOW}discussion.tex${NC}      ${GRAY}# Discussion${NC}"
-    echo -e "      figures/caption_and_media/  ${GRAY}# Figures${NC}"
-    echo -e "      tables/caption_and_media/   ${GRAY}# Tables${NC}"
-    echo -e "    ${GRAY}manuscript.pdf${NC}      ${GRAY}# Output${NC}"
-    echo ""
-    echo -e "${BOLD_CYAN}━━━ Editable Files ━━━${NC}"
-    echo -e "${GREEN}00_shared:${NC}"
-    echo -e "  ${GRAY}$PROJECT_ROOT/00_shared/${NC}title.tex"
-    echo -e "  ${GRAY}$PROJECT_ROOT/00_shared/${NC}authors.tex"
-    echo -e "  ${GRAY}$PROJECT_ROOT/00_shared/${NC}keywords.tex"
-    echo -e "  ${GRAY}$PROJECT_ROOT/00_shared/${NC}journal_name.tex"
-    echo -e "  ${GRAY}$PROJECT_ROOT/00_shared/bib_files/${NC}*.bib"
-    echo ""
-    echo -e "${GREEN}01_manuscript:${NC}"
-    echo -e "  ${GRAY}$PROJECT_ROOT/01_manuscript/contents/${NC}abstract.tex"
-    echo -e "  ${GRAY}$PROJECT_ROOT/01_manuscript/contents/${NC}introduction.tex"
-    echo -e "  ${GRAY}$PROJECT_ROOT/01_manuscript/contents/${NC}methods.tex"
-    echo -e "  ${GRAY}$PROJECT_ROOT/01_manuscript/contents/${NC}results.tex"
-    echo -e "  ${GRAY}$PROJECT_ROOT/01_manuscript/contents/${NC}discussion.tex"
-    echo -e "  ${GRAY}$PROJECT_ROOT/01_manuscript/contents/figures/${NC}caption_and_media/"
-    echo -e "  ${GRAY}$PROJECT_ROOT/01_manuscript/contents/tables/${NC}caption_and_media/"
-    echo ""
-    echo -e "${BOLD_CYAN}━━━ Options ━━━${NC}"
-    echo "  -nf,  --no_figs       Skip figure processing (~4s faster)"
-    echo "  -nt,  --no_tables     Skip table processing (~4s faster)"
-    echo "  -nd,  --no_diff       Skip diff generation (~17s faster)"
-    echo "  -d,   --draft         Single-pass compilation (~5s faster)"
-    echo "  -dm,  --dark_mode     Dark mode: black background, white text"
-    echo "  -p2t, --ppt2tif       Convert PowerPoint to TIF (WSL)"
-    echo "  -c,   --crop_tif      Crop TIF whitespace"
-    echo "  -q,   --quiet         Minimal output"
-    echo "  --force               Force full recompilation"
-    echo "  --clew-overlay        Color \\vclaim values by clew provenance status"
-    echo "  -h,   --help          Show this help"
-    echo ""
-    echo -e "${GRAY}Note: Options accept both hyphens and underscores${NC}"
-    echo ""
-    echo -e "${BOLD_CYAN}━━━ Document Structure (base.tex) ━━━${NC}"
-    echo -e "  ${GRAY}$PROJECT_ROOT/01_manuscript/${NC}base.tex"
-    echo -e "  Controls section order via \\\\input{} commands:"
-    echo -e "    ${GRAY}% \\\\input{./01_manuscript/contents/${NC}highlights${GRAY}}${NC}  ${GRAY}# Commented out (optional)${NC}"
-    echo -e "    ${GRAY}\\\\input{./01_manuscript/contents/${NC}title${GRAY}}${NC}"
-    echo -e "    ${GRAY}\\\\input{./01_manuscript/contents/${NC}authors${GRAY}}${NC}"
-    echo -e "    ${GRAY}\\\\input{./01_manuscript/contents/${NC}abstract${GRAY}}${NC}"
-    echo -e "    ${GRAY}\\\\input{./01_manuscript/contents/${NC}keywords${GRAY}}${NC}"
-    echo -e "    ${GRAY}\\\\input{./01_manuscript/contents/${NC}introduction${GRAY}}${NC}"
-    echo -e "    ${GRAY}\\\\input{./01_manuscript/contents/${NC}methods${GRAY}}${NC}"
-    echo -e "    ${GRAY}\\\\input{./01_manuscript/contents/${NC}results${GRAY}}${NC}"
-    echo -e "    ${GRAY}\\\\input{./01_manuscript/contents/${NC}discussion${GRAY}}${NC}"
-    echo -e "  To add/remove sections: edit base.tex \\\\input{} lines"
-    echo -e "  Comment out with %% to disable a section"
-    echo ""
-    echo -e "${BOLD_CYAN}━━━ Adding Figures ━━━${NC}"
-    echo -e "  ${GREEN}Location:${NC} ${YELLOW}01_manuscript/contents/figures/caption_and_media/${NC}"
-    echo -e "  ${GREEN}Supported:${NC} PNG, JPEG, PDF, SVG, TIFF, Mermaid (.mmd)"
-    echo ""
-    echo -e "  ${GREEN}Naming Rule:${NC} Prefix with 2-digit number for ordering"
-    echo -e "    ${YELLOW}01_my_figure.png${NC}  ${GRAY}# Media file${NC}"
-    echo -e "    ${YELLOW}01_my_figure.tex${NC}  ${GRAY}# Caption file (same base name)${NC}"
-    echo ""
-    echo -e "  ${GREEN}Caption File Format:${NC}"
-    echo -e "    ${GRAY}%% Figure caption${NC}"
-    echo -e "    ${GRAY}\\\\caption{Your caption here.}${NC}"
-    echo -e "    ${GRAY}\\\\label{fig:my_figure_01}${NC}"
-    echo ""
-    echo -e "  ${GREEN}Citing in Text:${NC} Use ${YELLOW}\\\\ref{fig:my_figure_01}${NC} or ${YELLOW}Figure~\\\\ref{fig:my_figure_01}${NC}"
-    echo ""
-    echo -e "${BOLD_CYAN}━━━ Adding Tables ━━━${NC}"
-    echo -e "  ${GREEN}Location:${NC} ${YELLOW}01_manuscript/contents/tables/caption_and_media/${NC}"
-    echo -e "  ${GREEN}Format:${NC} CSV auto-converts to LaTeX table"
-    echo ""
-    echo -e "  ${GREEN}Naming Rule:${NC} Prefix with 2-digit number for ordering"
-    echo -e "    ${YELLOW}01_my_table.csv${NC}   ${GRAY}# Data file (CSV format)${NC}"
-    echo -e "    ${YELLOW}01_my_table.tex${NC}   ${GRAY}# Caption file (same base name)${NC}"
-    echo ""
-    echo -e "  ${GREEN}Caption File Format:${NC}"
-    echo -e "    ${GRAY}%% Table caption${NC}"
-    echo -e "    ${GRAY}\\\\caption{Your caption here.}${NC}"
-    echo -e "    ${GRAY}\\\\label{tab:my_table_01}${NC}"
-    echo ""
-    echo -e "  ${GREEN}Citing in Text:${NC} Use ${YELLOW}\\\\ref{tab:my_table_01}${NC} or ${YELLOW}Table~\\\\ref{tab:my_table_01}${NC}"
-    echo ""
-    echo -e "${BOLD_CYAN}━━━ Managing Bibliography ━━━${NC}"
-    echo -e "  Place .bib files in: ${YELLOW}$PROJECT_ROOT/00_shared/bib_files/${NC}"
-    echo -e "  Multiple .bib files auto-merge with deduplication"
-    echo -e "  Citation style: ${YELLOW}$PROJECT_ROOT/config/config_manuscript.yaml${NC}"
-    echo -e "  Styles: ${GREEN}unsrtnat${NC}, ${GREEN}plainnat${NC}, ${GREEN}apalike${NC}, ${GREEN}IEEEtran${NC}, ${GREEN}naturemag${NC}"
-    echo ""
-    exit 0
-}
+# --help text lives in modules/usage_manuscript.sh (defines usage()).
+# shellcheck source=/dev/null
+source "$PROJECT_ROOT/scripts/shell/modules/usage_manuscript.sh"
 
 parse_arguments() {
     while [[ "$#" -gt 0 ]]; do
@@ -420,12 +324,23 @@ main() {
     echo_info "$(get_engine_info "$SELECTED_ENGINE")"
     log_stage_end "Engine Selection"
 
-    # TeX to PDF. FAIL LOUD: the module returns non-zero when manuscript.pdf was
-    # not (re)created (engine failure, or a pdfTeX Fatal error that produced no
-    # PDF). Propagate that — never exit 0 with only a printed ERRO, or callers
-    # (and humans) treat a stale/absent PDF as a fresh success.
+    # TeX to PDF. Three outcomes, three behaviours:
+    #   0 -> clean.
+    #   3 -> a VALID PDF (pages > 0) was produced and promoted, but the engine
+    #        exited non-zero — typically a non-fatal bibtex error on a stub entry
+    #        (latexmk exit 12). Discarding a good manuscript over a warning-grade
+    #        bib problem is worse than shipping it with a warning, so KEEP GOING —
+    #        but remember: the banner says WITH WARNINGS and this script exits 3.
+    #   * -> FAIL LOUD: the PDF was NOT (re)created (engine failure, or a pdfTeX
+    #        Fatal error that produced NO PDF). Never exit 0 with only a printed
+    #        ERRO, or callers treat a stale/absent PDF as a fresh success.
     log_stage_start "PDF Generation"
-    if ! "$PROJECT_ROOT/scripts/shell/modules/compilation_compiled_tex_to_compiled_pdf.sh"; then
+    pdf_status=0
+    "$PROJECT_ROOT/scripts/shell/modules/compilation_compiled_tex_to_compiled_pdf.sh" || pdf_status=$?
+    if [ "$pdf_status" -eq 3 ]; then
+        compile_warned=true
+        log_warning "PDF was produced and promoted, but the engine exited non-zero (above)."
+    elif [ "$pdf_status" -ne 0 ]; then
         log_error "PDF generation failed — manuscript.pdf was not (re)created. Aborting."
         exit 1
     fi
@@ -492,16 +407,30 @@ main() {
     "$PROJECT_ROOT/scripts/shell/modules/custom_tree.sh"
     log_stage_end "Directory Tree"
 
-    # Final summary
+    # Final summary. A run that promoted a PDF despite a non-zero engine exit is
+    # NOT a clean pass: it gets a yellow WITH WARNINGS banner and exit 3, so the
+    # difference is visible to a human AND to a caller reading $?.
     echo ""
     local final_time
     final_time=$(date +%s)
     local total_compilation_time=$((final_time - COMPILATION_START_TIME))
-    echo -e "\033[1;32m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\033[0m"
-    echo -e "\033[1;32m  Compilation Complete\033[0m"
+    if [ "$compile_warned" = true ]; then
+        echo -e "\033[1;33m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\033[0m"
+        echo -e "\033[1;33m  Compilation Complete — WITH WARNINGS\033[0m"
+        echo -e "\033[0;33m  The PDF is usable but the engine reported an error\033[0m"
+        echo -e "\033[0;33m  (usually a bibtex stub/duplicate entry). FIX BEFORE SUBMISSION.\033[0m"
+    else
+        echo -e "\033[1;32m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\033[0m"
+        echo -e "\033[1;32m  Compilation Complete\033[0m"
+    fi
     echo -e "\033[0;32m  Total time: ${total_compilation_time}s\033[0m"
     echo -e "\033[0;32m  Output: $SCITEX_WRITER_COMPILED_PDF\033[0m"
     echo -e "\033[0;90m  Log: $SCITEX_WRITER_GLOBAL_LOG_FILE\033[0m"
+    if [ "$compile_warned" = true ]; then
+        echo -e "\033[1;33m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\033[0m"
+        echo ""
+        return 3
+    fi
     echo -e "\033[1;32m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\033[0m"
     echo ""
 }

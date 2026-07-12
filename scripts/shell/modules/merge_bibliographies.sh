@@ -26,26 +26,31 @@ BIB_DIR="./00_shared/bib_files"
 BIB_OUTPUT="bibliography.bib"
 MERGE_SCRIPT="./scripts/python/merge_bibliographies.py"
 
-# Count .bib files excluding the output file
-bib_file_count=$(find "$BIB_DIR" -maxdepth 1 -name "*.bib" ! -name "$BIB_OUTPUT" -type f 2>/dev/null | wc -l)
+# Count EVERY .bib file, the output included. The merge used to be skipped when
+# bibliography.bib was the only one -- but a repeated cite key INSIDE it (e.g.
+# scholar appended a stub for a key the author already had) is exactly what makes
+# bibtex emit "Repeated entry ... I'm skipping whatever remains of this entry",
+# drop the reference, and exit non-zero. Skipping the merge in that case is what
+# let the duplicate reach bibtex at all, so: if there is any .bib, de-duplicate it.
+bib_file_count=$(find "$BIB_DIR" -maxdepth 1 -name "*.bib" -type f 2>/dev/null | wc -l)
 
 if [ "$bib_file_count" -gt 0 ]; then
-    # Multiple .bib files exist - merge them
     if [ -f "$MERGE_SCRIPT" ]; then
-        python3 "$MERGE_SCRIPT" "$BIB_DIR" -o "$BIB_OUTPUT" -q
+        # --include-output: bibliography.bib is CONSUMER-OWNED (the manuscript
+        # cites it via the contents/ symlink), so it is merged as an INPUT.
+        # Without this the merge regenerates it from the OTHER .bib files only
+        # and silently destroys every entry that lived just in bibliography.bib.
+        python3 "$MERGE_SCRIPT" "$BIB_DIR" -o "$BIB_OUTPUT" --include-output -q
     else
-        echo_warning "Multiple .bib files found but merge script missing: $MERGE_SCRIPT"
+        echo_warning "Bibliography files found but merge script missing: $MERGE_SCRIPT"
         echo_warning "Skipping bibliography merge"
     fi
-elif [ "$bib_file_count" -eq 0 ]; then
-    # No separate .bib files, check if main bibliography.bib exists
-    if [ ! -f "$BIB_DIR/$BIB_OUTPUT" ]; then
-        echo_warning "No bibliography files found in $BIB_DIR"
-        echo_warning "→ Fix: place a \`bibliography.bib\` in \`$BIB_DIR\`,"
-        echo_warning "       or drop multiple \`*.bib\` files in that directory to be auto-merged."
-        echo_warning "→ Why: without a bib file, \\cite{...} keys in the manuscript cannot resolve"
-        echo_warning "       and scitex-scholar cannot run verification."
-    fi
+else
+    echo_warning "No bibliography files found in $BIB_DIR"
+    echo_warning "→ Fix: place a \`bibliography.bib\` in \`$BIB_DIR\`,"
+    echo_warning "       or drop multiple \`*.bib\` files in that directory to be auto-merged."
+    echo_warning "→ Why: without a bib file, \\cite{...} keys in the manuscript cannot resolve"
+    echo_warning "       and scitex-scholar cannot run verification."
 fi
 
 # ============================================================================
