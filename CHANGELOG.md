@@ -5,6 +5,15 @@ All notable changes to SciTeX Writer will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Fixed
+- **A non-fatal bibtex error no longer destroys a perfectly good PDF.** One auto-generated scholar stub entry duplicated across two `.bib` files made bibtex report `Repeated entry`, `latexmk` exit 12 — and the compile script then ABORTED and DELETED a valid, complete 25-page manuscript PDF. The PDF stage now distinguishes the two things a non-zero engine exit can mean: **produced a PDF** (pdfTeX wrote `Output written on ... (N pages)` and the file exists with pages > 0) is PROMOTED to the output location with a loud warning; **produced nothing** (no PDF, or a zero-page husk) still FAILS LOUD exactly as before. A promoted-but-warned run is **not** reported as a clean pass: the compile scripts print a yellow `Compilation Complete — WITH WARNINGS` banner and exit **3** (a new, distinct code), and `run_compile()` returns `success=True, exit_code=3` with the warning at the head of `warnings[]` — after independently re-verifying pages > 0 in Python, so a shell claiming exit 3 without an artifact can never become a silent success.
+
+- **Duplicate cite keys are de-duplicated before bibtex ever sees them.** `merge_bibliographies` now (a) runs even when `bibliography.bib` is the only `.bib` file — it used to be skipped entirely in that case, so a duplicate key *inside* it went straight to bibtex — and (b) merges `bibliography.bib` as an INPUT (`--include-output`) instead of regenerating it from the other `.bib` files, which silently DESTROYED every entry that lived only in `bibliography.bib`. Precedence is explicit: **a real entry beats a stub.** A stub is identified by scholar's own stamps (`note` = `Auto-generated stub`, `journal` = `Pending scitex-scholar metadata lookup`), imported from `check_citations.py` so there is one definition, not two. The real entry is the base; the stub may only fill fields the real entry lacks and never donates its stamps (previously "longest value wins" let a stub's 39-character `Pending ...` journal overwrite a real `Nature`). Two stubs merge normally and stay stamped, so the citation gate still catches them.
+
+- **The bibliography merge test suite was silently skipping — all 55 tests.** `ROOT_DIR` was off by one (`tests/`, not the repo root), so `scripts/python` never landed on `sys.path`, the import raised `ImportError`, and a bare `except ImportError` turned the whole file into a skip. It is now imported at module scope: a real breakage FAILS instead of skipping.
+
 ## [2.29.0] - 2026-07-12
 
 ### Added

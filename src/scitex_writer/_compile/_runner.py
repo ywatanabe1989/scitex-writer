@@ -10,10 +10,7 @@ Executes LaTeX compilation scripts and captures results.
 
 from __future__ import annotations
 
-import fcntl
 import os
-import subprocess
-import time
 from datetime import datetime
 from logging import getLogger
 from pathlib import Path
@@ -21,10 +18,41 @@ from typing import Callable, Optional
 
 from .._dataclasses import CompilationResult
 from .._dataclasses.config import DOC_TYPE_DIRS
+from .._utils._pdf_pages import produced_page_count
+from ._execute import _execute_with_callbacks, _run_sh_command
 from ._parser import parse_output
 from ._validator import validate_before_compile
 
 logger = getLogger(__name__)
+
+EXIT_PROMOTED_WITH_WARNINGS = 3
+"""The compile scripts' exit code for "a valid PDF was produced and promoted,
+but the engine exited non-zero" -- in practice a non-fatal bibtex error on a
+stub/duplicate bib entry, which makes latexmk exit 12 even though pdfTeX
+finalized a complete PDF. Set by
+modules/compilation_compiled_tex_to_compiled_pdf.sh and propagated by
+compile_{manuscript,supplementary,revision}.sh.
+
+It is a DISTINCT code, not 0, precisely so the state stays distinguishable from
+a clean compile: the PDF is kept (destroying a usable manuscript over a
+warning-grade bib problem is the bug being fixed here), but no one -- human or
+caller -- is told the run was clean."""
+
+_PROMOTED_WARNING = (
+    "PDF PROMOTED despite a non-zero engine exit: the document compiled to "
+    "{pages} page(s), but the engine reported an error -- usually a non-fatal "
+    "bibtex problem such as a stub or duplicate bib entry. The PDF is usable; "
+    "FIX THE BIBLIOGRAPHY BEFORE SUBMISSION (see the .log / .blg)."
+)
+
+
+def _doc_latex_log(project_dir: Path, doc_type: str) -> Path:
+    """The document's OWN LaTeX log -- where pdfTeX writes "Output written on".
+
+    Deliberately not `_find_output_files`'s "newest *.log", which can be the
+    tee'd global.log rather than the document's own log.
+    """
+    return project_dir / DOC_TYPE_DIRS[doc_type] / "logs" / f"{doc_type}.log"
 
 
 def _get_compile_script(project_dir: Path, doc_type: str) -> Path:
@@ -91,176 +119,6 @@ def _find_output_files(
             log_file = max(log_files, key=lambda p: p.stat().st_mtime)
 
     return output_pdf, diff_pdf, log_file
-
-
-def _execute_with_callbacks(
-    command: list,
-    cwd: Path,
-    timeout: int,
-    log_callback: Optional[Callable[[str], None]] = None,
-) -> dict:
-    """
-    Execute command with line-by-line output capture and callbacks.
-
-    Parameters
-    ----------
-    command : list
-        Command to execute as list
-    cwd : Path
-        Working directory
-    timeout : int
-        Timeout in seconds
-    log_callback : Optional[Callable[[str], None]]
-        Called with each output line
-
-    Returns
-    -------
-    dict
-        Dict with stdout, stderr, exit_code, success
-    """
-    # Set environment for unbuffered output
-    env = os.environ.copy()
-    env["PYTHONUNBUFFERED"] = "1"
-
-    process = subprocess.Popen(
-        command,
-        shell=False,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        bufsize=0,  # Unbuffered
-        cwd=str(cwd),
-        env=env,
-    )
-
-    stdout_lines = []
-    stderr_lines = []
-    start_time = time.time()
-
-    # Make file descriptors non-blocking
-    def make_non_blocking(fd):
-        flags = fcntl.fcntl(fd, fcntl.F_GETFL)
-        fcntl.fcntl(fd, fcntl.F_SETFL, flags | os.O_NONBLOCK)
-
-    make_non_blocking(process.stdout)
-    make_non_blocking(process.stderr)
-
-    stdout_buffer = b""
-    stderr_buffer = b""
-
-    try:
-        while True:
-            # Check timeout
-            if timeout and (time.time() - start_time) > timeout:
-                process.kill()
-                timeout_msg = f"[ERROR] Command timed out after {timeout} seconds"
-                if log_callback:
-                    log_callback(timeout_msg)
-                stderr_lines.append(timeout_msg)
-                break
-
-            # Check if process has finished
-            poll_result = process.poll()
-
-            # Read from stdout
-            try:
-                chunk = process.stdout.read()
-                if chunk:
-                    stdout_buffer += chunk
-                    # Process complete lines
-                    while b"\n" in stdout_buffer:
-                        line, stdout_buffer = stdout_buffer.split(b"\n", 1)
-                        line_str = line.decode("utf-8", errors="replace")
-                        stdout_lines.append(line_str)
-                        if log_callback:
-                            log_callback(line_str)
-            except (IOError, BlockingIOError):
-                pass
-
-            # Read from stderr
-            try:
-                chunk = process.stderr.read()
-                if chunk:
-                    stderr_buffer += chunk
-                    # Process complete lines
-                    while b"\n" in stderr_buffer:
-                        line, stderr_buffer = stderr_buffer.split(b"\n", 1)
-                        line_str = line.decode("utf-8", errors="replace")
-                        stderr_lines.append(line_str)
-                        if log_callback:
-                            log_callback(f"[STDERR] {line_str}")
-            except (IOError, BlockingIOError):
-                pass
-
-            # If process finished, do final read and break
-            if poll_result is not None:
-                # Process remaining buffer content
-                if stdout_buffer:
-                    line_str = stdout_buffer.decode("utf-8", errors="replace")
-                    stdout_lines.append(line_str)
-                    if log_callback:
-                        log_callback(line_str)
-
-                if stderr_buffer:
-                    line_str = stderr_buffer.decode("utf-8", errors="replace")
-                    stderr_lines.append(line_str)
-                    if log_callback:
-                        log_callback(f"[STDERR] {line_str}")
-
-                break
-
-            # Small sleep to prevent CPU spinning
-            time.sleep(0.05)
-
-    except Exception:
-        process.kill()
-        raise
-
-    return {
-        "stdout": "\n".join(stdout_lines),
-        "stderr": "\n".join(stderr_lines),
-        "exit_code": process.returncode,
-        "success": process.returncode == 0,
-    }
-
-
-def _run_sh_command(
-    cmd: list,
-    verbose: bool = True,
-    timeout: int = 300,
-    stream_output: bool = True,
-) -> dict:
-    """
-    Run shell command and return result dictionary.
-
-    Replaces scitex.sh.sh() dependency.
-    """
-    try:
-        result = subprocess.run(
-            cmd,
-            capture_output=True,
-            text=True,
-            timeout=timeout,
-        )
-        return {
-            "stdout": result.stdout,
-            "stderr": result.stderr,
-            "exit_code": result.returncode,
-            "success": result.returncode == 0,
-        }
-    except subprocess.TimeoutExpired:
-        return {
-            "stdout": "",
-            "stderr": f"Command timed out after {timeout} seconds",
-            "exit_code": -1,
-            "success": False,
-        }
-    except Exception as e:
-        return {
-            "stdout": "",
-            "stderr": str(e),
-            "exit_code": -1,
-            "success": False,
-        }
 
 
 def run_compile(
@@ -445,10 +303,12 @@ def run_compile(
         finally:
             os.chdir(cwd_original)
 
-        # Find output files
-        if result.returncode == 0:
-            progress(90, "Compilation successful, locating output files...")
-            log("[INFO] Compilation succeeded, checking output files...")
+        # Find output files. Exit 3 means the script PRODUCED and promoted a PDF
+        # and told us so; its artifacts must be located exactly as on exit 0 --
+        # blanking them out is what USED to throw away a perfectly good PDF.
+        promoted = result.returncode == EXIT_PROMOTED_WITH_WARNINGS
+        if result.returncode == 0 or promoted:
+            progress(90, "Compilation finished, locating output files...")
             output_pdf, diff_pdf, log_file = _find_output_files(project_dir, doc_type)
             if output_pdf:
                 log(f"[SUCCESS] PDF generated: {output_pdf}")
@@ -460,8 +320,33 @@ def run_compile(
         progress(95, "Parsing compilation logs...")
         errors, warnings = parse_output(result.stdout, result.stderr, log_file=log_file)
 
+        # A promoted run is a success ONLY if a real PDF with pages > 0 exists.
+        # We re-derive that here rather than trusting the exit code, so a shell
+        # that claims 3 without an artifact can never become a silent success:
+        # no PDF (or a zero-page husk) still FAILS, exactly like any other
+        # non-zero exit. This is the "produced a PDF" vs "produced nothing" line.
+        success = result.returncode == 0
+        if promoted:
+            pages = (
+                produced_page_count(output_pdf, _doc_latex_log(project_dir, doc_type))
+                if output_pdf
+                else 0
+            )
+            if pages > 0:
+                success = True
+                warnings.insert(0, _PROMOTED_WARNING.format(pages=pages))
+                log(f"[WARNING] {_PROMOTED_WARNING.format(pages=pages)}")
+            else:
+                output_pdf = None
+                errors.insert(
+                    0,
+                    "Compile reported a promoted PDF (exit 3) but no PDF with "
+                    "pages > 0 exists. Treating as a FAILURE.",
+                )
+                log(f"[ERROR] {errors[0]}")
+
         compilation_result = CompilationResult(
-            success=(result.returncode == 0),
+            success=success,
             exit_code=result.returncode,
             stdout=result.stdout,
             stderr=result.stderr,
@@ -471,10 +356,16 @@ def run_compile(
             duration=duration,
             errors=errors,
             warnings=warnings,
+            message=(
+                f"Compiled WITH WARNINGS (exit {result.returncode}): "
+                "a PDF was produced but the engine reported an error"
+                if (promoted and success)
+                else None
+            ),
         )
 
         if compilation_result.success:
-            progress(100, "Complete!")
+            progress(100, "Complete with warnings!" if promoted else "Complete!")
             log(f"[SUCCESS] Compilation succeeded in {duration:.2f}s")
         else:
             progress(100, "Compilation failed")
