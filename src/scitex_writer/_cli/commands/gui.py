@@ -50,19 +50,30 @@ def _port_is_free(host: str, port: int) -> bool:
     return True
 
 
-def _port_holder(port: int) -> str | None:
-    """Best-effort description of the process listening on ``port``."""
-    try:
-        proc = subprocess.run(
-            ["ss", "-ltnp"], capture_output=True, text=True, timeout=3
-        )
-    except (OSError, subprocess.SubprocessError):
-        return None
-    for line in proc.stdout.splitlines():
-        if f":{port} " in line:
-            _, _, users = line.partition("users:")
-            return (users.strip() or line.strip()) or None
-    return None
+def _port_taken_message(host: str, port: int) -> str:
+    """Explain who holds ``port`` and give paste-ready commands to fix it.
+
+    This path means the port is held by something we do NOT track — an
+    orphaned editor, or an unrelated process. `--force` only stops the editor
+    recorded in our own runtime state, so it is deliberately NOT offered here:
+    a hint that does not work is worse than no hint.
+    """
+    holder = _gui_runtime.port_holder(port)
+    lines = [f"Error: port {port} is already in use on {host}."]
+    if holder and holder.get("pid"):
+        lines.append(f"Held by: {holder['name']} (pid {holder['pid']})")
+    elif holder:
+        lines.append("Held by: a process owned by another user.")
+    else:
+        lines.append("Held by: unknown (the listening process could not be read).")
+
+    lines += ["", "Fix it with one of:"]
+    lines.append(
+        f"  scitex-writer gui serve --port {port + 1}   # serve on a free port"
+    )
+    if holder and holder.get("pid"):
+        lines.append(f"  kill {holder['pid']}{' ' * 26}# stop it, then serve again")
+    return "\n".join(lines)
 
 
 @main_group.group("gui")
@@ -84,18 +95,27 @@ def gui_group():
     help=f"Server port (default: {DEFAULT_PORT}).",
 )
 @click.option("--host", default="127.0.0.1", help="Host to bind (default: 127.0.0.1).")
+@click.option(
+    "--force",
+    is_flag=True,
+    default=False,
+    help="Stop a previous editor holding the port, then serve.",
+)
 @click.option("--dry-run", is_flag=True, default=False, help="Print, don't launch.")
 @click.option("--json", "as_json", is_flag=True, default=False, help="Emit JSON.")
-def gui_serve(project, port, host, dry_run, as_json):
+def gui_serve(project, port, host, force, dry_run, as_json):
     """Run the editor server in the foreground (Ctrl-C to stop).
 
     Binds exactly the requested port, and refuses to start when that port is
-    taken or when an editor server is already running.
+    taken or when an editor server is already running. `--force` stops a
+    previous editor of ours and takes the port back; it never kills a process
+    that is not ours.
 
     \b
     Example:
         $ scitex-writer gui serve
         $ scitex-writer gui serve ~/proj/my-paper --port 31299
+        $ scitex-writer gui serve --force
     """
     project_path = _resolve_project(project)
     if project_path is None:
@@ -108,22 +128,21 @@ def gui_serve(project, port, host, dry_run, as_json):
         return 0
     current = _gui_runtime.status()
     if current.get("running"):
-        click.echo(
-            f"Error: editor already running at {current['url']} "
-            f"(pid {current['pid']}).\n"
-            "Open that URL, or stop it first: scitex-writer gui stop -y",
-            err=True,
-        )
-        return 1
+        if not force:
+            click.echo(
+                f"Error: editor already running at {current['url']} "
+                f"(pid {current['pid']}).\n"
+                "\nFix it with one of:\n"
+                f"  open {current['url']}\n"
+                "  scitex-writer gui stop -y             # stop it\n"
+                "  scitex-writer gui serve --force       # stop it and serve here",
+                err=True,
+            )
+            return 1
+        click.echo(f"Stopping the editor at {current['url']} (pid {current['pid']}).")
+        _gui_runtime.stop()
     if not _port_is_free(host, port):
-        holder = _port_holder(port)
-        held_by = f"\nHeld by: {holder}" if holder else ""
-        click.echo(
-            f"Error: port {port} is already in use on {host}.{held_by}\n"
-            "Rerun on another port (--port <other>), free the port, or stop a "
-            "stray editor: scitex-writer gui stop -y",
-            err=True,
-        )
+        click.echo(_port_taken_message(host, port), err=True)
         return 1
     try:
         from ..._django._server import run as _run_editor

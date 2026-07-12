@@ -5,6 +5,7 @@
 """Tests for the GUI runtime-state module (state file, pid checks, stop)."""
 
 import os
+import socket
 import subprocess
 import sys
 
@@ -154,3 +155,51 @@ def test_stop_clears_state_file(state_file):
     child.wait(timeout=5)
     # Assert
     assert not state_file.exists()
+
+
+# =========================================================================
+# port_holder — reads /proc, so the "who has my port" hint survives in a
+# container with no `ss` and no `lsof` (the old shell-out silently returned
+# nothing there, which is exactly where the operator needs the hint most).
+# =========================================================================
+
+
+@pytest.fixture
+def listening_socket():
+    """A real LISTEN socket on an OS-assigned port, held by THIS process."""
+    sock = socket.socket()
+    sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    sock.bind(("127.0.0.1", 0))
+    sock.listen(1)
+    yield sock
+    sock.close()
+
+
+def test_port_holder_finds_our_own_listening_pid(listening_socket):
+    # Arrange
+    port = listening_socket.getsockname()[1]
+    # Act
+    holder = _gui_runtime.port_holder(port)
+    # Assert
+    assert holder["pid"] == os.getpid()
+
+
+def test_port_holder_reports_the_process_name(listening_socket):
+    # Arrange
+    port = listening_socket.getsockname()[1]
+    # Act
+    holder = _gui_runtime.port_holder(port)
+    # Assert
+    assert holder["name"]
+
+
+def test_port_holder_returns_none_when_port_is_free():
+    # Arrange
+    probe = socket.socket()
+    probe.bind(("127.0.0.1", 0))
+    free_port = probe.getsockname()[1]
+    probe.close()
+    # Act
+    holder = _gui_runtime.port_holder(free_port)
+    # Assert
+    assert holder is None
