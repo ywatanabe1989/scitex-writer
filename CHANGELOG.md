@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.30.1] - 2026-07-13
+
+Follow-up to 2.30.0, from the operator using it: when the port collides, the error should tell you what to type.
+
+### Added
+- **`gui serve --force`** stops a previous editor **of ours** and takes the port back. It deliberately does **not** kill a process it does not own — that could be the operator's database — so for a foreign holder it prints the `kill` command and lets a human decide. For the same reason `--force` is not offered as a remedy when the holder is foreign: it would not work there, and a hint that does not work is the bug being fixed.
+
+### Fixed
+- **The "Held by:" hint silently disappeared in exactly the environment that needs it.** It shelled out to `ss`, which is not installed in a minimal container — so a port collision printed a bare "port in use" with nothing to act on, and the tool looked like it simply had nothing to say. `_gui_runtime.port_holder()` now reads `/proc/net/tcp` and `/proc/<pid>/fd` directly: no external tool, and it reports only processes the caller can actually see (an inode it cannot map to a pid is reported as another user's process rather than guessed at).
+
+- **The remedies were prose, not commands.** Both refusals now print paste-ready lines — the port to retry on, and `kill <pid>` naming the actual holder — instead of describing what you might do.
+
 ## [2.30.0] - 2026-07-13
 
 A sweep of one bug family: **a degraded outcome presented as a success.** A broken bibliography that still produced a PDF exited 0 under a green banner; a taken port slid quietly to the next one; a broken Django app downgraded the editor to a shell-less server without saying so. Each now either succeeds honestly or fails loud.
