@@ -5,6 +5,7 @@
 from ._CitationStyleResult import CitationStyleResult
 from ._CleanupResult import CleanupResult
 from ._CompilationResult import CompilationResult
+from ._FiguresResult import FiguresResult
 from ._LaTeXIssue import LaTeXIssue
 from ._SaveSectionsResponse import SaveSectionsResponse
 from ._SectionReadResponse import SectionReadResponse
@@ -15,6 +16,7 @@ __all__ = [
     "CitationStyleResult",
     "CleanupResult",
     "CompilationResult",
+    "FiguresResult",
     "LaTeXIssue",
     "SaveSectionsResponse",
     "SectionReadResponse",
