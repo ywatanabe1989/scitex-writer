@@ -28,6 +28,7 @@ def tables_group(ctx):
     Example:
         $ scitex-writer tables list
         $ scitex-writer tables add results data.csv "Results summary"
+        $ scitex-writer tables render
         $ scitex-writer tables archive results
     """
     if ctx.invoked_subcommand is None:
@@ -106,6 +107,49 @@ def tables_add(name, csv_src, caption, label, project, doc_type, dry_run, yes, a
     click.echo(f"  CSV:     {result['csv_path']}")
     click.echo(f"  Caption: {result['caption_path']}")
     click.echo(f"  Label:   {result['label']}")
+    return 0
+
+
+@tables_group.command("render")
+@click.option("-p", "--project", default=".", help="Project path.")
+@click.option("-t", "--doc-type", type=_DOC_TYPE, default="manuscript")
+@click.option(
+    "--no-tables", is_flag=True, default=False, help="Skip all table processing."
+)
+@click.option("--json", "as_json", is_flag=True, default=False, help="Emit JSON.")
+def tables_render(project, doc_type, no_tables, as_json):
+    """Render every CSV table to LaTeX and gather them into FINAL.tex.
+
+    The pure-Python table engine (port of process_tables.sh): refreshes CSVs from
+    newer Excel sources, writes a default caption where none exists, renders each
+    NN_*.csv through the single pandas backend, and gathers the results. With no
+    tables it emits a comment-only fallback header (never a placeholder float).
+
+    \b
+    Example:
+        $ scitex-writer tables render
+        $ scitex-writer tables render -t supplementary --json
+    """
+    from ... import tables
+
+    result = tables.render(project, doc_type, no_tables)
+    if as_json:
+        _emit_json(result)
+        return 0 if result.get("success") else 1
+    if not result.get("success"):
+        click.echo(f"Error: {result['error']}", err=True)
+        return 1
+    if result["skipped"]:
+        click.echo("Skipped all table processing (--no-tables).")
+        return 0
+    if result["fallback_header"]:
+        click.echo("No tables found: emitted comment-only fallback header.")
+        return 0
+    click.echo(
+        f"Compiled {result['tables_compiled']} tables "
+        f"(captions_created={result['captions_created']}, "
+        f"xlsx_converted={result['xlsx_converted']}) -> {result['compiled_file']}"
+    )
     return 0
 
 

@@ -11,11 +11,30 @@ from fastmcp import FastMCP
 
 from ..handlers import csv_to_latex as _csv_to_latex
 from ..handlers import latex_to_csv as _latex_to_csv
+from ..handlers._tables_pipeline import process as _process
 from ..utils import resolve_project_path
 
 
 def register_tools(mcp: FastMCP) -> None:
     """Register table tools."""
+
+    @mcp.tool()
+    def writer_tables_render(
+        project_dir: str,
+        doc_type: Literal["manuscript", "supplementary", "revision"] = "manuscript",
+        no_tables: bool = False,
+    ) -> dict:
+        """Run the table pipeline: CSV/XLSX -> LaTeX tables -> gathered FINAL.tex.
+
+        Refreshes CSVs from newer Excel sources, writes a default caption for any
+        table lacking one, renders every NN_*.csv through the single pandas
+        backend (whole-cell verbatim passthrough for cells carrying $ or \\), and
+        gathers the results. With no tables it emits a comment-only fallback
+        header -- never a placeholder float. no_tables=True skips everything.
+        Returns {success, tables_compiled, captions_created, xlsx_converted,
+        tables, compiled_file, fallback_header, skipped, error}.
+        """
+        return _process(project_dir, doc_type, no_tables)
 
     @mcp.tool()
     def writer_tables_csv_to_latex(

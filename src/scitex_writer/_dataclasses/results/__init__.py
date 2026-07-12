@@ -8,6 +8,7 @@ from ._CompilationResult import CompilationResult
 from ._LaTeXIssue import LaTeXIssue
 from ._SaveSectionsResponse import SaveSectionsResponse
 from ._SectionReadResponse import SectionReadResponse
+from ._TablesResult import TablesResult
 from ._WordCountResult import WordCountResult
 
 __all__ = [
@@ -17,6 +18,7 @@ __all__ = [
     "LaTeXIssue",
     "SaveSectionsResponse",
     "SectionReadResponse",
+    "TablesResult",
     "WordCountResult",
 ]
 

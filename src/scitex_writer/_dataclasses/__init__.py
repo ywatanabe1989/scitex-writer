@@ -20,6 +20,7 @@ from .results import (
     CleanupResult,
     CompilationResult,
     LaTeXIssue,
+    TablesResult,
     WordCountResult,
 )
 
@@ -47,6 +48,7 @@ __all__ = [
     "CompilationResult",
     "WriterConfig",
     "LaTeXIssue",
+    "TablesResult",
     "WordCountResult",
     # Tree structures
     "ConfigTree",
