@@ -9,13 +9,13 @@
 #   docker build -f scripts/containers/Dockerfile.gui -t scitex-writer-gui .
 #
 # Run (mount your project directory):
-#   docker run --rm -p 5050:5050 -v $(pwd):/workspace scitex-writer-gui
+#   docker run --rm -p 31298:31298 -v $(pwd):/workspace scitex-writer-gui
 #
 # Run with custom port:
 #   docker run --rm -p 8080:8080 -v $(pwd):/workspace scitex-writer-gui --port 8080
 #
 # Run without auto-opening browser:
-#   docker run --rm -p 5050:5050 -v $(pwd):/workspace scitex-writer-gui --no-browser
+#   docker run --rm -p 31298:31298 -v $(pwd):/workspace scitex-writer-gui --no-browser
 
 FROM ubuntu:24.04
 
@@ -60,11 +60,11 @@ RUN pip3 install --no-cache-dir --break-system-packages \
 WORKDIR /workspace
 
 # Expose default port
-EXPOSE 5050
+EXPOSE 31298
 
 # Health check via Flask ping endpoint
 HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=2 \
-    CMD python3 -c "import urllib.request; urllib.request.urlopen('http://127.0.0.1:5050/ping')" || exit 1
+    CMD python3 -c "import urllib.request; urllib.request.urlopen('http://127.0.0.1:31298/ping')" || exit 1
 
 # Launch GUI editor, bind to 0.0.0.0 for Docker networking
 ENTRYPOINT ["scitex-writer", "gui", "--host", "0.0.0.0", "--no-browser", "/workspace"]
