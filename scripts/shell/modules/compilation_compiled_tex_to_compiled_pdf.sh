@@ -123,8 +123,17 @@ pdf_produced_pagecount() {
     echo "${pages:-0}"
 }
 
+# Exit code for "a PDF WAS produced, but the engine exited non-zero". It is
+# deliberately NOT 0: the artifact is usable and must be kept, but the run is not
+# clean and every caller -- human or machine -- has to be able to tell the two
+# apart. compile_{manuscript,supplementary,revision}.sh keep going on a 3, finish
+# the pipeline, and exit 3 themselves; scitex_writer._compile._runner maps it to
+# success=True + a loud warning after re-verifying pages>0 in Python.
+EXIT_PROMOTED_WITH_WARNINGS=3
+
 cleanup() {
     local compile_result=${1:-1}
+    local promoted_with_warnings=false
 
     # Use fallback if SCITEX_WRITER_COMPILED_PDF is not set or empty
     local pdf_file="${SCITEX_WRITER_COMPILED_PDF}"
@@ -164,7 +173,10 @@ cleanup() {
             echo_warning "    Engine exited non-zero (code: $compile_result) but a valid PDF was produced (${produced_pages} pages)."
             echo_warning "    Promoting $pdf_file anyway — this is usually a non-fatal bib/citation warning (e.g. a stub entry)."
             echo_warning "    → Fix before submission: inspect ${LOG_DIR}/${pdf_basename%.pdf}.{log,blg} for the offending entry."
-            # Fall through to the promotion/symlink path below.
+            # Fall through to the promotion/symlink path below, but REMEMBER that
+            # this run was not clean: cleanup() returns 3, never 0, so the compile
+            # cannot be reported as a clean pass.
+            promoted_with_warnings=true
         else
             echo_error "    PDF compilation failed (exit code: $compile_result)"
             # Remove stale PDF from previous compilation to avoid false positive
@@ -230,6 +242,11 @@ cleanup() {
         # Note: For rsync, use -L flag to follow symlinks: rsync -avL ...
 
         sleep 1
+
+        if [ "$promoted_with_warnings" = true ]; then
+            return "$EXIT_PROMOTED_WITH_WARNINGS"
+        fi
+        return 0
     else
         echo_error "    $pdf_file was not created despite successful compilation"
         return 1

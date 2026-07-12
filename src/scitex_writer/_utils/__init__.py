@@ -8,6 +8,7 @@ from ._csv_latex import csv2latex, latex2csv
 from ._figures import convert_figure, list_figures
 from ._mermaid_precheck import MermaidDependencyError, check_mmdc_or_raise
 from ._pdf_images import pdf_thumbnail, pdf_to_images
+from ._pdf_pages import pages_from_latex_log, pages_in_pdf, produced_page_count
 from ._verify_tree_structure import verify_tree_structure
 
 __all__ = [
@@ -17,8 +18,11 @@ __all__ = [
     "csv2latex",
     "latex2csv",
     "list_figures",
+    "pages_from_latex_log",
+    "pages_in_pdf",
     "pdf_to_images",
     "pdf_thumbnail",
+    "produced_page_count",
     "verify_tree_structure",
 ]
 
