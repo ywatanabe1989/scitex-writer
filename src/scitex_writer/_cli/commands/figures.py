@@ -11,7 +11,7 @@ from pathlib import Path
 import click
 
 from .._core import main_group
-from .._helpers import _DOC_TYPE_RW, _emit_json
+from .._helpers import _DOC_TYPE, _DOC_TYPE_RW, _emit_json
 
 # =========================================================================
 # figures group
@@ -108,6 +108,59 @@ def figures_add(name, image, caption, label, project, doc_type, dry_run, yes, as
     click.echo(f"  Image:   {result['image_path']}")
     click.echo(f"  Caption: {result['caption_path']}")
     click.echo(f"  Label:   {result['label']}")
+    return 0
+
+
+@figures_group.command("render")
+@click.option("-p", "--project", default=".", help="Project path.")
+@click.option("-t", "--doc-type", type=_DOC_TYPE, default="manuscript")
+@click.option(
+    "--no-figs", is_flag=True, default=False, help="Skip all image processing."
+)
+@click.option(
+    "--pptx", is_flag=True, default=False, help="Also render .pptx via LibreOffice."
+)
+@click.option("--crop", is_flag=True, default=False, help="Trim JPG borders.")
+@click.option("--json", "as_json", is_flag=True, default=False, help="Emit JSON.")
+def figures_render(project, doc_type, no_figs, pptx, crop, as_json):
+    """Convert every figure source to JPG and gather the floats into FINAL.tex.
+
+    The pure-Python figure engine (port of process_figures.sh): tidies panel ids
+    and captions, converts sources through the single Pillow backend, tiles
+    multi-panel figures into one composite, links the JPGs into
+    jpg_for_compilation, fills a declared-but-missing figure with a placeholder,
+    and assembles the compiled FINAL.tex. With no figures it emits a comment-only
+    fallback header (never a placeholder float).
+
+    \b
+    Example:
+        $ scitex-writer figures render
+        $ scitex-writer figures render -t supplementary --crop --json
+    """
+    from ... import figures
+
+    result = figures.render(project, doc_type, no_figs, pptx, crop)
+    if as_json:
+        _emit_json(result)
+        return 0 if result.get("success") else 1
+    if not result.get("success"):
+        click.echo(f"Error: {result['error']}", err=True)
+        return 1
+    for warning in result["warnings"]:
+        click.echo(f"Warning: {warning}", err=True)
+    if result["skipped"]:
+        click.echo("Skipped all image processing (--no-figs).")
+        return 0
+    if result["fallback_header"]:
+        click.echo("No figures found: emitted comment-only fallback header.")
+        return 0
+    click.echo(
+        f"Compiled {result['figures_compiled']} figures "
+        f"(captions_created={result['captions_created']}, "
+        f"converted={result['converted']}, composed={result['composed']}, "
+        f"placeholders={result['placeholders_created']}) "
+        f"-> {result['compiled_file']}"
+    )
     return 0
 
 

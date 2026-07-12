@@ -20,11 +20,37 @@ from ..handlers import (
 from ..handlers import (
     pdf_to_images as _pdf_to_images,
 )
+from ..handlers._figures_pipeline import process as _process
 from ..utils import resolve_project_path
 
 
 def register_tools(mcp: FastMCP) -> None:
     """Register figure tools."""
+
+    @mcp.tool()
+    def writer_figures_render(
+        project_dir: str,
+        doc_type: Literal["manuscript", "supplementary", "revision"] = "manuscript",
+        no_figs: bool = False,
+        pptx: bool = False,
+        crop: bool = False,
+    ) -> dict:
+        """Run the figure pipeline: image sources -> JPG -> gathered FINAL.tex.
+
+        Tidies panel ids and captions, converts every source through the single
+        Pillow backend (TIF/MMD/PNG -> JPG), tiles multi-panel figures into one
+        composite, links the JPGs into jpg_for_compilation, fills a
+        declared-but-missing figure with a placeholder, and assembles the compiled
+        FINAL.tex (each float also written to _placeable/<number>.tex for inline
+        \\scitexfig{<number>} placement). With no figures it emits a comment-only
+        fallback header -- never a placeholder float. no_figs=True skips all image
+        work; pptx=True also renders .pptx slides via LibreOffice; crop=True trims
+        each JPG's uniform border. Returns {success, figures_compiled,
+        captions_created, panel_captions_removed, renamed_panels, converted,
+        composed, placeholders_created, cropped, figures, compiled_file,
+        figures_enabled, fallback_header, skipped, warnings, error}.
+        """
+        return _process(project_dir, doc_type, no_figs, pptx, crop)
 
     @mcp.tool()
     def writer_figures_list(

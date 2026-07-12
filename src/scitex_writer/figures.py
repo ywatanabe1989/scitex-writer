@@ -29,6 +29,7 @@ from typing import Union as _Union
 from ._mcp.handlers import convert_figure as _convert_figure
 from ._mcp.handlers import list_figures as _list_figures
 from ._mcp.handlers import pdf_to_images as _pdf_to_images
+from ._mcp.handlers._figures_pipeline import process as _process
 from ._mcp.utils import resolve_project_path as _resolve_project_path
 
 try:
@@ -296,6 +297,43 @@ def pdf_to_images(
     return _pdf_to_images(pdf_path, output_dir, pages, dpi, format)
 
 
-__all__ = ["list", "add", "remove", "archive", "convert", "pdf_to_images"]
+@_supports_return_as
+def render(
+    project_dir: str,
+    doc_type: _Literal["manuscript", "supplementary", "revision"] = "manuscript",
+    no_figs: bool = False,
+    pptx: bool = False,
+    crop: bool = False,
+) -> dict:
+    """Run the engine's figure pipeline for ``doc_type``.
+
+    The pure-Python port of ``scripts/shell/modules/process_figures.sh``: tidies
+    panel ids and captions, converts every source image through the single Pillow
+    backend (TIF/MMD/PNG -> JPG), tiles multi-panel figures into one composite,
+    links the results into ``jpg_for_compilation``, fills a declared-but-missing
+    figure with a placeholder, and assembles the compiled ``FINAL.tex`` (each
+    float also written to ``_placeable/<number>.tex`` for inline
+    ``\\scitexfig{<number>}`` placement). With no figures at all it emits a
+    comment-only fallback header -- never a placeholder float.
+
+    ``no_figs=True`` skips all image work and disables figures (the shell's
+    ``no_figs``); ``pptx=True`` also renders ``NN_*.pptx`` slides through
+    LibreOffice; ``crop=True`` trims each compilation JPG's uniform border.
+    Returns ``{success, figures_compiled, captions_created, panel_captions_removed,
+    renamed_panels, converted, composed, placeholders_created, cropped, figures,
+    compiled_file, figures_enabled, fallback_header, skipped, warnings, error}``.
+    """
+    return _process(project_dir, doc_type, no_figs, pptx, crop)
+
+
+__all__ = [
+    "list",
+    "add",
+    "remove",
+    "archive",
+    "convert",
+    "pdf_to_images",
+    "render",
+]
 
 # EOF
