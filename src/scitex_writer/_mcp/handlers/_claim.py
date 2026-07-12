@@ -158,15 +158,21 @@ def list_claims(project_dir: str) -> Dict:
         result = []
         for claim_id, claim in claims.items():
             preview = _render_claim(claim, "nature")
+            session_id = claim.get("session_id")
+            output_file = claim.get("output_file")
             result.append(
                 {
                     "claim_id": claim_id,
                     "type": claim.get("type", "unknown"),
                     "context": claim.get("context", ""),
                     "preview_nature": preview,
-                    "has_provenance": bool(
-                        claim.get("session_id") or claim.get("output_file")
-                    ),
+                    # The POINTERS, not just the boolean: callers verify a claim's
+                    # chain with these. Summarising them away as `has_provenance`
+                    # left the viewer unable to verify anything, so every claim
+                    # came back NO_PROVENANCE — including the ones that had it.
+                    "session_id": session_id,
+                    "output_file": output_file,
+                    "has_provenance": bool(session_id or output_file),
                 }
             )
 
