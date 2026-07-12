@@ -5,6 +5,24 @@ All notable changes to SciTeX Writer will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.28.0] - 2026-07-12
+
+The compile engine is now **pure Python**. All five shell modules were ported, each verified by *real* `pdflatex`/`latexmk` compiles rather than by inspection. The port surfaced four bugs that had been failing **silently** — every one of them survived because the shell's own tests asserted nothing (one test file printed `TODO` and passed).
+
+### Fixed
+- **Tables shipped different output depending on the machine.** The shell picked among four CSV→LaTeX backends (`csv2latex` binary, pandas, bare Python, AWK) by probing the host, but the whole-cell verbatim passthrough existed only in the pandas branch — so on a machine with `csv2latex` installed, an authored `$p<0.001$` was silently escaped. Collapsed to one pandas backend, making the loss structurally impossible. (#296)
+- **A cell mixing prose and math silently ate the row.** `5% ($p<0.05$)` is verbatim (it holds `$`), so its `%` passed through bare — and a bare `%` comments out the rest of the LaTeX row, swallowing the row terminator and the next row with it. `%` and `&` are now escaped inside verbatim cells; math characters still pass through. (#297)
+- **Multi-panel figures shipped as their first panel — and logged success.** `copy_composed_jpg_files` copied panel *a* as the "composite" under a `# For now, just copy the first panel as placeholder` comment, then printed `Created composed figure`. The real tiler scanned a directory that never holds panels. Panels are now genuinely tiled with Pillow. (#298)
+- **Figure cropping silently did nothing.** The shell's `magick`/`convert`/`mogrify` cascade fell through every rung when ImageMagick was absent, with no error. Replaced by Pillow. (#298)
+- **The version diff could be taken against itself.** With no previous version in git history the shell diffed the manuscript against its own current text, shipping an unmarked PDF indistinguishable from "nothing changed since the last version". Now a loud, actionable error. (#299)
+
+### Added
+- **Pure-Python engine pipelines** with fail-loud result dataclasses, exposed on all three surfaces (Python API / CLI / MCP): tables (#296), figures (#298), diff + archive (#299). Missing binaries (LibreOffice, `mmdc`, `latexdiff`) now fail with install hints instead of leaving an output silently missing.
+- `compile diff` / `compile archive` CLI leaves, with matching `writer_compile_diff` / `writer_compile_archive` MCP tools.
+
+### Removed
+- Dead shell paths, refused rather than ported: an optimisation stage that invoked a script which does not exist (so it never ran), an unreachable git-identifier branch, and a dead panel-tiling checker.
+
 ## [2.27.0] - 2026-07-11
 
 ### Added
