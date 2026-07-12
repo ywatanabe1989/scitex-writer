@@ -6,7 +6,13 @@
 # may set it read-only in the consumer workspace after vendoring).
 # Timestamp: "$(date +"%Y-%m-%d %H:%M:%S") ($(whoami))"
 # File: process_figures.sh
-# Refactored modular version of process_figures.sh
+#
+# SUPERSEDED (2.29.0) — NOTHING ON THE COMPILE PATH CALLS THIS ANY MORE.
+# The compile scripts now delegate the figure stage to the installed Python
+# engine via `modules/run_python_pipeline.sh figures` (-> `scitex-writer figures
+# render`), which fixes bugs this module still has: multi-panel figures shipped
+# as panel-a while logging success, and a no-op crop when magick/mogrify is
+# absent. Kept for one release cycle only; do not wire it back in.
 
 # shellcheck disable=SC1091  # Don't follow sourced files
 

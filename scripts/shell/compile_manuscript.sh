@@ -328,15 +328,17 @@ main() {
     local tbl_log="$temp_dir/tables.log"
     local wrd_log="$temp_dir/words.log"
 
-    # Run all three in parallel
+    # Figures/tables delegate to the INSTALLED scitex-writer Python engine
+    # (run_python_pipeline.sh); the shell modules they replace shipped silent
+    # bugs (math escaping, multi-panel figures emitted as panel-a, no-op crop).
     (
-        "$PROJECT_ROOT/scripts/shell/modules/process_figures.sh" "$no_figs" "$do_p2t" "$do_verbose" "$do_crop_tif" >"$fig_log" 2>&1
+        "$PROJECT_ROOT/scripts/shell/modules/run_python_pipeline.sh" figures "$no_figs" "$do_p2t" "$do_verbose" "$do_crop_tif" >"$fig_log" 2>&1
         echo $? >"$temp_dir/fig_exit"
     ) &
     local fig_pid=$!
 
     (
-        "$PROJECT_ROOT/scripts/shell/modules/process_tables.sh" "$no_tables" >"$tbl_log" 2>&1
+        "$PROJECT_ROOT/scripts/shell/modules/run_python_pipeline.sh" tables "$no_tables" >"$tbl_log" 2>&1
         echo $? >"$temp_dir/tbl_exit"
     ) &
     local tbl_pid=$!
@@ -371,7 +373,8 @@ main() {
     # Extract summary lines for normal mode
     if [ "${SCITEX_LOG_LEVEL:-1}" -lt 2 ]; then
         # Show only key results (remove file paths from grep output)
-        grep -hE "(figures compiled|tables compiled|Word counts updated)" "$fig_log" "$tbl_log" "$wrd_log" 2>/dev/null | sed 's/^/  /' || true
+        # "Compiled N figures/tables" is the Python engine's summary wording.
+        grep -hE "(figures compiled|tables compiled|Compiled [0-9]+ (figures|tables)|Word counts updated)" "$fig_log" "$tbl_log" "$wrd_log" 2>/dev/null | sed 's/^/  /' || true
     fi
 
     rm -rf "$temp_dir"
@@ -462,18 +465,21 @@ main() {
         || echo_warning "Manuscript hints feed skipped (non-fatal)"
     log_stage_end "Manuscript Hints"
 
-    # Diff (skip if --no_diff specified)
+    # Diff (skip if --no_diff). The Python diff engine REFUSES to diff a version
+    # against itself; a failing diff is loud but never aborts the compile.
     if [ "$no_diff" = false ]; then
         log_stage_start "Diff Generation"
-        "$PROJECT_ROOT/scripts/shell/modules/process_diff.sh"
+        if ! "$PROJECT_ROOT/scripts/shell/modules/run_python_pipeline.sh" diff; then
+            log_warning "Diff generation failed (above); PDF unaffected. Use --no_diff to skip."
+        fi
         log_stage_end "Diff Generation"
     else
         echo_info "Skipping diff generation (--no_diff specified)"
     fi
 
-    # Versioning
+    # Versioning (Python archive engine; a dirty tree is skipped, not archived)
     log_stage_start "Archive/Versioning"
-    "$PROJECT_ROOT/scripts/shell/modules/process_archive.sh"
+    "$PROJECT_ROOT/scripts/shell/modules/run_python_pipeline.sh" archive
     log_stage_end "Archive/Versioning"
 
     # Cleanup

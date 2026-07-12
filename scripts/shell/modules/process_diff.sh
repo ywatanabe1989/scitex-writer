@@ -7,6 +7,12 @@
 # Timestamp: "2026-01-19 (ywatanabe)"
 # File: ./scripts/shell/modules/process_diff.sh
 # Description: Generate diff between current and previous git commit (or arbitrary commits)
+#
+# SUPERSEDED (2.29.0) — NOTHING ON THE COMPILE PATH CALLS THIS ANY MORE.
+# The compile scripts now delegate the diff stage to the installed Python engine
+# via `modules/run_python_pipeline.sh diff` (-> `scitex-writer compile diff`),
+# which refuses to diff a version against itself instead of silently emitting an
+# unmarked "nothing changed" PDF. Kept for one release cycle only.
 
 ORIG_DIR="$(pwd)"
 THIS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
