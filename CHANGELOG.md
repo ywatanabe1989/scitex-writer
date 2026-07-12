@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.30.2] - 2026-07-13
+
+### Fixed
+- **The live-paper viewer reported `NO_PROVENANCE` for every claim — including claims that had provenance and would have verified.** `list_claims` computed `has_provenance` from a claim's `session_id` / `output_file` and then DROPPED both fields from the projection it returned. `_claim_verification_state` verifies a claim by handing those pointers to `scitex_clew.verify_chain`; with nothing to hand it, it took its `if not (output_file or session_id)` branch every time and `verify_chain` was never reached for any claim. No exception, no log line — a confident wrong answer, the same shape as the port slide and the silent editor downgrade. The projection now carries `session_id` and `output_file`; the boolean stays for callers that only want the flag. (Recovered from a `rescue: pre-stop autosave` on an abandoned worktree branch that never got a PR — that draft patched the viewer to re-read `claims.json` behind `list_claims`' back and swallowed the reread in a bare `except Exception`, so it was rewritten to fix the source instead.)
+
 ## [2.30.1] - 2026-07-13
 
 Follow-up to 2.30.0, from the operator using it: when the port collides, the error should tell you what to type.
