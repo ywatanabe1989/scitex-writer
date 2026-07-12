@@ -12,9 +12,12 @@
 # The end-to-end CLI runs use --offline, which is deterministic: scholar's
 # offline resolver never resolves, so nothing can be reported trustworthy.
 
+import os
 import subprocess
 import sys
 from pathlib import Path
+
+import pytest
 
 ROOT_DIR = Path(__file__).resolve().parent.parent.parent.parent
 sys.path.insert(0, str(ROOT_DIR / "scripts" / "python"))
@@ -344,6 +347,118 @@ def test_cached_hallucination_still_fails_at_error_level(tmp_path):
     code = run_check(project, level="error", verifier=verifier)
     # Assert
     assert code == 1
+
+
+# ------------------------------------------------- LIVE upstream (opt-in, net)
+#
+# Everything above drives the check through the ``verifier`` injection seam (or
+# scholar's deterministic offline mode). That pins our status -> severity
+# MAPPING, but it can never observe whether the REAL upstream
+# (``scitex_scholar.verify_cites``) is capable of returning VERIFIED at all --
+# and that blindness is not hypothetical: every scitex-scholar before 1.5.0 had
+# a metadata-nesting bug that made a VERIFIED verdict structurally impossible,
+# and the whole offline suite stayed green through it.
+#
+# The two tests below close that hole. They run writer's real check
+# (``run_check`` with its DEFAULT verifier == ``default_verifier`` ==
+# scitex-scholar) over a real tmp project, WITH NETWORK. They are OPT-IN and
+# skipped by default so the rest of the suite (and CI) stays network-free and
+# deterministic:
+#
+#     SCITEX_WRITER_NETWORK_TESTS=1 pytest tests/scripts/python/test_check_citation_trust.py -k live
+#
+# ``pytest.mark.skipif`` is a gate, not a mock -- no internals are patched here.
+
+NETWORK_TESTS_ENV = "SCITEX_WRITER_NETWORK_TESTS"
+
+live_network = pytest.mark.skipif(
+    os.environ.get(NETWORK_TESTS_ENV, "0") != "1",
+    reason=(
+        f"live-network test: opt in with {NETWORK_TESTS_ENV}=1 "
+        f"(needs scitex-scholar>=1.5.0 + internet)"
+    ),
+)
+
+# A real, famous CrossRef-indexed paper: LeCun, Bengio & Hinton, Nature (2015).
+_LIVE_TEX = r"""
+\documentclass{article}
+\begin{document}
+Deep learning \cite{LeCun2015}.
+\bibliography{bibliography}
+\end{document}
+"""
+
+_LIVE_BIB = """
+@article{LeCun2015,
+  title = {Deep learning},
+  author = {LeCun, Yann and Bengio, Yoshua and Hinton, Geoffrey},
+  journal = {Nature},
+  year = {2015},
+  doi = {10.1038/nature14539}
+}
+"""
+
+# No identifier, invented title, invented venue -- indexed nowhere.
+_FABRICATED_TEX = r"""
+\documentclass{article}
+\begin{document}
+Fabricated \cite{Fabricated2099}.
+\bibliography{bibliography}
+\end{document}
+"""
+
+_FABRICATED_BIB = """
+@article{Fabricated2099,
+  title = {Quantum telepathic gradient descent in fungal mycelial networks},
+  author = {Nobody, A.},
+  journal = {Journal of Things That Do Not Exist},
+  year = {2099}
+}
+"""
+
+
+def _live_project(tmp_path, tex_text, bib_text):
+    contents = tmp_path / "01_manuscript" / "contents"
+    contents.mkdir(parents=True)
+    (contents / "main.tex").write_text(tex_text, encoding="utf-8")
+    (contents / "bibliography.bib").write_text(bib_text, encoding="utf-8")
+    return tmp_path
+
+
+@live_network
+def test_live_real_crossref_doi_is_verified_by_upstream_scholar(tmp_path, capsys):
+    """Proves the REAL upstream can produce a VERIFIED verdict end-to-end.
+
+    The 41 offline/DI tests pin the status -> severity MAPPING; only this test
+    proves scitex-scholar can actually classify a real citation as VERIFIED.
+    Without it, a broken scholar release (as every version < 1.5.0 was) would be
+    invisible to us -- the whole suite would stay green while the check could
+    never pass a single citation.
+    """
+    # Arrange
+    project = _live_project(tmp_path, _LIVE_TEX, _LIVE_BIB)
+    run_check(project, level="error", use_cache=False)
+    # Act
+    out = capsys.readouterr().out
+    # Assert
+    assert "1 citation(s) resolve to a real source" in out
+
+
+@live_network
+def test_live_fabricated_entry_is_classified_hallucinated_by_upstream(tmp_path, capsys):
+    """Proves the live check DISCRIMINATES, not just that it says yes to all.
+
+    Companion to the VERIFIED case: a real upstream run over a fabricated entry
+    must come back HALLUCINATED. A scholar that verified everything would pass
+    the positive test alone.
+    """
+    # Arrange
+    project = _live_project(tmp_path, _FABRICATED_TEX, _FABRICATED_BIB)
+    run_check(project, level="error", use_cache=False)
+    # Act
+    out = capsys.readouterr().out
+    # Assert
+    assert "classified HALLUCINATED" in out
 
 
 # ----------------------------------------------------------------- end-to-end
