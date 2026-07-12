@@ -75,12 +75,16 @@ scholar = [
     # SCITEX_WRITER_NETWORK_TESTS=1) is what proves the upstream can actually
     # produce a VERIFIED verdict.
     #
-    # 1.5.1 raises it again: before it, arXiv DOIs (10.48550/arXiv.*) could not
-    # verify either — and arXiv is the dominant citation form in ML/CS, so the
-    # check was noisiest exactly where it matters most. Live-verified: an arXiv
-    # DOI now classifies VERIFIED. (A BARE `eprint` + `archivePrefix` entry
-    # still does not — known upstream gap, reported.)
-    "scitex-scholar>=1.5.1",
+    # 1.5.2 raises it again, and this floor is about CORRECTNESS, not features.
+    # Before it, a citation with no identifier could resolve by a fuzzy TITLE
+    # SEARCH against a live index — so the SAME .bib entry could classify
+    # VERIFIED on one run and UNVERIFIED on the next, silently, with nothing in
+    # the output admitting it had guessed. A non-deterministic verifier is not a
+    # verifier. 1.5.2 requires VERIFIED to be backed by a real identifier
+    # (doi / arXiv id / corpus id); a title-only match caps at UNVERIFIED with a
+    # reason. Live-verified across all four forms (doi, bare eprint, title-only,
+    # fabricated).
+    "scitex-scholar>=1.5.2",
 ]
 dev = [
     "pytest>=7.0.0",
@@ -92,9 +96,9 @@ dev = [
     # users opt in via `pip install scitex-writer[scholar]`. See
     # _skills/general/01_ecosystem_02_dependency-and-version-pinning.md
     # `[dev]` extras completeness.
-    # Same >=1.5.1 floor as the [scholar] extra: a fresh `pip install -e .[dev]`
+    # Same >=1.5.2 floor as the [scholar] extra: a fresh `pip install -e .[dev]`
     # in CI must get a scholar whose verify_cites can actually return VERIFIED.
-    "scitex-scholar>=1.5.1",  # tested via [scholar] integration tests
+    "scitex-scholar>=1.5.2",  # tested via [scholar] integration tests
     "openpyxl",           # writes the .xlsx fixture for the tables xlsx stage
 ]
 docs = [
