@@ -128,6 +128,62 @@ def status(path: Optional[PathLike] = None) -> dict:
     return {"running": True, "url": url, **{k: state.get(k) for k in _STATE_FIELDS}}
 
 
+def _listening_socket_inodes(port: int) -> set[str]:
+    """Socket inodes of every process LISTENing on ``port``, from /proc/net."""
+    inodes: set[str] = set()
+    for proc_net in ("/proc/net/tcp", "/proc/net/tcp6"):
+        try:
+            lines = Path(proc_net).read_text().splitlines()[1:]
+        except OSError:
+            continue
+        for line in lines:
+            fields = line.split()
+            if len(fields) < 10:
+                continue
+            # local_address is "HEXADDR:HEXPORT"; state 0A == TCP_LISTEN.
+            _, _, hex_port = fields[1].rpartition(":")
+            if fields[3] != "0A" or int(hex_port, 16) != port:
+                continue
+            inodes.add(fields[9])
+    return inodes
+
+
+def port_holder(port: int) -> Optional[dict]:
+    """Identify the process LISTENing on ``port``: ``{pid, name}``, or None.
+
+    Reads /proc directly rather than shelling out to ``ss``/``lsof``, which
+    are absent from many containers — a hint that silently disappears in the
+    exact minimal environment where the operator most needs it is not a hint.
+
+    Only processes the caller can see are reported: an inode we cannot map to
+    a pid (another user's process) yields ``{pid: None}``, so the caller says
+    "another process" rather than inventing a wrong one.
+    """
+    inodes = _listening_socket_inodes(port)
+    if not inodes:
+        return None
+    for proc_dir in Path("/proc").iterdir():
+        if not proc_dir.name.isdigit():
+            continue
+        try:
+            fds = list((proc_dir / "fd").iterdir())
+        except OSError:
+            continue  # not ours / vanished — keep scanning
+        for fd in fds:
+            try:
+                target = os.readlink(fd)
+            except OSError:
+                continue
+            if target[8:-1] not in inodes or not target.startswith("socket:["):
+                continue
+            try:
+                name = (proc_dir / "comm").read_text().strip()
+            except OSError:
+                name = "?"
+            return {"pid": int(proc_dir.name), "name": name}
+    return {"pid": None, "name": None}
+
+
 def stop(path: Optional[PathLike] = None, timeout: float = 5.0) -> dict:
     """SIGTERM the recorded server and clear the state file. Idempotent."""
     current = status(path)
