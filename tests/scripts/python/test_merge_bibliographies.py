@@ -8,29 +8,49 @@ from pathlib import Path
 
 import pytest
 
-# Add scripts/python to path for imports
-ROOT_DIR = Path(__file__).resolve().parent.parent.parent
+# Add scripts/python to path for imports.
+# parents[3] is the REPO ROOT (python -> scripts -> tests -> repo). This used to
+# be `.parent.parent.parent`, i.e. `tests/` -- so `scripts/python` was never on
+# sys.path, `from merge_bibliographies import ...` always raised ImportError, and
+# the bare `except ImportError` below turned EVERY test in this file into a SKIP.
+# The suite was green by skipping; the merge was in fact untested.
+ROOT_DIR = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(ROOT_DIR / "scripts" / "python"))
 
 pytest.importorskip("bibtexparser")
 
-# Try to import bibtexparser and the functions
-try:
-    import bibtexparser  # noqa: F401
-    from merge_bibliographies import (
-        deduplicate_entries,
-        get_doi,
-        merge_bibtex_files,
-        merge_entries,
-        normalize_title,
-    )
+# Imported at module scope, NOT inside a try/except: bibtexparser is already
+# handled by importorskip above, so any OTHER import failure here is a real
+# breakage of the module under test and must FAIL loudly, never skip.
+from merge_bibliographies import (  # noqa: E402
+    deduplicate_entries,
+    get_doi,
+    is_stub,
+    merge_bibtex_files,
+    merge_entries,
+    normalize_title,
+)
 
-    HAS_DEPS = True
-except ImportError:
-    HAS_DEPS = False
+# A scholar stub carries the stamps check_citations.py gates on.
+STUB_ENTRY = {
+    "ID": "PintoOrellana2023StatisticalIFF",
+    "ENTRYTYPE": "article",
+    "title": "Statistical inference for interpretable feature functions",
+    "journal": "Pending scitex-scholar metadata lookup",
+    "note": "Auto-generated stub",
+    "year": "2023",
+}
+REAL_ENTRY = {
+    "ID": "PintoOrellana2023StatisticalIFF",
+    "ENTRYTYPE": "article",
+    "title": "Statistical inference for interpretable feature functions",
+    "author": "Pinto-Orellana, Marco",
+    "journal": "Nature",
+    "year": "2023",
+    "doi": "10.1234/jrs.2023.101",
+}
 
-# Skip all tests if bibtexparser not available
-pytestmark = pytest.mark.skipif(not HAS_DEPS, reason="bibtexparser not installed")
+# (bibtexparser availability is handled by the importorskip above.)
 
 
 class TestNormalizeTitle:
@@ -198,7 +218,11 @@ class TestMergeEntries:
         result = merge_entries(existing, duplicate)
 
         # Assert
-        assert (result['title'] == 'Much Longer Title') and (result['author'] == 'Alice') and (result['year'] == '2024')
+        assert (
+            (result["title"] == "Much Longer Title")
+            and (result["author"] == "Alice")
+            and (result["year"] == "2024")
+        )
 
     def test_merge_entries_fills_missing_fields(self):
         """Should fill in missing fields from duplicate."""
@@ -210,7 +234,7 @@ class TestMergeEntries:
         result = merge_entries(existing, duplicate)
 
         # Assert
-        assert (result['year'] == '2024') and (result['journal'] == 'Nature')
+        assert (result["year"] == "2024") and (result["journal"] == "Nature")
 
     def test_merge_entries_preserves_existing(self):
         """Should not overwrite existing with empty."""
@@ -223,7 +247,7 @@ class TestMergeEntries:
 
         # Should keep existing author (not overwrite with empty)
         # Assert
-        assert (result['author'] == 'Alice') and (result['abstract'] == 'Abstract')
+        assert (result["author"] == "Alice") and (result["abstract"] == "Abstract")
 
     def test_merge_entries_returns_copy(self):
         """Should return a new dict, not modify existing."""
@@ -236,7 +260,7 @@ class TestMergeEntries:
 
         # Original should be unchanged
         # Assert
-        assert ('author' not in existing) and (result['author'] == 'Bob')
+        assert ("author" not in existing) and (result["author"] == "Bob")
 
     def test_merge_entries_empty_duplicate(self):
         """Should handle empty duplicate entry."""
@@ -248,7 +272,7 @@ class TestMergeEntries:
         result = merge_entries(existing, duplicate)
 
         # Assert
-        assert (result['title'] == 'Title') and (result['author'] == 'Alice')
+        assert (result["title"] == "Title") and (result["author"] == "Alice")
 
     def test_merge_entries_prefers_content_over_empty(self):
         """Should prefer any content over empty string."""
@@ -278,7 +302,12 @@ class TestDeduplicateEntries:
         unique, stats = deduplicate_entries(entries)
 
         # Assert
-        assert (len(unique) == 1) and (stats['total_input'] == 2) and (stats['unique_output'] == 1) and (stats['duplicates_found'] == 1)
+        assert (
+            (len(unique) == 1)
+            and (stats["total_input"] == 2)
+            and (stats["unique_output"] == 1)
+            and (stats["duplicates_found"] == 1)
+        )
 
     def test_deduplicate_by_cite_key(self):
         """Should deduplicate a repeated cite key (bibtex 'repeated entry')."""
@@ -286,15 +315,26 @@ class TestDeduplicateEntries:
         # stub's title/year need not match -- the shared cite key alone is what
         # breaks bibtex, so it must collapse to one entry.
         entries = [
-            {"ID": "PintoOrellana2023StatisticalIFF", "title": "Statistical IFF", "year": "2023"},
-            {"ID": "PintoOrellana2023StatisticalIFF", "note": "Auto-generated stub; replace before submission"},
+            {
+                "ID": "PintoOrellana2023StatisticalIFF",
+                "title": "Statistical IFF",
+                "year": "2023",
+            },
+            {
+                "ID": "PintoOrellana2023StatisticalIFF",
+                "note": "Auto-generated stub; replace before submission",
+            },
         ]
 
         # Act
         unique, stats = deduplicate_entries(entries)
 
         # Assert
-        assert (len(unique) == 1) and (stats["duplicates_found"] == 1) and (stats["duplicates_merged"] == 1)
+        assert (
+            (len(unique) == 1)
+            and (stats["duplicates_found"] == 1)
+            and (stats["duplicates_merged"] == 1)
+        )
 
     def test_deduplicate_cite_key_takes_precedence_over_differing_content(self):
         """A repeated cite key collapses even when DOI/title differ."""
@@ -336,7 +376,7 @@ class TestDeduplicateEntries:
         unique, stats = deduplicate_entries(entries)
 
         # Assert
-        assert (len(unique) == 1) and (stats['duplicates_found'] == 1)
+        assert (len(unique) == 1) and (stats["duplicates_found"] == 1)
 
     def test_deduplicate_different_years_not_duplicates(self):
         """Should not deduplicate same title with different years."""
@@ -350,7 +390,7 @@ class TestDeduplicateEntries:
         unique, stats = deduplicate_entries(entries)
 
         # Assert
-        assert (len(unique) == 2) and (stats['duplicates_found'] == 0)
+        assert (len(unique) == 2) and (stats["duplicates_found"] == 0)
 
     def test_deduplicate_stats_stats_total_input_3_and_stats_unique_output_2_and_(self):
         """Should return accurate statistics."""
@@ -365,7 +405,12 @@ class TestDeduplicateEntries:
         unique, stats = deduplicate_entries(entries)
 
         # Assert
-        assert (stats['total_input'] == 3) and (stats['unique_output'] == 2) and (stats['duplicates_found'] == 1) and (stats['duplicates_merged'] == 1)
+        assert (
+            (stats["total_input"] == 3)
+            and (stats["unique_output"] == 2)
+            and (stats["duplicates_found"] == 1)
+            and (stats["duplicates_merged"] == 1)
+        )
 
     def test_deduplicate_empty_list(self):
         """Should handle empty entry list."""
@@ -376,7 +421,11 @@ class TestDeduplicateEntries:
         unique, stats = deduplicate_entries(entries)
 
         # Assert
-        assert (len(unique) == 0) and (stats['total_input'] == 0) and (stats['unique_output'] == 0)
+        assert (
+            (len(unique) == 0)
+            and (stats["total_input"] == 0)
+            and (stats["unique_output"] == 0)
+        )
 
     def test_deduplicate_merges_metadata(self):
         """Should merge metadata from duplicates."""
@@ -400,7 +449,11 @@ class TestDeduplicateEntries:
         unique, stats = deduplicate_entries(entries)
 
         # Assert
-        assert (len(unique) == 1) and (unique[0]['author'] == 'Alice') and (unique[0]['abstract'] == 'Abstract')
+        assert (
+            (len(unique) == 1)
+            and (unique[0]["author"] == "Alice")
+            and (unique[0]["abstract"] == "Abstract")
+        )
 
     def test_deduplicate_doi_takes_precedence(self):
         """DOI matching should take precedence over title matching."""
@@ -461,7 +514,7 @@ class TestDeduplicateEntries:
 
         # First entry with DOI should be kept
         # Assert
-        assert (unique[0]['ID'] == 'first') and (unique[1]['ID'] == 'second')
+        assert (unique[0]["ID"] == "first") and (unique[1]["ID"] == "second")
 
     def test_deduplicate_case_insensitive_title(self):
         """Title comparison should be case-insensitive."""
@@ -501,7 +554,9 @@ class TestMergeBibtexFilesOutputPath:
         # Assert
         assert (bib_dir / "merged.bib").exists()
 
-    def test_full_path_with_input_dir_prefix_no_double_path_output_exists(self, tmp_path):
+    def test_full_path_with_input_dir_prefix_no_double_path_output_exists(
+        self, tmp_path
+    ):
         # Arrange
         bib_dir = tmp_path / "bib_files"
         bib_dir.mkdir()
@@ -514,7 +569,9 @@ class TestMergeBibtexFilesOutputPath:
         # Assert
         assert Path(output).exists()
 
-    def test_full_path_with_input_dir_prefix_no_double_not_nested_exists(self, tmp_path):
+    def test_full_path_with_input_dir_prefix_no_double_not_nested_exists(
+        self, tmp_path
+    ):
         # Arrange
         bib_dir = tmp_path / "bib_files"
         bib_dir.mkdir()
@@ -529,7 +586,6 @@ class TestMergeBibtexFilesOutputPath:
         # Act
         # Assert
         assert not nested.exists()
-
 
     def test_absolute_output_path(self, tmp_path):
         """Absolute output path should be used as-is."""
@@ -579,7 +635,148 @@ class TestMergeBibtexFilesOutputPath:
         # Act
         content = (bib_dir / "merged.bib").read_text()
         # Assert
-        assert ('ref2024' in content) and ('old2024' not in content)
+        assert ("ref2024" in content) and ("old2024" not in content)
+
+
+class TestStubDetection:
+    """A stub is defined by scholar's stamps (check_citations.py is the SSoT)."""
+
+    def test_stub_note_stamp_marks_entry_as_stub(self):
+        # Arrange
+        entry = {"ID": "k", "note": "Auto-generated stub"}
+        # Act
+        result = is_stub(entry)
+        # Assert
+        assert result
+
+    def test_stub_journal_stamp_marks_entry_as_stub(self):
+        # Arrange
+        entry = {"ID": "k", "journal": "Pending scitex-scholar metadata lookup"}
+        # Act
+        result = is_stub(entry)
+        # Assert
+        assert result
+
+    def test_resolved_entry_is_not_a_stub(self):
+        # Arrange
+        # Act
+        result = is_stub(REAL_ENTRY)
+        # Assert
+        assert not result
+
+
+class TestStubVsRealPrecedence:
+    """A REAL entry always beats a STUB when the same cite key appears twice."""
+
+    def test_real_journal_survives_a_stub_duplicate(self):
+        # Arrange: the stub's "Pending ..." journal is LONGER than "Nature", so a
+        # longest-value-wins merge would have overwritten the real journal.
+        entries = [dict(REAL_ENTRY), dict(STUB_ENTRY)]
+        # Act
+        unique, _stats = deduplicate_entries(entries)
+        # Assert
+        assert unique[0]["journal"] == "Nature"
+
+    def test_real_entry_wins_even_when_the_stub_is_seen_first(self):
+        # Arrange
+        entries = [dict(STUB_ENTRY), dict(REAL_ENTRY)]
+        # Act
+        unique, _stats = deduplicate_entries(entries)
+        # Assert
+        assert unique[0]["journal"] == "Nature"
+
+    def test_stub_stamp_is_not_copied_onto_the_real_entry(self):
+        # Arrange: inheriting note="Auto-generated stub" would make
+        # check_citations.py mis-flag this resolved reference as a stub.
+        entries = [dict(REAL_ENTRY), dict(STUB_ENTRY)]
+        # Act
+        unique, _stats = deduplicate_entries(entries)
+        # Assert
+        assert "note" not in unique[0]
+
+    def test_real_entry_keeps_its_doi_after_merging_a_stub(self):
+        # Arrange
+        entries = [dict(STUB_ENTRY), dict(REAL_ENTRY)]
+        # Act
+        unique, _stats = deduplicate_entries(entries)
+        # Assert
+        assert unique[0]["doi"] == "10.1234/jrs.2023.101"
+
+    def test_two_stubs_stay_stamped_so_the_citation_gate_still_sees_them(self):
+        # Arrange: collapsing two stubs must not launder them into a real entry
+        entries = [dict(STUB_ENTRY), dict(STUB_ENTRY)]
+        # Act
+        unique, _stats = deduplicate_entries(entries)
+        # Assert
+        assert is_stub(unique[0])
+
+
+class TestMergeIncludesOutputFile:
+    """bibliography.bib is CONSUMER-OWNED: merged as an input, never destroyed."""
+
+    def _write(self, path, text):
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(text)
+
+    def _bib_dir_with_stub_sidecar(self, tmp_path):
+        bib_dir = tmp_path / "bib_files"
+        self._write(
+            bib_dir / "bibliography.bib",
+            "@article{RealOnly2020,\n  title = {Only In Bibliography},\n"
+            "  author = {Author},\n  year = {2020},\n}\n"
+            "@article{Dup2023,\n  title = {Dup},\n  author = {Real},\n"
+            "  journal = {Nature},\n  year = {2023},\n}\n",
+        )
+        self._write(
+            bib_dir / "_stubs_pending_scholar.bib",
+            "@article{Dup2023,\n  title = {Dup},\n"
+            "  journal = {Pending scitex-scholar metadata lookup},\n"
+            "  note = {Auto-generated stub},\n  year = {2023},\n}\n",
+        )
+        return bib_dir
+
+    def test_entry_living_only_in_bibliography_survives_the_merge(self, tmp_path):
+        # Arrange
+        bib_dir = self._bib_dir_with_stub_sidecar(tmp_path)
+        # Act
+        merge_bibtex_files(bib_dir, verbose=False, force=True, include_output=True)
+        # Assert
+        assert "RealOnly2020" in (bib_dir / "bibliography.bib").read_text()
+
+    def test_duplicate_cite_key_is_collapsed_to_one_entry(self, tmp_path):
+        # Arrange: two files carry Dup2023 — bibtex would say "Repeated entry"
+        bib_dir = self._bib_dir_with_stub_sidecar(tmp_path)
+        # Act
+        merge_bibtex_files(bib_dir, verbose=False, force=True, include_output=True)
+        # Assert
+        assert (bib_dir / "bibliography.bib").read_text().count("@article{Dup2023") == 1
+
+    def test_merged_duplicate_keeps_the_real_journal(self, tmp_path):
+        # Arrange
+        bib_dir = self._bib_dir_with_stub_sidecar(tmp_path)
+        # Act
+        merge_bibtex_files(bib_dir, verbose=False, force=True, include_output=True)
+        # Assert
+        assert (
+            "Pending scitex-scholar" not in (bib_dir / "bibliography.bib").read_text()
+        )
+
+    def test_duplicate_inside_bibliography_alone_is_collapsed(self, tmp_path):
+        # Arrange: the single-bib case — the merge used to be SKIPPED entirely
+        # here, so the repeated key reached bibtex and it exited non-zero.
+        bib_dir = tmp_path / "bib_files"
+        self._write(
+            bib_dir / "bibliography.bib",
+            "@article{Dup2023,\n  title = {Dup},\n  author = {Real},\n"
+            "  journal = {Nature},\n  year = {2023},\n}\n"
+            "@article{Dup2023,\n  title = {Dup},\n"
+            "  journal = {Pending scitex-scholar metadata lookup},\n"
+            "  note = {Auto-generated stub},\n  year = {2023},\n}\n",
+        )
+        # Act
+        merge_bibtex_files(bib_dir, verbose=False, force=True, include_output=True)
+        # Assert
+        assert (bib_dir / "bibliography.bib").read_text().count("@article{Dup2023") == 1
 
 
 if __name__ == "__main__":

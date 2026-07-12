@@ -10,17 +10,43 @@
 Merge multiple BibTeX files with smart deduplication.
 
 Deduplication strategy:
-1. By DOI (if available)
-2. By normalized title + year
-3. Merges metadata from duplicates
+1. By cite key (a repeated key is what makes bibtex fail -- see below)
+2. By DOI (if available)
+3. By normalized title + year
+4. Merges metadata from duplicates
+
+STUB-VS-REAL PRECEDENCE
+-----------------------
+scitex-scholar auto-generates STUB entries for citations whose metadata it has
+not resolved yet, and writes them to a sidecar (`_stubs_pending_scholar.bib`)
+while the real entry may already exist in `bibliography.bib`. The same cite key
+then lives in two files, bibtex reports `Repeated entry ... I'm skipping
+whatever remains of this entry`, DROPS the reference, and exits non-zero.
+
+So: **a real entry always beats a stub.** When a duplicate pair is one real +
+one stub, the REAL entry is the base and the stub may only fill fields the real
+entry does not have -- it can never overwrite a real field (the old
+"longer value wins" rule would have let the stub's 39-character
+`journal = {Pending scitex-scholar metadata lookup}` overwrite a real
+`journal = {Nature}`), and its stub STAMPS are never copied onto the real entry
+(that would make `check_citations.py` mis-flag a resolved reference as a stub).
+Two stubs merge normally and stay stamped, so the citation gate still catches
+them. What a stub *is* is defined by scholar's stamps -- imported from
+`check_citations.py` so there is ONE definition, not two.
 """
 
 import argparse
 import hashlib
 import json
 import re
+import sys
 from pathlib import Path
 from typing import List, Optional
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+# The SSoT for "what is a scholar stub". Do not re-declare these markers here:
+# check_citations.py gates the compile on them, and a second copy would drift.
+from check_citations import STUB_JOURNAL_MARKERS, STUB_NOTE_MARKERS  # noqa: E402
 
 try:
     import bibtexparser
@@ -54,19 +80,73 @@ def get_doi(entry: dict) -> str:
     return doi
 
 
-def merge_entries(existing: dict, duplicate: dict) -> dict:
-    """Merge metadata from duplicate entries, preferring more complete info."""
+def is_stub(entry: dict) -> bool:
+    """True when the entry carries one of scholar's auto-generated stub stamps."""
+    note = str(entry.get("note", "")).lower()
+    journal = str(entry.get("journal", "")).lower()
+    return any(marker in note for marker in STUB_NOTE_MARKERS) or any(
+        marker in journal for marker in STUB_JOURNAL_MARKERS
+    )
+
+
+def strip_stub_stamps(entry: dict) -> dict:
+    """Drop the fields whose VALUE is a stub stamp (they are placeholders).
+
+    Used when gap-filling a real entry from a stub: the stub may contribute a
+    field the real entry lacks, but never its own "this is unresolved" stamps --
+    copying those onto a resolved reference would make check_citations.py report
+    the real entry as a stub.
+    """
+    cleaned = {}
+    for key, value in entry.items():
+        lowered = str(value).lower()
+        if key == "note" and any(m in lowered for m in STUB_NOTE_MARKERS):
+            continue
+        if key == "journal" and any(m in lowered for m in STUB_JOURNAL_MARKERS):
+            continue
+        cleaned[key] = value
+    return cleaned
+
+
+def merge_entries(existing: dict, duplicate: dict, gap_fill_only: bool = False) -> dict:
+    """Merge metadata from duplicate entries, preferring more complete info.
+
+    ``gap_fill_only`` restricts ``duplicate`` to fields ``existing`` does not
+    have. It is what makes a real entry immune to a stub's placeholder values:
+    without it the "longer value wins" rule below lets a stub's long
+    "Pending ..." journal overwrite a real journal name.
+    """
     merged = existing.copy()
 
     # Prefer entries with more fields
     for key, value in duplicate.items():
         if key not in merged or not merged[key]:
             merged[key] = value
+        elif gap_fill_only:
+            continue
         elif value and len(str(value)) > len(str(merged[key])):
             # Prefer longer/more detailed field
             merged[key] = value
 
     return merged
+
+
+def merge_duplicate_pair(existing: dict, duplicate: dict) -> dict:
+    """Merge two entries that share an identity, applying real-beats-stub.
+
+    Exactly one stub -> the REAL entry is the base and the stub only gap-fills
+    (never overwrites, never donates its stamps). Otherwise (real+real or
+    stub+stub) the normal completeness merge applies, so a stub+stub merge stays
+    stamped and the citation gate still sees it.
+    """
+    existing_is_stub = is_stub(existing)
+    duplicate_is_stub = is_stub(duplicate)
+
+    if existing_is_stub and not duplicate_is_stub:
+        return merge_entries(duplicate, strip_stub_stamps(existing), gap_fill_only=True)
+    if duplicate_is_stub and not existing_is_stub:
+        return merge_entries(existing, strip_stub_stamps(duplicate), gap_fill_only=True)
+    return merge_entries(existing, duplicate)
 
 
 def deduplicate_entries(entries: List[dict]) -> tuple[List[dict], dict]:
@@ -118,9 +198,9 @@ def deduplicate_entries(entries: List[dict]) -> tuple[List[dict], dict]:
                 duplicates_found += 1
 
         if is_duplicate and merge_with_idx is not None:
-            # Merge metadata with existing entry
+            # Merge metadata with existing entry (real beats stub)
             merge_with = unique[merge_with_idx]
-            merged = merge_entries(merge_with, entry)
+            merged = merge_duplicate_pair(merge_with, entry)
 
             # Update in unique list
             unique[merge_with_idx] = merged
@@ -230,11 +310,30 @@ def is_cache_valid(cache_file: Path, bib_files: List[Path], output_file: Path) -
     return cache.get("input_hash") == current_hash
 
 
+def input_sort_key(bib_file: Path, output_name: str) -> tuple:
+    """Deterministic merge order: output file, then real sources, then stubs.
+
+    Order decides which entry of a duplicate pair is seen FIRST and therefore
+    becomes the base. Filesystem glob order is arbitrary, so pin it: the
+    author-owned bibliography first, stub sidecars (`_stubs_pending_scholar.bib`)
+    last. This is belt-and-braces -- merge_duplicate_pair enforces real-beats-stub
+    regardless of order -- but it also makes the OUTPUT byte-stable across runs.
+    """
+    if bib_file.name == output_name:
+        rank = 0
+    elif "stub" in bib_file.name.lower():
+        rank = 2
+    else:
+        rank = 1
+    return (rank, bib_file.name)
+
+
 def merge_bibtex_files(
     bib_dir: Path,
     output_file: str = "bibliography.bib",
     verbose: bool = True,
     force: bool = False,
+    include_output: bool = False,
 ) -> bool:
     """
     Merge all .bib files in directory with smart deduplication.
@@ -244,6 +343,17 @@ def merge_bibtex_files(
         output_file: Output filename (saved in bib_dir)
         verbose: Print progress messages
         force: Force merge even if cache is valid
+        include_output: Read the output file as an INPUT too, so the merge is
+            de-duplicating and additive instead of regenerate-from-scratch.
+            The compile path sets this because its output --
+            `00_shared/bib_files/bibliography.bib` -- is the consumer-owned file
+            the manuscript actually cites (contents/bibliography.bib symlinks to
+            it) and is stamped "consumer-owned - safe to edit" in its own header.
+            With it OFF, entries that live only in bibliography.bib are silently
+            destroyed by a merge with any other .bib, and a duplicate cite key
+            INSIDE bibliography.bib is never collapsed at all. Default stays OFF
+            so a merge into some other, genuinely derived, output file keeps
+            regenerate-from-scratch semantics.
 
     Returns:
         True if successful
@@ -256,8 +366,11 @@ def merge_bibtex_files(
         output_path = bib_dir / output_file
     cache_file = bib_dir / ".bibliography_cache.json"
 
-    # Find all .bib files except the output file
-    bib_files = [f for f in bib_dir.glob("*.bib") if f.name != output_path.name]
+    # Find all .bib files; the output is an input only when asked (see above).
+    bib_files = [
+        f for f in bib_dir.glob("*.bib") if include_output or f.name != output_path.name
+    ]
+    bib_files.sort(key=lambda f: input_sort_key(f, output_path.name))
 
     if not bib_files:
         if verbose:
@@ -351,6 +464,15 @@ def main():
     parser.add_argument(
         "-f", "--force", action="store_true", help="Force merge (ignore cache)"
     )
+    parser.add_argument(
+        "--include-output",
+        action="store_true",
+        help=(
+            "Merge the output file as an input too (de-duplicating + additive, "
+            "never destructive). Use when the output is the consumer-owned "
+            "bibliography.bib the manuscript cites."
+        ),
+    )
 
     args = parser.parse_args()
 
@@ -359,6 +481,7 @@ def main():
         output_file=args.output,
         verbose=not args.quiet,
         force=args.force,
+        include_output=args.include_output,
     )
 
     exit(0 if success else 1)

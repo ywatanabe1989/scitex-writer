@@ -84,6 +84,8 @@ do_verbose=false
 draft_mode=false
 dark_mode=${SCITEX_WRITER_DARK_MODE:-false}
 clew_overlay=false
+# Set when the PDF stage promoted a real PDF despite a non-zero engine exit.
+compile_warned=false
 
 usage() {
     echo ""
@@ -385,9 +387,17 @@ parse_arguments() {
     ./scripts/shell/modules/compilation_structure_tex_to_compiled_tex.sh
     log_stage_end "TeX Compilation (Structure)"
 
-    # Compile to PDF. FAIL LOUD if the revision PDF was not (re)created.
+    # Compile to PDF. Exit 3 = a VALID PDF was produced and promoted but the
+    # engine exited non-zero (non-fatal bibtex/stub error): keep the PDF, keep
+    # going, and report WITH WARNINGS (exit 3) instead of a clean pass. Any other
+    # non-zero = no PDF was (re)created -> FAIL LOUD.
     log_stage_start "PDF Generation"
-    if ! ./scripts/shell/modules/compilation_compiled_tex_to_compiled_pdf.sh; then
+    pdf_status=0
+    ./scripts/shell/modules/compilation_compiled_tex_to_compiled_pdf.sh || pdf_status=$?
+    if [ "$pdf_status" -eq 3 ]; then
+        compile_warned=true
+        echo_warning "PDF was produced and promoted, but the engine exited non-zero (above)."
+    elif [ "$pdf_status" -ne 0 ]; then
         echo_error "PDF generation failed — revision.pdf was not (re)created. Aborting."
         exit 1
     fi
@@ -438,6 +448,13 @@ parse_arguments() {
     echo_success "TOTAL COMPILATION TIME: ${total_compilation_time}s"
     echo_success "===================================================="
     echo_success "PDF: $SCITEX_WRITER_COMPILED_PDF"
+
+    # A promoted-with-warnings run is not a clean pass — say so, and exit 3.
+    if [ "$compile_warned" = true ]; then
+        echo_warning "COMPLETED WITH WARNINGS — the PDF is usable but the engine"
+        echo_warning "reported an error (usually a bibtex stub/duplicate entry)."
+        exit 3
+    fi
 } 2>&1 | tee -a "$LOG_PATH" "$SCITEX_WRITER_GLOBAL_LOG_FILE"
 
 # EOF

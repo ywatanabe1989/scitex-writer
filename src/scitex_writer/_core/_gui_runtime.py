@@ -23,6 +23,11 @@ from typing import Optional, Union
 
 PathLike = Union[str, Path]
 
+#: Writer's fixed slot in the fleet-wide GUI port scheme. The GUI binds
+#: exactly this port (or an explicit ``--port``) and fails loud when it is
+#: taken — it never silently drifts to the next free port.
+DEFAULT_PORT = 31298
+
 _STATE_FIELDS = ("pid", "port", "host", "project", "started_at")
 
 

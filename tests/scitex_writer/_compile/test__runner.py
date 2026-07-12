@@ -236,6 +236,129 @@ class TestRunCompileCommandBuilding:
         assert "--track-changes" in runner.cmd
 
 
+class _ExitCodeCommandRunner:
+    """Real _run_sh_command stand-in returning a chosen exit code.
+
+    Same shape/contract as _run_sh_command — the documented `command_runner`
+    seam on run_compile — so the exit-code interpretation can be exercised
+    without a 2-minute LaTeX build.
+    """
+
+    def __init__(self, exit_code: int):
+        self.exit_code = exit_code
+
+    def __call__(self, cmd, **kwargs):
+        return {
+            "stdout": "",
+            "stderr": "",
+            "exit_code": self.exit_code,
+            "success": self.exit_code == 0,
+        }
+
+
+def _write_promoted_pdf(project_dir: Path, pages: int = 7) -> None:
+    """Put a REAL promoted artifact where the compile script would leave it."""
+    doc_dir = project_dir / "01_manuscript"
+    logs = doc_dir / "logs"
+    logs.mkdir(parents=True, exist_ok=True)
+    page_objs = b"".join(b"/Type /Page\n" for _ in range(pages))
+    (doc_dir / "manuscript.pdf").write_bytes(b"%PDF-1.5\n" + page_objs + b"%%EOF\n")
+    (logs / "manuscript.log").write_text(
+        f"Output written on 01_manuscript/logs/manuscript.pdf ({pages} pages, 129061 bytes).\n"
+    )
+
+
+class TestPromotedWithWarningsExitCode:
+    """Exit 3 = "a PDF was produced but the engine exited non-zero".
+
+    A non-fatal bibtex error (stub / duplicate entry) makes latexmk exit 12 while
+    pdfTeX still finalizes a complete PDF. That PDF must be KEPT — but the run is
+    not clean, so it must not be reported as one. And a compile that produced
+    NOTHING must still fail, or the fix would be a silent-success bug.
+    """
+
+    def test_promoted_compile_is_reported_successful(self, valid_project):
+        # Arrange
+        _write_promoted_pdf(valid_project)
+        # Act
+        result = run_compile(
+            "manuscript", valid_project, command_runner=_ExitCodeCommandRunner(3)
+        )
+        # Assert
+        assert result.success
+
+    def test_promoted_compile_keeps_the_output_pdf(self, valid_project):
+        # Arrange
+        _write_promoted_pdf(valid_project)
+        # Act
+        result = run_compile(
+            "manuscript", valid_project, command_runner=_ExitCodeCommandRunner(3)
+        )
+        # Assert
+        assert result.output_pdf == valid_project / "01_manuscript" / "manuscript.pdf"
+
+    def test_promoted_compile_is_not_a_clean_pass(self, valid_project):
+        # Arrange: the caller must be able to tell it apart from a clean compile
+        _write_promoted_pdf(valid_project)
+        # Act
+        result = run_compile(
+            "manuscript", valid_project, command_runner=_ExitCodeCommandRunner(3)
+        )
+        # Assert
+        assert result.exit_code == 3
+
+    def test_promoted_compile_emits_a_loud_warning(self, valid_project):
+        # Arrange
+        _write_promoted_pdf(valid_project)
+        # Act
+        result = run_compile(
+            "manuscript", valid_project, command_runner=_ExitCodeCommandRunner(3)
+        )
+        # Assert
+        assert "FIX THE BIBLIOGRAPHY BEFORE SUBMISSION" in result.warnings[0]
+
+    def test_clean_compile_carries_no_promotion_warning(self, valid_project):
+        # Arrange
+        _write_promoted_pdf(valid_project)
+        # Act
+        result = run_compile(
+            "manuscript", valid_project, command_runner=_ExitCodeCommandRunner(0)
+        )
+        # Assert
+        assert not any("PDF PROMOTED" in w for w in result.warnings)
+
+    def test_exit_three_without_a_pdf_still_fails(self, valid_project):
+        # Arrange: nothing was produced — no PDF is written at all
+        # Act
+        result = run_compile(
+            "manuscript", valid_project, command_runner=_ExitCodeCommandRunner(3)
+        )
+        # Assert
+        assert not result.success
+
+    def test_exit_three_with_a_zero_page_pdf_still_fails(self, valid_project):
+        # Arrange: an aborted run left a header-only husk, no page objects
+        doc_dir = valid_project / "01_manuscript"
+        doc_dir.mkdir(exist_ok=True)
+        (doc_dir / "manuscript.pdf").write_bytes(b"%PDF-1.5\n%%EOF\n")
+        # Act
+        result = run_compile(
+            "manuscript", valid_project, command_runner=_ExitCodeCommandRunner(3)
+        )
+        # Assert
+        assert not result.success
+
+    def test_genuine_failure_exit_code_still_fails(self, valid_project):
+        # Arrange: a stale PDF on disk must not rescue a real failure
+        _write_promoted_pdf(valid_project)
+        # Act
+        result = run_compile(
+            "manuscript", valid_project, command_runner=_ExitCodeCommandRunner(1)
+        )
+        # Assert
+        assert not result.success
+
+
 class TestFindOutputFiles:
     """_find_output_files does not produce false positives (issue #76)."""
 

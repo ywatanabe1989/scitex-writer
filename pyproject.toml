@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "scitex-writer"
-version = "2.29.0"
+version = "2.30.0"
 description = "LaTeX manuscript compilation system for scientific documents with MCP server"
 readme = "README.md"
 license = "AGPL-3.0-only"
@@ -46,7 +46,15 @@ dependencies = [
     # scitex-ui ships `standalone_shell.html` + shell CSS that the editor
     # and viewer templates extend. Loading either page without scitex-ui
     # installed raises TemplateDoesNotExist.
-    "scitex-ui>=0.1.0",
+    #
+    # FLOOR IS 0.5.1, not 0.1.0: settings.py registers the context processor
+    # `scitex_ui.context_processors.element_inspector`, and that module does
+    # not exist before 0.5.x. With the old >=0.1.0 floor, pip happily
+    # installed 0.4.5 and the editor 500'd at RENDER time with
+    # ModuleNotFoundError — a runtime failure that should have been an
+    # install-time resolution failure. Raise this floor whenever settings.py
+    # starts consuming a newer scitex-ui symbol.
+    "scitex-ui>=0.5.1",
     # Pillow powers the thumbnail service for figure/table previews in the
     # editor's insert panel. Core — removing it breaks `api/thumbnail` and
     # the fig/table grid renders empty rectangles.
@@ -66,7 +74,17 @@ scholar = [
     # (tests/scripts/python/test_check_citation_trust.py, opt-in via
     # SCITEX_WRITER_NETWORK_TESTS=1) is what proves the upstream can actually
     # produce a VERIFIED verdict.
-    "scitex-scholar>=1.5.0",
+    #
+    # 1.5.2 raises it again, and this floor is about CORRECTNESS, not features.
+    # Before it, a citation with no identifier could resolve by a fuzzy TITLE
+    # SEARCH against a live index — so the SAME .bib entry could classify
+    # VERIFIED on one run and UNVERIFIED on the next, silently, with nothing in
+    # the output admitting it had guessed. A non-deterministic verifier is not a
+    # verifier. 1.5.2 requires VERIFIED to be backed by a real identifier
+    # (doi / arXiv id / corpus id); a title-only match caps at UNVERIFIED with a
+    # reason. Live-verified across all four forms (doi, bare eprint, title-only,
+    # fabricated).
+    "scitex-scholar>=1.5.2",
 ]
 dev = [
     "pytest>=7.0.0",
@@ -78,9 +96,9 @@ dev = [
     # users opt in via `pip install scitex-writer[scholar]`. See
     # _skills/general/01_ecosystem_02_dependency-and-version-pinning.md
     # `[dev]` extras completeness.
-    # Same >=1.5.0 floor as the [scholar] extra: a fresh `pip install -e .[dev]`
+    # Same >=1.5.2 floor as the [scholar] extra: a fresh `pip install -e .[dev]`
     # in CI must get a scholar whose verify_cites can actually return VERIFIED.
-    "scitex-scholar>=1.5.0",  # tested via [scholar] integration tests
+    "scitex-scholar>=1.5.2",  # tested via [scholar] integration tests
     "openpyxl",           # writes the .xlsx fixture for the tables xlsx stage
 ]
 docs = [

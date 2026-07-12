@@ -461,6 +461,80 @@ def test_live_fabricated_entry_is_classified_hallucinated_by_upstream(tmp_path, 
     assert "classified HALLUCINATED" in out
 
 
+# A real arXiv paper cited the way arXiv's own "export citation" emits it:
+# bare `eprint` + `archivePrefix`, no DOI. The dominant citation form in ML/CS.
+_EPRINT_TEX = r"""
+\documentclass{article}
+\begin{document}
+Transformers \cite{Vaswani2017}.
+\bibliography{bibliography}
+\end{document}
+"""
+
+_EPRINT_BIB = """
+@article{Vaswani2017,
+  title = {Attention Is All You Need},
+  author = {Vaswani, Ashish},
+  eprint = {1706.03762},
+  archivePrefix = {arXiv},
+  year = {2017}
+}
+"""
+
+# The SAME real paper as _LIVE_BIB, with the DOI removed. Exists, title matches
+# perfectly -- and must STILL not verify, because nothing identifies it.
+_TITLE_ONLY_TEX = _LIVE_TEX
+
+_TITLE_ONLY_BIB = """
+@article{LeCun2015,
+  title = {Deep learning},
+  author = {LeCun, Yann and Bengio, Yoshua and Hinton, Geoffrey},
+  journal = {Nature},
+  year = {2015}
+}
+"""
+
+
+@live_network
+def test_live_bare_arxiv_eprint_is_verified_by_upstream(tmp_path, capsys):
+    """arXiv's own citation format must verify -- it is the ML/CS default.
+
+    Before scholar 1.5.2 the `eprint` VALUE was discarded and the entry fell
+    through to a title search, so this exact citation classified UNVERIFIED for
+    one caller and VERIFIED for another, minutes apart.
+    """
+    # Arrange
+    project = _live_project(tmp_path, _EPRINT_TEX, _EPRINT_BIB)
+    run_check(project, level="error", use_cache=False)
+    # Act
+    out = capsys.readouterr().out
+    # Assert
+    assert "1 citation(s) resolve to a real source" in out
+
+
+@live_network
+def test_live_title_only_entry_is_not_verified_despite_being_real(tmp_path, capsys):
+    """The correctness pin: a REAL paper with NO identifier must NOT verify.
+
+    This entry is the same Nature paper as the VERIFIED case, minus its DOI. It
+    exists and its title matches exactly -- and it must still come back
+    unverified, because a fuzzy title match against a live index is not evidence:
+    it is non-deterministic, so the same entry could pass on one run and fail on
+    the next. Honest uncertainty beats a lucky pass; a verifier that is right by
+    chance gives you no way to know which citations you can actually trust.
+
+    If this test ever goes green on a "verified" line, the title-search fallback
+    has come back and every guarantee this check makes is void.
+    """
+    # Arrange
+    project = _live_project(tmp_path, _TITLE_ONLY_TEX, _TITLE_ONLY_BIB)
+    run_check(project, level="warn", use_cache=False)
+    # Act
+    out = capsys.readouterr().out
+    # Assert
+    assert "resolve to a real source" not in out
+
+
 # ----------------------------------------------------------------- end-to-end
 
 
