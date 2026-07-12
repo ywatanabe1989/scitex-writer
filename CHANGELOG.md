@@ -5,7 +5,9 @@ All notable changes to SciTeX Writer will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [2.28.1] - 2026-07-12
+
+**Upgrade from 2.28.0 and run `scitex-writer update-project`** — without it, 2.28.0's advertised engine fixes do not take effect.
 
 ### Fixed
 - **The 2.28.0 engine fixes never reached a real compile.** `compile-manuscript` runs the vendored `scripts/shell/compile_manuscript.sh`, which still invoked `modules/process_{figures,tables,diff,archive}.sh` — so the pure-Python pipelines were reachable only through `tables render` / `figures render` / `compile diff` / `compile archive`, which nothing on the compile path calls. Every 2.28.0 user still got backend-dependent math escaping, multi-panel figures shipped as panel-a, no-op cropping, and diff-against-self. All three compile scripts (manuscript / supplementary / revision) now delegate those four stages to the installed Python engine through the new `modules/run_python_pipeline.sh` launcher, which FAILS LOUD (with a `pip install -U scitex-writer` hint) rather than falling back to the shell. Consumer projects pick this up with `scitex-writer update-project`.
