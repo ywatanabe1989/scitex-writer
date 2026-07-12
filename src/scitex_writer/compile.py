@@ -25,12 +25,24 @@ Usage::
         project_dir="./my-paper",  # Optional, for .preview/ output
         color_mode="dark",         # 'light' or 'dark'
     )
+
+    # Version-diff PDF (latexdiff markup vs the previous committed version)
+    result = sw.compile.diff("./my-paper")
+
+    # Snapshot the compiled outputs into the versions directory
+    result = sw.compile.archive("./my-paper")
 """
+
+from typing import Literal as _Literal
+from typing import Optional as _Optional
 
 from ._dataclasses import CompilationResult
 from ._mcp.handlers import compile_manuscript as _compile_manuscript
 from ._mcp.handlers import compile_revision as _compile_revision
 from ._mcp.handlers import compile_supplementary as _compile_supplementary
+from ._mcp.handlers import process_archive as _process_archive
+from ._mcp.handlers import process_diff as _process_diff
+from ._utils._latexmk import DEFAULT_TIMEOUT_SEC as _DIFF_TIMEOUT_SEC
 
 try:
     from scitex_dev.decorators import supports_return_as as _supports_return_as
@@ -214,6 +226,56 @@ def content(
     )
 
 
-__all__ = ["manuscript", "supplementary", "revision", "content"]
+@_supports_return_as
+def diff(
+    project_dir: str,
+    doc_type: _Literal["manuscript", "supplementary", "revision"] = "manuscript",
+    no_diff: bool = False,
+    diff_from: _Optional[str] = None,
+    timeout_sec: int = _DIFF_TIMEOUT_SEC,
+) -> dict:
+    """Build the version-diff PDF for ``doc_type`` (latexdiff markup).
+
+    The pure-Python port of ``scripts/shell/modules/process_diff.sh``: reads the
+    PREVIOUS version of the compiled ``.tex`` out of git history, runs latexdiff
+    against the current one, stamps a metadata + ``fancyhdr`` signature block, and
+    compiles the result with latexmk (bounded by ``timeout_sec``).
+
+    ``diff_from`` overrides the OLD version (default: the previous commit that
+    touched the compiled ``.tex``). With NO previous version this FAILS -- the
+    shell used to compile current-vs-current, whose unmarked PDF is
+    indistinguishable from "nothing changed". Missing ``latexdiff`` / ``latexmk``
+    likewise fail with an install hint rather than emitting a wrong PDF.
+
+    Returns ``{success, from_hash, to_hash, diff_tex, diff_pdf, pdf_bytes,
+    skipped, error}``.
+    """
+    return _process_diff(project_dir, doc_type, no_diff, diff_from, timeout_sec)
+
+
+@_supports_return_as
+def archive(
+    project_dir: str,
+    doc_type: _Literal["manuscript", "supplementary", "revision"] = "manuscript",
+    no_archive: bool = False,
+) -> dict:
+    """Snapshot the compiled outputs of ``doc_type`` into the versions directory.
+
+    The pure-Python port of ``scripts/shell/modules/process_archive.sh``: copies
+    the compiled PDF/TeX and the diff PDF/TeX to
+    ``<archive_dir>/<stem>_<YYYYmmdd-HHMMSS>_<commit>.<ext>``, plus an un-stamped
+    "current" copy of each.
+
+    Archives ONLY a clean working tree -- a snapshot stamped with a commit hash it
+    does not actually hold would be a lie -- so a dirty tree returns
+    ``skipped=True`` with a ``skip_reason``.
+
+    Returns ``{success, archive_id, archived, versions_dir, missing, skipped,
+    skip_reason, error}``.
+    """
+    return _process_archive(project_dir, doc_type, no_archive)
+
+
+__all__ = ["manuscript", "supplementary", "revision", "content", "diff", "archive"]
 
 # EOF

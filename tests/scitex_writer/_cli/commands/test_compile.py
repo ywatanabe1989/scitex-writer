@@ -19,3 +19,13 @@ def test_compile_group_has_expected_subcommands():
     names = set(compile_group.commands.keys())
     # Assert
     assert {"manuscript", "supplementary", "revision", "content"} <= names
+
+
+def test_compile_group_exposes_ported_engine_leaves():
+    # Arrange -- the shell-port slice-6 pipelines (process_diff / process_archive)
+    from scitex_writer._cli.commands.compile import compile_group
+
+    # Act
+    names = set(compile_group.commands.keys())
+    # Assert
+    assert {"diff", "archive"} <= names

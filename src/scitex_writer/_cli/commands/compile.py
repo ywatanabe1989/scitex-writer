@@ -12,7 +12,12 @@ from pathlib import Path
 import click
 
 from .._core import main_group
-from .._helpers import _ENGINE_CHOICES, _emit_json, _print_compile_result
+from .._helpers import (
+    _DOC_TYPE,
+    _ENGINE_CHOICES,
+    _emit_json,
+    _print_compile_result,
+)
 
 # =========================================================================
 # compile group  (LaTeX domain — names preserved verbatim)
@@ -212,6 +217,111 @@ def compile_content(
         keep_aux=keep_aux,
     )
     return _print_compile_result(result, as_json)
+
+
+# =========================================================================
+# The two pipelines ported from the shell engine in slice 6. They live under
+# `compile` (not as their own groups) because `diff` and `archive` are VERBS:
+# they are leaves of a noun group, and this keeps CLI / Python API / MCP
+# aligned -- `compile diff` <-> `sw.compile.diff` <-> `writer_compile_diff`.
+# =========================================================================
+
+
+@compile_group.command("diff")
+@click.option("-p", "--project", default=".", help="Project path.")
+@click.option("-t", "--doc-type", type=_DOC_TYPE, default="manuscript")
+@click.option(
+    "--from",
+    "diff_from",
+    default=None,
+    help="Commit-ish to diff FROM (default: the previous commit touching the tex).",
+)
+@click.option("--no-diff", is_flag=True, default=False, help="Skip the diff pipeline.")
+@click.option(
+    "--timeout",
+    "timeout_sec",
+    type=int,
+    default=120,
+    show_default=True,
+    help="Bound on the latexmk run, in seconds.",
+)
+@click.option("--json", "as_json", is_flag=True, default=False, help="Emit JSON.")
+def compile_diff(project, doc_type, diff_from, no_diff, timeout_sec, as_json):
+    """Build the version-diff PDF (latexdiff markup vs the previous version).
+
+    The pure-Python diff engine (port of process_diff.sh): reads the previous
+    version of the compiled .tex from git, runs latexdiff, stamps a signature
+    block, and compiles the result with latexmk. With NO previous version it FAILS
+    rather than emitting an unmarked PDF that looks like "nothing changed".
+
+    \b
+    Example:
+        $ scitex-writer compile diff
+        $ scitex-writer compile diff --from v1.0 -t supplementary --json
+    """
+    from ... import compile as compile_api
+
+    result = compile_api.diff(project, doc_type, no_diff, diff_from, timeout_sec)
+    if as_json:
+        _emit_json(result)
+        return 0 if result.get("success") else 1
+    if not result.get("success"):
+        click.echo(f"Error: {result['error']}", err=True)
+        return 1
+    if result["skipped"]:
+        click.echo("Skipped the diff pipeline (--no-diff).")
+        return 0
+    click.echo(
+        f"Diff {result['from_hash']} -> {result['to_hash']} "
+        f"({result['pdf_bytes']} bytes) -> {result['diff_pdf']}"
+    )
+    return 0
+
+
+@compile_group.command("archive")
+@click.option("-p", "--project", default=".", help="Project path.")
+@click.option("-t", "--doc-type", type=_DOC_TYPE, default="manuscript")
+@click.option(
+    "--no-archive", is_flag=True, default=False, help="Skip the archive pipeline."
+)
+@click.option("--dry-run", is_flag=True, default=False, help="Print, don't archive.")
+@click.option("--yes", "-y", is_flag=True, default=False, help="Skip confirmations.")
+@click.option("--json", "as_json", is_flag=True, default=False, help="Emit JSON.")
+def compile_archive(project, doc_type, no_archive, dry_run, yes, as_json):
+    """Snapshot the compiled outputs into the versions directory.
+
+    The pure-Python archive engine (port of process_archive.sh): copies the
+    compiled PDF/TeX and the diff PDF/TeX to <archive_dir>/<stem>_<timestamp>_
+    <commit>.<ext>, plus an un-stamped "current" copy of each. A DIRTY working
+    tree is skipped -- a snapshot stamped with a commit it does not hold is a lie.
+
+    \b
+    Example:
+        $ scitex-writer compile archive
+        $ scitex-writer compile archive --dry-run
+    """
+    from ... import compile as compile_api
+
+    if dry_run:
+        if as_json:
+            _emit_json({"would_archive": doc_type, "project": project})
+        else:
+            click.echo(f"Would archive the compiled {doc_type} outputs.")
+        return 0
+    result = compile_api.archive(project, doc_type, no_archive)
+    if as_json:
+        _emit_json(result)
+        return 0 if result.get("success") else 1
+    if not result.get("success"):
+        click.echo(f"Error: {result['error']}", err=True)
+        return 1
+    if result["skipped"]:
+        click.echo(f"Skipped: {result['skip_reason']}")
+        return 0
+    click.echo(f"Archive {result['archive_id']} -> {result['versions_dir']}")
+    for entry in result["archived"]:
+        click.echo(f"  {entry['source']} -> {entry['archived']}")
+    return 0
 
 
 # EOF
