@@ -562,6 +562,27 @@ def test_editor_page_renders_scitex_writer_in_body_and_writer_css_editor_css_in_
     body = resp.content.decode()
     # Act
     # Assert
-    assert ('SciTeX Writer' in body) and ('writer/css/editor.css' in body or 'editor.css' in body)
+    assert ('Writer — SciTeX' in body) and ('writer/css/editor.css' in body or 'editor.css' in body)
+
+
+def test_editor_tab_title_marks_standalone_mode(project_dir):
+    # Arrange
+    rf = RequestFactory()
+    request = rf.get(f"/?working_dir={project_dir}")
+    resp = views.editor_page(request)
+    # Act
+    body = resp.content.decode()
+    # Assert
+    assert 'Writer — SciTeX (standalone)' in body
+
+
+def test_app_label_omits_marker_in_hub_mode():
+    # Arrange
+    from django.test import override_settings
+    # Act
+    with override_settings(SCITEX_APP_MODE="hub"):
+        label = views._app_label("Writer — SciTeX")
+    # Assert
+    assert label == "Writer — SciTeX"
 
 
