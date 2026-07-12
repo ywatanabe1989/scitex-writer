@@ -5,6 +5,21 @@ All notable changes to SciTeX Writer will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.29.0] - 2026-07-12
+
+### Added
+- **Citation-trustworthiness check.** Beyond "does the `\cite` key exist in the `.bib`", each citation is now resolved against CrossRef/OpenAlex/ArXiv/SemanticScholar (via `scitex-scholar`) and classified: a fabricated paper is flagged as **hallucinated**, an unresolvable one as **unverified**. Runs on the shared severity framework (`citation_trust`, default `warn` — a network-dependent check must not block a compile by default; override with `SCITEX_WRITER_CITATION_TRUST` or `config.yaml`). Surfaces as `scitex-writer check-citation-trust`, `checks.citation_trust()`, and in the pre-compile provenance stage. Verdicts are cached per cite-key + bib-entry hash, so an edited entry re-verifies but a hundred-citation manuscript does not re-hammer the network on every compile.
+
+  **It never silently passes.** If `scitex-scholar` is absent, the network is down, or the resolver errors, the check says so loudly and reports *zero* passes — an un-runnable check is reported as un-runnable, never as "all good".
+
+  **Scope limit, stated plainly:** a green result means *the citation resolves to a real source whose title and authors match*. It does **not** mean the paper is un-retracted or the venue is reputable — neither is checked. Do not read it as such.
+
+### Changed
+- Requires `scitex-scholar>=1.5.0` for the `scholar` extra. Earlier versions could **never** return a `verified` verdict for any citation (an upstream metadata-shape bug, found and fixed while building this check), so every citation — including correct ones — silently degraded to "unverified".
+
+### Known gaps
+- **arXiv DOIs (`10.48550/arXiv.*`) do not yet verify** — a correctly-cited arXiv paper currently classifies as `unverified`, so on ML/CS manuscripts the check is noisy where it is most needed. Fix is in flight upstream in `scitex-scholar`.
+
 ## [2.28.1] - 2026-07-12
 
 **Upgrade from 2.28.0 and run `scitex-writer update-project`** — without it, 2.28.0's advertised engine fixes do not take effect.

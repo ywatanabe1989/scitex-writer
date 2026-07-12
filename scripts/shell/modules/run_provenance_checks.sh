@@ -47,6 +47,17 @@
 # converted. Reading the compiled output means it never re-flags what the auto-pad
 # already normalized; it fires exactly on the un-normalized paths. Defaults to
 # warn (a safety net; the auto-pad is the systemic prevention).
+# citation_trust is the CITATION-TRUSTWORTHINESS check: it resolves every cited
+# entry against the real bibliographic record via scitex-scholar
+# (verify_cites -> CrossRef/OpenAlex/arXiv/SemanticScholar) and flags citations
+# that are not provably real (hallucinated -> error, unverified/stub/unlinked ->
+# warning). Defaults to WARN -- a network-dependent check must never block a
+# compile by default -- and FAILS LOUDLY (never silently passes) when it cannot
+# run: no scitex-scholar extra, no network, or an unresolvable bib is reported as
+# "citations could NOT be verified", never as a pass. Verdicts are cached in
+# .scitex/writer/runtime/citation_trust.json (scholar has no cache of its own),
+# keyed by cite key + bib-entry content hash, so repeated compiles are network-free
+# until an entry actually changes.
 #
 # Returns the worst exit code across the checks (0 unless a check errored).
 
@@ -57,7 +68,7 @@ PROJECT_ROOT="${PROJECT_ROOT:-$(cd "$THIS_DIR/../../.." && pwd)}"
 PY="${SCITEX_WRITER_PYTHON:-python3}"
 
 rc=0
-for chk in check_paper_symlink check_media_provenance check_figure_media check_ref_integrity check_caption_footnote check_table_decimals check_clew_verify check_citations check_version_freshness; do
+for chk in check_paper_symlink check_media_provenance check_figure_media check_ref_integrity check_caption_footnote check_table_decimals check_clew_verify check_citations check_citation_trust check_version_freshness; do
     script="$THIS_DIR/../../python/${chk}.py"
     [ -f "$script" ] || continue
     "$PY" "$script" "$PROJECT_ROOT" || rc=$?

@@ -19,6 +19,7 @@ def test_module_exposes_all_check_commands():
         "check_overflow_cmd",
         "check_paper_symlink_cmd",
         "check_references_cmd",
+        "check_citation_trust_cmd",
     }
     # Act
     present = {name for name in expected if hasattr(module, name)}

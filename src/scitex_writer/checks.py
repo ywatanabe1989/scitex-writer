@@ -30,6 +30,7 @@ from typing import Literal as _Literal
 from typing import Optional as _Optional
 
 from ._mcp.handlers import check_caption_footnote as _check_caption_footnote
+from ._mcp.handlers import check_citation_trust as _check_citation_trust
 from ._mcp.handlers import check_float_order as _check_float_order
 from ._mcp.handlers import check_limits as _check_limits
 from ._mcp.handlers import check_media_provenance as _check_media_provenance
@@ -372,6 +373,68 @@ def table_decimals(
     return handler(project_dir, doc_type, level)
 
 
+def citation_trust(
+    project_dir: str,
+    level: _Optional[_Literal["off", "warn", "error"]] = None,
+    offline: bool = False,
+    min_confidence: _Optional[float] = None,
+    no_cache: bool = False,
+    handler: _Optional[_Callable[..., dict]] = None,
+) -> dict:
+    """Verify every ``\\cite`` resolves to a REAL, trustworthy source.
+
+    Goes beyond :func:`ref_integrity` ("the key exists in the .bib") and the
+    citation gate ("the entry is not a scholar stub"): each cited entry is
+    RESOLVED against the real bibliographic record via **scitex-scholar**
+    (``scitex_scholar.verify_cites``, the ``scholar`` extra) — CrossRef /
+    OpenAlex / arXiv / Semantic Scholar — and every citation that cannot be
+    shown to be a real source with a matching title is flagged.
+
+    Status → severity (as agreed for the findings feed):
+
+    * ``verified`` → info (suppressed; counted as a pass),
+    * ``unverified`` / ``stub`` / ``unlinked`` → warning,
+    * ``hallucinated`` → error.
+
+    **Fail-loud, never a silent pass.** When verification cannot RUN —
+    scitex-scholar is not installed, the bibliography cannot be resolved, the
+    network is unavailable, or the resolver raises — the check reports *that*
+    condition at the resolved level (a warning by default, an error with
+    ``exit_code`` 1 at ``level="error"``) and never reports the citations as
+    trustworthy.
+
+    Verdicts are **cached** in ``.scitex/writer/runtime/citation_trust.json``
+    (scholar has no persistent cache in this path), keyed by cite key + a
+    content hash of the bib entry, so an edited entry re-verifies. A cache miss
+    forces real verification; offline verdicts are never cached.
+
+    **Known gap:** scholar does not check retraction status or predatory
+    venues — a resolvable, title-matching citation to a retracted paper still
+    classifies as ``verified``.
+
+    Severity:
+
+    * ``warn`` — report, exit 0. **The default** (a network-dependent check must
+      never block a compile by default).
+    * ``error`` — hallucinated citations (and an un-runnable check) exit 1.
+    * ``off`` — check disabled.
+
+    Severity precedence (highest → lowest): the ``level`` argument, env
+    ``SCITEX_WRITER_CITATION_TRUST``, project ``./config.yaml``
+    (``citation_trust.level``), user ``~/.scitex/writer/config.yaml``, then the
+    ``warn`` default.
+
+    Returns a dict with ``success``, ``exit_code``, ``stdout``, ``stderr``,
+    and ``summary={passed, warnings, errors}``.
+
+    ``handler`` is the underlying check implementation; it defaults to
+    :func:`scitex_writer._mcp.handlers.check_citation_trust`. Exposed so callers
+    can supply an alternate implementation without patching internals.
+    """
+    handler = handler or _check_citation_trust
+    return handler(project_dir, level, offline, min_confidence, no_cache)
+
+
 __all__ = [
     "references",
     "float_order",
@@ -382,6 +445,7 @@ __all__ = [
     "caption_footnote",
     "ref_integrity",
     "table_decimals",
+    "citation_trust",
 ]
 
 # EOF

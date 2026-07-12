@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "scitex-writer"
-version = "2.28.1"
+version = "2.29.0"
 description = "LaTeX manuscript compilation system for scientific documents with MCP server"
 readme = "README.md"
 license = "AGPL-3.0-only"
@@ -59,7 +59,14 @@ desktop = [
 ]
 editor = []
 scholar = [
-    "scitex-scholar>=1.2.1",
+    # >=1.5.0 is a HARD floor, not a preference: before 1.5.0 a metadata-nesting
+    # bug in scitex-scholar meant `verify_cites` could never return VERIFIED for
+    # ANY citation, so the `citation_trust` check could only ever emit warnings.
+    # The live integration test
+    # (tests/scripts/python/test_check_citation_trust.py, opt-in via
+    # SCITEX_WRITER_NETWORK_TESTS=1) is what proves the upstream can actually
+    # produce a VERIFIED verdict.
+    "scitex-scholar>=1.5.0",
 ]
 dev = [
     "pytest>=7.0.0",
@@ -71,7 +78,9 @@ dev = [
     # users opt in via `pip install scitex-writer[scholar]`. See
     # _skills/general/01_ecosystem_02_dependency-and-version-pinning.md
     # `[dev]` extras completeness.
-    "scitex-scholar",     # tested via [scholar] integration tests
+    # Same >=1.5.0 floor as the [scholar] extra: a fresh `pip install -e .[dev]`
+    # in CI must get a scholar whose verify_cites can actually return VERIFIED.
+    "scitex-scholar>=1.5.0",  # tested via [scholar] integration tests
     "openpyxl",           # writes the .xlsx fixture for the tables xlsx stage
 ]
 docs = [

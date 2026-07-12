@@ -38,7 +38,33 @@ def test_module_exports_references_float_order_limits_and_overflow():
         "caption_footnote",
         "ref_integrity",
         "table_decimals",
+        "citation_trust",
     ]
+
+
+def test_citation_trust_forwards_all_arguments_to_handler():
+    # Arrange
+    handler = _RecordingHandler({"success": True})
+    # Act
+    checks.citation_trust(
+        "/path",
+        level="error",
+        offline=True,
+        min_confidence=0.9,
+        no_cache=True,
+        handler=handler,
+    )
+    # Assert
+    assert handler.calls == [("/path", "error", True, 0.9, True)]
+
+
+def test_citation_trust_defaults_are_none_level_online_cached():
+    # Arrange
+    handler = _RecordingHandler({"success": True})
+    # Act
+    checks.citation_trust("/path", handler=handler)
+    # Assert
+    assert handler.calls == [("/path", None, False, None, False)]
 
 
 def test_ref_integrity_forwards_all_arguments_to_handler():
