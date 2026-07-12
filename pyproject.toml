@@ -74,7 +74,13 @@ scholar = [
     # (tests/scripts/python/test_check_citation_trust.py, opt-in via
     # SCITEX_WRITER_NETWORK_TESTS=1) is what proves the upstream can actually
     # produce a VERIFIED verdict.
-    "scitex-scholar>=1.5.0",
+    #
+    # 1.5.1 raises it again: before it, arXiv DOIs (10.48550/arXiv.*) could not
+    # verify either — and arXiv is the dominant citation form in ML/CS, so the
+    # check was noisiest exactly where it matters most. Live-verified: an arXiv
+    # DOI now classifies VERIFIED. (A BARE `eprint` + `archivePrefix` entry
+    # still does not — known upstream gap, reported.)
+    "scitex-scholar>=1.5.1",
 ]
 dev = [
     "pytest>=7.0.0",
@@ -86,9 +92,9 @@ dev = [
     # users opt in via `pip install scitex-writer[scholar]`. See
     # _skills/general/01_ecosystem_02_dependency-and-version-pinning.md
     # `[dev]` extras completeness.
-    # Same >=1.5.0 floor as the [scholar] extra: a fresh `pip install -e .[dev]`
+    # Same >=1.5.1 floor as the [scholar] extra: a fresh `pip install -e .[dev]`
     # in CI must get a scholar whose verify_cites can actually return VERIFIED.
-    "scitex-scholar>=1.5.0",  # tested via [scholar] integration tests
+    "scitex-scholar>=1.5.1",  # tested via [scholar] integration tests
     "openpyxl",           # writes the .xlsx fixture for the tables xlsx stage
 ]
 docs = [
