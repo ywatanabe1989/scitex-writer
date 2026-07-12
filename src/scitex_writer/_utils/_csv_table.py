@@ -78,6 +78,25 @@ def is_verbatim(value) -> bool:
     return "$" in text or "\\" in text
 
 
+# In a verbatim cell these are NEVER valid unescaped, and each corrupts the
+# table SILENTLY rather than erroring: a bare `%` comments out the rest of the
+# row (including its `\\` terminator, so the next row is swallowed too), and a
+# bare `&` opens a phantom column. Escaping them is therefore always the
+# author's intent -- unlike `$`/`\`/`_`/`^`, which carry meaning in math and
+# must survive untouched.
+_VERBATIM_UNSAFE_RE = re.compile(r"(?<!\\)([%&])")
+
+
+def protect_verbatim(text: str) -> str:
+    r"""Escape the silently-corrupting chars inside an authored-LaTeX cell.
+
+    A MIXED cell -- prose next to math, e.g. ``5% ($p<0.05$)`` -- is verbatim
+    (it contains ``$``), so a naive passthrough left its ``%`` bare and LaTeX
+    ate the rest of the row. Already-escaped ``\%`` / ``\&`` are left alone.
+    """
+    return _VERBATIM_UNSAFE_RE.sub(r"\\\1", text)
+
+
 def format_number(val):
     """Format a number for LaTeX: ints bare, tiny values scientific, else 3 dp."""
     try:
@@ -139,7 +158,7 @@ def _render_cell(val, precision: Optional[int]) -> str:
     if not pd.notna(val):
         return "--"
     if is_verbatim(val):
-        return str(val)
+        return protect_verbatim(str(val))
     return escape_latex(_format_aligned(val, precision))
 
 
@@ -149,7 +168,10 @@ def _render_header(col) -> str:
     Underscores become spaces (``mean_iou`` -> ``mean iou``). NOT title-cased:
     acronyms must survive as authored (``ROC-AUC`` stays ``ROC-AUC``).
     """
-    header = str(col) if is_verbatim(col) else escape_latex(col).replace("\\_", " ")
+    if is_verbatim(col):
+        header = protect_verbatim(str(col))
+    else:
+        header = escape_latex(col).replace("\\_", " ")
     return f"\\textbf{{{header}}}"
 
 
@@ -336,6 +358,7 @@ __all__ = [
     "escape_latex",
     "format_number",
     "is_verbatim",
+    "protect_verbatim",
     "render_csv_table",
     "split_table_name",
 ]
