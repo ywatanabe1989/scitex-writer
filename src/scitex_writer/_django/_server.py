@@ -13,37 +13,30 @@ into their own Django project.
 from __future__ import annotations
 
 import os
-import socket
 import threading
 import webbrowser
 from pathlib import Path
 
-
-def _find_available_port(host: str, start_port: int) -> int:
-    port = start_port
-    for _ in range(100):
-        try:
-            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-                s.bind((host, port))
-                return port
-        except OSError:
-            port += 1
-    return start_port
+from .._core._gui_runtime import DEFAULT_PORT
 
 
 def run(
     project_dir: str,
-    port: int = 5050,
+    port: int = DEFAULT_PORT,
     host: str = "127.0.0.1",
     open_browser: bool = True,
     desktop: bool = False,
     hot_reload: bool = False,
 ) -> None:
-    """Launch the Django editor server locally.
+    """Launch the Django editor server locally on exactly ``port``.
 
     Tries `scitex_app._standalone.run_standalone` first (gets the full
     workspace shell from scitex-ui). Falls back to a bare runserver
     bootstrap if scitex-app is not installed.
+
+    The requested port is bound as given: when it is already in use the
+    server fails instead of drifting to the next free port (which used to
+    leave a stack of duplicate instances behind).
     """
     project_path = Path(project_dir).resolve()
     if not project_path.exists():
@@ -56,7 +49,6 @@ def run(
     os.environ["SCITEX_WORKING_DIR"] = str(project_path)
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "scitex_writer._django.settings")
 
-    port = _find_available_port(host, port)
     print(f"SciTeX Writer GUI: http://{host}:{port}")
     print(f"Project: {project_path}")
     print("Press Ctrl+C to stop")

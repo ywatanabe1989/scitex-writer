@@ -160,8 +160,8 @@ services:
 # Build GUI image (includes Flask + LaTeX)
 docker build -f scripts/containers/Dockerfile.gui -t scitex-writer-gui .
 
-# Run (opens on http://localhost:5050)
-docker run --rm -p 5050:5050 -v $(pwd):/workspace scitex-writer-gui
+# Run (opens on http://localhost:31298)
+docker run --rm -p 31298:31298 -v $(pwd):/workspace scitex-writer-gui
 ```
 
 #### Singularity (HPC)

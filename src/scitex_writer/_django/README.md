@@ -34,7 +34,7 @@ _django/
 
 ```bash
 scitex-writer gui ./my-paper
-# → http://127.0.0.1:5050
+# → http://127.0.0.1:31298
 ```
 
 Launches a local Django server bound to `_django.settings`. The project path is

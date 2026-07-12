@@ -16,6 +16,7 @@ cycle.
 from __future__ import annotations
 
 import os
+import socket
 import subprocess
 import sys
 import time
@@ -24,9 +25,11 @@ from pathlib import Path
 
 import click
 
+from ..._core import _gui_runtime
 from .._core import main_group
 from .._helpers import _emit_json
-from ..._core import _gui_runtime
+
+DEFAULT_PORT = _gui_runtime.DEFAULT_PORT
 
 
 def _resolve_project(project: str) -> Path | None:
@@ -35,6 +38,31 @@ def _resolve_project(project: str) -> Path | None:
         click.echo(f"Error: Project not found: {project_path}", err=True)
         return None
     return project_path
+
+
+def _port_is_free(host: str, port: int) -> bool:
+    """True when ``host:port`` can be bound right now."""
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+        try:
+            sock.bind((host, port))
+        except OSError:
+            return False
+    return True
+
+
+def _port_holder(port: int) -> str | None:
+    """Best-effort description of the process listening on ``port``."""
+    try:
+        proc = subprocess.run(
+            ["ss", "-ltnp"], capture_output=True, text=True, timeout=3
+        )
+    except (OSError, subprocess.SubprocessError):
+        return None
+    for line in proc.stdout.splitlines():
+        if f":{port} " in line:
+            _, _, users = line.partition("users:")
+            return (users.strip() or line.strip()) or None
+    return None
 
 
 @main_group.group("gui")
@@ -49,17 +77,25 @@ def gui_group():
 
 @gui_group.command("serve")
 @click.argument("project", default=".", required=False)
-@click.option("--port", type=int, default=5050, help="Server port (default: 5050).")
+@click.option(
+    "--port",
+    type=int,
+    default=DEFAULT_PORT,
+    help=f"Server port (default: {DEFAULT_PORT}).",
+)
 @click.option("--host", default="127.0.0.1", help="Host to bind (default: 127.0.0.1).")
 @click.option("--dry-run", is_flag=True, default=False, help="Print, don't launch.")
 @click.option("--json", "as_json", is_flag=True, default=False, help="Emit JSON.")
 def gui_serve(project, port, host, dry_run, as_json):
     """Run the editor server in the foreground (Ctrl-C to stop).
 
+    Binds exactly the requested port, and refuses to start when that port is
+    taken or when an editor server is already running.
+
     \b
     Example:
         $ scitex-writer gui serve
-        $ scitex-writer gui serve ~/proj/my-paper --port 5051
+        $ scitex-writer gui serve ~/proj/my-paper --port 31299
     """
     project_path = _resolve_project(project)
     if project_path is None:
@@ -70,14 +106,32 @@ def gui_serve(project, port, host, dry_run, as_json):
         else:
             click.echo(f"Would serve editor at http://{host}:{port}.")
         return 0
+    current = _gui_runtime.status()
+    if current.get("running"):
+        click.echo(
+            f"Error: editor already running at {current['url']} "
+            f"(pid {current['pid']}).\n"
+            "Open that URL, or stop it first: scitex-writer gui stop -y",
+            err=True,
+        )
+        return 1
+    if not _port_is_free(host, port):
+        holder = _port_holder(port)
+        held_by = f"\nHeld by: {holder}" if holder else ""
+        click.echo(
+            f"Error: port {port} is already in use on {host}.{held_by}\n"
+            "Rerun on another port (--port <other>), free the port, or stop a "
+            "stray editor: scitex-writer gui stop -y",
+            err=True,
+        )
+        return 1
     try:
-        from ..._django._server import _find_available_port, run as _run_editor
+        from ..._django._server import run as _run_editor
     except ImportError as e:
         click.echo(
             f"Error: {e}\nInstall with: pip install scitex-writer[editor]", err=True
         )
         return 1
-    port = _find_available_port(host, port)
     _gui_runtime.write_state(os.getpid(), port, host, str(project_path))
     try:
         _run_editor(
@@ -113,9 +167,7 @@ def _autoserve(project_path: Path, port: int, host: str) -> dict:
         host,
     ]
     with open(log_path, "ab") as log:
-        subprocess.Popen(
-            cmd, stdout=log, stderr=log, start_new_session=True
-        )
+        subprocess.Popen(cmd, stdout=log, stderr=log, start_new_session=True)
     deadline = time.monotonic() + 30.0
     while time.monotonic() < deadline:
         current = _gui_runtime.status()
@@ -127,7 +179,12 @@ def _autoserve(project_path: Path, port: int, host: str) -> dict:
 
 @gui_group.command("open")
 @click.argument("project", default=".", required=False)
-@click.option("--port", type=int, default=5050, help="Server port (default: 5050).")
+@click.option(
+    "--port",
+    type=int,
+    default=DEFAULT_PORT,
+    help=f"Server port (default: {DEFAULT_PORT}).",
+)
 @click.option("--host", default="127.0.0.1", help="Host to bind (default: 127.0.0.1).")
 @click.option("--no-browser", is_flag=True, default=False, help="Don't open browser.")
 @click.option(
@@ -144,7 +201,7 @@ def gui_open(project, port, host, no_browser, desktop, dry_run, as_json):
     \b
     Example:
         $ scitex-writer gui open
-        $ scitex-writer gui open ~/proj/my-paper --port 5051
+        $ scitex-writer gui open ~/proj/my-paper --port 31299
     """
     project_path = _resolve_project(project)
     if project_path is None:
@@ -268,7 +325,7 @@ def gui_stop(dry_run, yes, as_json):
 
 @main_group.command("launch-gui", hidden=True)
 @click.argument("project", default=".", required=False)
-@click.option("--port", type=int, default=5050)
+@click.option("--port", type=int, default=DEFAULT_PORT)
 @click.option("--host", default="127.0.0.1")
 @click.option("--no-browser", is_flag=True, default=False)
 @click.option("--desktop", is_flag=True, default=False)
@@ -278,9 +335,7 @@ def gui_stop(dry_run, yes, as_json):
 @click.pass_context
 def launch_gui(ctx, project, port, host, no_browser, desktop, dry_run, yes, as_json):
     """Deprecated alias for `gui open`."""
-    click.echo(
-        "Warning: `launch-gui` is deprecated; use `gui open` instead.", err=True
-    )
+    click.echo("Warning: `launch-gui` is deprecated; use `gui open` instead.", err=True)
     return ctx.invoke(
         gui_open,
         project=project,

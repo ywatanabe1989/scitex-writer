@@ -20,7 +20,7 @@
   "wip": false,
   "standalone": true,
   "standalone_command": "scitex-writer gui",
-  "standalone_port": 5050,
+  "standalone_port": 31298,
   "frontend_type": "vanilla",
   "embedded_package": true,
   "dependencies": {

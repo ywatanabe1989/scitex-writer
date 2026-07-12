@@ -38,13 +38,13 @@ def test_read_state_corrupt_returns_none(state_file):
 
 def test_write_state_roundtrips_fields(state_file):
     # Arrange
-    _gui_runtime.write_state(123, 5050, "127.0.0.1", "/proj", state_file)
+    _gui_runtime.write_state(123, 31298, "127.0.0.1", "/proj", state_file)
     # Act
     state = _gui_runtime.read_state(state_file)
     # Assert
     assert (state["pid"], state["port"], state["host"], state["project"]) == (
         123,
-        5050,
+        31298,
         "127.0.0.1",
         "/proj",
     )
@@ -52,7 +52,7 @@ def test_write_state_roundtrips_fields(state_file):
 
 def test_write_state_records_started_at(state_file):
     # Arrange
-    _gui_runtime.write_state(123, 5050, "127.0.0.1", "/proj", state_file)
+    _gui_runtime.write_state(123, 31298, "127.0.0.1", "/proj", state_file)
     # Act
     state = _gui_runtime.read_state(state_file)
     # Assert
@@ -107,18 +107,18 @@ def test_status_missing_state_reports_not_running(state_file):
 
 def test_status_live_pid_reports_running_url(state_file):
     # Arrange
-    _gui_runtime.write_state(os.getpid(), 5050, "127.0.0.1", "/proj", state_file)
+    _gui_runtime.write_state(os.getpid(), 31298, "127.0.0.1", "/proj", state_file)
     # Act
     result = _gui_runtime.status(state_file)
     # Assert
-    assert result["url"] == "http://127.0.0.1:5050"
+    assert result["url"] == "http://127.0.0.1:31298"
 
 
 def test_status_dead_pid_self_heals_state(state_file):
     # Arrange
     child = subprocess.Popen([sys.executable, "-c", ""])
     child.wait()
-    _gui_runtime.write_state(child.pid, 5050, "127.0.0.1", "/proj", state_file)
+    _gui_runtime.write_state(child.pid, 31298, "127.0.0.1", "/proj", state_file)
     # Act
     result = _gui_runtime.status(state_file)
     # Assert
@@ -137,7 +137,7 @@ def test_stop_without_state_is_idempotent(state_file):
 def test_stop_terminates_recorded_process(state_file):
     # Arrange
     child = subprocess.Popen([sys.executable, "-c", "import time; time.sleep(30)"])
-    _gui_runtime.write_state(child.pid, 5050, "127.0.0.1", "/proj", state_file)
+    _gui_runtime.write_state(child.pid, 31298, "127.0.0.1", "/proj", state_file)
     # Act
     result = _gui_runtime.stop(state_file, timeout=5.0)
     child.wait(timeout=5)
@@ -148,7 +148,7 @@ def test_stop_terminates_recorded_process(state_file):
 def test_stop_clears_state_file(state_file):
     # Arrange
     child = subprocess.Popen([sys.executable, "-c", "import time; time.sleep(30)"])
-    _gui_runtime.write_state(child.pid, 5050, "127.0.0.1", "/proj", state_file)
+    _gui_runtime.write_state(child.pid, 31298, "127.0.0.1", "/proj", state_file)
     # Act
     _gui_runtime.stop(state_file, timeout=5.0)
     child.wait(timeout=5)
