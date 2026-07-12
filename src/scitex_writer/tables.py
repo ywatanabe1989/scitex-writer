@@ -17,6 +17,9 @@ Usage::
 
     # Convert CSV to LaTeX
     result = sw.tables.csv_to_latex("data.csv", "table.tex")
+
+    # Run the whole engine pipeline (CSV/XLSX -> compiled LaTeX -> FINAL.tex)
+    result = sw.tables.render("./my-paper", doc_type="manuscript")
 """
 
 import shutil as _shutil
@@ -25,6 +28,7 @@ from typing import Optional as _Optional
 
 from ._mcp.handlers import csv_to_latex as _csv_to_latex
 from ._mcp.handlers import latex_to_csv as _latex_to_csv
+from ._mcp.handlers._tables_pipeline import process as _process
 from ._mcp.utils import resolve_project_path as _resolve_project_path
 
 try:
@@ -277,6 +281,36 @@ def latex_to_csv(
     return _latex_to_csv(latex_path, output_path, table_index)
 
 
-__all__ = ["list", "add", "remove", "archive", "csv_to_latex", "latex_to_csv"]
+@_supports_return_as
+def render(
+    project_dir: str,
+    doc_type: _Literal["manuscript", "supplementary", "revision"] = "manuscript",
+    no_tables: bool = False,
+) -> dict:
+    """Run the engine's table pipeline for ``doc_type``.
+
+    The pure-Python port of ``scripts/shell/modules/process_tables.sh``: refreshes
+    CSVs from newer Excel sources, writes a default caption for any table lacking
+    one, renders every ``NN_*.csv`` to LaTeX through the single pandas backend
+    (whole-cell verbatim passthrough for ``$``/``\\`` cells), and gathers the
+    results into the compiled ``FINAL.tex``. With no tables at all it emits a
+    comment-only fallback header -- never a placeholder float.
+
+    ``no_tables=True`` skips everything (the shell's ``--no_tables``). Returns
+    ``{success, tables_compiled, captions_created, xlsx_converted, tables,
+    compiled_file, fallback_header, skipped, error}``.
+    """
+    return _process(project_dir, doc_type, no_tables)
+
+
+__all__ = [
+    "list",
+    "add",
+    "remove",
+    "archive",
+    "csv_to_latex",
+    "latex_to_csv",
+    "render",
+]
 
 # EOF

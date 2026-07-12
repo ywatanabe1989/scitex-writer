@@ -34,9 +34,15 @@ logger = logging.getLogger(__name__)
 
 
 def _get_project(request):
-    """Resolve the current project from ?working_dir= or WRITER_WORKING_DIR."""
-    working_dir = request.GET.get("working_dir") or os.environ.get(
-        "WRITER_WORKING_DIR", ""
+    """Resolve the current project from ?working_dir= or SCITEX_WRITER_WORKING_DIR.
+
+    The unprefixed WRITER_WORKING_DIR spelling is honoured for one
+    deprecation cycle (fleet env-var convention is SCITEX_WRITER_<X>).
+    """
+    working_dir = (
+        request.GET.get("working_dir")
+        or os.environ.get("SCITEX_WRITER_WORKING_DIR", "")
+        or os.environ.get("WRITER_WORKING_DIR", "")
     )
     if not working_dir:
         return None
@@ -47,6 +53,20 @@ def _get_project(request):
         return None
 
 
+def _app_label(base: str) -> str:
+    """Tab title per the fleet SCITEX_APP_MODE convention.
+
+    The operator wants the browser tab alone to distinguish hub-embedded
+    from standalone. scitex-hub reads the same setting and defaults to
+    "hub" (hub PR #357); these settings only boot the standalone server,
+    so writer defaults to "standalone" and appends the marker.
+    """
+    from django.conf import settings as django_settings
+
+    mode = getattr(django_settings, "SCITEX_APP_MODE", "standalone")
+    return f"{base} (standalone)" if mode == "standalone" else base
+
+
 def editor_page(request):
     """Serve the editor shell page."""
     project = _get_project(request)
@@ -55,7 +75,7 @@ def editor_page(request):
         "writer/editor.html",
         {
             "app_name": "writer",
-            "app_label": "SciTeX Writer",
+            "app_label": _app_label("Writer — SciTeX"),
             "project_dir": project_dir,
             "dark_mode": project.dark_mode if project else False,
         },
@@ -146,7 +166,7 @@ def viewer_page(request):
         "writer/viewer.html",
         {
             "app_name": "writer",
-            "app_label": "SciTeX Writer — Viewer",
+            "app_label": _app_label("Writer Viewer — SciTeX"),
             "project_dir": project_dir,
         },
         request=request,

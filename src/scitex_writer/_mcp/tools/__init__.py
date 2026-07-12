@@ -11,11 +11,14 @@ from fastmcp import FastMCP
 def register_all_tools(mcp: FastMCP) -> None:
     """Register all MCP tools with the server."""
     from . import (
+        archive,
         bib,
         checks,
         citation_style,
         claim,
+        cleanup,
         compile,
+        diff,
         export,
         figures,
         guidelines,
@@ -34,11 +37,14 @@ def register_all_tools(mcp: FastMCP) -> None:
     export.register_tools(mcp)
     tables.register_tools(mcp)
     figures.register_tools(mcp)
+    diff.register_tools(mcp)
+    archive.register_tools(mcp)
     bib.register_tools(mcp)
     guidelines.register_tools(mcp)
     prompts.register_tools(mcp)
     claim.register_tools(mcp)
     citation_style.register_tools(mcp)
+    cleanup.register_tools(mcp)
     update.register_tools(mcp)
     migration.register_tools(mcp)
     skills.register_tools(mcp)

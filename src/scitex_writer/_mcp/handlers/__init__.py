@@ -4,6 +4,7 @@
 
 """MCP Handler implementations for SciTeX Writer."""
 
+from ._archive_pipeline import process as process_archive
 from ._checks import (
     check_caption_footnote,
     check_float_order,
@@ -24,10 +25,12 @@ from ._claim import (
     render_claims,
 )
 from ._compile import compile_manuscript, compile_revision, compile_supplementary
+from ._diff_pipeline import process as process_diff
 from ._export import export_manuscript
 from ._figures import convert_figure, list_figures, pdf_to_images
 from ._project import clone_project, get_pdf, get_project_info, list_document_types
 from ._tables import csv_to_latex, latex_to_csv
+from ._tables_pipeline import process as process_tables
 from ._update import update_project  # noqa: F401 -- now a package
 
 __all__ = [
@@ -57,6 +60,9 @@ __all__ = [
     "list_document_types",
     "list_figures",
     "pdf_to_images",
+    "process_archive",
+    "process_diff",
+    "process_tables",
     "remove_claim",
     "render_claims",
     "update_project",
