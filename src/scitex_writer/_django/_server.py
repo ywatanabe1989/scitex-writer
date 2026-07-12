@@ -30,9 +30,9 @@ def run(
 ) -> None:
     """Launch the Django editor server locally on exactly ``port``.
 
-    Tries `scitex_app._standalone.run_standalone` first (gets the full
-    workspace shell from scitex-ui). Falls back to a bare runserver
-    bootstrap if scitex-app is not installed.
+    Uses `scitex_app._standalone.run_standalone` (gets the full workspace
+    shell from scitex-ui). When scitex-app is not installed, says so and
+    serves bare Django instead; every other error propagates.
 
     The requested port is bound as given: when it is already in use the
     server fails instead of drifting to the next free port (which used to
@@ -54,16 +54,24 @@ def run(
     print("Press Ctrl+C to stop")
 
     try:
-        import django
-
-        django.setup()
-
-        from django.core.management import call_command
-
-        call_command("migrate", "--run-syncdb", verbosity=0)
-
         from scitex_app._standalone import run_standalone
+    except ImportError:
+        run_standalone = None
+        print(
+            "Note: scitex-app is not installed, so the workspace shell is "
+            "unavailable; serving bare Django instead.\n"
+            "      Install it with: pip install scitex-writer[editor]"
+        )
 
+    import django
+
+    django.setup()
+
+    from django.core.management import call_command
+
+    call_command("migrate", "--run-syncdb", verbosity=0)
+
+    if run_standalone is not None:
         run_standalone(
             app_module="scitex_writer._django",
             port=port,
@@ -74,14 +82,6 @@ def run(
             desktop=desktop,
         )
         return
-    except ImportError:
-        pass
-
-    # Fallback: no scitex-app available, run bare Django
-    import django
-
-    django.setup()
-    from django.core.management import call_command
 
     if open_browser and not desktop:
         threading.Timer(1.0, webbrowser.open, args=[f"http://{host}:{port}"]).start()
