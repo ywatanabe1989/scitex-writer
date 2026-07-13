@@ -577,7 +577,7 @@ def test_editor_page_renders_scitex_writer_in_body_and_writer_css_editor_css_in_
     body = resp.content.decode()
     # Act
     # Assert
-    assert ("Writer — SciTeX" in body) and (
+    assert ("SciTeX Writer" in body) and (
         "writer/css/editor.css" in body or "editor.css" in body
     )
 
@@ -590,7 +590,7 @@ def test_editor_tab_title_marks_standalone_mode(project_dir):
     # Act
     body = resp.content.decode()
     # Assert
-    assert "Writer — SciTeX (standalone)" in body
+    assert "SciTeX Writer (standalone)" in body
 
 
 def test_app_label_omits_marker_in_hub_mode():
@@ -599,9 +599,9 @@ def test_app_label_omits_marker_in_hub_mode():
 
     # Act
     with override_settings(SCITEX_APP_MODE="hub"):
-        label = views._app_label("Writer — SciTeX")
+        label = views._app_label("SciTeX Writer")
     # Assert
-    assert label == "Writer — SciTeX"
+    assert label == "SciTeX Writer"
 
 
 # =========================================================================
