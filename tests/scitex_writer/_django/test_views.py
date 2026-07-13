@@ -74,7 +74,7 @@ def test_ping_resp_status_code_equals_n_200_and_json_loads(project_dir):
     # Act
     resp = _call(rf, "GET", "ping", project_dir)
     # Assert
-    assert (resp.status_code == 200) and (json.loads(resp.content) == {'status': 'ok'})
+    assert (resp.status_code == 200) and (json.loads(resp.content) == {"status": "ok"})
 
 
 def test_project_info_resp_status_code_equals_n_200(project_dir):
@@ -87,7 +87,9 @@ def test_project_info_resp_status_code_equals_n_200(project_dir):
     assert resp.status_code == 200
 
 
-def test_project_info_data_project_dir_str_path_project_dir_resolve_and_manuscript(project_dir):
+def test_project_info_data_project_dir_str_path_project_dir_resolve_and_manuscript(
+    project_dir,
+):
     # Arrange
     rf = RequestFactory()
     resp = _call(rf, "GET", "api/project-info", project_dir)
@@ -95,9 +97,12 @@ def test_project_info_data_project_dir_str_path_project_dir_resolve_and_manuscri
     data = json.loads(resp.content)
     # Act
     # Assert
-    assert (data['project_dir'] == str(Path(project_dir).resolve())) and ('manuscript' in data['doc_types']) and ('supplementary' in data['doc_types']) and (data['has_shared'] is True)
-
-
+    assert (
+        (data["project_dir"] == str(Path(project_dir).resolve()))
+        and ("manuscript" in data["doc_types"])
+        and ("supplementary" in data["doc_types"])
+        and (data["has_shared"] is True)
+    )
 
 
 def test_files_tree_resp_status_code_equals_n_200(project_dir):
@@ -119,12 +124,12 @@ def test_files_tree_n_01_manuscript_in_names_and_00_shared_in_names(project_dir)
     names = {e["name"] for e in data["tree"]}
     # Act
     # Assert
-    assert ('01_manuscript' in names) and ('00_shared' in names)
+    assert ("01_manuscript" in names) and ("00_shared" in names)
 
 
-
-
-def test_file_read_write_roundtrip_resp_status_code_equals_n_200_and_intro_in_json_loads_(project_dir):
+def test_file_read_write_roundtrip_resp_status_code_equals_n_200_and_intro_in_json_loads_(
+    project_dir,
+):
     # Arrange
     rf = RequestFactory()
     # Read
@@ -142,7 +147,9 @@ def test_file_read_write_roundtrip_resp_status_code_equals_n_200_and_intro_in_js
     resp = views.api_dispatch(request, "api/file")
     # Act
     # Assert
-    assert (resp.status_code == 200) and ('Intro' in json.loads(resp.content)['content'])
+    assert (resp.status_code == 200) and (
+        "Intro" in json.loads(resp.content)["content"]
+    )
 
 
 def test_file_read_write_roundtrip_resp_status_code_equals_n_200(project_dir):
@@ -180,7 +187,9 @@ def test_file_read_write_roundtrip_resp_status_code_equals_n_200(project_dir):
     assert resp.status_code == 200
 
 
-def test_file_read_write_roundtrip_path_project_dir_01_manuscript_contents_01_intro_tex_read_te(project_dir):
+def test_file_read_write_roundtrip_path_project_dir_01_manuscript_contents_01_intro_tex_read_te(
+    project_dir,
+):
     # Arrange
     rf = RequestFactory()
     # Read
@@ -215,8 +224,6 @@ def test_file_read_write_roundtrip_path_project_dir_01_manuscript_contents_01_in
     assert (
         Path(project_dir) / "01_manuscript" / "contents" / "01_intro.tex"
     ).read_text() == new_content
-
-
 
 
 def test_file_read_path_traversal_blocked(project_dir):
@@ -260,8 +267,6 @@ def test_sections_any_s_filename_01_intro_tex_for_s_in_data_sections(project_dir
     assert any(s["filename"] == "01_intro.tex" for s in data["sections"])
 
 
-
-
 def test_bib_files_resp_status_code_equals_n_200(project_dir):
     # Arrange
     rf = RequestFactory()
@@ -272,7 +277,9 @@ def test_bib_files_resp_status_code_equals_n_200(project_dir):
     assert resp.status_code == 200
 
 
-def test_bib_files_data_count_1_and_any_f_name_bibliography_bib_for_f_in_data_f(project_dir):
+def test_bib_files_data_count_1_and_any_f_name_bibliography_bib_for_f_in_data_f(
+    project_dir,
+):
     # Arrange
     rf = RequestFactory()
     resp = _call(rf, "GET", "api/bib/files", project_dir)
@@ -280,9 +287,9 @@ def test_bib_files_data_count_1_and_any_f_name_bibliography_bib_for_f_in_data_f(
     data = json.loads(resp.content)
     # Act
     # Assert
-    assert (data['count'] >= 1) and (any((f['name'] == 'bibliography.bib' for f in data['files'])))
-
-
+    assert (data["count"] >= 1) and (
+        any((f["name"] == "bibliography.bib" for f in data["files"]))
+    )
 
 
 def test_bib_entries_resp_status_code_equals_n_200(project_dir):
@@ -306,8 +313,6 @@ def test_bib_entries_any_e_citation_key_foo2024_for_e_in_data_entries(project_di
     assert any(e["citation_key"] == "foo2024" for e in data["entries"])
 
 
-
-
 def test_compile_status_before_any_compile_resp_status_code_equals_n_200(project_dir):
     # Arrange
     rf = RequestFactory()
@@ -318,7 +323,9 @@ def test_compile_status_before_any_compile_resp_status_code_equals_n_200(project
     assert resp.status_code == 200
 
 
-def test_compile_status_before_any_compile_data_compiling_is_false_and_data_result_is_none(project_dir):
+def test_compile_status_before_any_compile_data_compiling_is_false_and_data_result_is_none(
+    project_dir,
+):
     # Arrange
     rf = RequestFactory()
     resp = _call(rf, "GET", "api/compile/status", project_dir)
@@ -326,9 +333,7 @@ def test_compile_status_before_any_compile_data_compiling_is_false_and_data_resu
     data = json.loads(resp.content)
     # Act
     # Assert
-    assert (data['compiling'] is False) and (data['result'] is None)
-
-
+    assert (data["compiling"] is False) and (data["result"] is None)
 
 
 def test_pdf_missing_returns_404(project_dir):
@@ -389,7 +394,9 @@ def test_figures_resp_status_code_equals_n_200(project_dir):
     assert resp.status_code == 200
 
 
-def test_figures_data_doc_type_manuscript_and_any_f_name_01_example_for_f_in_(project_dir):
+def test_figures_data_doc_type_manuscript_and_any_f_name_01_example_for_f_in_(
+    project_dir,
+):
     # Arrange
     rf = RequestFactory()
     project_path = Path(project_dir)
@@ -406,9 +413,11 @@ def test_figures_data_doc_type_manuscript_and_any_f_name_01_example_for_f_in_(pr
     data = json.loads(resp.content)
     # Act
     # Assert
-    assert (data['doc_type'] == 'manuscript') and (any((f['name'] == '01_example' for f in data['figures']))) and (data['figures'][0]['label'] == 'fig:example')
-
-
+    assert (
+        (data["doc_type"] == "manuscript")
+        and (any((f["name"] == "01_example" for f in data["figures"])))
+        and (data["figures"][0]["label"] == "fig:example")
+    )
 
 
 def test_tables_resp_status_code_equals_n_200(project_dir):
@@ -430,7 +439,9 @@ def test_tables_resp_status_code_equals_n_200(project_dir):
     assert resp.status_code == 200
 
 
-def test_tables_any_t_name_01_results_for_t_in_data_tables_and_data_tables_0(project_dir):
+def test_tables_any_t_name_01_results_for_t_in_data_tables_and_data_tables_0(
+    project_dir,
+):
     # Arrange
     rf = RequestFactory()
     project_path = Path(project_dir)
@@ -447,9 +458,9 @@ def test_tables_any_t_name_01_results_for_t_in_data_tables_and_data_tables_0(pro
     data = json.loads(resp.content)
     # Act
     # Assert
-    assert (any((t['name'] == '01_results' for t in data['tables']))) and (data['tables'][0]['label'] == 'tab:results')
-
-
+    assert (any((t["name"] == "01_results" for t in data["tables"]))) and (
+        data["tables"][0]["label"] == "tab:results"
+    )
 
 
 def test_claims_metadata_resp_status_code_equals_n_200(project_dir):
@@ -478,9 +489,7 @@ def test_claims_metadata_data_success_is_true_and_data_count_0(project_dir):
     data = json.loads(resp.content)
     # Act
     # Assert
-    assert (data['success'] is True) and (data['count'] == 0)
-
-
+    assert (data["success"] is True) and (data["count"] == 0)
 
 
 def test_dag_requires_target(project_dir):
@@ -492,7 +501,9 @@ def test_dag_requires_target(project_dir):
     assert resp.status_code == 400
 
 
-def test_citation_unverifiable_without_scholar_resp_status_code_equals_n_200(project_dir):
+def test_citation_unverifiable_without_scholar_resp_status_code_equals_n_200(
+    project_dir,
+):
     # Arrange
     rf = RequestFactory()
     request = rf.get(f"/api/citation/foo2024?working_dir={project_dir}")
@@ -503,7 +514,9 @@ def test_citation_unverifiable_without_scholar_resp_status_code_equals_n_200(pro
     assert resp.status_code == 200
 
 
-def test_citation_unverifiable_without_scholar_data_cite_key_foo2024_and_data_state_in_verified_unverifiabl(project_dir):
+def test_citation_unverifiable_without_scholar_data_cite_key_foo2024_and_data_state_in_verified_unverifiabl(
+    project_dir,
+):
     # Arrange
     rf = RequestFactory()
     request = rf.get(f"/api/citation/foo2024?working_dir={project_dir}")
@@ -512,9 +525,9 @@ def test_citation_unverifiable_without_scholar_data_cite_key_foo2024_and_data_st
     data = json.loads(resp.content)
     # Act
     # Assert
-    assert (data['cite_key'] == 'foo2024') and (data['state'] in {'VERIFIED', 'UNVERIFIABLE', 'CONTRADICTED'})
-
-
+    assert (data["cite_key"] == "foo2024") and (
+        data["state"] in {"VERIFIED", "UNVERIFIABLE", "CONTRADICTED"}
+    )
 
 
 def test_viewer_page_renders_resp_status_code_equals_n_200(project_dir):
@@ -528,7 +541,9 @@ def test_viewer_page_renders_resp_status_code_equals_n_200(project_dir):
     assert resp.status_code == 200
 
 
-def test_viewer_page_renders_writer_viewer_in_body_and_viewer_claims_pane_in_body(project_dir):
+def test_viewer_page_renders_writer_viewer_in_body_and_viewer_claims_pane_in_body(
+    project_dir,
+):
     # Arrange
     rf = RequestFactory()
     request = rf.get(f"/viewer/?working_dir={project_dir}")
@@ -537,9 +552,7 @@ def test_viewer_page_renders_writer_viewer_in_body_and_viewer_claims_pane_in_bod
     body = resp.content.decode()
     # Act
     # Assert
-    assert ('Writer — Viewer' in body) and ('viewer-claims-pane' in body)
-
-
+    assert ("Writer — Viewer" in body) and ("viewer-claims-pane" in body)
 
 
 def test_editor_page_renders_resp_status_code_equals_n_200(project_dir):
@@ -553,7 +566,9 @@ def test_editor_page_renders_resp_status_code_equals_n_200(project_dir):
     assert resp.status_code == 200
 
 
-def test_editor_page_renders_scitex_writer_in_body_and_writer_css_editor_css_in_body_or_e(project_dir):
+def test_editor_page_renders_scitex_writer_in_body_and_writer_css_editor_css_in_body_or_e(
+    project_dir,
+):
     # Arrange
     rf = RequestFactory()
     request = rf.get(f"/?working_dir={project_dir}")
@@ -562,7 +577,9 @@ def test_editor_page_renders_scitex_writer_in_body_and_writer_css_editor_css_in_
     body = resp.content.decode()
     # Act
     # Assert
-    assert ('Writer — SciTeX' in body) and ('writer/css/editor.css' in body or 'editor.css' in body)
+    assert ("Writer — SciTeX" in body) and (
+        "writer/css/editor.css" in body or "editor.css" in body
+    )
 
 
 def test_editor_tab_title_marks_standalone_mode(project_dir):
@@ -573,12 +590,13 @@ def test_editor_tab_title_marks_standalone_mode(project_dir):
     # Act
     body = resp.content.decode()
     # Assert
-    assert 'Writer — SciTeX (standalone)' in body
+    assert "Writer — SciTeX (standalone)" in body
 
 
 def test_app_label_omits_marker_in_hub_mode():
     # Arrange
     from django.test import override_settings
+
     # Act
     with override_settings(SCITEX_APP_MODE="hub"):
         label = views._app_label("Writer — SciTeX")
@@ -586,3 +604,39 @@ def test_app_label_omits_marker_in_hub_mode():
     assert label == "Writer — SciTeX"
 
 
+# =========================================================================
+# Browser-tab identity. The operator lined up four SciTeX tabs and found four
+# different conventions: "SciTeX Cards v0.9.7" (version in the title),
+# "SciTeX Plot" (no favicon at all), "SciTeX Scholar" (a different icon), and
+# writer's "Writer — SciTeX (standalone)" — the only one with the words
+# backwards. The tab is the one place a user sees every tool side by side, so
+# an inconsistent name there is the most visible inconsistency we ship.
+#
+# The fleet shape is "SciTeX <Tool>". The "(standalone)" marker STAYS — it is
+# deliberate (scitex-hub reads the same SCITEX_APP_MODE setting so the tab
+# alone distinguishes hub-embedded from standalone); it is the word order that
+# was wrong, not the marker.
+# =========================================================================
+
+import inspect  # noqa: E402
+import re  # noqa: E402
+
+from scitex_writer._django import views as _views  # noqa: E402
+
+
+def test_tab_titles_lead_with_the_scitex_brand():
+    # Arrange
+    source = inspect.getsource(_views)
+    # Act
+    labels = re.findall(r'_app_label\("([^"]+)"\)', source)
+    # Assert
+    assert [label for label in labels if not label.startswith("SciTeX ")] == []
+
+
+def test_tab_titles_are_declared_at_all():
+    # Arrange
+    source = inspect.getsource(_views)
+    # Act
+    labels = re.findall(r'_app_label\("([^"]+)"\)', source)
+    # Assert
+    assert labels != []
