@@ -17,12 +17,18 @@ def project(
     tag: Optional[str] = None,
     dry_run: bool = True,
     force: bool = False,
+    allow_outdated: bool = False,
 ) -> dict:
     """Update engine files in an existing scitex-writer project.
 
     Syncs source code, build scripts, and templates from the installed
     scitex-writer package (or GitHub if branch/tag is specified).
     User content is never modified.
+
+    The vendor source is the INSTALLED package, so running this on an outdated
+    scitex-writer would copy a stale engine and report success. When the source
+    can be proven outdated this refuses and returns the upgrade command; pass
+    ``allow_outdated=True`` to override.
 
     Files synced (engine/template only — the package itself is pip-installed,
     never vendored into the project):
@@ -74,7 +80,12 @@ def project(
     >>> sw.update.project("~/proj/my-paper", tag="v2.7.1")
     """
     return _update_project(
-        project_dir, branch=branch, tag=tag, dry_run=dry_run, force=force
+        project_dir,
+        branch=branch,
+        tag=tag,
+        dry_run=dry_run,
+        force=force,
+        allow_outdated=allow_outdated,
     )
 
 

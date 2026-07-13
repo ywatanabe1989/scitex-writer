@@ -17,6 +17,7 @@ from ._git_safety import (
     is_git_repo,
 )
 from ._source import find_package_root, read_version
+from ._source_check import outdated_source_error, source_report
 
 # Dedicated, compile-immutable vendor stamp. Read by check_version_freshness.py
 # (writer compile gate) + scitex-dev's fleet stale-install audit. Do NOT reuse
@@ -69,12 +70,20 @@ def update_project(
     tag: Optional[str] = None,
     dry_run: bool = True,
     force: bool = False,
+    allow_outdated: bool = False,
 ) -> dict:
     """Update engine files of an existing scitex-writer project.
 
     Syncs engine/template files (scripts, build scripts, base.tex, styles,
     Makefile) from the installed scitex-writer package to the project. The
     package's own src/ is never vendored in; user content is never modified.
+
+    THE VENDOR SOURCE IS THE INSTALLED PACKAGE. Running this on an outdated
+    scitex-writer vendors an outdated engine and reports success — the project
+    then carries bugs the fleet has already fixed, with nothing to say so. When
+    we can prove the source is stale we refuse and hand back the upgrade command;
+    when PyPI is unreachable we proceed but say the check did not happen. Silence
+    must never read as "you are current".
 
     Parameters
     ----------
@@ -88,12 +97,16 @@ def update_project(
         If True, report what would change without touching any files.
     force : bool
         If True, skip the uncommitted-changes git safety check.
+    allow_outdated : bool
+        If True, vendor from an outdated installed package anyway. Off by
+        default: a stale vendor is the bug, not an inconvenience.
 
     Returns
     -------
     dict
-        success, source, modified, added, unchanged, backup_dir,
-        dry_run, git_safe, warnings, message, error (on failure)
+        success, source, modified, added, unchanged, backup_dir, dry_run,
+        git_safe, warnings, message, source_version, latest_version,
+        is_outdated, source_note, error (on failure)
     """
     try:
         project_path = resolve_project_path(project_dir)
@@ -125,6 +138,22 @@ def update_project(
         # Resolve source template
         source_dir, is_temp = find_package_root(branch, tag)
         pkg_version = read_version(source_dir)
+
+        # Only the INSTALLED package can be silently stale. An explicit
+        # branch/tag is a deliberate choice, so we do not second-guess it.
+        source_info = {}
+        if not (branch or tag):
+            source_info = source_report(pkg_version)
+            if source_info.get("is_outdated") and not allow_outdated:
+                if is_temp:
+                    shutil.rmtree(str(source_dir.parent), ignore_errors=True)
+                return {
+                    "success": False,
+                    "error": outdated_source_error(
+                        pkg_version, source_info["latest_version"]
+                    ),
+                    **source_info,
+                }
 
         try:
             source_files = collect_sync_files(source_dir, project_path)
@@ -165,6 +194,10 @@ def update_project(
             "skipped_paths": [],
             "missing_paths": [],
             "preserved_paths": [str(p) for p in PRESERVED_PATHS],
+            # Which scitex-writer this tree was vendored FROM, and whether that
+            # was the current one. Reported even on success: a caller must be
+            # able to see the source without inferring it.
+            **source_info,
             "message": _build_message(
                 project_path, modified, added, unchanged, dry_run, backup_dir
             ),

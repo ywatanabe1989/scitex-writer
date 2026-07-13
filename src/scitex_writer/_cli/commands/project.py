@@ -33,9 +33,19 @@ from .._helpers import _emit_json
     default=False,
     help="Apply the update (default is a safe preview).",
 )
+@click.option(
+    "--allow-outdated",
+    is_flag=True,
+    default=False,
+    help="Vendor from an outdated installed scitex-writer anyway (refused by default).",
+)
 @click.option("--json", "as_json", is_flag=True, default=False, help="Emit JSON.")
-def update_project(project, branch, tag, dry_run, force, yes, as_json):
+def update_project(project, branch, tag, dry_run, force, yes, allow_outdated, as_json):
     """Update engine files in a scitex-writer project, preserving user content.
+
+    The engine is vendored from the INSTALLED scitex-writer. If that package is
+    behind the latest release, this refuses rather than silently copying a stale
+    engine and reporting success.
 
     \b
     Example:
@@ -52,7 +62,12 @@ def update_project(project, branch, tag, dry_run, force, yes, as_json):
     # Safe by default: preview unless --yes is given (--dry-run forces preview).
     preview = dry_run or not yes
     result = update.project(
-        str(project_path), branch=branch, tag=tag, dry_run=preview, force=force
+        str(project_path),
+        branch=branch,
+        tag=tag,
+        dry_run=preview,
+        force=force,
+        allow_outdated=allow_outdated,
     )
     if as_json:
         _emit_json(result)
