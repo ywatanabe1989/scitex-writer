@@ -232,20 +232,45 @@ class TestBuildFeed:
 
 
 class TestCollectAndWrite:
-    def test_collect_reads_log_and_claims_from_project(self, tmp_path):
+    def test_collect_reads_the_latex_log(self, tmp_path):
         # Arrange
         (tmp_path / "logs").mkdir()
         (tmp_path / "logs" / "manuscript.log").write_text(
             "Citation `Ref1' undefined.\n"
         )
+
+        # Act
+        found = collect_hints(str(tmp_path))
+
+        # Assert
+        assert any(h["source"] == "latex-log" for h in found)
+
+    def test_collect_does_not_produce_clew_hints_from_the_ledger(self, tmp_path):
+        # Arrange: writer used to read clew's ledger and synthesise
+        # clew-labelled hints. scitex-clew 0.18.0 ships export_manuscript_hints,
+        # so clew owns that source now. Writer emitting them would CLOBBER the
+        # real producer's entries, because merge-by-source replaces what you own.
         (tmp_path / ".scitex" / "clew" / "runtime").mkdir(parents=True)
         (tmp_path / ".scitex" / "clew" / "runtime" / "claims.json").write_text(
             json.dumps({"claims": [{"claim_id": "a", "status": "unverified"}]})
         )
+
         # Act
         found = collect_hints(str(tmp_path))
+
         # Assert
-        assert len(found) == 2
+        assert [h for h in found if h["source"] == "scitex-clew"] == []
+
+    def test_writer_no_longer_owns_the_clew_source(self):
+        # Arrange: merge-by-source replaces the sources you claim, so claiming
+        # "scitex-clew" would wipe clew's real hints on every compile.
+        owned = WRITER_SOURCES
+
+        # Act
+        claims_clew = "scitex-clew" in owned
+
+        # Assert
+        assert claims_clew is False
 
     def test_write_feed_creates_json_file(self, tmp_path):
         # Arrange
