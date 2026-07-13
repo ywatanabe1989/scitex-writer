@@ -65,7 +65,22 @@ dependencies = [
 desktop = [
     "pywebview>=4.0.0",
 ]
-editor = []
+editor = [
+    # scitex-app provides the workspace shell the editor server runs inside
+    # (`scitex_app.embed.run_standalone`) and the Django AppConfig base
+    # (`scitex_app.embed.ScitexAppConfig`).
+    #
+    # THIS EXTRA USED TO BE EMPTY, while the code told anyone missing
+    # scitex-app to run `pip install scitex-writer[editor]` — a remedy that
+    # installed NOTHING and left them exactly as broken, with the editor
+    # silently degraded to a shell-less bare server. The instruction has to
+    # actually deliver the thing it names.
+    #
+    # FLOOR IS 0.4.0, not lower: that is the first release exposing the public
+    # `scitex_app.embed` module. Below it, the import falls through the
+    # ImportError guard and the editor degrades.
+    "scitex-app>=0.4.0",
+]
 scholar = [
     # >=1.5.0 is a HARD floor, not a preference: before 1.5.0 a metadata-nesting
     # bug in scitex-scholar meant `verify_cites` could never return VERIFIED for

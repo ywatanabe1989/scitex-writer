@@ -54,7 +54,7 @@ def run(
     print("Press Ctrl+C to stop")
 
     try:
-        from scitex_app._standalone import run_standalone
+        from scitex_app.embed import run_standalone
     except ImportError:
         run_standalone = None
         print(
