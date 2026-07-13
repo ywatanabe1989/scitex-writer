@@ -2,6 +2,8 @@
 # -*- coding: utf-8 -*-
 import warnings
 
+from ._workspace_shell import REMEDY, probe_missing_shell
+
 try:
     from scitex_app.embed import ScitexAppConfig
 except ImportError:
@@ -12,8 +14,8 @@ except ImportError:
     from django.apps import AppConfig as ScitexAppConfig
 
     warnings.warn(
-        "scitex-app is not installed: the writer editor is running without "
-        "the workspace shell. Get it with: uv pip install 'scitex-writer[all]'",
+        f"{probe_missing_shell()}: the writer editor is running without "
+        f"the workspace shell. Get it with: {REMEDY}",
         RuntimeWarning,
         stacklevel=2,
     )

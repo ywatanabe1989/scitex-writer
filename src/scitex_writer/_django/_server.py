@@ -30,8 +30,9 @@ def run(
 ) -> None:
     """Launch the Django editor server locally on exactly ``port``.
 
-    Uses `scitex_app._standalone.run_standalone` (gets the full workspace
-    shell from scitex-ui). When scitex-app is not installed, says so and
+    Uses `scitex_app.embed.run_standalone` (gets the full workspace shell
+    from scitex-ui). When that import fails, names WHICH failure it was —
+    scitex-app absent, or present but too old to expose `.embed` — and
     serves bare Django instead; every other error propagates.
 
     The requested port is bound as given: when it is already in use the
@@ -56,11 +57,13 @@ def run(
     try:
         from scitex_app.embed import run_standalone
     except ImportError:
+        from ._workspace_shell import REMEDY, probe_missing_shell
+
         run_standalone = None
         print(
-            "Note: scitex-app is not installed, so the workspace shell is "
+            f"Note: {probe_missing_shell()}, so the workspace shell is "
             "unavailable; serving bare Django instead.\n"
-            "      Get it with: uv pip install 'scitex-writer[all]'"
+            f"      Get it with: {REMEDY}"
         )
 
     import django

@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.32.1] - 2026-07-14
+
+### Fixed
+- **The editor no longer says "scitex-app is not installed" when scitex-app IS installed.** The guard around `scitex_app.embed` catches two different failures — the package being absent, and the package being present but older than 0.4.0, the release that added `.embed` — and reported the first for both.
+
+  Found by running the real entry point against a real environment that had **scitex-app 0.2.11** sitting right there. The remedy it offers (`uv pip install 'scitex-writer[all]'`) happens to fix either case, which is exactly why this survived: the message *worked*, so nobody checked whether it was *true*. But a user who reads "not installed", runs `pip show scitex-app`, and finds the package present concludes the message is lying and goes to debug something else. A wrong diagnosis costs more than a missing one. It now names the installed version and the version required.
+
 ## [2.32.0] - 2026-07-14
 
 ### Changed
