@@ -46,7 +46,9 @@ Precedent exists: **scitex-ui (`@scitex/ui`)** is the shared TS+CSS component li
 
 - **Real-time inline (per-claim, as you annotate):** query **clew's per-claim grounding** directly. This is the design's **one true external dependency**. Do NOT call the whole-workdir gate per keystroke.
 
-  **Required surface** (`is_claim_grounded(claim_location, *, workdir=".") -> GroundingVerdict`, and/or `scitex-clew grounding <claim> --json`), returning `{grounded, claim_id, matched_source{path,sha256}|None, reason, fix_hint}` with `reason ∈ {grounded, no_chain_match, no_manifest, manifest_untrusted, claim_not_found}`.
+  **Required surface** (`is_claim_grounded(claim_location, *, workdir=".") -> Dict`, and/or `scitex-clew grounding <claim> --json`), returning `{grounded, claim_id, matched_source{path,sha256}|None, reason, fix_hint}` with `reason ∈ scitex_clew.GROUNDING_REASONS` = `{grounded, no_chain_match, no_manifest, manifest_untrusted, claim_not_found}`.
+
+  The return is a plain **`Dict`**, not an importable type. This ADR previously wrote it as `-> GroundingVerdict`, which named a symbol Clew does not export — so a reader following the contract would write `from scitex_clew import GroundingVerdict` and get an ImportError. A contract that names a type nobody ships is the same trap as calling a function with a keyword it does not have; corrected here after verifying the real surface by import.
 
   **What clew ships today (0.17.0, verified by import, not by report):** `is_grounded(claim, manifest, db) -> bool` and `grounded_claim_ids(workdir, ...) -> List[str]`. These are the primitives, not the port. Two concrete gaps:
   - `is_grounded` makes the CALLER load the manifest and the DB. That is clew's internal plumbing leaking across the seam; writer must not know clew has a `SourcesManifest` or a `db`, and must not be the one to keep them in sync.
