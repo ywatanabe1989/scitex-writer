@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.31.0] - 2026-07-13
+
+### Changed
+- **BREAKING: extras are ALL OR NOTHING.** The `editor`, `desktop` and `scholar` extras are removed; use `[all]`. There is no compatibility shim — this was an explicit call (near-zero users; fix it now rather than carry the wart).
+
+  Fine-grained extras asked users to predict at install time which features they would later want, and writer got that wrong in the worst possible way: **`editor` was declared EMPTY (`editor = []`)** and scitex-app appeared in no dependency list anywhere — while `_server.py`, `apps.py` and the CLI all told anyone missing scitex-app to run `pip install scitex-writer[editor]`. **That remedy installed NOTHING.** The user ran the fix we handed them, stayed exactly as broken, and the editor kept serving without the workspace shell — while confidently naming the cure. An install instruction that resolves to a no-op is worse than no instruction, because the user believes they have already tried it.
+
+  `[all]` now genuinely provides `pywebview` + `scitex-app>=0.4.0` + `scitex-scholar>=1.5.2`. The scitex-app floor is the first release exposing the public `scitex_app.embed` module; below it the import falls through the guard and the editor degrades. Every message, doc, skill, README — and the GUI Dockerfile, which was installing a retired extra — now names `[all]`. Tests read the real `pyproject.toml` and pin the contract: no extra may be empty, retired names stay gone, `[all]` must provide every feature module, and nothing may tell a user to install an extra that does not exist.
+
+- **The browser tab leads with the brand: `SciTeX Writer`.** Four SciTeX tools open side by side showed four conventions — a version number in one title, a missing favicon, a rogue icon, and writer's `Writer — SciTeX`, the only one with the words backwards. The `(standalone)` marker stays: it is deliberate, since scitex-hub reads the same `SCITEX_APP_MODE` setting so the tab alone distinguishes hub-embedded from standalone.
+
+- **Imports moved to the public `scitex_app.embed` surface** (from the private `_standalone` / `_django` paths).
+
+### Fixed
+- **`gui serve --force` now actually forces.** It refused when the port was held by *our own orphaned editor* — one that died without clearing its state file, so `status()` could not see it and `--force`, which only stopped the editor recorded in that file, did nothing. It then printed remedies that ignore `--force` entirely. A flag that names the fix and does not perform it is the same defect as an install hint that installs nothing. It now reclaims a holder it can **prove** is ours, decided from the process's **argv** rather than its name (a `comm` of `python` says nothing; the argv names the module). A process that is not ours is still never touched, and `--force` is only *offered* in a hint when it would actually work.
+
+- **`port_holder` no longer blames the wrong party.** It reported "a process owned by another user" when the real answer was "this `/proc` will not let us look" — our own agent containers deny `/proc/<pid>/fd` even for our own uid. A confident wrong answer is precisely what this module exists to prevent; it now says so plainly.
+
+- **`apps.py` no longer swaps its base class in silence.** Falling back to a plain Django `AppConfig` means losing the workspace shell — a real downgrade that left the editor looking installed and behaving differently, with nothing to explain why. It warns now.
+
 ## [2.30.2] - 2026-07-13
 
 ### Fixed
