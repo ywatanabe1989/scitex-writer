@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.34.0] - 2026-07-14
+
+### Fixed
+- **A pointer to a file that is not there is NOT provenance.** `has_provenance` was `bool(session_id or output_file)` — true for *any non-empty string*. So a claim whose output was deleted, renamed, or never written still announced "this claim has provenance". paper-scitex-clew found it by dogfooding a real manuscript: **24 of 49 claims recorded an `output_file` that does not exist on disk, and all 24 reported `has_provenance=True`.** A confident wrong answer about the science, which is worse than an admitted gap — a gap gets investigated, a lie does not.
+
+  Measured on that manuscript, the pane claimed provenance for **49 of 49**. The truth is **27**, with **24 dangling**. The 24 independently matches paper-scitex-clew's own count, reached by different code.
+
+  `provenance_error` now names the dangling path, so a broken claim cannot pass as a bare gap, and `output_file_exists` distinguishes *unknown* (no pointer recorded) from *missing* (pointer recorded, file absent) — different facts that must not be collapsed.
+
+  **The path resolution is the load-bearing part**, and the first draft of this fix got it wrong in the opposite direction: a vendored project keeps the engine at `<repo>/.scitex/writer` while the pipeline's data stays at the **repo root**, so a relative `data/x/summary.json` resolves only from the root. Checking just the project dir found **0 of 49** and would have declared every claim broken — the same lie, inverted, shipped as a correctness fix. It was caught only by running against the real manuscript rather than a synthetic fixture. Paths now resolve against the project dir, the vendored repo root, and the git root.
+
+### Changed
+- **ADR 0001 §4: the grounding verdict is a `Dict`, not an importable `GroundingVerdict`.** The ADR named a type scitex-clew does not export, so a reader following the contract would write `from scitex_clew import GroundingVerdict` and get an `ImportError`. A contract that names a type nobody ships is the same defect as calling a function with a keyword it does not have — the bug that made the claims pane verify zero claims in 2.30.2. Corrected after verifying Clew's real surface by import.
+
 ## [2.33.0] - 2026-07-14
 
 ### Fixed

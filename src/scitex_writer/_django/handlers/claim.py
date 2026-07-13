@@ -69,13 +69,26 @@ def handle_remove_claim(request, project, claim_id: str):
 
 
 def handle_claim_chain(request, project, claim_id: str):
-    from ..._mcp.handlers._claim import get_claim
+    from pathlib import Path
+
+    from ..._mcp.handlers._claim import (
+        _dangling_output_error,
+        _output_file_exists,
+        get_claim,
+    )
 
     claim_result = get_claim(str(project.project_dir), claim_id)
     if not claim_result.get("success"):
         return JsonResponse(claim_result)
 
     claim = claim_result["claim"]
+    output_file = claim.get("output_file")
+    session_id = claim.get("session_id")
+    # A recorded pointer to a file that is NOT THERE is not provenance. This was
+    # `bool(output_file or session_id)` — true for any non-empty string — so a
+    # claim whose output was deleted or never written still reported provenance
+    # it did not have.
+    output_exists = _output_file_exists(Path(project.project_dir), output_file)
     response = {
         "success": True,
         "claim_id": claim_id,
@@ -83,11 +96,10 @@ def handle_claim_chain(request, project, claim_id: str):
         "previews": claim_result.get("previews", {}),
         "mermaid": None,
         "clew_available": False,
-        "has_provenance": bool(claim.get("output_file") or claim.get("session_id")),
+        "output_file_exists": output_exists,
+        "has_provenance": bool(session_id or output_exists),
+        "provenance_error": _dangling_output_error(output_file, output_exists),
     }
-
-    output_file = claim.get("output_file")
-    session_id = claim.get("session_id")
     if output_file or session_id:
         try:
             from scitex_clew import generate_mermaid_dag
