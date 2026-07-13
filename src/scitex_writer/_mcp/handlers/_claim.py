@@ -38,6 +38,64 @@ def _claims_path(project_path: Path) -> Path:
     return project_path / CLAIMS_FILE
 
 
+def _claim_path_roots(project_path: Path) -> list:
+    """Where a claim's RELATIVE output_file may legitimately be anchored.
+
+    Getting this wrong is not a detail — it decides whether a claim's provenance
+    is reported as present or missing, and both errors are lies.
+
+    A standalone project anchors at the project dir. But a VENDORED project puts
+    the writer engine at ``<repo>/.scitex/writer`` while the pipeline's data
+    stays at the REPO ROOT — so ``data/x/summary.json`` resolves only from the
+    repo root. Measured on a real 49-claim manuscript: resolving against the
+    writer subdir found 0 of 49; against the repo root, 25. An earlier draft of
+    this function checked only the project dir and would have declared EVERY
+    claim's provenance broken — the same false answer as the bug it replaces,
+    pointing the other way.
+    """
+    roots = [project_path]
+    for parent in project_path.parents:
+        # Vendored layout: <repo>/.scitex/writer -> the repo root is above .scitex
+        if parent.name == ".scitex":
+            roots.append(parent.parent)
+            break
+    for parent in (project_path, *project_path.parents):
+        if (parent / ".git").exists():
+            if parent not in roots:
+                roots.append(parent)
+            break
+    return roots
+
+
+def _output_file_exists(
+    project_path: Path, output_file: Optional[str]
+) -> Optional[bool]:
+    """Does the claim's recorded output actually exist?
+
+    None when no output_file is recorded — "unknown", not "missing". Never
+    resolved against the process cwd: a claim's provenance must not depend on
+    where the server happened to be started.
+    """
+    if not output_file:
+        return None
+    candidate = Path(output_file)
+    if candidate.is_absolute():
+        return candidate.exists()
+    return any((root / candidate).exists() for root in _claim_path_roots(project_path))
+
+
+def _dangling_output_error(
+    output_file: Optional[str], output_exists: Optional[bool]
+) -> Optional[str]:
+    """Name the dangling pointer, so a broken claim cannot pass as a bare gap."""
+    if output_file and output_exists is False:
+        return (
+            f"output_file is recorded but does not exist on disk: {output_file}. "
+            f"This claim points at provenance it does not have."
+        )
+    return None
+
+
 def _load_claims(project_path: Path) -> Dict:
     """Load claims.json, returning empty structure if not found."""
     p = _claims_path(project_path)
@@ -160,6 +218,7 @@ def list_claims(project_dir: str) -> Dict:
             preview = _render_claim(claim, "nature")
             session_id = claim.get("session_id")
             output_file = claim.get("output_file")
+            output_exists = _output_file_exists(project_path, output_file)
             result.append(
                 {
                     "claim_id": claim_id,
@@ -172,7 +231,20 @@ def list_claims(project_dir: str) -> Dict:
                     # came back NO_PROVENANCE — including the ones that had it.
                     "session_id": session_id,
                     "output_file": output_file,
-                    "has_provenance": bool(session_id or output_file),
+                    "output_file_exists": output_exists,
+                    # A pointer to a file that IS NOT THERE is not provenance.
+                    # This used to be `bool(session_id or output_file)` — true for
+                    # any non-empty string — so a claim whose output was deleted,
+                    # renamed, or never written still reported "this claim has
+                    # provenance". paper-scitex-clew found 24 of 49 claims in a
+                    # real manuscript in exactly that state, every one of them
+                    # claiming provenance it did not have. That is a confident
+                    # wrong answer about the science, which is worse than an
+                    # admitted gap.
+                    "has_provenance": bool(session_id or output_exists),
+                    "provenance_error": _dangling_output_error(
+                        output_file, output_exists
+                    ),
                 }
             )
 
