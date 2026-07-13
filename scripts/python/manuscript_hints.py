@@ -59,11 +59,18 @@ CLAIMS_JSON = ".scitex/clew/runtime/claims.json"
 # The `source` labels THIS writer producer authoritatively owns in the shared
 # feed. Merge-by-source (write_feed) replaces only these on each writer run and
 # preserves every other producer's entries (clew, figrecipe, ...) untouched, so
-# the feed is multi-producer without any producer importing another. "latex-log"
-# = writer's own \ref/\cite log producer; "scitex-clew" is INTERIM (writer reads
-# the clew ledger until scitex-clew ships export_manuscript_hints, at which point
-# this tuple drops to ("latex-log",) and clew owns "scitex-clew").
-WRITER_SOURCES = ("latex-log", "scitex-clew")
+# the feed is multi-producer without any producer importing another.
+#   "latex-log"     = writer's own \ref/\cite log producer.
+#   "scitex-writer" = writer's own TOOLCHAIN warnings (e.g. clew too old to
+#                     produce its hints) -- writer's voice, not a peer's.
+#
+# "scitex-clew" is DELIBERATELY NOT HERE ANY MORE. Writer used to synthesise
+# clew-labelled hints from the ledger as an interim stand-in. scitex-clew 0.18.0
+# ships `export_manuscript_hints` (verified from the published wheel, not the
+# release note), so clew owns that source now. Writer claiming it would clobber
+# the real producer's entries on every compile -- merge-by-source replaces what
+# you own.
+WRITER_SOURCES = ("latex-log", "scitex-writer")
 # The LaTeX engine log the compile writes; hints read it for unresolved refs.
 _LOG_CANDIDATES = (
     "logs/manuscript.log",
@@ -207,11 +214,18 @@ def _iter_claims(data):
 
 
 def hints_from_claims(data):
-    """One hint per NON-verified clew claim. INTERIM: scitex-clew will own claim
-    hints via its export_manuscript_hints producer; until then writer reads the
-    ledger so the UI has content. A claim not verified to a source is exactly the
-    "this value doesn't reach its data" signal -- carried with its claim_id so
-    the UI can light up the provenance chain."""
+    """RETIRED -- NOT WIRED INTO THE FEED. Do not call this; do not re-add it.
+
+    This was writer's INTERIM stand-in: it synthesised clew-labelled hints by
+    reading the clew ledger directly, so the pane had content before clew shipped
+    its own producer. scitex-clew 0.18.0 ships `export_manuscript_hints` (verified
+    from the published wheel), so clew owns the "scitex-clew" source now and
+    `collect_hints` no longer calls this.
+
+    Re-wiring it would make writer CLOBBER clew's real entries on every compile,
+    because merge-by-source replaces the sources you claim. It survives only
+    because its tests still document the severity mapping; removal is carded.
+    """
     out = []
     for claim in _iter_claims(data):
         status = str(claim.get("status", "") or "").strip().lower()
@@ -263,6 +277,49 @@ def _read_claims(project_path):
         return None
 
 
+def hints_from_toolchain():
+    """Warn when Clew is installed but TOO OLD to produce its own hints.
+
+    Writer no longer synthesises clew-labelled hints: `scitex-clew` 0.18.0 ships
+    `export_manuscript_hints`, so clew owns that source now (see WRITER_SOURCES).
+
+    But an older clew cannot produce them, and writer no longer will -- so the
+    provenance hints would just VANISH from the pane, with nothing to say why.
+    A silent loss is precisely the bug this feed exists to surface. Say it, and
+    hand back the command that fixes it.
+
+    Clew being ABSENT is silent and correct: it is an optional peer, and no clew
+    means no clew hints, which is an honest nothing rather than a missing
+    something.
+    """
+    try:
+        import scitex_clew
+    except ImportError:
+        return []
+    if hasattr(scitex_clew, "export_manuscript_hints"):
+        return []
+    try:
+        import importlib.metadata as _md
+
+        installed = _md.version("scitex-clew")
+    except Exception:
+        installed = "an unknown version"
+    return [
+        _hint(
+            "provenance",
+            "warning",
+            (
+                f"scitex-clew {installed} is installed but does not export "
+                f"export_manuscript_hints (added in 0.18.0), so provenance hints "
+                f"are UNAVAILABLE for this manuscript. Upgrade with: "
+                f"uv pip install -U scitex-clew"
+            ),
+            "scitex-writer",
+            hid="toolchain:clew-too-old",
+        )
+    ]
+
+
 def collect_hints(project_dir="."):
     """Gather hints from every available producer. Missing artifacts are simply
     skipped -- an absent clew ledger or log yields fewer hints, never an error
@@ -270,9 +327,12 @@ def collect_hints(project_dir="."):
     project_path = Path(project_dir).resolve()
     hints = []
     hints.extend(hints_from_log(_read_log(project_path)))
-    claims = _read_claims(project_path)
-    if claims is not None:
-        hints.extend(hints_from_claims(claims))
+    # Claim/provenance hints are CLEW'S, produced by its own
+    # export_manuscript_hints under source "scitex-clew". Writer used to
+    # synthesise them from the ledger as an interim stand-in; that stand-in is
+    # gone now that clew ships the real producer, and merge-by-source keeps
+    # clew's entries intact alongside writer's own.
+    hints.extend(hints_from_toolchain())
     return hints
 
 
