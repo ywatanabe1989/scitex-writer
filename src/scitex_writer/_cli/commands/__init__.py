@@ -60,12 +60,20 @@ _mount_optional_subcommands()
 
 
 # §1a: install-shell-completion + print-shell-completion (canonical leaves)
-try:
-    from scitex_dev._cli._completion import attach_shell_completion
+#
+# Imported from the PUBLIC `scitex_dev.cli` (it is in that module's __all__,
+# behind a deliberate lazy re-export), not the private `_cli._completion`.
+# A peer can move a private module without notice; the public name is the
+# promise.
+#
+# NO ImportError GUARD. scitex-dev is a HARD dependency of writer, so it is
+# always installed — a guard here would not be protecting against a missing
+# optional package, it would be SWALLOWING a real breakage: if the peer ever
+# drops or renames this symbol, shell completion would silently stop existing
+# and nothing would say why. Let it raise.
+from scitex_dev.cli import attach_shell_completion  # noqa: E402
 
-    attach_shell_completion(main_group, prog_name="scitex-writer")
-except ImportError:
-    pass
+attach_shell_completion(main_group, prog_name="scitex-writer")
 
 
 # Wire in the skills group (list/get/install).
