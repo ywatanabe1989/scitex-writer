@@ -11,8 +11,11 @@ the response.
 from __future__ import annotations
 
 import json
+import logging
 
 from django.http import JsonResponse
+
+logger = logging.getLogger(__name__)
 
 
 def _parse_json(request) -> dict:
@@ -88,16 +91,24 @@ def handle_claim_chain(request, project, claim_id: str):
     if output_file or session_id:
         try:
             from scitex_clew import generate_mermaid_dag
-
+        except ImportError:
+            response["clew_available"] = False
+        else:
             response["clew_available"] = True
             kwargs = {}
             if output_file:
                 kwargs["target_file"] = output_file
             elif session_id:
                 kwargs["session_id"] = session_id
-            response["mermaid"] = generate_mermaid_dag(**kwargs)
-        except Exception:
-            pass
+            try:
+                response["mermaid"] = generate_mermaid_dag(**kwargs)
+            except Exception as exc:
+                # This was `except Exception: pass`, so a failing DAG left
+                # clew_available=True and mermaid=None — the pane reported Clew
+                # as working and simply drew nothing, with no way to find out
+                # why. Say what broke.
+                logger.warning("[claim] Clew DAG failed for %s: %s", claim_id, exc)
+                response["mermaid_error"] = str(exc)
 
     return JsonResponse(response)
 
