@@ -184,7 +184,7 @@ def default_verifier(project_dir, bib=None, offline=False, min_confidence=0.8):
         raise VerificationUnavailable(
             "scitex_scholar.verify_cites is unavailable "
             f"({type(exc).__name__}: {exc}), so citations could NOT be verified "
-            "-- install the extra: pip install 'scitex-writer[scholar]'"
+            "-- install the extra: uv pip install 'scitex-writer[all]'"
         ) from exc
     try:
         report = verify_cites(

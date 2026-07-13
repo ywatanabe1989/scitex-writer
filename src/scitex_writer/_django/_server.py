@@ -60,7 +60,7 @@ def run(
         print(
             "Note: scitex-app is not installed, so the workspace shell is "
             "unavailable; serving bare Django instead.\n"
-            "      Install it with: pip install scitex-writer[editor]"
+            "      Get it with: uv pip install 'scitex-writer[all]'"
         )
 
     import django

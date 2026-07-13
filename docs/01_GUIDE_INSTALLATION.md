@@ -52,7 +52,7 @@ cd scitex-writer
 | Package | Purpose | When Needed |
 |---------|---------|------------|
 | `python3-pip` | Python package manager | Python integration |
-| `flask` | Web framework | GUI editor (`pip install scitex-writer[editor]`) |
+| `flask` | Web framework | GUI editor (`uv pip install 'scitex-writer[all]'`) |
 | `git-lfs` | Large file storage | Binary assets in git |
 | `docker` | Container runtime | Docker-based workflows |
 | `singularity` | Container runtime | HPC environments |
@@ -252,7 +252,7 @@ singularity exec /path/to/scitex-writer.sif \
 ls -lah 01_manuscript/manuscript.pdf
 
 # 5. Test GUI editor (optional)
-pip install scitex-writer[editor]
+uv pip install 'scitex-writer[all]'
 scitex-writer gui --help
 ```
 

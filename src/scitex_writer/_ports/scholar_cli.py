@@ -68,7 +68,7 @@ def enrich_bib(
         return (
             False,
             "scitex-scholar is not installed. Run `pip install scitex-scholar` "
-            "(or `pip install scitex-writer[scholar]`) then click again.",
+            "(or `uv pip install 'scitex-writer[all]'`) then click again.",
         )
     cmd = _command_prefix() + ["bibtex", str(bib_path), "--project", project_name]
     try:

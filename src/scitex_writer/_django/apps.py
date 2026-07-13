@@ -13,7 +13,7 @@ except ImportError:
 
     warnings.warn(
         "scitex-app is not installed: the writer editor is running without "
-        "the workspace shell. Install it with: pip install scitex-writer[editor]",
+        "the workspace shell. Get it with: uv pip install 'scitex-writer[all]'",
         RuntimeWarning,
         stacklevel=2,
     )

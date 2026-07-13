@@ -2,32 +2,41 @@
 # -*- coding: utf-8 -*-
 # Test file for: src/scitex_writer/_django/apps.py
 
-"""The remedy we print must actually deliver the thing it names.
+"""ALL OR NOTHING: one feature extra, and the remedy we print must deliver it.
 
-Why this file exists: when scitex-app was missing, `_server.py` told the user
-`pip install scitex-writer[editor]` and `apps.py` quietly swapped its base
-class for a plain Django AppConfig. But the `editor` extra was DECLARED EMPTY
-(`editor = []`), and scitex-app was not a dependency of writer anywhere. So the
-instruction installed nothing, the user stayed exactly as broken, and the editor
-kept running without the workspace shell — while telling them the fix.
+Why this file exists: writer used to offer three fine-grained extras
+(`desktop`, `editor`, `scholar`), which asked users to predict at install time
+which features they would later want. It got that wrong in the worst possible
+way — `editor` was declared EMPTY (`editor = []`) while `_server.py`, `apps.py`
+and the CLI all told anyone missing scitex-app to run
+`pip install scitex-writer[editor]`. That remedy installed NOTHING. The user ran
+the fix we handed them, stayed exactly as broken, and the editor kept serving
+without the workspace shell.
 
 An install instruction that resolves to a no-op is worse than no instruction:
-the user believes they have tried the fix. These tests read the real pyproject
-and pin the promise — the extra named in the error message must provide the
-module whose absence triggered it.
+the user believes they have already tried it.
+
+The fleet rule (operator, 2026-07-13) is now ALL OR NOTHING: plain install for
+the compile engine, `[all]` for every feature. `dev` / `docs` remain, because
+those are for people building writer, not using it.
+
+These tests read the real pyproject and pin the contract, so a future edit that
+re-introduces a half-empty extra — or an error message naming an extra that
+does not provide the module whose absence triggered it — fails HERE.
 """
 
-import sys
 from pathlib import Path
 
 import tomllib
 
-_PYPROJECT = Path(__file__).resolve().parents[3] / "pyproject.toml"
+_ROOT = Path(__file__).resolve().parents[3]
+_PYPROJECT = _ROOT / "pyproject.toml"
 
-# The module whose absence degrades the editor, and the extra our error
-# messages tell the user to install to get it back.
-_DEGRADING_IMPORT = "scitex_app"
-_ADVERTISED_EXTRA = "editor"
+# The modules whose absence degrades a feature, and the ONE extra our error
+# messages are allowed to name as the cure.
+_FEATURE_MODULES = ["scitex-app", "scitex-scholar", "pywebview"]
+_THE_ONLY_FEATURE_EXTRA = "all"
+_RETIRED_EXTRAS = ["editor", "desktop", "scholar"]
 
 
 def _optional_dependencies() -> dict[str, list[str]]:
@@ -35,42 +44,69 @@ def _optional_dependencies() -> dict[str, list[str]]:
     return data["project"]["optional-dependencies"]
 
 
-def _editor_extra() -> list[str]:
-    return _optional_dependencies()[_ADVERTISED_EXTRA]
-
-
-def test_editor_extra_is_not_empty():
+def test_the_retired_fine_grained_extras_are_gone():
     # Arrange
-    extra = _editor_extra()
+    extras = _optional_dependencies()
     # Act
-    is_empty = extra == []
+    survivors = [name for name in _RETIRED_EXTRAS if name in extras]
     # Assert
-    assert not is_empty
+    assert survivors == []
 
 
-def test_editor_extra_provides_the_module_it_promises():
+def test_no_declared_extra_is_empty():
     # Arrange
-    extra = _editor_extra()
+    extras = _optional_dependencies()
     # Act
-    provides = [req for req in extra if _DEGRADING_IMPORT.replace("_", "-") in req]
+    empty = [name for name, reqs in extras.items() if not reqs]
     # Assert
-    assert provides != []
+    assert empty == []
 
 
-def test_editor_extra_floors_scitex_app_at_the_embed_release():
+def test_the_all_extra_provides_every_feature_module():
     # Arrange
-    extra = _editor_extra()
+    all_extra = " ".join(_optional_dependencies()[_THE_ONLY_FEATURE_EXTRA])
     # Act
-    pins = [req for req in extra if req.startswith("scitex-app")]
+    missing = [mod for mod in _FEATURE_MODULES if mod not in all_extra]
+    # Assert
+    assert missing == []
+
+
+def test_the_all_extra_floors_scitex_app_at_the_embed_release():
+    # Arrange
+    all_extra = _optional_dependencies()[_THE_ONLY_FEATURE_EXTRA]
+    # Act
+    pins = [req for req in all_extra if req.startswith("scitex-app")]
     # Assert
     assert pins == ["scitex-app>=0.4.0"]
 
 
-def test_app_config_is_importable():
+def test_nothing_still_tells_a_user_to_install_a_retired_extra():
     # Arrange
-    sys.modules.pop("scitex_writer._django.apps", None)
+    searched = [_ROOT / "src", _ROOT / "docs", _ROOT / "scripts", _ROOT / "README.md"]
+    files = [
+        path
+        for root in searched
+        for path in ([root] if root.is_file() else root.rglob("*"))
+        if path.is_file()
+        and path.suffix in {".py", ".md", ".rst", ".ts", ".toml", ".gui"}
+        and "_sphinx_html" not in path.parts
+    ]
     # Act
+    offenders = [
+        str(path.relative_to(_ROOT))
+        for path in files
+        for extra in _RETIRED_EXTRAS
+        if f"scitex-writer[{extra}]" in path.read_text(errors="ignore")
+    ]
+    # Assert
+    assert offenders == []
+
+
+def test_app_config_keeps_its_django_label():
+    # Arrange
     from scitex_writer._django.apps import WriterEditorConfig
 
+    # Act
+    label = WriterEditorConfig.label
     # Assert
-    assert WriterEditorConfig.label == "writer_editor"
+    assert label == "writer_editor"

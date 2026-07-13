@@ -148,7 +148,7 @@ def gui_serve(project, port, host, force, dry_run, as_json):
         from ..._django._server import run as _run_editor
     except ImportError as e:
         click.echo(
-            f"Error: {e}\nInstall with: pip install scitex-writer[editor]", err=True
+            f"Error: {e}\nGet it with: uv pip install 'scitex-writer[all]'", err=True
         )
         return 1
     _gui_runtime.write_state(os.getpid(), port, host, str(project_path))
@@ -236,7 +236,7 @@ def gui_open(project, port, host, no_browser, desktop, dry_run, as_json):
             from ..._django._server import run as _run_editor
         except ImportError as e:
             click.echo(
-                f"Error: {e}\nInstall with: pip install scitex-writer[editor]",
+                f"Error: {e}\nGet it with: uv pip install 'scitex-writer[all]'",
                 err=True,
             )
             return 1
