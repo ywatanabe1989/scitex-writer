@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.32.0] - 2026-07-14
+
+### Changed
+- **Shell completion is imported from the public `scitex_dev.cli`, and the import is no longer guarded.** It reached into `scitex_dev._cli._completion` — a peer's *private* module, which that peer is free to move without warning. The public name is the promise, and `attach_shell_completion` is in `scitex_dev.cli.__all__` behind a deliberate lazy re-export, so there was never a reason to reach past it.
+
+  The `try/except ImportError` around it is gone too. scitex-dev is a **hard** dependency of scitex-writer, not an optional one: if it cannot be imported, the install is broken and the right outcome is a loud `ImportError` naming the real cause. The guard turned that into a writer with silently missing completion leaves — a degraded CLI presented as a working one, which is the same defect as an extra that installs nothing. Raises the floor to `scitex-dev>=0.30.0`, the first release exposing the public re-export.
+
 ## [2.31.0] - 2026-07-13
 
 ### Changed
