@@ -50,24 +50,47 @@ def _port_is_free(host: str, port: int) -> bool:
     return True
 
 
-def _port_taken_message(host: str, port: int) -> str:
+def _holder_is_our_own_editor(holder: dict | None) -> bool:
+    """True when the process holding the port is a writer of ours.
+
+    Decided from the holder's argv, not its name: a comm of "python" tells us
+    nothing, while the argv names the module. This is what lets `--force`
+    reclaim OUR OWN orphaned editor — one that died without clearing its state
+    file, so `status()` cannot see it — while still never touching a process
+    that is not ours.
+    """
+    if not holder or not holder.get("pid"):
+        return False
+    argv = holder.get("cmdline") or ""
+    return "scitex_writer" in argv or "scitex-writer" in argv
+
+
+def _port_taken_message(host: str, port: int, holder: dict | None) -> str:
     """Explain who holds ``port`` and give paste-ready commands to fix it.
 
-    This path means the port is held by something we do NOT track — an
-    orphaned editor, or an unrelated process. `--force` only stops the editor
-    recorded in our own runtime state, so it is deliberately NOT offered here:
-    a hint that does not work is worse than no hint.
+    `--force` is offered ONLY when it would actually work — i.e. the holder is
+    one of ours. Printing `--force` at someone whose port is held by a foreign
+    process would be a remedy that does nothing, which is the bug this whole
+    command exists to avoid.
     """
-    holder = _gui_runtime.port_holder(port)
     lines = [f"Error: port {port} is already in use on {host}."]
     if holder and holder.get("pid"):
         lines.append(f"Held by: {holder['name']} (pid {holder['pid']})")
+    elif holder and holder.get("unreadable"):
+        lines.append(
+            "Held by: a process this system will not let us identify "
+            "(/proc/<pid>/fd is not readable here)."
+        )
     elif holder:
         lines.append("Held by: a process owned by another user.")
     else:
         lines.append("Held by: unknown (the listening process could not be read).")
 
     lines += ["", "Fix it with one of:"]
+    if _holder_is_our_own_editor(holder):
+        lines.append(
+            "  scitex-writer gui serve --force        # stop that editor and serve here"
+        )
     lines.append(
         f"  scitex-writer gui serve --port {port + 1}   # serve on a free port"
     )
@@ -142,13 +165,30 @@ def gui_serve(project, port, host, force, dry_run, as_json):
         click.echo(f"Stopping the editor at {current['url']} (pid {current['pid']}).")
         _gui_runtime.stop()
     if not _port_is_free(host, port):
-        click.echo(_port_taken_message(host, port), err=True)
-        return 1
+        # The state file only knows about editors that shut down cleanly. An
+        # editor killed with SIGKILL, or left behind by a crashed shell, still
+        # HOLDS THE PORT while being invisible to status() — so `--force` used
+        # to refuse here, on the very orphan it exists to clear.
+        holder = _gui_runtime.port_holder(port)
+        if force and _holder_is_our_own_editor(holder):
+            pid = holder["pid"]
+            click.echo(f"Stopping an orphaned editor of ours (pid {pid}).")
+            if not _gui_runtime.terminate(pid):
+                click.echo(
+                    f"Error: could not stop pid {pid}; it is still holding "
+                    f"port {port}.\nStop it yourself: kill -9 {pid}",
+                    err=True,
+                )
+                return 1
+            _gui_runtime.clear_state()
+        if not _port_is_free(host, port):
+            click.echo(_port_taken_message(host, port, holder), err=True)
+            return 1
     try:
         from ..._django._server import run as _run_editor
     except ImportError as e:
         click.echo(
-            f"Error: {e}\nInstall with: pip install scitex-writer[editor]", err=True
+            f"Error: {e}\nGet it with: uv pip install 'scitex-writer[all]'", err=True
         )
         return 1
     _gui_runtime.write_state(os.getpid(), port, host, str(project_path))
@@ -236,7 +276,7 @@ def gui_open(project, port, host, no_browser, desktop, dry_run, as_json):
             from ..._django._server import run as _run_editor
         except ImportError as e:
             click.echo(
-                f"Error: {e}\nInstall with: pip install scitex-writer[editor]",
+                f"Error: {e}\nGet it with: uv pip install 'scitex-writer[all]'",
                 err=True,
             )
             return 1

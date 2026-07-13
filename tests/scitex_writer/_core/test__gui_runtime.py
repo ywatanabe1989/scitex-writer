@@ -203,3 +203,41 @@ def test_port_holder_returns_none_when_port_is_free():
     holder = _gui_runtime.port_holder(free_port)
     # Assert
     assert holder is None
+
+
+# =========================================================================
+# terminate — reclaim the port from an ORPHANED editor of ours.
+#
+# The state file only knows about editors that shut down cleanly. One killed
+# with SIGKILL, or left by a crashed shell, still HOLDS THE PORT while being
+# invisible to status() — so `gui serve --force` used to refuse on the very
+# orphan it exists to clear. The operator hit exactly this.
+# =========================================================================
+
+
+def test_terminate_kills_a_live_process(state_file):
+    # Arrange
+    child = subprocess.Popen([sys.executable, "-c", "import time; time.sleep(30)"])
+    # Act
+    _gui_runtime.terminate(child.pid)
+    # Assert
+    assert not _gui_runtime.pid_alive(child.pid)
+
+
+def test_terminate_reports_success_when_the_process_is_gone(state_file):
+    # Arrange
+    child = subprocess.Popen([sys.executable, "-c", "import time; time.sleep(30)"])
+    # Act
+    result = _gui_runtime.terminate(child.pid)
+    # Assert
+    assert result is True
+
+
+def test_terminate_is_idempotent_on_an_already_dead_pid(state_file):
+    # Arrange
+    child = subprocess.Popen([sys.executable, "-c", "pass"])
+    child.wait(timeout=5)
+    # Act
+    result = _gui_runtime.terminate(child.pid)
+    # Assert
+    assert result is True

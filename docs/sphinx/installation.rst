@@ -33,7 +33,7 @@ With GUI editor (requires Flask):
 
 .. code-block:: bash
 
-    pip install scitex-writer[editor]
+    uv pip install 'scitex-writer[all]'
 
 Docker Setup
 ------------

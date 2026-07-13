@@ -54,13 +54,13 @@ def run(
     print("Press Ctrl+C to stop")
 
     try:
-        from scitex_app._standalone import run_standalone
+        from scitex_app.embed import run_standalone
     except ImportError:
         run_standalone = None
         print(
             "Note: scitex-app is not installed, so the workspace shell is "
             "unavailable; serving bare Django instead.\n"
-            "      Install it with: pip install scitex-writer[editor]"
+            "      Get it with: uv pip install 'scitex-writer[all]'"
         )
 
     import django

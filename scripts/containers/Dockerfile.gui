@@ -54,7 +54,7 @@ RUN python3 -m pip install --upgrade pip --break-system-packages
 # Install scitex-writer with editor support
 COPY . /tmp/scitex-writer
 RUN pip3 install --no-cache-dir --break-system-packages \
-    "/tmp/scitex-writer[editor]" \
+    "/tmp/scitex-writer[all]" \
     && rm -rf /tmp/scitex-writer
 
 WORKDIR /workspace

@@ -62,18 +62,35 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-desktop = [
+# ALL OR NOTHING — one feature extra, deliberately.
+#
+# There used to be three fine-grained extras (`desktop`, `editor`, `scholar`).
+# They asked the user to predict, at install time, which of writer's features
+# they would eventually want — and got it wrong in the worst way: `editor` was
+# declared EMPTY while the code told anyone missing scitex-app to run
+# `pip install scitex-writer[editor]`. That remedy installed NOTHING. The user
+# ran the fix we handed them, stayed exactly as broken, and the editor kept
+# serving degraded. An install instruction that resolves to a no-op is worse
+# than none, because they believe they have already tried it.
+#
+# The fleet rule (operator, 2026-07-13) is now: a user decides ALL or NOTHING.
+# `pip install scitex-writer` gives the compile engine; `[all]` gives every
+# feature. No menu of half-states to get wrong. `dev` / `docs` remain, because
+# those are for people building writer, not using it.
+all = [
+    # Desktop window for `gui open --desktop`.
     "pywebview>=4.0.0",
-]
-editor = []
-scholar = [
-    # >=1.5.0 is a HARD floor, not a preference: before 1.5.0 a metadata-nesting
+    # The workspace shell the editor server runs inside
+    # (`scitex_app.embed.run_standalone`) and the Django AppConfig base
+    # (`scitex_app.embed.ScitexAppConfig`).
+    #
+    # FLOOR IS 0.4.0, not lower: that is the first release exposing the public
+    # `scitex_app.embed` module. Below it the import falls through the
+    # ImportError guard and the editor silently degrades to a shell-less server.
+    "scitex-app>=0.4.0",
+    # >=1.5.0 was a HARD floor, not a preference: before 1.5.0 a metadata-nesting
     # bug in scitex-scholar meant `verify_cites` could never return VERIFIED for
     # ANY citation, so the `citation_trust` check could only ever emit warnings.
-    # The live integration test
-    # (tests/scripts/python/test_check_citation_trust.py, opt-in via
-    # SCITEX_WRITER_NETWORK_TESTS=1) is what proves the upstream can actually
-    # produce a VERIFIED verdict.
     #
     # 1.5.2 raises it again, and this floor is about CORRECTNESS, not features.
     # Before it, a citation with no identifier could resolve by a fuzzy TITLE
@@ -91,14 +108,16 @@ dev = [
     "pytest-cov>=4.0.0",
     "pytest-xdist>=3.0.0",
     "pre-commit>=3.5.0",
-    # Optional features whose tests live in the suite — installed in [dev]
-    # so a fresh `pip install -e .[dev]` runs the full suite. Production
-    # users opt in via `pip install scitex-writer[scholar]`. See
-    # _skills/general/01_ecosystem_02_dependency-and-version-pinning.md
-    # `[dev]` extras completeness.
-    # Same >=1.5.2 floor as the [scholar] extra: a fresh `pip install -e .[dev]`
-    # in CI must get a scholar whose verify_cites can actually return VERIFIED.
-    "scitex-scholar>=1.5.2",  # tested via [scholar] integration tests
+    # Feature deps whose tests live in the suite, so a fresh
+    # `pip install -e .[dev]` runs the FULL suite. Production users get these
+    # via `[all]`. See _skills/general/
+    # 01_ecosystem_02_dependency-and-version-pinning.md `[dev]` extras
+    # completeness.
+    #
+    # Same >=1.5.2 floor as `[all]`: a fresh `pip install -e .[dev]` in CI must
+    # get a scholar whose verify_cites can actually return VERIFIED.
+    "scitex-scholar>=1.5.2",
+    "scitex-app>=0.4.0",  # editor tests need the workspace shell
     "openpyxl",           # writes the .xlsx fixture for the tables xlsx stage
 ]
 docs = [
@@ -108,12 +127,6 @@ docs = [
     "sphinx-copybutton>=0.5",
     "sphinx-autodoc-typehints>=1.25",
 ]
-all = [
-    "scitex-writer[desktop]",
-    "scitex-writer[editor]",
-    "scitex-writer[scholar]",
-]
-
 [project.scripts]
 scitex-writer = "scitex_writer._cli:main"
 
