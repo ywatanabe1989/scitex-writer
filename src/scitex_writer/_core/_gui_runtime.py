@@ -162,13 +162,20 @@ def port_holder(port: int) -> Optional[dict]:
     inodes = _listening_socket_inodes(port)
     if not inodes:
         return None
+    unreadable = False
     for proc_dir in Path("/proc").iterdir():
         if not proc_dir.name.isdigit():
             continue
         try:
             fds = list((proc_dir / "fd").iterdir())
+        except PermissionError:
+            # Some /proc mounts (hidepid, and our own agent containers) deny
+            # this even for processes we own. That is NOT "somebody else's
+            # process" — it is "we could not look". Say which.
+            unreadable = True
+            continue
         except OSError:
-            continue  # not ours / vanished — keep scanning
+            continue  # vanished mid-scan — keep going
         for fd in fds:
             try:
                 target = os.readlink(fd)
@@ -180,8 +187,49 @@ def port_holder(port: int) -> Optional[dict]:
                 name = (proc_dir / "comm").read_text().strip()
             except OSError:
                 name = "?"
-            return {"pid": int(proc_dir.name), "name": name}
-    return {"pid": None, "name": None}
+            try:
+                # NUL-separated argv. Carries the evidence needed to tell one
+                # of OUR OWN orphaned editors from an unrelated squatter — a
+                # comm of "python" says nothing, but the argv names the module.
+                cmdline = (proc_dir / "cmdline").read_bytes().replace(b"\0", b" ")
+                argv = cmdline.decode("utf-8", "replace").strip()
+            except OSError:
+                argv = ""
+            return {"pid": int(proc_dir.name), "name": name, "cmdline": argv}
+    # Something IS listening (we found the socket inode) but we could not put a
+    # pid to it. Distinguish "not allowed to look" from "looked, found nobody":
+    # reporting a /proc we cannot read as "another user's process" is a guess,
+    # and a confident wrong answer is the bug this module exists to avoid.
+    return {"pid": None, "name": None, "cmdline": "", "unreadable": unreadable}
+
+
+def terminate(pid: int, timeout: float = 5.0) -> bool:
+    """SIGTERM ``pid`` and wait for it to die. True when it is gone.
+
+    Used by ``gui serve --force`` to reclaim the port from an ORPHANED editor
+    of ours — one that never cleared its state file, so ``stop()`` (which reads
+    that file) cannot see it. Escalates to SIGKILL only after SIGTERM has been
+    given the full timeout to shut down cleanly.
+    """
+    if not pid_alive(pid):
+        return True
+    try:
+        os.kill(pid, signal.SIGTERM)
+    except OSError:
+        return not pid_alive(pid)
+    deadline = time.monotonic() + timeout
+    while time.monotonic() < deadline and pid_alive(pid):
+        time.sleep(0.1)
+    if not pid_alive(pid):
+        return True
+    try:
+        os.kill(pid, signal.SIGKILL)
+    except OSError:
+        return not pid_alive(pid)
+    deadline = time.monotonic() + 2.0
+    while time.monotonic() < deadline and pid_alive(pid):
+        time.sleep(0.1)
+    return not pid_alive(pid)
 
 
 def stop(path: Optional[PathLike] = None, timeout: float = 5.0) -> dict:
