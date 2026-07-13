@@ -75,7 +75,7 @@ def editor_page(request):
         "writer/editor.html",
         {
             "app_name": "writer",
-            "app_label": _app_label("Writer — SciTeX"),
+            "app_label": _app_label("SciTeX Writer"),
             "project_dir": project_dir,
             "dark_mode": project.dark_mode if project else False,
         },
@@ -166,7 +166,7 @@ def viewer_page(request):
         "writer/viewer.html",
         {
             "app_name": "writer",
-            "app_label": _app_label("Writer Viewer — SciTeX"),
+            "app_label": _app_label("SciTeX Writer — Viewer"),
             "project_dir": project_dir,
         },
         request=request,

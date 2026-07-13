@@ -127,7 +127,7 @@ export class CitationsPanel {
     btn.addEventListener("click", async () => {
       if (!this.scholarState?.scholar_cli_on_path) {
         this.showEnrichHint(
-          "scitex-scholar is not installed. Run <code>pip install scitex-scholar</code> (or <code>pip install scitex-writer[scholar]</code>), then click again.",
+          "scitex-scholar is not installed. Run <code>pip install scitex-scholar</code> (or <code>uv pip install 'scitex-writer[all]'</code>), then click again.",
         );
         return;
       }

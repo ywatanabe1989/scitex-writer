@@ -23,7 +23,7 @@ pip install scitex-writer
 | `all`      | desktop + editor + scholar                    |
 
 ```bash
-pip install 'scitex-writer[scholar]'
+uv pip install 'scitex-writer[all]'
 pip install 'scitex-writer[all]'
 ```
 

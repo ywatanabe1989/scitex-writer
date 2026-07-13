@@ -391,7 +391,7 @@ SCITEX_WRITER_DARK_MODE=true make manuscript
 </p>
 
 ```bash
-pip install scitex-writer[editor]
+uv pip install 'scitex-writer[all]'
 scitex-writer gui                    # Current directory
 scitex-writer gui ./my-paper         # Specific project
 scitex-writer gui --port 8080        # Custom port

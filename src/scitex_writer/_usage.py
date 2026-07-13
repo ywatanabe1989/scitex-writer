@@ -189,7 +189,7 @@ CLI:
   scitex-writer mcp list-tools           # List MCP tools
   scitex-writer gui                      # Launch GUI editor
 
-GUI (pip install scitex-writer[editor]):
+GUI (uv pip install 'scitex-writer[all]'):
   scitex-writer gui ./my-paper           # Browser-based editor
 
 MCP Tool:
