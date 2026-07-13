@@ -118,28 +118,66 @@ def handle_citation(request, project, cite_key: str):
 
 
 def _claim_verification_state(project, claim: dict) -> dict:
-    """Best-effort Clew verification for a claim."""
+    """Verify a claim through Clew's own per-claim entry point.
+
+    This used to hand-roll the verdict out of ``verify_chain(target_file=...)``.
+    No published Clew has ever had a ``target_file`` parameter — ``verify_chain``
+    takes a single positional ``target`` — and it has no ``session_id`` parameter
+    either, so BOTH branches raised TypeError on every call. The exception was
+    logged at DEBUG and returned as a per-claim state of ``"ERROR"``, which reads
+    as "this claim could not be verified" when the truth was "writer called Clew
+    wrong". A wiring bug wearing the costume of a data problem: it shipped, and
+    verified zero of the 40 claims in a real manuscript.
+
+    Clew ships ``verify_claim`` for exactly this, and returns its OWN reasons in
+    ``details`` — better than any verdict we could synthesise.
+    """
+    claim_id = claim.get("claim_id")
     output_file = claim.get("output_file")
     session_id = claim.get("session_id")
     if not (output_file or session_id):
         return {"state": "NO_PROVENANCE"}
 
     try:
-        from scitex_clew import verify_chain
-
-        args = {}
-        if output_file:
-            args["target_file"] = output_file
-        elif session_id:
-            args["session_id"] = session_id
-        status = verify_chain(**args)
-        return {
-            "state": status.status.name if hasattr(status, "status") else str(status),
-            "target_file": output_file,
-            "session_id": session_id,
-        }
+        from scitex_clew import verify_chain, verify_claim
     except ImportError:
         return {"state": "CLEW_MISSING"}
+
+    try:
+        if claim_id:
+            verdict = verify_claim(claim_id)
+            return {
+                "state": "VERIFIED" if verdict.get("chain_verified") else "UNVERIFIED",
+                "source_verified": verdict.get("source_verified"),
+                "chain_verified": verdict.get("chain_verified"),
+                # Clew's reasons, carried through. Without them the pane can say
+                # a claim failed but never say why.
+                "details": verdict.get("details") or [],
+                "output_file": output_file,
+                "session_id": session_id,
+            }
+        if output_file:
+            status = verify_chain(output_file)
+            return {
+                "state": (
+                    status.status.name if hasattr(status, "status") else str(status)
+                ),
+                "output_file": output_file,
+                "session_id": session_id,
+            }
+        # A session id alone gives Clew nothing to chase: neither entry point
+        # accepts one. Say so, rather than reporting a verification we did not
+        # perform.
+        return {"state": "UNVERIFIABLE_NO_TARGET", "session_id": session_id}
+    except TypeError:
+        # A TypeError here is OUR call being wrong, not a fact about the claim.
+        # Reporting it as a per-claim "ERROR" is precisely how the previous bug
+        # stayed invisible across two releases. Let it out.
+        raise
     except Exception as exc:
-        logger.debug("[viewer] verify_chain failed: %s", exc)
+        logger.warning(
+            "[viewer] Clew verification failed for %s: %s",
+            claim_id or output_file,
+            exc,
+        )
         return {"state": "ERROR", "error": str(exc)}

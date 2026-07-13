@@ -1,7 +1,7 @@
 # ADR 0001 — SSOT interactive research-paper editor (pen-tablet annotation + interactive clew provenance)
 
-- **Status:** Proposed (hub-approved 2026-07-08; figrecipe + clew seam inputs pending their return)
-- **Date:** 2026-07-08
+- **Status:** Accepted (2026-07-14). hub approved 2026-07-08; figrecipe confirmed the `figure-requests/1` field shapes; clew reviewed it against 0.17.0 and had three precisions folded. Every co-owner input this ADR was waiting on has arrived.
+- **Date:** 2026-07-08 (accepted 2026-07-14)
 - **Deciders:** operator, scitex-writer (lead/author), scitex-hub, figrecipe, scitex-clew, scitex-dev, scitex-ui
 - **Affects:** scitex-hub, figrecipe, scitex-clew, scitex-ui, scitex-live-paper
 - **Supersedes/builds on:** card `live-paper-viewer-component` (operator decisions, Telegram 553–571)
@@ -44,7 +44,15 @@ Precedent exists: **scitex-ui (`@scitex/ui`)** is the shared TS+CSS component li
 
 ### 4. Inline engine — two surfaces, clew/scitex-dev SoC preserved
 
-- **Real-time inline (per-claim, as you annotate):** query **clew's per-claim grounding** directly — clew to expose `is_grounded` as `scitex-clew grounding <claim> --json` and/or `is_claim_grounded()`, returning `{grounded, matched_source, missing_reason, fix_hint}`. This is the design's **one true external dependency**. Status: durably carded as `clew-per-claim-grounding-query-api-20260708` (full ask + internal ref + verdict shape + SoC); **clew is offline — not yet acked**; scitex-dev retries the direct request when clew returns. Do NOT call the whole-workdir gate per keystroke.
+- **Real-time inline (per-claim, as you annotate):** query **clew's per-claim grounding** directly. This is the design's **one true external dependency**. Do NOT call the whole-workdir gate per keystroke.
+
+  **Required surface** (`is_claim_grounded(claim_location, *, workdir=".") -> GroundingVerdict`, and/or `scitex-clew grounding <claim> --json`), returning `{grounded, claim_id, matched_source{path,sha256}|None, reason, fix_hint}` with `reason ∈ {grounded, no_chain_match, no_manifest, manifest_untrusted, claim_not_found}`.
+
+  **What clew ships today (0.17.0, verified by import, not by report):** `is_grounded(claim, manifest, db) -> bool` and `grounded_claim_ids(workdir, ...) -> List[str]`. These are the primitives, not the port. Two concrete gaps:
+  - `is_grounded` makes the CALLER load the manifest and the DB. That is clew's internal plumbing leaking across the seam; writer must not know clew has a `SourcesManifest` or a `db`, and must not be the one to keep them in sync.
+  - Both return a bare `bool` / `List[str]`. **A boolean cannot drive this UI.** The editor must distinguish amber (`no_manifest` — nothing registered yet, a compose-time convenience) from red (`manifest_untrusted` — there IS a manifest and this claim fails it), and must render a `fix_hint`. Collapsing those to `False` is precisely the "claim with provenance reported as unsourced" bug class this design exists to kill.
+
+  Status: carded as `clew-per-claim-grounding-query-api-20260708`. Clew has acked the contract and reports `is_grounded` ready; the remaining work is wrapping the primitives in the agreed verdict-returning port. Until it lands, compose mode falls back to the compile-time gate feed (advisory, non-live).
 - **Publish boundary (aggregate authority):** `scitex-dev gate <workdir> --stage pre-submission --json` → `GateReport.blocking` + per-Finding `{check_id, message, severity, fix_hint, claim location}`; the editor renders inline by filtering Findings on `claim.location`.
 - SoC: rule + DB stay in **clew** (`clew-source-reachability` check under `scitex_dev.gate.checks`); aggregation + contract stay in **scitex-dev**.
 
@@ -68,13 +76,15 @@ Hub doctrine (mandatory): **viewing is never blocked** for any role; write/annot
 
 - One viewer implementation across Writer / hub / Journal / Live Paper; no duplicate PDF viewers.
 - Writer's authoring loop and the published reading experience share a single component at different permission modes — parity by construction.
-- Hard dependency on clew exposing a per-claim grounding query (in clew's queue) for the inline engine; until then, compose mode falls back to the compile-time gate feed (advisory, non-live).
+- Hard dependency on clew wrapping its grounding primitives in a verdict-returning per-claim query (§4) for the inline engine; until then, compose mode falls back to the compile-time gate feed (advisory, non-live).
 - scitex-ui npm publication becomes a shared-infra dependency for clean distribution.
 
 ## Open questions (for co-owner input)
 
-1. **clew:** confirm the per-claim grounding query signature + whether the hover-chain data is static (claims.json) or live-queryable; confirm the pdf_anchor id scheme. Status: enabler carded (`clew-per-claim-grounding-query-api-20260708`) but clew is offline and has NOT yet acked — awaiting clew's return.
-2. **figrecipe:** the mark→figure-change request payload (figure id/save-path, mark geometry, requested-change text), the dispatch channel (a2a / hints-feed / file drop), and figure-quality signals surfaced back inline. (figrecipe currently down.)
-3. **scitex-ui / hub:** confirm the App-tier home + the `exports` map contract; sequence against npm publication.
-4. **ADR numbering:** confirm this is `0001` in scitex-writer (no existing adr dir) vs. aligning with the mirrored lead-repo `0002-scitex-django-app-standard`.
+All four questions below have been ANSWERED; they are kept for the record. Nothing in this ADR is waiting on a co-owner.
+
+1. **clew — ANSWERED 2026-07-08, reviewed against 0.17.0.** Hover-chain data: static `claims.json` 1.6-unified for the marks, plus live `clew.chain()/dag()/mermaid()` on hover. `pdf_anchor` emits the full `clew-<slug>` destination, consumed verbatim (byte-identical to `\hypertarget`). Colour map: `manifest_untrusted → grounded=False → RED`; amber is `no_manifest` only. The one item still OPEN is a BUILD, not a question: wrapping `is_grounded`/`grounded_claim_ids` in the verdict-returning port (see §4).
+2. **figrecipe — ANSWERED 2026-07-08.** `figure-requests/1` field shapes confirmed in full, with top-left/y-down normalized region coords and the ownership rule folded in.
+3. **scitex-ui / hub — ANSWERED 2026-07-08.** L1 exported as the named subpath `@scitex/ui/pdf-viewer` (source-only `.ts`, reachable without the shell bundle); sequenced against npm publication (`scitex-ui-npm-publish`).
+4. **ADR numbering — RESOLVED.** `0001` in scitex-writer.
 5. **Handwriting:** confirm pen=marks / voice=OS-dictation for v1 (no in-app OCR).

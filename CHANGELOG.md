@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.33.0] - 2026-07-14
+
+### Fixed
+- **The claims pane verified ZERO claims. Not some — all of them.** Writer called `verify_chain(target_file=...)` and `verify_chain(session_id=...)`. Clew's `verify_chain` takes a single positional `target` and has *neither* keyword, so **every** call raised `TypeError`. The exception was logged at **debug** and returned as a per-claim state of `"ERROR"` — so the pane told a researcher "this claim could not be verified" when the truth was "writer called Clew wrong". A wiring bug wearing the costume of a data problem. It shipped in 2.30.2 and had never once been run against a real Clew; **paper-scitex-clew found it in a real manuscript, where all 40 claims came back `ERROR`.**
+
+  It now uses Clew's own per-claim entry point, `verify_claim(claim_id)` — which exists for exactly this, and which writer was reimplementing badly — and carries Clew's `details` through, so the pane can say *why* a claim failed rather than only that it did. A `session_id` alone is reported as `UNVERIFIABLE_NO_TARGET`: neither entry point accepts one, so claiming a verification we never performed was a second lie hiding under the first. A `TypeError` is now **re-raised**, never reported as a claim state — it is our call being wrong, not a fact about the claim.
+
+  Also removes `claim.py`'s `except Exception: pass`, which left `clew_available=True` beside a silently empty DAG.
+
+- **`update-project` refuses to vendor a stale engine and call it success.** It vendors from the **installed** scitex-writer, so an agent running an old version would quietly copy an old engine into their project and be told it worked — "fixing" staleness with staleness. Both neurovista and paper-scitex-clew were sent to run it with 2.29.0 installed while 2.32.1 was current; paper-scitex-clew caught it by hand and asked for the guard.
+
+  When the source can be **proven** outdated it now refuses and hands back the command that works (`uv pip install -U 'scitex-writer[all]'`). When PyPI is unreachable it proceeds but **says the check did not happen** — `is_outdated` is `None`, never `False`. Silence must not read as "you are current". `--allow-outdated` overrides; an explicit `--branch`/`--tag` is a deliberate choice and is not second-guessed. Version comparison is numeric, because `"2.9.0" < "2.32.1"` is `False` as strings.
+
 ## [2.32.1] - 2026-07-14
 
 ### Fixed
