@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.37.0] - 2026-07-14
+
+### Added
+- **A clew COVERAGE gate: the claims the manuscript renders must be the claims clew has grounded.** Its sibling `check_clew_verify` delegates to `clew verify`, which reports a verdict over *clew's store* — so it can pass having checked a claim set **disjoint** from what the PDF renders, a green provenance gate certifying a paper it never inspected. On a real manuscript, clew's store had 1 claim, the manuscript rendered 83, the intersection was 0, and the gate said `"0/1 verified"`. That reads like one near-miss; it means "I have never seen your manuscript."
+
+  New `check_clew_completeness.py` (wired into the provenance-check pass after `check_clew_verify`) computes the manuscript claim set — the raw `\vclaim{...}` arguments plus the `00_shared/claims.json` keys, joined on the **raw `claim_id`** (clew's identity key, no transform, agreed with scitex-clew) — and hands it to `clew gate-completeness` as an identity submission. Claims the manuscript renders but clew has not grounded are the coverage gap it hard-fails on; grounded-but-uncited claims are advisory. CLI-only, reusing `check_clew_verify`'s severity/research helpers so the two gates cannot drift.
+
+  Validated on paper-scitex-clew: `coverage 0/83 (0%)`, exit 1 — where the old gate said `"0/1 verified"`. It resolves clew's **canonical** DB by walking up to `<repo>/.scitex/clew` rather than trusting the vendored subdir, after an earlier draft pointed at a nested stale DB and reported the wrong denominator (a coverage gate reconciling against the wrong store is the very failure it exists to catch).
+
 ## [2.36.0] - 2026-07-14
 
 ### Added
