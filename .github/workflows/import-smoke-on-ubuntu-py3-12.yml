@@ -1,11 +1,11 @@
 name: import-smoke
 
-# Catches "wheel installs but `import scitex_writer` blows up at runtime"
-# — separate from the full pytest suite so a broken entry-point fails
-# fast without paying for the matrix. Companion to `tests` — confirms
-# the bare package (no extras) is `pip install -e .`-able and
-# `import scitex_writer` succeeds. Catches `[project] dependencies`
-# drift that the test matrix masks because it installs `[all,dev]`.
+# PILOT: org-level reusable-workflow caller (scitex-ai/.github, 2026-07-10).
+# Catches "wheel installs but `import scitex_writer` blows up at runtime" —
+# unchanged purpose, triggers preserved verbatim. Reusable job runs on the
+# fleet-standard self-hosted Spartan runner (was ubuntu-latest here).
+#
+# New required-status-check context: "install-check / import-smoke-on-ubuntu-py3-12"
 
 on:
   push:
@@ -18,17 +18,5 @@ on:
 
 jobs:
   install-check:
-    name: import-smoke-on-ubuntu-py3-12
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-      - name: Install (no extras)
-        run: |
-          python -m venv .venv
-          .venv/bin/pip install --upgrade pip
-          .venv/bin/pip install -e .
-      - name: Import smoke
-        run: .venv/bin/python -c "import scitex_writer; print(scitex_writer.__version__)"
+    uses: scitex-ai/.github/.github/workflows/import-smoke.yml@main
+    secrets: inherit

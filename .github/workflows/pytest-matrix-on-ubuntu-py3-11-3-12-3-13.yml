@@ -1,5 +1,16 @@
 name: tests
 
+# PILOT: org-level reusable-workflow caller (scitex-ai/.github, 2026-07-10).
+# Triggers preserved verbatim from the prior local file. The reusable job
+# runs on the fleet-standard self-hosted Spartan runner (was GitHub-hosted
+# ubuntu-latest here) — an implicit side effect of adopting the reusable
+# workflow, confirmed with scitex-dev (matches existing doctrine: CI belongs
+# on Spartan, we don't pay for hosted runners). Codecov upload is carried
+# inside the reusable job (CODECOV_TOKEN via secrets: inherit).
+#
+# New required-status-check context: "test / pytest-matrix-on-ubuntu-py<X.YY>"
+# (scitex-dev patches branch protection to match as part of this migration).
+
 on:
   push:
     branches: [main, develop]
@@ -11,40 +22,5 @@ on:
 
 jobs:
   test:
-    name: pytest-matrix-on-ubuntu-py${{ matrix.python-version }}
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        python-version: ["3.11", "3.12", "3.13"]
-    steps:
-      - uses: actions/checkout@v4
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.python-version }}
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          # Fallback chain: prefer [all,dev] so optional-dep code paths
-          # get exercised. Falls back to [dev] then plain editable so a
-          # packaging hiccup doesn't strand CI.
-          pip install -e ".[all,dev]" || pip install -e ".[dev]" || pip install -e .
-      - name: Run tests
-        run: |
-          pytest tests/ --cov=src/scitex_writer --cov-report=xml --cov-report=term
-      - name: Upload coverage to Codecov
-        if: always() && matrix.python-version == '3.12'
-        # Per-job HOME so the matrix legs never race on the shared
-        # ~/.gitconfig that codecov-action writes (`safe.directory`);
-        # disable_safe_directory because each job already has an
-        # isolated HOME and the codecov step owns the checkout. Carried
-        # over from io's PR #22 codecov-race fix.
-        env:
-          HOME: ${{ runner.temp }}/codecov-home-${{ matrix.python-version }}
-        uses: codecov/codecov-action@v5
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          files: ./coverage.xml
-          fail_ci_if_error: false
-          disable_safe_directory: true
+    uses: scitex-ai/.github/.github/workflows/pytest-matrix.yml@main
+    secrets: inherit
