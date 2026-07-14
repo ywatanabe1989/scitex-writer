@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.35.0] - 2026-07-14
+
+### Changed
+- **Clew owns its own manuscript hints; writer stops synthesising them.** scitex-clew 0.18.0 ships `export_manuscript_hints` (verified from the published wheel, and confirmed installable on the PyPI simple index — the JSON API lags). Writer used to read clew's ledger directly and emit `scitex-clew`-labelled hints as an interim stand-in. It no longer does: `WRITER_SOURCES` drops `"scitex-clew"`, because merge-by-source *replaces* the sources a producer claims — so writer continuing to claim it would clobber clew's real entries on every compile.
+
+  **The dangerous half is the silent one.** Dropping the interim producer would make projects pinned to an *older* clew simply lose their provenance hints — the pane goes quiet, with nothing to say why. That silent disappearance is exactly the failure this feed exists to surface. So writer now emits a **warning under its own `scitex-writer` source** when clew is installed but predates 0.18.0, naming the version and handing back `uv pip install -U scitex-clew`. Clew being *absent* stays silent — an optional peer with nothing to say is an honest nothing, not a missing something.
+
+  `hints_from_claims` is retired (its docstring now says so, loudly — re-wiring it would clobber clew's entries) but not yet deleted; its tests still document the severity mapping. Removal is tracked separately.
+
 ## [2.34.0] - 2026-07-14
 
 ### Fixed
