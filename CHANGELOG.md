@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.36.0] - 2026-07-14
+
+### Added
+- **An undefined `\vclaim{id}` now hard-fails the compile, the same way an undefined `\cite` does.** `\vclaim{id}` looks up a macro named from `_sanitize_id(id)`; when it is undefined the fallback **silently prints `[claim:id]`** into the PDF. So a headline number a paragraph cites renders as a literal `[claim:x]` placeholder and nothing fails — the exact opposite of how the toolchain treats a missing `\cite` key, in the one citation class whose whole purpose is binding prose to computational evidence.
+
+  `check_claim_citations.py` (new compile stage, wired into `check_project.sh` right after the reference check) scans source `.tex` for `\vclaim{id}`, reconciles against the claims defined in `00_shared/claims.json`, and hard-fails any undefined id. Same `off`/`warn`/`error` severity model as `check_references`.
+
+  Found by paper-scitex-clew running it against a real manuscript, where 4 abstract headline numbers had shipped through human review as `[claim:...]` placeholders. Validated against that same manuscript: the check caught 7 undefined ids and passed the 27 registered ones — a split a broken matcher could not produce. The id matching imports the renderer's own `_sanitize_id`, so it agrees with what LaTeX actually resolves (e.g. an underscored `\vclaim{a_b}` resolving to a claim keyed with other punctuation but the same sanitized form); that behaviour is mutation-verified in the tests.
+
 ## [2.35.0] - 2026-07-14
 
 ### Changed
