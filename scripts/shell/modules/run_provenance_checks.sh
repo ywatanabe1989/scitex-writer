@@ -68,7 +68,7 @@ PROJECT_ROOT="${PROJECT_ROOT:-$(cd "$THIS_DIR/../../.." && pwd)}"
 PY="${SCITEX_WRITER_PYTHON:-python3}"
 
 rc=0
-for chk in check_paper_symlink check_media_provenance check_figure_media check_ref_integrity check_caption_footnote check_table_decimals check_clew_verify check_citations check_citation_trust check_version_freshness; do
+for chk in check_paper_symlink check_media_provenance check_figure_media check_ref_integrity check_caption_footnote check_table_decimals check_clew_verify check_clew_completeness check_citations check_citation_trust check_version_freshness; do
     script="$THIS_DIR/../../python/${chk}.py"
     [ -f "$script" ] || continue
     "$PY" "$script" "$PROJECT_ROOT" || rc=$?
