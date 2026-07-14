@@ -446,6 +446,10 @@ done
 check_bibliography
 run_python_check "$SCRIPT_DIR/../python/check_float_order.py"
 run_python_check "$SCRIPT_DIR/../python/check_references.py"
+# An undefined \vclaim{id} silently renders as a [claim:id] placeholder — the
+# same failure class as an undefined \cite, in the one citation type that binds
+# prose to computed evidence. Validate it the same way, right after references.
+run_python_check "$SCRIPT_DIR/../python/check_claim_citations.py"
 
 # Summary
 echo ""
