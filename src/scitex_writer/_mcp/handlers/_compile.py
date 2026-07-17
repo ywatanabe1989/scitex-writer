@@ -42,7 +42,7 @@ def _inject_version_stamp(project_path) -> None:
     """
     from scitex_writer import __version__
 
-    from ..._version_truth import (
+    from ._version_truth import (
         installed_versions,
         resolve_stamp_version,
         version_stamp_tex,

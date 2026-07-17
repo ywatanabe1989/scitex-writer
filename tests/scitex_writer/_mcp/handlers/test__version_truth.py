@@ -28,7 +28,7 @@ import functools
 
 import pytest
 
-from scitex_writer._version_truth import (
+from scitex_writer._mcp.handlers._version_truth import (
     describe_ambiguous_metadata,
     resolve_stamp_version,
     version_stamp_tex,
