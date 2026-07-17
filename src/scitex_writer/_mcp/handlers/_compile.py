@@ -32,17 +32,25 @@ def _auto_render_claims(project_path) -> None:
 
 
 def _inject_version_stamp(project_path) -> None:
-    """Write 00_shared/scitex_writer_version.tex for PDF metadata (best-effort)."""
-    try:
-        from scitex_writer import __version__
+    """Write 00_shared/scitex_writer_version.tex for PDF metadata.
 
-        version_tex = project_path / "00_shared" / "scitex_writer_version.tex"
-        version_tex.write_text(
-            f"\\def\\ScitexWriterVersion{{{__version__}}}\n"
-            f"\\hypersetup{{pdfcreator={{Compiled by SciTeX Writer v{__version__}}}}}\n"
-        )
-    except Exception:
-        pass  # Never block compilation due to version stamp
+    Fails loud, like _render_claims above: this stamp is the manuscript's
+    provenance claim about the engine that built it. Stamping a version we
+    cannot establish would ship a paper asserting it was built by something
+    that did not build it, and swallowing a write failure would make a stamp
+    that never happened indistinguishable from a clean compile.
+    """
+    from scitex_writer import __version__
+
+    from ..._version_truth import (
+        installed_versions,
+        resolve_stamp_version,
+        version_stamp_tex,
+    )
+
+    version = resolve_stamp_version(installed_versions(), __version__)
+    version_tex = project_path / "00_shared" / "scitex_writer_version.tex"
+    version_tex.write_text(version_stamp_tex(version))
 
 
 def compile_manuscript(
