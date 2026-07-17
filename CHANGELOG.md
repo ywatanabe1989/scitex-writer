@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.38.0] - 2026-07-17
+
+### Fixed
+- **The compile stamped a version it could not establish into the PDF's provenance metadata.** `_inject_version_stamp` wrote `scitex_writer.__version__` into `\ScitexWriterVersion` and `pdfcreator`, and `__version__` resolves through `importlib.metadata.version()`. When an environment holds more than one scitex-writer distribution, that call picks one by directory scan order and returns it with no sign the question was ambiguous — a confident answer to an unanswerable question.
+
+  Measured in a live container: a `2.26.1` and a `2.37.0` dist-info side by side, `version()` answering **2.26.1** while **2.37.0** code was actually running (confirmed by probing for `_source_check`, a 2.33.0+ symbol). Every PDF compiled there would have asserted it was built by v2.26.1. Unlike a wrong log line, that falsehood is **durable**: it ships inside the published manuscript, survives the environment being repaired, and no later reader can detect it from the PDF alone.
+
+  The stamp was also wrapped in `except Exception: pass` ("never block compilation due to version stamp"), so a stamp that never got written was indistinguishable from a clean compile — two silent failures stacked, one writing the wrong version and one hiding writing nothing.
+
+  New `_version_truth.py` refuses rather than guesses: when two or more installed distributions claim the name, it raises, naming every candidate and the repair command. Duplicate dist-info that *agree* are not ambiguous and do not block; an empty install set is legitimate (source-tree runs fall back to `pyproject.toml`). `_inject_version_stamp` now fails loud, matching `_render_claims` directly above it, which already refuses for the same reason ("compiling now would ship a stale claims_rendered.tex"). Import origin deliberately does **not** enter the stamp — it would bake local filesystem paths into published PDF metadata; it verifies the version, it does not appear in the artifact.
+
 ## [2.37.0] - 2026-07-14
 
 ### Added
