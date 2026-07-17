@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.40.0] - 2026-07-17
+
+### Fixed
+- **Two claim IDs differing only in punctuation silently rendered the WRONG VALUE into the manuscript.** LaTeX macro names are built by stripping every non-alphanumeric character from the claim ID, so `group-a-effect` and `group_a_effect` both become `groupaeffect` — the same macro. The renderer emits one `\@namedef` per claim, and `\@namedef` is `\def`: the second definition silently replaces the first, and *both* `\vclaim` calls then expand to the last claim's value.
+
+  Reproduced against the real renderer:
+
+  ```
+  render_claims success: True
+  \@namedef for v@claim@groupaeffect@nature: 2 definitions
+      defines value -> 111
+      defines value -> 999
+  ```
+
+  So `\vclaim{group-a-effect}` printed **999** — the other claim's value — into the PDF, with no warning, from a renderer reporting success. This is the most severe member of the silent-wrong-answer family the last two releases addressed: not a wrong version string in metadata, but **a wrong number in a published scientific paper**.
+
+  `render_claims` now refuses before writing anything, naming every colliding ID, the shared macro, what is at stake, and the remedy. Two distinct claims sharing a macro is always a defect — there is no legitimate collision — so it is a hard refusal rather than a warning. The compile already fails loud on a failed claim render, so a collision now blocks the build and no `claims_rendered.tex` is emitted (verified at the real entry point, not just in a unit test).
+
 ## [2.39.0] - 2026-07-17
 
 ### Fixed
