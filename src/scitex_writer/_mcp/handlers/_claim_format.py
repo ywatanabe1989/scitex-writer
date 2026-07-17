@@ -22,6 +22,47 @@ def _sanitize_id(claim_id: str) -> str:
     return re.sub(r"[^a-zA-Z0-9]", "", claim_id)
 
 
+def find_sanitize_collisions(claim_ids) -> Dict[str, list]:
+    """Map each colliding macro name to the >1 claim_ids that collapse onto it.
+
+    ``_sanitize_id`` strips every non-alphanumeric character, so ``group-a-effect``
+    and ``group_a_effect`` both become ``groupaeffect`` -- the same LaTeX macro
+    name. The renderer emits one ``\\@namedef`` per claim, and ``\\@namedef`` is
+    ``\\def``: the second definition silently replaces the first. Both
+    ``\\vclaim`` calls then expand to the LAST claim's value.
+
+    That is a wrong NUMBER in a published manuscript, produced with no warning
+    by a renderer reporting success. Two distinct claims must never share a
+    macro, so any collision is a hard error -- there is no legitimate case.
+    """
+    groups: Dict[str, list] = {}
+    for claim_id in claim_ids:
+        groups.setdefault(_sanitize_id(claim_id), []).append(claim_id)
+    return {safe: ids for safe, ids in groups.items() if len(ids) > 1}
+
+
+def describe_sanitize_collisions(collisions: Dict[str, list]) -> str:
+    """Name every colliding group, the value at stake, and the remedy."""
+    lines = [
+        "Claim IDs collide into the same LaTeX macro name.",
+        "",
+        "Macro names are built by stripping every non-alphanumeric character "
+        "from the claim ID, so IDs differing only in punctuation produce the "
+        "SAME macro. The later definition silently overwrites the earlier one, "
+        "and every \\vclaim for the group then renders the LAST claim's value "
+        "-- a wrong number in the manuscript, with no warning.",
+        "",
+    ]
+    for safe, ids in sorted(collisions.items()):
+        lines.append(f"  \\v@claim@{safe}@* <- {', '.join(sorted(ids))}")
+    lines += [
+        "",
+        "Rename the claim IDs in 00_shared/claims.json so they differ by more "
+        "than punctuation (letters and digits are what survive sanitisation).",
+    ]
+    return "\n".join(lines)
+
+
 def _format_p(p: float, style: str) -> str:
     """Format a p-value according to style."""
     if p < 0.001:
@@ -217,6 +258,8 @@ __all__ = [
     "CLAIM_TYPES",
     "FORMAT_STYLES",
     "_sanitize_id",
+    "find_sanitize_collisions",
+    "describe_sanitize_collisions",
     "_format_p",
     "_format_statistic",
     "_format_value",

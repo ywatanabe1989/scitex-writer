@@ -23,6 +23,8 @@ from ._claim_format import (
     FORMAT_STYLES,
     _render_claim,
     _sanitize_id,
+    describe_sanitize_collisions,
+    find_sanitize_collisions,
 )
 
 CLAIMS_FILE = "00_shared/claims.json"
@@ -431,6 +433,18 @@ def render_claims(project_dir: str) -> Dict:
             "}",
             "",
         ]
+
+        # Two claim IDs differing only in punctuation sanitise to the SAME macro
+        # name, and \@namedef is \def -- the second definition silently replaces
+        # the first, so both \vclaim calls render the LAST claim's value. That is
+        # a wrong number in the manuscript, emitted by a renderer reporting
+        # success. Refuse before writing rather than ship it.
+        collisions = find_sanitize_collisions(claims.keys())
+        if collisions:
+            return {
+                "success": False,
+                "error": describe_sanitize_collisions(collisions),
+            }
 
         if claims:
             lines.append("%% Rendered claims")
