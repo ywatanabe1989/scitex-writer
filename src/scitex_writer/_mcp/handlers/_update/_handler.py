@@ -11,6 +11,7 @@ from typing import Optional
 from ...utils import resolve_project_path
 from ._constants import PRESERVED_PATHS
 from ._diff import backup_files, collect_sync_files, compare_files
+from ._fossil import neutralise_fossil_changelog
 from ._git_safety import (
     git_status_summary,
     has_uncommitted_changes,
@@ -172,6 +173,15 @@ def update_project(
         # (which the compile rewrites from the installed version for PDF
         # metadata) -- this stamp is written ONLY here and reflects the version
         # update-project vendored from. Absent => a pre-feature vendor (stale).
+        # The scaffolded engine CHANGELOG.md is in no sync list, so it freezes at
+        # the version the project was created on and then keeps NAMING it -- a
+        # second, lying answer to "what engine is this?" (a tree stamped 2.24.7
+        # carried a changelog saying 2.9.0, and it was believed). Replace it with
+        # a pointer to the real one; reported, never silent.
+        fossil_neutralised = neutralise_fossil_changelog(
+            project_path, pkg_version, dry_run=dry_run
+        )
+
         if not dry_run:
             _write_vendor_stamp(project_path, pkg_version)
             # Also refresh the visible colophon / PDF-Creator stamp so it shows
@@ -181,6 +191,7 @@ def update_project(
         return {
             "success": True,
             "dry_run": dry_run,
+            "fossil_changelog_neutralised": fossil_neutralised,
             "git_safe": git_safe,
             "warnings": warnings,
             "source": str(source_dir),

@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.39.0] - 2026-07-17
+
+### Fixed
+- **The vendored engine tree carried a second, lying answer to "what version is this?".** A project is scaffolded by copying the template repo, which brings the engine's `CHANGELOG.md` along. That file is in no sync list (`_constants.py` refreshes only `scripts/`, `compile.sh`, and a few named engine paths), so it freezes at the version the project was created on while everything around it keeps updating — and the gap widens with every release.
+
+  Harmless debris, except that it **names a version**, so it reads as authoritative. Measured in a real consumer's tree: `00_shared/.scitex-writer-vendored-version` said **2.24.7** while `CHANGELOG.md`'s top entry said **2.9.0** — fifteen minor versions apart, in the same directory. On 2026-07-14 that fossil convinced a reader to report the engine four months stale to the whole fleet. Same family as 2.38.0's provenance stamp: a marker describing an *install event*, not the code.
+
+  The vendored copy is now replaced by a pointer to the engine's real changelog and to the vendored-version stamp, rather than synced — the engine's changelog already has an authoritative home, and copying it into every paper repo would give one fact two places to live.
+
+  Identification is by **content, never path**: `project_path` is normally the vendored engine tree, but in a directly-scaffolded layout a `CHANGELOG.md` there could be the author's own, and `PRESERVED_PATHS` does not cover it. Only a file positively recognisable as the engine's changelog is touched; anything else is left byte-identical. `dry_run` touches nothing, and the outcome is reported (`fossil_changelog_neutralised`), never silent.
+
 ## [2.38.0] - 2026-07-17
 
 ### Fixed
