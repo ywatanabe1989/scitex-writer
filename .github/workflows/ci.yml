@@ -1,0 +1,58 @@
+name: ci
+
+# ============================================================================
+# CANONICAL scitex CI — thin org-reusable caller (the ONE per-repo shape).
+# Rendered for scitex-writer by `scitex-dev ecosystem ci-template apply`.
+#
+# Job bodies live ONCE, org-side, in scitex-ai/.github@main — a shared
+# workflow cannot drift per-repo (operator decision, 2026-07-21, superseding
+# the retired consolidated pr-ci.yml/release-ci.yml pair). This file carries
+# only triggers, concurrency, and thin `uses:` calls.
+#
+# Runner policy: SELF-HOSTED ONLY — GitHub-hosted runners are forbidden
+# (PS-169). Runner selection is the Actions Variable CI_RUNS_ON (repo ->
+# org precedence),
+# resolved from THIS repo's context by the called workflows via
+#   runs-on: ${{ fromJSON(vars.CI_RUNS_ON || '["self-hosted","Linux","X64","scitex-ci"]') }}
+# (`vars` in a reusable workflow resolve against the CALLER repo/org, so a
+# per-repo CI_RUNS_ON override still works through the shared bodies).
+#
+# Required-status-check contexts (branch protection must reference these;
+# under workflow_call GitHub renders "<caller-job-id> / <reusable job name>"):
+#   pytest-matrix / pytest-matrix-on-ubuntu-py<X.YY>
+#   import-smoke / import-smoke-on-ubuntu-py3-12
+#   quality-audit / audit
+#   rtd-sphinx-build / docs-sphinx
+# ============================================================================
+
+on:
+  pull_request:
+    branches: [main, develop]
+  push:
+    branches: [main, develop]
+  schedule:
+    - cron: "0 17 * * *" # nightly 17:00 UTC (~02:00 JST), off-peak
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  # Cancel superseded PR runs; NEVER cancel post-merge/protected-branch runs
+  # (preserves the retired release-ci.yml coalescing semantic).
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  pytest-matrix:
+    uses: scitex-ai/.github/.github/workflows/pytest-matrix.yml@main
+    secrets: inherit
+
+  import-smoke:
+    uses: scitex-ai/.github/.github/workflows/import-smoke.yml@main
+    secrets: inherit
+
+  quality-audit:
+    uses: scitex-ai/.github/.github/workflows/quality-audit.yml@main
+    secrets: inherit
+
+  rtd-sphinx-build:
+    uses: scitex-ai/.github/.github/workflows/rtd-sphinx-build.yml@main
+    secrets: inherit

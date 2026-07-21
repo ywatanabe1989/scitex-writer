@@ -10,9 +10,9 @@ name: sdist-wheel-import
 # a broken sdist. This job builds the sdist, builds a wheel FROM that sdist, and
 # imports the wheel in a CLEAN venv — the only place the exclude actually bites.
 #
-# GitHub-hosted (like import-smoke); the self-hosted release pipeline enforces
-# the same gate inside its SIF (build-in-sif.sh) so a tag can never publish a
-# wheel that fails this check.
+# Runs on the self-hosted pool (PS-169, fleet CI unification wave 2); the
+# release pipeline enforces the same gate inside its SIF (build-in-sif.sh)
+# so a tag can never publish a wheel that fails this check.
 
 on:
   push:
@@ -24,7 +24,7 @@ on:
 jobs:
   sdist-wheel-import:
     name: sdist-wheel-import-on-ubuntu-py3-12
-    runs-on: ubuntu-latest
+    runs-on: ${{ fromJSON(vars.CI_RUNS_ON || '["self-hosted","Linux","X64","scitex-ci"]') }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5

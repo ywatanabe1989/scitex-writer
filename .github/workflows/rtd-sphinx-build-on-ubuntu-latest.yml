@@ -12,7 +12,7 @@ jobs:
     # suppress the tag-push and release workflows when the auto-commit
     # is the most recent commit on develop at release time.
     if: "!contains(github.event.head_commit.message, 'docs(sphinx_html): refresh from CI build')"
-    runs-on: ubuntu-latest
+    runs-on: ${{ fromJSON(vars.CI_RUNS_ON || '["self-hosted","Linux","X64","scitex-ci"]') }}
     permissions:
       contents: write
     steps:
