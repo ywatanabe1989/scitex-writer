@@ -32,12 +32,15 @@ jobs:
           python-version: "3.12"
       - name: Build sdist, then a wheel FROM the sdist
         run: |
-          python -m pip install --upgrade pip build
+          # PEP-668-safe on the self-hosted pool (uv-managed Python): build
+          # tooling lives in its own venv, never the system interpreter.
+          python -m venv /tmp/build-venv
+          /tmp/build-venv/bin/pip install --upgrade pip build
           rm -rf dist
           # `python -m build` builds the sdist, then builds the wheel from that
           # sdist in isolation — so an sdist exclude that drops files also drops
           # them from the wheel, exactly reproducing the published-wheel bug.
-          python -m build --outdir dist
+          /tmp/build-venv/bin/python -m build --outdir dist
           echo "=== built artifacts ==="
           ls -l dist
       - name: Install the wheel into a clean venv and import the entrypoint
