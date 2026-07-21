@@ -110,6 +110,10 @@ all = [
     # reason. Live-verified across all four forms (doi, bare eprint, title-only,
     # fabricated).
     "scitex-scholar>=1.5.2",
+    # PS-221 closure: every public extra is a subset of `all`, so
+    # `pip install scitex-writer[all]` pulls everything public.
+    "scitex-writer[dev]",
+    "scitex-writer[docs]",
 ]
 dev = [
     "pytest>=7.0.0",
