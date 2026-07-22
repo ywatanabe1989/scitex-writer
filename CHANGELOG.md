@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.41.0] - 2026-07-22
+
+### Added
+- **The post-compile gate now verifies that the signature footer and claim marks actually rendered** — the last two deficiency classes from the 2026-06-30 incident (a PDF shipped with no figures, no signature, no clew marks; exit 0, one stdout WARN). The gate had covered figures only. Both new checks read the OUTPUT (`pdftotext`) rather than trusting the input or the log:
+  - *Signature*: the injector marks its work with a sentinel comment in the compiled `.tex`; sentinel present + "Compiled by SciTeX Writer" absent from the PDF text fails the build — the colophon was inlined but never rendered. Sentinel absent means the opt-in feature is off, and there is nothing to verify.
+  - *Claim marks*: a literal `[claim:<id>]` in the rendered text (an undefined `\vclaim`'s typeset fallback) fails the build, naming the ids — the output-level backstop behind the `.tex`-level reconciliation (#344), which holds even when that check was skipped or wrong.
+
+  Poppler-absent degrades to a WARN-skip on both, matching the existing `pdfimages` contract: never a silent pass claim, never a false fail on a bare container. A page-count assertion was deliberately NOT added: there is no source of truth for the expectation, and a gate that fails on correct input trains people to ignore it. (#359)
+
+### Fixed
+- **`pip install scitex-writer[all]` silently under-installed the public `dev`/`docs` extras** (PS-221 §3, enforced by scitex-dev v0.34.0's upgraded audit). `[all]` now self-references `scitex-writer[dev]` + `scitex-writer[docs]` — the spec's canonical shape — keeping each extra the single source of truth. An underscore rename (`_dev`/`_docs`) was tried first and reverted: PS-210 §2 requires a public `[dev]` whose install runs the full test suite, so the two rules together pin the self-reference shape. (#359)
+- **Every PR into `develop` was permanently unmergeable**: branch protection required status contexts named `pytest-matrix / pytest-matrix-on-ubuntu-py3.<N>` — names no check run ever produces (verified against the check-runs API; real names carry no workflow prefix). The protection now names the real contexts, so merges go through the front door instead of needing `--admin`. (repo settings, no code change)
+
 ## [2.40.0] - 2026-07-17
 
 ### Fixed
