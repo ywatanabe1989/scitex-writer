@@ -102,6 +102,15 @@ dependencies = [
 # feature. No menu of half-states to get wrong. `dev` / `docs` remain, because
 # those are for people building writer, not using it.
 all = [
+    # PS-221 §3: every public extra must be a subset of `all`, so the
+    # documented "give me everything" install can never silently
+    # under-install. The canonical shape (spec's own example:
+    # `all = ["figrecipe[scitex]", "figrecipe[dev]"]`) is SELF-REFERENCE, not
+    # duplicated pins — `dev`/`docs` stay the single source of truth for
+    # their contents. (An underscore rename was tried first and rejected:
+    # PS-210 §2 requires a PUBLIC `[dev]` that runs the full suite.)
+    "scitex-writer[dev]",
+    "scitex-writer[docs]",
     # Desktop window for `gui open --desktop`.
     "pywebview>=4.0.0",
     # The workspace shell the editor server runs inside
