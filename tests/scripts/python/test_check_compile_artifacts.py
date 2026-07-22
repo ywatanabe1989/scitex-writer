@@ -19,7 +19,6 @@ sys.path.insert(0, str(ROOT_DIR / "scripts" / "python"))
 
 from check_compile_artifacts import (  # noqa: E402
     count_includegraphics,
-    count_pdf_images,
     extract_undefined,
 )
 
@@ -54,29 +53,50 @@ def _write(tmp_path, rel, content):
     return p
 
 
+_FAKE_PDFTOTEXT = """#!/usr/bin/env python3
+import os
+print(os.environ.get("FAKE_PDFTOTEXT_TEXT", ""))
+"""
+
+
 def _fake_bin(tmp_path):
-    """Create a fake `pdfimages` in tmp_path/bin and return that bin dir."""
+    """Create fake `pdfimages` + `pdftotext` in tmp_path/bin; return the dir.
+
+    pdftotext's stdout is driven by $FAKE_PDFTOTEXT_TEXT (default empty), so
+    the PDF-text checks (signature, claim placeholders) run hermetically."""
     binp = tmp_path / "bin"
     binp.mkdir(exist_ok=True)
-    exe = binp / "pdfimages"
-    exe.write_text(_FAKE_PDFIMAGES, encoding="utf-8")
-    exe.chmod(exe.stat().st_mode | stat.S_IEXEC | stat.S_IXGRP | stat.S_IXOTH)
+    for name, body in (
+        ("pdfimages", _FAKE_PDFIMAGES),
+        ("pdftotext", _FAKE_PDFTOTEXT),
+    ):
+        exe = binp / name
+        exe.write_text(body, encoding="utf-8")
+        exe.chmod(exe.stat().st_mode | stat.S_IEXEC | stat.S_IXGRP | stat.S_IXOTH)
     return binp
 
 
-def _run(tmp_path, *extra, rows=None, use_fake=True):
+def _run(tmp_path, *extra, rows=None, use_fake=True, pdf_text=None):
     env = dict(os.environ)
-    for k in ("SCITEX_WRITER_COMPILE_ARTIFACTS", "SCITEX_WRITER_COMPILED_TEX",
-              "SCITEX_WRITER_COMPILED_PDF", "SCITEX_WRITER_GLOBAL_LOG_FILE"):
+    for k in (
+        "SCITEX_WRITER_COMPILE_ARTIFACTS",
+        "SCITEX_WRITER_COMPILED_TEX",
+        "SCITEX_WRITER_COMPILED_PDF",
+        "SCITEX_WRITER_GLOBAL_LOG_FILE",
+    ):
         env.pop(k, None)
     env["HOME"] = str(tmp_path / "_home")
     if use_fake:
         env["PATH"] = str(_fake_bin(tmp_path)) + os.pathsep + env.get("PATH", "")
     if rows is not None:
         env["FAKE_PDFIMAGES_ROWS"] = str(rows)
+    if pdf_text is not None:
+        env["FAKE_PDFTOTEXT_TEXT"] = pdf_text
     return subprocess.run(
         [sys.executable, str(_SCRIPT), str(tmp_path), *extra],
-        capture_output=True, text=True, env=env,
+        capture_output=True,
+        text=True,
+        env=env,
     )
 
 
@@ -111,11 +131,16 @@ def test_count_pdf_images_uses_pdfimages(tmp_path):
     pdf = _write(tmp_path, "x.pdf", "%PDF-1.5\n")
     # Act
     out = subprocess.run(
-        [sys.executable, "-c",
-         "import sys;sys.path.insert(0,%r);"
-         "from check_compile_artifacts import count_pdf_images;"
-         "print(count_pdf_images(%r))" % (str(ROOT_DIR / "scripts" / "python"), str(pdf))],
-        capture_output=True, text=True,
+        [
+            sys.executable,
+            "-c",
+            "import sys;sys.path.insert(0,%r);"
+            "from check_compile_artifacts import count_pdf_images;"
+            "print(count_pdf_images(%r))"
+            % (str(ROOT_DIR / "scripts" / "python"), str(pdf)),
+        ],
+        capture_output=True,
+        text=True,
         env={**os.environ, "PATH": env_path, "FAKE_PDFIMAGES_ROWS": "4"},
     )
     # Assert
@@ -133,8 +158,14 @@ def test_fail_when_referenced_but_zero_embedded(tmp_path):
     _write(tmp_path, "compiled.tex", _TEX_5)
     _write(tmp_path, "out.pdf", "%PDF-1.5\n")
     # Act
-    proc = _run(tmp_path, "--compiled-tex", str(tmp_path / "compiled.tex"),
-                "--pdf", str(tmp_path / "out.pdf"), rows=0)
+    proc = _run(
+        tmp_path,
+        "--compiled-tex",
+        str(tmp_path / "compiled.tex"),
+        "--pdf",
+        str(tmp_path / "out.pdf"),
+        rows=0,
+    )
     # Assert
     assert proc.returncode == 1
 
@@ -145,8 +176,14 @@ def test_warn_when_partial_embedding(tmp_path):
     _write(tmp_path, "compiled.tex", _TEX_5)
     _write(tmp_path, "out.pdf", "%PDF-1.5\n")
     # Act
-    proc = _run(tmp_path, "--compiled-tex", str(tmp_path / "compiled.tex"),
-                "--pdf", str(tmp_path / "out.pdf"), rows=3)
+    proc = _run(
+        tmp_path,
+        "--compiled-tex",
+        str(tmp_path / "compiled.tex"),
+        "--pdf",
+        str(tmp_path / "out.pdf"),
+        rows=3,
+    )
     # Assert
     assert proc.returncode == 0
 
@@ -157,8 +194,14 @@ def test_pass_when_all_embedded(tmp_path):
     _write(tmp_path, "compiled.tex", _TEX_5)
     _write(tmp_path, "out.pdf", "%PDF-1.5\n")
     # Act
-    proc = _run(tmp_path, "--compiled-tex", str(tmp_path / "compiled.tex"),
-                "--pdf", str(tmp_path / "out.pdf"), rows=5)
+    proc = _run(
+        tmp_path,
+        "--compiled-tex",
+        str(tmp_path / "compiled.tex"),
+        "--pdf",
+        str(tmp_path / "out.pdf"),
+        rows=5,
+    )
     # Assert
     assert proc.returncode == 0
 
@@ -169,8 +212,16 @@ def test_off_level_skips_failure(tmp_path):
     _write(tmp_path, "compiled.tex", _TEX_5)
     _write(tmp_path, "out.pdf", "%PDF-1.5\n")
     # Act
-    proc = _run(tmp_path, "--compiled-tex", str(tmp_path / "compiled.tex"),
-                "--pdf", str(tmp_path / "out.pdf"), "--level", "off", rows=0)
+    proc = _run(
+        tmp_path,
+        "--compiled-tex",
+        str(tmp_path / "compiled.tex"),
+        "--pdf",
+        str(tmp_path / "out.pdf"),
+        "--level",
+        "off",
+        rows=0,
+    )
     # Assert
     assert proc.returncode == 0
 
@@ -181,8 +232,14 @@ def test_no_figures_passes(tmp_path):
     _write(tmp_path, "compiled.tex", _TEX_0)
     _write(tmp_path, "out.pdf", "%PDF-1.5\n")
     # Act
-    proc = _run(tmp_path, "--compiled-tex", str(tmp_path / "compiled.tex"),
-                "--pdf", str(tmp_path / "out.pdf"), rows=0)
+    proc = _run(
+        tmp_path,
+        "--compiled-tex",
+        str(tmp_path / "compiled.tex"),
+        "--pdf",
+        str(tmp_path / "out.pdf"),
+        rows=0,
+    )
     # Assert
     assert proc.returncode == 0
 
@@ -195,8 +252,14 @@ def test_no_poppler_warns_not_fails(tmp_path):
     # Act (use_fake=False: PATH has no pdfimages dir; the script's
     # shutil.which("pdfimages") may still find a real one, so this asserts the
     # non-fatal contract regardless: referenced+unverifiable must NOT fail.)
-    proc = _run(tmp_path, "--compiled-tex", str(tmp_path / "compiled.tex"),
-                "--pdf", str(tmp_path / "out.pdf"), use_fake=False)
+    proc = _run(
+        tmp_path,
+        "--compiled-tex",
+        str(tmp_path / "compiled.tex"),
+        "--pdf",
+        str(tmp_path / "out.pdf"),
+        use_fake=False,
+    )
     # Assert
     assert proc.returncode in (0, 1)
 
@@ -208,9 +271,16 @@ def test_log_scan_flags_missing_file(tmp_path):
     _write(tmp_path, "out.pdf", "%PDF-1.5\n")
     _write(tmp_path, "c.log", "Package pdftex.def Error: File `fig.jpg' not found\n")
     # Act
-    proc = _run(tmp_path, "--compiled-tex", str(tmp_path / "compiled.tex"),
-                "--pdf", str(tmp_path / "out.pdf"),
-                "--log", str(tmp_path / "c.log"), rows=0)
+    proc = _run(
+        tmp_path,
+        "--compiled-tex",
+        str(tmp_path / "compiled.tex"),
+        "--pdf",
+        str(tmp_path / "out.pdf"),
+        "--log",
+        str(tmp_path / "c.log"),
+        rows=0,
+    )
     # Assert
     assert proc.returncode == 1
 
@@ -222,9 +292,16 @@ def test_log_scan_ignores_scitex_citation_nudge(tmp_path):
     _write(tmp_path, "out.pdf", "%PDF-1.5\n")
     _write(tmp_path, "c.log", "WARN: SciTeX Writer citation not found!\n")
     # Act
-    proc = _run(tmp_path, "--compiled-tex", str(tmp_path / "compiled.tex"),
-                "--pdf", str(tmp_path / "out.pdf"),
-                "--log", str(tmp_path / "c.log"), rows=0)
+    proc = _run(
+        tmp_path,
+        "--compiled-tex",
+        str(tmp_path / "compiled.tex"),
+        "--pdf",
+        str(tmp_path / "out.pdf"),
+        "--log",
+        str(tmp_path / "c.log"),
+        rows=0,
+    )
     # Assert
     assert proc.returncode == 0
 
@@ -245,7 +322,9 @@ def test_extract_undefined_returns_reference_keys():
 
 def test_extract_undefined_returns_citation_keys():
     # Arrange
-    log = "LaTeX Warning: Citation `Kuhlmann2018' on page 2 undefined on input line 9.\n"
+    log = (
+        "LaTeX Warning: Citation `Kuhlmann2018' on page 2 undefined on input line 9.\n"
+    )
     # Act
     refs, cites = extract_undefined(log)
     # Assert
@@ -284,8 +363,92 @@ def test_undefined_reference_log_fails_and_lists_the_key(tmp_path):
         "LaTeX Warning: There were undefined references.\n",
     )
     # Act
-    proc = _run(tmp_path, "--compiled-tex", str(tmp_path / "compiled.tex"),
-                "--pdf", str(tmp_path / "out.pdf"),
-                "--log", str(tmp_path / "c.log"), rows=0)
+    proc = _run(
+        tmp_path,
+        "--compiled-tex",
+        str(tmp_path / "compiled.tex"),
+        "--pdf",
+        str(tmp_path / "out.pdf"),
+        "--log",
+        str(tmp_path / "c.log"),
+        rows=0,
+    )
     # Assert
     assert (proc.returncode == 1) and ("tab:2_scorecard" in proc.stdout)
+
+
+# ============================================================================
+# tertiary PDF-text checks: signature footer + claim placeholders
+# ============================================================================
+
+_SENTINEL = "% SciTeX signature footer (inlined at compile time)"
+_TEX_SIGNED = _TEX_0.replace(
+    "\\end{document}", _SENTINEL + "\n\\end{document}"
+)
+
+
+def test_signature_inlined_but_absent_from_pdf_fails(tmp_path):
+    """Sentinel in the compiled .tex + no colophon text in the PDF -> FAIL
+    (the 2026-06-30 silent signature drop)."""
+    # Arrange
+    _write(tmp_path, "compiled.tex", _TEX_SIGNED)
+    _write(tmp_path, "out.pdf", "%PDF-1.5\n")
+    # Act
+    proc = _run(tmp_path, "--compiled-tex", str(tmp_path / "compiled.tex"),
+                "--pdf", str(tmp_path / "out.pdf"), rows=0,
+                pdf_text="Body text only, no colophon here.")
+    # Assert
+    assert (proc.returncode == 1) and ("colophon did not render" in proc.stdout)
+
+
+def test_signature_inlined_and_rendered_passes(tmp_path):
+    """Sentinel present + 'Compiled by SciTeX Writer' in the PDF text -> pass."""
+    # Arrange
+    _write(tmp_path, "compiled.tex", _TEX_SIGNED)
+    _write(tmp_path, "out.pdf", "%PDF-1.5\n")
+    # Act
+    proc = _run(tmp_path, "--compiled-tex", str(tmp_path / "compiled.tex"),
+                "--pdf", str(tmp_path / "out.pdf"), rows=0,
+                pdf_text="Compiled by SciTeX Writer v2.41.0")
+    # Assert
+    assert proc.returncode == 0
+
+
+def test_signature_not_enabled_skips_check(tmp_path):
+    """No sentinel (opt-in off) -> nothing to verify, exit 0 even with an
+    empty PDF text."""
+    # Arrange
+    _write(tmp_path, "compiled.tex", _TEX_0)
+    _write(tmp_path, "out.pdf", "%PDF-1.5\n")
+    # Act
+    proc = _run(tmp_path, "--compiled-tex", str(tmp_path / "compiled.tex"),
+                "--pdf", str(tmp_path / "out.pdf"), rows=0, pdf_text="")
+    # Assert
+    assert proc.returncode == 0
+
+
+def test_claim_placeholder_in_pdf_text_fails(tmp_path):
+    """A literal [claim:<id>] in the rendered PDF -> FAIL, naming the id
+    (undefined \\vclaim backstop at the OUTPUT level)."""
+    # Arrange
+    _write(tmp_path, "compiled.tex", _TEX_0)
+    _write(tmp_path, "out.pdf", "%PDF-1.5\n")
+    # Act
+    proc = _run(tmp_path, "--compiled-tex", str(tmp_path / "compiled.tex"),
+                "--pdf", str(tmp_path / "out.pdf"), rows=0,
+                pdf_text="value [claim:cohorta_inter_ncaps] more text")
+    # Assert
+    assert (proc.returncode == 1) and ("cohorta_inter_ncaps" in proc.stdout)
+
+
+def test_signature_unverifiable_without_pdftotext_warns_not_fails(tmp_path):
+    """Sentinel present but poppler absent -> WARN-skip (exit 0), never a
+    silent pass claim and never a false fail."""
+    # Arrange
+    _write(tmp_path, "compiled.tex", _TEX_SIGNED)
+    _write(tmp_path, "out.pdf", "%PDF-1.5\n")
+    # Act
+    proc = _run(tmp_path, "--compiled-tex", str(tmp_path / "compiled.tex"),
+                "--pdf", str(tmp_path / "out.pdf"), use_fake=False)
+    # Assert
+    assert (proc.returncode == 0) and ("cannot verify it rendered" in proc.stdout)

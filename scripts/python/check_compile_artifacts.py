@@ -91,6 +91,28 @@ _UNDEF_AGG_RE = re.compile(r"There were undefined references")
 # Cap names listed in one report line.
 _MAX_NAMES = 25
 
+# TERTIARY (PDF-text) checks. Both verify the OUTPUT, not the input: the
+# motivating incident (2026-06-30) shipped a PDF whose signature was silently
+# dropped and whose claim marks never materialized, with exit 0 and only a
+# stdout WARN. The compiled .tex says what SHOULD be in the PDF; pdftotext
+# says what IS.
+#
+# Signature: _inline_signature_footer marks its injection with this sentinel
+# comment in the compiled .tex, and the footer typesets a fixed prefix
+# ("Compiled by SciTeX Writer v<version>"). Sentinel present + prefix absent
+# from the PDF text = the colophon was inlined but did not render. The
+# sentinel must be searched in the RAW .tex -- it IS a comment, so the
+# comment-stripped text used for \includegraphics counting never contains it.
+_SIGNATURE_SENTINEL = "% SciTeX signature footer (inlined at compile time)"
+_SIGNATURE_PDF_TEXT = "Compiled by SciTeX Writer"
+
+# Claim placeholders: an undefined \vclaim falls back to typesetting a literal
+# "[claim:<id>]" into the PDF (the silent-failure path check_claim_citations
+# guards at the .tex level). This is the PDF-level backstop: if any literal
+# placeholder made it into the rendered text, the manuscript is citing a claim
+# that resolved to nothing, whatever the .tex-level checks believed.
+_CLAIM_PLACEHOLDER_RE = re.compile(r"\[claim:[^\]\s]{1,80}\]")
+
 
 def log_pass(msg):
     global PASS_COUNT
@@ -150,9 +172,7 @@ def count_pdf_images(pdf_path):
     if proc.returncode != 0:
         return None
     # Data rows start with "<page> <num> ...", e.g. "   1   0 image ...".
-    rows = [
-        ln for ln in proc.stdout.splitlines() if re.match(r"\s*\d+\s+\d+\s", ln)
-    ]
+    rows = [ln for ln in proc.stdout.splitlines() if re.match(r"\s*\d+\s+\d+\s", ln)]
     return len(rows)
 
 
@@ -210,15 +230,110 @@ def _scan_log(log_path, report):
         report("log: there were undefined references (unresolved \\ref/\\cite)")
 
 
+def extract_pdf_text(pdf_path):
+    """PDF text via `pdftotext` (poppler), or None when unavailable/failed.
+
+    Same availability contract as count_pdf_images: poppler lives on the env
+    that actually compiles; a bare container may lack it, and every consumer
+    of this helper must degrade to a WARN-skip, never a silent pass."""
+    if shutil.which("pdftotext") is None:
+        return None
+    try:
+        proc = subprocess.run(
+            ["pdftotext", str(pdf_path), "-"],
+            capture_output=True,
+            text=True,
+            timeout=60,
+        )
+    except (OSError, subprocess.TimeoutExpired):
+        return None
+    if proc.returncode != 0:
+        return None
+    return proc.stdout
+
+
+def _read_raw_tex(compiled_tex):
+    """Raw compiled-.tex text (comments INTACT -- the signature sentinel is a
+    comment), or None when unreadable."""
+    if not compiled_tex:
+        return None
+    try:
+        return Path(compiled_tex).read_text(encoding="utf-8", errors="replace")
+    except OSError:
+        return None
+
+
+def check_signature_rendered(raw_tex, pdf_text, report):
+    """TERTIARY: the inlined signature footer must actually render.
+
+    Applicability comes from the compiled .tex itself: the injector marks its
+    work with _SIGNATURE_SENTINEL, so sentinel-absent means the opt-in feature
+    is off and there is nothing to verify (pass). Sentinel-present demands the
+    footer's fixed text in the PDF."""
+    if raw_tex is None:
+        log_warn("could not read compiled .tex -- skipping signature check")
+        return
+    if _SIGNATURE_SENTINEL not in raw_tex:
+        log_pass("signature footer not enabled (opt-in) -- nothing to verify")
+        return
+    if pdf_text is None:
+        log_warn(
+            "signature footer inlined; cannot verify it rendered "
+            "(pdftotext/poppler unavailable or PDF unreadable)"
+        )
+        return
+    if _SIGNATURE_PDF_TEXT in pdf_text:
+        log_pass("signature footer rendered in the PDF")
+    else:
+        report(
+            f"signature footer was inlined into the compiled .tex but "
+            f"'{_SIGNATURE_PDF_TEXT}' is absent from the PDF text -- the "
+            f"colophon did not render (silent drop)."
+        )
+        log_detail(
+            "2026-06-30 incident signature drop: the compile logged only a "
+            "stdout WARN and exited 0."
+        )
+
+
+def check_claim_placeholders(pdf_text, report):
+    """TERTIARY: no literal '[claim:<id>]' may reach the rendered PDF.
+
+    An undefined \\vclaim typesets that placeholder instead of a value. The
+    .tex-level reconciliation (check_claim_citations) should catch it first;
+    this is the output-level backstop that holds even if the .tex checks were
+    skipped or wrong."""
+    if pdf_text is None:
+        # Poppler-absent skip is already reported by the signature check when
+        # applicable; a second WARN here would be noise without new signal.
+        return
+    hits = _dedupe(_CLAIM_PLACEHOLDER_RE.findall(pdf_text))
+    if hits:
+        report(
+            f"{len(hits)} claim placeholder(s) rendered literally in the PDF "
+            f"(undefined \\vclaim): {_fmt_names(hits)}"
+        )
+        log_detail(
+            "fix: register the claim id(s) in claims.json / re-run "
+            "render_claims so the macro resolves to a value."
+        )
+    else:
+        log_pass("no literal [claim:...] placeholders in the PDF text")
+
+
 def main():
     parser = argparse.ArgumentParser(
         description="Post-compile verification gate: fail loud on a deficient "
         "PDF (figures referenced but not embedded; log deficiency signals)."
     )
     parser.add_argument("project_dir", nargs="?", default=".")
-    parser.add_argument("--compiled-tex", default=os.environ.get("SCITEX_WRITER_COMPILED_TEX"))
+    parser.add_argument(
+        "--compiled-tex", default=os.environ.get("SCITEX_WRITER_COMPILED_TEX")
+    )
     parser.add_argument("--pdf", default=os.environ.get("SCITEX_WRITER_COMPILED_PDF"))
-    parser.add_argument("--log", default=os.environ.get("SCITEX_WRITER_GLOBAL_LOG_FILE"))
+    parser.add_argument(
+        "--log", default=os.environ.get("SCITEX_WRITER_GLOBAL_LOG_FILE")
+    )
     parser.add_argument("--level", choices=list(_LEVELS), default=None)
     args = parser.parse_args()
 
@@ -275,6 +390,11 @@ def main():
 
     # --- SECONDARY: log deficiency scan ---
     _scan_log(args.log, report)
+
+    # --- TERTIARY: PDF-text completeness (signature, claim placeholders) ---
+    pdf_text = extract_pdf_text(args.pdf) if args.pdf else None
+    check_signature_rendered(_read_raw_tex(args.compiled_tex), pdf_text, report)
+    check_claim_placeholders(pdf_text, report)
 
     print()
     print(
